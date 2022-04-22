@@ -8,7 +8,7 @@ from clk.decorators import command, argument, flag, option
 @basic_entry_point(
     __name__,
     extra_command_packages=["Babylon.commands"],
-    include_core_commands=[],
+    include_core_commands=["completion"],
 )
 def Babylon(**kwargs):
     pass

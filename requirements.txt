@@ -1,2 +1,7 @@
+azure-identity
+azure-mgmt
+azure-mgmt-app
 click
 clk
+cosmotech-api
+msrest
