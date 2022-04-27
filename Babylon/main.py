@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-from clk.setup import basic_entry_point, main
-from clk.decorators import command, argument, flag, option
+from clk.setup import basic_entry_point
+from clk.setup import main
 
 
 @basic_entry_point(

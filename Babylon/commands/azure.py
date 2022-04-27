@@ -1,25 +1,42 @@
-from clk.decorators import group, option, pass_context
-from clk.log import get_logger
-from click.core import Context
+import json
+import subprocess
+from pprint import pformat
 
 import cosmotech_api
-from cosmotech_api.api.workspace_api import WorkspaceApi
-from cosmotech_api.api.solution_api import SolutionApi
-
 from azure.identity import AzureCliCredential
+from azure.mgmt.subscription import SubscriptionClient
+from click.core import Context
+from clk.decorators import group
+from clk.decorators import option
+from clk.decorators import pass_context
+from clk.log import get_logger
+from cosmotech_api.api.organization_api import OrganizationApi
+from cosmotech_api.api.solution_api import SolutionApi
+from cosmotech_api.api.workspace_api import WorkspaceApi
 
 from Babylon.utils.azure_identity_credentials_adapter import AzureIdentityCredentialAdapter
-from azure.mgmt.subscription import SubscriptionClient
-from azure.mgmt.resource import ResourceManagementClient
-
-import json
-from pprint import pformat
-import subprocess
-
-import contextlib
-import os
 
 LOGGER = get_logger(__name__)
+
+
+def stripNone(data):
+    if isinstance(data, dict):
+        return {k: stripNone(v) for k, v in data.items() if k is not None and v is not None}
+    elif isinstance(data, list):
+        return [stripNone(item) for item in data if item is not None]
+    elif isinstance(data, tuple):
+        return tuple(stripNone(item) for item in data if item is not None)
+    elif isinstance(data, set):
+        return {stripNone(item) for item in data if item is not None}
+    else:
+        return data
+
+
+def log_response(resp_object, clear_none=True):
+    _r = resp_object
+    if clear_none:
+        _r = stripNone(resp_object)
+    LOGGER.debug(pformat(_r))
 
 
 @group(handle_dry_run=True)
@@ -59,7 +76,26 @@ def azure(ctx: Context,
 
 @azure.command()
 @pass_context
-def api_query(ctx: Context):
+def organization(ctx: Context):
+    """Test command"""
+    if 'api_configuration' not in ctx.parent.params:
+        LOGGER.error('Missing api parameters')
+        return -1
+    LOGGER.debug(f"Opening client to access the cosmotech api")
+    with cosmotech_api.ApiClient(ctx.parent.params.get('api_configuration')) as api_client:
+        api_orga = OrganizationApi(api_client)
+        try:
+            LOGGER.debug("Querying the api to get info on the organization")
+            r = api_orga.find_organization_by_id(organization_id=ctx.parent.params.get('organization_id'))
+            log_response(r)
+        except cosmotech_api.exceptions.UnauthorizedException as _e:
+            LOGGER.error("Unauthorized access to the cosmotech api")
+            return
+
+
+@azure.command()
+@pass_context
+def workspace(ctx: Context):
     """Test command"""
     if 'api_configuration' not in ctx.parent.params:
         LOGGER.error('Missing api parameters')
@@ -73,7 +109,7 @@ def api_query(ctx: Context):
             r = api_ws.find_workspace_by_id(organization_id=ctx.parent.params.get('organization_id'),
                                             workspace_id=ctx.parent.params.get('workspace_id')).to_dict()
             LOGGER.debug(f"Workspace query results:")
-            LOGGER.debug(pformat(r))
+            log_response(r)
             workspace_key = r['key']
             solution_id = r['solution']['solution_id']
         except cosmotech_api.exceptions.UnauthorizedException as _e:
@@ -84,7 +120,7 @@ def api_query(ctx: Context):
             r = api_sol.find_solution_by_id(organization_id=ctx.parent.params.get('organization_id'),
                                             solution_id=solution_id).to_dict()
             LOGGER.debug(f"Solution query results:")
-            LOGGER.debug(pformat(r))
+            log_response(r)
             solution_key = r['key']
         except cosmotech_api.exceptions.UnauthorizedException as _e:
             LOGGER.error("Unauthorized access to the cosmotech api")
