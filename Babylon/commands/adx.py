@@ -1,13 +1,18 @@
-import cosmotech_api
 from CosmoTech_Acceleration_Library.Accelerators.adx_wrapper import ADXQueriesWrapper
 from click.core import Context
 from clk.decorators import argument
 from clk.decorators import group
 from clk.decorators import pass_context
 from clk.log import get_logger
-from cosmotech_api.api.workspace_api import WorkspaceApi
+
+from azure.mgmt.kusto import KustoManagementClient
+from azure.core.exceptions import HttpResponseError
 
 from Babylon.utils.context import ContextObj
+
+from pprint import pformat
+import time
+import json
 
 LOGGER = get_logger(__name__)
 
@@ -17,43 +22,99 @@ LOGGER = get_logger(__name__)
 def adx(ctx: Context):
     """
 adx subcommand group
-
-This group allows interactions with ADX databases used for a deployment.
-
-The following data are required to use the group :
-
-- cluster_name : the name of a cluster in ADX (ex : phoenixdev)
-
-- cluster_region : the region were the cluster is in Azure (ex : westeurope)
     """
-    obj = ContextObj(LOGGER)
+    obj = ContextObj(LOGGER, azure=True, api=False, config=True)
     ctx.obj = obj
 
 
 @adx.command()
-@argument("script_path")
+@argument("script_path", help="path to a kql script to be ran on the database")
 @pass_context
-def check_db_script(ctx, script_path: str):
-    """Test command"""
-    if ctx.parent.obj.api_configuration is None:
-        LOGGER.error('Missing api parameters')
-        return -1
-    LOGGER.debug(f"Opening client to access the cosmotech api")
-    with cosmotech_api.ApiClient(ctx.parent.obj.api_configuration) as api_client:
-        api_ws = WorkspaceApi(api_client)
+def run_db_script(ctx: Context, script_path: str):
+    """Allow the run of a kql script on the target database.
+
+Requires the user to have admin rights on the given database.
+
+The function will list the tables available on the base after the script ran."""
+    if not ctx.parent.obj.check_required_configuration(['azure_subscription',
+                                                        'resource_group_name',
+                                                        'cluster_name',
+                                                        'cluster_region',
+                                                        'database_name']):
+        return
+    db_desc = f"{ctx.parent.obj.config.get('cluster_name')}" \
+              f".{ctx.parent.obj.config.get('cluster_region')}/" \
+              f"{ctx.parent.obj.config['database_name']}"
+    kmc = KustoManagementClient(credential=ctx.parent.obj.azure_credentials,
+                                subscription_id=ctx.parent.obj.config['azure_subscription'])
+
+    script_name = f"BabylonScript{(time.time() // 1)}"
+    with open(script_path) as script_file:
+        script_content = script_file.read()
+        LOGGER.debug(f"Running the following script on {db_desc}:")
+        LOGGER.debug(script_content)
+        start_time = time.time()
+        s = kmc.scripts.begin_create_or_update(resource_group_name=ctx.parent.obj.config['resource_group_name'],
+                                               cluster_name=ctx.parent.obj.config['cluster_name'],
+                                               database_name=ctx.parent.obj.config['database_name'],
+                                               script_name=script_name,
+                                               parameters={"script_content": script_content})
         try:
-            LOGGER.debug(f"Querying the api to find the current workspace key")
-            r = api_ws.find_workspace_by_id(organization_id=ctx.parent.obj.config.get('organization_id'),
-                                            workspace_id=ctx.parent.obj.config.get('workspace_id')).to_dict()
-            workspace_key = r['key']
-        except cosmotech_api.exceptions.UnauthorizedException as _e:
-            LOGGER.error("Unauthorized access to the cosmotech api")
-            return
-    database_name = ctx.parent.obj.config.get('organization_id') + "-" + workspace_key
-    LOGGER.debug(f"Database name : {database_name}")
-    wrapper = ADXQueriesWrapper(database=database_name, cluster_name=ctx.parent.obj.config.get('cluster_name'),
+            while not s.done():
+                s.wait(1)
+        except HttpResponseError as _resp_error:
+            LOGGER.error("Script run failed :")
+            LOGGER.error(_resp_error.message)
+        else:
+            LOGGER.info(f"Script ran on {db_desc}")
+        LOGGER.debug(f"Script used {time.time() - start_time}s to run.")
+
+
+@adx.command()
+@pass_context
+def list_tables(ctx: Context):
+    """List all tables in the ADX database"""
+    if not ctx.parent.obj.check_required_configuration(['azure_subscription',
+                                                        'resource_group_name',
+                                                        'cluster_name',
+                                                        'cluster_region',
+                                                        'database_name']):
+        return
+    db_desc = f"{ctx.parent.obj.config.get('cluster_name')}" \
+              f".{ctx.parent.obj.config.get('cluster_region')}/" \
+              f"{ctx.parent.obj.config['database_name']}"
+    wrapper = ADXQueriesWrapper(database=ctx.parent.obj.config['database_name'],
+                                cluster_name=ctx.parent.obj.config.get('cluster_name'),
                                 cluster_region=ctx.parent.obj.config.get('cluster_region'))
+    LOGGER.debug(f"Connection string : {wrapper.cluster_kcsb}")
     r = wrapper.run_command_query(".show tables details|project TableName")
-    for t in r.tables[0]:
-        print(t)
-    pass
+    LOGGER.info(f"List of the tables on {db_desc} post to script:")
+    for t in sorted(list(map(lambda l: l[0], list(r.tables[0])))):
+        LOGGER.info(f"  - {t}")
+
+
+@adx.command()
+@pass_context
+def test_mgmt(ctx: Context):
+    """Display accessible info on the ADX connection using the management API"""
+    if not ctx.parent.obj.check_required_configuration(['azure_subscription',
+                                                        'resource_group_name',
+                                                        'cluster_name',
+                                                        'cluster_region',
+                                                        'database_name']):
+        return
+    kmc = KustoManagementClient(credential=ctx.parent.obj.azure_credentials,
+                                subscription_id=ctx.parent.obj.config['azure_subscription'])
+
+    cluster = kmc.clusters.get(cluster_name=ctx.parent.obj.config['cluster_name'],
+                               resource_group_name=ctx.parent.obj.config['resource_group_name'])
+    LOGGER.info(pformat(cluster.serialize(keep_readonly=True)))
+    database = kmc.databases.get(resource_group_name=ctx.parent.obj.config['resource_group_name'],
+                                 cluster_name=ctx.parent.obj.config['cluster_name'],
+                                 database_name=ctx.parent.obj.config['database_name'])
+    LOGGER.info(pformat(database.serialize(keep_readonly=True)))
+    scripts = kmc.scripts.list_by_database(resource_group_name=ctx.parent.obj.config['resource_group_name'],
+                                           cluster_name=ctx.parent.obj.config['cluster_name'],
+                                           database_name=ctx.parent.obj.config['database_name'])
+    for script in scripts:
+        LOGGER.info(pformat(script.serialize(keep_readonly=True)))

@@ -1,6 +1,7 @@
 azure-identity
 azure-mgmt
 azure-mgmt-app
+azure-mgmt-kusto
 click
 clk
 cosmotech-api
