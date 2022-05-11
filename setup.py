@@ -19,7 +19,7 @@ setup(
     entry_points={
         'console_scripts':
         [
-            'Babylon=Babylon.main:main',
+            'babylon=Babylon.main:main',
         ]
     },
     install_requires=required,
