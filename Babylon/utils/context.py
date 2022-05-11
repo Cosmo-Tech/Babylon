@@ -5,7 +5,7 @@ import os
 
 import cosmotech_api
 import yaml
-from azure.identity import AzureCliCredential
+from azure.identity import AzureCliCredential, DefaultAzureCredential
 
 
 class ContextObj:
@@ -45,9 +45,13 @@ class ContextObj:
 
     def add_azure_credentials(self):
         self.logger.debug(f"Adding Azure Credentials")
-        credentials = AzureCliCredential()
+        try:
+            credentials = AzureCliCredential()
+        except:
+            credentials = DefaultAzureCredential()
         self.azure_credentials = credentials
         self.config['azure_credentials'] = self.azure_credentials
+
 
     def add_api_configuration(self):
         if self.azure_credentials is None:
