@@ -1,9 +1,9 @@
 azure-identity
-azure-mgmt
-azure-mgmt-app
+azure-mgmt-subscription
 azure-mgmt-kusto
 click
 clk
 cosmotech-api
 Cosmotech-Acceleration-Library
 msrest
+pyyaml
