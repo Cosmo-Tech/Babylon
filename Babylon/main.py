@@ -10,7 +10,7 @@ from clk.setup import main
     extra_command_packages=["Babylon.commands"],
     include_core_commands=["completion"],
 )
-def Babylon(**kwargs):
+def babylon(**kwargs):
     pass
 
 

@@ -3,7 +3,6 @@ import subprocess
 from pprint import pformat
 
 import cosmotech_api
-from azure.identity import AzureCliCredential
 from azure.mgmt.subscription import SubscriptionClient
 from click.core import Context
 from clk.decorators import group
@@ -15,8 +14,6 @@ from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.api.workspace_api import WorkspaceApi
 
 from Babylon.utils.context import ContextObj
-
-from Babylon.utils.azure_identity_credentials_adapter import AzureIdentityCredentialAdapter
 
 LOGGER = get_logger(__name__)
 
@@ -38,7 +35,7 @@ def log_response(resp_object, clear_none=True):
     _r = resp_object
     if clear_none:
         _r = stripNone(resp_object)
-    LOGGER.debug(pformat(_r))
+    LOGGER.info(pformat(_r))
 
 
 @group(handle_dry_run=True)
@@ -52,8 +49,8 @@ def azure(ctx: Context):
 @azure.command()
 @pass_context
 def organization(ctx: Context):
-    """Test command"""
-    if 'api_configuration' not in ctx.parent.params:
+    """Log some information on a cosmotech organization"""
+    if ctx.parent.obj.api_configuration is None:
         LOGGER.error('Missing api parameters')
         return -1
     LOGGER.debug(f"Opening client to access the cosmotech api")
@@ -71,7 +68,7 @@ def organization(ctx: Context):
 @azure.command()
 @pass_context
 def workspace(ctx: Context):
-    """Test command"""
+    """Get some data on an API workspace"""
     LOGGER.debug(f"Opening client to access the cosmotech api")
     with cosmotech_api.ApiClient(ctx.parent.obj.api_configuration) as api_client:
         api_ws = WorkspaceApi(api_client)
@@ -105,8 +102,7 @@ def workspace(ctx: Context):
 @pass_context
 def subscriptions(ctx: Context):
     """List available subscriptions"""
-    subscription_client = SubscriptionClient(
-        credentials=AzureIdentityCredentialAdapter(ctx.parent.obj.azure_credentials))
+    subscription_client = SubscriptionClient(credential=ctx.parent.obj.azure_credentials)
     sub_list = list(subscription_client.subscriptions.list())
     for subscription in sub_list:
         LOGGER.debug(f'{subscription.subscription_id} : {subscription.display_name}')
@@ -115,10 +111,10 @@ def subscriptions(ctx: Context):
 
 
 @azure.command()
-@option('--subscription', type=str, help='The subscription id from which the applications have to be listed')
+@argument('subscription', type=str, help='The subscription id from which the applications have to be listed')
 @pass_context
 def applications(ctx: Context, subscription: str):
-    """List available subscriptions"""
+    """List available applications for a given subscription"""
     # resource_client = ResourceManagementClient(
     #     credentials=AzureIdentityCredentialAdapter(ctx.parent.params.get('azure_credentials')),
     #     subscription_id=subscription
@@ -128,5 +124,5 @@ def applications(ctx: Context, subscription: str):
     subprocess.check_output(['/bin/sh', '-c', f'az account set --subscription {subscription}'])
     r = json.loads(subprocess.check_output(['/bin/sh', '-c', 'az ad app list --all'], stderr=subprocess.DEVNULL))
     for app in r:
-        LOGGER.debug(f"{app['objectId']} : {app['displayName']}, {app['identifierUris']}")
+        LOGGER.debug(f"{app['appId']} : {app['displayName']}, {app['identifierUris']}")
     LOGGER.info(f"Total : {len(r)} app registered")
