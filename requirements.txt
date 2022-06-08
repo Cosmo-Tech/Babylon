@@ -2,7 +2,7 @@ azure-identity
 azure-mgmt-subscription
 azure-mgmt-kusto
 click
-clk
+click-log
 cosmotech-api
 Cosmotech-Acceleration-Library
 msrest

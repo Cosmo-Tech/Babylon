@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
+import click
+from Babylon.commands import command_groups
+import logging
+import click_log
+import sys
 
-from clk.setup import basic_entry_point
-from clk.setup import main
+logger = logging.getLogger("Babylon")
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
-@basic_entry_point(
-    __name__,
-    extra_command_packages=["Babylon.commands"],
-    include_core_commands=["completion"],
-)
-def babylon(**kwargs):
+@click.group()
+@click_log.simple_verbosity_option(logger)
+def main():
     pass
 
+
+for c in command_groups:
+    main.add_command(c)
 
 if __name__ == "__main__":
     main()

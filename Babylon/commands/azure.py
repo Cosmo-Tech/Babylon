@@ -5,17 +5,17 @@ from pprint import pformat
 import cosmotech_api
 from azure.mgmt.subscription import SubscriptionClient
 from click.core import Context
-from clk.decorators import group
-from clk.decorators import option, argument
-from clk.decorators import pass_context
-from clk.log import get_logger
+from click import group
+from click import option, argument
+from click import pass_context
+from logging import getLogger
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.api.workspace_api import WorkspaceApi
 
 from Babylon.utils.context import ContextObj
 
-LOGGER = get_logger(__name__)
+LOGGER = getLogger("Babylon")
 
 
 def stripNone(data):
@@ -38,7 +38,7 @@ def log_response(resp_object, clear_none=True):
     LOGGER.info(pformat(_r))
 
 
-@group(handle_dry_run=True)
+@group()
 @pass_context
 def azure(ctx: Context):
     """Azure subcommand group"""
@@ -111,7 +111,7 @@ def subscriptions(ctx: Context):
 
 
 @azure.command()
-@argument('subscription', type=str, help='The subscription id from which the applications have to be listed')
+@argument('subscription', type=str)
 @pass_context
 def applications(ctx: Context, subscription: str):
     """List available applications for a given subscription"""

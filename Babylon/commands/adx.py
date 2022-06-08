@@ -1,9 +1,9 @@
 from CosmoTech_Acceleration_Library.Accelerators.adx_wrapper import ADXQueriesWrapper
 from click.core import Context
-from clk.decorators import argument
-from clk.decorators import group
-from clk.decorators import pass_context
-from clk.log import get_logger
+from click import argument
+from click import group
+from click import pass_context
+from logging import getLogger
 
 from azure.mgmt.kusto import KustoManagementClient
 from azure.core.exceptions import HttpResponseError
@@ -14,10 +14,10 @@ from pprint import pformat
 import time
 import json
 
-LOGGER = get_logger(__name__)
+LOGGER = getLogger("Babylon")
 
 
-@group(handle_dry_run=True)
+@group()
 @pass_context
 def adx(ctx: Context):
     """
@@ -28,7 +28,7 @@ adx subcommand group
 
 
 @adx.command()
-@argument("script_path", help="path to a kql script to be ran on the database")
+@argument("script_path")
 @pass_context
 def run_db_script(ctx: Context, script_path: str):
     """Allow the run of a kql script on the target database.
