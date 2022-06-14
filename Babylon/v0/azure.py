@@ -13,7 +13,7 @@ from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.api.workspace_api import WorkspaceApi
 
-from Babylon.utils.context import ContextObj
+from Babylon.v0.utils.context import ContextObj
 
 LOGGER = getLogger("Babylon")
 
