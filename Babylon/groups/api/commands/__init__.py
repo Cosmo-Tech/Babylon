@@ -1,3 +1,5 @@
 from .connector import connector
 
-list_commands = [connector]
+list_commands = [
+    connector,
+]

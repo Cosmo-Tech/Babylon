@@ -1,3 +1,5 @@
 from .api import api
 
-command_groups = [api]
+command_groups = [
+    api,
+]
