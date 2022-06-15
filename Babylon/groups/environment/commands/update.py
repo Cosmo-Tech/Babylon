@@ -15,11 +15,11 @@ logger = logging.getLogger("Babylon")
 @argument("target")
 @pass_obj
 @timing_decorator
-def init(ctx, target):
-    """Initialize an environment in given TARGET folder"""
+def update(ctx, target):
+    """Update an environment in given TARGET folder with missing template parts"""
     file_path = Path(target)
     if file_path.is_file():
         logger.error(f"{target} is a file")
         return
     env = Environment(target, logger)
-    env.init_template()
+    env.check_template(update_if_error=True)
