@@ -1,9 +1,16 @@
+# Azure connection requirements
 azure-identity
 azure-mgmt-subscription
 azure-mgmt-kusto
+msrest
+
+# Click requirements
 click
 click-log
+
+# Cosmotech specific requirements
 cosmotech-api
 Cosmotech-Acceleration-Library
-msrest
+
+# Other requirements
 pyyaml
