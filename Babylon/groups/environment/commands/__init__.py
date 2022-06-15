@@ -1,9 +1,11 @@
+from .complete import complete
+from .display import display
 from .init import init
-from .update import update
-from .check import check
+from .validate import validate
 
 list_commands = [
     init,
-    update,
-    check,
+    complete,
+    validate,
+    display,
 ]

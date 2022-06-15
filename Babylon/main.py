@@ -4,8 +4,8 @@ import click
 from .v0 import v0
 from .groups import command_groups
 import click_log
-import sys
 import logging
+from .utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 handler = logging.StreamHandler()
@@ -16,9 +16,12 @@ logger.addHandler(handler)
 
 @click.group()
 @click_log.simple_verbosity_option(logger)
-def main():
+@click.option("-e", "--environment", "environment_path", default=".")
+@click.pass_context
+def main(ctx, environment_path):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment"""
-    pass
+    env = Environment(environment_path, logger)
+    ctx.obj = env
 
 
 main.add_command(v0)

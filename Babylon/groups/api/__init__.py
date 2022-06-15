@@ -4,11 +4,9 @@ from .commands import list_commands
 
 
 @group()
-@pass_context
-def api(ctx):
+def api():
     """Group handling communication with the cosmotech API"""
-    ctx.obj = dict()
-    ctx.obj['group'] = "API"
+    pass
 
 
 for _command in list_commands:

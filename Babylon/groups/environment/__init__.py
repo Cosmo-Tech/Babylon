@@ -1,14 +1,11 @@
 from click import group
-from click import pass_context
+
 from .commands import list_commands
 
 
 @group()
-@pass_context
-def environment(ctx):
-    """Command group handling local environment informations"""
-    ctx.obj = dict()
-    ctx.obj['group'] = "environment"
+def environment():
+    """Command group handling local environment information"""
 
 
 for _command in list_commands:
