@@ -5,10 +5,8 @@
 ```text
 Environment
 ├── deploy.yaml
-├── API
-│ └── API_FILES_HERE
-└── PowerBI
-    └── POWERBI_FILES_HERE
+└── API
+    └── API_FILES_HERE
 ```
 
 ### API
@@ -18,10 +16,6 @@ This is a folder containing the different yaml files you will want to send to th
 For example:
 - Solution.yaml
 - Workspace.yaml
-
-### PowerBI
-
-This is a folder containing all files you would want to send to power bi
 
 ### Deploy.yaml
 

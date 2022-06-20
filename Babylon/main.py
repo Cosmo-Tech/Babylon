@@ -9,7 +9,7 @@ from .utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 handler = logging.StreamHandler()
-formatter = logging.Formatter('{levelname:8} {message}', style='{')
+formatter = logging.Formatter('{levelname:8}| {message}', style='{')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
@@ -17,10 +17,11 @@ logger.addHandler(handler)
 @click.group()
 @click_log.simple_verbosity_option(logger)
 @click.option("-e", "--environment", "environment_path", default=".")
+@click.option("-t", "--template", "template_path", default=None)
 @click.pass_context
-def main(ctx, environment_path):
+def main(ctx, environment_path, template_path):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment"""
-    env = Environment(environment_path, logger)
+    env = Environment(environment_path, logger, template_path)
     ctx.obj = env
 
 

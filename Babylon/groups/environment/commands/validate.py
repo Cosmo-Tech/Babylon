@@ -13,7 +13,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 def validate(environment):
     """Validate the current environment"""
-    env_is_ok = environment.check_template(update_if_error=False)
+    env_is_ok = environment.compare_to_template(update_if_error=False)
     if env_is_ok:
         logger.info("Environment is correct")
     else:

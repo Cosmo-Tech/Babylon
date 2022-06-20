@@ -14,4 +14,4 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 def init(environment: Environment):
     """Initialize the current environment"""
-    environment.init_template()
+    environment.copy_template()
