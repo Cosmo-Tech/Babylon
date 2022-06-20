@@ -2,9 +2,9 @@
 
 Babylon is a tool designed to simplify interaction between Cosmo Tech solutions and the Azure environment.
 
-The organization of the repository can be found on [this page](doc/organization.md)
+The organization of the repository can be found on [this page](docs/organization.md)
 
-A basic how-to about contribution can be found [here](doc/contribute.md)
+A basic how-to about contribution can be found [here](docs/contribute.md)
 
 ## Installation
 
@@ -55,4 +55,4 @@ babylon environment --help
 This environment is a deployment environment and default to the current folder, it can be overridden by using the 
 `-e / --environment` option for the base command. This option takes a path to the environment to use.
 
-More information about the environment are available [here](doc/environment.md)
+More information about the environment are available [here](docs/environment.md)

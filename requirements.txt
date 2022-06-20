@@ -14,3 +14,7 @@ Cosmotech-Acceleration-Library
 
 # Other requirements
 pyyaml
+
+# doc generation
+mkdocs
+mkdocs-click

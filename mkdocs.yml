@@ -1,0 +1,5 @@
+site_name: babylon
+theme: readthedocs
+
+markdown_extensions:
+    - mkdocs-click
