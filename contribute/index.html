@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>How-to contribute to Babylon - babylon</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "How-to contribute to Babylon";
+        var mkdocs_page_input_path = "contribute.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> babylon
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Babylon CLI</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Reference</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">How-to contribute to Babylon</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-new-group-of-commands">Creating a new group of commands</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#create-a-new-package-inside-babylongroups">Create a new package inside Babylon.groups</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#initialize-the-commands__init__py">Initialize the commands.__init__.py</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#add-your-group-to-the-groups-callable-by-the-cli">Add your group to the groups callable by the cli</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-a-new-command-to-an-existing-group">Adding a new command to an existing group</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#template">Template</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#add-to-commands__init__py">Add to commands.__init__.py</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../environment/">About the environment</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../organization/">Organization of the repository</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">babylon</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li><li>How-to contribute to Babylon</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="how-to-contribute-to-babylon">How-to contribute to Babylon</h1>
+<h2 id="creating-a-new-group-of-commands">Creating a new group of commands</h2>
+<h3 id="create-a-new-package-inside-babylongroups">Create a new package inside <code>Babylon.groups</code></h3>
+<p>This new package comes with a package called <code>commands</code> and you can use the following template for
+the <code>new_group.__init__.py</code></p>
+<pre><code class="language-python">from click import group
+from click import pass_context
+from .commands import list_commands
+
+
+@group()
+@pass_context
+def new_group(ctx):
+    &quot;&quot;&quot;New group of commands&quot;&quot;&quot;
+    ctx.obj = dict()  # this obj can be passed to the commands of the group by using the click.pass_obj decorator
+
+
+for _command in list_commands:
+    new_group.add_command(_command)
+</code></pre>
+<h3 id="initialize-the-commands__init__py">Initialize the <code>commands.__init__.py</code></h3>
+<p>You can use the following template to initialize the <code>new_group.commands.__init__.py</code></p>
+<pre><code class="language-python">list_commands = []
+</code></pre>
+<h3 id="add-your-group-to-the-groups-callable-by-the-cli">Add your group to the groups callable by the cli</h3>
+<p>You have to add an import for your group in the <code>Babylon.groups.__init__.py</code></p>
+<pre><code class="language-python">from .api import api
+from .new_group import new_group  # Add your import here
+
+command_groups = [
+    api,
+    new_group,  # Add your group command to the list of existing commands
+]
+</code></pre>
+<p>And your new group is then ready to be called</p>
+<pre><code class="language-bash">babylon new-group
+#Usage: babylon new-group [OPTIONS] COMMAND [ARGS]...
+#
+#  New group of commands
+#
+#Options:
+#  --help  Show this message and exit.
+#
+#Commands:
+#  my_command  Doc-string for my new command
+</code></pre>
+<h2 id="adding-a-new-command-to-an-existing-group">Adding a new command to an existing group</h2>
+<h3 id="template">Template</h3>
+<p>This template can be copied in the <code>commands</code> package for the group we want to add the command to.</p>
+<pre><code class="language-python">from click import command
+from click import pass_obj
+
+from Babylon.utils.decorators import timing_decorator
+
+import logging
+
+logger = logging.getLogger(&quot;Babylon&quot;)
+
+
+@command()
+@pass_obj
+@timing_decorator
+def my_command(ctx):
+    &quot;&quot;&quot;Doc-string for my new command&quot;&quot;&quot;
+    pass
+</code></pre>
+<h3 id="add-to-commands__init__py">Add to <code>commands.__init__.py</code></h3>
+<p>Once the command is created you can make a link to it in the <code>commands.__init__.py</code> file</p>
+<pre><code class="language-python">from .older_command import older_command
+from .my_command import my_command  # You import your new command here
+
+list_commands = [
+    older_command,
+    my_command,  # And you add it to the list of existing commands here
+]
+</code></pre>
+<p>And that's all folks, you added your command to an existing group of commands</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../cli/" class="btn btn-neutral float-left" title="CLI Reference"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../environment/" class="btn btn-neutral float-right" title="About the environment">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../cli/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../environment/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
