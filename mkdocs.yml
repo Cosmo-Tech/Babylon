@@ -1,5 +1,18 @@
 site_name: babylon
 theme: readthedocs
 
+nav:
+    - Home: 'index.md'
+    - Concepts:
+        - Contribute: 'contribute.md'
+        - Environments: 'environment.md'
+        - Library organization: 'organization.md'
+    - References:
+        - CLI: 'cli.md'
+        - utils: 'utils.md'
+
 markdown_extensions:
     - mkdocs-click
+plugins:
+    - search
+    - mkdocstrings

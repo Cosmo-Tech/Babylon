@@ -32,8 +32,8 @@ class Environment:
         Compare two yaml files and return the different keys they contain
         :param template_yaml: Yaml file considered as the main file
         :param target_yaml: Yaml file to be compared to the template
-        :return: 2 sets of keys :
-        - missing_keys : the keys from the template missing from the target
+        :return: 2 sets of keys :</br>
+        - missing_keys : the keys from the template missing from the target</br>
         - superfluous_keys: the keys from the target that are not in the template
         """
         with open(template_yaml) as _te, open(target_yaml) as _ta:

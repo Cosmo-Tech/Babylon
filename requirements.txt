@@ -18,3 +18,4 @@ pyyaml
 # doc generation
 mkdocs
 mkdocs-click
+mkdocstrings[python]
