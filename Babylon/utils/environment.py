@@ -39,8 +39,14 @@ class Environment:
         with open(template_yaml) as _te, open(target_yaml) as _ta:
             _template = yaml.safe_load(_te)
             _target = yaml.safe_load(_ta)
-            _template_keys = set(_template.keys())
-            _target_keys = set(_target.keys())
+            try:
+                _template_keys = set(_template.keys())
+            except AttributeError:
+                _template_keys = set()
+            try:
+                _target_keys = set(_target.keys())
+            except AttributeError:
+                _target_keys = set()
             missing_keys = _template_keys - _target_keys
             superfluous_keys = _target_keys - _template_keys
             return missing_keys, superfluous_keys
@@ -56,8 +62,15 @@ class Environment:
         with open(template_yaml) as _te, open(target_yaml) as _ta:
             _template = yaml.safe_load(_te)
             _target = yaml.safe_load(_ta)
-            for k, v in _template.items():
-                _target.setdefault(k, v)
+            try:
+                for k, v in _template.items():
+                    try:
+                        _target.setdefault(k, v)
+                    except AttributeError:
+                        _target = dict()
+                        _target.setdefault(k, v)
+            except AttributeError:
+                pass
         with open(target_yaml, "w") as _ta:
             yaml.safe_dump(_target, _ta)
 
@@ -106,7 +119,8 @@ class Environment:
                                 shutil.copy(template_file_path, local_file_path)
                         elif local_file_path.suffix == ".yaml":
                             self.logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
-                            missing_keys, superfluous_keys = self.__compare_yaml_keys(template_file_path, local_file_path)
+                            missing_keys, superfluous_keys = self.__compare_yaml_keys(template_file_path,
+                                                                                      local_file_path)
                             if missing_keys:
                                 has_err = True
                                 error_logger(f"YAML ERROR: In file {local_file_path}")
