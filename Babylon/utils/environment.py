@@ -138,6 +138,19 @@ class Environment:
         self.logger.debug(f"Finished check of environment found on {self.path}")
         return not has_err
 
+    def requires_file(self, file_path: str) -> bool:
+        target_file_path = self.path / pathlib.Path(file_path)
+        return target_file_path.exists()
+
+    def requires_yaml_key(self, yaml_path: str, yaml_key: str) -> bool:
+        target_file_path = self.path / pathlib.Path(yaml_path)
+        try:
+            _y = yaml.safe_load(open(target_file_path))
+            _v = _y[yaml_key]
+        except:
+            return False
+        return True
+
     def __str__(self):
         _ret = [f"Environment path: {self.path}", f"Template path: {self.template_path}"]
         return "\n".join(_ret)
