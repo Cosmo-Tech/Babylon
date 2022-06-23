@@ -2,6 +2,8 @@
 
 Babylon is a tool designed to simplify interaction between Cosmo Tech solutions and the Azure environment.
 
+Documentation is available on this page : [Documenation](https://cosmo-tech.github.io/Babylon/)
+
 The organization of the repository can be found on [this page](docs/organization.md)
 
 A basic how-to about contribution can be found [here](docs/contribute.md)
