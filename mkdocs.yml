@@ -3,6 +3,7 @@ theme: readthedocs
 
 nav:
     - Home: 'index.md'
+    - Getting started: 'installation.md'
     - Concepts:
         - Contribute: 'contribute.md'
         - Environments: 'environment.md'
