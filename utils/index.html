@@ -64,11 +64,27 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">utils</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#Babylon.utils.environment.Environment">Babylon.utils.environment.Environment</a>
+    <li class="toctree-l2"><a class="reference internal" href="#environment">Environment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment">Environment</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#Babylon.utils.environment.Environment.copy_template">copy_template()</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#Babylon.utils.environment.Environment.copy_template">copy_template()</a>
+    <li class="toctree-l4"><a class="reference internal" href="#Babylon.utils.environment.Environment.compare_to_template">compare_to_template()</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#Babylon.utils.environment.Environment.compare_to_template">compare_to_template()</a>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#decorators">Decorators</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.decorators.timing_decorator">timing_decorator()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.decorators.env_requires_file">env_requires_file()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.decorators.env_requires_yaml_key">env_requires_yaml_key()</a>
+    </li>
+        </ul>
     </li>
     </ul>
                   </li>
@@ -98,12 +114,20 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="utils-references">Utils references</h1>
+<h2 id="environment">Environment</h2>
 
 
 <div class="doc doc-object doc-class">
 
 
-<a id="Babylon.utils.environment.Environment"></a>
+
+<h3 id="Babylon.utils.environment.Environment" class="doc doc-heading">
+        <code>Babylon.utils.environment.Environment</code>
+
+
+</h3>
+
+
   <div class="doc doc-contents first">
 
   
@@ -127,10 +151,10 @@
 
 
 
-<h2 id="Babylon.utils.environment.Environment.copy_template" class="doc doc-heading">
+<h4 id="Babylon.utils.environment.Environment.copy_template" class="doc doc-heading">
 <code class="highlight language-python">copy_template()</code>
 
-</h2>
+</h4>
 
 
   <div class="doc doc-contents ">
@@ -162,10 +186,10 @@
 
 
 
-<h2 id="Babylon.utils.environment.Environment.compare_to_template" class="doc doc-heading">
+<h4 id="Babylon.utils.environment.Environment.compare_to_template" class="doc doc-heading">
 <code class="highlight language-python">compare_to_template(update_if_error=False)</code>
 
-</h2>
+</h4>
 
 
   <div class="doc doc-contents ">
@@ -225,6 +249,145 @@
   </div>
 
 </div><p>More infos available on page <a href="../environment/">environment</a></p>
+<h2 id="decorators">Decorators</h2>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.decorators.timing_decorator" class="doc doc-heading">
+<code class="highlight language-python">Babylon.utils.decorators.timing_decorator(func)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Decorator adding timings before and after the run of a function</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>func</code></td>
+          <td>
+          </td>
+          <td><p>The function being decorated</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.decorators.env_requires_file" class="doc doc-heading">
+<code class="highlight language-python">Babylon.utils.decorators.env_requires_file(file_path)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Decorator allowing to check if the environment has a specific file.
+If the check is failed the command won't run, and following checks won't be done</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>file_path</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the path in the environment to the required file</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.decorators.env_requires_yaml_key" class="doc doc-heading">
+<code class="highlight language-python">Babylon.utils.decorators.env_requires_yaml_key(yaml_path, yaml_key)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Decorator allowing to check if the environment has specific key in a yaml file.
+If the check is failed the command won't run, and following checks won't be done</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>yaml_path</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the path in the environment to the yaml file</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>yaml_key</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the required key</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
               
             </div>
           </div><footer>
