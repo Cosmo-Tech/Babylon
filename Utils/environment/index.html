@@ -70,6 +70,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment.compare_to_template">compare_to_template()</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment.create_zip">create_zip()</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../decorators/">Decorators</a>
@@ -219,6 +221,76 @@
                 <code>bool</code>
           </td>
           <td><p>Is the environment valid ?</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="Babylon.utils.environment.Environment.create_zip" class="doc doc-heading">
+<code class="highlight language-python">create_zip(zip_path, force_overwrite=False)</code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create a zip file of the environment to the given path</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>zip_path</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>A path to zip the environment (if a folder is given will name the zip "Environment.zip"</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>force_overwrite</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>should existing path be ignored and replaced ?</p></td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Union">Union</span>[str, None]</code>
+          </td>
+          <td><p>The effective path of the zip</p></td>
         </tr>
     </tbody>
   </table>

@@ -78,6 +78,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#validate">validate</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#zip-env">zip-env</a>
+    </li>
         </ul>
     </li>
     </ul>
@@ -244,6 +246,7 @@
 <li><em>display</em>: Display information about the current environment</li>
 <li><em>init</em>: Initialize the current environment</li>
 <li><em>validate</em>: Validate the current environment</li>
+<li><em>zip-env</em>: Zip an environment to given PATH</li>
 </ul>
 <h4 id="complete">complete</h4>
 <p>Complete the current environment for missing elements</p>
@@ -333,6 +336,37 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="zip-env">zip-env</h4>
+<p>Zip an environment to given PATH</p>
+<p>PATH can be a folder (archive name will default to Environment.zip) or a .zip file</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon environment zip-env [OPTIONS] PATH
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Force replacement of existing file with new zip</td>
+<td><code>False</code></td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
