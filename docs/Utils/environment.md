@@ -10,5 +10,6 @@
        members:
           - copy_template
           - compare_to_template
+          - create_zip
 
 More infos available on page [environment](environment.md)

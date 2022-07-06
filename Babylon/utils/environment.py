@@ -85,7 +85,7 @@ class Environment:
         :return: Nothing
         """
         if not self.is_zip:
-            shutil.copytree(self.template_path, self.path, dirs_exist_ok=True)
+            shutil.copytree(self.template_path, str(self.path), dirs_exist_ok=True)
 
     def compare_to_template(self, update_if_error: bool = False) -> bool:
         """
@@ -109,7 +109,7 @@ class Environment:
                 has_err = True
                 if update_if_error and not self.is_zip:
                     error_logger("CORRECTION :  Creating it")
-                    shutil.copytree(template_dir_path, local_dir_path, dirs_exist_ok=True)
+                    shutil.copytree(template_dir_path, str(local_dir_path), dirs_exist_ok=True)
                 continue
             for _f in files:
                 f_rel_path = rel_path / pathlib.Path(_f)
@@ -122,7 +122,7 @@ class Environment:
                         has_err = True
                         if update_if_error and not self.is_zip:
                             error_logger(f"CORRECTION:   Copying it from template")
-                            shutil.copy(template_file_path, local_file_path)
+                            shutil.copy(template_file_path, str(local_file_path))
                     elif local_file_path.name.endswith(".yaml"):
                         self.logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
                         missing_keys, superfluous_keys = self.__compare_yaml_keys(template_file_path,
@@ -167,8 +167,8 @@ class Environment:
             for _f in self.zip_file.namelist():
                 content.append(f"  - {_f}")
         else:
-            _r = self.path
-            for root, dirs, files in os.walk(self.path):
+            _r = str(self.path)
+            for root, dirs, files in os.walk(str(self.path)):
                 rel_path = os.path.relpath(root, _r)
                 if rel_path != ".":
                     content.append(f"  - {rel_path}/")
@@ -176,3 +176,32 @@ class Environment:
                     content.append(f"  - {'' if rel_path == '.' else rel_path + '/'}{_f}")
         _ret.extend(sorted(content))
         return "\n".join(_ret)
+
+    def create_zip(self, zip_path: str, force_overwrite: bool = False) -> Union[str, None]:
+        """
+        Create a zip file of the environment to the given path
+        :param zip_path: A path to zip the environment (if a folder is given will name the zip "Environment.zip"
+        :param force_overwrite: should existing path be ignored and replaced ?
+        :return: The effective path of the zip
+        """
+        _p = pathlib.Path(zip_path)
+        if _p.is_dir():
+            _p = _p / pathlib.Path("Environment.zip")
+        if _p.exists():
+            self.logger.warning("Target path already exists.")
+            if not force_overwrite:
+                self.logger.warning("Abandoning zipping process.")
+                return None
+        if _p.suffix != ".zip":
+            self.logger.error(f"{_p} is not a correct zip file name")
+            return None
+        if self.is_zip:
+            shutil.copy(str(self.path)[:-1], _p)
+        else:
+            with zipfile.ZipFile(_p, "w") as _z_file:
+                for root, dirs, files in os.walk(str(self.path)):
+                    for _f in files:
+                        _z_file.write(os.path.join(root, _f),
+                                      os.path.relpath(os.path.join(root, _f),
+                                                      str(self.path)))
+        return str(_p)
