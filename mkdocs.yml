@@ -9,8 +9,10 @@ nav:
         - Environments: 'environment.md'
         - Library organization: 'organization.md'
     - References:
-        - CLI: 'cli.md'
-        - utils: 'utils.md'
+        - babylon: 'cli.md'
+        - utils:
+          - Environment: 'Utils/environment.md'
+          - Decorators: 'Utils/decorators.md'
 
 markdown_extensions:
     - mkdocs-click

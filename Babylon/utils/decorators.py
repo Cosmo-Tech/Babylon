@@ -34,7 +34,7 @@ def env_requires_yaml_key(yaml_path: str, yaml_key: str):
     def wrap_function(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            env: Environment = click.get_current_context().obj
+            env: Environment = click.get_current_context().find_object(Environment)
             if env.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
                 func(*args, **kwargs)
             else:
@@ -54,7 +54,7 @@ def env_requires_file(file_path: str):
     def wrap_function(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            env: Environment = click.get_current_context().obj
+            env: Environment = click.get_current_context().find_object(Environment)
             if env.requires_file(file_path=file_path):
                 func(*args, **kwargs)
             else:
@@ -63,3 +63,6 @@ def env_requires_file(file_path: str):
         return wrapper
 
     return wrap_function
+
+
+pass_environment = click.make_pass_decorator(Environment)
