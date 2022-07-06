@@ -14,6 +14,10 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 def complete(environment: Environment):
     """Complete the current environment for missing elements"""
+
+    if environment.is_zip:
+        logger.error("You can't complete a zip based environment.\nValidate it instead.")
+        return
     had_errors = environment.compare_to_template(update_if_error=True)
     if had_errors:
         logger.info("Environment is correct, nothing was changed")

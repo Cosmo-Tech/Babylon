@@ -14,4 +14,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 def init(environment: Environment):
     """Initialize the current environment"""
-    environment.copy_template()
+    if environment.is_zip:
+        logger.error("You can't initialize a zip based environment.")
+    else:
+        environment.copy_template()

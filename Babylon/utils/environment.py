@@ -1,6 +1,7 @@
 import os
 import pathlib
 import shutil
+import zipfile
 from logging import Logger
 from typing import Union
 
@@ -20,6 +21,10 @@ class Environment:
         :param template_path: Optional path to the template against which we want to compare the current Environment
         """
         self.path = pathlib.Path(path)
+        self.is_zip = self.path.is_file() and self.path.suffix == ".zip"
+        if self.is_zip:
+            self.zip_file = zipfile.ZipFile(self.path)
+            self.path = zipfile.Path(self.zip_file)
         self.logger = logger
         if template_path is None:
             self.template_path = pathlib.Path(__file__).parent / "EnvironmentTemplate"
@@ -36,7 +41,7 @@ class Environment:
         - missing_keys : the keys from the template missing from the target</br>
         - superfluous_keys: the keys from the target that are not in the template
         """
-        with open(template_yaml) as _te, open(target_yaml) as _ta:
+        with template_yaml.open() as _te, target_yaml.open() as _ta:
             _template = yaml.safe_load(_te)
             _target = yaml.safe_load(_ta)
             try:
@@ -59,7 +64,7 @@ class Environment:
         :param target_yaml: Yaml file to be compared to the template
         :return: Nothing
         """
-        with open(template_yaml) as _te, open(target_yaml) as _ta:
+        with template_yaml.open() as _te, target_yaml.open() as _ta:
             _template = yaml.safe_load(_te)
             _target = yaml.safe_load(_ta)
             try:
@@ -71,7 +76,7 @@ class Environment:
                         _target.setdefault(k, v)
             except AttributeError:
                 pass
-        with open(target_yaml, "w") as _ta:
+        with target_yaml.open("w") as _ta:
             yaml.safe_dump(_target, _ta)
 
     def copy_template(self):
@@ -79,7 +84,8 @@ class Environment:
         Initialize the environment by making a copy of the template
         :return: Nothing
         """
-        shutil.copytree(self.template_path, self.path, dirs_exist_ok=True)
+        if not self.is_zip:
+            shutil.copytree(self.template_path, self.path, dirs_exist_ok=True)
 
     def compare_to_template(self, update_if_error: bool = False) -> bool:
         """
@@ -98,43 +104,43 @@ class Environment:
             local_dir_path = self.path / rel_path
             template_dir_path = _root / rel_path
             self.logger.debug(f"Starting checks for dir {local_dir_path}")
-            if not local_dir_path.exists():
+            if not local_dir_path.exists() and not (rel_path == pathlib.Path(".") and self.is_zip):
                 error_logger(f"MISSING DIR: {local_dir_path}")
                 has_err = True
-                if update_if_error:
+                if update_if_error and not self.is_zip:
                     error_logger("CORRECTION :  Creating it")
                     shutil.copytree(template_dir_path, local_dir_path, dirs_exist_ok=True)
-            else:
-                for _f in files:
-                    f_rel_path = rel_path / pathlib.Path(_f)
-                    template_file_path = _root / f_rel_path
-                    local_file_path = self.path / f_rel_path
-                    if os.path.getsize(_root / f_rel_path):
-                        self.logger.debug(f"Starting check for file {local_file_path}")
-                        if not local_file_path.exists():
-                            error_logger(f"MISSING FILE: {local_file_path}")
+                continue
+            for _f in files:
+                f_rel_path = rel_path / pathlib.Path(_f)
+                template_file_path = _root / f_rel_path
+                local_file_path = self.path / f_rel_path
+                if os.path.getsize(_root / f_rel_path) > -1:
+                    self.logger.debug(f"Starting check for file {local_file_path}")
+                    if not local_file_path.exists():
+                        error_logger(f"MISSING FILE: {local_file_path}")
+                        has_err = True
+                        if update_if_error and not self.is_zip:
+                            error_logger(f"CORRECTION:   Copying it from template")
+                            shutil.copy(template_file_path, local_file_path)
+                    elif local_file_path.name.endswith(".yaml"):
+                        self.logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
+                        missing_keys, superfluous_keys = self.__compare_yaml_keys(template_file_path,
+                                                                                  local_file_path)
+                        if missing_keys:
                             has_err = True
-                            if update_if_error:
-                                error_logger(f"CORRECTION:   Copying it from template")
-                                shutil.copy(template_file_path, local_file_path)
-                        elif local_file_path.suffix == ".yaml":
-                            self.logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
-                            missing_keys, superfluous_keys = self.__compare_yaml_keys(template_file_path,
-                                                                                      local_file_path)
-                            if missing_keys:
-                                has_err = True
-                                error_logger(f"YAML ERROR: In file {local_file_path}")
-                                error_logger(f"            The following keys are missing :")
-                                for _k in missing_keys:
-                                    error_logger(f"            - {_k}")
-                                if update_if_error:
-                                    error_logger("CORRECTION: Adding them")
-                                    self.__complete_yaml(template_file_path, local_file_path)
-                            if superfluous_keys:
-                                self.logger.debug(f"YAML ISSUE: In file {local_file_path}")
-                                self.logger.debug(f"            The following keys are superfluous :")
-                                for _k in superfluous_keys:
-                                    self.logger.debug(f"            - {_k}")
+                            error_logger(f"YAML ERROR: In file {local_file_path}")
+                            error_logger(f"            The following keys are missing :")
+                            for _k in missing_keys:
+                                error_logger(f"            - {_k}")
+                            if update_if_error and not self.is_zip:
+                                error_logger("CORRECTION: Adding them")
+                                self.__complete_yaml(template_file_path, local_file_path)
+                        if superfluous_keys:
+                            self.logger.debug(f"YAML ISSUE: In file {local_file_path}")
+                            self.logger.debug(f"            The following keys are superfluous :")
+                            for _k in superfluous_keys:
+                                self.logger.debug(f"            - {_k}")
         self.logger.debug(f"Finished check of environment found on {self.path}")
         return not has_err
 
@@ -145,12 +151,28 @@ class Environment:
     def requires_yaml_key(self, yaml_path: str, yaml_key: str) -> bool:
         target_file_path = self.path / pathlib.Path(yaml_path)
         try:
-            _y = yaml.safe_load(open(target_file_path))
+            _y = yaml.safe_load(target_file_path.open())
             _v = _y[yaml_key]
         except:
             return False
         return True
 
     def __str__(self):
-        _ret = [f"Environment path: {self.path}", f"Template path: {self.template_path}"]
+        _ret = [f"Template path: {self.template_path}",
+                f"Environment path: {self.path}",
+                f"is_zip: {self.is_zip}",
+                "content:"]
+        content = []
+        if self.is_zip:
+            for _f in self.zip_file.namelist():
+                content.append(f"  - {_f}")
+        else:
+            _r = self.path
+            for root, dirs, files in os.walk(self.path):
+                rel_path = os.path.relpath(root, _r)
+                if rel_path != ".":
+                    content.append(f"  - {rel_path}/")
+                for _f in files:
+                    content.append(f"  - {'' if rel_path == '.' else rel_path + '/'}{_f}")
+        _ret.extend(sorted(content))
         return "\n".join(_ret)

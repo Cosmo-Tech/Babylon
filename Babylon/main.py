@@ -5,10 +5,11 @@ from .v0 import v0
 from .groups import command_groups
 import click_log
 import logging
+from .utils.logging import MultiLineHandler
 from .utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
-handler = logging.StreamHandler()
+handler = MultiLineHandler()
 formatter = logging.Formatter('{levelname:8}| {message}', style='{')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
