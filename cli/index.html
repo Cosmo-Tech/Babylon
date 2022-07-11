@@ -68,6 +68,12 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#debug">debug</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#get-workflow-pods">get-workflow-pods</a>
+    </li>
+        </ul>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#environment">environment</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#complete">complete</a>
@@ -162,6 +168,7 @@
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em>api</em>: Group handling communication with the cosmotech API</li>
+<li><em>debug</em>: Add debug capacities of runs</li>
 <li><em>environment</em>: Command group handling local environment information</li>
 </ul>
 <h3 id="api">api</h3>
@@ -196,6 +203,59 @@
 <p>Create a new connector in the API using FILENAME as a template</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api connector [OPTIONS] FILENAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="debug">debug</h3>
+<p>Add debug capacities of runs</p>
+<p>Requires some keys in <code>deploy.yaml</code>: <code>k8s_context</code> and <code>k8s_namespace</code></p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon debug [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em>get-workflow-pods</em>: Get pods information for the given WORKFLOW</li>
+</ul>
+<h4 id="get-workflow-pods">get-workflow-pods</h4>
+<p>Get pods information for the given WORKFLOW</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon debug get-workflow-pods [OPTIONS] WORKFLOW
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>

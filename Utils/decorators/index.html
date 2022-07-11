@@ -72,6 +72,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.decorators.env_requires_yaml_key">env_requires_yaml_key()</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.decorators.requires_external_program">requires_external_program()</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.decorators.timing_decorator">timing_decorator()</a>
     </li>
     </ul>
@@ -213,6 +215,49 @@ If the check is failed the command won't run, and following checks won't be done
                 <code>str</code>
           </td>
           <td><p>the required key</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="Babylon.utils.decorators.requires_external_program" class="doc doc-heading">
+<code class="highlight language-python">requires_external_program(program_name)</code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Decorator allowing to check if a specific executable is available.
+If the check is failed the command won't run, and following checks won't be done</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>program_name</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the name of the required program</p></td>
           <td>
               <em>required</em>
           </td>
