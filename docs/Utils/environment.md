@@ -11,5 +11,7 @@
           - copy_template
           - compare_to_template
           - create_zip
+          - get_file
+          - get_yaml_key
 
 More infos available on page [environment](environment.md)

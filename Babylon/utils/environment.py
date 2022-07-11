@@ -145,17 +145,24 @@ class Environment:
         return not has_err
 
     def requires_file(self, file_path: str) -> bool:
-        target_file_path = self.path / pathlib.Path(file_path)
-        return target_file_path.exists()
+        return self.get_file(file_path).exists()
 
     def requires_yaml_key(self, yaml_path: str, yaml_key: str) -> bool:
-        target_file_path = self.path / pathlib.Path(yaml_path)
+        v = self.get_yaml_key(yaml_path, yaml_key)
+        return v is not None
+
+    def get_yaml_key(self, yaml_path: str, yaml_key: str):
+        target_file_path = self.get_file(yaml_path)
         try:
             _y = yaml.safe_load(target_file_path.open())
             _v = _y[yaml_key]
+            return _v
         except:
-            return False
-        return True
+            return None
+
+    def get_file(self, file_path: str):
+        target_file_path = self.path / pathlib.Path(file_path)
+        return target_file_path
 
     def __str__(self):
         _ret = [f"Template path: {self.template_path}",

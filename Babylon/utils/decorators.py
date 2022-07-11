@@ -1,6 +1,7 @@
 import logging
 import time
 from functools import wraps
+import shutil
 
 import click
 
@@ -63,6 +64,26 @@ def env_requires_file(file_path: str):
         return wrapper
 
     return wrap_function
+
+
+def requires_external_program(program_name: str):
+    """
+    Decorator allowing to check if a specific executable is available.
+    If the check is failed the command won't run, and following checks won't be done
+    :param program_name: the name of the required program
+    """
+    def wrap_function(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if shutil.which(program_name) is not None:
+                func(*args, **kwargs)
+            else:
+                logger.error(f"{program_name} is not installed.")
+                logger.error(f"{func.__name__} won't run without it.")
+        return wrapper
+
+    return wrap_function
+
 
 
 pass_environment = click.make_pass_decorator(Environment)
