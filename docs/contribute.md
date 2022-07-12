@@ -4,13 +4,14 @@
 
 ### Create a new package inside `Babylon.groups`
 
-This new package comes with a package called `commands` and you can use the following template for
+This new package comes with a package called `commands` and a package named `groups` and you can use the following template for
 the `new_group.__init__.py`
 
 ```python
 from click import group
 from click import pass_context
 from .commands import list_commands
+from .groups import list_groups
 
 
 @group()
@@ -22,6 +23,9 @@ def new_group(ctx):
 
 for _command in list_commands:
     new_group.add_command(_command)
+
+for _group in list_groups:
+    new_group.add_command(_group)
 ```
 
 ### Initialize the `commands.__init__.py`
@@ -30,6 +34,14 @@ You can use the following template to initialize the `new_group.commands.__init_
 
 ```python
 list_commands = []
+```
+
+### Initialize the `groups.__init__.py`
+
+You can use the following template to initialize the `new_group.commands.__init__.py`
+
+```python
+list_groups = []
 ```
 
 ### Add your group to the groups callable by the cli
@@ -60,6 +72,15 @@ babylon new-group
 #Commands:
 #  my_command  Doc-string for my new command
 ```
+
+## Adding a sub-group in an existing group
+
+You follow the same instruction as adding a group in `Babylon.groups` but in a sub-package.
+
+- Create a new package in `Babylon.groups.<command>.groups`
+- Add the new packages `Babylon.groups.<command>.groups.<subcommand>.commands` and `Babylon.groups.<command>.groups.<subcommand>.groups`
+- Initialize the multiple `__init__.py` the same way as if you were creating a group for `Babylon`
+- Add your group in the list of groups in the file `Babylon.groups.<command>.groups.__init__.py` instead of the one in `Babylon.groups.__init__.py`
 
 ## Adding a new command to an existing group
 
