@@ -13,6 +13,7 @@ nav:
         - utils:
           - Environment: 'Utils/environment.md'
           - Decorators: 'Utils/decorators.md'
+          - Cosmotech Api: 'Utils/api.md'
 
 markdown_extensions:
     - mkdocs-click
