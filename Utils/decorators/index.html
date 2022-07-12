@@ -78,6 +78,8 @@
     </li>
     </ul>
                 </li>
+                <li class="toctree-l2"><a class="reference internal" href="../api/">Cosmotech Api</a>
+                </li>
     </ul>
                   </li>
               </ul>
@@ -135,7 +137,7 @@
 
 
 <h2 id="Babylon.utils.decorators.env_requires_file" class="doc doc-heading">
-<code class="highlight language-python">env_requires_file(file_path)</code>
+<code class="highlight language-python">env_requires_file(file_path, arg_name=None)</code>
 
 </h2>
 
@@ -166,6 +168,16 @@ If the check is failed the command won't run, and following checks won't be done
               <em>required</em>
           </td>
         </tr>
+        <tr>
+          <td><code>arg_name</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td><p>Optional parameter that if set will send the effective path of the required file to the given arg</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
     </tbody>
   </table>
 
@@ -178,7 +190,7 @@ If the check is failed the command won't run, and following checks won't be done
 
 
 <h2 id="Babylon.utils.decorators.env_requires_yaml_key" class="doc doc-heading">
-<code class="highlight language-python">env_requires_yaml_key(yaml_path, yaml_key)</code>
+<code class="highlight language-python">env_requires_yaml_key(yaml_path, yaml_key, arg_name=None)</code>
 
 </h2>
 
@@ -217,6 +229,16 @@ If the check is failed the command won't run, and following checks won't be done
           <td><p>the required key</p></td>
           <td>
               <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>arg_name</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td><p>optional parameter that will send the value of the yaml key to the given arg of the function</p></td>
+          <td>
+                <code>None</code>
           </td>
         </tr>
     </tbody>
@@ -322,6 +344,7 @@ If the check is failed the command won't run, and following checks won't be done
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../environment/" class="btn btn-neutral float-left" title="Environment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../api/" class="btn btn-neutral float-right" title="Cosmotech Api">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -346,6 +369,8 @@ If the check is failed the command won't run, and following checks won't be done
     
       <span><a href="../environment/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../api/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

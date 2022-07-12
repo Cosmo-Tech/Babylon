@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Environment - babylon</title>
+    <title>Cosmotech Api - babylon</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -13,8 +13,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Environment";
-        var mkdocs_page_input_path = "Utils/environment.md";
+        var mkdocs_page_name = "Cosmotech Api";
+        var mkdocs_page_input_path = "Utils/api.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -64,23 +64,21 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">utils</a>
     <ul class="current">
-                <li class="toctree-l2 current"><a class="reference internal current" href="./">Environment</a>
-    <ul class="current">
-    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment.copy_template">copy_template()</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment.compare_to_template">compare_to_template()</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment.create_zip">create_zip()</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment.get_file">get_file()</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.environment.Environment.get_yaml_key">get_yaml_key()</a>
-    </li>
-    </ul>
+                <li class="toctree-l2"><a class="reference internal" href="../environment/">Environment</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../decorators/">Decorators</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../api/">Cosmotech Api</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">Cosmotech Api</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.api.camel_to_underscore">camel_to_underscore()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.api.convert_keys_case">convert_keys_case()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.api.get_api_file">get_api_file()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#Babylon.utils.api.underscore_to_camel">underscore_to_camel()</a>
+    </li>
+    </ul>
                 </li>
     </ul>
                   </li>
@@ -100,7 +98,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
           <li>References &raquo;</li>
-          <li>utils &raquo;</li><li>Environment</li>
+          <li>utils &raquo;</li><li>Cosmotech Api</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -110,23 +108,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <div class="doc doc-object doc-class">
+                <div class="doc doc-object doc-module">
 
 
 
-<h1 id="Babylon.utils.environment.Environment" class="doc doc-heading">
-        <code>Environment</code>
+<h1 id="Babylon.utils.api" class="doc doc-heading">
+          <code>Babylon.utils.api</code>
 
 
 </h1>
 
-
   <div class="doc doc-contents first">
-
-  
-      <p>Simple class describing an environment for Babylon use</p>
-
-
 
   
 
@@ -144,50 +136,16 @@
 
 
 
-<h2 id="Babylon.utils.environment.Environment.copy_template" class="doc doc-heading">
-<code class="highlight language-python">copy_template()</code>
+<h2 id="Babylon.utils.api.camel_to_underscore" class="doc doc-heading">
+<code class="highlight language-python">camel_to_underscore(name)</code>
 
 </h2>
 
 
   <div class="doc doc-contents ">
   
-      <p>Initialize the environment by making a copy of the template</p>
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-          </td>
-          <td><p>Nothing</p></td>
-        </tr>
-    </tbody>
-  </table>
-
-  </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-
-<h2 id="Babylon.utils.environment.Environment.compare_to_template" class="doc doc-heading">
-<code class="highlight language-python">compare_to_template(update_if_error=False)</code>
-
-</h2>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Check if the current environment is valid (aka: has all folders and files required by the template)</p>
+      <p>Will convert a string from camelCase to snake_case
+will have no effect if the parameter is not a string</p>
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -201,13 +159,12 @@
     </thead>
     <tbody>
         <tr>
-          <td><code>update_if_error</code></td>
+          <td><code>name</code></td>
           <td>
-                <code>bool</code>
           </td>
-          <td><p>Replace error logs by info and update the current environment with missing elements</p></td>
+          <td><p>the string to convert</p></td>
           <td>
-                <code>False</code>
+              <em>required</em>
           </td>
         </tr>
     </tbody>
@@ -224,9 +181,8 @@
     <tbody>
         <tr>
           <td>
-                <code>bool</code>
           </td>
-          <td><p>Is the environment valid ?</p></td>
+          <td><p>the converted string</p></td>
         </tr>
     </tbody>
   </table>
@@ -239,15 +195,15 @@
 
 
 
-<h2 id="Babylon.utils.environment.Environment.create_zip" class="doc doc-heading">
-<code class="highlight language-python">create_zip(zip_path, force_overwrite=False)</code>
+<h2 id="Babylon.utils.api.convert_keys_case" class="doc doc-heading">
+<code class="highlight language-python">convert_keys_case(element, convert_function)</code>
 
 </h2>
 
 
   <div class="doc doc-contents ">
   
-      <p>Create a zip file of the environment to the given path</p>
+      <p>Will apply a convert function to all keys in an object</p>
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -261,23 +217,21 @@
     </thead>
     <tbody>
         <tr>
-          <td><code>zip_path</code></td>
+          <td><code>element</code></td>
           <td>
-                <code>str</code>
           </td>
-          <td><p>A path to zip the environment (if a folder is given will name the zip "Environment.zip"</p></td>
+          <td><p>the object to be updated</p></td>
           <td>
               <em>required</em>
           </td>
         </tr>
         <tr>
-          <td><code>force_overwrite</code></td>
+          <td><code>convert_function</code></td>
           <td>
-                <code>bool</code>
           </td>
-          <td><p>should existing path be ignored and replaced ?</p></td>
+          <td><p>the function to apply</p></td>
           <td>
-                <code>False</code>
+              <em>required</em>
           </td>
         </tr>
     </tbody>
@@ -294,9 +248,8 @@
     <tbody>
         <tr>
           <td>
-                <code><span title="typing.Union">Union</span>[str, None]</code>
           </td>
-          <td><p>The effective path of the zip</p></td>
+          <td><p>an object of the same type as the original one where all dict keys had the convert_function applied</p></td>
         </tr>
     </tbody>
   </table>
@@ -309,13 +262,85 @@
 
 
 
-<h2 id="Babylon.utils.environment.Environment.get_file" class="doc doc-heading">
-<code class="highlight language-python">get_file(file_path)</code>
+<h2 id="Babylon.utils.api.get_api_file" class="doc doc-heading">
+<code class="highlight language-python">get_api_file(api_file_path, use_environment_file, environment, logger)</code>
 
 </h2>
 
 
   <div class="doc doc-contents ">
+  
+      <p>This function will try to find the correct file, and return its content in a format ready to be used with the cosmotech api
+Accepts yaml and json files</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>api_file_path</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>The path to the file to be loaded</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>use_environment_file</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Should the path be relative to the environment ?</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>environment</code></td>
+          <td>
+          </td>
+          <td><p>The current environment item</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>logger</code></td>
+          <td>
+          </td>
+          <td><p>the logger to be used to log info</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+          </td>
+          <td><p>None if the file was not found, else the content of the loaded file</p></td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
@@ -325,13 +350,56 @@
 
 
 
-<h2 id="Babylon.utils.environment.Environment.get_yaml_key" class="doc doc-heading">
-<code class="highlight language-python">get_yaml_key(yaml_path, yaml_key)</code>
+<h2 id="Babylon.utils.api.underscore_to_camel" class="doc doc-heading">
+<code class="highlight language-python">underscore_to_camel(name)</code>
 
 </h2>
 
 
   <div class="doc doc-contents ">
+  
+      <p>Will convert a string from snake_case to camelCase
+will have no effect if the parameter is not a string</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td>
+          </td>
+          <td><p>the string to convert</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+          </td>
+          <td><p>the converted string</p></td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
@@ -343,13 +411,12 @@
 
   </div>
 
-</div><p>More infos available on page <a href="./">environment</a></p>
+</div>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../../cli/" class="btn btn-neutral float-left" title="babylon"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../decorators/" class="btn btn-neutral float-right" title="Decorators">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../decorators/" class="btn btn-neutral float-left" title="Decorators"><span class="icon icon-circle-arrow-left"></span> Previous</a>
     </div>
 
   <hr/>
@@ -372,10 +439,8 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../../cli/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../decorators/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-    
-      <span><a href="../decorators/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

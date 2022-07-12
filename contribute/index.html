@@ -59,9 +59,13 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#initialize-the-commands__init__py">Initialize the commands.__init__.py</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#initialize-the-groups__init__py">Initialize the groups.__init__.py</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#add-your-group-to-the-groups-callable-by-the-cli">Add your group to the groups callable by the cli</a>
     </li>
         </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-a-sub-group-in-an-existing-group">Adding a sub-group in an existing group</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#adding-a-new-command-to-an-existing-group">Adding a new command to an existing group</a>
         <ul>
@@ -87,6 +91,8 @@
                 <li class="toctree-l2"><a class="reference internal" href="../Utils/environment/">Environment</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../Utils/decorators/">Decorators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Utils/api/">Cosmotech Api</a>
                 </li>
     </ul>
                   </li>
@@ -118,11 +124,12 @@
                 <h1 id="how-to-contribute-to-babylon">How-to contribute to Babylon</h1>
 <h2 id="creating-a-new-group-of-commands">Creating a new group of commands</h2>
 <h3 id="create-a-new-package-inside-babylongroups">Create a new package inside <code>Babylon.groups</code></h3>
-<p>This new package comes with a package called <code>commands</code> and you can use the following template for
+<p>This new package comes with a package called <code>commands</code> and a package named <code>groups</code> and you can use the following template for
 the <code>new_group.__init__.py</code></p>
 <pre><code class="language-python">from click import group
 from click import pass_context
 from .commands import list_commands
+from .groups import list_groups
 
 
 @group()
@@ -134,10 +141,17 @@ def new_group(ctx):
 
 for _command in list_commands:
     new_group.add_command(_command)
+
+for _group in list_groups:
+    new_group.add_command(_group)
 </code></pre>
 <h3 id="initialize-the-commands__init__py">Initialize the <code>commands.__init__.py</code></h3>
 <p>You can use the following template to initialize the <code>new_group.commands.__init__.py</code></p>
 <pre><code class="language-python">list_commands = []
+</code></pre>
+<h3 id="initialize-the-groups__init__py">Initialize the <code>groups.__init__.py</code></h3>
+<p>You can use the following template to initialize the <code>new_group.commands.__init__.py</code></p>
+<pre><code class="language-python">list_groups = []
 </code></pre>
 <h3 id="add-your-group-to-the-groups-callable-by-the-cli">Add your group to the groups callable by the cli</h3>
 <p>You have to add an import for your group in the <code>Babylon.groups.__init__.py</code></p>
@@ -161,6 +175,14 @@ command_groups = [
 #Commands:
 #  my_command  Doc-string for my new command
 </code></pre>
+<h2 id="adding-a-sub-group-in-an-existing-group">Adding a sub-group in an existing group</h2>
+<p>You follow the same instruction as adding a group in <code>Babylon.groups</code> but in a sub-package.</p>
+<ul>
+<li>Create a new package in <code>Babylon.groups.&lt;command&gt;.groups</code></li>
+<li>Add the new packages <code>Babylon.groups.&lt;command&gt;.groups.&lt;subcommand&gt;.commands</code> and <code>Babylon.groups.&lt;command&gt;.groups.&lt;subcommand&gt;.groups</code></li>
+<li>Initialize the multiple <code>__init__.py</code> the same way as if you were creating a group for <code>Babylon</code></li>
+<li>Add your group in the list of groups in the file <code>Babylon.groups.&lt;command&gt;.groups.__init__.py</code> instead of the one in <code>Babylon.groups.__init__.py</code></li>
+</ul>
 <h2 id="adding-a-new-command-to-an-existing-group">Adding a new command to an existing group</h2>
 <h3 id="template">Template</h3>
 <p>This template can be copied in the <code>commands</code> package for the group we want to add the command to.</p>
