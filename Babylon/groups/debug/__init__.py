@@ -12,9 +12,7 @@ from ...utils.decorators import pass_environment
 @env_requires_yaml_key("deploy.yaml", "k8s_context")
 @env_requires_yaml_key("deploy.yaml", "k8s_namespace")
 def debug(ctx, environment):
-    """Add debug capacities of runs
-
-Requires some keys in `deploy.yaml`: `k8s_context` and `k8s_namespace`"""
+    """Add debug capacities of runs"""
     k8s_context = environment.get_yaml_key("deploy.yaml", "k8s_context")
     k8s_namespace = environment.get_yaml_key("deploy.yaml", "k8s_namespace")
     ctx.obj = (k8s_context, k8s_namespace)
