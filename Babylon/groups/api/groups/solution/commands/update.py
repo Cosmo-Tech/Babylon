@@ -12,6 +12,7 @@ from ......utils.api import get_api_file
 from ......utils.decorators import env_requires_yaml_key
 from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
+from ......utils.decorators import allow_dry_run
 
 logger = logging.getLogger("Babylon")
 
@@ -26,12 +27,14 @@ pass_solution_api = make_pass_decorator(SolutionApi)
         help="Should the path be in the environment ?")
 @env_requires_yaml_key("deploy.yaml", "organization_id", "organization_id")
 @env_requires_yaml_key("deploy.yaml", "solution_id", "solution_id")
+@allow_dry_run
 @timing_decorator
 def update(environment,
            solution_api: SolutionApi,
            organization_id: str,
            solution_id: str,
            solution_file: str,
+           dry_run: bool,
            use_environment_file: bool = False):
     """Send a JSON or YAML file to the API to update a solution"""
 
@@ -40,9 +43,15 @@ def update(environment,
                                                    environment=environment,
                                                    logger=logger)) is not None:
         try:
-            r = solution_api.update_solution(organization_id=organization_id,
-                                             solution_id=solution_id,
-                                             solution=converted_solution_content)
+
+            if not dry_run:
+                r = solution_api.update_solution(organization_id=organization_id,
+                                                 solution_id=solution_id,
+                                                 solution=converted_solution_content)
+            else:
+                logger.info("DRY RUN - Would call solution_api.update_solution")
+                r = converted_solution_content
+                r['id'] = solution_id
             logger.debug(pformat(r))
             logger.info(f"Updated solution with id: {r['id']}")
         except cosmotech_api.exceptions.NotFoundException as _e:
