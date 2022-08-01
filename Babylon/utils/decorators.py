@@ -28,6 +28,21 @@ def timing_decorator(func):
     return wrapper
 
 
+def allow_dry_run(func):
+    """
+    Decorator adding dry_run parameter to the function call
+    :param func: The function being decorated
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        env: Environment = click.get_current_context().find_object(Environment)
+        kwargs["dry_run"] = env.dry_run
+        func(*args, **kwargs)
+
+    return wrapper
+
+
 def env_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional[str] = None):
     """
     Decorator allowing to check if the environment has specific key in a yaml file.
