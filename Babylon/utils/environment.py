@@ -13,12 +13,13 @@ class Environment:
     Simple class describing an environment for Babylon use
     """
 
-    def __init__(self, path: str, logger: Logger, template_path: Union[str, None] = None):
+    def __init__(self, path: str, logger: Logger, template_path: Union[str, None] = None, dry_run: bool = False):
         """
         Initialize the environment, if not template_path is given will use the default one.
         :param path: Path to the Environment
         :param logger: Logger used to write infos
         :param template_path: Optional path to the template against which we want to compare the current Environment
+        :param dry_run: Flag to run command in dry_run mode
         """
         self.path = pathlib.Path(path)
         self.is_zip = self.path.is_file() and self.path.suffix == ".zip"
@@ -30,6 +31,7 @@ class Environment:
             self.template_path = pathlib.Path(__file__).parent / "EnvironmentTemplate"
         else:
             self.template_path = pathlib.Path(template_path)
+        self.dry_run = dry_run
 
     @staticmethod
     def __compare_yaml_keys(template_yaml: pathlib.Path, target_yaml: pathlib.Path) -> tuple[set, set]:
