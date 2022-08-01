@@ -40,6 +40,8 @@ def allow_dry_run(func):
         kwargs["dry_run"] = env.dry_run
         func(*args, **kwargs)
 
+    doc = wrapper.__doc__
+    wrapper.__doc__ = doc + "\n\nAllows dry runs."
     return wrapper
 
 
@@ -65,6 +67,9 @@ def env_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional[str]
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
+        doc = wrapper.__doc__
+        wrapper.__doc__ = (doc +
+                           f"\n\nRequires key `{yaml_key}` in `{yaml_path}` in the environment.")
         return wrapper
 
     return wrap_function
@@ -91,6 +96,9 @@ def env_requires_file(file_path: str, arg_name: Optional[str] = None):
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
+        doc = wrapper.__doc__
+        wrapper.__doc__ = (doc +
+                           f"\n\nRequires the file `{file_path}` in the environment.")
         return wrapper
 
     return wrap_function
@@ -113,6 +121,9 @@ def requires_external_program(program_name: str):
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
+        doc = wrapper.__doc__
+        wrapper.__doc__ = (doc +
+                           f"\n\nRequires the program `{program_name}` to run.")
         return wrapper
 
     return wrap_function
