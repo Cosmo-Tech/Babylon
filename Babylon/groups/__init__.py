@@ -1,9 +1,11 @@
 from .api import api
 from .environment import environment
 from .debug import debug
+from .self import self
 
-command_groups = [
+list_groups = [
     api,
     environment,
-    debug
+    debug,
+    self
 ]
