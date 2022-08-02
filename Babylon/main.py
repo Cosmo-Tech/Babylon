@@ -5,7 +5,7 @@ import logging
 import click
 import click_log
 
-from .groups import command_groups
+from .groups import list_groups
 from .utils.environment import Environment
 from .utils.logging import MultiLineHandler
 from .v0 import v0
@@ -20,10 +20,10 @@ logger.addHandler(handler)
 @click.group()
 @click_log.simple_verbosity_option(logger)
 @click.option("-e", "--environment", "environment_path", default=".",
-              help="Path to a local environment (folder/zip) used to run the commands\n"
+              help="Path to a local environment (folder/zip) used to run the commands. "
                    "Defaults to run folder")
 @click.option("-t", "--template", "template_path", default=None,
-              help="Path to an environment template.\n"
+              help="Path to an environment template. "
                    "Defaults to <BabylonInstall>/Babylon/utils/EnvironmentTemplate")
 @click.option("--dry_run", "dry_run", is_flag=True,
               help="Will run commands in dry-run mode")
@@ -35,7 +35,7 @@ def main(ctx, environment_path, template_path, dry_run):
 
 
 main.add_command(v0)
-for _group in command_groups:
+for _group in list_groups:
     main.add_command(_group)
 
 if __name__ == "__main__":
