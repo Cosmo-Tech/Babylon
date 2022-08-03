@@ -1,1 +1,4 @@
-
+api_scope: ""
+api_url: ""
+k8s_context: ""
+k8s_namespace: ""
