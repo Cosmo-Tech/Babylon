@@ -6,6 +6,7 @@ import click
 import click_log
 
 from .groups import list_groups
+from .commands import list_commands
 from .utils.environment import Environment
 from .utils.logging import MultiLineHandler
 from .v0 import v0
@@ -37,6 +38,9 @@ def main(ctx, environment_path, template_path, dry_run):
 main.add_command(v0)
 for _group in list_groups:
     main.add_command(_group)
+
+for _command in list_commands:
+    main.add_command(_command)
 
 if __name__ == "__main__":
     main()

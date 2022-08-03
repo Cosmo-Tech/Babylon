@@ -31,7 +31,10 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
     babylon_path = list(pathlib.Path(__file__).parents)[3]
     babylon_groups_path = babylon_path / "groups"
     _g_path = "/groups/".join(group_name)
-    group_path = babylon_groups_path / _g_path
+    if group_name:
+        group_path = babylon_groups_path / _g_path
+    else:
+        group_path = babylon_path
     command_file_path = group_path / f"commands/{command_name}.py"
 
     if command_file_path.exists():
