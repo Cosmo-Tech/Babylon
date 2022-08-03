@@ -1,5 +1,12 @@
 site_name: babylon
-theme: readthedocs
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: orange
+  features:
+    - navigation.tabs
+  custom_dir: overrides
 
 nav:
     - Home: 'index.md'
@@ -17,6 +24,7 @@ nav:
 
 markdown_extensions:
     - mkdocs-click
+    - pymdownx.snippets
 plugins:
     - search
     - mkdocstrings
