@@ -19,3 +19,5 @@ pyyaml
 mkdocs
 mkdocs-click
 mkdocstrings[python]
+pymdown-extensions
+mkdocs-material

@@ -12,8 +12,8 @@ from ...utils.decorators import env_requires_yaml_key
 
 @group()
 @pass_context
-@env_requires_yaml_key("deploy.yaml", "api_scope", "api_scope")
-@env_requires_yaml_key("deploy.yaml", "api_url", "api_url")
+@env_requires_yaml_key("platform.yaml", "api_scope", "api_scope")
+@env_requires_yaml_key("platform.yaml", "api_url", "api_url")
 def api(ctx: Context, api_scope: str, api_url: str):
     """Group handling communication with the cosmotech API"""
     try:

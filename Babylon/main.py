@@ -22,10 +22,10 @@ logger.addHandler(handler)
 @click_log.simple_verbosity_option(logger)
 @click.option("-e", "--environment", "environment_path", default=".",
               help="Path to a local environment (folder/zip) used to run the commands. "
-                   "Defaults to run folder")
+                   "Defaults to current folder")
 @click.option("-t", "--template", "template_path", default=None,
               help="Path to an environment template. "
-                   "Defaults to <BabylonInstall>/Babylon/utils/EnvironmentTemplate")
+                   "Defaults to Babylon/templates/EnvironmentTemplate")
 @click.option("--dry_run", "dry_run", is_flag=True,
               help="Will run commands in dry-run mode")
 @click.pass_context

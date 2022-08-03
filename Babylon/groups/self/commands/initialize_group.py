@@ -1,5 +1,4 @@
 import logging
-import pathlib
 import shutil
 
 from click import argument
@@ -7,6 +6,8 @@ from click import command
 from click import pass_context
 from click.core import Context
 
+from ....utils import BABYLON_PATH
+from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import timing_decorator
 from ....utils.string import is_valid_name
 
@@ -26,8 +27,7 @@ GROUP_NAME must only contain alphanumeric characters or -"""
         return
     group_name = [name.lower().replace("-", "_") for name in group_name]
     logger.debug(f"Initializing group `{' '.join(group_name)}`")
-    babylon_path = list(pathlib.Path(__file__).parents)[3]
-    babylon_groups_path = babylon_path / "groups"
+    babylon_groups_path = BABYLON_PATH / "groups"
     _g_path = "/groups/".join(group_name)
     group_path = babylon_groups_path / _g_path
     if group_path.exists():
@@ -40,8 +40,8 @@ GROUP_NAME must only contain alphanumeric characters or -"""
             logger.info(f"Group `{' '.join(group_name[:-1])}` does not exists creating it before creating `{group_name[-1]}`.")
             ctx.invoke(initialize_group, group_name=group_name[:-1])
     else:
-        parent_group_path = babylon_path
-    template_path = babylon_path / "templates" / "group_template"
+        parent_group_path = BABYLON_PATH
+    template_path = TEMPLATE_FOLDER_PATH / "group_template"
     shutil.copytree(template_path, group_path)
     parent_group_init = parent_group_path / "groups/__init__.py"
     _pgi_content = []
