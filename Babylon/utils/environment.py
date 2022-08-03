@@ -7,6 +7,8 @@ from typing import Union
 
 import yaml
 
+from . import TEMPLATE_FOLDER_PATH
+
 
 class Environment:
     """
@@ -28,7 +30,7 @@ class Environment:
             self.path = zipfile.Path(self.zip_file)
         self.logger = logger
         if template_path is None:
-            self.template_path = pathlib.Path(__file__).parent / "EnvironmentTemplate"
+            self.template_path = TEMPLATE_FOLDER_PATH / "EnvironmentTemplate"
         else:
             self.template_path = pathlib.Path(template_path)
         self.dry_run = dry_run
