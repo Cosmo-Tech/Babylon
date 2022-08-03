@@ -1,4 +1,9 @@
-api_scope: ""
+# api_url : the url of the API
 api_url: ""
+# api_scope : the default scope used by the API
+api_scope: ""
+# k8s_context : the name of the k8s context that should be used
+#    This name is the local name you can get using `kubectl config get-contexts`
 k8s_context: ""
+# k8s_namespace : the namespace to use in the k8s context
 k8s_namespace: ""
