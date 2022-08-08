@@ -3,11 +3,13 @@ import pathlib
 import shutil
 import zipfile
 from logging import Logger
+from typing import Optional
 from typing import Union
 
 import yaml
 
 from . import TEMPLATE_FOLDER_PATH
+from .config import Config
 
 
 class Environment:
@@ -15,15 +17,21 @@ class Environment:
     Simple class describing an environment for Babylon use
     """
 
-    def __init__(self, path: str, logger: Logger, template_path: Union[str, None] = None, dry_run: bool = False):
+    def __init__(self,
+                 solution_path: str,
+                 logger: Logger,
+                 config: Config,
+                 template_path: Optional[str] = None,
+                 dry_run: bool = False):
         """
         Initialize the environment, if not template_path is given will use the default one.
-        :param path: Path to the Environment
+        :param solution_path: Path to the Solution
         :param logger: Logger used to write infos
+        :param config: The current Configuration
         :param template_path: Optional path to the template against which we want to compare the current Environment
         :param dry_run: Flag to run command in dry_run mode
         """
-        self.path = pathlib.Path(path)
+        self.path = pathlib.Path(solution_path)
         self.is_zip = self.path.is_file() and self.path.suffix == ".zip"
         if self.is_zip:
             self.zip_file = zipfile.ZipFile(self.path)
@@ -33,6 +41,13 @@ class Environment:
             self.template_path = TEMPLATE_FOLDER_PATH / "EnvironmentTemplate"
         else:
             self.template_path = pathlib.Path(template_path)
+        self.config = config
+        self.deploy = config.get_deploy_path()
+        if not self.deploy:
+            self.deploy = self.path / "deploy.yaml"
+        self.platform = config.get_platform_path()
+        if not self.platform:
+            self.platform = self.path / "platform.yaml"
         self.dry_run = dry_run
 
     @staticmethod
@@ -90,6 +105,21 @@ class Environment:
         """
         if not self.is_zip:
             shutil.copytree(self.template_path, str(self.path), dirs_exist_ok=True)
+
+    def check_api(self) -> bool:
+        """
+
+        :return: True if the api targeted in the deploy is the same as the platform we use
+        """
+        config_platform = self.get_yaml_key("platform.yaml", "api_url")
+        target_platform = self.get_yaml_key("deploy.yaml", "api_url")
+
+        if config_platform != target_platform:
+            self.logger.warning("The platform targeted by the deploy is not the platform configured.")
+            self.logger.warning(f"  deploy  : {target_platform}")
+            self.logger.warning(f"  platform: {config_platform}")
+            return False
+        return True
 
     def compare_to_template(self, update_if_error: bool = False) -> bool:
         """
@@ -156,7 +186,15 @@ class Environment:
         return v is not None
 
     def get_yaml_key(self, yaml_path: str, yaml_key: str):
+        """
+        Will get a key from a yaml in the environment
+        :param yaml_path: path to the yaml file in the environment
+        :param yaml_key: key to get in the yaml
+        :return: the content of the yaml key
+        """
         target_file_path = self.get_file(yaml_path)
+        if not self.requires_file(yaml_path):
+            return None
         try:
             _y = yaml.safe_load(target_file_path.open())
             _v = _y[yaml_key]
@@ -165,12 +203,23 @@ class Environment:
             return None
 
     def get_file(self, file_path: str):
+        """
+        Will return the effective path of a file in the environment
+        :param file_path: the relative path of the file in the environment
+        :return: the path to the file
+        """
+        if file_path == "deploy.yaml":
+            return self.deploy
+        if file_path == "platform.yaml":
+            return self.platform
         target_file_path = self.path / pathlib.Path(file_path)
         return target_file_path
 
     def __str__(self):
         _ret = [f"Template path: {self.template_path}",
-                f"Environment path: {self.path}",
+                f"Solution path: {self.path}",
+                f"Platform path: {self.platform}",
+                f"Deploy path: {self.deploy}",
                 f"is_zip: {self.is_zip}",
                 "content:"]
         content = []

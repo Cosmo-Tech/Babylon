@@ -5,8 +5,9 @@ import logging
 import click
 import click_log
 
-from .groups import list_groups
 from .commands import list_commands
+from .groups import list_groups
+from .utils.config import Config
 from .utils.environment import Environment
 from .utils.logging import MultiLineHandler
 from .v0 import v0
@@ -31,7 +32,8 @@ logger.addHandler(handler)
 @click.pass_context
 def main(ctx, environment_path, template_path, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment"""
-    env = Environment(environment_path, logger, template_path, dry_run)
+    conf = Config(logger)
+    env = Environment(environment_path, logger, conf, template_path, dry_run)
     ctx.obj = env
 
 

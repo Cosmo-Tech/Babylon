@@ -8,6 +8,7 @@
        docstring_style: sphinx
        heading_level: 1
        members:
+          - check_api
           - copy_template
           - compare_to_template
           - create_zip
