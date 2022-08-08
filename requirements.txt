@@ -15,9 +15,11 @@ Cosmotech-Acceleration-Library
 # Other requirements
 pyyaml
 
-# doc generation
+# Documentation generation
 mkdocs
 mkdocs-click
+mkdocs-gen-files
+mkdocs-material
 mkdocstrings[python]
 pymdown-extensions
-mkdocs-material
+requirements-parser
