@@ -7,13 +7,13 @@ from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
-from ...utils.decorators import env_requires_yaml_key
+from ...utils.decorators import require_platform_key
 
 
 @group()
 @pass_context
-@env_requires_yaml_key("platform.yaml", "api_scope", "api_scope")
-@env_requires_yaml_key("platform.yaml", "api_url", "api_url")
+@require_platform_key("api_scope", "api_scope")
+@require_platform_key("api_url", "api_url")
 def api(ctx: Context, api_scope: str, api_url: str):
     """Group handling communication with the cosmotech API"""
     try:

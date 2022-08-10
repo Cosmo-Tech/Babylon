@@ -11,7 +11,7 @@ from cosmotech_api.api.solution_api import SolutionApi
 
 from ......utils.api import convert_keys_case
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import env_requires_yaml_key
+from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
@@ -21,7 +21,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 @command()
 @pass_solution_api
-@env_requires_yaml_key("deploy.yaml", "organization_id", "organization_id")
+@require_deployment_key("organization_id", "organization_id")
 @option("-o", "--output_file", "output_file", help="File to which content should be outputed (json-formatted)")
 @timing_decorator
 def get_all_ids(solution_api: SolutionApi, organization_id: str, output_file: Optional[str] = None):

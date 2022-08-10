@@ -9,7 +9,7 @@ from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 
 from ......utils.api import get_api_file
-from ......utils.decorators import env_requires_yaml_key
+from ......utils.decorators import require_deployment_key
 from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import allow_dry_run
@@ -25,8 +25,8 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @argument("solution_file")
 @option("-e", "--use-environment-file", "use_environment_file", is_flag=True,
         help="Should the path be in the environment ?")
-@env_requires_yaml_key("deploy.yaml", "organization_id", "organization_id")
-@env_requires_yaml_key("deploy.yaml", "solution_id", "solution_id")
+@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("solution_id", "solution_id")
 @allow_dry_run
 @timing_decorator
 def update(environment,
