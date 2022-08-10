@@ -39,6 +39,7 @@ def select_from_list(elements: list[Any], actual: Optional[Any] = None) -> Optio
             list_len = int(log10(len(elements))) + 1
             for element in elements:
                 click.echo(f"{index:>{list_len}} - {element_to_str(element, actual)}")
+                index += 1
         selection = click.prompt("Enter your selection (use the id)", type=int)
         try:
             selected = elements[selection]
