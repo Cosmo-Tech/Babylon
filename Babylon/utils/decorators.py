@@ -129,5 +129,65 @@ def requires_external_program(program_name: str):
     return wrap_function
 
 
+def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
+    """
+    Decorator allowing to check if the platform in config has specific key
+    If the check is failed the command won't run, and following checks won't be done
+    :param yaml_key: the required key
+    :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
+    """
+
+    def wrap_function(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            env: Environment = click.get_current_context().find_object(Environment)
+            config = env.config
+            if key_value := config.get_platform_var(yaml_key) is not None:
+                if arg_name is not None:
+                    kwargs[arg_name] = key_value
+                func(*args, **kwargs)
+            else:
+                logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
+                logger.error(f"{click.get_current_context().command.name} won't run without it.")
+                raise click.Abort()
+
+        doc = wrapper.__doc__
+        wrapper.__doc__ = (doc +
+                           f"\n\nRequires key `{yaml_key}` in the platform config file.")
+        return wrapper
+
+    return wrap_function
+
+
+def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
+    """
+    Decorator allowing to check if the deployment in config has specific key
+    If the check is failed the command won't run, and following checks won't be done
+    :param yaml_key: the required key
+    :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
+    """
+
+    def wrap_function(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            env: Environment = click.get_current_context().find_object(Environment)
+            config = env.config
+            if key_value := config.get_deploy_var(yaml_key) is not None:
+                if arg_name is not None:
+                    kwargs[arg_name] = key_value
+                func(*args, **kwargs)
+            else:
+                logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
+                logger.error(f"{click.get_current_context().command.name} won't run without it.")
+                raise click.Abort()
+
+        doc = wrapper.__doc__
+        wrapper.__doc__ = (doc +
+                           f"\n\nRequires key `{yaml_key}` in the platform config file.")
+        return wrapper
+
+    return wrap_function
+
+
 pass_environment = click.make_pass_decorator(Environment)
 pass_api_configuration = click.make_pass_decorator(cosmotech_api.Configuration)
