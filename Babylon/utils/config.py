@@ -18,8 +18,9 @@ class Config:
     def __save_after_run(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
-            func(self, *args, **kwargs)
+            r = func(self, *args, **kwargs)
             self.save_config()
+            return r
 
         return wrapper
 
@@ -36,7 +37,8 @@ class Config:
     def __list_config_folder_files(self, folder_name: str) -> list[str]:
         for _, _, files in os.walk(self.config_dir / folder_name):
             for _f in files:
-                yield _f
+                _file_name = pathlib.Path(_f)
+                yield _file_name.name.replace(_file_name.suffix, "")
 
     def list_deploys(self) -> list[str]:
         """
@@ -64,7 +66,7 @@ class Config:
             self.deploy = deploy_name
             return True
         else:
-            self.logger.error(f"{deploy_name} is not an existing deploy")
+            self.logger.error(f"{deploy_name} is not an existing deployment")
             return False
 
     @__save_after_run
@@ -74,7 +76,8 @@ class Config:
         :param platform_name: the platform name
         :return: True if the change was a success
         """
-        if platform_name in self.list_deploys():
+        platform_path = self.config_dir / "platforms" / f"{platform_name}.yaml"
+        if platform_path.exists():
             self.platform = platform_name
             return True
         else:
@@ -86,8 +89,11 @@ class Config:
         Create a new deployment file from the template and open it with the default text editor
         :param deploy_name: the name of the new deploy
         """
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "ConfigTemplate/deployments/deploy.yaml",
-                         self.config_dir / "deployments" / f"{deploy_name}.yaml")
+        _target = self.config_dir / "deployments" / f"{deploy_name}.yaml"
+        if _target.exists():
+            self.logger.error(f"Deployment {deploy_name} already exists")
+            return
+        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "ConfigTemplate/deployments/deploy.yaml", _target)
         click.edit(filename=str(_t))
 
     def create_platform(self, platform_name: str):
@@ -95,8 +101,11 @@ class Config:
         Create a new platform file from the template and open it with the default text editor
         :param platform_name: the name of the new platform
         """
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "ConfigTemplate/platforms/platform.yaml",
-                         self.config_dir / "platforms" / f"{platform_name}.yaml")
+        _target = self.config_dir / "platforms" / f"{platform_name}.yaml"
+        if _target.exists():
+            self.logger.error(f"Platform {platform_name} already exists")
+            return
+        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "ConfigTemplate/platforms/platform.yaml", _target)
         click.edit(filename=str(_t))
 
     def edit_deploy(self, deploy_name: str):
@@ -106,7 +115,7 @@ class Config:
         """
         deploy_path = self.config_dir / "deployments" / f"{deploy_name}.yaml"
         if not deploy_path.exists():
-            self.logger.error(f"{deploy_name} does not exists")
+            self.logger.error(f"Deployment {deploy_name} does not exists")
         else:
             click.edit(filename=str(deploy_path))
 
@@ -117,7 +126,7 @@ class Config:
         """
         platform_path = self.config_dir / "platforms" / f"{platform_name}.yaml"
         if not platform_path.exists():
-            self.logger.error(f"{platform_name} does not exists")
+            self.logger.error(f"Platform {platform_name} does not exists")
         else:
             click.edit(filename=str(platform_path))
 
@@ -126,7 +135,7 @@ class Config:
         Save the current config
         """
         _d = dict(deploy=self.deploy, platform=self.platform)
-        yaml.safe_dump(_d, (self.config_dir / "config.yaml").open())
+        yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
         self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
 
     def get_deploy_path(self) -> Optional[pathlib.Path]:
@@ -187,10 +196,10 @@ class Config:
         _ret = list()
         _ret.append("Configuration:")
         _ret.append(f"  dir: {self.config_dir}")
-        _ret.append(f"  deployment: {self.deploy}")
+        _ret.append(f"  deployment: {self.get_deploy_path()}")
         for k, v in yaml.safe_load(open(self.get_deploy_path())).items():
             _ret.append(f"    {k}: {v}")
-        _ret.append(f"  platform: {self.platform}")
+        _ret.append(f"  platform: {self.get_platform_path()}")
         for k, v in yaml.safe_load(open(self.get_platform_path())).items():
             _ret.append(f"    {k}: {v}")
         return "\n".join(_ret)

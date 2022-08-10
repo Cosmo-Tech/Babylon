@@ -8,6 +8,7 @@ import click
 import cosmotech_api
 
 from .environment import Environment
+from .config import Config
 
 logger = logging.getLogger("Babylon")
 
@@ -190,4 +191,5 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
 
 
 pass_environment = click.make_pass_decorator(Environment)
+pass_config = click.make_pass_decorator(Config)
 pass_api_configuration = click.make_pass_decorator(cosmotech_api.Configuration)
