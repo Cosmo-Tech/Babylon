@@ -2,12 +2,14 @@ import json
 import pathlib
 import re
 
+from typing import Any
+
 import yaml
 
 camel_pat = re.compile(r'([A-Z])')
 
 
-def camel_to_underscore(name):
+def camel_to_underscore(name: Any) -> Any:
     """
     Will convert a string from camelCase to snake_case
     will have no effect if the parameter is not a string
@@ -19,7 +21,7 @@ def camel_to_underscore(name):
     return name
 
 
-def underscore_to_camel(name):
+def underscore_to_camel(name: Any) -> Any:
     """
     Will convert a string from snake_case to camelCase
     will have no effect if the parameter is not a string
@@ -32,7 +34,7 @@ def underscore_to_camel(name):
     return name
 
 
-def convert_keys_case(element, convert_function):
+def convert_keys_case(element: Any, convert_function) -> Any:
     """
     Will apply a convert function to all keys in an object
     :param element: the object to be updated
@@ -53,19 +55,19 @@ def convert_keys_case(element, convert_function):
     return element
 
 
-def get_api_file(api_file_path: str, use_environment_file: bool, environment, logger):
+def get_api_file(api_file_path: str, use_solution_file: bool, solution, logger):
     """
     This function will try to find the correct file, and return its content in a format ready to be used with the cosmotech api
     Accepts yaml and json files
     :param api_file_path: The path to the file to be loaded
-    :param use_environment_file: Should the path be relative to the environment ?
-    :param environment: The current environment item
+    :param use_solution_file: Should the path be relative to the solution ?
+    :param solution: The current solution item
     :param logger: the logger to be used to log info
     :return: None if the file was not found, else the content of the loaded file
     """
     _file_path = pathlib.Path(api_file_path)
-    if use_environment_file:
-        _file_path = environment.get_file(api_file_path)
+    if use_solution_file:
+        _file_path = solution.get_file(api_file_path)
     if not _file_path.exists():
         logger.error(f"{_file_path} does not exists.")
         return None

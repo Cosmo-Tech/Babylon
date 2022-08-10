@@ -5,9 +5,10 @@ import logging
 import click
 import click_log
 
-from .groups import list_groups
 from .commands import list_commands
-from .utils.environment import Environment
+from .groups import list_groups
+from .utils.configuration import Configuration
+from .utils.solution import Solution
 from .utils.logging import MultiLineHandler
 from .v0 import v0
 
@@ -20,19 +21,21 @@ logger.addHandler(handler)
 
 @click.group()
 @click_log.simple_verbosity_option(logger)
-@click.option("-e", "--environment", "environment_path", default=".",
-              help="Path to a local environment (folder/zip) used to run the commands. "
+@click.option("-s", "--solution", "solution_path", default=".",
+              help="Path to a local solution (folder/zip) used to run the commands. "
                    "Defaults to current folder")
-@click.option("-t", "--template", "template_path", default=None,
-              help="Path to an environment template. "
-                   "Defaults to Babylon/templates/EnvironmentTemplate")
+@click.option("--tests", "tests_mode", is_flag=True,
+              help="Is babylon running in test mode ? This mode change output formatting.")
 @click.option("--dry_run", "dry_run", is_flag=True,
               help="Will run commands in dry-run mode")
 @click.pass_context
-def main(ctx, environment_path, template_path, dry_run):
+def main(ctx, solution_path, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment"""
-    env = Environment(environment_path, logger, template_path, dry_run)
-    ctx.obj = env
+    if tests_mode:
+        handler.setFormatter(logging.Formatter('{message}', style='{'))
+    conf = Configuration(logger)
+    solution = Solution(solution_path, logger, conf, dry_run)
+    ctx.obj = solution
 
 
 main.add_command(v0)

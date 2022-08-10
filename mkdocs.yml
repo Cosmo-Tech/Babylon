@@ -1,13 +1,17 @@
 site_name: babylon
 theme:
   name: material
+  font:
+    code: Fira Mono
   palette:
     scheme: slate
     primary: orange
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.expand
+    - navigation.top
   custom_dir: overrides
-
 nav:
     - Home: 'index.md'
     - Getting started:
@@ -16,15 +20,18 @@ nav:
     - Concepts:
         - Contribute: 'contribute.md'
         - Environments: 'environment.md'
-        - Library organization: 'organization.md'
     - References:
         - babylon: 'cli.md'
-        - utils:
-          - Environment: 'Utils/environment.md'
+        - classes:
+          - Configuration: 'Utils/config.md'
+          - Solution: 'Utils/solution.md'
+        - functions:
           - Decorators: 'Utils/decorators.md'
           - Cosmotech Api: 'Utils/api.md'
+          - Others: 'Utils/others.md'
 
 markdown_extensions:
+    - attr_list
     - mkdocs-click
     - pymdownx.snippets
 plugins:

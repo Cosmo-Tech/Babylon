@@ -3,106 +3,63 @@ import pathlib
 import shutil
 import zipfile
 from logging import Logger
-from typing import Union
+from typing import Optional
 
 import yaml
 
 from . import TEMPLATE_FOLDER_PATH
+from .configuration import Configuration
+from .yaml_utils import compare_yaml_keys
+from .yaml_utils import complete_yaml
 
 
-class Environment:
+class Solution:
     """
-    Simple class describing an environment for Babylon use
+    Simple class describing an solution for Babylon use
     """
 
-    def __init__(self, path: str, logger: Logger, template_path: Union[str, None] = None, dry_run: bool = False):
+    def __init__(self,
+                 solution_path: str,
+                 logger: Logger,
+                 config: Configuration,
+                 dry_run: bool = False):
         """
-        Initialize the environment, if not template_path is given will use the default one.
-        :param path: Path to the Environment
+        Initialize the solution, if not template_path is given will use the default one.
+        :param solution_path: Path to the Solution
         :param logger: Logger used to write infos
-        :param template_path: Optional path to the template against which we want to compare the current Environment
+        :param config: The current Configuration
         :param dry_run: Flag to run command in dry_run mode
         """
-        self.path = pathlib.Path(path)
+        self.path = pathlib.Path(solution_path)
+        self.initial_path = self.path
         self.is_zip = self.path.is_file() and self.path.suffix == ".zip"
         if self.is_zip:
             self.zip_file = zipfile.ZipFile(self.path)
             self.path = zipfile.Path(self.zip_file)
         self.logger = logger
-        if template_path is None:
-            self.template_path = TEMPLATE_FOLDER_PATH / "EnvironmentTemplate"
-        else:
-            self.template_path = pathlib.Path(template_path)
+        self.template_path = TEMPLATE_FOLDER_PATH / "SolutionTemplate"
+        self.config = config
         self.dry_run = dry_run
-
-    @staticmethod
-    def __compare_yaml_keys(template_yaml: pathlib.Path, target_yaml: pathlib.Path) -> tuple[set, set]:
-        """
-        Compare two yaml files and return the different keys they contain
-        :param template_yaml: Yaml file considered as the main file
-        :param target_yaml: Yaml file to be compared to the template
-        :return: 2 sets of keys :</br>
-        - missing_keys : the keys from the template missing from the target</br>
-        - superfluous_keys: the keys from the target that are not in the template
-        """
-        with template_yaml.open() as _te, target_yaml.open() as _ta:
-            _template = yaml.safe_load(_te)
-            _target = yaml.safe_load(_ta)
-            try:
-                _template_keys = set(_template.keys())
-            except AttributeError:
-                _template_keys = set()
-            try:
-                _target_keys = set(_target.keys())
-            except AttributeError:
-                _target_keys = set()
-            missing_keys = _template_keys - _target_keys
-            superfluous_keys = _target_keys - _template_keys
-            return missing_keys, superfluous_keys
-
-    @staticmethod
-    def __complete_yaml(template_yaml: pathlib.Path, target_yaml: pathlib.Path):
-        """
-        Will add missing element from template in target
-        :param template_yaml: Yaml file considered as the main file
-        :param target_yaml: Yaml file to be compared to the template
-        :return: Nothing
-        """
-        with template_yaml.open() as _te, target_yaml.open() as _ta:
-            _template = yaml.safe_load(_te)
-            _target = yaml.safe_load(_ta)
-            try:
-                for k, v in _template.items():
-                    try:
-                        _target.setdefault(k, v)
-                    except AttributeError:
-                        _target = dict()
-                        _target.setdefault(k, v)
-            except AttributeError:
-                pass
-        with target_yaml.open("w") as _ta:
-            yaml.safe_dump(_target, _ta)
 
     def copy_template(self):
         """
-        Initialize the environment by making a copy of the template
-        :return: Nothing
+        Initialize the solution by making a copy of the template
         """
         if not self.is_zip:
             shutil.copytree(self.template_path, str(self.path), dirs_exist_ok=True)
 
     def compare_to_template(self, update_if_error: bool = False) -> bool:
         """
-        Check if the current environment is valid (aka: has all folders and files required by the template)
-        :param update_if_error: Replace error logs by info and update the current environment with missing elements
-        :return: Is the environment valid ?
+        Check if the current solution is valid (aka: has all folders and files required by the template)
+        :param update_if_error: Replace error logs by info and update the current solution with missing elements
+        :return: Is the solution valid ?
         """
         _root = pathlib.Path(self.template_path)
         error_logger = self.logger.error
         if update_if_error:
             error_logger = self.logger.info
         has_err = False
-        self.logger.debug(f"Starting check of environment found on {self.path}")
+        self.logger.debug(f"Starting check of solution found on {self.path}")
         for root, dirs, files in os.walk(self.template_path):
             rel_path = pathlib.Path(os.path.relpath(root, _root))
             local_dir_path = self.path / rel_path
@@ -129,8 +86,8 @@ class Environment:
                             shutil.copy(template_file_path, str(local_file_path))
                     elif local_file_path.name.endswith(".yaml"):
                         self.logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
-                        missing_keys, superfluous_keys = self.__compare_yaml_keys(template_file_path,
-                                                                                  local_file_path)
+                        missing_keys, superfluous_keys = compare_yaml_keys(template_file_path,
+                                                                           local_file_path)
                         if missing_keys:
                             has_err = True
                             error_logger(f"YAML ERROR: In file {local_file_path}")
@@ -139,13 +96,13 @@ class Environment:
                                 error_logger(f"            - {_k}")
                             if update_if_error and not self.is_zip:
                                 error_logger("CORRECTION: Adding them")
-                                self.__complete_yaml(template_file_path, local_file_path)
+                                complete_yaml(template_file_path, local_file_path)
                         if superfluous_keys:
                             self.logger.debug(f"YAML ISSUE: In file {local_file_path}")
                             self.logger.debug(f"            The following keys are superfluous :")
                             for _k in superfluous_keys:
                                 self.logger.debug(f"            - {_k}")
-        self.logger.debug(f"Finished check of environment found on {self.path}")
+        self.logger.debug(f"Finished check of solution found on {self.path}")
         return not has_err
 
     def requires_file(self, file_path: str) -> bool:
@@ -155,22 +112,34 @@ class Environment:
         v = self.get_yaml_key(yaml_path, yaml_key)
         return v is not None
 
-    def get_yaml_key(self, yaml_path: str, yaml_key: str):
-        target_file_path = self.get_file(yaml_path)
+    def get_yaml_key(self, yaml_path: str, yaml_key: str) -> Optional[object]:
+        """
+        Will get a key from a yaml in the solution
+        :param yaml_path: path to the yaml file in the solution
+        :param yaml_key: key to get in the yaml
+        :return: the content of the yaml key
+        """
+        if not self.requires_file(yaml_path):
+            return None
         try:
-            _y = yaml.safe_load(target_file_path.open())
+            _y = yaml.safe_load(self.get_file(yaml_path).open())
             _v = _y[yaml_key]
             return _v
         except:
             return None
 
-    def get_file(self, file_path: str):
+    def get_file(self, file_path: str) -> pathlib.Path:
+        """
+        Will return the effective path of a file in the solution
+        :param file_path: the relative path of the file in the solution
+        :return: the path to the file
+        """
         target_file_path = self.path / pathlib.Path(file_path)
         return target_file_path
 
     def __str__(self):
         _ret = [f"Template path: {self.template_path}",
-                f"Environment path: {self.path}",
+                f"Solution path: {self.initial_path.resolve()}",
                 f"is_zip: {self.is_zip}",
                 "content:"]
         content = []
@@ -188,16 +157,16 @@ class Environment:
         _ret.extend(sorted(content))
         return "\n".join(_ret)
 
-    def create_zip(self, zip_path: str, force_overwrite: bool = False) -> Union[str, None]:
+    def create_zip(self, zip_path: str, force_overwrite: bool = False) -> Optional[str]:
         """
-        Create a zip file of the environment to the given path
-        :param zip_path: A path to zip the environment (if a folder is given will name the zip "Environment.zip"
+        Create a zip file of the solution to the given path
+        :param zip_path: A path to zip the solution (if a folder is given will name the zip "solution.zip"
         :param force_overwrite: should existing path be ignored and replaced ?
         :return: The effective path of the zip
         """
         _p = pathlib.Path(zip_path)
         if _p.is_dir():
-            _p = _p / pathlib.Path("Environment.zip")
+            _p = _p / pathlib.Path("solution.zip")
         if _p.exists():
             self.logger.warning("Target path already exists.")
             if not force_overwrite:

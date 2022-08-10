@@ -1,4 +1,4 @@
-::: Babylon.utils.environment.Environment
+::: Babylon.utils.solution.Solution
     handler: python
     options:
        show_root_heading: true
@@ -14,4 +14,4 @@
           - get_file
           - get_yaml_key
 
-More infos available on page [environment](environment.md)
+More infos available on page [Environment](../environment.md)
