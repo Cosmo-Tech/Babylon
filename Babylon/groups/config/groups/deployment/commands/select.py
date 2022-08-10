@@ -4,9 +4,9 @@ from typing import Optional
 from click import argument
 from click import command
 
-from ....utils.configuration import Configuration
-from ....utils.decorators import pass_config
-from ....utils.interactive import select_from_list
+from ......utils.configuration import Configuration
+from ......utils.decorators import pass_config
+from ......utils.interactive import select_from_list
 
 logger = logging.getLogger("Babylon")
 
@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_config
 @argument("deployment", required=False, type=str)
-def select_deployment(config: Configuration, deployment: Optional[str] = None):
+def select(config: Configuration, deployment: Optional[str] = None):
     """Change current selected deployment
 
     if not argument is passed will run in interactive mode"""
