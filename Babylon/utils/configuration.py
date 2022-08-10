@@ -13,7 +13,10 @@ from . import TEMPLATE_FOLDER_PATH
 from .yaml_utils import read_yaml_key
 
 
-class Config:
+class Configuration:
+    """
+    Base object created to store in file the configuration used in babylon
+    """
 
     def __save_after_run(func):
         @wraps(func)
@@ -70,7 +73,7 @@ class Config:
             return False
 
     @__save_after_run
-    def set_platform(self, platform_name: str):
+    def set_platform(self, platform_name: str) -> bool:
         """
         Change configured platform to the one given
         :param platform_name: the platform name

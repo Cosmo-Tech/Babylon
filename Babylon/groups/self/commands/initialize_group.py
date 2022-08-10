@@ -9,7 +9,7 @@ from click.core import Context
 from ....utils import BABYLON_PATH
 from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import timing_decorator
-from ....utils.string import is_valid_name
+from ....utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
 
@@ -22,7 +22,7 @@ def initialize_group(ctx: Context, group_name: list[str]):
     """Will initialize code for GROUP_NAME and make it available
 
 GROUP_NAME must only contain alphanumeric characters or -"""
-    if any([not is_valid_name(n) for n in group_name]):
+    if any([not is_valid_command_name(n) for n in group_name]):
         logger.error(f"`{' '.join(group_name)}` contains illegal characters (only accept alphanumeric or -)")
         return
     group_name = [name.lower().replace("-", "_") for name in group_name]

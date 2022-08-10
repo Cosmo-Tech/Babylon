@@ -9,7 +9,7 @@ from .initialize_group import initialize_group
 from ....utils import BABYLON_PATH
 from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import timing_decorator
-from ....utils.string import is_valid_name
+from ....utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
 
@@ -23,7 +23,7 @@ def initialize_command(ctx, group_name: list[str], command_name: str):
     """Will initialize code for COMMAND_NAME and make it available in GROUP_NAME
 
 COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
-    if not is_valid_name(command_name):
+    if not is_valid_command_name(command_name):
         logger.error(f"`{command_name}` contains illegal characters")
         return
     group_name = [name.lower() for name in group_name]

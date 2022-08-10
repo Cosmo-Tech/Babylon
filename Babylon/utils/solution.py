@@ -8,28 +8,26 @@ from typing import Optional
 import yaml
 
 from . import TEMPLATE_FOLDER_PATH
-from .config import Config
+from .configuration import Configuration
 from .yaml_utils import compare_yaml_keys
 from .yaml_utils import complete_yaml
 
 
-class Environment:
+class Solution:
     """
-    Simple class describing an environment for Babylon use
+    Simple class describing an solution for Babylon use
     """
 
     def __init__(self,
                  solution_path: str,
                  logger: Logger,
-                 config: Config,
-                 template_path: Optional[str] = None,
+                 config: Configuration,
                  dry_run: bool = False):
         """
-        Initialize the environment, if not template_path is given will use the default one.
+        Initialize the solution, if not template_path is given will use the default one.
         :param solution_path: Path to the Solution
         :param logger: Logger used to write infos
         :param config: The current Configuration
-        :param template_path: Optional path to the template against which we want to compare the current Environment
         :param dry_run: Flag to run command in dry_run mode
         """
         self.path = pathlib.Path(solution_path)
@@ -39,33 +37,29 @@ class Environment:
             self.zip_file = zipfile.ZipFile(self.path)
             self.path = zipfile.Path(self.zip_file)
         self.logger = logger
-        if template_path is None:
-            self.template_path = TEMPLATE_FOLDER_PATH / "EnvironmentTemplate"
-        else:
-            self.template_path = pathlib.Path(template_path)
+        self.template_path = TEMPLATE_FOLDER_PATH / "SolutionTemplate"
         self.config = config
         self.dry_run = dry_run
 
     def copy_template(self):
         """
-        Initialize the environment by making a copy of the template
-        :return: Nothing
+        Initialize the solution by making a copy of the template
         """
         if not self.is_zip:
             shutil.copytree(self.template_path, str(self.path), dirs_exist_ok=True)
 
     def compare_to_template(self, update_if_error: bool = False) -> bool:
         """
-        Check if the current environment is valid (aka: has all folders and files required by the template)
-        :param update_if_error: Replace error logs by info and update the current environment with missing elements
-        :return: Is the environment valid ?
+        Check if the current solution is valid (aka: has all folders and files required by the template)
+        :param update_if_error: Replace error logs by info and update the current solution with missing elements
+        :return: Is the solution valid ?
         """
         _root = pathlib.Path(self.template_path)
         error_logger = self.logger.error
         if update_if_error:
             error_logger = self.logger.info
         has_err = False
-        self.logger.debug(f"Starting check of environment found on {self.path}")
+        self.logger.debug(f"Starting check of solution found on {self.path}")
         for root, dirs, files in os.walk(self.template_path):
             rel_path = pathlib.Path(os.path.relpath(root, _root))
             local_dir_path = self.path / rel_path
@@ -108,7 +102,7 @@ class Environment:
                             self.logger.debug(f"            The following keys are superfluous :")
                             for _k in superfluous_keys:
                                 self.logger.debug(f"            - {_k}")
-        self.logger.debug(f"Finished check of environment found on {self.path}")
+        self.logger.debug(f"Finished check of solution found on {self.path}")
         return not has_err
 
     def requires_file(self, file_path: str) -> bool:
@@ -120,8 +114,8 @@ class Environment:
 
     def get_yaml_key(self, yaml_path: str, yaml_key: str) -> Optional[object]:
         """
-        Will get a key from a yaml in the environment
-        :param yaml_path: path to the yaml file in the environment
+        Will get a key from a yaml in the solution
+        :param yaml_path: path to the yaml file in the solution
         :param yaml_key: key to get in the yaml
         :return: the content of the yaml key
         """
@@ -136,8 +130,8 @@ class Environment:
 
     def get_file(self, file_path: str) -> pathlib.Path:
         """
-        Will return the effective path of a file in the environment
-        :param file_path: the relative path of the file in the environment
+        Will return the effective path of a file in the solution
+        :param file_path: the relative path of the file in the solution
         :return: the path to the file
         """
         target_file_path = self.path / pathlib.Path(file_path)
@@ -146,7 +140,6 @@ class Environment:
     def __str__(self):
         _ret = [f"Template path: {self.template_path}",
                 f"Solution path: {self.initial_path.resolve()}",
-                f"{self.config}",
                 f"is_zip: {self.is_zip}",
                 "content:"]
         content = []
@@ -166,14 +159,14 @@ class Environment:
 
     def create_zip(self, zip_path: str, force_overwrite: bool = False) -> Optional[str]:
         """
-        Create a zip file of the environment to the given path
-        :param zip_path: A path to zip the environment (if a folder is given will name the zip "Environment.zip"
+        Create a zip file of the solution to the given path
+        :param zip_path: A path to zip the solution (if a folder is given will name the zip "solution.zip"
         :param force_overwrite: should existing path be ignored and replaced ?
         :return: The effective path of the zip
         """
         _p = pathlib.Path(zip_path)
         if _p.is_dir():
-            _p = _p / pathlib.Path("Environment.zip")
+            _p = _p / pathlib.Path("solution.zip")
         if _p.exists():
             self.logger.warning("Target path already exists.")
             if not force_overwrite:

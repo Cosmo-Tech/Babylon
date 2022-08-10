@@ -15,15 +15,15 @@ logger = logging.getLogger("Babylon")
 @option("-f", "--force", "force_overwrite", is_flag=True, help="Force replacement of existing file with new zip")
 @pass_obj
 @timing_decorator
-def zip_env(environment, path, force_overwrite):
-    """Zip an environment to given PATH
+def zip_env(solution, path, force_overwrite):
+    """Zip a solution to given PATH
 
-    PATH can be a folder (archive name will default to Environment.zip) or a .zip file
+    PATH can be a folder (archive name will default to solution.zip) or a .zip file
     """
-    out = environment.create_zip(zip_path=path, force_overwrite=force_overwrite)
+    out = solution.create_zip(zip_path=path, force_overwrite=force_overwrite)
     if out:
-        logger.info(f"Environment was zipped in {out}")
+        logger.info(f"solution was zipped in {out}")
     else:
-        logger.error("Issues during the zipping of the environment.")
+        logger.error("Issues during the zipping of the solution.")
         if not force_overwrite:
             logger.error("Did you try using the force_overwrite option?")

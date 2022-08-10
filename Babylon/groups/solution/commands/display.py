@@ -11,6 +11,6 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_obj
 @timing_decorator
-def display(environment):
-    """Display information about the current environment"""
-    logger.info(str(environment))
+def display(solution):
+    """Display information about the current solution"""
+    logger.info(str(solution))

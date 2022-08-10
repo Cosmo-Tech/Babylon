@@ -1,4 +1,4 @@
-::: Babylon.utils.environment.Environment
+::: Babylon.utils.solution.Solution
     handler: python
     options:
        show_root_heading: true
@@ -8,11 +8,10 @@
        docstring_style: sphinx
        heading_level: 1
        members:
-          - check_api
           - copy_template
           - compare_to_template
           - create_zip
           - get_file
           - get_yaml_key
 
-More infos available on page [environment](environment.md)
+More infos available on page [Environment](../environment.md)

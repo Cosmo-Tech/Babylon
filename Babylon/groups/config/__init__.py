@@ -4,11 +4,11 @@ from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
-from ...utils.decorators import pass_environment
+from ...utils.decorators import pass_solution
 
 
 @group()
-@pass_environment
+@pass_solution
 @pass_context
 def config(ctx: Context, env):
     """Group made to work on the config"""

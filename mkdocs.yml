@@ -19,10 +19,13 @@ nav:
         - Library organization: 'organization.md'
     - References:
         - babylon: 'cli.md'
-        - utils:
+        - classes:
+          - Configuration: 'Utils/config.md'
           - Environment: 'Utils/environment.md'
+        - functions:
           - Decorators: 'Utils/decorators.md'
           - Cosmotech Api: 'Utils/api.md'
+          - Others: 'Utils/others.md'
 
 markdown_extensions:
     - mkdocs-click

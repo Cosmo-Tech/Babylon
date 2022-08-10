@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 @argument("filename")
 @pass_obj
 @timing_decorator
-def connector(environment, filename):
+def connector(solution, filename):
     """Create a new connector in the API using FILENAME as a template"""
     file_path = Path(filename)
     if not file_path.is_file():

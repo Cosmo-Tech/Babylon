@@ -3,7 +3,7 @@ import logging
 from click import argument
 from click import command
 
-from ....utils.config import Config
+from ....utils.configuration import Configuration
 from ....utils.decorators import pass_config
 
 logger = logging.getLogger("Babylon")
@@ -12,6 +12,6 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_config
 @argument("deploy", nargs=1, type=str)
-def create_deploy(config: Config, deploy: str):
+def create_deploy(config: Configuration, deploy: str):
     """Create a new deployment file DEPLOY.yaml and open editor to edit it"""
     config.create_deploy(deploy)

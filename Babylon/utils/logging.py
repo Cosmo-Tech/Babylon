@@ -2,6 +2,10 @@ import logging
 
 
 class MultiLineHandler(logging.StreamHandler):
+    """
+    Simple multiple line Handler for logging.
+    Will separate multiline logs and emit them one line at a time
+    """
 
     def __init__(self, *args, **kwargs):
         logging.StreamHandler.__init__(self, *args, **kwargs)
