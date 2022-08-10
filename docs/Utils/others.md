@@ -8,7 +8,7 @@
        show_source: false
        line_length: 40
        docstring_style: sphinx
-       heading_level: 1
+       heading_level: 2
 
 ::: Babylon.utils.logging
     handler: python
@@ -18,7 +18,7 @@
        show_source: false
        line_length: 40
        docstring_style: sphinx
-       heading_level: 1
+       heading_level: 2
 
 ::: Babylon.utils.string
     handler: python
@@ -28,7 +28,7 @@
        show_source: false
        line_length: 40
        docstring_style: sphinx
-       heading_level: 1
+       heading_level: 2
 
 ::: Babylon.utils.yaml_utils
     handler: python
@@ -38,4 +38,4 @@
        show_source: false
        line_length: 40
        docstring_style: sphinx
-       heading_level: 1
+       heading_level: 2

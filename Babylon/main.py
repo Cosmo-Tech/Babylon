@@ -34,8 +34,8 @@ def main(ctx, solution_path, tests_mode, dry_run):
     if tests_mode:
         handler.setFormatter(logging.Formatter('{message}', style='{'))
     conf = Configuration(logger)
-    env = Solution(solution_path, logger, conf, dry_run)
-    ctx.obj = env
+    solution = Solution(solution_path, logger, conf, dry_run)
+    ctx.obj = solution
 
 
 main.add_command(v0)

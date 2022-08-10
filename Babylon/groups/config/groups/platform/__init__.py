@@ -9,7 +9,7 @@ from .groups import list_groups
 @group()
 @pass_context
 def platform(ctx: Context):
-    """Group initialized from a template"""
+    """Sub-group for platform"""
     pass
 
 

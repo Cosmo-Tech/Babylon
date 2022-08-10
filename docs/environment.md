@@ -17,7 +17,7 @@ Solution
 ```
 
 More folders and file can be required and will be added in future version, don't hesitate to
-use `babylon environment complete` to add missing elements of the solution.
+use `babylon solution complete` to add missing elements of the solution.
 
 ### API
 
