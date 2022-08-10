@@ -2,7 +2,7 @@ site_name: babylon
 theme:
   name: material
   font:
-    code: Fira Code
+    code: Fira Mono
   palette:
     scheme: slate
     primary: orange

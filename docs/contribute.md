@@ -68,24 +68,7 @@ This new package comes with a package called `commands` and a package named `gro
 template for the `new_group.__init__.py`
 
 ```python
-from click import group
-from click import pass_context
-from .commands import list_commands
-from .groups import list_groups
-
-
-@group()
-@pass_context
-def new_group(ctx):
-    """New group of commands"""
-    ctx.obj = dict()  # this obj can be passed to the commands of the group by using the click.pass_obj decorator
-
-
-for _command in list_commands:
-    new_group.add_command(_command)
-
-for _group in list_groups:
-    new_group.add_command(_group)
+--8<-- "Babylon/templates/group_template/__init__.py"
 ```
 
 #### Initialize the `commands.__init__.py`
@@ -93,15 +76,15 @@ for _group in list_groups:
 You can use the following template to initialize the `new_group.commands.__init__.py`
 
 ```python
-list_commands = []
+--8<-- "Babylon/templates/group_template/commands/__init__.py"
 ```
 
 #### Initialize the `groups.__init__.py`
 
-You can use the following template to initialize the `new_group.commands.__init__.py`
+You can use the following template to initialize the `new_group.groups.__init__.py`
 
 ```python
-list_groups = []
+--8<-- "Babylon/templates/group_template/groups/__init__.py"
 ```
 
 #### Add your group to the groups callable by the cli
@@ -151,22 +134,7 @@ You follow the same instruction as adding a group in `Babylon.groups` but in a s
 This template can be copied in the `commands` package for the group we want to add the command to.
 
 ```python
-from click import command
-from click import pass_obj
-
-from Babylon.utils.decorators import timing_decorator
-
-import logging
-
-logger = logging.getLogger("Babylon")
-
-
-@command()
-@pass_obj
-@timing_decorator
-def my_command(ctx):
-    """Doc-string for my new command"""
-    pass
+--8<-- "Babylon/templates/command_template.py"
 ```
 
 #### Add to `commands.__init__.py`
