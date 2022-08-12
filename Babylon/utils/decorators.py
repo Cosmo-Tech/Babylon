@@ -62,6 +62,7 @@ def solution_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional
             if solution.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
                 if arg_name is not None:
                     kwargs[arg_name] = solution.get_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key)
+                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 func(*args, **kwargs)
             else:
                 logger.error(f"Key {yaml_key} can not be found in {yaml_path}")
@@ -91,6 +92,7 @@ def solution_requires_file(file_path: str, arg_name: Optional[str] = None):
             if solution.requires_file(file_path=file_path):
                 if arg_name is not None:
                     kwargs[arg_name] = solution.get_file(file_path=file_path)
+                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 func(*args, **kwargs)
             else:
                 logger.error(f"Solution is missing {file_path}")
@@ -143,9 +145,10 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
         def wrapper(*args, **kwargs):
             solution: Solution = click.get_current_context().find_object(Solution)
             config = solution.config
-            if key_value := config.get_platform_var(yaml_key) is not None:
+            if (key_value := config.get_platform_var(yaml_key)) is not None:
                 if arg_name is not None:
                     kwargs[arg_name] = key_value
+                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 func(*args, **kwargs)
             else:
                 logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
@@ -173,9 +176,10 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
         def wrapper(*args, **kwargs):
             solution: Solution = click.get_current_context().find_object(Solution)
             config = solution.config
-            if key_value := config.get_deploy_var(yaml_key) is not None:
+            if (key_value := config.get_deploy_var(yaml_key)) is not None:
                 if arg_name is not None:
                     kwargs[arg_name] = key_value
+                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 func(*args, **kwargs)
             else:
                 logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
@@ -184,7 +188,7 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
 
         doc = wrapper.__doc__
         wrapper.__doc__ = (doc +
-                           f"\n\nRequires key `{yaml_key}` in the platform config file.")
+                           f"\n\nRequires key `{yaml_key}` in the deployment config file.")
         return wrapper
 
     return wrap_function
