@@ -14,4 +14,4 @@ logger = logging.getLogger("Babylon")
 @argument("platform", nargs=1, type=str)
 def create(config: Configuration, platform: str):
     """Create a new platform file PLATFORM.yaml and open editor to edit it"""
-    config.create_deploy(platform)
+    config.create_platform(platform)
