@@ -23,10 +23,11 @@ def initialize_command(ctx, group_name: list[str], command_name: str):
     """Will initialize code for COMMAND_NAME and make it available in GROUP_NAME
 
 COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
+    command_name = command_name.replace("-", "_")
     if not is_valid_command_name(command_name):
         logger.error(f"`{command_name}` contains illegal characters")
         return
-    group_name = [name.lower() for name in group_name]
+    group_name = [name.lower().replace("-", "_") for name in group_name]
     command_name = command_name.lower()
     logger.debug(f"Initializing command `{command_name}` in group `{' '.join(group_name)}`")
     babylon_groups_path = BABYLON_PATH / "groups"

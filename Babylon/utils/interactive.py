@@ -7,6 +7,22 @@ import click
 MAX_RETRIES = 3
 
 
+def ask_for_group(prompt: str, exists: bool = False) -> list[str]:
+    """
+    Will prompt the user to get a group
+    :param prompt: Which text should be prompted to the user ?
+    :param exists: Should the group exists ?
+    :return: the list of subgroups composing the path to the group
+    """
+
+    group_string = click.prompt(prompt, type=str)
+    if exists:
+        # TODO : Check for group existence
+        pass
+    click.echo(f"Selected group : {group_string}")
+    return group_string.split(" ")
+
+
 def element_to_str(element: Any, actual: Optional[Any] = None):
     """
     Add a box before the element to display

@@ -9,3 +9,16 @@ def is_valid_command_name(string: str) -> bool:
     """
     pattern = r'^[a-zA-Z]\w*$'
     return bool(re.search(pattern, string))
+
+
+MAX_LINE_LENGTH = 120
+
+
+def to_header_line(string: str) -> str:
+    if (length := len(string)) > MAX_LINE_LENGTH:
+        return string
+    elif length == 0:
+        return "-" * MAX_LINE_LENGTH
+    else:
+        missing = MAX_LINE_LENGTH - length - 2
+        return f"{'-' * (missing // 2)} {string} {'-' * (missing // 2)}"

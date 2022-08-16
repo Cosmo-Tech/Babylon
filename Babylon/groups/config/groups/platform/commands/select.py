@@ -19,7 +19,7 @@ def select(config: Configuration, platform: Optional[str] = None):
 
     if not argument is passed will run in interactive mode"""
     if platform:
-        if config.set_deploy(platform):
+        if config.set_platform(platform):
             logger.info(f"Configuration successfully updated")
         else:
             logger.error(f"Configuration was not updated. {platform} is not a valid deploy name.")
