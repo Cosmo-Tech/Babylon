@@ -3,9 +3,11 @@
 Babylon use a hierarchy of groups, subgroups, and commands to allow the user to guide him. So if you want to create a
 new set of commands you will want to make sure to group them in a logical structure.
 
-## Use `babylon self` to initialize
+## Use `babylon dev` to initialize
 
-You can use `babylon self initialize-group` to initialize all the files for a new group (works with subgroups too)
+The group of command `babylon dev` is hidden, you can do `babylon dev --help` to check the existing commands
+
+You can use `babylon dev initialize-group` to initialize all the files for a new group (works with subgroups too)
 
 ```bash
 babylon self initialize-group mynewgroup mynewsubgroup
@@ -30,11 +32,11 @@ Babylon
 └── ...
 ```
 
-You can use `babylon self initialize-command` to initialize a new command (will initialize the required groups if non
+You can use `babylon dev initialize-command` to initialize a new command (will initialize the required groups if non
 existent). You can add as many groups as you want (starting from 0 groups)
 
 ```bash
-babylon self initialize-command mynewgroup mynewcommand
+babylon dev initialize-command mynewgroup mynewcommand
 # This command will try to create the command mynewcommand in mynewgroup
 # if mynewgroup does not exist it will create it first
 ```
