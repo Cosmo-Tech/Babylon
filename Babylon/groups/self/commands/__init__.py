@@ -1,9 +1,11 @@
+from .list_required_keys import list_required_keys
 from .move_group import move_group
 from .rename_command import rename_command
 from .initialize_command import initialize_command
 from .initialize_group import initialize_group
 
 list_commands = [
+    list_required_keys,
     move_group,
     rename_command,
     initialize_command,
