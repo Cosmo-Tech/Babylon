@@ -1,25 +1,28 @@
 import logging
+import pathlib
 import shutil
 
 from click import argument
 from click import command
 from click import pass_context
+from click import make_pass_decorator
 
 from .initialize_group import initialize_group
-from ....utils import BABYLON_PATH
 from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import timing_decorator
 from ....utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
+pass_base_path = make_pass_decorator(pathlib.PosixPath)
 
 
 @command()
 @argument("group_name", nargs=-1)
 @argument("command_name", nargs=1)
+@pass_base_path
 @pass_context
 @timing_decorator
-def initialize_command(ctx, group_name: list[str], command_name: str):
+def initialize_command(ctx, base_path: pathlib.Path, group_name: list[str], command_name: str):
     """Will initialize code for COMMAND_NAME and make it available in GROUP_NAME
 
 COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
@@ -30,12 +33,12 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
     group_name = [name.lower().replace("-", "_") for name in group_name]
     command_name = command_name.lower()
     logger.debug(f"Initializing command `{command_name}` in group `{' '.join(group_name)}`")
-    babylon_groups_path = BABYLON_PATH / "groups"
+    babylon_groups_path = base_path / "groups"
     _g_path = "/groups/".join(group_name)
     if group_name:
         group_path = babylon_groups_path / _g_path
     else:
-        group_path = BABYLON_PATH
+        group_path = base_path
     command_file_path = group_path / f"commands/{command_name}.py"
 
     if command_file_path.exists():

@@ -36,6 +36,80 @@ class Configuration:
 
         self.deploy = str(read_yaml_key(self.config_dir / "config.yaml", "deploy"))
         self.platform = str(read_yaml_key(self.config_dir / "config.yaml", "platform"))
+        self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
+
+    def get_active_plugins(self) -> list[(str, pathlib.Path)]:
+        """
+        Yields all activated plugins path
+        """
+        for _p in self.plugins:
+            if _p['active']:
+                yield _p['name'], pathlib.Path(_p['path'])
+
+    def get_available_plugin(self) -> list[str]:
+        """
+        Yields all available plugin names
+        """
+        for _p in self.plugins:
+            yield _p['name']
+
+    @__save_after_run
+    def activate_plugin(self, plugin_name: str) -> bool:
+        """
+        Will activate a given plugin
+        :param plugin_name: the plugin to activate
+        :return: Did the plugin get activated ?
+        """
+        for _p in self.plugins:
+            if _p['name'] == plugin_name:
+                _p['active'] = True
+                return True
+        return False
+
+    @__save_after_run
+    def deactivate_plugin(self, plugin_name: str) -> bool:
+        """
+        Will deactivate a given plugin
+        :param plugin_name: the plugin to deactivate
+        :return: Did the plugin get deactivated ?
+        """
+        for _p in self.plugins:
+            if _p['name'] == plugin_name:
+                _p['active'] = False
+                return True
+        return False
+
+    @__save_after_run
+    def remove_plugin(self, plugin_name: str) -> bool:
+        """
+        Will remove a given plugin
+        :param plugin_name: the plugin to remove
+        :return: Did the plugin get removed ?
+        """
+        _plugins = list()
+        for _p in self.plugins:
+            if _p['name'] != plugin_name:
+                _plugins.append(_p)
+        self.plugins = _plugins
+        return True
+
+    @__save_after_run
+    def add_plugin(self, plugin_path: pathlib.Path) -> Optional[str]:
+        """
+        Will add a plugin to the config given a plugin path
+        :param plugin_path: path to the plugin folder to add
+        :return: The name of the plugin added, or None if plugin could not be added
+        """
+        plugin_config_path = plugin_path / "plugin_config.yaml"
+        if not plugin_config_path.exists():
+            return None
+        plugin_name = read_yaml_key(plugin_config_path, "plugin_name")
+        if plugin_name is None:
+            return None
+
+        plugin_entry = dict(name=plugin_name, path=str(plugin_path.absolute()), active=True)
+        self.plugins.append(plugin_entry)
+        return str(plugin_name)
 
     def __list_config_folder_files(self, folder_name: str) -> list[str]:
         for _, _, files in os.walk(self.config_dir / folder_name):
@@ -137,7 +211,7 @@ class Configuration:
         """
         Save the current config
         """
-        _d = dict(deploy=self.deploy, platform=self.platform)
+        _d = dict(deploy=self.deploy, platform=self.platform, plugins=self.plugins)
         yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
         self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
 
@@ -205,4 +279,8 @@ class Configuration:
         _ret.append(f"  platform: {self.get_platform_path()}")
         for k, v in yaml.safe_load(open(self.get_platform_path())).items():
             _ret.append(f"    {k}: {v}")
+        _ret.append(f"  plugins:")
+        for plugin in self.plugins:
+            state = '[' + ("x" if plugin['active'] else " ") + "]"
+            _ret.append(f"    {state} {plugin['name']}: {plugin['path']}")
         return "\n".join(_ret)
