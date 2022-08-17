@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
+import importlib.util
 import logging
 
 import click
 import click_log
+import sys
 
 from .commands import list_commands
 from .groups import list_groups
 from .utils.configuration import Configuration
-from .utils.solution import Solution
 from .utils.logging import MultiLineHandler
+from .utils.solution import Solution
 from .v0 import v0
 
 logger = logging.getLogger("Babylon")
@@ -17,6 +19,8 @@ handler = MultiLineHandler()
 formatter = logging.Formatter('{levelname:>8} - {asctime} | {message}', style='{', datefmt='%Y/%m/%d - %H:%M:%S')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+conf = Configuration(logger)
 
 
 @click.group()
@@ -33,10 +37,20 @@ def main(ctx, solution_path, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment"""
     if tests_mode:
         handler.setFormatter(logging.Formatter('{message}', style='{'))
-    conf = Configuration(logger)
     solution = Solution(solution_path, logger, conf, dry_run)
     ctx.obj = solution
 
+
+for plugin_name, _plugin_path in conf.get_active_plugins():
+    init_path = _plugin_path / "__init__.py"
+
+    _plugin_name = "BabylonPlugin."+plugin_name
+    spec = importlib.util.spec_from_file_location(_plugin_name, init_path)
+    mod = importlib.util.module_from_spec(spec)
+
+    sys.modules[_plugin_name] = mod
+    spec.loader.exec_module(mod)
+    main.add_command(mod.__dict__[plugin_name])
 
 main.add_command(v0)
 for _group in list_groups:

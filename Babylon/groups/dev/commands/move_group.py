@@ -5,11 +5,11 @@ import pathlib
 import shutil
 
 from click import command
+from click import make_pass_decorator
 from click import pass_context
 from click.core import Context
 
 from .initialize_group import initialize_group
-from ....utils import BABYLON_PATH
 from ....utils.decorators import allow_dry_run
 from ....utils.decorators import timing_decorator
 from ....utils.interactive import ask_for_group
@@ -17,15 +17,17 @@ from ....utils.string import is_valid_command_name
 from ....utils.string import to_header_line
 
 logger = logging.getLogger("Babylon")
+pass_base_path = make_pass_decorator(pathlib.PosixPath)
 
 
 @command()
+@pass_base_path
 @pass_context
 @allow_dry_run
 @timing_decorator
-def move_group(ctx: Context, dry_run: bool = False):
+def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
     """Command made to move groups"""
-    babylon_groups_path = BABYLON_PATH / "groups"
+    babylon_groups_path = base_path / "groups"
 
     old_group_name = ask_for_group("Enter an existing group name", True)
     if any([not is_valid_command_name(n.replace("-", "_")) for n in old_group_name]):
@@ -54,7 +56,7 @@ def move_group(ctx: Context, dry_run: bool = False):
     if len(old_group_name) > 1:
         old_parent_group_path = babylon_groups_path / "/groups/".join(old_group_name[:-1])
     else:
-        old_parent_group_path = BABYLON_PATH
+        old_parent_group_path = base_path
 
     old_parent_group_init = old_parent_group_path / "groups/__init__.py"
     _pgi_content = []
@@ -78,7 +80,7 @@ def move_group(ctx: Context, dry_run: bool = False):
             if not dry_run:
                 ctx.invoke(initialize_group, group_name=new_group_name[:-1])
     else:
-        parent_group_path = BABYLON_PATH
+        parent_group_path = base_path
 
     if dry_run:
         logger.info(to_header_line(f"Moving group to new location"))
@@ -151,5 +153,5 @@ def move_group(ctx: Context, dry_run: bool = False):
                     logger.info("".join(_f_content))
                 else:
                     logger.info(f"Updating {new_group_path / _f_local_path}")
-                    with open(group_init, "w") as _gi_file:
-                        _gi_file.write("".join(_f_content))
+                    with open(_f_name, "w") as _f:
+                        _f.write("".join(_f_content))

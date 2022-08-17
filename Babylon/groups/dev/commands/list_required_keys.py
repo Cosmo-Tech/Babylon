@@ -5,29 +5,29 @@ import pathlib
 
 from click import argument
 from click import command
+from click import make_pass_decorator
 
-from ....utils import BABYLON_PATH
 from ....utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
+pass_base_path = make_pass_decorator(pathlib.PosixPath)
 
 
 @command()
+@pass_base_path
 @argument("group_name", nargs=-1)
-def list_required_keys(group_name: list[str]):
+def list_required_keys(base_path: pathlib.Path, group_name: list[str]):
     """Check code base to list platform and deployment keys
 if GROUP_NAME is defined will limit the check to the given group"""
     platform_template_keys = set()
     deployment_template_keys = set()
-
-    base_path = BABYLON_PATH
 
     if any([not is_valid_command_name(n) for n in group_name]):
         logger.error(f"`{' '.join(group_name)}` contains illegal characters (only accept alphanumeric or -)")
         return
     group_name = [name.lower().replace("-", "_") for name in group_name]
     if group_name:
-        babylon_groups_path = BABYLON_PATH / "groups"
+        babylon_groups_path = base_path / "groups"
         _g_path = "/groups/".join(group_name)
         group_path = babylon_groups_path / _g_path
         if group_path.exists():
