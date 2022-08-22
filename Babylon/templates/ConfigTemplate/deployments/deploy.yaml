@@ -6,3 +6,5 @@ solution_id: ""
 workspace_id: ""
 # api_url : the url of the API (used for validation)
 api_url: ""
+# database_name : the name of the database used in Azure Data Explorer
+database_name: ""

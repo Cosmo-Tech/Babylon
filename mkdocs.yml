@@ -20,15 +20,16 @@ nav:
     - Concepts:
         - Contribute: 'contribute.md'
         - Environments: 'environment.md'
+        - Plugins: 'plugins.md'
     - References:
         - babylon: 'cli.md'
         - classes:
-          - Configuration: 'Utils/config.md'
-          - Solution: 'Utils/solution.md'
+            - Configuration: 'Utils/config.md'
+            - Solution: 'Utils/solution.md'
         - functions:
-          - Decorators: 'Utils/decorators.md'
-          - Cosmotech Api: 'Utils/api.md'
-          - Others: 'Utils/others.md'
+            - Decorators: 'Utils/decorators.md'
+            - Cosmotech Api: 'Utils/api.md'
+            - Others: 'Utils/others.md'
 
 markdown_extensions:
     - attr_list
