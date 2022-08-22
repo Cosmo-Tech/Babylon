@@ -1,2 +1,3 @@
 deploy: "deploy"
 platform: "platform"
+plugins:

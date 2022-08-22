@@ -6,9 +6,9 @@ import shutil
 import click
 
 from ....utils import TEMPLATE_FOLDER_PATH
-from ....utils.string import is_valid_command_name
-from ....utils.decorators import pass_config
 from ....utils.configuration import Configuration
+from ....utils.decorators import pass_config
+from ....utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
 
@@ -20,9 +20,9 @@ logger = logging.getLogger("Babylon")
                                                  writable=True,
                                                  path_type=pathlib.Path))
 @click.argument("plugin_name")
-@click.option("-a", "--add", "add", flag=True, help="Add the created plugin to the config.")
+@click.option("-a", "--add", "add", is_flag=True, help="Add the created plugin to the config.")
 @pass_config
-def initialize_plugin(config: Configuration ,plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):
+def initialize_plugin(config: Configuration, plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):
     """Will initialize PLUGIN_NAME in PLUGIN_FOLDER"""
 
     plugin_name = plugin_name.replace("-", "_")
