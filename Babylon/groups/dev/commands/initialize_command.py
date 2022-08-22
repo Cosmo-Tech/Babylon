@@ -70,3 +70,5 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
         _cf_content[i] = _cf_content[i].replace('command_template', command_name)
     with open(command_file_path, "w") as _gi_file:
         _gi_file.write("".join(_cf_content))
+
+    logger.info(f"Command `{' '.join(group_name)} {command_name}` was created")

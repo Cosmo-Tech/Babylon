@@ -2,6 +2,8 @@ import os
 import pathlib
 import pprint
 import shutil
+import subprocess
+import sys
 from functools import wraps
 from logging import Logger
 from typing import Optional
@@ -102,10 +104,24 @@ class Configuration:
         """
         plugin_config_path = plugin_path / "plugin_config.yaml"
         if not plugin_config_path.exists():
+            self.logger.error(f"`{plugin_path}` is not a valid plugin folder")
             return None
         plugin_name = read_yaml_key(plugin_config_path, "plugin_name")
         if plugin_name is None:
+            self.logger.error(f"`{plugin_path}` is not a valid plugin folder, no plugin_name found.")
             return None
+
+        if plugin_name in self.get_available_plugin():
+            self.logger.error(f"`{plugin_name}` is an already existing plugin")
+            return None
+
+        requirements_path = plugin_path / "requirements.txt"
+        if requirements_path.exists():
+            try:
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', str(requirements_path.absolute())])
+            except subprocess.CalledProcessError:
+                self.logger.error(f"Issues while installing requirements for `{plugin_name}`")
+                return None
 
         plugin_entry = dict(name=plugin_name, path=str(plugin_path.absolute()), active=True)
         self.plugins.append(plugin_entry)

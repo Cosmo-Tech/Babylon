@@ -1,4 +1,3 @@
-import glob
 import logging
 import os
 import pathlib
@@ -8,6 +7,8 @@ import click
 
 from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.string import is_valid_command_name
+from ....utils.decorators import pass_config
+from ....utils.configuration import Configuration
 
 logger = logging.getLogger("Babylon")
 
@@ -19,7 +20,9 @@ logger = logging.getLogger("Babylon")
                                                  writable=True,
                                                  path_type=pathlib.Path))
 @click.argument("plugin_name")
-def initialize_plugin(plugin_name: str, plugin_folder: pathlib.Path):
+@click.option("-a", "--add", "add", flag=True, help="Add the created plugin to the config.")
+@pass_config
+def initialize_plugin(config: Configuration ,plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):
     """Will initialize PLUGIN_NAME in PLUGIN_FOLDER"""
 
     plugin_name = plugin_name.replace("-", "_")
@@ -32,6 +35,11 @@ def initialize_plugin(plugin_name: str, plugin_folder: pathlib.Path):
     if plugin_folder.exists():
         logger.error(f"{plugin_folder.absolute()} already exists")
         return
+
+    if add:
+        if plugin_name in config.get_available_plugin():
+            logger.error(f"Plugin `{plugin_name}` already exists in the config.")
+            return
 
     os.makedirs(str(plugin_folder), exist_ok=True)
 
@@ -50,5 +58,8 @@ def initialize_plugin(plugin_name: str, plugin_folder: pathlib.Path):
                 _f.write("".join(_f_content))
 
     logger.info(f"Plugin {plugin_name} is ready")
+    if add:
+        config.add_plugin(plugin_folder)
+        logger.info(f"Plugin {plugin_name} was added to the configuration.")
     logger.info(f"Use `babylon config plugin` to see how to interact with it")
     logger.info(f"Use `babylon dev --plugin {plugin_name}` to use dev commands on your plugin")
