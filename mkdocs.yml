@@ -41,3 +41,4 @@ plugins:
     - gen-files:
         scripts:
           - scripts/generate_dependencies_markdown.py
+          - scripts/generate_index.py
