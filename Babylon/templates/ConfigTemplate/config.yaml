@@ -1,3 +1,3 @@
-deploy: "deploy"
-platform: "platform"
+deploy: "deployments/deploy.yaml"
+platform: "platforms/platform.yaml"
 plugins:

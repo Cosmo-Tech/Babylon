@@ -1,6 +1,8 @@
 import logging
+import pathlib
 from typing import Optional
 
+import click
 from click import argument
 from click import command
 
@@ -13,16 +15,20 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_config
-@argument("platform", required=False, type=str)
-def select(config: Configuration, platform: Optional[str] = None):
+@argument("platform", required=False, type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True))
+def select(config: Configuration, platform: Optional[pathlib.Path] = None):
     """Change current selected platform
 
     if not argument is passed will run in interactive mode"""
+    if config.overridden:
+        logger.error("Configuration is being overridden, you can't change your settings.")
+        return
+
     if platform:
         if config.set_platform(platform):
             logger.info(f"Configuration successfully updated")
         else:
-            logger.error(f"Configuration was not updated. {platform} is not a valid deploy name.")
+            logger.error(f"Configuration was not updated. {platform} is not a valid platform file.")
     else:
         logger.debug("Interactive change of platform:")
         available_platforms = list(config.list_platforms())

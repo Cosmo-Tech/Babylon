@@ -32,12 +32,21 @@ conf = Configuration(logger)
               help="Enable test mode, this mode changes output formatting.")
 @click.option("-n", "--dry-run", "dry_run", is_flag=True,
               help="Will run commands in dry-run mode")
+@click.option("--platform", "platform_override", help="Path to a yaml to override the platform configuration",
+              type=click.Path(exists=True, dir_okay=False, readable=True, file_okay=True))
+@click.option("--deploy", "deploy_override", help="Path to a yaml to override the deploy configuration",
+              type=click.Path(exists=True, dir_okay=False, readable=True, file_okay=True))
+@click.option("--config", "config_override", help="Path to a dir to use as an override for the system config",
+              type=click.Path(dir_okay=True, readable=True, file_okay=False, path_type=pathlib.Path))
 @click.pass_context
-def main(ctx, solution_path, tests_mode, dry_run):
+def main(ctx, solution_path, tests_mode, dry_run, platform_override=None, deploy_override=None, config_override=None):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment"""
     if tests_mode:
         handler.setFormatter(logging.Formatter('{message}', style='{'))
+    if config_override:
+        conf = Configuration(logger=logger, config_directory=config_override)
     solution = Solution(solution_path, logger, conf, dry_run)
+    solution.config.override(override_deploy=deploy_override, override_platform=platform_override)
     ctx.obj = solution
 
 
