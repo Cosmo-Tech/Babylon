@@ -29,16 +29,41 @@ class Configuration:
 
         return wrapper
 
-    def __init__(self, logger: Logger):
-        self.config_dir = pathlib.Path(click.get_app_dir("babylon"))
+    def __init__(self,
+                 logger: Logger,
+                 override_deploy: Optional[pathlib.Path] = None,
+                 override_platform: Optional[pathlib.Path] = None,
+                 config_directory: pathlib.Path = pathlib.Path(click.get_app_dir("babylon"))):
+        self.config_dir = config_directory
         self.logger = logger
+        self.overridden = False
         if not self.config_dir.exists():
             self.logger.warning("No config folder existing - Creating it.")
             shutil.copytree(TEMPLATE_FOLDER_PATH / "ConfigTemplate", self.config_dir)
+            self.deploy = self.config_dir.absolute() / pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml",
+                                                                                      "deploy")))
+            self.platform = self.config_dir.absolute() / pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml",
+                                                                                        "platform")))
+            self.save_config()
+
+        self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
+        self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
 
         self.deploy = str(read_yaml_key(self.config_dir / "config.yaml", "deploy"))
         self.platform = str(read_yaml_key(self.config_dir / "config.yaml", "platform"))
         self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
+
+        self.override(override_deploy, override_platform)
+
+    def override(self, override_deploy: Optional[pathlib.Path] = None,
+                 override_platform: Optional[pathlib.Path] = None):
+        if override_deploy:
+            self.deploy = override_deploy
+            self.overridden = True
+
+        if override_platform:
+            self.platform = override_platform
+            self.overridden = True
 
     def get_active_plugins(self) -> list[(str, pathlib.Path)]:
         """
@@ -126,12 +151,23 @@ class Configuration:
         plugin_entry = dict(name=plugin_name, path=str(plugin_path.absolute()), active=True)
         self.plugins.append(plugin_entry)
         return str(plugin_name)
+        self.override(override_deploy, override_platform)
+
+    def override(self, override_deploy: Optional[pathlib.Path] = None,
+                 override_platform: Optional[pathlib.Path] = None):
+        if override_deploy:
+            self.deploy = override_deploy
+            self.overridden = True
+
+        if override_platform:
+            self.platform = override_platform
+            self.overridden = True
 
     def __list_config_folder_files(self, folder_name: str) -> list[str]:
-        for _, _, files in os.walk(self.config_dir / folder_name):
+        for root, _, files in os.walk(self.config_dir / folder_name):
             for _f in files:
-                _file_name = pathlib.Path(_f)
-                yield _file_name.name.replace(_file_name.suffix, "")
+                _file_name = pathlib.Path(root) / pathlib.Path(_f)
+                yield _file_name.absolute()
 
     def list_deploys(self) -> list[str]:
         """
@@ -148,33 +184,31 @@ class Configuration:
         return self.__list_config_folder_files("platforms")
 
     @__save_after_run
-    def set_deploy(self, deploy_name: str) -> bool:
+    def set_deploy(self, deploy_path: pathlib.Path) -> bool:
         """
         Change configured deployment to the one given
-        :param deploy_name: the deployment name
+        :param deploy_path: the deployment path
         :return: True if the change was a success
         """
-        deploy_path = self.config_dir / "deployments" / f"{deploy_name}.yaml"
         if deploy_path.exists():
-            self.deploy = deploy_name
+            self.deploy = deploy_path.absolute()
             return True
         else:
-            self.logger.error(f"{deploy_name} is not an existing deployment")
+            self.logger.error(f"{deploy_path} is not an existing deployment")
             return False
 
     @__save_after_run
-    def set_platform(self, platform_name: str) -> bool:
+    def set_platform(self, platform_path: pathlib.Path) -> bool:
         """
         Change configured platform to the one given
-        :param platform_name: the platform name
+        :param platform_path: the platform path
         :return: True if the change was a success
         """
-        platform_path = self.config_dir / "platforms" / f"{platform_name}.yaml"
         if platform_path.exists():
-            self.platform = platform_name
+            self.platform = platform_path.absolute()
             return True
         else:
-            self.logger.error(f"{platform_name} is not an existing platform")
+            self.logger.error(f"{platform_path} is not an existing platform")
             return False
 
     def create_deploy(self, deploy_name: str):
@@ -227,7 +261,11 @@ class Configuration:
         """
         Save the current config
         """
-        _d = dict(deploy=self.deploy, platform=self.platform, plugins=self.plugins)
+        _d = dict(deploy=str(self.deploy), platform=str(self.platform), plugins=self.plugins)
+        self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
+        if self.overridden:
+            self.logger.debug(f"Config was overriden, not saving.")
+            return
         yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
         self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
 
@@ -237,7 +275,7 @@ class Configuration:
         :return: path to the current deployment file
         """
         if self.deploy:
-            return self.config_dir / "deployments" / (self.deploy + ".yaml")
+            return self.deploy
         return None
 
     def get_platform_path(self) -> Optional[pathlib.Path]:
@@ -246,7 +284,7 @@ class Configuration:
         :return: path to the current platform file
         """
         if self.platform:
-            return self.config_dir / "platforms" / (self.platform + ".yaml")
+            return self.platform
         return None
 
     def get_deploy_var(self, var_name) -> Optional[object]:
@@ -295,8 +333,4 @@ class Configuration:
         _ret.append(f"  platform: {self.get_platform_path()}")
         for k, v in yaml.safe_load(open(self.get_platform_path())).items():
             _ret.append(f"    {k}: {v}")
-        _ret.append(f"  plugins:")
-        for plugin in self.plugins:
-            state = '[' + ("x" if plugin['active'] else " ") + "]"
-            _ret.append(f"    {state} {plugin['name']}: {plugin['path']}")
         return "\n".join(_ret)
