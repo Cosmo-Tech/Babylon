@@ -48,9 +48,6 @@ class Configuration:
 
         self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
         self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
-
-        self.deploy = str(read_yaml_key(self.config_dir / "config.yaml", "deploy"))
-        self.platform = str(read_yaml_key(self.config_dir / "config.yaml", "platform"))
         self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
 
         self.override(override_deploy, override_platform)
@@ -151,17 +148,6 @@ class Configuration:
         plugin_entry = dict(name=plugin_name, path=str(plugin_path.absolute()), active=True)
         self.plugins.append(plugin_entry)
         return str(plugin_name)
-        self.override(override_deploy, override_platform)
-
-    def override(self, override_deploy: Optional[pathlib.Path] = None,
-                 override_platform: Optional[pathlib.Path] = None):
-        if override_deploy:
-            self.deploy = override_deploy
-            self.overridden = True
-
-        if override_platform:
-            self.platform = override_platform
-            self.overridden = True
 
     def __list_config_folder_files(self, folder_name: str) -> list[str]:
         for root, _, files in os.walk(self.config_dir / folder_name):
@@ -261,13 +247,12 @@ class Configuration:
         """
         Save the current config
         """
-        _d = dict(deploy=str(self.deploy), platform=str(self.platform), plugins=self.plugins)
+        _d = dict(deploy=str(self.deploy), platform=str(self.platform))
         self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
         if self.overridden:
             self.logger.debug(f"Config was overriden, not saving.")
             return
         yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
-        self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
 
     def get_deploy_path(self) -> Optional[pathlib.Path]:
         """
