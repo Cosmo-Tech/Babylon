@@ -4,7 +4,7 @@ Now, where to begin? Ah, yes. "Concerning plugins". Plugins have been added as a
 content to ignore and be ignored by the world of the other commands. Babylon being, after all, full of commands beyond
 count. Plugins must seem of little importance, being neither renowned as great commands, nor being part of the roadmap.
 ... In fact, it has been remarked by some that plugins only real usage if for other developers. A rather unfair
-observation as they have also been developed by the maintainers of the repo, and made an integral par of Babylon. But
+observation as they have also been developed by the maintainers of the repo, and made an integral part of Babylon. But
 where their hearts truly lies is in peace and easiness of development.
 
 ## How to create a plugin

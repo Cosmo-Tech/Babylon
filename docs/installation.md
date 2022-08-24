@@ -18,6 +18,12 @@ source .venv/bin/activate  # Activate your venv
 pip install -e .           # Install Babylon in developer mode
 ```
 
+The next line is optional, run it if you want to have the dev-tools plugin to facilitate command & groups manipulation
+
+```bash
+babylon config plugin add plugins/dev_tools # Add the plugin dev_tools situated in the folder plugins/dev_tools
+```
+
 ## Autocompletion
 
 After install you can run the following commands to get autocompletion (in bash, and stays effective after restarts as you modify your `.bashrc`)
