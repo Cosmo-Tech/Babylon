@@ -30,11 +30,14 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
     if not is_valid_command_name(command_name):
         logger.error(f"`{command_name}` contains illegal characters")
         return
+
     group_name = [name.lower().replace("-", "_") for name in group_name]
     command_name = command_name.lower()
+
     logger.debug(f"Initializing command `{command_name}` in group `{' '.join(group_name)}`")
     babylon_groups_path = base_path / "groups"
     _g_path = "/groups/".join(group_name)
+
     if group_name:
         group_path = babylon_groups_path / _g_path
     else:
@@ -65,9 +68,7 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
     _cf_content = []
     with open(command_file_path) as _gi_file:
         for _line in _gi_file:
-            _cf_content.append(_line)
-    for i in range(len(_cf_content)):
-        _cf_content[i] = _cf_content[i].replace('command_template', command_name)
+            _cf_content.append(_line.replace('command_template', command_name))
     with open(command_file_path, "w") as _gi_file:
         _gi_file.write("".join(_cf_content))
 
