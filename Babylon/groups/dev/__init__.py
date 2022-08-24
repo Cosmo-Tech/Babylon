@@ -10,13 +10,13 @@ from click import pass_context
 from .commands import list_commands
 from .groups import list_groups
 from ...utils import BABYLON_PATH
-from ...utils.decorators import pass_solution
+from ...utils.decorators import pass_working_dir
 
 logger = logging.getLogger("Babylon")
 
 
 @group(hidden=True)
-@pass_solution
+@pass_working_dir
 @pass_context
 @option("-p", "--plugin", "plugin", type=str, required=False)
 def dev(ctx, sol, plugin: Optional[str] = None):

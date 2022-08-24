@@ -25,7 +25,7 @@ nav:
         - babylon: 'cli.md'
         - classes:
             - Configuration: 'Utils/config.md'
-            - Solution: 'Utils/solution.md'
+            - Working Directory: 'Utils/working_dir.md'
         - functions:
             - Decorators: 'Utils/decorators.md'
             - Cosmotech Api: 'Utils/api.md'
@@ -33,6 +33,7 @@ nav:
 
 markdown_extensions:
     - attr_list
+    - tables
     - mkdocs-click
     - pymdownx.snippets
 plugins:
