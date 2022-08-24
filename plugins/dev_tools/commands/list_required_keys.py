@@ -7,7 +7,7 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 
-from ....utils.string import is_valid_command_name
+from Babylon.utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
 pass_base_path = make_pass_decorator(pathlib.PosixPath)

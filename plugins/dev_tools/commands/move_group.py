@@ -10,11 +10,11 @@ from click import pass_context
 from click.core import Context
 
 from .initialize_group import initialize_group
-from ....utils.decorators import allow_dry_run
-from ....utils.decorators import timing_decorator
-from ....utils.interactive import ask_for_group
-from ....utils.string import is_valid_command_name
-from ....utils.string import to_header_line
+from Babylon.utils.decorators import allow_dry_run
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.interactive import ask_for_group
+from Babylon.utils.string import is_valid_command_name
+from Babylon.utils.string import to_header_line
 
 logger = logging.getLogger("Babylon")
 pass_base_path = make_pass_decorator(pathlib.PosixPath)

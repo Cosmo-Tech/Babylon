@@ -5,10 +5,10 @@ import shutil
 
 import click
 
-from ....utils import TEMPLATE_FOLDER_PATH
-from ....utils.configuration import Configuration
-from ....utils.decorators import pass_config
-from ....utils.string import is_valid_command_name
+from Babylon.utils import TEMPLATE_FOLDER_PATH
+from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import pass_environment
+from Babylon.utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
 
@@ -21,8 +21,8 @@ logger = logging.getLogger("Babylon")
                                                  path_type=pathlib.Path))
 @click.argument("plugin_name")
 @click.option("-a", "--add", "add", is_flag=True, help="Add the created plugin to the config.")
-@pass_config
-def initialize_plugin(config: Configuration, plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):
+@pass_environment
+def initialize_plugin(environment: Environment, plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):
     """Will initialize PLUGIN_NAME in PLUGIN_FOLDER"""
 
     plugin_name = plugin_name.replace("-", "_")
@@ -37,7 +37,7 @@ def initialize_plugin(config: Configuration, plugin_name: str, plugin_folder: pa
         return
 
     if add:
-        if plugin_name in config.get_available_plugin():
+        if plugin_name in environment.configuration.get_available_plugin():
             logger.error(f"Plugin `{plugin_name}` already exists in the config.")
             return
 

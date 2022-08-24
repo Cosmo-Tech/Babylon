@@ -7,20 +7,20 @@ from click import group
 from click import option
 from click import pass_context
 
+from Babylon.utils import BABYLON_PATH
+from Babylon.utils.decorators import pass_environment
 from .commands import list_commands
 from .groups import list_groups
-from ...utils import BABYLON_PATH
-from ...utils.decorators import pass_environment
 
 logger = logging.getLogger("Babylon")
 
 
-@group(hidden=True)
+@group()
 @pass_environment
 @pass_context
 @option("-p", "--plugin", "plugin", type=str, required=False)
-def dev(ctx, environment, plugin: Optional[str] = None):
-    """Command group used to simplify some development operations"""
+def dev_tools(ctx, environment, plugin: Optional[str] = None):
+    """Plugin used to simplify some development operations"""
     base_path = BABYLON_PATH
     if plugin:
         config = environment.configuration
@@ -36,7 +36,7 @@ def dev(ctx, environment, plugin: Optional[str] = None):
 
 
 for _command in list_commands:
-    dev.add_command(_command)
+    dev_tools.add_command(_command)
 
-for _command in list_groups:
-    dev.add_command(_command)
+for _group in list_groups:
+    dev_tools.add_command(_group)

@@ -8,9 +8,9 @@ from click import make_pass_decorator
 from click import pass_context
 from click.core import Context
 
-from ....utils import TEMPLATE_FOLDER_PATH
-from ....utils.decorators import timing_decorator
-from ....utils.string import is_valid_command_name
+from Babylon.utils import TEMPLATE_FOLDER_PATH
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
 pass_base_path = make_pass_decorator(pathlib.PosixPath)
