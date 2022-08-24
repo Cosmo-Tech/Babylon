@@ -1,10 +1,10 @@
 import logging
 
-from click import command
-from click import pass_obj
 from click import argument
+from click import command
 from click import option
 
+from ....utils.decorators import pass_solution
 from ....utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
@@ -13,7 +13,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @argument("path")
 @option("-f", "--force", "force_overwrite", is_flag=True, help="Force replacement of existing file with new zip")
-@pass_obj
+@pass_solution
 @timing_decorator
 def zip_env(solution, path, force_overwrite):
     """Zip a solution to given PATH
