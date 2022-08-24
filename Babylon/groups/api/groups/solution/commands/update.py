@@ -10,7 +10,6 @@ from cosmotech_api.api.solution_api import SolutionApi
 
 from ......utils.api import get_api_file
 from ......utils.decorators import require_deployment_key
-from ......utils.decorators import pass_working_dir
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import allow_dry_run
 
@@ -21,7 +20,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 @command()
 @pass_solution_api
-@pass_working_dir
 @argument("solution_file")
 @option("-e", "--use-solution-file", "use_solution_file", is_flag=True,
         help="Should the path be in the solution ?")
@@ -29,8 +27,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @require_deployment_key("solution_id", "solution_id")
 @allow_dry_run
 @timing_decorator
-def update(solution,
-           solution_api: SolutionApi,
+def update(solution_api: SolutionApi,
            organization_id: str,
            solution_id: str,
            solution_file: str,
@@ -39,8 +36,7 @@ def update(solution,
     """Send a JSON or YAML file to the API to update a solution"""
 
     if (converted_solution_content := get_api_file(api_file_path=solution_file,
-                                                   use_solution_file=use_solution_file,
-                                                   solution=solution,
+                                                   use_working_dir_file=use_solution_file,
                                                    logger=logger)) is not None:
         try:
 

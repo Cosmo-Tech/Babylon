@@ -2,6 +2,9 @@ import json
 import pathlib
 import re
 
+import click
+from .environment import Environment
+
 from typing import Any
 
 import yaml
@@ -55,19 +58,18 @@ def convert_keys_case(element: Any, convert_function) -> Any:
     return element
 
 
-def get_api_file(api_file_path: str, use_solution_file: bool, solution, logger):
+def get_api_file(api_file_path: str, use_working_dir_file: bool, logger):
     """
     This function will try to find the correct file, and return its content in a format ready to be used with the cosmotech api
     Accepts yaml and json files
     :param api_file_path: The path to the file to be loaded
-    :param use_solution_file: Should the path be relative to the solution ?
-    :param solution: The current solution item
+    :param use_working_dir_file: Should the path be relative to the working directory ?
     :param logger: the logger to be used to log info
     :return: None if the file was not found, else the content of the loaded file
     """
     _file_path = pathlib.Path(api_file_path)
-    if use_solution_file:
-        _file_path = solution.get_file(api_file_path)
+    if use_working_dir_file:
+        _file_path = click.get_current_context().find_object(Environment).working_dir.get_file(api_file_path)
     if not _file_path.exists():
         logger.error(f"{_file_path} does not exists.")
         return None
