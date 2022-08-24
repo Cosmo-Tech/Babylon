@@ -3,7 +3,7 @@ from .azure import azure
 from click import group
 
 
-@group(hidden=True)
+@group()
 def v0():
     """Legacy commands for first version of babylon"""
     pass

@@ -15,7 +15,6 @@ from .utils.configuration import Configuration
 from .utils.environment import Environment
 from .utils.logging import MultiLineHandler
 from .utils.working_dir import WorkingDir
-from .v0 import v0
 
 logger = logging.getLogger("Babylon")
 handler = MultiLineHandler()
@@ -67,7 +66,6 @@ for plugin_name, _plugin_path in conf.get_active_plugins():
     spec.loader.exec_module(mod)
     main.add_command(mod.__dict__[plugin_name])
 
-main.add_command(v0)
 for _group in list_groups:
     main.add_command(_group)
 

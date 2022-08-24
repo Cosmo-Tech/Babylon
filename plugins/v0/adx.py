@@ -8,7 +8,7 @@ from logging import getLogger
 from azure.mgmt.kusto import KustoManagementClient
 from azure.core.exceptions import HttpResponseError
 
-from Babylon.v0.utils.context import ContextObj
+from .utils.context import ContextObj
 
 from pprint import pformat
 import time
