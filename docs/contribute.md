@@ -3,11 +3,23 @@
 Babylon use a hierarchy of groups, subgroups, and commands to allow the user to guide him. So if you want to create a
 new set of commands you will want to make sure to group them in a logical structure.
 
-## Use `babylon dev` to initialize
+## The plugin `babylon dev-tools`
 
-The group of command `babylon dev` is hidden, you can do `babylon dev --help` to check the existing commands
+The plugin `babylon dev-tools` is available, once you added it you can do `babylon dev-tools --help` to check the existing commands
 
-You can use `babylon dev initialize-group` to initialize all the files for a new group (works with subgroups too)
+### Adding the plugin
+
+In the folder you cloned Babylon you can do the following command to activate the plugin
+
+```bash
+babylon config plugin add plugins/dev_tools
+```
+
+After running this command you will have access to the plugin in you babylon
+
+### Use `babylon dev-tools` to initialize elements
+
+You can use `babylon dev-tools initialize-group` to initialize all the files for a new group (works with subgroups too)
 
 ```bash
 babylon self initialize-group mynewgroup mynewsubgroup
@@ -32,11 +44,11 @@ Babylon
 └── ...
 ```
 
-You can use `babylon dev initialize-command` to initialize a new command (will initialize the required groups if non
+You can use `babylon dev-tools initialize-command` to initialize a new command (will initialize the required groups if non
 existent). You can add as many groups as you want (starting from 0 groups)
 
 ```bash
-babylon dev initialize-command mynewgroup mynewcommand
+babylon dev-tools initialize-command mynewgroup mynewcommand
 # This command will try to create the command mynewcommand in mynewgroup
 # if mynewgroup does not exist it will create it first
 ```
