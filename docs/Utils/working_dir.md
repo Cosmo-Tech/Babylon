@@ -1,4 +1,4 @@
-::: Babylon.utils.solution.Solution
+::: Babylon.utils.working_dir.WorkingDir
     handler: python
     options:
        show_root_heading: true
@@ -14,4 +14,3 @@
           - get_file
           - get_yaml_key
 
-More infos available on page [Environment](../environment.md)

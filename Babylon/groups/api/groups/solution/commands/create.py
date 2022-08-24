@@ -11,7 +11,7 @@ from cosmotech_api.api.solution_api import SolutionApi
 from ......utils.api import get_api_file
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import require_deployment_key
-from ......utils.decorators import pass_solution
+from ......utils.decorators import pass_working_dir
 from ......utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
@@ -21,7 +21,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 @command()
 @pass_solution_api
-@pass_solution
+@pass_working_dir
 @require_deployment_key("organization_id", "organization_id")
 @argument("solution_file")
 @option("-e", "--use-solution-file", "use_solution_file", is_flag=True,

@@ -2,12 +2,12 @@
 
 An environment is a combination of 2 parts :
 
-- A solution
+- A working directory
 - A configuration
 
-## Solution
+## Working Directory
 
-A solution is the ensemble of files you will need to have a running simulator on the cloud.
+A working directory is the ensemble of files you will need to have a running simulator on the cloud.
 
 ```text
 Solution
@@ -17,7 +17,7 @@ Solution
 ```
 
 More folders and file can be required and will be added in future version, don't hesitate to
-use `babylon solution complete` to add missing elements of the solution.
+use `babylon working-dir complete` to add missing elements of the working directory.
 
 ### API
 
@@ -58,3 +58,15 @@ This is a yaml file containing a list of key values used to identify the platfor
 ```yaml
 --8<-- "Babylon/templates/ConfigTemplate/platforms/platform.yaml"
 ```
+
+## Environment variables override
+
+The following environment variables are available to override the default values used by babylon (for example while
+making a bash script chaining commands)
+
+| Environment variable                       | Default                               | Effect                                             |
+|:-------------------------------------------|:--------------------------------------|----------------------------------------------------|
+| <nobr>`BABYLON_CONFIG_DIRECTORY`</nobr>    | `~/.config/babylon/`                  | Allows to replace the used configuration directory |
+| <nobr>`BABYLON_PLATFORM_OVERRIDE`</nobr>   | the platform defined in your config   | Allows to replace the platform.yaml file used      |
+| <nobr>`BABYLON_DEPLOYMENT_OVERRIDE`</nobr> | the deployment defined in your config | Allows to replace the deployment.yaml file used    |
+| <nobr>`BABYLON_WORKING_DIRECTORY`</nobr>   | `.` aka you current running dir       | Allows to replace the current working directory    |

@@ -3,7 +3,7 @@ from .debug import debug
 from .azure import azure
 from .config import config
 from .api import api
-from .solution import solution
+from .working_dir import working_dir
 
 list_groups = [
     dev,
@@ -11,5 +11,5 @@ list_groups = [
     azure,
     config,
     api,
-    solution,
+    working_dir,
 ]

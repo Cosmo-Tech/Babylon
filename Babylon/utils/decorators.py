@@ -7,8 +7,9 @@ from typing import Optional
 import click
 import cosmotech_api
 
-from .solution import Solution
+from .working_dir import WorkingDir
 from .configuration import Configuration
+from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 
@@ -37,8 +38,8 @@ def allow_dry_run(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        solution: Solution = click.get_current_context().find_object(Solution)
-        kwargs["dry_run"] = solution.dry_run
+        environment: Environment = click.get_current_context().find_object(Environment)
+        kwargs["dry_run"] = environment.dry_run
         func(*args, **kwargs)
 
     doc = wrapper.__doc__
@@ -46,11 +47,11 @@ def allow_dry_run(func):
     return wrapper
 
 
-def solution_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional[str] = None):
+def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional[str] = None):
     """
-    Decorator allowing to check if the solution has specific key in a yaml file.
+    Decorator allowing to check if the working_dir has specific key in a yaml file.
     If the check is failed the command won't run, and following checks won't be done
-    :param yaml_path: the path in the solution to the yaml file
+    :param yaml_path: the path in the working_dir to the yaml file
     :param yaml_key: the required key
     :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
     """
@@ -58,10 +59,10 @@ def solution_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional
     def wrap_function(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            solution: Solution = click.get_current_context().find_object(Solution)
-            if solution.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
+            working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
+            if working_dir.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
                 if arg_name is not None:
-                    kwargs[arg_name] = solution.get_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key)
+                    kwargs[arg_name] = working_dir.get_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 func(*args, **kwargs)
             else:
@@ -71,37 +72,37 @@ def solution_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional
 
         doc = wrapper.__doc__
         wrapper.__doc__ = (doc +
-                           f"\n\nRequires key `{yaml_key}` in `{yaml_path}` in the solution.")
+                           f"\n\nRequires key `{yaml_key}` in `{yaml_path}` in the working_dir.")
         return wrapper
 
     return wrap_function
 
 
-def solution_requires_file(file_path: str, arg_name: Optional[str] = None):
+def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
     """
-    Decorator allowing to check if the solution has a specific file.
+    Decorator allowing to check if the working_dir has a specific file.
     If the check is failed the command won't run, and following checks won't be done
-    :param file_path: the path in the solution to the required file
+    :param file_path: the path in the working_dir to the required file
     :param arg_name: Optional parameter that if set will send the effective path of the required file to the given arg
     """
 
     def wrap_function(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            solution: Solution = click.get_current_context().find_object(Solution)
-            if solution.requires_file(file_path=file_path):
+            working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
+            if working_dir.requires_file(file_path=file_path):
                 if arg_name is not None:
-                    kwargs[arg_name] = solution.get_file(file_path=file_path)
+                    kwargs[arg_name] = working_dir.get_file(file_path=file_path)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 func(*args, **kwargs)
             else:
-                logger.error(f"Solution is missing {file_path}")
+                logger.error(f"Working_dir is missing {file_path}")
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
         doc = wrapper.__doc__
         wrapper.__doc__ = (doc +
-                           f"\n\nRequires the file `{file_path}` in the solution.")
+                           f"\n\nRequires the file `{file_path}` in the working_dir.")
         return wrapper
 
     return wrap_function
@@ -143,8 +144,7 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
     def wrap_function(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            solution: Solution = click.get_current_context().find_object(Solution)
-            config = solution.config
+            config = click.get_current_context().find_object(Environment).configuration
             if (key_value := config.get_platform_var(yaml_key)) is not None:
                 if arg_name is not None:
                     kwargs[arg_name] = key_value
@@ -174,8 +174,7 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
     def wrap_function(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            solution: Solution = click.get_current_context().find_object(Solution)
-            config = solution.config
+            config = click.get_current_context().find_object(Environment).configuration
             if (key_value := config.get_deploy_var(yaml_key)) is not None:
                 if arg_name is not None:
                     kwargs[arg_name] = key_value
@@ -194,6 +193,7 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
     return wrap_function
 
 
-pass_solution = click.make_pass_decorator(Solution)
+pass_working_dir = click.make_pass_decorator(WorkingDir)
 pass_config = click.make_pass_decorator(Configuration)
+pass_environment = click.make_pass_decorator(Environment)
 pass_api_configuration = click.make_pass_decorator(cosmotech_api.Configuration)
