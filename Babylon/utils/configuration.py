@@ -247,7 +247,10 @@ class Configuration:
         """
         Save the current config
         """
-        _d = dict(deploy=str(self.deploy), platform=str(self.platform))
+        _d = yaml.safe_load(open(self.config_dir / "config.yaml", "r"))
+        _d['deploy'] = str(self.deploy)
+        _d['platform'] = str(self.platform)
+        _d['plugins'] = self.plugins
         self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
         if self.overridden:
             self.logger.debug(f"Config was overriden, not saving.")
@@ -318,4 +321,8 @@ class Configuration:
         _ret.append(f"  platform: {self.get_platform_path()}")
         for k, v in yaml.safe_load(open(self.get_platform_path())).items():
             _ret.append(f"    {k}: {v}")
+        _ret.append(f"  plugins:")
+        for plugin in self.plugins:
+            state = '[' + ("x" if plugin['active'] else " ") + "]"
+            _ret.append(f"    {state} {plugin['name']}: {plugin['path']}")
         return "\n".join(_ret)
