@@ -30,6 +30,8 @@ nav:
             - Decorators: 'Utils/decorators.md'
             - Cosmotech Api: 'Utils/api.md'
             - Others: 'Utils/others.md'
+        - plugins:
+            - Dev-tools: 'plugins/devtools.md'
 
 markdown_extensions:
     - attr_list

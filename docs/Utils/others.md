@@ -20,7 +20,7 @@
        docstring_style: sphinx
        heading_level: 2
 
-::: Babylon.utils.string
+::: Babylon.utils.yaml_utils
     handler: python
     options:
        show_root_heading: true
@@ -30,7 +30,7 @@
        docstring_style: sphinx
        heading_level: 2
 
-::: Babylon.utils.yaml_utils
+::: Babylon.utils.string
     handler: python
     options:
        show_root_heading: true
