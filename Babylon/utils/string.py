@@ -1,5 +1,7 @@
 import re
 
+MAX_LINE_LENGTH = 120
+
 
 def is_valid_command_name(string: str) -> bool:
     """
@@ -11,10 +13,14 @@ def is_valid_command_name(string: str) -> bool:
     return bool(re.search(pattern, string))
 
 
-MAX_LINE_LENGTH = 120
-
-
 def to_header_line(string: str) -> str:
+    """
+    Convert a string to a header line of maximum length of MAX_LINE_LENGTH
+    
+    will center the string between `-` to show a delimitation 
+    :param string: the string to transform
+    :return: the string centered with `-` padding
+    """
     if (length := len(string)) > MAX_LINE_LENGTH:
         return string
     elif length == 0:
