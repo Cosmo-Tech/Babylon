@@ -10,20 +10,20 @@ from click import pass_context
 from .commands import list_commands
 from .groups import list_groups
 from ...utils import BABYLON_PATH
-from ...utils.decorators import pass_working_dir
+from ...utils.decorators import pass_environment
 
 logger = logging.getLogger("Babylon")
 
 
 @group(hidden=True)
-@pass_working_dir
+@pass_environment
 @pass_context
 @option("-p", "--plugin", "plugin", type=str, required=False)
-def dev(ctx, sol, plugin: Optional[str] = None):
+def dev(ctx, environment, plugin: Optional[str] = None):
     """Command group used to simplify some development operations"""
     base_path = BABYLON_PATH
     if plugin:
-        config = sol.config
+        config = environment.configuration
         if plugin not in list(config.get_available_plugin()):
             logger.error(f"Plugin `{plugin}` does not exists.")
             raise click.Abort()
