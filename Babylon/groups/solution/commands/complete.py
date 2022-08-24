@@ -1,8 +1,8 @@
 import logging
 
 from click import command
-from click import pass_obj
 
+from ....utils.decorators import pass_solution
 from ....utils.decorators import timing_decorator
 from ....utils.solution import Solution
 
@@ -10,7 +10,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_obj
+@pass_solution
 @timing_decorator
 def complete(solution: Solution):
     """Complete the current solution for missing elements"""
