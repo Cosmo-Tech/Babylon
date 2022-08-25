@@ -1,6 +1,6 @@
 # Concerning plugins
 
-Now, where to begin ? Ah, yes. "Concerning plugins". Plugins have been added as a part of babylon before the 1.0. Quite
+Now, where to begin? Ah, yes. "Concerning plugins". Plugins have been added as a part of babylon before the 1.0. Quite
 content to ignore and be ignored by the world of the other commands. Babylon being, after all, full of commands beyond
 count. Plugins must seem of little importance, being neither renowned as great commands, nor being part of the roadmap.
 ... In fact, it has been remarked by some that plugins only real usage if for other developers. A rather unfair
@@ -9,7 +9,7 @@ where their hearts truly lies is in peace and easiness of development.
 
 ## How to create a plugin
 
-A plugin folder follows a simple basic format :
+A plugin folder follows a simple basic format:
 
 ```text
 - __init__.py
@@ -46,7 +46,7 @@ plugin ready for you to develop.
 
 ## Use of `babylon dev` to add groups and commands
 
-The group `babylon dev` has an optional parameter `--plugin` which allows you to apply it's command directly to an
+The group `babylon dev` has an optional parameter `--plugin` which allows you to apply its command directly to an
 installed plugin. Every of those commands will then be available to you if you want to follow the babylon infrastructure
 for your plugin.
 
