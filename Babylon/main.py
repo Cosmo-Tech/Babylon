@@ -29,7 +29,7 @@ conf = Configuration(logger)
               help="Path to a local solution (folder/zip) used to run the commands. "
                    "Defaults to current folder")
 @click.option("--tests", "tests_mode", is_flag=True,
-              help="Is babylon running in test mode ? This mode change output formatting.")
+              help="Enable test mode, this mode changes output formatting.")
 @click.option("--dry_run", "dry_run", is_flag=True,
               help="Will run commands in dry-run mode")
 @click.pass_context
