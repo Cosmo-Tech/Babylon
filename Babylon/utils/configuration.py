@@ -36,16 +36,15 @@ class Configuration:
         self.logger = logger
         if not self.config_dir.exists():
             self.logger.warning("No config folder existing - Creating it.")
-            shutil.copytree(TEMPLATE_FOLDER_PATH / "ConfigTemplate", self.config_dir)
-            self.deploy = self.config_dir.absolute() / pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml",
-                                                                                      "deploy")))
-            self.platform = self.config_dir.absolute() / pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml",
-                                                                                        "platform")))
+            shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
+            self.deploy = self.config_dir.absolute() / "deployments/deploy.yaml"
+            self.platform = self.config_dir.absolute() / "platforms/platform.yaml"
+            self.plugins = list()
             self.save_config()
-
-        self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
-        self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
-        self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
+        else:
+            self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
+            self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
+            self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
 
     def get_active_plugins(self) -> list[(str, pathlib.Path)]:
         """

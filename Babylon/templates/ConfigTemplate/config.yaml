@@ -1,3 +1,0 @@
-deploy: "deployments/deploy.yaml"
-platform: "platforms/platform.yaml"
-plugins:
