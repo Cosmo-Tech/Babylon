@@ -31,7 +31,7 @@ class Configuration:
 
     def __init__(self,
                  logger: Logger,
-                 config_directory: pathlib.Path = pathlib.Path(click.get_app_dir("babylon"))):
+                 config_directory: pathlib.Path):
         self.config_dir = config_directory
         self.logger = logger
         if not self.config_dir.exists():
