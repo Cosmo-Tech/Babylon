@@ -13,6 +13,8 @@ from .commands import list_commands
 from .groups import list_groups
 from .utils.configuration import Configuration
 from .utils.environment import Environment
+from .utils.help import HELP_CONTEXT_OVERRIDE
+from .utils.help import print_cmd_help
 from .utils.logging import MultiLineHandler
 from .utils.working_dir import WorkingDir
 
@@ -32,13 +34,19 @@ work_dir = WorkingDir(working_dir_path=working_directory_path, logger=logger)
 env = Environment(configuration=conf, working_dir=work_dir)
 
 
-@click.group()
+@click.group(context_settings=HELP_CONTEXT_OVERRIDE)
 @click_log.simple_verbosity_option(logger)
 @click.option("--tests", "tests_mode", is_flag=True,
               help="Enable test mode, this mode changes output formatting.")
 @click.option("-n", "--dry-run", "dry_run", is_flag=True,
               help="Will run commands in dry-run mode")
 @click.pass_context
+@click.option("-h",
+              "--help",
+              is_flag=True,
+              callback=print_cmd_help,
+              expose_value=False,
+              is_eager=True)
 def main(ctx, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
