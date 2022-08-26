@@ -23,11 +23,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 config_directory = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
-platform_override = os.environ.get('BABYLON_PLATFORM_OVERRIDE')
-deploy_override = os.environ.get('BABYLON_DEPLOYMENT_OVERRIDE')
 conf = Configuration(logger,
-                     override_platform=platform_override,
-                     override_deploy=deploy_override,
                      config_directory=config_directory)
 
 working_directory_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
@@ -48,6 +44,7 @@ def main(ctx, tests_mode, dry_run):
 
 The following environment variables are available to override the working directory or the configuration:
 - `BABYLON_CONFIG_DIRECTORY`: path to a folder to use as a configuration directory
+- `BABYLON_WORKING_DIRECTORY`: path to a folder to use as a working directory
     """
     if tests_mode:
         handler.setFormatter(logging.Formatter('{message}', style='{'))

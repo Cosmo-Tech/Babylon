@@ -67,6 +67,4 @@ making a bash script chaining commands)
 | Environment variable                       | Default                               | Effect                                             |
 |:-------------------------------------------|:--------------------------------------|----------------------------------------------------|
 | <nobr>`BABYLON_CONFIG_DIRECTORY`</nobr>    | `~/.config/babylon/`                  | Allows to replace the used configuration directory |
-| <nobr>`BABYLON_PLATFORM_OVERRIDE`</nobr>   | the platform defined in your config   | Allows to replace the platform.yaml file used      |
-| <nobr>`BABYLON_DEPLOYMENT_OVERRIDE`</nobr> | the deployment defined in your config | Allows to replace the deployment.yaml file used    |
 | <nobr>`BABYLON_WORKING_DIRECTORY`</nobr>   | `.` aka you current running dir       | Allows to replace the current working directory    |

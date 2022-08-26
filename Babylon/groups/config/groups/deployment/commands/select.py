@@ -20,10 +20,6 @@ def select(config: Configuration, deployment: Optional[pathlib.Path] = None):
     """Change current selected deployment
 
     if not argument is passed will run in interactive mode"""
-    if config.overridden:
-        logger.error("Configuration is being overridden, you can't change your settings.")
-        return
-
     if deployment:
         if config.set_deploy(deployment):
             logger.info(f"Configuration successfully updated")

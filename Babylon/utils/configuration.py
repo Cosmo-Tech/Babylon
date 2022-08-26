@@ -31,12 +31,9 @@ class Configuration:
 
     def __init__(self,
                  logger: Logger,
-                 override_deploy: Optional[pathlib.Path] = None,
-                 override_platform: Optional[pathlib.Path] = None,
                  config_directory: pathlib.Path = pathlib.Path(click.get_app_dir("babylon"))):
         self.config_dir = config_directory
         self.logger = logger
-        self.overridden = False
         if not self.config_dir.exists():
             self.logger.warning("No config folder existing - Creating it.")
             shutil.copytree(TEMPLATE_FOLDER_PATH / "ConfigTemplate", self.config_dir)
@@ -49,18 +46,6 @@ class Configuration:
         self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
         self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
         self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
-
-        self.override(override_deploy, override_platform)
-
-    def override(self, override_deploy: Optional[pathlib.Path] = None,
-                 override_platform: Optional[pathlib.Path] = None):
-        if override_deploy:
-            self.deploy = override_deploy
-            self.overridden = True
-
-        if override_platform:
-            self.platform = override_platform
-            self.overridden = True
 
     def get_active_plugins(self) -> list[(str, pathlib.Path)]:
         """
@@ -251,10 +236,9 @@ class Configuration:
         _d['deploy'] = str(self.deploy)
         _d['platform'] = str(self.platform)
         _d['plugins'] = self.plugins
+
         self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
-        if self.overridden:
-            self.logger.debug(f"Config was overriden, not saving.")
-            return
+
         yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
 
     def get_deploy_path(self) -> Optional[pathlib.Path]:
