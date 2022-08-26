@@ -46,7 +46,8 @@ env = Environment(configuration=conf, working_dir=work_dir)
               is_flag=True,
               callback=print_cmd_help,
               expose_value=False,
-              is_eager=True)
+              is_eager=True,
+              help="Show this message and exit.")
 def main(ctx, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
