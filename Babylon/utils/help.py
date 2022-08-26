@@ -17,36 +17,20 @@ def print_cmd_help(ctx: click.Context, param: click.Parameter, value: str):
 
     # create the command object manually and parse its arguments
     cmd = group
-    names = []
 
     has_error = False
     cont = len(args) > 0
     while cont:
         try:
             name, cmd, args = cmd.resolve_command(ctx, args)
-            names.append(name)
-            cont = len(args) > 0
-            for _arg in args:
-                if _arg in set(cmd.commands):
-                    cont = True
-                    break
-                if _arg in set(cmd.get_help_option_names(ctx)):
-                    cont = False
-                    break
-                if _arg[0] == '-' and _arg not in ctx.args:
-                    cont = False
-                    has_error = True
-                    break
+            ctx = click.Context(cmd, info_name=name, parent=ctx)
+            cmd.parse_args(ctx, args)
         except AttributeError:
-            for _arg in args:
-                if _arg[0] == '-' and _arg not in ctx.args:
-                    has_error = True
-            break
+            cmd.parse_args(ctx, args)
 
     if set(args) & set(cmd.get_help_option_names(ctx)) or has_error:
         # return command help when a user wants it or when he does not provide
         # arguments
         # taken from https://github.com/pallets/click/blob/7.1.1/src/click/core.py#L597
-        cmd_ctx = click.Context(cmd, info_name=" ".join(names), parent=ctx)
-        click.echo(cmd_ctx.get_help())
-        cmd_ctx.exit()
+        click.echo(ctx.get_help())
+        ctx.exit()
