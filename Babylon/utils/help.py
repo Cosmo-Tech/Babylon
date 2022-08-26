@@ -5,7 +5,7 @@ import click
 HELP_CONTEXT_OVERRIDE = {"help_option_names": ["-h", "--help"]}
 
 
-def print_cmd_help(ctx, param, value):
+def print_cmd_help(ctx: click.Context, param: click.Parameter, value: str):
     group = ctx.command
     # parse the cmdline and get the command and its arguments
     parser = group.make_parser(ctx)
@@ -18,12 +18,14 @@ def print_cmd_help(ctx, param, value):
     # create the command object manually and parse its arguments
     cmd = group
     names = []
-    prev_name = ""
-    cont = True
+
+    has_error = False
+    cont = len(args) > 0
     while cont:
         try:
             name, cmd, args = cmd.resolve_command(ctx, args)
             names.append(name)
+            cont = len(args) > 0
             for _arg in args:
                 if _arg in set(cmd.commands):
                     cont = True
@@ -31,10 +33,17 @@ def print_cmd_help(ctx, param, value):
                 if _arg in set(cmd.get_help_option_names(ctx)):
                     cont = False
                     break
+                if _arg[0] == '-' and _arg not in ctx.args:
+                    cont = False
+                    has_error = True
+                    break
         except AttributeError:
+            for _arg in args:
+                if _arg[0] == '-' and _arg not in ctx.args:
+                    has_error = True
             break
 
-    if set(args) & set(cmd.get_help_option_names(ctx)):
+    if set(args) & set(cmd.get_help_option_names(ctx)) or has_error:
         # return command help when a user wants it or when he does not provide
         # arguments
         # taken from https://github.com/pallets/click/blob/7.1.1/src/click/core.py#L597
