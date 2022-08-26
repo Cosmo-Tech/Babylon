@@ -41,17 +41,17 @@ You can see that the name of the command in the `__init__.py` and the `plugin_na
 identical. It is by design, as the parameter `plugin_name` is used by babylon to find the command in the `__init__.py`
 to make it an available command.
 
-If you want an easier time creating a plugin, you can use the command `babylon dev initialize-plugin` to create a bare
-plugin ready for you to develop.
+If you want an easier time creating a plugin, you can use the command `babylon dev-tools initialize-plugin` of the
+plugin `dev-tools` to create a bare plugin ready for you to develop.
 
-## Use of `babylon dev` to add groups and commands
+## Use of plugin `babylon dev-tools` to add groups and commands
 
-The group `babylon dev` has an optional parameter `--plugin` which allows you to apply its command directly to an
+The plugin `babylon dev-tools` has an optional parameter `--plugin` which allows you to apply its command directly to an
 installed plugin. Every of those commands will then be available to you if you want to follow the babylon infrastructure
 for your plugin.
 
-Those commands suppose you initialized your plugin using `babylon dev initialize-plugin` to have the basic architecture
-based on the babylon one.
+Those commands suppose you initialized your plugin using `babylon dev-tools initialize-plugin` to have the basic
+architecture based on the babylon one.
 
 ## Interact with a plugin
 
