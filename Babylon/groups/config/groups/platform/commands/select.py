@@ -20,9 +20,6 @@ def select(config: Configuration, platform: Optional[pathlib.Path] = None):
     """Change current selected platform
 
     if not argument is passed will run in interactive mode"""
-    if config.overridden:
-        logger.error("Configuration is being overridden, you can't change your settings.")
-        return
 
     if platform:
         if config.set_platform(platform):
