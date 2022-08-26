@@ -30,7 +30,7 @@ conf = Configuration(logger)
                    "Defaults to current folder")
 @click.option("--tests", "tests_mode", is_flag=True,
               help="Enable test mode, this mode changes output formatting.")
-@click.option("--dry_run", "dry_run", is_flag=True,
+@click.option("-n", "--dry-run", "dry_run", is_flag=True,
               help="Will run commands in dry-run mode")
 @click.pass_context
 def main(ctx, solution_path, tests_mode, dry_run):
