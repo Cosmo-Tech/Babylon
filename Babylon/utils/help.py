@@ -18,19 +18,7 @@ def print_cmd_help(ctx: click.Context, param: click.Parameter, value: str):
     # create the command object manually and parse its arguments
     cmd = group
 
-    has_error = False
-    cont = len(args) > 0
-    while cont:
-        try:
-            name, cmd, args = cmd.resolve_command(ctx, args)
-            ctx = click.Context(cmd, info_name=name, parent=ctx)
-            cmd.parse_args(ctx, args)
-        except AttributeError:
-            cmd.parse_args(ctx, args)
-
-    if set(args) & set(cmd.get_help_option_names(ctx)) or has_error:
-        # return command help when a user wants it or when he does not provide
-        # arguments
-        # taken from https://github.com/pallets/click/blob/7.1.1/src/click/core.py#L597
-        click.echo(ctx.get_help())
-        ctx.exit()
+    while args:
+        name, cmd, args = cmd.resolve_command(ctx, args)
+        ctx = click.Context(cmd, info_name=name, parent=ctx)
+        cmd.parse_args(ctx, args)
