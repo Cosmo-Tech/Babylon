@@ -19,14 +19,20 @@ def print_cmd_help(ctx, param, value):
     cmd = group
     names = []
     prev_name = ""
-    while args:
+    cont = True
+    while cont:
         try:
             name, cmd, args = cmd.resolve_command(ctx, args)
+            names.append(name)
+            for _arg in args:
+                if _arg in set(cmd.commands):
+                    cont = True
+                    break
+                if _arg in set(cmd.get_help_option_names(ctx)):
+                    cont = False
+                    break
         except AttributeError:
             break
-        if prev_name == name:
-            break
-        names.append(name)
 
     if set(args) & set(cmd.get_help_option_names(ctx)):
         # return command help when a user wants it or when he does not provide
