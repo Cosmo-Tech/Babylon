@@ -231,7 +231,7 @@ class Configuration:
         """
         Save the current config
         """
-        _d = yaml.safe_load(open(self.config_dir / "config.yaml", "r"))
+        _d = yaml.safe_load(open(self.config_dir / "config.yaml", "r")) or dict()
         _d['deploy'] = str(self.deploy)
         _d['platform'] = str(self.platform)
         _d['plugins'] = self.plugins
