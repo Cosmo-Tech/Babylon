@@ -29,7 +29,7 @@ babylon config plugin add plugins/dev_tools # Add the plugin dev_tools situated 
 After install you can run the following commands to get autocompletion (in bash, and stays effective after restarts as you modify your `.bashrc`)
 
 ```bash
-echo 'eval "$(_BABYLON_COMPLETE=bash_source babylon)"' > ~/.bashrc
+echo 'eval "$(_BABYLON_COMPLETE=bash_source babylon)"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
