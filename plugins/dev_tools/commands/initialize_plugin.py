@@ -59,7 +59,7 @@ def initialize_plugin(environment: Environment, plugin_name: str, plugin_folder:
 
     logger.info(f"Plugin {plugin_name} is ready")
     if add:
-        config.add_plugin(plugin_folder)
+        environment.configuration.add_plugin(plugin_folder)
         logger.info(f"Plugin {plugin_name} was added to the configuration.")
     logger.info(f"Use `babylon config plugin` to see how to interact with it")
-    logger.info(f"Use `babylon dev --plugin {plugin_name}` to use dev commands on your plugin")
+    logger.info(f"Use `babylon dev-tools --plugin {plugin_name}` to use dev commands on your plugin")
