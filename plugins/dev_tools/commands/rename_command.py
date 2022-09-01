@@ -12,7 +12,7 @@ from Babylon.utils.string import is_valid_command_name
 from Babylon.utils.string import to_header_line
 
 logger = logging.getLogger("Babylon")
-pass_base_path = make_pass_decorator(pathlib.PosixPath)
+pass_base_path = make_pass_decorator(pathlib.Path)
 
 
 @command()
