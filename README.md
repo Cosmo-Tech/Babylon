@@ -5,11 +5,11 @@
 
 Babylon is a tool designed to simplify interaction between Cosmo Tech solutions and the Azure environment.
 
-A basic how-to about contribution can be found [here](https://cosmo-tech.github.io/Babylon/contribute/)
+A basic how-to about contribution can be found there : [![Contribution](https://img.shields.io/badge/Contribution-%23121011.svg?style=for-the-badge&logoColor=black)](https://cosmo-tech.github.io/Babylon/contribute/)
 
 ## Installation
 
-The full installation guide is present at this [page](https://cosmo-tech.github.io/Babylon/installation/)
+The full installation guide is present there : [![Installation](https://img.shields.io/badge/Installation-%23121011.svg?style=for-the-badge&logoColor=black)](https://cosmo-tech.github.io/Babylon/installation/)
 
 A basic installation can be done with the following commands :
 
@@ -18,3 +18,7 @@ git clone git@github.com:Cosmo-Tech/Babylon.git
 cd Babylon
 pip install .
 ```
+
+After installation, you should have access to the `babylon` command.
+
+[![Babylon Example](docs/img/example_babylon.gif)]
