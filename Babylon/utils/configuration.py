@@ -190,7 +190,7 @@ class Configuration:
         if _target.exists():
             self.logger.error(f"Deployment {deploy_name} already exists")
             return
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "ConfigTemplate/deployments/deploy.yaml", _target)
+        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/deployments/deploy.yaml", _target)
         click.edit(filename=str(_t))
 
     def create_platform(self, platform_name: str):
@@ -202,28 +202,26 @@ class Configuration:
         if _target.exists():
             self.logger.error(f"Platform {platform_name} already exists")
             return
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "ConfigTemplate/platforms/platform.yaml", _target)
+        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/platforms/platform.yaml", _target)
         click.edit(filename=str(_t))
 
-    def edit_deploy(self, deploy_name: str):
+    def edit_deploy(self, deploy_path: pathlib.Path):
         """
         Open a given deployment file with the default text editor
-        :param deploy_name: the name of the deployment
+        :param deploy_path: the path of the deployment
         """
-        deploy_path = self.config_dir / "deployments" / f"{deploy_name}.yaml"
         if not deploy_path.exists():
-            self.logger.error(f"Deployment {deploy_name} does not exists")
+            self.logger.error(f"Deployment {deploy_path} does not exists")
         else:
             click.edit(filename=str(deploy_path))
 
-    def edit_platform(self, platform_name: str):
+    def edit_platform(self, platform_path: pathlib.Path):
         """
         Open a given platform file with the default text editor
-        :param platform_name: the name of the platform
+        :param platform_path: the path of the platform
         """
-        platform_path = self.config_dir / "platforms" / f"{platform_name}.yaml"
         if not platform_path.exists():
-            self.logger.error(f"Platform {platform_name} does not exists")
+            self.logger.error(f"Platform {platform_path} does not exists")
         else:
             click.edit(filename=str(platform_path))
 
