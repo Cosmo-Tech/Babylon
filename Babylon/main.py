@@ -52,6 +52,8 @@ def main(ctx, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
 The following environment variables are available to override the working directory or the configuration:
+
+\b
 - `BABYLON_CONFIG_DIRECTORY`: path to a folder to use as a configuration directory
 - `BABYLON_WORKING_DIRECTORY`: path to a folder to use as a working directory
     """
