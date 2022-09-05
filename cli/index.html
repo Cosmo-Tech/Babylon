@@ -1,0 +1,2537 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.2">
+    
+    
+      
+        <title>babylon - babylon</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.69437709.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#ffa724">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CFira+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Fira Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#babylon" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="babylon" class="md-header__button md-logo" aria-label="babylon" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            babylon
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              babylon
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../installation/" class="md-tabs__link">
+        Getting started
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contribute/" class="md-tabs__link">
+        Concepts
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        References
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="babylon" class="md-nav__button md-logo" aria-label="babylon" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    babylon
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Getting started
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Getting started" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Getting started
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependencies/" class="md-nav__link">
+        Dependencies
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Concepts" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute/" class="md-nav__link">
+        Contribute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environment/" class="md-nav__link">
+        Environments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plugins/" class="md-nav__link">
+        Plugins
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          References
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="References" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          References
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          babylon
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        babylon
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#babylon" class="md-nav__link">
+    babylon
+  </a>
+  
+    <nav class="md-nav" aria-label="babylon">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api" class="md-nav__link">
+    api
+  </a>
+  
+    <nav class="md-nav" aria-label="api">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization" class="md-nav__link">
+    organization
+  </a>
+  
+    <nav class="md-nav" aria-label="organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution" class="md-nav__link">
+    solution
+  </a>
+  
+    <nav class="md-nav" aria-label="solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-get-all-ids" class="md-nav__link">
+    get-all-ids
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-update" class="md-nav__link">
+    update
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure" class="md-nav__link">
+    azure
+  </a>
+  
+    <nav class="md-nav" aria-label="azure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx" class="md-nav__link">
+    adx
+  </a>
+  
+    <nav class="md-nav" aria-label="adx">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-list-scripts" class="md-nav__link">
+    list-scripts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-run-folder" class="md-nav__link">
+    run-folder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-run-script" class="md-nav__link">
+    run-script
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config" class="md-nav__link">
+    config
+  </a>
+  
+    <nav class="md-nav" aria-label="config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment" class="md-nav__link">
+    deployment
+  </a>
+  
+    <nav class="md-nav" aria-label="deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-edit" class="md-nav__link">
+    edit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-select" class="md-nav__link">
+    select
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-display" class="md-nav__link">
+    display
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform" class="md-nav__link">
+    platform
+  </a>
+  
+    <nav class="md-nav" aria-label="platform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-edit" class="md-nav__link">
+    edit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-select" class="md-nav__link">
+    select
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin" class="md-nav__link">
+    plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-activate" class="md-nav__link">
+    activate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-add" class="md-nav__link">
+    add
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-deactivate" class="md-nav__link">
+    deactivate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-remove" class="md-nav__link">
+    remove
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-validate" class="md-nav__link">
+    validate
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-debug" class="md-nav__link">
+    debug
+  </a>
+  
+    <nav class="md-nav" aria-label="debug">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-debug-get-workflow-pods" class="md-nav__link">
+    get-workflow-pods
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir" class="md-nav__link">
+    working-dir
+  </a>
+  
+    <nav class="md-nav" aria-label="working-dir">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-complete" class="md-nav__link">
+    complete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-display" class="md-nav__link">
+    display
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-init" class="md-nav__link">
+    init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-validate" class="md-nav__link">
+    validate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-zip-env" class="md-nav__link">
+    zip-env
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          classes
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="classes" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          classes
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Utils/config/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Utils/working_dir/" class="md-nav__link">
+        Working Directory
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_3">
+          functions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="functions" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          functions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Utils/decorators/" class="md-nav__link">
+        Decorators
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Utils/api/" class="md-nav__link">
+        Cosmotech Api
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Utils/others/" class="md-nav__link">
+        Others
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_4">
+          plugins
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="plugins" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          plugins
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plugins/devtools/" class="md-nav__link">
+        Dev-tools
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#babylon" class="md-nav__link">
+    babylon
+  </a>
+  
+    <nav class="md-nav" aria-label="babylon">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api" class="md-nav__link">
+    api
+  </a>
+  
+    <nav class="md-nav" aria-label="api">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization" class="md-nav__link">
+    organization
+  </a>
+  
+    <nav class="md-nav" aria-label="organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution" class="md-nav__link">
+    solution
+  </a>
+  
+    <nav class="md-nav" aria-label="solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-get-all-ids" class="md-nav__link">
+    get-all-ids
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-update" class="md-nav__link">
+    update
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure" class="md-nav__link">
+    azure
+  </a>
+  
+    <nav class="md-nav" aria-label="azure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx" class="md-nav__link">
+    adx
+  </a>
+  
+    <nav class="md-nav" aria-label="adx">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-list-scripts" class="md-nav__link">
+    list-scripts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-run-folder" class="md-nav__link">
+    run-folder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-run-script" class="md-nav__link">
+    run-script
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config" class="md-nav__link">
+    config
+  </a>
+  
+    <nav class="md-nav" aria-label="config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment" class="md-nav__link">
+    deployment
+  </a>
+  
+    <nav class="md-nav" aria-label="deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-edit" class="md-nav__link">
+    edit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-select" class="md-nav__link">
+    select
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-display" class="md-nav__link">
+    display
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform" class="md-nav__link">
+    platform
+  </a>
+  
+    <nav class="md-nav" aria-label="platform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-edit" class="md-nav__link">
+    edit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-select" class="md-nav__link">
+    select
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin" class="md-nav__link">
+    plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-activate" class="md-nav__link">
+    activate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-add" class="md-nav__link">
+    add
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-deactivate" class="md-nav__link">
+    deactivate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-plugin-remove" class="md-nav__link">
+    remove
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-validate" class="md-nav__link">
+    validate
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-debug" class="md-nav__link">
+    debug
+  </a>
+  
+    <nav class="md-nav" aria-label="debug">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-debug-get-workflow-pods" class="md-nav__link">
+    get-workflow-pods
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir" class="md-nav__link">
+    working-dir
+  </a>
+  
+    <nav class="md-nav" aria-label="working-dir">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-complete" class="md-nav__link">
+    complete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-display" class="md-nav__link">
+    display
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-init" class="md-nav__link">
+    init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-validate" class="md-nav__link">
+    validate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-working-dir-zip-env" class="md-nav__link">
+    zip-env
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+  <h1>babylon</h1>
+
+<h2 id="babylon">babylon</h2>
+<p>CLI used for cloud interactions between CosmoTech and multiple cloud environment</p>
+<p>The following environment variables are available to override the working directory or the configuration:</p>
+<ul>
+<li><code>BABYLON_CONFIG_DIRECTORY</code>: path to a folder to use as a configuration directory</li>
+<li><code>BABYLON_WORKING_DIRECTORY</code>: path to a folder to use as a working directory</li>
+</ul>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--verbosity</code>, <code>-v</code></td>
+<td>text</td>
+<td>Either CRITICAL, ERROR, WARNING, INFO or DEBUG</td>
+<td><code>INFO</code></td>
+</tr>
+<tr>
+<td><code>--tests</code></td>
+<td>boolean</td>
+<td>Enable test mode, this mode changes output formatting.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-n</code>, <code>--dry-run</code></td>
+<td>boolean</td>
+<td>Will run commands in dry-run mode</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-h</code>, <code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-api">api</a></em>: Group handling communication with the cosmotech API</li>
+<li><em><a href="#babylon-azure">azure</a></em>: Group allowing communication with Microsoft Azure Cloud</li>
+<li><em><a href="#babylon-config">config</a></em>: Group made to work on the config</li>
+<li><em><a href="#babylon-debug">debug</a></em>: Add debug capacities of runs</li>
+<li><em><a href="#babylon-working-dir">working-dir</a></em>: Command group handling working directory information</li>
+</ul>
+<h3 id="babylon-api">babylon api</h3>
+<p>Group handling communication with the cosmotech API</p>
+<p>Requires key <code>api_url</code> in the platform config file.</p>
+<p>Requires key <code>api_scope</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-api-organization">organization</a></em>: Subgroup handling Organization in the cosmotech API</li>
+<li><em><a href="#babylon-api-solution">solution</a></em>: Subgroup handling Solution in the cosmotech API</li>
+</ul>
+<h4 id="babylon-api-organization">babylon api organization</h4>
+<p>Subgroup handling Organization in the cosmotech API</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api organization [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-api-organization-get-all">get-all</a></em>: Display all organization in API</li>
+</ul>
+<h5 id="babylon-api-organization-get-all">babylon api organization get-all</h5>
+<p>Display all organization in API</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api organization get-all [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-api-solution">babylon api solution</h4>
+<p>Subgroup handling Solution in the cosmotech API</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-api-solution-create">create</a></em>: Send a JSON or YAML file to the API to create a solution</li>
+<li><em><a href="#babylon-api-solution-get">get</a></em>: Get the state of the solution in the API</li>
+<li><em><a href="#babylon-api-solution-get-all-ids">get-all-ids</a></em>: Get the state of the solution in the API</li>
+<li><em><a href="#babylon-api-solution-update">update</a></em>: Send a JSON or YAML file to the API to update a solution</li>
+</ul>
+<h5 id="babylon-api-solution-create">babylon api solution create</h5>
+<p>Send a JSON or YAML file to the API to create a solution</p>
+<p>Allows dry runs.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution create [OPTIONS] SOLUTION_FILE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-solution-file</code></td>
+<td>boolean</td>
+<td>Should the path be in the solution ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-solution-get">babylon api solution get</h5>
+<p>Get the state of the solution in the API</p>
+<p>Requires key <code>solution_id</code> in the deployment config file.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution get [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output_file</code></td>
+<td>text</td>
+<td>File to which content should be outputed (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-solution-get-all-ids">babylon api solution get-all-ids</h5>
+<p>Get the state of the solution in the API</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution get-all-ids [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output_file</code></td>
+<td>text</td>
+<td>File to which content should be outputed (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-solution-update">babylon api solution update</h5>
+<p>Send a JSON or YAML file to the API to update a solution</p>
+<p>Allows dry runs.</p>
+<p>Requires key <code>solution_id</code> in the deployment config file.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution update [OPTIONS] SOLUTION_FILE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-solution-file</code></td>
+<td>boolean</td>
+<td>Should the path be in the solution ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="babylon-azure">babylon azure</h3>
+<p>Group allowing communication with Microsoft Azure Cloud</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-azure-adx">adx</a></em>: Group interacting with Azure Data Explorer</li>
+</ul>
+<h4 id="babylon-azure-adx">babylon azure adx</h4>
+<p>Group interacting with Azure Data Explorer</p>
+<p>Requires key <code>azure_subscription</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-azure-adx-list-scripts">list-scripts</a></em>: List scripts on the database</li>
+<li><em><a href="#babylon-azure-adx-run-folder">run-folder</a></em>: Run all script files (.kql) from SCRIPT_FOLDER</li>
+<li><em><a href="#babylon-azure-adx-run-script">run-script</a></em>: Open SCRIPT_FILE and run it on the database</li>
+</ul>
+<h5 id="babylon-azure-adx-list-scripts">babylon azure adx list-scripts</h5>
+<p>List scripts on the database</p>
+<p>Requires key <code>database_name</code> in the deployment config file.</p>
+<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx list-scripts [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-adx-run-folder">babylon azure adx run-folder</h5>
+<p>Run all script files (.kql) from SCRIPT_FOLDER</p>
+<p>Allows dry runs.</p>
+<p>Requires key <code>database_name</code> in the deployment config file.</p>
+<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx run-folder [OPTIONS] SCRIPT_FOLDER
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-adx-run-script">babylon azure adx run-script</h5>
+<p>Open SCRIPT_FILE and run it on the database</p>
+<p>In the script instances of "<database name>" will be replaced by the actual database name</p>
+<p>Allows dry runs.</p>
+<p>Requires key <code>database_name</code> in the deployment config file.</p>
+<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx run-script [OPTIONS] SCRIPT_FILE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="babylon-config">babylon config</h3>
+<p>Group made to work on the config</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-config-deployment">deployment</a></em>: Sub-group for deployment</li>
+<li><em><a href="#babylon-config-display">display</a></em>: Display current config</li>
+<li><em><a href="#babylon-config-platform">platform</a></em>: Sub-group for platform</li>
+<li><em><a href="#babylon-config-plugin">plugin</a></em>: Sub-group for plugins</li>
+<li><em><a href="#babylon-config-validate">validate</a></em>: Validate current config</li>
+</ul>
+<h4 id="babylon-config-deployment">babylon config deployment</h4>
+<p>Sub-group for deployment</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config deployment [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-config-deployment-create">create</a></em>: Create a new deployment file DEPLOY.yaml and open editor to edit it</li>
+<li><em><a href="#babylon-config-deployment-edit">edit</a></em>: Open editor to edit variables in given deployment</li>
+<li><em><a href="#babylon-config-deployment-select">select</a></em>: Change current selected deployment</li>
+</ul>
+<h5 id="babylon-config-deployment-create">babylon config deployment create</h5>
+<p>Create a new deployment file DEPLOY.yaml and open editor to edit it</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config deployment create [OPTIONS] DEPLOY
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-deployment-edit">babylon config deployment edit</h5>
+<p>Open editor to edit variables in given deployment</p>
+<p>will open default deployment if no argument is passed</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config deployment edit [OPTIONS] [DEPLOYMENT]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-deployment-select">babylon config deployment select</h5>
+<p>Change current selected deployment</p>
+<p>if not argument is passed will run in interactive mode</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config deployment select [OPTIONS] [DEPLOYMENT]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-config-display">babylon config display</h4>
+<p>Display current config</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config display [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-config-platform">babylon config platform</h4>
+<p>Sub-group for platform</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config platform [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-config-platform-create">create</a></em>: Create a new platform file PLATFORM.yaml and open editor to edit it</li>
+<li><em><a href="#babylon-config-platform-edit">edit</a></em>: Open editor to edit variables in given platform</li>
+<li><em><a href="#babylon-config-platform-select">select</a></em>: Change current selected platform</li>
+</ul>
+<h5 id="babylon-config-platform-create">babylon config platform create</h5>
+<p>Create a new platform file PLATFORM.yaml and open editor to edit it</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config platform create [OPTIONS] PLATFORM
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-platform-edit">babylon config platform edit</h5>
+<p>Open editor to edit variables in given platform</p>
+<p>will open default platform if no argument is passed</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config platform edit [OPTIONS] [PLATFORM]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-platform-select">babylon config platform select</h5>
+<p>Change current selected platform</p>
+<p>if not argument is passed will run in interactive mode</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config platform select [OPTIONS] [PLATFORM]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-config-plugin">babylon config plugin</h4>
+<p>Sub-group for plugins</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config plugin [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-config-plugin-activate">activate</a></em>: Activate PLUGIN</li>
+<li><em><a href="#babylon-config-plugin-add">add</a></em>: Add a plugin found at PLUGIN_PATH</li>
+<li><em><a href="#babylon-config-plugin-deactivate">deactivate</a></em>: Deactivate PLUGIN</li>
+<li><em><a href="#babylon-config-plugin-remove">remove</a></em>: Remove PLUGIN</li>
+</ul>
+<h5 id="babylon-config-plugin-activate">babylon config plugin activate</h5>
+<p>Activate PLUGIN</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config plugin activate [OPTIONS] PLUGIN
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-plugin-add">babylon config plugin add</h5>
+<p>Add a plugin found at PLUGIN_PATH</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config plugin add [OPTIONS] PLUGIN_PATH
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-plugin-deactivate">babylon config plugin deactivate</h5>
+<p>Deactivate PLUGIN</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config plugin deactivate [OPTIONS] PLUGIN
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-plugin-remove">babylon config plugin remove</h5>
+<p>Remove PLUGIN</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config plugin remove [OPTIONS] PLUGIN
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-config-validate">babylon config validate</h4>
+<p>Validate current config</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config validate [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="babylon-debug">babylon debug</h3>
+<p>Add debug capacities of runs</p>
+<p>Requires key <code>k8s_namespace</code> in the platform config file.</p>
+<p>Requires key <code>k8s_context</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon debug [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-debug-get-workflow-pods">get-workflow-pods</a></em>: Get pods information for the given WORKFLOW</li>
+</ul>
+<h4 id="babylon-debug-get-workflow-pods">babylon debug get-workflow-pods</h4>
+<p>Get pods information for the given WORKFLOW</p>
+<p>Requires the program <code>kubectl</code> to run.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon debug get-workflow-pods [OPTIONS] WORKFLOW
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="babylon-working-dir">babylon working-dir</h3>
+<p>Command group handling working directory information</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon working-dir [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-working-dir-complete">complete</a></em>: Complete the current working_dir for missing elements</li>
+<li><em><a href="#babylon-working-dir-display">display</a></em>: Display information about the current working_dir</li>
+<li><em><a href="#babylon-working-dir-init">init</a></em>: Initialize the current working_dir</li>
+<li><em><a href="#babylon-working-dir-validate">validate</a></em>: Validate the current working_dir</li>
+<li><em><a href="#babylon-working-dir-zip-env">zip-env</a></em>: Zip a working_dir to given PATH</li>
+</ul>
+<h4 id="babylon-working-dir-complete">babylon working-dir complete</h4>
+<p>Complete the current working_dir for missing elements</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon working-dir complete [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-working-dir-display">babylon working-dir display</h4>
+<p>Display information about the current working_dir</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon working-dir display [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-working-dir-init">babylon working-dir init</h4>
+<p>Initialize the current working_dir</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon working-dir init [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-working-dir-validate">babylon working-dir validate</h4>
+<p>Validate the current working_dir</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon working-dir validate [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-working-dir-zip-env">babylon working-dir zip-env</h4>
+<p>Zip a working_dir to given PATH</p>
+<p>PATH can be a folder (archive name will default to working_dir.zip) or a .zip file</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon working-dir zip-env [OPTIONS] PATH
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Force replacement of existing file with new zip</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../plugins/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Plugins" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Plugins
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../Utils/config/" class="md-footer__link md-footer__link--next" aria-label="Next: Configuration" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Configuration
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  Made by
+  <a href="https://cosmotech.com/" target="_blank" rel="noopener">
+    Cosmotech
+  </a>
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.top"], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9c69f0bc.min.js"></script>
+      
+    
+  </body>
+</html>
