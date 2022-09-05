@@ -234,9 +234,11 @@ class Configuration:
         _d['platform'] = str(self.platform)
         _d['plugins'] = self.plugins
 
-        self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
-
-        yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
+        if not _d.get('locked', False):
+            self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
+            yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
+        else:
+            self.logger.error(f"Current config file is locked and won't be updated.")
 
     def get_deploy_path(self) -> Optional[pathlib.Path]:
         """
@@ -244,7 +246,10 @@ class Configuration:
         :return: path to the current deployment file
         """
         if self.deploy:
-            return self.deploy
+            if self.deploy.is_absolute():
+                return self.deploy
+            else:
+                return self.config_dir / self.deploy
         return None
 
     def get_platform_path(self) -> Optional[pathlib.Path]:
@@ -253,7 +258,10 @@ class Configuration:
         :return: path to the current platform file
         """
         if self.platform:
-            return self.platform
+            if self.platform.is_absolute():
+                return self.platform
+            else:
+                return self.config_dir / self.platform
         return None
 
     def get_deploy_var(self, var_name) -> Optional[object]:
@@ -296,10 +304,10 @@ class Configuration:
         _ret = list()
         _ret.append("Configuration:")
         _ret.append(f"  dir: {self.config_dir}")
-        _ret.append(f"  deployment: {self.get_deploy_path()}")
+        _ret.append(f"  deployment: {self.deploy}")
         for k, v in yaml.safe_load(open(self.get_deploy_path())).items():
             _ret.append(f"    {k}: {v}")
-        _ret.append(f"  platform: {self.get_platform_path()}")
+        _ret.append(f"  platform: {self.platform}")
         for k, v in yaml.safe_load(open(self.get_platform_path())).items():
             _ret.append(f"    {k}: {v}")
         _ret.append(f"  plugins:")
