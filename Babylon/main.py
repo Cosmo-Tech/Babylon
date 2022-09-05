@@ -19,7 +19,7 @@ from .utils.logging import MultiLineHandler
 from .utils.working_dir import WorkingDir
 
 logger = logging.getLogger("Babylon")
-handler = MultiLineHandler()
+handler = MultiLineHandler(sys.stdout)
 formatter = logging.Formatter('{levelname:>8} - {asctime} | {message}', style='{', datefmt='%Y/%m/%d - %H:%M:%S')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
@@ -34,7 +34,7 @@ work_dir = WorkingDir(working_dir_path=working_directory_path, logger=logger)
 env = Environment(configuration=conf, working_dir=work_dir)
 
 
-@click.group(context_settings=HELP_CONTEXT_OVERRIDE)
+@click.group(name='babylon', context_settings=HELP_CONTEXT_OVERRIDE)
 @click_log.simple_verbosity_option(logger)
 @click.option("--tests", "tests_mode", is_flag=True,
               help="Enable test mode, this mode changes output formatting.")

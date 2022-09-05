@@ -1,4 +1,5 @@
 import sys
+import os
 
 import click
 
@@ -6,6 +7,8 @@ HELP_CONTEXT_OVERRIDE = {"help_option_names": ["-h", "--help"]}
 
 
 def print_cmd_help(ctx: click.Context, param: click.Parameter, value: str):
+    if os.environ.get('BABYLON_RUNNING_TEST', False):
+        return
     group = ctx.command
     # parse the cmdline and get the command and its arguments
     parser = group.make_parser(ctx)
