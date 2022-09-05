@@ -15,7 +15,10 @@ Cosmotech-Acceleration-Library
 # Other requirements
 pyyaml
 
-# Documentation generation
+# Testing requirements
+pytest
+
+# Documentation generation requirements
 mkdocs
 mkdocs-click
 mkdocs-gen-files
