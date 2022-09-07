@@ -906,12 +906,37 @@ use <code>babylon working-dir complete</code> to add missing elements of the wor
 solution on a platform</p>
 <h4 id="deployyaml">deploy.yaml</h4>
 <p>This is a yaml file containing a list of key-values used to identify the deployment of a solution in the platform</p>
-<pre><code class="language-yaml"></code></pre>
+<pre><code class="language-yaml"># organization_id : the id of the organization on the API
+organization_id: &quot;&quot;
+# solution_id : the id of the solution on the API
+solution_id: &quot;&quot;
+# workspace_id : the id of the workspace on the API
+workspace_id: &quot;&quot;
+# api_url : the url of the API (used for validation)
+api_url: &quot;&quot;
+# database_name : the name of the database used in Azure Data Explorer
+database_name: &quot;&quot;
+</code></pre>
 <h3 id="platform">Platform</h3>
 <p>A platform is a cloud where you deployed an API, you set the information required to access given platform</p>
 <h4 id="platformyaml">platform.yaml</h4>
 <p>This is a yaml file containing a list of key values used to identify the platform to connect</p>
-<pre><code class="language-yaml"></code></pre>
+<pre><code class="language-yaml"># api_url : the url of the API
+api_url: &quot;&quot;
+# api_scope : the default scope used by the API
+api_scope: &quot;&quot;
+# k8s_context : the name of the k8s context that should be used
+#    This name is the local name you can get using `kubectl config get-contexts`
+k8s_context: &quot;&quot;
+# k8s_namespace : the namespace to use in the k8s context
+k8s_namespace: &quot;&quot;
+# azure_subscription : The azure subscription used to contain the platform
+azure_subscription: &quot;&quot;
+# cluster_name: The name of the Azure Data Explorer Cluster
+cluster_name: &quot;&quot;
+# resource_group_name: The name fo the resource group used on the platform
+resource_group_name: &quot;&quot;
+</code></pre>
 <h2 id="environment-variables-override">Environment variables override</h2>
 <p>The following environment variables are available to override the default values used by babylon (for example while
 making a bash script chaining commands)</p>
