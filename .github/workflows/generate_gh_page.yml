@@ -16,4 +16,8 @@ jobs:
         shell: bash
         run: echo "##[set-output name=version;]$(python -c 'from Babylon.version import VERSION; print(VERSION)')"
         id: version
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
       - run: mike deploy --push ${{ steps.version.outputs.version }}
