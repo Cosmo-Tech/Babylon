@@ -1,0 +1,18 @@
+name: generate_github_page
+on:
+  release:
+    types: [released]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - run: pip install -e .
+      - name: Extract version
+        shell: bash
+        run: echo "##[set-output name=version;]$(python -c 'from Babylon.version import VERSION; print(VERSION)')"
+        id: version
+      - run: mike deploy --push --update-aliases ${{ steps.version.outputs.version }} latest
