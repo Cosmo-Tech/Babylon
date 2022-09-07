@@ -1,4 +1,4 @@
-name: generate_github_page
+name: tag_latest_release_gh_page
 on:
   release:
     types: [released]
