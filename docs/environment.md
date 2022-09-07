@@ -44,7 +44,7 @@ solution on a platform
 This is a yaml file containing a list of key-values used to identify the deployment of a solution in the platform
 
 ```yaml
---8<-- "Babylon/templates/ConfigTemplate/deployments/deploy.yaml"
+--8<-- "Babylon/templates/config_template/deployments/deploy.yaml"
 ```
 
 ### Platform
@@ -56,7 +56,7 @@ A platform is a cloud where you deployed an API, you set the information require
 This is a yaml file containing a list of key values used to identify the platform to connect
 
 ```yaml
---8<-- "Babylon/templates/ConfigTemplate/platforms/platform.yaml"
+--8<-- "Babylon/templates/config_template/platforms/platform.yaml"
 ```
 
 ## Environment variables override
