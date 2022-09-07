@@ -12,6 +12,9 @@ theme:
     - navigation.expand
     - navigation.top
   custom_dir: overrides
+extra:
+  version:
+    provider: mike
 nav:
     - Home: 'index.md'
     - Getting started:
@@ -45,3 +48,4 @@ plugins:
         scripts:
           - scripts/generate_dependencies_markdown.py
           - scripts/generate_index.py
+    - mike
