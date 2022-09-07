@@ -24,5 +24,6 @@ mkdocs-click
 mkdocs-gen-files
 mkdocs-material
 mkdocstrings[python]
+mike
 pymdown-extensions
 requirements-parser
