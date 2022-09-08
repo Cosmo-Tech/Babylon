@@ -3,6 +3,7 @@ theme:
   name: material
   font:
     code: Fira Mono
+  logo: img/logo.png
   palette:
     scheme: slate
     primary: orange
