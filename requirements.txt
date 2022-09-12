@@ -4,6 +4,9 @@ azure-mgmt-subscription
 azure-mgmt-kusto
 msrest
 
+# Azure services requirements
+azure-digitaltwins-core
+
 # Click requirements
 click
 click-log

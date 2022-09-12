@@ -8,3 +8,5 @@ workspace_id: ""
 api_url: ""
 # database_name : the name of the database used in Azure Data Explorer
 database_name: ""
+# digital_twin_url : URL of the digital twin to use
+digital_twin_url: ""
