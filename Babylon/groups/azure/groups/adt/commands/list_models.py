@@ -1,0 +1,51 @@
+import json
+import logging
+import pathlib
+import pprint
+from typing import Optional
+
+import click
+from azure.digitaltwins.core import DigitalTwinsClient
+from azure.digitaltwins.core import DigitalTwinsModelData
+from click import command
+from click import make_pass_decorator
+from click import option
+
+logger = logging.getLogger("Babylon")
+
+pass_dt_client = make_pass_decorator(DigitalTwinsClient)
+
+
+@command()
+@pass_dt_client
+@option("-o", "--output_file", "output_file", type=click.Path(exists=False,
+                                                              file_okay=True,
+                                                              dir_okay=False,
+                                                              readable=True,
+                                                              path_type=pathlib.Path),
+        help="Write full output of models to given file")
+def list_models(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path]):
+    """Upload MODEL_FILE to adt
+
+    MODEL_FILE must be a json file"""
+    if output_file:
+        if output_file.suffix != ".json":
+            logger.error(f"{output_file} is not a json file")
+            return
+
+    data = dt_client.list_models(include_model_definition=True)
+
+    if not output_file:
+        logger.info("Listing all model ids :")
+    _file_content = []
+
+    for model in data:
+        model: DigitalTwinsModelData
+        if output_file is None:
+            logger.info(f"  - {model.as_dict()['model']['@id']}")
+        else:
+            _file_content.append(model.as_dict())
+
+    if output_file:
+        logger.info(f"Writing models to {output_file.absolute()}")
+        json.dump(_file_content, open(output_file, "w"))
