@@ -28,22 +28,19 @@ def list_models(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Pat
     """Upload MODEL_FILE to adt
 
     MODEL_FILE must be a json file"""
-    if output_file:
-        if output_file.suffix != ".json":
-            logger.error(f"{output_file} is not a json file")
-            return
+    if output_file and output_file.suffix != ".json":
+        logger.error(f"{output_file} is not a json file")
+        return
 
     data = dt_client.list_models(include_model_definition=True)
 
-    if not output_file:
-        logger.info("Listing all model ids :")
+    logger.info("Listing all model ids :")
+        
     _file_content = []
-
     for model in data:
         model: DigitalTwinsModelData
-        if output_file is None:
-            logger.info(f"  - {model.as_dict()['model']['@id']}")
-        else:
+        logger.info(f"  - {model.as_dict()['model']['@id']}")
+        if output_file:
             _file_content.append(model.as_dict())
 
     if output_file:
