@@ -23,11 +23,9 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
                                                               dir_okay=False,
                                                               readable=True,
                                                               path_type=pathlib.Path),
-        help="Write full output of models to given file")
+        help="Write full output of the adt api in target file")
 def list_models(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path]):
-    """Upload MODEL_FILE to adt
-
-    MODEL_FILE must be a json file"""
+    """List all models id from ADT"""
     if output_file and output_file.suffix != ".json":
         logger.error(f"{output_file} is not a json file")
         return
