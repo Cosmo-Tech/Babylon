@@ -10,6 +10,7 @@ import cosmotech_api
 from .configuration import Configuration
 from .environment import Environment
 from .working_dir import WorkingDir
+from ..version import get_version
 
 logger = logging.getLogger("Babylon")
 
@@ -34,6 +35,7 @@ def prepend_doc_with_ascii(func):
                      r"    \/___/  \/__/\/_/ \/___/   `/___/> \\/____/ \/___/  \/_/\/_/  ",
                      r"                                  /\___/  ",
                      r"                                  \/__/  ",
+                     f"                                                           v{get_version()}\n",
                      "")
     doc = wrapper.__doc__
     wrapper.__doc__ = "\n".join(babylon_ascii) + doc
