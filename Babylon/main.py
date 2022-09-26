@@ -17,6 +17,7 @@ from .utils.help import HELP_CONTEXT_OVERRIDE
 from .utils.help import print_cmd_help
 from .utils.logging import MultiLineHandler
 from .utils.working_dir import WorkingDir
+from .utils.decorators import prepend_doc_with_ascii
 
 logger = logging.getLogger("Babylon")
 handler = MultiLineHandler(sys.stdout)
@@ -48,6 +49,7 @@ env = Environment(configuration=conf, working_dir=work_dir)
               expose_value=False,
               is_eager=True,
               help="Show this message and exit.")
+@prepend_doc_with_ascii
 def main(ctx, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 

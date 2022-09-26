@@ -7,11 +7,37 @@ from typing import Optional
 import click
 import cosmotech_api
 
-from .working_dir import WorkingDir
 from .configuration import Configuration
 from .environment import Environment
+from .working_dir import WorkingDir
 
 logger = logging.getLogger("Babylon")
+
+
+def prepend_doc_with_ascii(func):
+    """
+    Decorator used to add a babylon ascii art in the documentation of a function
+    :param func: The function being decorated
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        func(*args, **kwargs)
+
+    babylon_ascii = ("\b",
+                     r" ____              __                 ___  ",
+                     r"/\  _`\           /\ \               /\_ \  ",
+                     r"\ \ \L\ \     __  \ \ \____   __  __ \//\ \      ___     ___  ",
+                     r" \ \  _ <'  /'__`\ \ \ '__`\ /\ \/\ \  \ \ \    / __`\ /' _ `\  ",
+                     r"  \ \ \L\ \/\ \L\.\_\ \ \L\ \\ \ \_\ \  \_\ \_ /\ \L\ \/\ \/\ \  ",
+                     r"   \ \____/\ \__/.\_\\ \_,__/ \/`____ \ /\____\\ \____/\ \_\ \_\  ",
+                     r"    \/___/  \/__/\/_/ \/___/   `/___/> \\/____/ \/___/  \/_/\/_/  ",
+                     r"                                  /\___/  ",
+                     r"                                  \/__/  ",
+                     "")
+    doc = wrapper.__doc__
+    wrapper.__doc__ = "\n".join(babylon_ascii) + doc
+    return wrapper
 
 
 def timing_decorator(func):
