@@ -47,7 +47,9 @@ def convert_keys_case(element: Any, convert_function) -> Any:
     if isinstance(element, dict):
         new_element = dict()
         for k, v in element.items():
-            if v is not None:
+            if k in ["parametersValues", "parameters_values"]:
+                new_element[convert_function(k)] = dict() if not v else v.copy()
+            elif v is not None:
                 new_element[convert_function(k)] = convert_keys_case(v, convert_function)
         return new_element
     if isinstance(element, list):
