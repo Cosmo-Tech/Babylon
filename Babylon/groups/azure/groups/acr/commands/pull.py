@@ -34,3 +34,5 @@ def pull(cr_client: ContainerRegistryClient, acr_registry_name: str, image: str,
         client.images.pull(repository=repo, tag=tag)
     except docker.errors.NotFound:
         logger.error("Registry %s does not contain %s:%s", acr_registry_name, image, tag)
+    except docker.errors.APIError as api_error:
+        logger.error("API Error: %s", api_error)

@@ -1,4 +1,5 @@
 import logging
+import json
 import docker
 from click import command, make_pass_decorator, argument, option
 from azure.containerregistry import ContainerRegistryClient
@@ -17,7 +18,10 @@ Should provide a clean error log
 Should add a new entry to `az acr repository list --name my_registry`
 > babylon acr pull existing_image
 Should a new entry to `az acr repository list --name my_registry` with the `latest` tag
+> babylon acr push existing_image.azurecr.io
+Should add a new entry to `az acr repository list --name my_registry`
 """
+
 
 @command()
 @requires_external_program("docker")
@@ -35,8 +39,15 @@ def push(cr_client: ContainerRegistryClient, acr_registry_name: str, image: str,
         return
     logger.info("Pushing image %s:%s", image, tag)
 
+    # Rename image with registry url if it is not present
     repo = image
     if ".azurecr.io/" not in image:
         repo = f"{acr_registry_name}.azurecr.io/{image}"
         image_obj.tag(repo, tag=tag)
-    client.images.push(repository=repo, tag=tag)
+
+    response = client.images.push(repository=repo, tag=tag)
+
+    # Print status
+    for resp in response.split("\n"):
+        if resp:
+            logger.debug(json.loads(resp).get("status", ""))
