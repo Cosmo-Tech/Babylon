@@ -1,13 +1,13 @@
-from  cosmotech_api import Configuration
-from azure.identity import AzureCliCredential
+import sys
+import cosmotech_api
 from azure.identity import DefaultAzureCredential
-from click import group
-from click import pass_context
+from azure.core.exceptions import ClientAuthenticationError
+from click import group, pass_context
 from click.core import Context
 
-from ...utils.decorators import require_platform_key
 from .commands import list_commands
 from .groups import list_groups
+from ...utils.decorators import require_platform_key
 
 
 @group()
@@ -17,12 +17,12 @@ from .groups import list_groups
 def api(ctx: Context, api_scope: str, api_url: str):
     """Group handling communication with the cosmotech API"""
     try:
-        credentials = AzureCliCredential()
-    except:
-        credentials = DefaultAzureCredential()
+        token = DefaultAzureCredential().get_token(api_scope)
+    except ClientAuthenticationError:
+        # Error message is handled by Azure API
+        sys.exit(0)
 
-    token = credentials.get_token(api_scope)
-    configuration = Configuration(host=api_url, discard_unknown_keys=True, access_token=token.token)
+    configuration = cosmotech_api.Configuration(host=api_url, discard_unknown_keys=True, access_token=token.token)
 
     ctx.obj = configuration
 
