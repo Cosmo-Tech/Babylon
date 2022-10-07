@@ -1,7 +1,7 @@
 key:
 name:
 repository: cosmo-tech/azure-digital-twins-simulator-connector
-version: 2.4.0
+version:
 azureAuthenticationWithCustomerAppRegistration: true
 ioTypes:
   - read

@@ -1,8 +1,8 @@
-key: 
-name: 
+key:
+name:
 description: Connector for Azure Storage. Read all data in a container with a prefix and write the data in CSV for a ScenarioRun
 repository: cosmo-tech/azure-storage-simulator-connector
-version: 1.1.2
+version:
 tags:
   - Azure Storage
 url: https://github.com/Cosmo-Tech/azure-storage-simulator-connector
