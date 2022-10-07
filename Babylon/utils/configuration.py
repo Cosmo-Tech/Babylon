@@ -132,20 +132,20 @@ class Configuration:
         self.plugins.append(plugin_entry)
         return str(plugin_name)
 
-    def __list_config_folder_files(self, folder_name: str) -> list[str]:
+    def __list_config_folder_files(self, folder_name: str) -> list[pathlib.Path]:
         for root, _, files in os.walk(self.config_dir / folder_name):
             for _f in files:
                 _file_name = pathlib.Path(root) / pathlib.Path(_f)
                 yield _file_name.absolute()
 
-    def list_deploys(self) -> list[str]:
+    def list_deploys(self) -> list[pathlib.Path]:
         """
         List existing deployment configurations
         :return: a list of available deployments names
         """
         return self.__list_config_folder_files("deployments")
 
-    def list_platforms(self) -> list[str]:
+    def list_platforms(self) -> list[pathlib.Path]:
         """
         List existing platform configurations
         :return: a list of available platforms names
