@@ -10,3 +10,9 @@ api_url: ""
 database_name: ""
 # digital_twin_url : URL of the digital twin to use
 digital_twin_url: ""
+# ACR source registry name source_registry.azurecr.io)
+acr_src_registry_name: ""
+# ACR destination registry name destination_registry.azurecr.io)
+acr_dest_registry_name: ""
+# ACR image reference (my_repository:my_tag)
+acr_image_reference: ""
