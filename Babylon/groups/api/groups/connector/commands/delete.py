@@ -21,13 +21,15 @@ def delete(
     connector_id: str,
     dry_run: bool = False,
 ):
-    """Unregister a connector via Cosmotech APi."""
+    """Unregister a connector via Cosmotech API."""
+    try:
+        if not dry_run:
+            _ = connector_api.find_connector_by_id(connector_id)  #
+        if confirm(
+            f"You are trying to delete connector {connector_id} \nDo you want to continue ?"
+        ):
+            confirm_connector_id = prompt("Confirm connector id ")
 
-    if confirm(
-        f"You are trying to delete connector {connector_id} \nDo you want to continue ?"
-    ):
-        confirm_connector_id = connector_id
-        try:
             if confirm_connector_id == connector_id:
                 if dry_run:
 
@@ -39,11 +41,12 @@ def delete(
                     logger.info(f"Connector with id {connector_id} deleted.")
             else:
                 logger.error(
-                    "The connector id you have type don't mach with connector with id {connector_id} name"
+                    "Wrong Connector , the id must be the same as the one that has been provide in delete command  argument"
                 )
-        except UnauthorizedException:
-            logger.error("Unauthorized access to the cosmotech api")
-        except NotFoundException:
-            logger.error(f"Connector with id {connector_id} does not exists.")
-    else:
-        logger.info("Connector deletion aborted.")
+
+        else:
+            logger.info("Connector deletion aborted.")
+    except UnauthorizedException:
+        logger.error("Unauthorized access to the cosmotech api.")
+    except NotFoundException:
+        logger.error(f"Connector with id {connector_id} does not exists.")
