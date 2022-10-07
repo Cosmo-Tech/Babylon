@@ -68,10 +68,10 @@ def allow_dry_run(func):
     def wrapper(*args, **kwargs):
         environment: Environment = click.get_current_context().find_object(Environment)
         kwargs["dry_run"] = environment.dry_run
-        func(*args, **kwargs)
+        return func(*args, **kwargs)
 
-    doc = wrapper.__doc__
-    wrapper.__doc__ = doc + "\n\nAllows dry runs."
+    doc = wrapper.__doc__ or ""
+    wrapper.__doc__ = "\n\n".join([doc, "Allows dry runs."])
     return wrapper
 
 
@@ -98,9 +98,8 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
-        doc = wrapper.__doc__
-        wrapper.__doc__ = (doc +
-                           f"\n\nRequires key `{yaml_key}` in `{yaml_path}` in the working_dir.")
+        doc = wrapper.__doc__ or ""
+        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in `{yaml_path}` in the working_dir."])
         return wrapper
 
     return wrap_function
@@ -128,9 +127,9 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
-        doc = wrapper.__doc__
-        wrapper.__doc__ = (doc +
-                           f"\n\nRequires the file `{file_path}` in the working_dir.")
+        doc = wrapper.__doc__ or ""
+        wrapper.__doc__ = "\n\n".join([doc,
+                           f"Requires the file `{file_path}` in the working_dir."])
         return wrapper
 
     return wrap_function
@@ -153,9 +152,8 @@ def requires_external_program(program_name: str):
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
-        doc = wrapper.__doc__
-        wrapper.__doc__ = (doc +
-                           f"\n\nRequires the program `{program_name}` to run.")
+        doc = wrapper.__doc__ or ""
+        wrapper.__doc__ = "\n\n".join([doc, f"Requires the program `{program_name}` to run."])
         return wrapper
 
     return wrap_function
@@ -183,9 +181,9 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
-        doc = wrapper.__doc__
-        wrapper.__doc__ = (doc +
-                           f"\n\nRequires key `{yaml_key}` in the platform config file.")
+        doc = wrapper.__doc__ or ""
+        wrapper.__doc__ = "\n\n".join([doc,
+                           f"Requires key `{yaml_key}` in the platform config file."])
         return wrapper
 
     return wrap_function
@@ -213,9 +211,8 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
                 logger.error(f"{click.get_current_context().command.name} won't run without it.")
                 raise click.Abort()
 
-        doc = wrapper.__doc__
-        wrapper.__doc__ = (doc +
-                           f"\n\nRequires key `{yaml_key}` in the deployment config file.")
+        doc = wrapper.__doc__ or ""
+        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the deployment config file."])
         return wrapper
 
     return wrap_function
