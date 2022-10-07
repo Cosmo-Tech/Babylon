@@ -1,7 +1,9 @@
+import os
 import logging
 import json
 import docker
-from click import command, make_pass_decorator, argument, option
+from click import command, make_pass_decorator, pass_context
+from click.core import Context
 from azure.containerregistry import ContainerRegistryClient
 from Babylon.utils.decorators import requires_external_program, require_deployment_key
 
@@ -25,29 +27,39 @@ Should add a new entry to `az acr repository list --name my_registry`
 
 @command()
 @requires_external_program("docker")
-@pass_cr_client
-@require_deployment_key("acr_registry_name", "acr_registry_name")
-@argument("image")
-@option("-t", "--tag", default="latest", show_default=True)
-def push(cr_client: ContainerRegistryClient, acr_registry_name: str, image: str, tag: str):
-    """Pulls a docker image from the ACR registry given in deployment configuration"""
+@pass_context
+@require_deployment_key("acr_dest_registry_name", "acr_dest_registry_name")
+@require_deployment_key("acr_image_reference", "acr_image_reference")
+def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str):
+    """Push a docker image to the ACR registry given in deployment configuration"""
+
+    # Login to registry
+    os.system(f"az acr login --name {acr_dest_registry_name}")
+    ContainerRegistryClient(
+        f"https://{acr_dest_registry_name}",
+        ctx.parent.obj,
+        audience="https://management.azure.com")
+
+    # Retrieve image
     client = docker.from_env()
     try:
-        image_obj = client.images.get(f"{image}:{tag}")
+        image_obj = client.images.get(acr_image_reference)
     except docker.errors.ImageNotFound:
-        logger.error("Image %s not found locally", image)
+        logger.error("Image %s not found locally", acr_image_reference)
         return
-    logger.info("Pushing image %s:%s", image, tag)
+    logger.info("Pushing image %s", acr_image_reference)
 
     # Rename image with registry url if it is not present
-    repo = image
-    if ".azurecr.io/" not in image:
-        repo = f"{acr_registry_name}.azurecr.io/{image}"
-        image_obj.tag(repo, tag=tag)
+    ref_parts = acr_image_reference.split("/")
+    if len(ref_parts) > 1:
+        ref_parts[0] = acr_dest_registry_name
+    else:
+        ref_parts = [acr_dest_registry_name, *ref_parts]
+    ref = "/".join(ref_parts)
+    image_obj.tag(ref)
+    response = client.images.push(repository=ref)
 
-    response = client.images.push(repository=repo, tag=tag)
-
-    # Print status
+    # Log status
     for resp in response.split("\n"):
         if resp:
             logger.debug(json.loads(resp).get("status", ""))
