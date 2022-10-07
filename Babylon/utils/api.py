@@ -5,7 +5,7 @@ import re
 import click
 from .environment import Environment
 
-from typing import Any
+from typing import Any, Iterable
 
 import yaml
 
@@ -58,6 +58,32 @@ def convert_keys_case(element: Any, convert_function) -> Any:
             new_element.append(convert_keys_case(e, convert_function))
         return new_element
     return element
+
+
+def filter_api_response_item(api_response_body: Any, fields: Iterable[str]) -> Any:
+    """
+    This function allow to apply a filter on an api unique response body keys
+    :param api_response_body: A single api response data in key=>value format
+    :param fields: A Set of keys witch will be keep in the response
+    :return None if api_response_body is empty or if the keys specified in fields parameter don't exist, else the filtered response data
+    """
+    filtered_ele = {}
+    _api_response_body = api_response_body.to_dict()
+    for _key, _value in _api_response_body.items():
+        if _key in fields:
+            filtered_ele[_key] = _value
+
+    return filtered_ele
+
+
+def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> Any:
+    """
+    This function allow to apply a filter on an api response list body keys
+    :param api_response_body: A Set api response data in key=>value format
+    :param fields: A Set of keys witch will be keep in the response
+    :return None if api_response_body is empty or if the keys specified in fields parameter don't exist, else the filtered response data
+    """
+    return [filter_api_response_item(ele, fields) for ele in api_response_body]
 
 
 def get_api_file(api_file_path: str, use_working_dir_file: bool, logger):
