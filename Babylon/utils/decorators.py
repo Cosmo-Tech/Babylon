@@ -23,7 +23,7 @@ def prepend_doc_with_ascii(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        func(*args, **kwargs)
+        return func(*args, **kwargs)
 
     babylon_ascii = ("\b",
                      r" ____              __                 ___  ",
@@ -52,8 +52,9 @@ def timing_decorator(func):
     def wrapper(*args, **kwargs):
         logger.debug(f"{func.__name__} : Starting")
         start_time = time.time()
-        func(*args, **kwargs)
+        resp = func(*args, **kwargs)
         logger.debug(f"{func.__name__} : Ending ({time.time() - start_time:.2f}s)")
+        return resp
 
     return wrapper
 
@@ -92,11 +93,11 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
                 if arg_name is not None:
                     kwargs[arg_name] = working_dir.get_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
-                func(*args, **kwargs)
-            else:
-                logger.error(f"Key {yaml_key} can not be found in {yaml_path}")
-                logger.error(f"{click.get_current_context().command.name} won't run without it.")
-                raise click.Abort()
+                return func(*args, **kwargs)
+
+            logger.error(f"Key {yaml_key} can not be found in {yaml_path}")
+            logger.error(f"{click.get_current_context().command.name} won't run without it.")
+            raise click.Abort()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in `{yaml_path}` in the working_dir."])
@@ -121,11 +122,11 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
                 if arg_name is not None:
                     kwargs[arg_name] = working_dir.get_file(file_path=file_path)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
-                func(*args, **kwargs)
-            else:
-                logger.error(f"Working_dir is missing {file_path}")
-                logger.error(f"{click.get_current_context().command.name} won't run without it.")
-                raise click.Abort()
+                return func(*args, **kwargs)
+            
+            logger.error(f"Working_dir is missing {file_path}")
+            logger.error(f"{click.get_current_context().command.name} won't run without it.")
+            raise click.Abort()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc,
@@ -146,11 +147,11 @@ def requires_external_program(program_name: str):
         @wraps(func)
         def wrapper(*args, **kwargs):
             if shutil.which(program_name) is not None:
-                func(*args, **kwargs)
-            else:
-                logger.error(f"{program_name} is not installed.")
-                logger.error(f"{click.get_current_context().command.name} won't run without it.")
-                raise click.Abort()
+                return func(*args, **kwargs)
+            
+            logger.error(f"{program_name} is not installed.")
+            logger.error(f"{click.get_current_context().command.name} won't run without it.")
+            raise click.Abort()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires the program `{program_name}` to run."])
@@ -175,11 +176,11 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
                 if arg_name is not None:
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
-                func(*args, **kwargs)
-            else:
-                logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
-                logger.error(f"{click.get_current_context().command.name} won't run without it.")
-                raise click.Abort()
+                return func(*args, **kwargs)
+            
+            logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
+            logger.error(f"{click.get_current_context().command.name} won't run without it.")
+            raise click.Abort()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc,
@@ -205,11 +206,11 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
                 if arg_name is not None:
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
-                func(*args, **kwargs)
-            else:
-                logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
-                logger.error(f"{click.get_current_context().command.name} won't run without it.")
-                raise click.Abort()
+                return func(*args, **kwargs)
+            
+            logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
+            logger.error(f"{click.get_current_context().command.name} won't run without it.")
+            raise click.Abort()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the deployment config file."])
