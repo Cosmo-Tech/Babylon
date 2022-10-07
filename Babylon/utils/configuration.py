@@ -12,8 +12,7 @@ import click
 import yaml
 
 from . import TEMPLATE_FOLDER_PATH
-from .yaml_utils import read_yaml_key
-
+from .yaml_utils import read_yaml_key, write_yaml_value
 
 class Configuration:
     """
@@ -285,6 +284,28 @@ class Configuration:
             return None
         else:
             return read_yaml_key(_path, var_name)
+
+    def set_deploy_var(self, var_name, var_value) -> None:
+        """
+        Set key value in current deployment configuration file
+        :param var_name: the key to set
+        :param var_value: the value to assign
+        """
+        if not (_path := self.get_deploy_path()).exists():
+            pass
+        else:
+            write_yaml_value(_path, var_name, var_value)
+
+    def set_platform_var(self, var_name, var_value) -> None:
+        """
+        Set key value in current platform configuration file
+        :param var_name: the key to set
+        :param var_value: the value to assign
+        """
+        if not (_path := self.get_platform_path()).exists():
+            pass
+        else:
+            write_yaml_value(_path, var_name, var_value)
 
     def check_api(self) -> bool:
         """

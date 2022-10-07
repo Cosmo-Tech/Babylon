@@ -20,6 +20,7 @@ pyyaml
 
 # Testing requirements
 pytest
+ruamel.yaml
 
 # Documentation generation requirements
 mkdocs
