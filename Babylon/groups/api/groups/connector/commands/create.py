@@ -77,12 +77,13 @@ def create(
         try:
 
             if not dry_run:
-                retrieved_connector = connector_api.register_connector(
-                    connector=converted_connector_content
-                )
                 converted_connector_content["name"] = connector_name
                 converted_connector_content["key"] = "".join(connector_name.split(" "))
                 converted_connector_content["version"] = connector_version
+
+                retrieved_connector = connector_api.register_connector(
+                    connector=converted_connector_content
+                )
 
                 if connector_type == "ADT":
                     env.configuration.set_deploy_var(
