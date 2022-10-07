@@ -1,0 +1,23 @@
+key: 
+name: 
+description: Connector for Azure Storage. Read all data in a container with a prefix and write the data in CSV for a ScenarioRun
+repository: cosmo-tech/azure-storage-simulator-connector
+version: 1.1.2
+tags:
+  - Azure Storage
+url: https://github.com/Cosmo-Tech/azure-storage-simulator-connector
+ioTypes:
+  - read
+parameterGroups:
+  - id: parameters
+    label: Parameters
+    parameters:
+      - id: AZURE_STORAGE_CONNECTION_STRING
+        label: Azure Storage Connection String
+        valueType: string
+        default: "%STORAGE_CONNECTION_STRING%"
+        envVar: AZURE_STORAGE_CONNECTION_STRING
+      - id: AZURE_STORAGE_CONTAINER_BLOB_PREFIX
+        label: Azure Storage Path in the form container/path
+        valueType: string
+        envVar: AZURE_STORAGE_CONTAINER_BLOB_PREFIX
