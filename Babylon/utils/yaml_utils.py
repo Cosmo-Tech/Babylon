@@ -29,11 +29,12 @@ def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
     """
     _commented_yaml_loader = YAML()
     try:
-        _y = _commented_yaml_loader.load(yaml_file.open(mode='r'))
-        _y[key] = value
-        _commented_yaml_loader.dump(_y, yaml_file)
+        with yaml_file.open(mode='r') as file:
+            _y = _commented_yaml_loader.load(file)
+            _y[key] = value
+            _commented_yaml_loader.dump(_y, yaml_file)
     except OSError:
-        pass
+        return
 
 def compare_yaml_keys(template_yaml: pathlib.Path, target_yaml: pathlib.Path) -> tuple[set, set]:
     """
