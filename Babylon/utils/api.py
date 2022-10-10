@@ -67,13 +67,8 @@ def filter_api_response_item(api_response_body: Any, fields: Iterable[str]) -> A
     :param fields: A Set of keys witch will be keep in the response
     :return None if api_response_body is empty or if the keys specified in fields parameter don't exist, else the filtered response data
     """
-    filtered_ele = {}
     _api_response_body = api_response_body.to_dict()
-    for _key, _value in _api_response_body.items():
-        if _key in fields:
-            filtered_ele[_key] = _value
-
-    return filtered_ele
+    return {_key: _value for _key, _value in _api_response_body.items() if _key in fields}
 
 
 def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> Any:
