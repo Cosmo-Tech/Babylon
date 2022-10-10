@@ -81,23 +81,22 @@ def create(
         logger.info("DRY RUN - Would call connector_api.create_connector")
         retrieved_connector = converted_connector_content
         retrieved_connector["id"] = "<DRY RUN>"
-    else:
-        try:
-            converted_connector_content["name"] = connector_name
-            converted_connector_content["key"] = connector_name.replace(" ", "")
-            converted_connector_content["version"] = connector_version
+        return
 
-            retrieved_connector = connector_api.register_connector(
-                connector=converted_connector_content
-            )
+    converted_connector_content["name"] = connector_name
+    converted_connector_content["key"] = connector_name.replace(" ", "")
+    converted_connector_content["version"] = connector_version
 
-            env.configuration.set_deploy_var(
-                f"{connector_type.lower()}_connector_id", retrieved_connector["id"]
-            )
+    try:
+        retrieved_connector = connector_api.register_connector(
+            connector=converted_connector_content
+        )
+    except UnauthorizedException:
+        logger.error("Unauthorized access to the cosmotech api")
 
-            logger.debug(pformat(retrieved_connector))
-            logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
+    env.configuration.set_deploy_var(
+        f"{connector_type.lower()}_connector_id", retrieved_connector["id"]
+    )
 
-        except UnauthorizedException:
-            logger.error("Unauthorized access to the cosmotech api")
-
+    logger.debug(pformat(retrieved_connector))
+    logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
