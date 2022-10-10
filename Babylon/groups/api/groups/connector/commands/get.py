@@ -7,20 +7,12 @@ from cosmotech_api.exceptions import NotFoundException, UnauthorizedException
 from click import argument, command, make_pass_decorator, option
 from cosmotech_api.api.connector_api import ConnectorApi
 
-from ......utils.api import (
-    convert_keys_case,
-    filter_api_response_item,
-    underscore_to_camel,
-)
-from ......utils.decorators import (
-    allow_dry_run,
-    timing_decorator,
-)
+from Babylon.utils.api import convert_keys_case, underscore_to_camel, filter_api_response_item
+from Babylon.utils.decorators import allow_dry_run, timing_decorator
 
 logger = getLogger("Babylon")
 
 pass_connector_api = make_pass_decorator(ConnectorApi)
-
 
 @command()
 @allow_dry_run
@@ -50,26 +42,28 @@ def get(
     dry_run: bool = False,
 ):
     """Get an registered connector data."""
+    if dry_run:
+        logger.info("DRY RUN - Would call connector_api.find_connector_by_id")
+        retrieved_connector = {"Babylon": "<DRY RUN>"}
+        return
     try:
-        if dry_run:
-            logger.info("DRY RUN - Would call connector_api.find_connector_by_id")
-            retrieved_connector = {"Babylon": "<DRY RUN>"}
-        else:
-            retrieved_connector = connector_api.find_connector_by_id(connector_id)
-            if fields is not None:
-                retrieved_connector = filter_api_response_item(
-                    retrieved_connector, fields.split(",")
-                )
-        if output_file is not None:
-            converted_content = convert_keys_case(
-                retrieved_connector.to_dict(), underscore_to_camel
-            )
-            with open(output_file, "w") as _file:
-                json.dump(converted_content, _file, ensure_ascii=False)
-            logger.info(f"Connector {connector_id} data was dumped on {output_file}")
-        else:
-            logger.info(pformat(retrieved_connector))
+        retrieved_connector = connector_api.find_connector_by_id(connector_id)
     except UnauthorizedException :
         logger.error("Unauthorized access to the cosmotech api")
     except NotFoundException :
-        logger.error(f"Connector with id {connector_id} does not exists.")
+        logger.error("Connector with id %s does not exists.", connector_id)
+
+    if fields is not None:
+        retrieved_connector = filter_api_response_item(
+            retrieved_connector, fields.split(",")
+        )
+    if output_file is None:
+        logger.info("Connector %s details : ", connector_id)
+        logger.info(pformat(retrieved_connector))
+    else:
+        converted_content = convert_keys_case(
+            retrieved_connector.to_dict(), underscore_to_camel
+        )
+        with open(output_file, "w") as _file:
+            json.dump(converted_content, _file, ensure_ascii=False)
+        logger.info("Connector %s data was dumped on %s.", connector_id, output_file )
