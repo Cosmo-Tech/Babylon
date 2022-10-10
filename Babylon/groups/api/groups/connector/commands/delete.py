@@ -28,7 +28,7 @@ def delete(
         return
 
     try:
-        _ = connector_api.find_connector_by_id(connector_id)
+        connector_api.find_connector_by_id(connector_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
         return
@@ -49,7 +49,7 @@ def delete(
         return
 
     try:
-        _ = connector_api.unregister_connector(connector_id)
+        connector_api.unregister_connector(connector_id)
         logger.info("Connector with id %s deleted.",connector_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
