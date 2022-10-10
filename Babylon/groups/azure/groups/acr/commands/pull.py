@@ -4,7 +4,7 @@ import docker
 from click import command, pass_context
 from click.core import Context
 from azure.containerregistry import ContainerRegistryClient
-from Babylon.utils.decorators import requires_external_program, require_deployment_key
+from Babylon.utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
@@ -20,7 +20,6 @@ Should a new entry to `docker image ls` with the latest tag
 """
 
 @command()
-@requires_external_program("docker")
 @pass_context
 @require_deployment_key("acr_src_registry_name", "acr_src_registry_name")
 @require_deployment_key("acr_image_reference", "acr_image_reference")
@@ -34,11 +33,11 @@ def pull(ctx: Context, acr_src_registry_name: str, acr_image_reference: str):
         audience="https://management.azure.com")
     # Pulling image
     client = docker.from_env()
-    logger.info("Pulling image %s", acr_image_reference)
+    logger.info(f"Pulling image {acr_image_reference}")
     repo = f"{acr_src_registry_name}/{acr_image_reference}"
     try:
         client.images.pull(repository=repo)
     except docker.errors.NotFound:
-        logger.error("Registry %s does not contain %s", acr_src_registry_name, acr_image_reference)
+        logger.error(f"Registry {acr_src_registry_name} does not contain {acr_image_reference}")
     except docker.errors.APIError as api_error:
-        logger.error("API Error: %s", api_error)
+        logger.error(f"API Error: {api_error}")

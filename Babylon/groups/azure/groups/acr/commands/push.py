@@ -5,7 +5,7 @@ import docker
 from click import command, make_pass_decorator, pass_context
 from click.core import Context
 from azure.containerregistry import ContainerRegistryClient
-from Babylon.utils.decorators import requires_external_program, require_deployment_key
+from Babylon.utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
@@ -26,7 +26,6 @@ Should add a new entry to `az acr repository list --name my_registry`
 
 
 @command()
-@requires_external_program("docker")
 @pass_context
 @require_deployment_key("acr_dest_registry_name", "acr_dest_registry_name")
 @require_deployment_key("acr_image_reference", "acr_image_reference")
@@ -45,9 +44,9 @@ def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str):
     try:
         image_obj = client.images.get(acr_image_reference)
     except docker.errors.ImageNotFound:
-        logger.error("Image %s not found locally", acr_image_reference)
+        logger.error(f"Image {acr_image_reference} not found locally")
         return
-    logger.info("Pushing image %s", acr_image_reference)
+    logger.info(f"Pushing image {acr_image_reference}")
 
     # Rename image with registry url if it is not present
     ref_parts = acr_image_reference.split("/")
