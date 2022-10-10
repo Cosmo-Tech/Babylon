@@ -2,11 +2,11 @@
 azure-identity
 azure-mgmt-subscription
 azure-mgmt-kusto
-azure-containerregistry
 msrest
 
 # Azure services requirements
 azure-digitaltwins-core
+azure-containerregistry
 
 # Click requirements
 click
