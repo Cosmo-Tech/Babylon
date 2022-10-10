@@ -1,8 +1,8 @@
-import os
+import subprocess
 import logging
 import json
 import docker
-from click import command, make_pass_decorator, pass_context, argument, option
+from click import command, make_pass_decorator, pass_context, option
 from click.core import Context
 from azure.containerregistry import ContainerRegistryClient
 from Babylon.utils.decorators import require_deployment_key
@@ -29,14 +29,19 @@ Should a new entry to `az acr repository list --name my_registry` with the value
 @pass_context
 @require_deployment_key("acr_dest_registry_name", "acr_dest_registry_name")
 @require_deployment_key("acr_image_reference", "acr_image_reference")
-@argument("image")
+@option("-i", "--image")
 @option("-r", "--registry")
 def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str, image: str, registry: str):
     """Push a docker image to the ACR registry given in deployment configuration"""
     registry = registry or acr_dest_registry_name
     image = image or acr_image_reference
     # Login to registry
-    os.system(f"az acr login --name {registry}")
+    response = subprocess.run(["az", "acr", "login", "--name", registry],
+                              shell=False, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if response.returncode:
+        logger.error(
+            f"Could not connect to registry {registry}: {response.stderr}")
+        return
     ContainerRegistryClient(
         f"https://{registry}",
         ctx.parent.obj,

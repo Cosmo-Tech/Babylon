@@ -1,4 +1,4 @@
-import os
+import subprocess
 import logging
 from click import command, pass_context, Context, option
 from azure.containerregistry import ContainerRegistryClient
@@ -23,9 +23,11 @@ def ls(ctx: Context, acr_src_registry_name: str, registry: str):
     """List all docker images in the specified registry"""
     registry = registry or acr_src_registry_name
     # Login to registry
-    response = os.system(f"az acr login --name {registry}")
-    if response:
-        logger.error(f"Could not connect to registry {registry}")
+    response = subprocess.run(["az", "acr", "login", "--name", registry],
+                              shell=False, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if response.returncode:
+        logger.error(
+            f"Could not connect to registry {registry}: {response.stderr}")
         return
     cr_client = ContainerRegistryClient(
         f"https://{registry}",

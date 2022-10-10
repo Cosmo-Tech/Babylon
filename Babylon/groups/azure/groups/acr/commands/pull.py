@@ -1,7 +1,7 @@
-import os
+import subprocess
 import logging
 import docker
-from click import command, pass_context, argument, option
+from click import command, pass_context, option
 from click.core import Context
 from azure.containerregistry import ContainerRegistryClient
 from Babylon.utils.decorators import require_deployment_key
@@ -22,14 +22,19 @@ Should add new entry to `docker image ls`
 @pass_context
 @require_deployment_key("acr_src_registry_name", "acr_src_registry_name")
 @require_deployment_key("acr_image_reference", "acr_image_reference")
-@argument("image")
+@option("-i", "--image")
 @option("-r", "--registry")
 def pull(ctx: Context, acr_src_registry_name: str, acr_image_reference: str, registry: str, image: str):
     """Pulls a docker image from the ACR registry given in deployment configuration"""
     registry = registry or acr_src_registry_name
     image = image or acr_image_reference
     # Login to registry
-    os.system(f"az acr login --name {registry}")
+    response = subprocess.run(["az", "acr", "login", "--name", registry],
+                              shell=False, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if response.returncode:
+        logger.error(
+            f"Could not connect to registry {registry}: {response.stderr}")
+        return
     ContainerRegistryClient(
         f"https://{registry}",
         ctx.parent.obj,
