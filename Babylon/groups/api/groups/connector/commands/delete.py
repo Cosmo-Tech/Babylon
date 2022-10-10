@@ -40,7 +40,6 @@ def delete(
         return
 
     confirm_connector_id = prompt("Confirm connector id ")
-
     if confirm_connector_id != connector_id:
         logger.error("Wrong Connector , the id must be the same as the one that has been provide in delete command argument")
         return

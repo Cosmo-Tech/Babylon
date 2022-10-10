@@ -72,10 +72,10 @@ def create(
         use_working_dir_file=use_working_dir_file if connector_file else False,
         logger=logger,
     )
-
     if not converted_connector_content:
         logger.error("Error : can not get correct Connector definition, please check your Connector.YAML file")
         return
+
     if dry_run:
         logger.info("DRY RUN - Would call connector_api.create_connector")
         retrieved_connector = converted_connector_content
@@ -85,17 +85,14 @@ def create(
     converted_connector_content["name"] = connector_name
     converted_connector_content["key"] = connector_name.replace(" ", "")
     converted_connector_content["version"] = connector_version
-
     try:
         retrieved_connector = connector_api.register_connector(
             connector=converted_connector_content
         )
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-
     env.configuration.set_deploy_var(
         f"{connector_type.lower()}_connector_id", retrieved_connector["id"]
     )
-
     logger.debug(pformat(retrieved_connector))
     logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
