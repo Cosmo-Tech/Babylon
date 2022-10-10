@@ -292,9 +292,8 @@ class Configuration:
         :param var_value: the value to assign
         """
         if not (_path := self.get_deploy_path()).exists():
-            pass
-        else:
-            write_yaml_value(_path, var_name, var_value)
+            return
+        write_yaml_value(_path, var_name, var_value)
 
     def set_platform_var(self, var_name, var_value) -> None:
         """
@@ -303,9 +302,8 @@ class Configuration:
         :param var_value: the value to assign
         """
         if not (_path := self.get_platform_path()).exists():
-            pass
-        else:
-            write_yaml_value(_path, var_name, var_value)
+            return
+        write_yaml_value(_path, var_name, var_value)
 
     def check_api(self) -> bool:
         """
