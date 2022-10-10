@@ -44,6 +44,7 @@ def get_all(
         logger.info("DRY RUN - Would call connector_api.find_all_connectors")
         retrieved_connectors = [{"Babylon": "<DRY RUN>"}]
         return
+
     try:
         retrieved_connectors = connector_api.find_all_connectors()
     except UnauthorizedException:

@@ -42,17 +42,18 @@ def get(
     dry_run: bool = False,
 ):
     """Get an registered connector data."""
+
     if dry_run:
         logger.info("DRY RUN - Would call connector_api.find_connector_by_id")
         retrieved_connector = {"Babylon": "<DRY RUN>"}
         return
+
     try:
         retrieved_connector = connector_api.find_connector_by_id(connector_id)
     except UnauthorizedException :
         logger.error("Unauthorized access to the cosmotech api")
     except NotFoundException :
         logger.error("Connector with id %s does not exists.", connector_id)
-
     if fields:
         retrieved_connector = filter_api_response_item(
             retrieved_connector, fields.split(",")
