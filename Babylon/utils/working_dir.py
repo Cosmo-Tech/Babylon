@@ -10,6 +10,7 @@ import yaml
 from . import TEMPLATE_FOLDER_PATH
 from .yaml_utils import compare_yaml_keys
 from .yaml_utils import complete_yaml
+from .yaml_utils import write_yaml_value
 
 
 class WorkingDir:
@@ -117,6 +118,17 @@ class WorkingDir:
             return _v
         except (IOError, KeyError):
             return None
+
+    def set_yaml_key(self, yaml_path: str, yaml_key: str, var_value) -> None:
+        """
+        Set key value in current deployment configuration file
+        :param yaml_path: path to the yaml file in the working_dir
+        :param yaml_key: key to get in the yaml
+        :param var_value: the value to assign
+        """
+        if not (_path := self.get_file(yaml_path)).exists():
+            return
+        write_yaml_value(_path, yaml_key, var_value)
 
     def get_file(self, file_path: str) -> pathlib.Path:
         """
