@@ -2,7 +2,7 @@ import os
 import logging
 import json
 import docker
-from click import command, make_pass_decorator, pass_context
+from click import command, make_pass_decorator, pass_context, argument, option
 from click.core import Context
 from azure.containerregistry import ContainerRegistryClient
 from Babylon.utils.decorators import require_deployment_key
@@ -12,16 +12,16 @@ logger = logging.getLogger("Babylon")
 pass_cr_client = make_pass_decorator(ContainerRegistryClient)
 
 """Command Tests
-> babylon acr push this_image_does_not_exist
+> babylon azure acr push this_image_does_not_exist
 Should provide a clean error log
-> babylon acr push existing_image -t tag_that_does_not_exists
+> babylon azure acr push existing_image:tag_that_does_not_exist
 Should provide a clean error log
-> babylon acr push existing_image -t existing_tag
+> babylon azure acr push existing_image:existing_tag
 Should add a new entry to `az acr repository list --name my_registry`
-> babylon acr pull existing_image
+> babylon azure acr push existing_image -r my_registry
 Should a new entry to `az acr repository list --name my_registry` with the `latest` tag
-> babylon acr push existing_image.azurecr.io
-Should add a new entry to `az acr repository list --name my_registry`
+> babylon azure acr push
+Should a new entry to `az acr repository list --name my_registry` with the values specified in conf
 """
 
 
@@ -29,31 +29,34 @@ Should add a new entry to `az acr repository list --name my_registry`
 @pass_context
 @require_deployment_key("acr_dest_registry_name", "acr_dest_registry_name")
 @require_deployment_key("acr_image_reference", "acr_image_reference")
-def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str):
+@argument("image")
+@option("-r", "--registry")
+def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str, image: str, registry: str):
     """Push a docker image to the ACR registry given in deployment configuration"""
-
+    registry = registry or acr_dest_registry_name
+    image = image or acr_image_reference
     # Login to registry
-    os.system(f"az acr login --name {acr_dest_registry_name}")
+    os.system(f"az acr login --name {registry}")
     ContainerRegistryClient(
-        f"https://{acr_dest_registry_name}",
+        f"https://{registry}",
         ctx.parent.obj,
         audience="https://management.azure.com")
 
     # Retrieve image
     client = docker.from_env()
     try:
-        image_obj = client.images.get(acr_image_reference)
+        image_obj = client.images.get(image)
     except docker.errors.ImageNotFound:
-        logger.error(f"Image {acr_image_reference} not found locally")
+        logger.error(f"Image {image} not found locally")
         return
-    logger.info(f"Pushing image {acr_image_reference}")
+    logger.info(f"Pushing image {image}")
 
     # Rename image with registry url if it is not present
-    ref_parts = acr_image_reference.split("/")
+    ref_parts = image.split("/")
     if len(ref_parts) > 1:
-        ref_parts[0] = acr_dest_registry_name
+        ref_parts[0] = registry
     else:
-        ref_parts = [acr_dest_registry_name, *ref_parts]
+        ref_parts = [registry, *ref_parts]
     ref = "/".join(ref_parts)
     image_obj.tag(ref)
     response = client.images.push(repository=ref)
