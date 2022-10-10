@@ -53,11 +53,11 @@ def get(
     except NotFoundException :
         logger.error("Connector with id %s does not exists.", connector_id)
 
-    if fields is not None:
+    if fields:
         retrieved_connector = filter_api_response_item(
             retrieved_connector, fields.split(",")
         )
-    if output_file is None:
+    if not output_file :
         logger.info("Connector %s details : ", connector_id)
         logger.info(pformat(retrieved_connector))
     else:
