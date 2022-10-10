@@ -14,7 +14,6 @@ logger = getLogger("Babylon")
 
 pass_connector_api = make_pass_decorator(ConnectorApi)
 
-
 @command()
 @allow_dry_run
 @timing_decorator
@@ -57,9 +56,8 @@ def get_all(
         logger.info(pformat(retrieved_connectors))
         logger.info("Found %s connectors", len(retrieved_connectors))
     else:
-        _connectors_to_dump = [convert_keys_case(_ele.to_dict(), underscore_to_camel) for _ele in retrieved_connectors]
+        _connectors_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_connectors]
         with open(output_file, "w") as _file:
             json.dump(_connectors_to_dump, _file, ensure_ascii=False)
         logger.info("Found %s connectors", len(retrieved_connectors))
         logger.info("Full content was dumped on %s", output_file)
-

@@ -10,7 +10,6 @@ logger = getLogger("Babylon")
 
 pass_connector_api = make_pass_decorator(ConnectorApi)
 
-
 @command()
 @allow_dry_run
 @timing_decorator
