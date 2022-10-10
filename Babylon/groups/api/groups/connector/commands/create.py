@@ -6,10 +6,10 @@ from click import argument, command, make_pass_decorator, option, Choice
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import UnauthorizedException
 
-from ......utils.api import get_api_file
-from ......utils import TEMPLATE_FOLDER_PATH
-from ......utils.decorators import allow_dry_run, pass_environment, timing_decorator
-from ......utils.environment import Environment
+from Babylon.utils.api import get_api_file
+from Babylon.utils import TEMPLATE_FOLDER_PATH
+from Babylon.utils.decorators import allow_dry_run, pass_environment, timing_decorator
+from Babylon.utils.environment import Environment
 
 logger = getLogger("Babylon")
 
@@ -34,7 +34,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
     "--type",
     "connector_type",
     required=True,
-    type=Choice(["ADT", "STORAGE"], case_sensitive=True),
+    type=Choice(["ADT", "STORAGE"], case_sensitive=False),
     help="Connector type, allowed values : [ADT, STORAGE]",
 )
 @option(
@@ -65,6 +65,7 @@ def create(
 ):
     """Register new connector by sending a JSON or YAML file to the API."""
 
+    connector_type = connector_type.upper()
     converted_connector_content = get_api_file(
         api_file_path=connector_file
         if connector_file
@@ -73,40 +74,30 @@ def create(
         logger=logger,
     )
 
-    if (converted_connector_content) is not None:
+    if not converted_connector_content:
+        logger.error("Error : can not get correct Connector definition, please check your Connector.YAML file")
+        return
+    if dry_run:
+        logger.info("DRY RUN - Would call connector_api.create_connector")
+        retrieved_connector = converted_connector_content
+        retrieved_connector["id"] = "<DRY RUN>"
+    else:
         try:
+            converted_connector_content["name"] = connector_name
+            converted_connector_content["key"] = connector_name.replace(" ", "")
+            converted_connector_content["version"] = connector_version
 
-            if not dry_run:
-                converted_connector_content["name"] = connector_name
-                converted_connector_content["key"] = "".join(connector_name.split(" "))
-                converted_connector_content["version"] = connector_version
+            retrieved_connector = connector_api.register_connector(
+                connector=converted_connector_content
+            )
 
-                retrieved_connector = connector_api.register_connector(
-                    connector=converted_connector_content
-                )
-
-                if connector_type == "ADT":
-                    env.configuration.set_deploy_var(
-                        "adt_connector_id", retrieved_connector["id"]
-                    )
-                elif connector_type == "STORAGE":
-                    env.configuration.set_deploy_var(
-                        "azure_storage_connector_id", retrieved_connector["id"]
-                    )
-            else:
-                logger.info("DRY RUN - Would call connector_api.create_connector")
-                retrieved_connector = converted_connector_content
-                retrieved_connector["id"] = "<DRY RUN>"
+            env.configuration.set_deploy_var(
+                f"{connector_type.lower()}_connector_id", retrieved_connector["id"]
+            )
 
             logger.debug(pformat(retrieved_connector))
-            logger.info(
-                f"Created new {connector_type} Connector with id: {retrieved_connector['id']}"
-            )
+            logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
 
         except UnauthorizedException:
             logger.error("Unauthorized access to the cosmotech api")
 
-    else:
-        logger.error(
-            "Error : can not get correct Connector definition, please check your Connector.YAML file"
-        )
