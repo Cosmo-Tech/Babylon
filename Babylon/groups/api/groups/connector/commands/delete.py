@@ -36,9 +36,7 @@ def delete(
         logger.error("Connector with id %s does not exists.", connector_id)
         return
 
-    if not confirm(
-        f"You are trying to delete connector {connector_id} \nDo you want to continue ?"
-    ):
+    if not confirm(f"You are trying to delete connector {connector_id} \nDo you want to continue ?"):
         logger.info("Connector deletion aborted.")
         return
 

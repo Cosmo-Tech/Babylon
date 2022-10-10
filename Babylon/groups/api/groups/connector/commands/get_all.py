@@ -7,8 +7,8 @@ from click import command, make_pass_decorator, option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import UnauthorizedException
 
-from ......utils.api import convert_keys_case, filter_api_response, underscore_to_camel
-from ......utils.decorators import allow_dry_run, timing_decorator
+from Babylon.utils.api import convert_keys_case, filter_api_response, underscore_to_camel
+from Babylon.utils.decorators import allow_dry_run, timing_decorator
 
 logger = getLogger("Babylon")
 
@@ -40,30 +40,26 @@ def get_all(
     fields: str = None,
     dry_run: bool = False,
 ):
-    """Get all registered connector."""
+    """Get all registered connectors."""
+    if dry_run:
+        logger.info("DRY RUN - Would call connector_api.find_all_connectors")
+        retrieved_connectors = [{"Babylon": "<DRY RUN>"}]
+        return
     try:
-        if dry_run:
-            logger.info("DRY RUN - Would call connector_api.find_all_connectors")
-            retrieved_connectors = [{"Babylon": "<DRY RUN>"}]
-        else:
-            retrieved_connectors = connector_api.find_all_connectors()
-            if fields is not None:
-                retrieved_connectors = filter_api_response(
-                    retrieved_connectors, fields.split(",")
-                )
-        if output_file is not None:
-            _connectors_to_dump = []
-            for _ele in retrieved_connectors:
-                converted_content = convert_keys_case(
-                    _ele.to_dict(), underscore_to_camel
-                )
-                _connectors_to_dump.append(converted_content)
-            with open(output_file, "w") as _file:
-                json.dump(_connectors_to_dump, _file, ensure_ascii=False)
-            logger.info(f"{len(_connectors_to_dump)} Connectors found")
-            logger.info(f"Full content was dumped on {output_file}")
-        else:
-            logger.info(pformat(retrieved_connectors))
-            logger.info(f"Found {len(retrieved_connectors)} connectors")
+        retrieved_connectors = connector_api.find_all_connectors()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+    if fields is not None:
+        retrieved_connectors = filter_api_response(
+            retrieved_connectors, fields.split(",")
+        )
+    if output_file is None:
+        logger.info(pformat(retrieved_connectors))
+        logger.info("Found %s connectors", len(retrieved_connectors))
+    else:
+        _connectors_to_dump = [convert_keys_case(_ele.to_dict(), underscore_to_camel) for _ele in retrieved_connectors]
+        with open(output_file, "w") as _file:
+            json.dump(_connectors_to_dump, _file, ensure_ascii=False)
+        logger.info("Found %s connectors", len(retrieved_connectors))
+        logger.info("Full content was dumped on %s", output_file)
+
