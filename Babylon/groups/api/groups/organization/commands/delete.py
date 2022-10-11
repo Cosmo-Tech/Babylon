@@ -36,7 +36,7 @@ def delete(
         logger.error("Organization with id %s does not exists.",organization_id)
         return
 
-    if not confirm("You are trying to delete organization {organization_id} \nDo you want to continue?"):
+    if not confirm(f"You are trying to delete organization {organization_id} \nDo you want to continue?"):
         logger.info("Organization deletion aborted.")
         return
 
