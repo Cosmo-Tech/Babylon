@@ -1,6 +1,5 @@
 import sys
 import cosmotech_api
-import logging
 from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import ClientAuthenticationError
 from click import group, pass_context
