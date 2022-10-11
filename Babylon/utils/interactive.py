@@ -20,7 +20,7 @@ def ask_for_group(prompt: str, exists: bool = False) -> list[str]:
         # TODO : Check for group existence
         pass
     click.echo(f"Selected group : {group_string}")
-    return group_string.split(" ")
+    return group_string.split()
 
 
 def element_to_str(element: Any, actual: Optional[Any] = None):
