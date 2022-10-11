@@ -1,4 +1,3 @@
-from email.policy import default
 from logging import getLogger
 from pprint import pformat
 from typing import Optional
