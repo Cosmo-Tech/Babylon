@@ -7,7 +7,7 @@ from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
-from ...utils.decorators import require_platform_key
+from Babylon.utils.decorators import require_platform_key
 
 
 @group()

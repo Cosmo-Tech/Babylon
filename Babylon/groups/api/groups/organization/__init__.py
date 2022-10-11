@@ -6,7 +6,7 @@ from click.core import Context
 from .commands import list_commands
 from .groups import list_groups
 
-from .....utils.decorators import pass_api_configuration
+from Babylon.utils.decorators import pass_api_configuration
 
 from cosmotech_api.api.organization_api import OrganizationApi
 
@@ -14,10 +14,9 @@ from cosmotech_api.api.organization_api import OrganizationApi
 @pass_api_configuration
 @pass_context
 def organization(ctx: Context, api_configuration):
-    """Subgroup handling Organization in the cosmotech API"""
+    """Subgroup handling Organizations in the cosmotech API"""
     api_client = cosmotech_api.ApiClient(api_configuration)
     ctx.obj = OrganizationApi(api_client)
-
 
 for _command in list_commands:
     organization.add_command(_command)

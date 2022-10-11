@@ -1,17 +1,68 @@
-from click import command
+import json
+from logging import getLogger
+from pprint import pformat
+from typing import Optional
 
+from click import command, make_pass_decorator, option
 from cosmotech_api.api.organization_api import OrganizationApi
-from click import make_pass_decorator
-import logging
-import pprint
+from cosmotech_api.exceptions import UnauthorizedException
 
-logger = logging.getLogger("Babylon")
+from Babylon.utils.api import convert_keys_case, underscore_to_camel, filter_api_response
+from Babylon.utils.decorators import allow_dry_run, timing_decorator
+
+logger = getLogger("Babylon")
 
 pass_organization_api = make_pass_decorator(OrganizationApi)
 
 @command()
+@allow_dry_run
+@timing_decorator
 @pass_organization_api
-def get_all(organization_api: OrganizationApi):
-    """Display all organization in API"""
-    r = organization_api.find_all_organizations()
-    logger.info(pprint.pformat(r))
+@option(
+    "-o",
+    "--output_file",
+    "output_file",
+    help="File to which content should be outputted (json-formatted)",
+)
+@option(
+    "-f",
+    "--fields",
+    "fields",
+    required=False,
+    type=str,
+    help="Fields witch will be keep in response data, by default all",
+)
+def get_all(
+    organization_api: OrganizationApi,
+    output_file: Optional[str] = None,
+    fields: str = None,
+    dry_run: bool = False,
+):
+    """Get all registered organization."""
+
+    if dry_run:
+        retrieved_organizations = [{"Babylon": "<DRY RUN>"}]
+        logger.info("DRY RUN - Would call organization_api.find_all_organizations")
+        logger.info(pformat(retrieved_organizations))
+        return
+
+    try:
+        retrieved_organizations = organization_api.find_all_organizations()
+    except UnauthorizedException :
+        logger.error("Unauthorized access to the cosmotech api")
+        return
+
+    if fields is not None:
+        retrieved_organizations = filter_api_response(
+            retrieved_organizations, fields.split(",")
+        )
+    if not output_file:
+        logger.info(pformat(retrieved_organizations))
+        logger.info("Found %s organizations", len(retrieved_organizations))
+    else:
+        _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]
+        with open(output_file, "w") as _file:
+            json.dump(_organizations_to_dump, _file, ensure_ascii=False)
+        logger.info("Found %s organizations", len(retrieved_organizations))
+        logger.info("Full content was dumped on %s", output_file)
+
