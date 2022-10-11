@@ -56,8 +56,10 @@ def update(
         )
     except UnauthorizedException :
         logger.error("Unauthorized access to the cosmotech api")
+        return
     except  NotFoundException :
         logger.error("Organization with id %s does not exists.", organization_id)
+        return
 
     logger.debug(pformat(retrieved_data))
     logger.info("Updated organization with id: %s", retrieved_data['id'])

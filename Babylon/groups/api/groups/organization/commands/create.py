@@ -56,7 +56,7 @@ def create(
 ):
     """Register new organization by sending a JSON or YAML file to Cosmotech Api"""
     if not organization_file and not organization_name:
-        logger.error("Error : can not get Organization name, please check your Organization.YAML file")
+        logger.error("Error : can not get an organization name, please check your Organization.YAML file or set --name option")
         return
 
     converted_organization_content = get_api_file(
