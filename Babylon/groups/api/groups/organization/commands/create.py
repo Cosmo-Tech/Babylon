@@ -33,7 +33,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
     "--select",
     "select",
     type=bool,
-    help="Should ...",
+    help="If true, the created Organization will be set as organization of current babylon context",
     required=False,
     default=True,
 )
