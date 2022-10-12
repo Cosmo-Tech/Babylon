@@ -48,7 +48,7 @@ def get_current(
     fields: str = None,
     dry_run: bool = False,
 ):
-    """Get the state of an specific organization in the API."""
+    """Get the state of current configuration organization in the API."""
 
     if dry_run:
         logger.info("DRY RUN - Would call organization_api.find_organization_by_id")
