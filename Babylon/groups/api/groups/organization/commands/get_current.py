@@ -3,12 +3,19 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
-from cosmotech_api.exceptions import NotFoundException, UnauthorizedException
-from click import command, make_pass_decorator, option
+from click import command
+from click import make_pass_decorator
+from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
+from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.api import convert_keys_case, underscore_to_camel, filter_api_response_item
-from Babylon.utils.decorators import allow_dry_run, timing_decorator, require_deployment_key
+from Babylon.utils.api import convert_keys_case
+from Babylon.utils.api import filter_api_response_item
+from Babylon.utils.api import underscore_to_camel
+from Babylon.utils.decorators import allow_dry_run
+from Babylon.utils.decorators import require_deployment_key
+from Babylon.utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 
@@ -62,14 +69,14 @@ def get_current(
         retrieved_organization = filter_api_response_item(
             retrieved_organization, fields.split(",")
         )
-    if not output_file:
-        logger.info("Organization %s details :", organization_id)
-        logger.info(pformat(retrieved_organization))
-    else:
+    if output_file:
         converted_content = convert_keys_case(
             retrieved_organization.to_dict(), underscore_to_camel
         )
         with open(output_file, "w") as _file:
             json.dump(converted_content, _file, ensure_ascii=False)
-        logger.info("Organization %s data was dumped on %s", organization_id, output_file)
+        logger.info("Organization {organization_id} data was dumped on {output_file}.")
+        return
+    logger.info("Organization {organization_id} details :")
+    logger.info(pformat(retrieved_organization))
 
