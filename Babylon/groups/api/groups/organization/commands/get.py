@@ -62,7 +62,7 @@ def get(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error("Organization with id %s does not exist.", organization_id)
+        logger.error("Organization with id {organization_id} does not exist.")
         return
 
     if fields:

@@ -6,8 +6,8 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
-from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api.organization_api import OrganizationApi
 
 from Babylon.utils import TEMPLATE_FOLDER_PATH
 from Babylon.utils.api import get_api_file
@@ -91,8 +91,6 @@ def create(
         return
 
     if select:
-        env.configuration.set_deploy_var( #Possible error
-            "organization_id", retrieved_data['id']
-        )
+        env.configuration.set_deploy_var("organization_id", retrieved_data['id']) # May return environnement error
     logger.debug(pformat(retrieved_data))
-    logger.info("Created new organization with id: %s", retrieved_data['id'])
+    logger.info("Created new organization with id: {retrieved_data['id']}")
