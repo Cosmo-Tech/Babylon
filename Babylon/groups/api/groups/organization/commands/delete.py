@@ -10,8 +10,8 @@ from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.decorators import allow_dry_run
-from Babylon.utils.decorators import timing_decorator
+from ......utils.decorators import allow_dry_run
+from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 

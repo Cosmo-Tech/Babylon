@@ -9,11 +9,11 @@ from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.api import convert_keys_case
-from Babylon.utils.api import filter_api_response
-from Babylon.utils.api import underscore_to_camel
-from Babylon.utils.decorators import allow_dry_run
-from Babylon.utils.decorators import timing_decorator
+from ......utils.api import convert_keys_case
+from ......utils.api import filter_api_response
+from ......utils.api import underscore_to_camel
+from ......utils.decorators import allow_dry_run
+from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 
