@@ -17,6 +17,7 @@ logger = getLogger("Babylon")
 
 pass_organization_api = make_pass_decorator(OrganizationApi)
 
+
 @command()
 @allow_dry_run
 @timing_decorator
@@ -41,7 +42,7 @@ def delete(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error("Organization with id %s does not exists.",organization_id)
+        logger.error("Organization with id %s does not exists.", organization_id)
         return
     if not force_validation:
         if not confirm(f"You are trying to delete organization {organization_id} \nDo you want to continue?"):

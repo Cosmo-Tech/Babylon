@@ -21,6 +21,7 @@ logger = getLogger("Babylon")
 
 pass_organization_api = make_pass_decorator(OrganizationApi)
 
+
 @command()
 @allow_dry_run
 @timing_decorator
@@ -55,9 +56,7 @@ def get(
         return
 
     try:
-        retrieved_organization = organization_api.find_organization_by_id(
-            organization_id
-        )
+        retrieved_organization = organization_api.find_organization_by_id(organization_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return
@@ -66,18 +65,12 @@ def get(
         return
 
     if fields:
-        retrieved_organization = filter_api_response_item(
-            retrieved_organization, fields.split(",")
-        )
+        retrieved_organization = filter_api_response_item(retrieved_organization, fields.split(","))
     if output_file:
-        converted_content = convert_keys_case(
-            retrieved_organization.to_dict(), underscore_to_camel
-        )
+        converted_content = convert_keys_case(retrieved_organization.to_dict(), underscore_to_camel)
         with open(output_file, "w") as _file:
             json.dump(converted_content, _file, ensure_ascii=False)
         logger.info("Organization {organization_id} data was dumped on {output_file}.")
         return
     logger.info("Organization {organization_id} details :")
     logger.info(pformat(retrieved_organization))
-        
-

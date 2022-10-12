@@ -20,6 +20,7 @@ logger = getLogger("Babylon")
 
 pass_organization_api = make_pass_decorator(OrganizationApi)
 
+
 @command()
 @allow_dry_run
 @timing_decorator
@@ -61,7 +62,9 @@ def create(
 ):
     """Register new organization by sending a JSON or YAML file to Cosmotech Api"""
     if not organization_file and not organization_name:
-        logger.error("Error : can not get an organization name, please check your Organization.YAML file or set --name option")
+        logger.error(
+            "Error : can not get an organization name, please check your Organization.YAML file or set --name option"
+        )
         return
 
     converted_organization_content = get_api_file(
@@ -83,14 +86,12 @@ def create(
         converted_organization_content["name"] = organization_name
 
     try:
-        retrieved_data = organization_api.register_organization(
-            organization=converted_organization_content
-        )
+        retrieved_data = organization_api.register_organization(organization=converted_organization_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return
 
     if select:
-        env.configuration.set_deploy_var("organization_id", retrieved_data['id']) # May return environnement error
+        env.configuration.set_deploy_var("organization_id", retrieved_data["id"])  # May return environnement error
     logger.debug(pformat(retrieved_data))
     logger.info("Created new organization with id: {retrieved_data['id']}")

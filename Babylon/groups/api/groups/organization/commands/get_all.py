@@ -19,6 +19,7 @@ logger = getLogger("Babylon")
 
 pass_organization_api = make_pass_decorator(OrganizationApi)
 
+
 @command()
 @allow_dry_run
 @timing_decorator
@@ -53,14 +54,12 @@ def get_all(
 
     try:
         retrieved_organizations = organization_api.find_all_organizations()
-    except UnauthorizedException :
+    except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return
 
     if fields:
-        retrieved_organizations = filter_api_response(
-            retrieved_organizations, fields.split(",")
-        )
+        retrieved_organizations = filter_api_response(retrieved_organizations, fields.split(","))
         logger.info("Found %s organizations", len(retrieved_organizations))
     if output_file:
         _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]
@@ -69,4 +68,3 @@ def get_all(
         logger.info("Full content was dumped on %s", output_file)
         return
     logger.info(pformat(retrieved_organizations))
-
