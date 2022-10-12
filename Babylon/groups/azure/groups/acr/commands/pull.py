@@ -35,13 +35,11 @@ def pull(ctx: Context, acr_src_registry_name: str, acr_image_reference: str, reg
     registry = registry or acr_src_registry_name
     image = image or acr_image_reference
     # Login to registry
-    response = subprocess.run(
-        ["az", "acr", "login", "--name", registry],
-        shell=False,
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    response = subprocess.run(["az", "acr", "login", "--name", registry],
+                              shell=False,
+                              check=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
     if response.returncode:
         logger.error(f"Could not connect to registry {registry}: {str(response.stderr)}")
         return
