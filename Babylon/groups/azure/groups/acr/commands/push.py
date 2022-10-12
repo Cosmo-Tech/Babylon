@@ -1,16 +1,21 @@
-import subprocess
-import logging
 import json
-import docker
-from click import command, make_pass_decorator, pass_context, option
-from click.core import Context
+import logging
+import subprocess
+import typing
+
 from azure.containerregistry import ContainerRegistryClient
-from Babylon.utils.decorators import require_deployment_key
+from click import command
+from click import Context
+from click import make_pass_decorator
+from click import pass_context
+from click import option
+import docker
+
+from ......utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
 pass_cr_client = make_pass_decorator(ContainerRegistryClient)
-
 """Command Tests
 > babylon azure acr push this_image_does_not_exist
 Should provide a clean error log
@@ -29,23 +34,23 @@ Should a new entry to `az acr repository list --name my_registry` with the value
 @pass_context
 @require_deployment_key("acr_dest_registry_name", "acr_dest_registry_name")
 @require_deployment_key("acr_image_reference", "acr_image_reference")
-@option("-i", "--image")
-@option("-r", "--registry")
-def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str, image: str, registry: str):
+@option("-i", "--image", help="Local docker image to push")
+@option("-r", "--registry", help="Container Registry name to push to, example: myregistry.azurecr.io")
+def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str, image: typing.Optional[str],
+         registry: typing.Optional[str]):
     """Push a docker image to the ACR registry given in deployment configuration"""
-    registry = registry or acr_dest_registry_name
-    image = image or acr_image_reference
+    registry: str = registry or acr_dest_registry_name
+    image: str = image or acr_image_reference
     # Login to registry
     response = subprocess.run(["az", "acr", "login", "--name", registry],
-                              shell=False, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                              shell=False,
+                              check=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
     if response.returncode:
-        logger.error(
-            f"Could not connect to registry {registry}: {response.stderr}")
+        logger.error(f"Could not connect to registry {registry}: {str(response.stderr)}")
         return
-    ContainerRegistryClient(
-        f"https://{registry}",
-        ctx.parent.obj,
-        audience="https://management.azure.com")
+    ContainerRegistryClient(f"https://{registry}", ctx.parent.obj, audience="https://management.azure.com")
 
     # Retrieve image
     client = docker.from_env()
@@ -62,11 +67,11 @@ def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str, im
         ref_parts[0] = registry
     else:
         ref_parts = [registry, *ref_parts]
-    ref = "/".join(ref_parts)
+    ref: str = "/".join(ref_parts)
     image_obj.tag(ref)
-    response = client.images.push(repository=ref)
+    logs: str = client.images.push(repository=ref)
 
     # Log status
-    for resp in response.split("\n"):
+    for resp in logs.split("\n"):
         if resp:
             logger.debug(json.loads(resp).get("status", ""))
