@@ -61,6 +61,11 @@ def create(
     organization_name: Optional[str] = None,
 ):
     """Register new organization by sending a JSON or YAML file to Cosmotech Api"""
+
+    if dry_run:
+        logger.info("DRY RUN - Would call organization_api.create_organization")
+        return
+
     if not organization_file and not organization_name:
         logger.error(
             "Error : can not get an organization name, please check your Organization.YAML file or set --name option"
@@ -74,12 +79,6 @@ def create(
     )
     if converted_organization_content is None:
         logger.error("Error : can not get Organization definition, please check your Organization.YAML file")
-        return
-
-    if dry_run:
-        logger.info("DRY RUN - Would call organization_api.create_organization")
-        retrieved_data = converted_organization_content
-        retrieved_data["id"] = "<DRY RUN>"
         return
 
     if organization_name and "name " not in converted_organization_content:
