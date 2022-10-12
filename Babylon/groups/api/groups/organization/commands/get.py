@@ -72,5 +72,5 @@ def get(
             json.dump(converted_content, _file, ensure_ascii=False)
         logger.info("Organization {organization_id} data was dumped on {output_file}.")
         return
-    logger.info("Organization {organization_id} details :")
+    logger.info(f"Organization {organization_id} details :")
     logger.info(pformat(retrieved_organization))
