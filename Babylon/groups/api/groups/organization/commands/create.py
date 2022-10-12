@@ -9,12 +9,12 @@ from click import option
 from cosmotech_api.exceptions import UnauthorizedException
 from cosmotech_api.api.organization_api import OrganizationApi
 
-from Babylon.utils import TEMPLATE_FOLDER_PATH
-from Babylon.utils.api import get_api_file
-from Babylon.utils.decorators import allow_dry_run
-from Babylon.utils.decorators import pass_environment
-from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.environment import Environment
+from ......utils import TEMPLATE_FOLDER_PATH
+from ......utils.api import get_api_file
+from ......utils.decorators import allow_dry_run
+from ......utils.decorators import pass_environment
+from ......utils.decorators import timing_decorator
+from ......utils.environment import Environment
 
 logger = getLogger("Babylon")
 
