@@ -3,12 +3,17 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
-from click import command, make_pass_decorator, option
+from click import command
+from click import make_pass_decorator
+from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.api import convert_keys_case, underscore_to_camel, filter_api_response
-from Babylon.utils.decorators import allow_dry_run, timing_decorator
+from Babylon.utils.api import convert_keys_case
+from Babylon.utils.api import filter_api_response
+from Babylon.utils.api import underscore_to_camel
+from Babylon.utils.decorators import allow_dry_run
+from Babylon.utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 
@@ -52,17 +57,17 @@ def get_all(
         logger.error("Unauthorized access to the cosmotech api")
         return
 
-    if fields is not None:
+    if fields:
         retrieved_organizations = filter_api_response(
             retrieved_organizations, fields.split(",")
         )
-    if not output_file:
-        logger.info(pformat(retrieved_organizations))
-        logger.info("Found %s organizations", len(retrieved_organizations))
-    else:
+    if output_file:
         _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]
         with open(output_file, "w") as _file:
             json.dump(_organizations_to_dump, _file, ensure_ascii=False)
         logger.info("Found %s organizations", len(retrieved_organizations))
         logger.info("Full content was dumped on %s", output_file)
+        return
+    logger.info(pformat(retrieved_organizations))
+    logger.info("Found %s organizations", len(retrieved_organizations))
 
