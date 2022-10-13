@@ -7,7 +7,7 @@ tags:
   - Reference
   - dataset
 connector:
-  id: c-###
+  id: ###
   parametersValues:
     AZURE_DIGITAL_TWINS_URL: ###
     CSM_NUMBER_OF_THREAD: 1

@@ -9,10 +9,12 @@ from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.api import get_api_file
-from Babylon.utils.decorators import allow_dry_run
-from Babylon.utils.decorators import require_deployment_key
-from Babylon.utils.decorators import timing_decorator
+from ......utils.api import get_api_file
+from ......utils.decorators import allow_dry_run
+from ......utils.decorators import pass_environment
+from ......utils.decorators import timing_decorator
+from ......utils.decorators import require_deployment_key
+from ......utils.environment import Environment
 
 logger = getLogger("Babylon")
 
@@ -23,6 +25,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @allow_dry_run
 @pass_dataset_api
 @timing_decorator
+@pass_environment
 @argument("dataset_file", type=str)
 @require_deployment_key("organization_id", "organization_id")
 @option(
@@ -42,6 +45,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     type=str,
 )
 def update(
+    env: Environment,
     dataset_api: DatasetApi,
     dataset_file: str,
     organization_id: str,

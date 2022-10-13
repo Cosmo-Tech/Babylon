@@ -9,9 +9,9 @@ from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.decorators import allow_dry_run
-from Babylon.utils.decorators import require_deployment_key
-from Babylon.utils.decorators import timing_decorator
+from ......utils.decorators import allow_dry_run
+from ......utils.decorators import timing_decorator
+from ......utils.decorators import require_deployment_key
 
 logger = getLogger("Babylon")
 
