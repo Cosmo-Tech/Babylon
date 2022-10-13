@@ -1,13 +1,13 @@
-import cosmotech_api
+from  cosmotech_api import Configuration
 from azure.identity import AzureCliCredential
 from azure.identity import DefaultAzureCredential
 from click import group
 from click import pass_context
 from click.core import Context
 
+from ...utils.decorators import require_platform_key
 from .commands import list_commands
 from .groups import list_groups
-from Babylon.utils.decorators import require_platform_key
 
 
 @group()
@@ -22,11 +22,7 @@ def api(ctx: Context, api_scope: str, api_url: str):
         credentials = DefaultAzureCredential()
 
     token = credentials.get_token(api_scope)
-    configuration = cosmotech_api.Configuration(
-        host=api_url,
-        discard_unknown_keys=True,
-        access_token=token.token
-    )
+    configuration = Configuration(host=api_url, discard_unknown_keys=True, access_token=token.token)
 
     ctx.obj = configuration
 
