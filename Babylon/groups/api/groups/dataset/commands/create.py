@@ -31,7 +31,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @argument("dataset_file", type=str, required=False)
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("connector", "connector")
-# @require_deployment_key("adt_url", "adt_url")
 @option(
     "-e",
     "--use-working-dir-file",
@@ -72,7 +71,6 @@ def create(
     dataset_file: str,
     select: bool,
     connector: str,
-    # adt_url: str,
     dataset_name: str,
     dataset_description: Optional[str] = None,
     use_working_dir_file: bool = False,
@@ -104,14 +102,9 @@ def create(
     if "name" not in converted_dataset_content:
         converted_dataset_content["name"] = dataset_name
 
-    if "connector" in converted_dataset_content:
-        if "id" not in converted_dataset_content["connector"]:
-            converted_dataset_content["connector"] = connector
-    else:
-        converted_dataset_content["connector"] = connector
+    converted_dataset_content["connector"] = connector
 
     try:
-        logger.info(pformat(converted_dataset_content))
         retrieved_dataset = dataset_api.create_dataset(
             organization_id=organization_id, dataset=converted_dataset_content
         )
