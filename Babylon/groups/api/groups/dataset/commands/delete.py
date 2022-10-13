@@ -1,4 +1,5 @@
 from logging import getLogger
+
 from click import argument
 from click import option
 from click import command
@@ -23,7 +24,13 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @pass_dataset_api
 @timing_decorator
 @require_deployment_key("organization_id", "organization_id")
-@option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
+@option(
+    "-f",
+    "--force",
+    "force_validation",
+    is_flag=True,
+    help="Don't ask for validation before delete",
+)
 @argument("dataset_id", type=str, required=True)
 def delete(
     dataset_api: DatasetApi,
