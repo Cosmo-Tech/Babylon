@@ -3,7 +3,6 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
-from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
@@ -12,11 +11,11 @@ from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
-from ......utils.api import filter_api_response_item
+from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
-from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.decorators import require_deployment_key
 
 logger = getLogger("Babylon")
 
@@ -27,7 +26,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @allow_dry_run
 @pass_solution_api
 @timing_decorator
-@argument("solution_id", type=str)
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
@@ -44,39 +42,36 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     type=str,
     help="Fields witch will be keep in response data, by default all",
 )
-def get(
+def get_all(
     solution_api: SolutionApi,
-    solution_id: str,
     organization_id: str,
     output_file: Optional[str] = None,
     fields: str = None,
     dry_run: bool = False,
 ):
-    """Get the state of the solution in the API."""
+    """Get all registered solutions."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call solution_api.find_solution_by_id")
-        retrieved_solution = {"Babylon": "<DRY RUN>"}
+        logger.info("DRY RUN - Would call solution_api.find_all_solutions")
+        retrieved_solutions = [{"Babylon": "<DRY RUN>"}]
         return
 
     try:
-        retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
+        retrieved_solutions = solution_api.find_all_solutions(organization_id)
     except NotFoundException:
-        logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
+        logger.error(f"Organization {organization_id} was not found.")
         return
     except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
+        logger.error("Unauthorized access to the cosmotech api.")
         return
 
     if fields:
-        retrieved_solution = filter_api_response_item(retrieved_solution, fields.split(","))
-    if output_file:
-        converted_content = convert_keys_case(retrieved_solution.to_dict(), underscore_to_camel)
-        with open(output_file, "w") as _f:
-            json.dump(converted_content, _f, ensure_ascii=False)
-        logger.debug(pformat(retrieved_solution))
-        logger.info(f"Content was dumped on {output_file}")
-        return
+        retrieved_solutions = filter_api_response(retrieved_solutions, fields.split(","))
 
-    logger.info(f"Solution {solution_id} details :")
-    logger.info(pformat(retrieved_solution))
+    if output_file:
+        _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]
+        with open(output_file, "w") as _file:
+            json.dump(_solutions_to_dump, _file, ensure_ascii=False)
+        logger.info("Full content was dumped on %s.", output_file)
+        return
+    logger.info(pformat(retrieved_solutions, sort_dicts=False))

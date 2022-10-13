@@ -27,7 +27,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @allow_dry_run
 @pass_solution_api
 @timing_decorator
-@argument("solution_id", type=str)
+@require_deployment_key("solution_id","solution_id")
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
@@ -44,7 +44,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     type=str,
     help="Fields witch will be keep in response data, by default all",
 )
-def get(
+def get_current(
     solution_api: SolutionApi,
     solution_id: str,
     organization_id: str,
