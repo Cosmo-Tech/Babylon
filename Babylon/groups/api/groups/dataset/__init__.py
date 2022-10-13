@@ -1,4 +1,5 @@
-from click import group, pass_context
+from click import group
+from click import pass_context
 from click.core import Context
 from cosmotech_api import ApiClient
 from cosmotech_api.api.dataset_api import DatasetApi
