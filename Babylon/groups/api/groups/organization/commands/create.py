@@ -93,4 +93,4 @@ def create(
     if select:
         env.configuration.set_deploy_var("organization_id", retrieved_data["id"])  # May return environnement error
     logger.debug(pformat(retrieved_data))
-    logger.info("Created new organization with id: {retrieved_data['id']}")
+    logger.info(f"Created new organization with id: {retrieved_data['id']}")
