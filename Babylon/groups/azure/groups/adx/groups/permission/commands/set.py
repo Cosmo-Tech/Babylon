@@ -48,7 +48,7 @@ Should log a clean error message
 @allow_dry_run
 def set(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str, role: str,
         principal_type: str, dry_run: bool):
-    """Command created from a template"""
+    """Get permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
     principal_assignment_name = str(uuid4())
