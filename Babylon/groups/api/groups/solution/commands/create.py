@@ -1,5 +1,7 @@
+from email.policy import default
 from logging import getLogger
 from pprint import pformat
+from typing import Optional
 
 from click import argument
 from click import command
@@ -15,6 +17,7 @@ from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils import TEMPLATE_FOLDER_PATH
 
 logger = getLogger("Babylon")
 
@@ -26,16 +29,10 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @timing_decorator
 @pass_solution_api
 @pass_environment
-@argument("solution_file", type=str)
+@argument("solution_file", type=str, required=False)
+@require_deployment_key("solution_version", "solution_version")
+@require_deployment_key("solution_repository", "solution_repository")
 @require_deployment_key("organization_id", "organization_id")
-@option(
-    "-s",
-    "--select",
-    "select",
-    type=bool,
-    help="Should ...",
-    required=False,
-)
 @option(
     "-e",
     "--use-working-dir-file",
@@ -43,13 +40,42 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     is_flag=True,
     help="Should the path be relative to the working directory ?",
 )
+@option(
+    "-n",
+    "--name",
+    "solution_name",
+    required=True,
+    type=str,
+    help="New solution name",
+)
+@option(
+    "-d",
+    "--description",
+    "solution_description",
+    required=False,
+    type=str,
+    help="New solution description",
+)
+@option(
+    "-s",
+    "--select",
+    "select",
+    type=bool,
+    help="Should ...",
+    default=True,
+    required=False,
+)
 def create(
     env: Environment,
     solution_api: SolutionApi,
     organization_id: str,
+    solution_name: str,
+    solution_version: str,
+    solution_repository: str,
     solution_file: str,
+    select: bool,
+    solution_description: Optional[str] = None,
     use_working_dir_file: bool = False,
-    select: bool = True,
     dry_run: bool = False,
 ):
     """Send a JSON or YAML file to the API to create a solution."""
@@ -59,16 +85,26 @@ def create(
         return
 
     converted_solution_content = get_api_file(
-        api_file_path=solution_file,
-        use_working_dir_file=use_working_dir_file,
+        api_file_path=solution_file
+        if solution_file
+        else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",
+        use_working_dir_file=use_working_dir_file if solution_file else False,
         logger=logger,
     )
     if not converted_solution_content:
-        logger.error("Error : can not get correct connector definition, please check your Solution.YAML file")
+        logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
         return
 
+    if not solution_description and "solution_description" not in converted_solution_content:
+        converted_solution_content["description"] = solution_name
+
+    converted_solution_content["name"] = solution_name
+    converted_solution_content["key"] = solution_name.replace(" ", "")
+    converted_solution_content["version"] = solution_version
+    converted_solution_content["repository"] = solution_repository
+
     try:
-        retrieved_data = solution_api.create_solution(
+        retrieved_solution = solution_api.create_solution(
             organization_id=organization_id, solution=converted_solution_content
         )
     except UnauthorizedException:
@@ -78,5 +114,8 @@ def create(
         logger.error(f"Organization with id {organization_id} does not exists.")
         return
 
-    logger.debug(pformat(retrieved_data))
-    logger.info(f"Created new solution with id: {retrieved_data['id']}")
+    if select:
+        env.configuration.set_deploy_var("solution_id", retrieved_solution["id"])
+
+    logger.debug(pformat(retrieved_solution))
+    logger.info(f"Created new solution with id: {retrieved_solution['id']}")

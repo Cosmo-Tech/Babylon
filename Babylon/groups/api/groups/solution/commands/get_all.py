@@ -70,8 +70,12 @@ def get_all(
     logger.info(f"Found {len(retrieved_solutions)} solutions")
     if output_file:
         _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]
-        with open(output_file, "w") as _file:
-            json.dump(_solutions_to_dump, _file, ensure_ascii=False)
-        logger.info("Full content was dumped on %s.", output_file)
+        try:
+            with open(output_file, "w") as _file:
+                json.dump(_solutions_to_dump, _file, ensure_ascii=False)
+            logger.info("Full content was dumped on %s.", output_file)
+        except TypeError:
+            with open(output_file, "w") as _file:
+                json.dump([_ele.to_dict() for _ele in _solutions_to_dump] , _file, ensure_ascii=False)
         return
     logger.info(pformat(retrieved_solutions, sort_dicts=False))

@@ -75,6 +75,6 @@ def delete(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Organization with id {organization_id} does not exists.")
+        logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
         return
     logger.info(f"Solutions {solution_id} of organization {organization_id} deleted.")
