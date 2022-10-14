@@ -27,7 +27,7 @@ Should log a clean error message
 @require_platform_key("cluster_name", "cluster_name")
 @require_deployment_key("database_name", "database_name")
 @argument("principal_id")
-@option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
+@option("-f", "--force", is_flag=True, help="Don't ask for validation before delete")
 @allow_dry_run
 def delete(ctx: Context,
            resource_group_name: str,
