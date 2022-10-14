@@ -1,5 +1,6 @@
 from logging import getLogger
 from pprint import pformat
+from typing import Optional
 
 from click import argument
 from click import command
@@ -31,6 +32,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--use-working-dir-file",
     "use_working_dir_file",
     is_flag=True,
+    type=bool,
     help="Should the path be relative to the working directory ?",
 )
 def update(
@@ -38,7 +40,7 @@ def update(
     solution_file: str,
     organization_id: str,
     solution_id: str,
-    use_working_dir_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     dry_run: bool = False,
 ):
     """Send a JSON or YAML file to the API to update a solution."""
