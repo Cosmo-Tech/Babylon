@@ -23,7 +23,7 @@ Should log a clean error message
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_platform_key("cluster_name", "cluster_name")
 @require_deployment_key("database_name", "database_name")
-@argument("principal_id")
+@argument("principal_id", type=str)
 def get(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str):
     """Get permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj

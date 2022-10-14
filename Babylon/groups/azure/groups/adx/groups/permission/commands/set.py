@@ -32,7 +32,7 @@ Should log a clean error message
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_platform_key("cluster_name", "cluster_name")
 @require_deployment_key("database_name", "database_name")
-@argument("principal_id")
+@argument("principal_id", type=str)
 @option("-r",
         "--role",
         type=Choice(["User", "Viewer", "Admin"], case_sensitive=False),
@@ -53,7 +53,7 @@ def set(ctx: Context, resource_group_name: str, cluster_name: str, database_name
     logger.info("Creating assignment...")
 
     if dry_run:
-        logger.info(f"Adding role {role} to principal {principal_type}:{principal_id}")
+        logger.info(f"DRY RUN - Would add role {role} to principal {principal_type}:{principal_id}")
         return
 
     kusto_mgmt.database_principal_assignments.begin_create_or_update(resource_group_name, cluster_name, database_name,
