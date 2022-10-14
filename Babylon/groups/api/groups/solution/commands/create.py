@@ -1,4 +1,3 @@
-from email.policy import default
 from logging import getLogger
 from pprint import pformat
 from typing import Optional
@@ -38,6 +37,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--use-working-dir-file",
     "use_working_dir_file",
     is_flag=True,
+    type=bool,
     help="Should the path be relative to the working directory ?",
 )
 @option(
@@ -52,7 +52,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "-d",
     "--description",
     "solution_description",
-    required=False,
     type=str,
     help="New solution description",
 )
@@ -63,7 +62,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     type=bool,
     help="Should ...",
     default=True,
-    required=False,
 )
 def create(
     env: Environment,
@@ -75,7 +73,7 @@ def create(
     solution_file: str,
     select: bool,
     solution_description: Optional[str] = None,
-    use_working_dir_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     dry_run: bool = False,
 ):
     """Send a JSON or YAML file to the API to create a solution."""
