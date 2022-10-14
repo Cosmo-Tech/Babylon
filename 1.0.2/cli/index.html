@@ -540,8 +540,43 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#babylon-api-organization-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-api-organization-get-all" class="md-nav__link">
     get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-get-current" class="md-nav__link">
+    get-current
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-update" class="md-nav__link">
+    update
   </a>
   
 </li>
@@ -1168,8 +1203,43 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#babylon-api-organization-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-api-organization-get-all" class="md-nav__link">
     get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-get-current" class="md-nav__link">
+    get-current
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-organization-update" class="md-nav__link">
+    update
   </a>
   
 </li>
@@ -1609,7 +1679,7 @@
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#babylon-api-connector">connector</a></em>: Subgroup handling Connectors in the cosmotech API</li>
-<li><em><a href="#babylon-api-organization">organization</a></em>: Subgroup handling Organization in the cosmotech API</li>
+<li><em><a href="#babylon-api-organization">organization</a></em>: Subgroup handling Organizations in the cosmotech API</li>
 <li><em><a href="#babylon-api-solution">solution</a></em>: Subgroup handling Solution in the cosmotech API</li>
 </ul>
 <h4 id="babylon-api-connector">babylon api connector</h4>
@@ -1792,7 +1862,7 @@
 </tbody>
 </table>
 <h4 id="babylon-api-organization">babylon api organization</h4>
-<p>Subgroup handling Organization in the cosmotech API</p>
+<p>Subgroup handling Organizations in the cosmotech API</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization [OPTIONS] COMMAND [ARGS]...
 </code></pre>
@@ -1817,10 +1887,127 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-api-organization-get-all">get-all</a></em>: Display all organization in API</li>
+<li><em><a href="#babylon-api-organization-create">create</a></em>: Register new organization by sending a JSON or YAML file to Cosmotech Api</li>
+<li><em><a href="#babylon-api-organization-delete">delete</a></em>: Delete organization via Cosmotech APi.</li>
+<li><em><a href="#babylon-api-organization-get">get</a></em>: Get the state of an specific organization in the API.</li>
+<li><em><a href="#babylon-api-organization-get-all">get-all</a></em>: Get all registered organization.</li>
+<li><em><a href="#babylon-api-organization-get-current">get-current</a></em>: Get the state of current configuration organization in the API.</li>
+<li><em><a href="#babylon-api-organization-update">update</a></em>: Update an Organization by sending a JSON or YAML file to Cosmotech Api.</li>
 </ul>
+<h5 id="babylon-api-organization-create">babylon api organization create</h5>
+<p>Register new organization by sending a JSON or YAML file to Cosmotech Api</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api organization create [OPTIONS] [ORGANIZATION_FILE]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the path be relative to the working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-s</code>, <code>--select</code></td>
+<td>boolean</td>
+<td>If true, the created Organization will be set as organization of current babylon context</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td><code>-n</code>, <code>--name</code></td>
+<td>text</td>
+<td>New organization name</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-organization-delete">babylon api organization delete</h5>
+<p>Delete organization via Cosmotech APi.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api organization delete [OPTIONS] ORGANIZATION_ID
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-organization-get">babylon api organization get</h5>
+<p>Get the state of an specific organization in the API.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api organization get [OPTIONS] ORGANIZATION_ID
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output_file</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--fields</code></td>
+<td>text</td>
+<td>Fields witch will be keep in response data, by default all</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h5 id="babylon-api-organization-get-all">babylon api organization get-all</h5>
-<p>Display all organization in API</p>
+<p>Get all registered organization.</p>
+<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization get-all [OPTIONS]
 </code></pre>
@@ -1835,6 +2022,88 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>-o</code>, <code>--output_file</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--fields</code></td>
+<td>text</td>
+<td>Fields witch will be keep in response data, by default all</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-organization-get-current">babylon api organization get-current</h5>
+<p>Get the state of current configuration organization in the API.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api organization get-current [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output_file</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--fields</code></td>
+<td>text</td>
+<td>Fields witch will be keep in response data, by default all</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-organization-update">babylon api organization update</h5>
+<p>Update an Organization by sending a JSON or YAML file to Cosmotech Api.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api organization update [OPTIONS] ORGANIZATION_FILE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the path be relative to the working directory ?</td>
+<td><code>False</code></td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
