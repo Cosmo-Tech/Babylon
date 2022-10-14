@@ -71,9 +71,13 @@ def get(
     if fields:
         retrieved_solution = filter_api_response_item(retrieved_solution, fields.split(","))
     if output_file:
-        converted_content = convert_keys_case(retrieved_solution.to_dict(), underscore_to_camel)
-        with open(output_file, "w") as _f:
-            json.dump(converted_content, _f, ensure_ascii=False)
+        converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
+        try:
+            with open(output_file, "w") as _f:
+                json.dump(converted_content, _f, ensure_ascii=False)
+        except TypeError:
+            with open(output_file, "w") as _f:
+                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.debug(pformat(retrieved_solution))
         logger.info(f"Content was dumped on {output_file}")
         return
