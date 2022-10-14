@@ -38,7 +38,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "-f",
     "--fields",
     "fields",
-    required=False,
     type=str,
     help="Fields witch will be keep in response data, by default all",
 )

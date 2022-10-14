@@ -43,7 +43,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "-n",
     "--name",
     "dataset_name",
-    required=False,
     type=str,
     help="New dataset name",
 )
@@ -51,7 +50,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "-d",
     "--description",
     "dataset_description",
-    required=False,
     type=str,
     help="New dataset description",
 )
@@ -61,7 +59,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "select",
     type=bool,
     help="If true, the created Organization will be set as organization of current babylon context",
-    required=False,
     default=True,
 )
 def create(
