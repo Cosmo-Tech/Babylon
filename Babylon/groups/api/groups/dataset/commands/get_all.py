@@ -67,7 +67,7 @@ def get_all(
 
     if fields:
         retrieved_datasets = filter_api_response(retrieved_datasets, fields.split(","))
-
+    logger.info(f"Found {len(retrieved_datasets)} datasets")
     if output_file:
         _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]
         with open(output_file, "w") as _file:
