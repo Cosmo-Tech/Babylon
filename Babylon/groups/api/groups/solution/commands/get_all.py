@@ -67,7 +67,7 @@ def get_all(
 
     if fields:
         retrieved_solutions = filter_api_response(retrieved_solutions, fields.split(","))
-
+    logger.info(f"Found {len(retrieved_solutions)} solutions")
     if output_file:
         _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]
         with open(output_file, "w") as _file:
