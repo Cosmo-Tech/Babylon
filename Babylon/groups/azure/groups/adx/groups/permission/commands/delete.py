@@ -26,7 +26,7 @@ Should log a clean error message
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_platform_key("cluster_name", "cluster_name")
 @require_deployment_key("database_name", "database_name")
-@argument("principal_id")
+@argument("principal_id", type=str)
 @option("-f", "--force", is_flag=True, help="Don't ask for validation before delete")
 @allow_dry_run
 def delete(ctx: Context,
@@ -52,11 +52,12 @@ def delete(ctx: Context,
                 f"Aborting deletion of role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
             continue
 
-        logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
-
         if dry_run:
+            logger.info(
+                f"DRY RUN - Would delete role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
             continue
 
+        logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
         assign_name: str = str(assign.name).split("/")[-1]
         kusto_mgmt.database_principal_assignments.begin_delete(resource_group_name,
                                                                cluster_name,
