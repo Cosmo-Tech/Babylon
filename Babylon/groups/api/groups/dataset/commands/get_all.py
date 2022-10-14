@@ -53,7 +53,6 @@ def get_all(
 
     if dry_run:
         logger.info("DRY RUN - Would call dataset_api.find_all_datasets")
-        retrieved_datasets = [{"Babylon": "<DRY RUN>"}]
         return
 
     try:
@@ -70,8 +69,12 @@ def get_all(
     logger.info(f"Found {len(retrieved_datasets)} datasets")
     if output_file:
         _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]
-        with open(output_file, "w") as _file:
-            json.dump(_datasets_to_dump, _file, ensure_ascii=False)
+        try:
+            with open(output_file, "w") as _file:
+                json.dump(_datasets_to_dump, _file, ensure_ascii=False)
+        except TypeError:
+            with open(output_file, "w") as _file:
+                json.dump([_ele.to_dict() for _ele in _datasets_to_dump], _file, ensure_ascii=False)
         logger.info("Full content was dumped on %s.", output_file)
         return
     logger.info(pformat(retrieved_datasets, sort_dicts=False))
