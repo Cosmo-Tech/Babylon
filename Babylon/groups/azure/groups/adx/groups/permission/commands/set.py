@@ -50,7 +50,7 @@ def set(ctx: Context, resource_group_name: str, cluster_name: str, database_name
     kusto_mgmt: KustoManagementClient = ctx.obj
     parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
     principal_assignment_name = str(uuid4())
-    logging.info("Creating assignment...")
+    logger.info("Creating assignment...")
 
     if dry_run:
         logger.info(f"Adding role {role} to principal {principal_type}:{principal_id}")
