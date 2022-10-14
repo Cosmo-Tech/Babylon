@@ -52,8 +52,9 @@ def delete(ctx: Context,
                 f"Aborting deletion of role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
             continue
 
+        logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
+
         if dry_run:
-            logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
             continue
 
         assign_name: str = str(assign.name).split("/")[-1]
