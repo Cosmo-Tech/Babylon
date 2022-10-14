@@ -60,7 +60,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--select",
     "select",
     type=bool,
-    help="Should ...",
+    help="Select this new Solution as babylon context solution ?",
     default=True,
 )
 def create(
