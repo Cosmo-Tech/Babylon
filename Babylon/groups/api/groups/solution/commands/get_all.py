@@ -3,10 +3,10 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
+from click import Path
 from click import command
 from click import make_pass_decorator
 from click import option
-from click import Path
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -15,8 +15,8 @@ from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
-from ......utils.decorators import timing_decorator
 from ......utils.decorators import require_deployment_key
+from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 
