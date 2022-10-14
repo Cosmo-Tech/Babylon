@@ -37,7 +37,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "use_working_dir_file",
     is_flag=True,
     help="Should the path be relative to the working directory ?",
-    type=str,
+    type=bool,
 )
 @option(
     "-n",
@@ -68,9 +68,9 @@ def create(
     dataset_file: str,
     select: bool,
     connector: str,
-    dataset_name: str,
+    dataset_name: Optional[str] = None,
     dataset_description: Optional[str] = None,
-    use_working_dir_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     dry_run: bool = False,
 ):
     """Register new dataset by sending description file to the API."""

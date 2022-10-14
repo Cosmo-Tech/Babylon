@@ -1,5 +1,6 @@
 from logging import getLogger
 from pprint import pformat
+from typing import Optional
 
 from click import argument
 from click import command
@@ -33,7 +34,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "use_working_dir_file",
     is_flag=True,
     help="Should the path be relative to the working directory ?",
-    type=str,
+    type=bool,
 )
 def update(
     dataset_api: DatasetApi,
@@ -42,7 +43,7 @@ def update(
     organization_id: str,
     dataset_id: str,
     dry_run: bool = False,
-    use_working_dir_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to update a dataset."""
 
