@@ -35,13 +35,11 @@ Should log a clean error message
 @argument("principal_id")
 @option("-r",
         "--role",
-        "role",
         type=Choice(["User", "Viewer", "Admin"], case_sensitive=False),
         required=True,
         help="Assignment Role to Add")
 @option("-t",
         "--principal-type",
-        "principal-type",
         type=Choice(["User", "Group", "App"], case_sensitive=False),
         required=True,
         help="Principal type of the given ID")
