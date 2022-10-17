@@ -13,3 +13,5 @@ azure_subscription: ""
 cluster_name: ""
 # resource_group_name: The name fo the resource group used on the platform
 resource_group_name: ""
+# ACR registry name source_registry.azurecr.io)
+acr_registry_name: ""
