@@ -30,7 +30,7 @@ Should add new entry to `docker image ls`
 @option("-r", "--registry", help="Container Registry name to pull from, example: myregistry.azurecr.io")
 def pull(ctx: Context, acr_registry_name: str, acr_image_reference: str, registry: typing.Optional[str],
          image: typing.Optional[str]):
-    """Pulls a docker image from the ACR registry given in deployment configuration"""
+    """Pulls a docker image from the ACR registry given in platform configuration"""
     registry = registry or acr_registry_name
     image = image or acr_image_reference
     # Login to registry

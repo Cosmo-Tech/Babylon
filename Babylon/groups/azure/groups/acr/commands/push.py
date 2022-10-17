@@ -38,7 +38,7 @@ Should a new entry to `az acr repository list --name my_registry` with the value
 @option("-r", "--registry", help="Container Registry name to push to, example: myregistry.azurecr.io")
 def push(ctx: Context, acr_registry_name: str, acr_image_reference: str, image: typing.Optional[str],
          registry: typing.Optional[str]):
-    """Push a docker image to the ACR registry given in deployment configuration"""
+    """Push a docker image to the ACR registry given in platform configuration"""
     registry: str = registry or acr_registry_name
     image: str = image or acr_image_reference
     # Login to registry
