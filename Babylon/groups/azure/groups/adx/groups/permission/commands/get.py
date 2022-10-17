@@ -30,7 +30,7 @@ def get(ctx: Context, resource_group_name: str, cluster_name: str, database_name
     assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, cluster_name, database_name)
     entity_assignments = [assignment for assignment in assignments if assignment.principal_id == principal_id]
     if not entity_assignments:
-        logger.error(f"No assignment found for principal ID {principal_id}")
+        logger.info(f"No assignment found for principal ID {principal_id}")
         return
     logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
     for ent in entity_assignments:
