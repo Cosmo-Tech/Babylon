@@ -11,7 +11,7 @@ from click import pass_context
 from click import option
 import docker
 
-from ......utils.decorators import require_deployment_key
+from ......utils.decorators import require_deployment_key, require_platform_key
 
 logger = logging.getLogger("Babylon")
 
@@ -32,14 +32,14 @@ Should a new entry to `az acr repository list --name my_registry` with the value
 
 @command()
 @pass_context
-@require_deployment_key("acr_dest_registry_name", "acr_dest_registry_name")
+@require_platform_key("acr_registry_name", "acr_registry_name")
 @require_deployment_key("acr_image_reference", "acr_image_reference")
 @option("-i", "--image", help="Local docker image to push")
 @option("-r", "--registry", help="Container Registry name to push to, example: myregistry.azurecr.io")
-def push(ctx: Context, acr_dest_registry_name: str, acr_image_reference: str, image: typing.Optional[str],
+def push(ctx: Context, acr_registry_name: str, acr_image_reference: str, image: typing.Optional[str],
          registry: typing.Optional[str]):
     """Push a docker image to the ACR registry given in deployment configuration"""
-    registry: str = registry or acr_dest_registry_name
+    registry: str = registry or acr_registry_name
     image: str = image or acr_image_reference
     # Login to registry
     response = subprocess.run(["az", "acr", "login", "--name", registry],

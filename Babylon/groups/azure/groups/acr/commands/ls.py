@@ -8,7 +8,7 @@ from click import Context
 from click import option
 from click import pass_context
 
-from ......utils.decorators import require_deployment_key
+from ......utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
 """Command Tests
@@ -22,11 +22,11 @@ Can be checked against `az acr repository list --name my_registry --output table
 
 @command()
 @pass_context
-@require_deployment_key("acr_src_registry_name", "acr_src_registry_name")
+@require_platform_key("acr_registry_name", "acr_registry_name")
 @option("-r", "--registry", help="Container Registry name to scan, example: myregistry.azurecr.io")
-def ls(ctx: Context, acr_src_registry_name: str, registry: typing.Optional[str]):
+def ls(ctx: Context, acr_registry_name: str, registry: typing.Optional[str]):
     """List all docker images in the specified registry"""
-    registry = registry or acr_src_registry_name
+    registry = registry or acr_registry_name
     # Login to registry
     response = subprocess.run(["az", "acr", "login", "--name", registry],
                               shell=False,
