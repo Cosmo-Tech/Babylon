@@ -24,7 +24,7 @@ Can be checked against `az acr repository list --name my_registry --output table
 @pass_context
 @require_platform_key("acr_registry_name", "acr_registry_name")
 @option("-r", "--registry", help="Container Registry name to scan, example: myregistry.azurecr.io")
-def ls(ctx: Context, acr_registry_name: str, registry: typing.Optional[str]):
+def get_all(ctx: Context, acr_registry_name: str, registry: typing.Optional[str]):
     """List all docker images in the specified registry"""
     registry = registry or acr_registry_name
     # Login to registry
