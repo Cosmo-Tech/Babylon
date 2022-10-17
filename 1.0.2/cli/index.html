@@ -649,8 +649,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-acr-ls" class="md-nav__link">
-    ls
+  <a href="#babylon-azure-acr-get-all" class="md-nav__link">
+    get-all
   </a>
   
 </li>
@@ -1346,8 +1346,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-acr-ls" class="md-nav__link">
-    ls
+  <a href="#babylon-azure-acr-get-all" class="md-nav__link">
+    get-all
   </a>
   
 </li>
@@ -2397,15 +2397,15 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-azure-acr-ls">ls</a></em>: List all docker images in the specified registry</li>
-<li><em><a href="#babylon-azure-acr-pull">pull</a></em>: Pulls a docker image from the ACR registry given in deployment configuration</li>
-<li><em><a href="#babylon-azure-acr-push">push</a></em>: Push a docker image to the ACR registry given in deployment configuration</li>
+<li><em><a href="#babylon-azure-acr-get-all">get-all</a></em>: List all docker images in the specified registry</li>
+<li><em><a href="#babylon-azure-acr-pull">pull</a></em>: Pulls a docker image from the ACR registry given in platform configuration</li>
+<li><em><a href="#babylon-azure-acr-push">push</a></em>: Push a docker image to the ACR registry given in platform configuration</li>
 </ul>
-<h5 id="babylon-azure-acr-ls">babylon azure acr ls</h5>
+<h5 id="babylon-azure-acr-get-all">babylon azure acr get-all</h5>
 <p>List all docker images in the specified registry</p>
-<p>Requires key <code>acr_src_registry_name</code> in the deployment config file.</p>
+<p>Requires key <code>acr_registry_name</code> in the platform config file.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon azure acr ls [OPTIONS]
+<pre><code>babylon azure acr get-all [OPTIONS]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -2433,9 +2433,9 @@
 </tbody>
 </table>
 <h5 id="babylon-azure-acr-pull">babylon azure acr pull</h5>
-<p>Pulls a docker image from the ACR registry given in deployment configuration</p>
+<p>Pulls a docker image from the ACR registry given in platform configuration</p>
 <p>Requires key <code>acr_image_reference</code> in the deployment config file.</p>
-<p>Requires key <code>acr_src_registry_name</code> in the deployment config file.</p>
+<p>Requires key <code>acr_registry_name</code> in the platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr pull [OPTIONS]
 </code></pre>
@@ -2471,9 +2471,9 @@
 </tbody>
 </table>
 <h5 id="babylon-azure-acr-push">babylon azure acr push</h5>
-<p>Push a docker image to the ACR registry given in deployment configuration</p>
+<p>Push a docker image to the ACR registry given in platform configuration</p>
 <p>Requires key <code>acr_image_reference</code> in the deployment config file.</p>
-<p>Requires key <code>acr_dest_registry_name</code> in the deployment config file.</p>
+<p>Requires key <code>acr_registry_name</code> in the platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr push [OPTIONS]
 </code></pre>
