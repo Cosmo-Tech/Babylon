@@ -1,12 +1,12 @@
+import logging
 import os
 import pathlib
 import pprint
 import shutil
 import subprocess
 import sys
+import typing
 from functools import wraps
-from logging import Logger
-from typing import Optional
 
 import click
 import yaml
@@ -16,22 +16,23 @@ from .yaml_utils import read_yaml_key
 from .yaml_utils import write_yaml_value
 
 
+def _save_after_run(func: typing.Callable[..., typing.Any]) -> typing.Callable[..., typing.Any]:
+    @wraps(func)
+    def wrapper(self: typing.Any, *args: typing.List[typing.Any], **kwargs: typing.Dict[typing.Any, typing.Any]):
+        r = func(self, *args, **kwargs)
+        self.save_config()
+        return r
+    return wrapper
+
+
 class Configuration:
     """
     Base object created to store in file the configuration used in babylon
     """
 
-    def __save_after_run(func):
-
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            r = func(self, *args, **kwargs)
-            self.save_config()
-            return r
-
-        return wrapper
-
-    def __init__(self, logger: Logger, config_directory: pathlib.Path):
+    def __init__(self,
+                 logger: logging.Logger,
+                 config_directory: pathlib.Path):
         self.config_dir = config_directory
         self.logger = logger
         if not self.config_dir.exists():
@@ -39,14 +40,14 @@ class Configuration:
             shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
             self.deploy = self.config_dir.absolute() / "deployments/deploy.yaml"
             self.platform = self.config_dir.absolute() / "platforms/platform.yaml"
-            self.plugins = list()
+            self.plugins: typing.List[typing.Any] = []
             self.save_config()
-        else:
-            self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
-            self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
-            self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
+            return
+        self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
+        self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
+        self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or []
 
-    def get_active_plugins(self) -> list[(str, pathlib.Path)]:
+    def get_active_plugins(self) -> typing.Generator[typing.Any, pathlib.Path, None]:
         """
         Yields all activated plugins path
         """
@@ -54,14 +55,14 @@ class Configuration:
             if _p['active']:
                 yield _p['name'], pathlib.Path(_p['path'])
 
-    def get_available_plugin(self) -> list[str]:
+    def get_available_plugin(self) -> typing.Generator[str, None, None]:
         """
         Yields all available plugin names
         """
         for _p in self.plugins:
             yield _p['name']
 
-    @__save_after_run
+    @_save_after_run
     def activate_plugin(self, plugin_name: str) -> bool:
         """
         Will activate a given plugin
@@ -74,7 +75,7 @@ class Configuration:
                 return True
         return False
 
-    @__save_after_run
+    @_save_after_run
     def deactivate_plugin(self, plugin_name: str) -> bool:
         """
         Will deactivate a given plugin
@@ -87,22 +88,22 @@ class Configuration:
                 return True
         return False
 
-    @__save_after_run
+    @_save_after_run
     def remove_plugin(self, plugin_name: str) -> bool:
         """
         Will remove a given plugin
         :param plugin_name: the plugin to remove
         :return: Did the plugin get removed ?
         """
-        _plugins = list()
+        _plugins: typing.List[typing.Any] = []
         for _p in self.plugins:
             if _p['name'] != plugin_name:
                 _plugins.append(_p)
         self.plugins = _plugins
         return True
 
-    @__save_after_run
-    def add_plugin(self, plugin_path: pathlib.Path) -> Optional[str]:
+    @_save_after_run
+    def add_plugin(self, plugin_path: pathlib.Path) -> typing.Optional[str]:
         """
         Will add a plugin to the config given a plugin path
         :param plugin_path: path to the plugin folder to add
@@ -113,7 +114,7 @@ class Configuration:
             self.logger.error(f"`{plugin_path}` is not a valid plugin folder")
             return None
         plugin_name = read_yaml_key(plugin_config_path, "plugin_name")
-        if plugin_name is None:
+        if not plugin_name:
             self.logger.error(f"`{plugin_path}` is not a valid plugin folder, no plugin_name found.")
             return None
 
@@ -133,53 +134,51 @@ class Configuration:
         self.plugins.append(plugin_entry)
         return str(plugin_name)
 
-    def __list_config_folder_files(self, folder_name: str) -> list[pathlib.Path]:
+    def __list_config_folder_files(self, folder_name: str) -> typing.Generator[pathlib.Path, None, None]:
         for root, _, files in os.walk(self.config_dir / folder_name):
             for _f in files:
                 _file_name = pathlib.Path(root) / pathlib.Path(_f)
                 yield _file_name.absolute()
 
-    def list_deploys(self) -> list[pathlib.Path]:
+    def list_deploys(self) -> typing.Generator[pathlib.Path, None, None]:
         """
         List existing deployment configurations
         :return: a list of available deployments names
         """
         return self.__list_config_folder_files("deployments")
 
-    def list_platforms(self) -> list[pathlib.Path]:
+    def list_platforms(self) -> typing.Generator[pathlib.Path, None, None]:
         """
         List existing platform configurations
         :return: a list of available platforms names
         """
         return self.__list_config_folder_files("platforms")
 
-    @__save_after_run
+    @_save_after_run
     def set_deploy(self, deploy_path: pathlib.Path) -> bool:
         """
         Change configured deployment to the one given
         :param deploy_path: the deployment path
         :return: True if the change was a success
         """
-        if deploy_path.exists():
-            self.deploy = deploy_path.absolute()
-            return True
-        else:
+        if not deploy_path.exists():
             self.logger.error(f"{deploy_path} is not an existing deployment")
             return False
+        self.deploy = deploy_path.absolute()
+        return True
 
-    @__save_after_run
+    @_save_after_run
     def set_platform(self, platform_path: pathlib.Path) -> bool:
         """
         Change configured platform to the one given
         :param platform_path: the platform path
         :return: True if the change was a success
         """
-        if platform_path.exists():
-            self.platform = platform_path.absolute()
-            return True
-        else:
+        if not platform_path.exists():
             self.logger.error(f"{platform_path} is not an existing platform")
             return False
+        self.platform = platform_path.absolute()
+        return True
 
     def create_deploy(self, deploy_name: str):
         """
@@ -212,8 +211,8 @@ class Configuration:
         """
         if not deploy_path.exists():
             self.logger.error(f"Deployment {deploy_path} does not exists")
-        else:
-            click.edit(filename=str(deploy_path))
+            return
+        click.edit(filename=str(deploy_path))
 
     def edit_platform(self, platform_path: pathlib.Path):
         """
@@ -222,87 +221,88 @@ class Configuration:
         """
         if not platform_path.exists():
             self.logger.error(f"Platform {platform_path} does not exists")
-        else:
-            click.edit(filename=str(platform_path))
+            return
+        click.edit(filename=str(platform_path))
 
     def save_config(self):
         """
         Save the current config
         """
-        _d = yaml.safe_load(open(self.config_dir / "config.yaml", "r")) or dict()
-        _d['deploy'] = str(self.deploy)
-        _d['platform'] = str(self.platform)
-        _d['plugins'] = self.plugins
+        _d = {
+            "deploy": str(self.deploy),
+            "platform": str(self.platform),
+            "plugins": self.plugins
+        }
+        with open(self.config_dir / "config.yaml", "r") as file:
+            _d = {**_d, **(yaml.safe_load(file) or {})}
 
-        if not _d.get('locked', False):
-            self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
-            yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
-        else:
+        if _d.get('locked', False):
             self.logger.error("Current config file is locked and won't be updated.")
+            return
 
-    def get_deploy_path(self) -> Optional[pathlib.Path]:
+        self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
+        yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
+        return
+
+    def get_deploy_path(self) -> typing.Optional[pathlib.Path]:
         """
         Get path to the current deployment file
         :return: path to the current deployment file
         """
         if self.deploy:
-            if self.deploy.is_absolute():
-                return self.deploy
-            else:
-                return self.config_dir / self.deploy
+            return self.deploy if self.deploy.is_absolute() else self.config_dir / self.deploy
         return None
 
-    def get_platform_path(self) -> Optional[pathlib.Path]:
+    def get_platform_path(self) -> typing.Optional[pathlib.Path]:
         """
         Get path to the current platform file
         :return: path to the current platform file
         """
         if self.platform:
-            if self.platform.is_absolute():
-                return self.platform
-            else:
-                return self.config_dir / self.platform
+            return self.platform if self.platform.is_absolute() else self.config_dir / self.platform
         return None
 
-    def get_deploy_var(self, var_name) -> Optional[object]:
+    def get_deploy_var(self, var_name: str) -> typing.Optional[object]:
         """
         Read a key value from the current deployment file
         :param var_name: the key to read
         :return: the value of the key in the deployment file if exists else None
         """
-        if not (_path := self.get_deploy_path()).exists():
+        _path: pathlib.Path = self.get_deploy_path()
+        if not _path.exists():
             return None
-        else:
-            return read_yaml_key(_path, var_name)
+        return read_yaml_key(_path, var_name)
 
-    def get_platform_var(self, var_name) -> Optional[object]:
+    def get_platform_var(self, var_name: str) -> typing.Optional[typing.Any]:
         """
         Read a key value from the current platform file
         :param var_name: the key to read
         :return: the value of the key in the platform file if exists else None
         """
-        if not (_path := self.get_platform_path()).exists():
+        _path: pathlib.Path = self.get_platform_path()
+        if not _path.exists():
             return None
-        else:
-            return read_yaml_key(_path, var_name)
+        return read_yaml_key(_path, var_name)
 
-    def set_deploy_var(self, var_name, var_value) -> None:
+    def set_deploy_var(self, var_name: str, var_value: typing.Any) -> None:
         """
         Set key value in current deployment configuration file
         :param var_name: the key to set
         :param var_value: the value to assign
         """
-        if not (_path := self.get_deploy_path()).exists():
+        _path: pathlib.Path = self.get_deploy_path()
+        if not _path.exists():
             return
         write_yaml_value(_path, var_name, var_value)
 
-    def set_platform_var(self, var_name, var_value) -> None:
+    def set_platform_var(self, var_name: str, var_value: typing.Any) -> None:
         """
         Set key value in current platform configuration file
         :param var_name: the key to set
         :param var_value: the value to assign
         """
-        if not (_path := self.get_platform_path()).exists():
+        _path: pathlib.Path = self.get_platform_path()
+        if not _path.exists():
             return
         write_yaml_value(_path, var_name, var_value)
 
@@ -320,18 +320,21 @@ class Configuration:
             return False
         return True
 
-    def __str__(self):
-        _ret = list()
-        _ret.append("Configuration:")
-        _ret.append(f"  dir: {self.config_dir}")
-        _ret.append(f"  deployment: {self.deploy}")
-        for k, v in yaml.safe_load(open(self.get_deploy_path())).items():
-            _ret.append(f"    {k}: {v}")
+    def __str__(self) -> str:
+        _ret: typing.List[str] = [
+            "Configuration:",
+            f"  dir: {self.config_dir}",
+            f"  deployment: {self.deploy}"
+        ]
+        with open(self.get_deploy_path(), "r") as file:
+            for k, v in yaml.safe_load(file).items():
+                _ret.append(f"    {k}: {v}")
         _ret.append(f"  platform: {self.platform}")
-        for k, v in yaml.safe_load(open(self.get_platform_path())).items():
-            _ret.append(f"    {k}: {v}")
+        with open(self.get_platform_path(), "r") as file:
+            for k, v in yaml.safe_load(file).items():
+                _ret.append(f"    {k}: {v}")
         _ret.append("  plugins:")
         for plugin in self.plugins:
-            state = '[' + ("x" if plugin['active'] else " ") + "]"
+            state = "[x]" if plugin.get('active') else "[ ]"
             _ret.append(f"    {state} {plugin['name']}: {plugin['path']}")
         return "\n".join(_ret)

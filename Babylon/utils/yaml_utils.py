@@ -1,11 +1,12 @@
 import pathlib
+from typing import Any
 from typing import Optional
 
 import yaml
 from ruamel.yaml import YAML  # Allow to load and dump Yaml file with comment
 
 
-def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[object]:
+def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[Any]:
     """
     Will read a key from a yaml file and return the value
     :param yaml_file: path to the file to open
@@ -13,10 +14,11 @@ def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[object]:
     :return: value of the key if found else None
     """
     try:
-        _y = yaml.safe_load(yaml_file.open())
-        _v = _y[key]
-        return _v
-    except (IOError, KeyError):
+        with yaml_file.open() as file:
+            _y = yaml.safe_load(file)
+            _v = _y[key]
+            return _v
+    except:
         return None
 
 

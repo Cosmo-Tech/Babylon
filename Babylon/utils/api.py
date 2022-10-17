@@ -1,8 +1,10 @@
 import json
+import logging
 import pathlib
 import re
 from typing import Any
 from typing import Iterable
+from typing import Callable
 
 import click
 import yaml
@@ -37,28 +39,28 @@ def underscore_to_camel(name: Any) -> Any:
     return name
 
 
-def convert_keys_case(element: Any, convert_function) -> Any:
+def convert_keys_case(element: Any, convert_function: Callable[[str], str]) -> Any:
     """
     Will apply a convert function to all keys in an object
     :param element: the object to be updated
     :param convert_function: the function to apply
     :return: an object of the same type as the original one where all dict keys had the convert_function applied
     """
-    if isinstance(element, dict):
-        new_element = dict()
-        for k, v in element.items():
-            if k in ["parametersValues", "parameters_values"]:
-                new_element[convert_function(k)] = dict() if not v else v.copy()
-            elif v is not None:
-                new_element[convert_function(k)] = convert_keys_case(v, convert_function)
-        return new_element
     if isinstance(element, list):
-        new_element = list()
-        for e in element:
-            new_element.append(convert_keys_case(e, convert_function))
+        return [convert_keys_case(e, convert_function) for e in element]
+    if isinstance(element, dict):
+        new_element: Any = {}
+        for k, v in element.items():
+            new_key = convert_function(k)
+            if not v:
+                new_element[new_key] = {}
+                continue
+            if k in ["parametersValues", "parameters_values"]:
+                new_element[new_key] = v.copy()
+                continue
+            new_element[new_key] = convert_keys_case(v, convert_function)
         return new_element
     return element
-
 
 def filter_api_response_item(api_response_body: Any, fields: Iterable[str]) -> Any:
     """
@@ -83,7 +85,7 @@ def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> A
     return [filter_api_response_item(ele, fields) for ele in api_response_body]
 
 
-def get_api_file(api_file_path: str, use_working_dir_file: bool, logger):
+def get_api_file(api_file_path: str, use_working_dir_file: bool, logger: logging.Logger):
     """
     This function will try to find the correct file, and return its content
         in a format ready to be used with the cosmotech api
@@ -101,6 +103,9 @@ def get_api_file(api_file_path: str, use_working_dir_file: bool, logger):
         return None
 
     ext = _file_path.suffix
+    if ext not in (".json", ".yaml"):
+        logger.error(f"Unknown file format for {_file_path}, only accepted format are json and yaml")
+        return None
 
     with open(_file_path) as _file:
         if ext == ".json":
@@ -109,9 +114,6 @@ def get_api_file(api_file_path: str, use_working_dir_file: bool, logger):
         elif ext == ".yaml":
             logger.debug("Reading a yaml file")
             solution_content = yaml.safe_load(_file)
-        else:
-            logger.error(f"Unknown file format for {_file_path}, only accepted format are json and yaml")
-            return None
 
     # Ensure correct case for the python API (python api use snake_case, while other versions use camelCase)
     converted_solution_content = convert_keys_case(solution_content, camel_to_underscore)
