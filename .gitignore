@@ -12,3 +12,4 @@ Test**/
 poetry.lock
 typings/
 .config/
+.vscode/
