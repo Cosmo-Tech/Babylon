@@ -31,7 +31,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
-@argument("solution_id", type=str, required=True)
+@argument("solution_id")
 def delete(
     solution_api: SolutionApi,
     organization_id: str,
@@ -66,8 +66,8 @@ def delete(
         if confirm_solution_id != solution_id:
             logger.error("The solution id you have type didn't mach with solution you are trying to delete id")
             return
-    else:
-        logger.info(f"Deleting solution {solution_id}")
+
+    logger.info(f"Deleting solution {solution_id}")
 
     try:
         solution_api.delete_solution(organization_id=organization_id, solution_id=solution_id)
