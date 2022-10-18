@@ -1,0 +1,8 @@
+description: ###
+# id: [workspace id]
+key: ###
+name: ###
+solution:
+  solutionId: sol-###
+useDedicatedEventHubNamespace: true
+sendScenarioMetadataToEventHub: true
