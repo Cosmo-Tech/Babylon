@@ -66,14 +66,14 @@ def get_all(
     if fields:
         retrieved_datasets = filter_api_response(retrieved_datasets, fields.split(","))
     logger.info(f"Found {len(retrieved_datasets)} datasets")
-    if output_file:
-        _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]
-        try:
-            with open(output_file, "w") as _file:
-                json.dump(_datasets_to_dump, _file, ensure_ascii=False)
-        except TypeError:
-            with open(output_file, "w") as _file:
-                json.dump([_ele.to_dict() for _ele in _datasets_to_dump], _file, ensure_ascii=False)
-        logger.info("Full content was dumped on %s.", output_file)
+    if not output_file:
+        logger.info(pformat(retrieved_datasets, sort_dicts=False))
         return
-    logger.info(pformat(retrieved_datasets, sort_dicts=False))
+
+    _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]
+    with open(output_file, "w") as _file:
+        try:
+            json.dump(_datasets_to_dump, _file, ensure_ascii=False)
+        except TypeError:
+            json.dump([_ele.to_dict() for _ele in _datasets_to_dump], _file, ensure_ascii=False)
+    logger.info("Full content was dumped on %s.", output_file)

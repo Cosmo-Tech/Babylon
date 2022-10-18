@@ -67,18 +67,17 @@ def get(
         return
 
     if fields:
-        retrieved_dataset = filter_api_response_item(retrieved_dataset, fields.split(","))
-    if output_file:
-        converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
-        try:
-            with open(output_file, "w") as _f:
-                json.dump(converted_content, _f, ensure_ascii=False)
-        except TypeError:
-            with open(output_file, "w") as _f:
-                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Datset {dataset_id} detail was dumped on {output_file}")
-        logger.debug(pformat(retrieved_dataset))
+        retrieved_dataset = filter_api_response_item(retrieved_dataset, fields.replace(' ','').split(","))
+    if not output_file:
+        logger.info(f"Dataset {dataset_id} details :")
+        logger.info(pformat(retrieved_dataset))
         return
 
-    logger.info(f"Dataset {dataset_id} details :")
-    logger.info(pformat(retrieved_dataset))
+    converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
+    with open(output_file, "w") as _f:
+        try:
+            json.dump(converted_content, _f, ensure_ascii=False)
+        except TypeError:
+            json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
+    logger.info(f"Datset {dataset_id} detail was dumped on {output_file}")
+    logger.debug(pformat(retrieved_dataset))
