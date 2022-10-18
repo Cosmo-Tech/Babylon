@@ -66,8 +66,8 @@ def delete(
         if confirm_dataset_id != dataset_id:
             logger.error("The dataset id you have type didn't mach with dataset you are trying to delete id")
             return
-    else:
-        logger.info(f"Deleting dataset {dataset_id}")
+
+    logger.info(f"Deleting dataset {dataset_id}")
 
     try:
         dataset_api.delete_dataset(organization_id=organization_id, dataset_id=dataset_id)
