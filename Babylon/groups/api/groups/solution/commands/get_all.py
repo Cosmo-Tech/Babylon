@@ -6,6 +6,7 @@ from typing import Optional
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -29,30 +30,28 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
-    "--output_file",
+    "--output-file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=str,
+    type=Path(),
 )
 @option(
     "-f",
     "--fields",
     "fields",
-    type=str,
     help="Fields witch will be keep in response data, by default all",
 )
 def get_all(
     solution_api: SolutionApi,
     organization_id: str,
     output_file: Optional[str] = None,
-    fields: str = None,
+    fields: Optional[str] = None,
     dry_run: bool = False,
 ):
     """Get all registered solutions."""
 
     if dry_run:
         logger.info("DRY RUN - Would call solution_api.find_all_solutions")
-        retrieved_solutions = [{"Babylon": "<DRY RUN>"}]
         return
 
     try:
@@ -65,16 +64,17 @@ def get_all(
         return
 
     if fields:
-        retrieved_solutions = filter_api_response(retrieved_solutions, fields.split(","))
+        retrieved_solutions = filter_api_response(retrieved_solutions, fields.replace(' ','').split(","))
     logger.info(f"Found {len(retrieved_solutions)} solutions")
-    if output_file:
-        _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]
-        try:
-            with open(output_file, "w") as _file:
-                json.dump(_solutions_to_dump, _file, ensure_ascii=False)
-            logger.info("Full content was dumped on %s.", output_file)
-        except TypeError:
-            with open(output_file, "w") as _file:
-                json.dump([_ele.to_dict() for _ele in _solutions_to_dump] , _file, ensure_ascii=False)
+    if not output_file:
+        logger.info(pformat(retrieved_solutions, sort_dicts=False))
         return
-    logger.info(pformat(retrieved_solutions, sort_dicts=False))
+
+    _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]
+    with open(output_file, "w") as _file:
+        try:
+            json.dump(_solutions_to_dump, _file, ensure_ascii=False)
+        except TypeError:
+            json.dump([_ele.to_dict() for _ele in _solutions_to_dump] , _file, ensure_ascii=False)
+    logger.info("Full content was dumped on %s.", output_file)
+

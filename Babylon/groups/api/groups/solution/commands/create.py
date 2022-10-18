@@ -28,7 +28,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @timing_decorator
 @pass_solution_api
 @pass_environment
-@argument("solution_file", type=str, required=False)
+@argument("solution_file", required=False)
 @require_deployment_key("solution_version", "solution_version")
 @require_deployment_key("solution_repository", "solution_repository")
 @require_deployment_key("organization_id", "organization_id")
@@ -45,14 +45,12 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--name",
     "solution_name",
     required=True,
-    type=str,
     help="New solution name",
 )
 @option(
     "-d",
     "--description",
     "solution_description",
-    type=str,
     help="New solution description",
 )
 @option(
