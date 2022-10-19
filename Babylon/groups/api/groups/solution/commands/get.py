@@ -3,17 +3,18 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
+from click import Path
 from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
-from click import Path
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from ......utils.api import convert_keys_case, get_api_file
+from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
+from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import require_deployment_key
@@ -72,7 +73,7 @@ def get(
     if dry_run:
         logger.info("DRY RUN - Would call solution_api.find_solution_by_id")
         return
-    
+
     if from_file:
         solution_file = solution_id
         converted_solution_content = get_api_file(
@@ -98,7 +99,7 @@ def get(
         return
 
     if fields:
-        retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(' ','').split(","))
+        retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
         logger.info(pformat(retrieved_solution))

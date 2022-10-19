@@ -2,20 +2,19 @@ from logging import getLogger
 from typing import Optional
 
 from click import argument
-from click import option
 from click import command
 from click import confirm
 from click import make_pass_decorator
+from click import option
 from click import prompt
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-
 from ......utils.decorators import allow_dry_run
-from ......utils.decorators import timing_decorator
 from ......utils.decorators import require_deployment_key
+from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 
