@@ -24,7 +24,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @allow_dry_run
 @timing_decorator
 @pass_solution_api
-@argument("solution_file", type=str)
+@argument("solution_file")
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
 @option(
