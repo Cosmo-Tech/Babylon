@@ -3,11 +3,11 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
+from click import Path
 from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
-from click import Path
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -99,7 +99,7 @@ def get(
         return
 
     if fields:
-        retrieved_dataset = filter_api_response_item(retrieved_dataset, fields.replace(' ','').split(","))
+        retrieved_dataset = filter_api_response_item(retrieved_dataset, fields.replace(" ", "").split(","))
     if not output_file:
         logger.info(f"Dataset {dataset_id} details :")
         logger.info(pformat(retrieved_dataset))
