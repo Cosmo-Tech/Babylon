@@ -1,5 +1,5 @@
 from logging import getLogger
-
+from typing import Optional
 from click import argument
 from click import option
 from click import command
@@ -31,13 +31,13 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
-@argument("workspace_id", type=str, required=True)
+@argument("workspace_id")
 def delete(
     workspace_api: WorkspaceApi,
     organization_id: str,
     workspace_id: str,
-    dry_run: bool = False,
-    force_validation: bool = False,
+    dry_run: Optional[bool] = False,
+    force_validation: Optional[bool] = False,
 ):
     """Unregister a workspace via Cosmotech APi."""
 
@@ -66,8 +66,8 @@ def delete(
         if confirm_workspace_id != workspace_id:
             logger.error("The workspace id you have type didn't mach with workspace you are trying to delete id")
             return
-    else:
-        logger.info(f"Deleting workspace {workspace_id}")
+
+    logger.info(f"Deleting workspace {workspace_id}")
 
     try:
         workspace_api.delete_workspace(organization_id=organization_id, workspace_id=workspace_id)
