@@ -1,18 +1,22 @@
 from logging import getLogger
 from pprint import pformat
 from typing import Optional
+import json
 
 from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
+from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import pass_environment
+from ......utils.api import underscore_to_camel
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
@@ -54,6 +58,13 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     help="New solution description",
 )
 @option(
+    "-o",
+    "--output-file",
+    "output_file",
+    help="File to which content should be outputted (json-formatted)",
+    type=Path(),
+)
+@option(
     "-s",
     "--select",
     "select",
@@ -70,6 +81,7 @@ def create(
     solution_repository: str,
     solution_file: str,
     select: bool,
+    output_file: Optional[str] = None,
     solution_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
     dry_run: bool = False,
@@ -113,5 +125,16 @@ def create(
     if select:
         env.configuration.set_deploy_var("solution_id", retrieved_solution["id"])
 
-    logger.debug(pformat(retrieved_solution))
     logger.info(f"Created new solution with id: {retrieved_solution['id']}")
+
+    if output_file:
+        converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
+        with open(output_file, "w") as _f:
+            try:
+                json.dump(converted_content, _f, ensure_ascii=False)
+            except TypeError:
+                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
+        logger.debug(pformat(retrieved_solution))
+        logger.info(f"Content was dumped on {output_file}")
+
+    logger.debug(pformat(retrieved_solution))
