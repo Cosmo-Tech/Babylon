@@ -73,7 +73,7 @@ def get_all(
     _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]
     with open(output_file, "w") as _file:
         try:
-            json.dump(_datasets_to_dump, _file, ensure_ascii=False)
-        except TypeError:
             json.dump([_ele.to_dict() for _ele in _datasets_to_dump], _file, ensure_ascii=False)
+        except TypeError:
+            json.dump(_datasets_to_dump, _file, ensure_ascii=False)
     logger.info("Full content was dumped on %s.", output_file)
