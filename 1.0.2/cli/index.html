@@ -717,6 +717,47 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission" class="md-nav__link">
+    permission
+  </a>
+  
+    <nav class="md-nav" aria-label="permission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-set" class="md-nav__link">
+    set
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-azure-adx-run-folder" class="md-nav__link">
     run-folder
   </a>
@@ -1410,6 +1451,47 @@
   <a href="#babylon-azure-adx-list-scripts" class="md-nav__link">
     list-scripts
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission" class="md-nav__link">
+    permission
+  </a>
+  
+    <nav class="md-nav" aria-label="permission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-adx-permission-set" class="md-nav__link">
+    set
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2629,6 +2711,7 @@
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#babylon-azure-adx-list-scripts">list-scripts</a></em>: List scripts on the database</li>
+<li><em><a href="#babylon-azure-adx-permission">permission</a></em>: Group interacting with ADX permissions</li>
 <li><em><a href="#babylon-azure-adx-run-folder">run-folder</a></em>: Run all script files (.kql) from SCRIPT_FOLDER</li>
 <li><em><a href="#babylon-azure-adx-run-script">run-script</a></em>: Open SCRIPT_FILE and run it on the database</li>
 </ul>
@@ -2651,6 +2734,165 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-adx-permission">babylon azure adx permission</h5>
+<p>Group interacting with ADX permissions</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx permission [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-azure-adx-permission-delete">delete</a></em>: Delete all permission assignments applied to the given principal id</li>
+<li><em><a href="#babylon-azure-adx-permission-get">get</a></em>: Get permission assignments applied to the given principal id</li>
+<li><em><a href="#babylon-azure-adx-permission-get-all">get-all</a></em>: Get all permission assignments in the database</li>
+<li><em><a href="#babylon-azure-adx-permission-set">set</a></em>: Set permission assignments applied to the given principal id</li>
+</ul>
+<h6 id="babylon-azure-adx-permission-delete">babylon azure adx permission delete</h6>
+<p>Delete all permission assignments applied to the given principal id</p>
+<p>Allows dry runs.</p>
+<p>Requires key <code>database_name</code> in the deployment config file.</p>
+<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx permission delete [OPTIONS] PRINCIPAL_ID
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h6 id="babylon-azure-adx-permission-get">babylon azure adx permission get</h6>
+<p>Get permission assignments applied to the given principal id</p>
+<p>Requires key <code>database_name</code> in the deployment config file.</p>
+<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx permission get [OPTIONS] PRINCIPAL_ID
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h6 id="babylon-azure-adx-permission-get-all">babylon azure adx permission get-all</h6>
+<p>Get all permission assignments in the database</p>
+<p>Requires key <code>database_name</code> in the deployment config file.</p>
+<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx permission get-all [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h6 id="babylon-azure-adx-permission-set">babylon azure adx permission set</h6>
+<p>Set permission assignments applied to the given principal id</p>
+<p>Allows dry runs.</p>
+<p>Requires key <code>database_name</code> in the deployment config file.</p>
+<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure adx permission set [OPTIONS] PRINCIPAL_ID
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-r</code>, <code>--role</code></td>
+<td>choice (<code>User</code> &#x7C; <code>Viewer</code> &#x7C; <code>Admin</code>)</td>
+<td>Assignment Role to Add</td>
+<td>_required</td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--principal-type</code></td>
+<td>choice (<code>User</code> &#x7C; <code>Group</code> &#x7C; <code>App</code>)</td>
+<td>Principal type of the given ID</td>
+<td>_required</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
