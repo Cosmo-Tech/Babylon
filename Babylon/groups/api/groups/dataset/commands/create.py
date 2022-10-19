@@ -128,6 +128,7 @@ def create(
         env.configuration.set_deploy_var("dataset_id", retrieved_dataset["id"])
 
     logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
+    logger.debug(pformat(retrieved_dataset))
 
     if output_file:
         converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
@@ -138,4 +139,4 @@ def create(
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    logger.debug(pformat(retrieved_dataset))
+
