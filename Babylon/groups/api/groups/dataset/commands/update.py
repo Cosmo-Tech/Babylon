@@ -6,6 +6,7 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -24,7 +25,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @allow_dry_run
 @pass_dataset_api
 @timing_decorator
-@argument("dataset_file", type=str)
+@argument("dataset_file")
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("connector", "connector")
 @require_deployment_key("dataset_id", "dataset_id")
@@ -34,7 +35,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "use_working_dir_file",
     is_flag=True,
     help="Should the path be relative to the working directory ?",
-    type=bool,
 )
 def update(
     dataset_api: DatasetApi,

@@ -6,6 +6,7 @@ from typing import Optional
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -30,16 +31,15 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
-    "--output_file",
+    "--output-file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=str,
+    type=Path(),
 )
 @option(
     "-f",
     "--fields",
     "fields",
-    type=str,
     help="Fields witch will be keep in response data, by default all",
 )
 def get_current(

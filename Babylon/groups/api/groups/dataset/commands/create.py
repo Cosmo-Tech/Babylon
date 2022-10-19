@@ -1,3 +1,4 @@
+import json
 from logging import getLogger
 from pprint import pformat
 from typing import Optional
@@ -6,12 +7,15 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
+from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
+from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
@@ -54,6 +58,13 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     help="New dataset description",
 )
 @option(
+    "-o",
+    "--output-file",
+    "output_file",
+    help="File to which content should be outputted (json-formatted)",
+    type=Path(),
+)
+@option(
     "-s",
     "--select",
     "select",
@@ -67,6 +78,7 @@ def create(
     organization_id: str,
     select: bool,
     connector: str,
+    output_file: Optional[str] = None,
     dataset_file: Optional[str] = None,
     dataset_name: Optional[str] = None,
     dataset_description: Optional[str] = None,
@@ -114,5 +126,16 @@ def create(
 
     if select:
         env.configuration.set_deploy_var("dataset_id", retrieved_dataset["id"])
-    logger.debug(pformat(retrieved_dataset))
+
     logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
+
+    if output_file:
+        converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
+        with open(output_file, "w") as _f:
+            try:
+                json.dump(converted_content, _f, ensure_ascii=False)
+            except TypeError:
+                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
+        logger.info(f"Content was dumped on {output_file}")
+
+    logger.debug(pformat(retrieved_dataset))
