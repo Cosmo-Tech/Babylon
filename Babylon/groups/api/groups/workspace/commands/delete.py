@@ -1,18 +1,20 @@
 from logging import getLogger
 from typing import Optional
+
 from click import argument
-from click import option
 from click import command
 from click import confirm
 from click import make_pass_decorator
+from click import option
 from click import prompt
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
+from ......utils.api import get_api_file
 from ......utils.decorators import allow_dry_run
-from ......utils.decorators import timing_decorator
 from ......utils.decorators import require_deployment_key
+from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 
@@ -31,18 +33,49 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
+@option(
+    "-e",
+    "--use-working-dir-file",
+    "use_working_dir_file",
+    is_flag=True,
+    help="Should the path be relative to the working directory ?",
+    type=bool,
+)
+@option(
+    "--from-file",
+    "from_file",
+    is_flag=True,
+    help="In case the workspace id is retrieved from a file",
+)
 @argument("workspace_id")
 def delete(
     workspace_api: WorkspaceApi,
     organization_id: str,
     workspace_id: str,
     dry_run: Optional[bool] = False,
+    from_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     force_validation: Optional[bool] = False,
 ):
     """Unregister a workspace via Cosmotech APi."""
 
     if dry_run:
         logger.info("DRY RUN - Would call workspace_api.delete_workspace")
+        return
+
+    if from_file:
+        workspace_file = workspace_id
+    converted_workspace_content = get_api_file(
+        api_file_path=workspace_file,
+        use_working_dir_file=use_working_dir_file,
+        logger=logger,
+    )
+    if converted_workspace_content["id"]:
+        workspace_id = converted_workspace_content["id"]
+    elif converted_workspace_content["workspace_id"]:
+        workspace_id = converted_workspace_content["workspace_id"]
+    else:
+        logger.error(f"Could not found workspace id in {workspace_file}.")
         return
 
     try:

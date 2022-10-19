@@ -3,17 +3,18 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
+from click import Path
 from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
-from click import Path
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
+from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import require_deployment_key
@@ -44,11 +45,27 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     type=str,
     help="Fields witch will be keep in response data, by default all",
 )
+@option(
+    "-e",
+    "--use-working-dir-file",
+    "use_working_dir_file",
+    is_flag=True,
+    help="Should the path be relative to the working directory ?",
+    type=bool,
+)
+@option(
+    "--from-file",
+    "from_file",
+    is_flag=True,
+    help="In case the workspace id is retrieved from a file",
+)
 def get(
     workspace_api: WorkspaceApi,
     workspace_id: str,
     organization_id: str,
     output_file: Optional[str] = None,
+    from_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     fields: str = None,
     dry_run: bool = False,
 ):
@@ -58,8 +75,25 @@ def get(
         logger.info("DRY RUN - Would call workspace_api.find_workspace_by_id")
         return
 
+    if from_file:
+        workspace_file = workspace_id
+    converted_workspace_content = get_api_file(
+        api_file_path=workspace_file,
+        use_working_dir_file=use_working_dir_file,
+        logger=logger,
+    )
+    if converted_workspace_content["id"]:
+        workspace_id = converted_workspace_content["id"]
+    elif converted_workspace_content["workspace_id"]:
+        workspace_id = converted_workspace_content["workspace_id"]
+    else:
+        logger.error(f"Could not found workspace id in {workspace_file}.")
+        return
+
     try:
-        retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id, organization_id=organization_id)
+        retrieved_workspace = workspace_api.find_workspace_by_id(
+            workspace_id=workspace_id, organization_id=organization_id
+        )
     except NotFoundException:
         logger.error(f"Workspace {workspace_id} does not exists in organization {organization_id}.")
         return
