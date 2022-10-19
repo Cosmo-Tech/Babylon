@@ -1,1 +1,2 @@
-list_groups = []
+list_groups = [
+]

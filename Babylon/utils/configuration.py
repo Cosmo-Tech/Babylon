@@ -17,11 +17,13 @@ from .yaml_utils import write_yaml_value
 
 
 def _save_after_run(func: typing.Callable[..., typing.Any]) -> typing.Callable[..., typing.Any]:
+
     @wraps(func)
     def wrapper(self: typing.Any, *args: typing.List[typing.Any], **kwargs: typing.Dict[typing.Any, typing.Any]):
         r = func(self, *args, **kwargs)
         self.save_config()
         return r
+
     return wrapper
 
 
@@ -30,9 +32,7 @@ class Configuration:
     Base object created to store in file the configuration used in babylon
     """
 
-    def __init__(self,
-                 logger: logging.Logger,
-                 config_directory: pathlib.Path):
+    def __init__(self, logger: logging.Logger, config_directory: pathlib.Path):
         self.config_dir = config_directory
         self.logger = logger
         if not self.config_dir.exists():
@@ -95,11 +95,10 @@ class Configuration:
         :param plugin_name: the plugin to remove
         :return: Did the plugin get removed ?
         """
-        _plugins: typing.List[typing.Any] = []
-        for _p in self.plugins:
-            if _p['name'] != plugin_name:
-                _plugins.append(_p)
-        self.plugins = _plugins
+        plugins = [_p for _p in self.plugins if _p["name"] != plugin_name]
+        if len(plugins) == len(self.plugins):
+            return False
+        self.plugins = plugins
         return True
 
     @_save_after_run
@@ -228,11 +227,7 @@ class Configuration:
         """
         Save the current config
         """
-        _d = {
-            "deploy": str(self.deploy),
-            "platform": str(self.platform),
-            "plugins": self.plugins
-        }
+        _d = {"deploy": str(self.deploy), "platform": str(self.platform), "plugins": self.plugins}
         with open(self.config_dir / "config.yaml", "r") as file:
             _d = {**_d, **(yaml.safe_load(file) or {})}
 
@@ -321,11 +316,7 @@ class Configuration:
         return True
 
     def __str__(self) -> str:
-        _ret: typing.List[str] = [
-            "Configuration:",
-            f"  dir: {self.config_dir}",
-            f"  deployment: {self.deploy}"
-        ]
+        _ret: typing.List[str] = ["Configuration:", f"  dir: {self.config_dir}", f"  deployment: {self.deploy}"]
         with open(self.get_deploy_path(), "r") as file:
             for k, v in yaml.safe_load(file).items():
                 _ret.append(f"    {k}: {v}")

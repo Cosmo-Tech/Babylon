@@ -1,6 +1,5 @@
 import pathlib
-from typing import Any
-from typing import Optional
+from typing import Any, Optional, Tuple
 
 import yaml
 from ruamel.yaml import YAML  # Allow to load and dump Yaml file with comment
@@ -13,13 +12,11 @@ def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[Any]:
     :param key: key to load
     :return: value of the key if found else None
     """
-    try:
-        with yaml_file.open() as file:
-            _y = yaml.safe_load(file)
-            _v = _y[key]
-            return _v
-    except:
+    if not yaml_file.is_file():
         return None
+    with yaml_file.open("r") as file:
+        _y = yaml.safe_load(file)
+    return _y.get(key)
 
 
 def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
@@ -31,16 +28,13 @@ def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
     :return : None
     """
     _commented_yaml_loader = YAML()
-    try:
-        with yaml_file.open(mode='r') as file:
-            _y = _commented_yaml_loader.load(file)
-            _y[key] = value
-            _commented_yaml_loader.dump(_y, yaml_file)
-    except OSError:
-        return
+    with yaml_file.open(mode='rw') as file:
+        _y = _commented_yaml_loader.load(file)
+        _y[key] = value
+        _commented_yaml_loader.dump(_y, yaml_file)
 
 
-def compare_yaml_keys(template_yaml: pathlib.Path, target_yaml: pathlib.Path) -> tuple[set, set]:
+def compare_yaml_keys(template_yaml: pathlib.Path, target_yaml: pathlib.Path) -> Tuple[set, set]:
     """
     Compare two yaml files and return the different keys they contain
     :param template_yaml: Yaml file considered as the main file
