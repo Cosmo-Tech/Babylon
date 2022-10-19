@@ -6,6 +6,7 @@ from typing import Optional
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -33,13 +34,12 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "--output_file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=str,
+    type=Path()
 )
 @option(
     "-f",
     "--fields",
     "fields",
-    type=str,
     help="Fields witch will be keep in response data, by default all",
 )
 def get_current(
@@ -47,8 +47,8 @@ def get_current(
     workspace_id: str,
     organization_id: str,
     output_file: Optional[str] = None,
-    fields: str = None,
-    dry_run: bool = False,
+    fields: Optional[str] = None,
+    dry_run: Optional[bool] = False,
 ):
     """Get the state of the workspace in the API."""
 
@@ -67,16 +67,17 @@ def get_current(
 
     if fields:
         retrieved_workspace = filter_api_response_item(retrieved_workspace, fields.split(","))
-    if output_file:
-        converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)
-        with open(output_file, "w") as _f:
-            try:
-                json.dump(converted_content, _f, ensure_ascii=False)
-            except TypeError:
-                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Datset {workspace_id} detail was dumped on {output_file}")
-        logger.debug(pformat(retrieved_workspace))
+    if not output_file:
+        logger.info(f"Workspace {workspace_id} details :")
+        logger.info(pformat(retrieved_workspace))
         return
 
-    logger.info(f"Workspace {workspace_id} details :")
-    logger.info(pformat(retrieved_workspace))
+    converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)
+    with open(output_file, "w") as _f:
+        try:
+            json.dump(converted_content, _f, ensure_ascii=False)
+        except TypeError:
+            json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
+    logger.info(f"Datset {workspace_id} detail was dumped on {output_file}")
+    logger.debug(pformat(retrieved_workspace))
+
