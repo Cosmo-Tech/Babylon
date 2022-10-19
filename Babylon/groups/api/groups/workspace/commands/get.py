@@ -77,18 +77,18 @@ def get(
 
     if from_file:
         workspace_file = workspace_id
-    converted_workspace_content = get_api_file(
-        api_file_path=workspace_file,
-        use_working_dir_file=use_working_dir_file,
-        logger=logger,
-    )
-    if converted_workspace_content["id"]:
-        workspace_id = converted_workspace_content["id"]
-    elif converted_workspace_content["workspace_id"]:
-        workspace_id = converted_workspace_content["workspace_id"]
-    else:
-        logger.error(f"Could not found workspace id in {workspace_file}.")
-        return
+        converted_workspace_content = get_api_file(
+            api_file_path=workspace_file,
+            use_working_dir_file=use_working_dir_file,
+            logger=logger,
+        )
+        if converted_workspace_content["id"]:
+            workspace_id = converted_workspace_content["id"]
+        elif converted_workspace_content["workspace_id"]:
+            workspace_id = converted_workspace_content["workspace_id"]
+        else:
+            logger.error(f"Could not found workspace id in {workspace_file}.")
+            return
 
     try:
         retrieved_workspace = workspace_api.find_workspace_by_id(
