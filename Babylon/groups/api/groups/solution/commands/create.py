@@ -84,7 +84,7 @@ def create(
     output_file: Optional[str] = None,
     solution_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: bool = False,
+    dry_run: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to create a solution."""
 
