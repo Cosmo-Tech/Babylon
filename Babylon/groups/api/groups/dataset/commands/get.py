@@ -14,6 +14,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
+from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import require_deployment_key
@@ -43,11 +44,27 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "fields",
     help="Fields witch will be keep in response data, by default all",
 )
+@option(
+    "-e",
+    "--use-working-dir-file",
+    "use_working_dir_file",
+    is_flag=True,
+    help="Should the path be relative to the working directory ?",
+    type=bool,
+)
+@option(
+    "--from-file",
+    "from_file",
+    is_flag=True,
+    help="In case the dataset id is retrieved from a file",
+)
 def get(
     dataset_api: DatasetApi,
     dataset_id: str,
     organization_id: str,
     output_file: Optional[str] = None,
+    from_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     fields: str = None,
     dry_run: bool = False,
 ):
@@ -56,6 +73,20 @@ def get(
     if dry_run:
         logger.info("DRY RUN - Would call dataset_api.find_dataset_by_id")
         return
+
+    if from_file:
+        converted_dataset_content = get_api_file(
+            api_file_path=dataset_id,
+            use_working_dir_file=use_working_dir_file,
+            logger=logger,
+        )
+        if converted_dataset_content["id"]:
+            dataset_id = converted_dataset_content["id"]
+        elif converted_dataset_content["dataset_id"]:
+            dataset_id = converted_dataset_content["dataset_id"]
+        else:
+            logger.error(f"Could not found dataset id in {dataset_id}.")
+            return
 
     try:
         retrieved_dataset = dataset_api.find_dataset_by_id(dataset_id=dataset_id, organization_id=organization_id)
