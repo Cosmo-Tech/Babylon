@@ -65,18 +65,18 @@ def delete(
 
     if from_file:
         solution_file = solution_id
-    converted_solution_content = get_api_file(
-        api_file_path=solution_file,
-        use_working_dir_file=use_working_dir_file,
-        logger=logger,
-    )
-    if converted_solution_content["id"]:
-        solution_id = converted_solution_content["id"]
-    elif converted_solution_content["solution_id"]:
-        solution_id = converted_solution_content["solution_id"]
-    else:
-        logger.error(f"Could not found solution id in {solution_file}.")
-        return
+        converted_solution_content = get_api_file(
+            api_file_path=solution_file,
+            use_working_dir_file=use_working_dir_file,
+            logger=logger,
+        )
+        if converted_solution_content["id"]:
+            solution_id = converted_solution_content["id"]
+        elif converted_solution_content["solution_id"]:
+            solution_id = converted_solution_content["solution_id"]
+        else:
+            logger.error(f"Could not found solution id in {solution_file}.")
+            return
 
     try:
         solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
