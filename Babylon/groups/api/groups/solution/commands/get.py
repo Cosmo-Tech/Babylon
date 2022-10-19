@@ -12,7 +12,7 @@ from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from ......utils.api import convert_keys_case
+from ......utils.api import convert_keys_case, get_api_file
 from ......utils.api import filter_api_response_item
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
@@ -43,20 +43,50 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "fields",
     help="Fields witch will be keep in response data, by default all",
 )
+@option(
+    "-e",
+    "--use-working-dir-file",
+    "use_working_dir_file",
+    is_flag=True,
+    help="Should the path be relative to the working directory ?",
+    type=bool,
+)
+@option(
+    "--from-file",
+    "from_file",
+    is_flag=True,
+    help="In case the solution id is retrieved from a file",
+)
 def get(
     solution_api: SolutionApi,
     solution_id: str,
     organization_id: str,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
+    from_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     dry_run: bool = False,
 ):
     """Get the state of the solution in the API."""
 
     if dry_run:
         logger.info("DRY RUN - Would call solution_api.find_solution_by_id")
-        retrieved_solution = {"Babylon": "<DRY RUN>"}
         return
+    
+    if from_file:
+        solution_file = solution_id
+        converted_solution_content = get_api_file(
+            api_file_path=solution_file,
+            use_working_dir_file=use_working_dir_file,
+            logger=logger,
+        )
+        if converted_solution_content["id"]:
+            solution_id = converted_solution_content["id"]
+        elif converted_solution_content["solution_id"]:
+            solution_id = converted_solution_content["solution_id"]
+        else:
+            logger.error(f"Could not found solution id in {solution_file}.")
+            return
 
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
