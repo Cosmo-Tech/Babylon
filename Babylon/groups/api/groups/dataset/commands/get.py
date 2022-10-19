@@ -75,8 +75,9 @@ def get(
         return
 
     if from_file:
+        dataset_file = dataset_id
         converted_dataset_content = get_api_file(
-            api_file_path=dataset_id,
+            api_file_path=dataset_file,
             use_working_dir_file=use_working_dir_file,
             logger=logger,
         )
@@ -85,7 +86,7 @@ def get(
         elif converted_dataset_content["dataset_id"]:
             dataset_id = converted_dataset_content["dataset_id"]
         else:
-            logger.error(f"Could not found dataset id in {dataset_id}.")
+            logger.error(f"Could not found dataset id in {dataset_file}.")
             return
 
     try:
