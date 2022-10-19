@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Optional
 
 from click import argument
 from click import option
@@ -9,6 +10,8 @@ from click import prompt
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
+
+from ......utils.api import get_api_file
 
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import timing_decorator
@@ -31,18 +34,49 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
+@option(
+    "-e",
+    "--use-working-dir-file",
+    "use_working_dir_file",
+    is_flag=True,
+    help="Should the path be relative to the working directory ?",
+    type=bool,
+)
+@option(
+    "--from-file",
+    "from_file",
+    is_flag=True,
+    help="In case the solution id is retrieved from a file",
+)
 @argument("solution_id")
 def delete(
     solution_api: SolutionApi,
     organization_id: str,
     solution_id: str,
     dry_run: bool = False,
+    from_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     force_validation: bool = False,
 ):
     """Unregister a solution via Cosmotech APi."""
 
     if dry_run:
         logger.info("DRY RUN - Would call solution_api.delete_solution")
+        return
+
+    if from_file:
+        solution_file = solution_id
+    converted_solution_content = get_api_file(
+        api_file_path=solution_file,
+        use_working_dir_file=use_working_dir_file,
+        logger=logger,
+    )
+    if converted_solution_content["id"]:
+        solution_id = converted_solution_content["id"]
+    elif converted_solution_content["solution_id"]:
+        solution_id = converted_solution_content["solution_id"]
+    else:
+        logger.error(f"Could not found solution id in {solution_file}.")
         return
 
     try:
