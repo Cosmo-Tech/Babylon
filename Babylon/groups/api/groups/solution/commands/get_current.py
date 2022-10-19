@@ -7,7 +7,6 @@ from click import Path
 from click import command
 from click import make_pass_decorator
 from click import option
-from click import Path
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -28,7 +27,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @allow_dry_run
 @pass_solution_api
 @timing_decorator
-@require_deployment_key("solution_id","solution_id")
+@require_deployment_key("solution_id", "solution_id")
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
@@ -68,7 +67,7 @@ def get_current(
         return
 
     if fields:
-        retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(' ','').split(","))
+        retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
         logger.info(pformat(retrieved_solution))
@@ -82,4 +81,3 @@ def get_current(
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
     logger.debug(pformat(retrieved_solution))
     logger.info(f"Content was dumped on {output_file}")
-

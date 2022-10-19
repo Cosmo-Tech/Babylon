@@ -7,7 +7,6 @@ from click import Path
 from click import command
 from click import make_pass_decorator
 from click import option
-from click import Path
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -65,7 +64,7 @@ def get_all(
         return
 
     if fields:
-        retrieved_solutions = filter_api_response(retrieved_solutions, fields.replace(' ','').split(","))
+        retrieved_solutions = filter_api_response(retrieved_solutions, fields.replace(" ", "").split(","))
     logger.info(f"Found {len(retrieved_solutions)} solutions")
     if not output_file:
         logger.info(pformat(retrieved_solutions, sort_dicts=False))
@@ -74,8 +73,7 @@ def get_all(
     _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]
     with open(output_file, "w") as _file:
         try:
-            json.dump([_ele.to_dict() for _ele in _solutions_to_dump] , _file, ensure_ascii=False)
+            json.dump([_ele.to_dict() for _ele in _solutions_to_dump], _file, ensure_ascii=False)
         except AttributeError:
             json.dump(_solutions_to_dump, _file, ensure_ascii=False)
     logger.info("Full content was dumped on %s.", output_file)
-
