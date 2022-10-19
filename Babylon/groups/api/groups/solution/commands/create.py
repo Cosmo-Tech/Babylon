@@ -126,6 +126,7 @@ def create(
         env.configuration.set_deploy_var("solution_id", retrieved_solution["id"])
 
     logger.info(f"Created new solution with id: {retrieved_solution['id']}")
+    logger.debug(pformat(retrieved_solution))
 
     if output_file:
         converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
@@ -134,7 +135,5 @@ def create(
                 json.dump(converted_content, _f, ensure_ascii=False)
             except TypeError:
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.debug(pformat(retrieved_solution))
         logger.info(f"Content was dumped on {output_file}")
 
-    logger.debug(pformat(retrieved_solution))
