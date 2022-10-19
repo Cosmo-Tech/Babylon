@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Optional
 
 from click import argument
 from click import option
@@ -10,6 +11,7 @@ from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
+from ......utils.api import get_api_file
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import require_deployment_key
@@ -31,11 +33,27 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
+@option(
+    "-e",
+    "--use-working-dir-file",
+    "use_working_dir_file",
+    is_flag=True,
+    help="Should the path be relative to the working directory ?",
+    type=bool,
+)
+@option(
+    "--from-file",
+    "from_file",
+    is_flag=True,
+    help="In case the dataset id is retrieved from a file",
+)
 @argument("dataset_id", type=str, required=True)
 def delete(
     dataset_api: DatasetApi,
     organization_id: str,
     dataset_id: str,
+    from_file: bool = False,
+    use_working_dir_file: Optional[bool] = False,
     dry_run: bool = False,
     force_validation: bool = False,
 ):
@@ -44,6 +62,21 @@ def delete(
     if dry_run:
         logger.info("DRY RUN - Would call dataset_api.delete_dataset")
         return
+
+    if from_file:
+        dataset_file = dataset_id
+        converted_dataset_content = get_api_file(
+            api_file_path=dataset_file,
+            use_working_dir_file=use_working_dir_file,
+            logger=logger,
+        )
+        if converted_dataset_content["id"]:
+            dataset_id = converted_dataset_content["id"]
+        elif converted_dataset_content["dataset_id"]:
+            dataset_id = converted_dataset_content["dataset_id"]
+        else:
+            logger.error(f"Could not found dataset id in {dataset_file}.")
+            return
 
     try:
         dataset_api.find_dataset_by_id(dataset_id=dataset_id, organization_id=organization_id)
