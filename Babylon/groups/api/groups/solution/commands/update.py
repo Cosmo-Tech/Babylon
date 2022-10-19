@@ -41,7 +41,7 @@ def update(
     organization_id: str,
     solution_id: str,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: bool = False,
+    dry_run: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to update a solution."""
 
@@ -70,4 +70,4 @@ def update(
         return
 
     logger.debug(pformat(retrieved_solution))
-    logger.info(f"Created new solution with id: {retrieved_solution['id']}")
+    logger.info(f"Solution: {retrieved_solution['id']} updated.")
