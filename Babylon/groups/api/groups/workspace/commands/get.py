@@ -68,16 +68,16 @@ def get(
 
     if fields:
         retrieved_workspace = filter_api_response_item(retrieved_workspace, fields.split(","))
-    if output_file:
-        converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)
-        with open(output_file, "w") as _f:
-            try:
-                json.dump(converted_content, _f, ensure_ascii=False)
-            except TypeError:
-                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Datset {workspace_id} detail was dumped on {output_file}")
-        logger.debug(pformat(retrieved_workspace))
+    if not output_file:
+        logger.info(f"Workspace {workspace_id} details :")
+        logger.info(pformat(retrieved_workspace))
         return
 
-    logger.info(f"Workspace {workspace_id} details :")
-    logger.info(pformat(retrieved_workspace))
+    converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)
+    with open(output_file, "w") as _f:
+        try:
+            json.dump(converted_content, _f, ensure_ascii=False)
+        except TypeError:
+            json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
+    logger.info(f"Datset {workspace_id} detail was dumped on {output_file}")
+    logger.debug(pformat(retrieved_workspace))
