@@ -7,6 +7,7 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
@@ -31,10 +32,10 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
-    "--output_file",
+    "--output-file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=str,
+    type=Path(),
 )
 @option(
     "-f",
