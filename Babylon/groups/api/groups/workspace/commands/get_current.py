@@ -31,10 +31,10 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
-    "--output_file",
+    "--output-file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=Path()
+    type=Path(),
 )
 @option(
     "-f",
