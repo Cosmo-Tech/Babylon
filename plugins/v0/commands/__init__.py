@@ -1,3 +1,1 @@
-
-list_commands = [
-]
+list_commands = []

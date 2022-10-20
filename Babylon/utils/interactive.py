@@ -60,10 +60,10 @@ def select_from_list(elements: list[Any], actual: Optional[Any] = None) -> Optio
         try:
             selected = elements[selection]
             return selected
-        except:
+        except IndexError:
             errors += 1
             if errors < MAX_RETRIES:
                 click.echo(f"Invalid selection {MAX_RETRIES - errors} tries remaining")
             else:
-                click.echo(f"Max number of tries reached.")
+                click.echo("Max number of tries reached.")
                 return None

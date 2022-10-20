@@ -75,15 +75,15 @@ def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
     if len(new_group_name) > 1:
         parent_group_path = babylon_groups_path / "/groups/".join(new_group_name[:-1])
         if not parent_group_path.exists():
-            logger.info(
-                f"Group `{' '.join(new_group_name[:-1])}` does not exists creating it before creating `{new_group_name[-1]}`.")
+            logger.info(f"Group `{' '.join(new_group_name[:-1])}`"
+                        "does not exists creating it before creating `{new_group_name[-1]}`.")
             if not dry_run:
                 ctx.invoke(initialize_group, group_name=new_group_name[:-1])
     else:
         parent_group_path = base_path
 
     if dry_run:
-        logger.info(to_header_line(f"Moving group to new location"))
+        logger.info(to_header_line("Moving group to new location"))
         logger.info(f"From: {old_group_path}")
         logger.info(f"To: {new_group_path}")
     else:

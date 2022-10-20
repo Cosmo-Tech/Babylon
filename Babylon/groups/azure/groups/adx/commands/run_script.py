@@ -22,11 +22,8 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("cluster_name", "cluster_name")
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_deployment_key("database_name", "database_name")
-@click.argument("script_file", type=click.Path(exists=True,
-                                               file_okay=True,
-                                               dir_okay=False,
-                                               readable=True,
-                                               path_type=pathlib.Path))
+@click.argument("script_file",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @allow_dry_run
 @timing_decorator
 def run_script(kmc: KustoManagementClient, cluster_name: str, resource_group_name: str, database_name: str,
@@ -61,4 +58,4 @@ In the script instances of "<database name>" will be replaced by the actual data
         except HttpResponseError as _resp_error:
             logger.error(_resp_error.message.split("\nMessage:")[1])
         else:
-            logger.info(f"Script successfully ran.")
+            logger.info("Script successfully ran.")

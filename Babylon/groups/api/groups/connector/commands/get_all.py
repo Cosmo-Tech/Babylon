@@ -24,21 +24,20 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @allow_dry_run
 @timing_decorator
 @pass_connector_api
-@option("-o",
-        "--output_file",
-        "output_file",
-        help="File to which content should be outputted (json-formatted)",
-        type=str, )
+@option(
+    "-o",
+    "--output_file",
+    "output_file",
+    help="File to which content should be outputted (json-formatted)",
+    type=str,
+)
 @option("-f",
         "--fields",
         "fields",
         required=False,
         type=str,
         help="Fields witch will be keep in response data, by default all")
-def get_all(connector_api: ConnectorApi,
-            output_file: Optional[str] = None,
-            fields: str = None,
-            dry_run: bool = False):
+def get_all(connector_api: ConnectorApi, output_file: Optional[str] = None, fields: str = None, dry_run: bool = False):
     """Get all registered connectors."""
     if dry_run:
         logger.info("DRY RUN - Would call connector_api.find_all_connectors")

@@ -10,6 +10,7 @@ from cosmotech_api.api.organization_api import OrganizationApi
 
 from .....utils.decorators import pass_api_configuration
 
+
 @group()
 @pass_api_configuration
 @pass_context
@@ -17,6 +18,7 @@ def organization(ctx: Context, api_configuration):
     """Subgroup handling Organizations in the cosmotech API"""
     api_client = ApiClient(api_configuration)
     ctx.obj = OrganizationApi(api_client)
+
 
 for _command in list_commands:
     organization.add_command(_command)

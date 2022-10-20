@@ -68,8 +68,7 @@ def create(
 
     if not organization_file and not organization_name:
         logger.error(
-            "Error : can not get an organization name, please check your Organization.YAML file or set --name option"
-        )
+            "Error : can not get an organization name, please check your Organization.YAML file or set --name option")
         return
 
     converted_organization_content = get_api_file(

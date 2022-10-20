@@ -14,12 +14,14 @@ import yaml
 from . import TEMPLATE_FOLDER_PATH
 from .yaml_utils import read_yaml_key, write_yaml_value
 
+
 class Configuration:
     """
     Base object created to store in file the configuration used in babylon
     """
 
     def __save_after_run(func):
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             r = func(self, *args, **kwargs)
@@ -28,9 +30,7 @@ class Configuration:
 
         return wrapper
 
-    def __init__(self,
-                 logger: Logger,
-                 config_directory: pathlib.Path):
+    def __init__(self, logger: Logger, config_directory: pathlib.Path):
         self.config_dir = config_directory
         self.logger = logger
         if not self.config_dir.exists():
@@ -237,7 +237,7 @@ class Configuration:
             self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
             yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
         else:
-            self.logger.error(f"Current config file is locked and won't be updated.")
+            self.logger.error("Current config file is locked and won't be updated.")
 
     def get_deploy_path(self) -> Optional[pathlib.Path]:
         """
@@ -329,7 +329,7 @@ class Configuration:
         _ret.append(f"  platform: {self.platform}")
         for k, v in yaml.safe_load(open(self.get_platform_path())).items():
             _ret.append(f"    {k}: {v}")
-        _ret.append(f"  plugins:")
+        _ret.append("  plugins:")
         for plugin in self.plugins:
             state = '[' + ("x" if plugin['active'] else " ") + "]"
             _ret.append(f"    {state} {plugin['name']}: {plugin['path']}")

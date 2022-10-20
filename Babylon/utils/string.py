@@ -17,7 +17,7 @@ def to_header_line(string: str) -> str:
     """
     Convert a string to a header line of maximum length of MAX_LINE_LENGTH
 
-    will center the string between `-` to show a delimitation 
+    will center the string between `-` to show a delimitation
     :param string: the string to transform
     :return: the string centered with `-` padding
     """

@@ -12,8 +12,7 @@ def multi_mock_open(*file_contents):
             file when opened the first time, the second file when opened the
             second time, etc.
     """
-    mock_files = [
-        mock_open(read_data=content).return_value for content in file_contents]
+    mock_files = [mock_open(read_data=content).return_value for content in file_contents]
     mock_opener = mock_open()
     mock_opener.side_effect = mock_files
     return mock_opener

@@ -39,18 +39,8 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         required=True,
         type=Choice(["ADT", "STORAGE"], case_sensitive=False),
         help="Connector type, allowed values : [ADT, STORAGE]")
-@option("-n",
-        "--name",
-        "connector_name",
-        required=True,
-        type=str,
-        help="New connector name")
-@option("-v",
-        "--version",
-        "connector_version",
-        required=True,
-        type=str,
-        help="New connector version")
+@option("-n", "--name", "connector_name", required=True, type=str, help="New connector name")
+@option("-v", "--version", "connector_version", required=True, type=str, help="New connector version")
 def create(env: Environment,
            connector_api: ConnectorApi,
            connector_type: str,
@@ -64,8 +54,7 @@ def create(env: Environment,
     connector_type = connector_type.upper()
     converted_connector_content = get_api_file(
         api_file_path=connector_file
-        if connector_file
-        else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Connector.{connector_type}.yaml",
+        if connector_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Connector.{connector_type}.yaml",
         use_working_dir_file=use_working_dir_file if connector_file else False,
         logger=logger,
     )

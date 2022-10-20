@@ -6,13 +6,15 @@ import os
 import cosmotech_api
 import yaml
 from azure.identity import AzureCliCredential, DefaultAzureCredential
+from azure.core.exceptions import ClientAuthenticationError
 
 
 class ContextObj:
 
     def check_required_configuration(self, configuration_list: list):
-        missing_configurations = [configuration for configuration in configuration_list if
-                                  configuration not in self.config]
+        missing_configurations = [
+            configuration for configuration in configuration_list if configuration not in self.config
+        ]
         for conf in missing_configurations:
             self.logger.error(f"The configuration parameter {conf} is missing " +
                               "please make sure it is present in your 'deploy.yaml' file")
@@ -44,14 +46,13 @@ class ContextObj:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), './deploy.yaml')
 
     def add_azure_credentials(self):
-        self.logger.debug(f"Adding Azure Credentials")
+        self.logger.debug("Adding Azure Credentials")
         try:
             credentials = AzureCliCredential()
-        except:
+        except ClientAuthenticationError:
             credentials = DefaultAzureCredential()
         self.azure_credentials = credentials
         self.config['azure_credentials'] = self.azure_credentials
-
 
     def add_api_configuration(self):
         if self.azure_credentials is None:
@@ -59,15 +60,13 @@ class ContextObj:
             return
         if not self.check_required_configuration(["api_url", "api_scope", "organization_id", "workspace_id"]):
             return
-        self.logger.debug(f"Getting access token for given api scope")
+        self.logger.debug("Getting access token for given api scope")
         token = self.azure_credentials.get_token(self.config['api_scope'])
 
-        self.logger.debug(f"Generating configuration to access cosmotech api")
-        configuration = cosmotech_api.Configuration(
-            host=self.config['api_url'],
-            discard_unknown_keys=True,
-            access_token=token.token
-        )
+        self.logger.debug("Generating configuration to access cosmotech api")
+        configuration = cosmotech_api.Configuration(host=self.config['api_url'],
+                                                    discard_unknown_keys=True,
+                                                    access_token=token.token)
 
         self.api_configuration = configuration
         self.config['api_configuration'] = self.api_configuration

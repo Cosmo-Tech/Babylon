@@ -49,7 +49,7 @@ if GROUP_NAME is defined will limit the check to the given group"""
     if group_name:
         logger.info(f"For the group `{' '.join(group_name)}`:")
     else:
-        logger.info(f"For `babylon`:")
+        logger.info("For `babylon`:")
     if platform_template_keys:
         logger.info(" -Required platform keys:")
         for k in sorted(platform_template_keys):

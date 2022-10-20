@@ -8,6 +8,7 @@ from .groups import list_groups
 
 from .....utils.decorators import require_deployment_key
 
+
 @group()
 @pass_context
 @require_deployment_key("digital_twin_url", "digital_twin_url")

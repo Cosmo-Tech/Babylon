@@ -47,7 +47,9 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool,
 
     if not dry_run:
         try:
-            dt_client.create_models([model, ])
+            dt_client.create_models([
+                model,
+            ])
         except ResourceExistsError:
             logger.error(f"Model `{model_id}` already exists")
             return False
@@ -56,11 +58,8 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool,
 
 @command()
 @pass_dt_client
-@argument("model_file", type=click.Path(exists=True,
-                                        file_okay=True,
-                                        dir_okay=False,
-                                        readable=True,
-                                        path_type=pathlib.Path))
+@argument("model_file",
+          type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
 @allow_dry_run
 def upload_model(dt_client: DigitalTwinsClient, model_file: pathlib.Path, override_if_exists: bool, dry_run: bool):

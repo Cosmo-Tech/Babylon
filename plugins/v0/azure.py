@@ -6,7 +6,7 @@ import cosmotech_api
 from azure.mgmt.subscription import SubscriptionClient
 from click.core import Context
 from click import group
-from click import option, argument
+from click import argument
 from click import pass_context
 from logging import getLogger
 from cosmotech_api.api.organization_api import OrganizationApi
@@ -53,14 +53,14 @@ def organization(ctx: Context):
     if ctx.parent.obj.api_configuration is None:
         LOGGER.error('Missing api parameters')
         return -1
-    LOGGER.debug(f"Opening client to access the cosmotech api")
+    LOGGER.debug("Opening client to access the cosmotech api")
     with cosmotech_api.ApiClient(ctx.parent.obj.api_configuration) as api_client:
         api_orga = OrganizationApi(api_client)
         try:
             LOGGER.debug("Querying the api to get info on the organization")
             r = api_orga.find_organization_by_id(organization_id=ctx.parent.obj.config['organization_id'])
             log_response(r)
-        except cosmotech_api.exceptions.UnauthorizedException as _e:
+        except cosmotech_api.exceptions.UnauthorizedException:
             LOGGER.error("Unauthorized access to the cosmotech api")
             return
 
@@ -69,29 +69,29 @@ def organization(ctx: Context):
 @pass_context
 def workspace(ctx: Context):
     """Get some data on an API workspace"""
-    LOGGER.debug(f"Opening client to access the cosmotech api")
+    LOGGER.debug("Opening client to access the cosmotech api")
     with cosmotech_api.ApiClient(ctx.parent.obj.api_configuration) as api_client:
         api_ws = WorkspaceApi(api_client)
         api_sol = SolutionApi(api_client)
         try:
-            LOGGER.debug(f"Querying the api to find the current workspace")
+            LOGGER.debug("Querying the api to find the current workspace")
             r = api_ws.find_workspace_by_id(organization_id=ctx.parent.obj.config.get('organization_id'),
                                             workspace_id=ctx.parent.obj.config.get('workspace_id')).to_dict()
-            LOGGER.debug(f"Workspace query results:")
+            LOGGER.debug("Workspace query results:")
             log_response(r)
             workspace_key = r['key']
             solution_id = r['solution']['solution_id']
-        except cosmotech_api.exceptions.UnauthorizedException as _e:
+        except cosmotech_api.exceptions.UnauthorizedException:
             LOGGER.error("Unauthorized access to the cosmotech api")
             return
         try:
-            LOGGER.debug(f"Querying the api to find the solution linked to the current workspace")
+            LOGGER.debug("Querying the api to find the solution linked to the current workspace")
             r = api_sol.find_solution_by_id(organization_id=ctx.parent.obj.config.get('organization_id'),
                                             solution_id=solution_id).to_dict()
-            LOGGER.debug(f"Solution query results:")
+            LOGGER.debug("Solution query results:")
             log_response(r)
             solution_key = r['key']
-        except cosmotech_api.exceptions.UnauthorizedException as _e:
+        except cosmotech_api.exceptions.UnauthorizedException:
             LOGGER.error("Unauthorized access to the cosmotech api")
             return
         LOGGER.info(f"Workspace  {ctx.parent.obj.config.get('workspace_id')} : {workspace_key}")
