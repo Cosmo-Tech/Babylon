@@ -65,26 +65,27 @@ def delete(
         return
 
     if not dataset_id:
-        if dataset_file:
-            converted_dataset_content = get_api_file(
-                api_file_path=dataset_file,
-                use_working_dir_file=use_working_dir_file,
-                logger=logger,
-            )
-            if not converted_dataset_content:
-                logger.error("Error : can not get Dataset definition, please check your file")
-                return
-            if converted_dataset_content["id"]:
-                dataset_id = converted_dataset_content["id"]
-            elif converted_dataset_content["dataset_id"]:
-                dataset_id = converted_dataset_content["dataset_id"]
-            else:
-                logger.error(f"Error: Could not found dataset id in {dataset_file}.")
-                return
-        else:
+        if not dataset_file:
             logger.error(
                 "Error: No id passed as argument or option use -d option to pass an json or yaml file containing an dataset id."
             )
+            return
+
+        converted_dataset_content = get_api_file(
+            api_file_path=dataset_file,
+            use_working_dir_file=use_working_dir_file,
+            logger=logger,
+        )
+        if not converted_dataset_content:
+            logger.error("Error : can not get Dataset definition, please check your file")
+            return
+
+        if converted_dataset_content["id"]:
+            dataset_id = converted_dataset_content["id"]
+        elif converted_dataset_content["dataset_id"]:
+            dataset_id = converted_dataset_content["dataset_id"]
+        else:
+            logger.error(f"Error: Could not found dataset id in {dataset_file}.")
             return
 
     try:
