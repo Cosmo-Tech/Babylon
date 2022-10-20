@@ -25,8 +25,8 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @timing_decorator
 @pass_workspace_api
 @argument("workspace_file")
-@require_deployment_key("sendScenarioMetadataToEventHub", "send_scenario_metadata_to_event_hub")
-@require_deployment_key("useDedicatedEventHubNamespace", "use_dedicated_event_hub_namespace")
+@require_deployment_key("use_dedicated_event_hub_namespace", "send_scenario_metadata_to_event_hub")
+@require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
 @option(

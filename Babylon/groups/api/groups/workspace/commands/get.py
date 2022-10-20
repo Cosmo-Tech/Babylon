@@ -54,9 +54,9 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     type=bool,
 )
 @option(
-    "--from-file",
-    "from_file",
-    is_flag=True,
+    "-w",
+    "--workspace-file",
+    "workspace_file",
     help="In case the workspace id is retrieved from a file",
 )
 def get(
@@ -64,7 +64,7 @@ def get(
     workspace_id: str,
     organization_id: str,
     output_file: Optional[str] = None,
-    from_file: bool = False,
+    workspace_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
     fields: str = None,
     dry_run: bool = False,
@@ -75,19 +75,28 @@ def get(
         logger.info("DRY RUN - Would call workspace_api.find_workspace_by_id")
         return
 
-    if from_file:
-        workspace_file = workspace_id
+    if not workspace_id:
+        if not workspace_file:
+            logger.error(
+                "Error: No id passed as argument or option use -d option to pass an json or yaml file containing an workspace id."
+            )
+            return
+
         converted_workspace_content = get_api_file(
             api_file_path=workspace_file,
             use_working_dir_file=use_working_dir_file,
             logger=logger,
         )
+        if not converted_workspace_content:
+            logger.error("Error : can not get Workspace definition, please check your file")
+            return
+
         if converted_workspace_content["id"]:
             workspace_id = converted_workspace_content["id"]
         elif converted_workspace_content["workspace_id"]:
             workspace_id = converted_workspace_content["workspace_id"]
         else:
-            logger.error(f"Could not found workspace id in {workspace_file}.")
+            logger.error(f"Error: Could not found workspace id in {workspace_file}.")
             return
 
     try:

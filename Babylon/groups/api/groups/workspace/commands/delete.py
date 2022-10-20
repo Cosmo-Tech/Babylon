@@ -87,8 +87,6 @@ def delete(
             logger.error(f"Error: Could not found workspace id in {workspace_file}.")
             return
 
-    print(workspace_id)
-
     try:
         workspace_api.find_workspace_by_id(workspace_id=workspace_id, organization_id=organization_id)
     except NotFoundException:

@@ -33,8 +33,8 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @pass_workspace_api
 @pass_environment
 @argument("workspace_file", required=False)
-@require_deployment_key("sendScenarioMetadataToEventHub", "send_scenario_metadata_to_event_hub")
-@require_deployment_key("useDedicatedEventHubNamespace", "use_dedicated_event_hub_namespace")
+@require_deployment_key("send_scenario_metadata_to_event_hub", "send_scenario_metadata_to_event_hub")
+@require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
 @option(
@@ -81,12 +81,12 @@ def create(
     send_scenario_metadata_to_event_hub: str,
     use_dedicated_event_hub_namespace: str,
     solution_id: str,
-    workspace_file: str,
     select: bool,
+    workspace_file: Optional[str] = None,
     output_file: Optional[str] = None,
     workspace_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: bool = False,
+    dry_run: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to create a workspace."""
 
