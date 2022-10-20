@@ -58,4 +58,10 @@ In the script instances of "<database name>" will be replaced by the actual data
         except HttpResponseError as _resp_error:
             logger.error(_resp_error.message.split("\nMessage:")[1])
         else:
+            kmc.scripts.begin_delete(
+                resource_group_name=resource_group_name,
+                cluster_name=cluster_name,
+                database_name=database_name,
+                script_name=script_name,
+            )
             logger.info("Script successfully ran.")
