@@ -42,20 +42,21 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     type=bool,
 )
 @option(
-    "--from-file",
-    "from_file",
-    is_flag=True,
+    "-d",
+    "--dataset-file",
+    "dataset_file",
     help="In case the dataset id is retrieved from a file",
+    required=False,
 )
-@argument("dataset_id", type=str, required=True)
+@argument("dataset_id", type=str, required=False)
 def delete(
     dataset_api: DatasetApi,
     organization_id: str,
-    dataset_id: str,
-    from_file: bool = False,
+    dataset_file: Optional[str] = None,
+    dataset_id: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: bool = False,
-    force_validation: bool = False,
+    dry_run: Optional[bool] = False,
+    force_validation: Optional[bool] = False,
 ):
     """Unregister a dataset via Cosmotech APi."""
 
@@ -63,19 +64,27 @@ def delete(
         logger.info("DRY RUN - Would call dataset_api.delete_dataset")
         return
 
-    if from_file:
-        dataset_file = dataset_id
-        converted_dataset_content = get_api_file(
-            api_file_path=dataset_file,
-            use_working_dir_file=use_working_dir_file,
-            logger=logger,
-        )
-        if converted_dataset_content["id"]:
-            dataset_id = converted_dataset_content["id"]
-        elif converted_dataset_content["dataset_id"]:
-            dataset_id = converted_dataset_content["dataset_id"]
+    if not dataset_id:
+        if dataset_file:
+            converted_dataset_content = get_api_file(
+                api_file_path=dataset_file,
+                use_working_dir_file=use_working_dir_file,
+                logger=logger,
+            )
+            if not converted_dataset_content:
+                logger.error("Error : can not get Dataset definition, please check your file")
+                return
+            if converted_dataset_content["id"]:
+                dataset_id = converted_dataset_content["id"]
+            elif converted_dataset_content["dataset_id"]:
+                dataset_id = converted_dataset_content["dataset_id"]
+            else:
+                logger.error(f"Error: Could not found dataset id in {dataset_file}.")
+                return
         else:
-            logger.error(f"Could not found dataset id in {dataset_file}.")
+            logger.error(
+                "Error: No id passed as argument or option use -d option to pass an json or yaml file containing an dataset id."
+            )
             return
 
     try:
