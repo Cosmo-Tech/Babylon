@@ -66,7 +66,8 @@ def update(
     converted_workspace_content["useDedicatedEventHubNamespace"] = use_dedicated_event_hub_namespace
     converted_workspace_content["solution"]["solution_id"] = solution_id
 
-    if not converted_workspace_content["id"]:
+    if "id" not in converted_workspace_content:
+        logger.error("Error : can not get connector id in the Connector.YAML file")
         return
 
     workspace_id = converted_workspace_content["id"]
