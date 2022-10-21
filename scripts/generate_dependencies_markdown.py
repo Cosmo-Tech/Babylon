@@ -9,16 +9,17 @@ with mkdocs_gen_files.open("dependencies.md", "w") as _md_file, open("requiremen
 
     _requirements: list[str] = _req.read().splitlines()
 
-    for l in _requirements:
-        if not l:
+    for _l in _requirements:
+        if not _l:
             content.append("")
-        elif l[0] == "#":
-            content.append(l[1:] + "  ")
+        elif _l[0] == "#":
+            content.append(_l[1:] + "  ")
         else:
-            req = next(requirements.parse(l))
+            req = next(requirements.parse(_l))
             _name = req.name
-            content.append(f"[ ![PyPI - {_name}]"
-                           f"(https://img.shields.io/pypi/l/{_name}?style=for-the-badge&labelColor=informational&label={_name})]"
-                           f"(https://pypi.org/project/{_name}/)  ")
+            content.append(
+                f"[ ![PyPI - {_name}]"
+                f"(https://img.shields.io/pypi/l/{_name}?style=for-the-badge&labelColor=informational&label={_name})]"
+                f"(https://pypi.org/project/{_name}/)  ")
 
-    _md_file.writelines(l + "\n" for l in content)
+    _md_file.writelines(_l + "\n" for _l in content)

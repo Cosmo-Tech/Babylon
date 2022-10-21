@@ -121,8 +121,7 @@ def test_list_deploys():
 def test_list_platforms():
     """Testing configuration"""
     config = Configuration(logging, Path("tests/environments/Default"))
-    assert any("platform.yaml" in str(path)
-               for path in config.list_platforms())
+    assert any("platform.yaml" in str(path) for path in config.list_platforms())
 
 
 def test_set_deploy_fail():
@@ -134,8 +133,7 @@ def test_set_deploy_fail():
 def test_set_deploy_ok():
     """Testing configuration"""
     config = Configuration(logging, Path("tests/environments/Default"))
-    assert config.set_deploy(
-        Path("tests/environments/Default/deployments/deploy.yaml"))
+    assert config.set_deploy(Path("tests/environments/Default/deployments/deploy.yaml"))
 
 
 def test_set_platform_fail():
@@ -147,8 +145,7 @@ def test_set_platform_fail():
 def test_set_platform_ok():
     """Testing configuration"""
     config = Configuration(logging, Path("tests/environments/Default"))
-    assert config.set_platform(
-        Path("tests/environments/Default/platforms/platform.yaml"))
+    assert config.set_platform(Path("tests/environments/Default/platforms/platform.yaml"))
 
 
 def test_save_config():

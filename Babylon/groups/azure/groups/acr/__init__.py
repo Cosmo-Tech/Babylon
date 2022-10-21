@@ -12,6 +12,7 @@ from .groups import list_groups
 def acr(ctx: Context):
     """Group interacting with Azure Container Registry"""
 
+
 for _command in list_commands:
     acr.add_command(_command)
 

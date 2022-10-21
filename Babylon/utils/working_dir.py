@@ -17,9 +17,7 @@ class WorkingDir:
     Simple class describing a working_dir for Babylon use
     """
 
-    def __init__(self,
-                 working_dir_path: pathlib.Path,
-                 logger: Logger):
+    def __init__(self, working_dir_path: pathlib.Path, logger: Logger):
         """
         Initialize the working_dir, if not template_path is given will use the default one.
         :param working_dir_path: Path to the Working_dir
@@ -75,16 +73,15 @@ class WorkingDir:
                         error_logger(f"MISSING FILE: {local_file_path}")
                         has_err = True
                         if update_if_error and not self.is_zip:
-                            error_logger(f"CORRECTION:   Copying it from template")
+                            error_logger("CORRECTION:   Copying it from template")
                             shutil.copy(template_file_path, str(local_file_path))
                     elif local_file_path.name.endswith(".yaml"):
                         self.logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
-                        missing_keys, superfluous_keys = compare_yaml_keys(template_file_path,
-                                                                           local_file_path)
+                        missing_keys, superfluous_keys = compare_yaml_keys(template_file_path, local_file_path)
                         if missing_keys:
                             has_err = True
-                            error_logger(f"YAML ERROR: In file {local_file_path}")
-                            error_logger(f"            The following keys are missing :")
+                            error_logger(f"YAML: In file {local_file_path}")
+                            error_logger("            The following keys are missing :")
                             for _k in missing_keys:
                                 error_logger(f"            - {_k}")
                             if update_if_error and not self.is_zip:
@@ -92,7 +89,7 @@ class WorkingDir:
                                 complete_yaml(template_file_path, local_file_path)
                         if superfluous_keys:
                             self.logger.debug(f"YAML ISSUE: In file {local_file_path}")
-                            self.logger.debug(f"            The following keys are superfluous :")
+                            self.logger.debug("            The following keys are superfluous :")
                             for _k in superfluous_keys:
                                 self.logger.debug(f"            - {_k}")
         self.logger.debug(f"Finished check of working_dir found on {self.path}")
@@ -118,7 +115,7 @@ class WorkingDir:
             _y = yaml.safe_load(self.get_file(yaml_path).open())
             _v = _y[yaml_key]
             return _v
-        except:
+        except (IOError, KeyError):
             return None
 
     def get_file(self, file_path: str) -> pathlib.Path:
@@ -131,10 +128,10 @@ class WorkingDir:
         return target_file_path
 
     def __str__(self):
-        _ret = [f"Template path: {self.template_path}",
-                f"Working_dir path: {self.initial_path.resolve()}",
-                f"is_zip: {self.is_zip}",
-                "content:"]
+        _ret = [
+            f"Template path: {self.template_path}", f"Working_dir path: {self.initial_path.resolve()}",
+            f"is_zip: {self.is_zip}", "content:"
+        ]
         content = []
         if self.is_zip:
             for _f in self.zip_file.namelist():
@@ -174,7 +171,5 @@ class WorkingDir:
             with zipfile.ZipFile(_p, "w") as _z_file:
                 for root, dirs, files in os.walk(str(self.path)):
                     for _f in files:
-                        _z_file.write(os.path.join(root, _f),
-                                      os.path.relpath(os.path.join(root, _f),
-                                                      str(self.path)))
+                        _z_file.write(os.path.join(root, _f), os.path.relpath(os.path.join(root, _f), str(self.path)))
         return str(_p)

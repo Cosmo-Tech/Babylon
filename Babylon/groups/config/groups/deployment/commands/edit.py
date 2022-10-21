@@ -14,8 +14,9 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_config
-@argument("deployment", required=False, type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True,
-                                                        path_type=pathlib.Path))
+@argument("deployment",
+          required=False,
+          type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 def edit(config: Configuration, deployment: Optional[pathlib.Path] = None):
     """Open editor to edit variables in given deployment
 

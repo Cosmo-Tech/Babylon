@@ -28,8 +28,8 @@ def test_header_line_empty():
 
 def test_header_line_huge():
     """Testing string"""
-    assert to_header_line("*"*(MAX_LINE_LENGTH+1)
-                          ) == "*" * (MAX_LINE_LENGTH + 1)
+    assert to_header_line("*" * (MAX_LINE_LENGTH + 1)) == "*" * (MAX_LINE_LENGTH + 1)
+
 
 def test_header_line_missing():
     """Testing string"""

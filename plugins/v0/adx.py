@@ -12,7 +12,6 @@ from .utils.context import ContextObj
 
 from pprint import pformat
 import time
-import json
 
 LOGGER = getLogger("Babylon")
 
@@ -36,11 +35,8 @@ def run_db_script(ctx: Context, script_path: str):
 Requires the user to have admin rights on the given database.
 
 The function will list the tables available on the base after the script ran."""
-    if not ctx.parent.obj.check_required_configuration(['azure_subscription',
-                                                        'resource_group_name',
-                                                        'cluster_name',
-                                                        'cluster_region',
-                                                        'database_name']):
+    if not ctx.parent.obj.check_required_configuration(
+        ['azure_subscription', 'resource_group_name', 'cluster_name', 'cluster_region', 'database_name']):
         return
     db_desc = f"{ctx.parent.obj.config.get('cluster_name')}" \
               f".{ctx.parent.obj.config.get('cluster_region')}/" \
@@ -74,11 +70,8 @@ The function will list the tables available on the base after the script ran."""
 @pass_context
 def list_tables(ctx: Context):
     """List all tables in the ADX database"""
-    if not ctx.parent.obj.check_required_configuration(['azure_subscription',
-                                                        'resource_group_name',
-                                                        'cluster_name',
-                                                        'cluster_region',
-                                                        'database_name']):
+    if not ctx.parent.obj.check_required_configuration(
+        ['azure_subscription', 'resource_group_name', 'cluster_name', 'cluster_region', 'database_name']):
         return
     db_desc = f"{ctx.parent.obj.config.get('cluster_name')}" \
               f".{ctx.parent.obj.config.get('cluster_region')}/" \
@@ -97,11 +90,8 @@ def list_tables(ctx: Context):
 @pass_context
 def test_mgmt(ctx: Context):
     """Display accessible info on the ADX connection using the management API"""
-    if not ctx.parent.obj.check_required_configuration(['azure_subscription',
-                                                        'resource_group_name',
-                                                        'cluster_name',
-                                                        'cluster_region',
-                                                        'database_name']):
+    if not ctx.parent.obj.check_required_configuration(
+        ['azure_subscription', 'resource_group_name', 'cluster_name', 'cluster_region', 'database_name']):
         return
     kmc = KustoManagementClient(credential=ctx.parent.obj.azure_credentials,
                                 subscription_id=ctx.parent.obj.config['azure_subscription'])

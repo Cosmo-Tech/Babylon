@@ -22,7 +22,10 @@ pass_base_path = make_pass_decorator(pathlib.Path)
 @pass_base_path
 @allow_dry_run
 @timing_decorator
-def rename_command(base_path, group_name: list[str], old_command_name: str, new_command_name: str,
+def rename_command(base_path,
+                   group_name: list[str],
+                   old_command_name: str,
+                   new_command_name: str,
                    dry_run: bool = False):
     """Will rename OLD_COMMAND_NAME to NEW_COMMAND_NAME in GROUP_NAME
 

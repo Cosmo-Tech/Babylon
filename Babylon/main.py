@@ -26,8 +26,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 config_directory = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
-conf = Configuration(logger,
-                     config_directory=config_directory)
+conf = Configuration(logger, config_directory=config_directory)
 
 working_directory_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
 work_dir = WorkingDir(working_dir_path=working_directory_path, logger=logger)
@@ -37,10 +36,8 @@ env = Environment(configuration=conf, working_dir=work_dir)
 
 @click.group(name='babylon', context_settings=HELP_CONTEXT_OVERRIDE)
 @click_log.simple_verbosity_option(logger)
-@click.option("--tests", "tests_mode", is_flag=True,
-              help="Enable test mode, this mode changes output formatting.")
-@click.option("-n", "--dry-run", "dry_run", is_flag=True,
-              help="Will run commands in dry-run mode")
+@click.option("--tests", "tests_mode", is_flag=True, help="Enable test mode, this mode changes output formatting.")
+@click.option("-n", "--dry-run", "dry_run", is_flag=True, help="Will run commands in dry-run mode")
 @click.pass_context
 @click.option("-h",
               "--help",

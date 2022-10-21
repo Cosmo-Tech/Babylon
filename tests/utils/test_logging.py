@@ -11,6 +11,7 @@ def test_handler():
     logger.warning("A\nB\nC\n")
     assert stream.getvalue() == "A\nB\nC\n\n"
 
+
 def test_handler_oneline():
     """Testing logging"""
     logger = logging.getLogger("tests")

@@ -1,4 +1,3 @@
-import imp
 from click import group
 from click import pass_context
 from click.core import Context

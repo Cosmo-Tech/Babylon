@@ -23,7 +23,7 @@ def select(config: Configuration, platform: Optional[pathlib.Path] = None):
 
     if platform:
         if config.set_platform(platform):
-            logger.info(f"Configuration successfully updated")
+            logger.info("Configuration successfully updated")
         else:
             logger.error(f"Configuration was not updated. {platform} is not a valid platform file.")
     else:
@@ -32,6 +32,6 @@ def select(config: Configuration, platform: Optional[pathlib.Path] = None):
         new_platform = select_from_list(available_platforms, config.platform)
         if new_platform:
             config.set_platform(new_platform)
-            logger.debug(f"Configuration successfully updated")
+            logger.debug("Configuration successfully updated")
         else:
             logger.error("Issue while selecting new platform configuration")

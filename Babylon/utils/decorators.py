@@ -25,18 +25,15 @@ def prepend_doc_with_ascii(func):
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
 
-    babylon_ascii = ("\b",
-                     r" ____              __                 ___  ",
+    babylon_ascii = ("\b", r" ____              __                 ___  ",
                      r"/\  _`\           /\ \               /\_ \  ",
                      r"\ \ \L\ \     __  \ \ \____   __  __ \//\ \      ___     ___  ",
                      r" \ \  _ <'  /'__`\ \ \ '__`\ /\ \/\ \  \ \ \    / __`\ /' _ `\  ",
                      r"  \ \ \L\ \/\ \L\.\_\ \ \L\ \\ \ \_\ \  \_\ \_ /\ \L\ \/\ \/\ \  ",
                      r"   \ \____/\ \__/.\_\\ \_,__/ \/`____ \ /\____\\ \____/\ \_\ \_\  ",
                      r"    \/___/  \/__/\/_/ \/___/   `/___/> \\/____/ \/___/  \/_/\/_/  ",
-                     r"                                  /\___/  ",
-                     r"                                  \/__/  ",
-                     f"                                                           v{get_version()}\n",
-                     "")
+                     r"                                  /\___/  ", r"                                  \/__/  ",
+                     f"                                                           v{get_version()}\n", "")
     doc = wrapper.__doc__
     wrapper.__doc__ = "\n".join(babylon_ascii) + doc
     return wrapper
@@ -86,6 +83,7 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
     """
 
     def wrap_function(func):
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
@@ -115,6 +113,7 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
     """
 
     def wrap_function(func):
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
@@ -123,14 +122,13 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
                     kwargs[arg_name] = working_dir.get_file(file_path=file_path)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
-            
+
             logger.error(f"Working_dir is missing {file_path}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
             raise click.Abort()
 
         doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc,
-                           f"Requires the file `{file_path}` in the working_dir."])
+        wrapper.__doc__ = "\n\n".join([doc, f"Requires the file `{file_path}` in the working_dir."])
         return wrapper
 
     return wrap_function
@@ -144,11 +142,12 @@ def requires_external_program(program_name: str):
     """
 
     def wrap_function(func):
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             if shutil.which(program_name) is not None:
                 return func(*args, **kwargs)
-            
+
             logger.error(f"{program_name} is not installed.")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
             raise click.Abort()
@@ -169,6 +168,7 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
     """
 
     def wrap_function(func):
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             config = click.get_current_context().find_object(Environment).configuration
@@ -177,14 +177,13 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
-            
+
             logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
             raise click.Abort()
 
         doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc,
-                           f"Requires key `{yaml_key}` in the platform config file."])
+        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the platform config file."])
         return wrapper
 
     return wrap_function
@@ -199,6 +198,7 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
     """
 
     def wrap_function(func):
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             config = click.get_current_context().find_object(Environment).configuration
@@ -207,7 +207,7 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
-            
+
             logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
             raise click.Abort()

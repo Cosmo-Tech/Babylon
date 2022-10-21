@@ -22,7 +22,7 @@ def select(config: Configuration, deployment: Optional[pathlib.Path] = None):
     if not argument is passed will run in interactive mode"""
     if deployment:
         if config.set_deploy(deployment):
-            logger.info(f"Configuration successfully updated")
+            logger.info("Configuration successfully updated")
         else:
             logger.error(f"Configuration was not updated. {deployment} is not a valid deployment file.")
     else:
@@ -31,6 +31,6 @@ def select(config: Configuration, deployment: Optional[pathlib.Path] = None):
         new_deploy = select_from_list(available_deploys, config.deploy)
         if new_deploy:
             config.set_deploy(new_deploy)
-            logger.debug(f"Configuration successfully updated")
+            logger.debug("Configuration successfully updated")
         else:
             logger.error("Issue while selecting new deployment configuration")

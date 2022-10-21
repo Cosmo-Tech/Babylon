@@ -66,9 +66,8 @@ def delete(
 
     if not dataset_id:
         if not dataset_file:
-            logger.error(
-                "Error: No id passed as argument or option use -d option to pass an json or yaml file containing an dataset id."
-            )
+            logger.error("No id passed as argument or option use -d option"
+                         " to pass an json or yaml file containing an dataset id.")
             return
 
         converted_dataset_content = get_api_file(
@@ -85,7 +84,7 @@ def delete(
         elif converted_dataset_content["dataset_id"]:
             dataset_id = converted_dataset_content["dataset_id"]
         else:
-            logger.error(f"Error: Could not found dataset id in {dataset_file}.")
+            logger.error(f"Could not found dataset id in {dataset_file}.")
             return
 
     try:
@@ -99,9 +98,8 @@ def delete(
 
     if not force_validation:
 
-        if not confirm(
-            f"You are trying to delete dataset {dataset_id} datasets of organization {organization_id} \nDo you want to continue?"
-        ):
+        if not confirm(f"You are trying to delete dataset {dataset_id} datasets of organization {organization_id} \n"
+                       "Do you want to continue?"):
             logger.info("Dataset deletion aborted.")
             return
 

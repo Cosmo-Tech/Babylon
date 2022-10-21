@@ -114,9 +114,8 @@ def create(
     converted_dataset_content["connector"] = connector
 
     try:
-        retrieved_dataset = dataset_api.create_dataset(
-            organization_id=organization_id, dataset=converted_dataset_content
-        )
+        retrieved_dataset = dataset_api.create_dataset(organization_id=organization_id,
+                                                       dataset=converted_dataset_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return
@@ -138,5 +137,3 @@ def create(
             except TypeError:
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
-
-

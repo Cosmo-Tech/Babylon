@@ -94,8 +94,7 @@ def create(
 
     converted_solution_content = get_api_file(
         api_file_path=solution_file
-        if solution_file
-        else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",
+        if solution_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",
         use_working_dir_file=use_working_dir_file if solution_file else False,
         logger=logger,
     )
@@ -112,9 +111,8 @@ def create(
     converted_solution_content["repository"] = solution_repository
 
     try:
-        retrieved_solution = solution_api.create_solution(
-            organization_id=organization_id, solution=converted_solution_content
-        )
+        retrieved_solution = solution_api.create_solution(organization_id=organization_id,
+                                                          solution=converted_solution_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return

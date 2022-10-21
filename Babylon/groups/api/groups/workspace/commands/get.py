@@ -77,9 +77,8 @@ def get(
 
     if not workspace_id:
         if not workspace_file:
-            logger.error(
-                "Error: No id passed as argument or option use -d option to pass an json or yaml file containing an workspace id."
-            )
+            logger.error("No id passed as argument or option use -d option"
+                         " to pass an json or yaml file containing an workspace id.")
             return
 
         converted_workspace_content = get_api_file(
@@ -93,13 +92,12 @@ def get(
 
         workspace_id = converted_workspace_content["id"] or converted_workspace_content["workspace_id"]
         if not workspace_id:
-            logger.error(f"Error: Could not found workspace id in {workspace_file}.")
+            logger.error(f"Could not found workspace id in {workspace_file}.")
             return
 
     try:
-        retrieved_workspace = workspace_api.find_workspace_by_id(
-            workspace_id=workspace_id, organization_id=organization_id
-        )
+        retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id,
+                                                                 organization_id=organization_id)
     except NotFoundException:
         logger.error(f"Workspace {workspace_id} does not exists in organization {organization_id}.")
         return

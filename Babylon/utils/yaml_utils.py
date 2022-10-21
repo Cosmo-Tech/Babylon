@@ -2,7 +2,7 @@ import pathlib
 from typing import Optional
 
 import yaml
-from ruamel.yaml import YAML #Allow to load and dump Yaml file with comment
+from ruamel.yaml import YAML  # Allow to load and dump Yaml file with comment
 
 
 def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[object]:
@@ -16,8 +16,9 @@ def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[object]:
         _y = yaml.safe_load(yaml_file.open())
         _v = _y[key]
         return _v
-    except:
+    except (IOError, KeyError):
         return None
+
 
 def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
     """
@@ -35,6 +36,7 @@ def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
             _commented_yaml_loader.dump(_y, yaml_file)
     except OSError:
         return
+
 
 def compare_yaml_keys(template_yaml: pathlib.Path, target_yaml: pathlib.Path) -> tuple[set, set]:
     """

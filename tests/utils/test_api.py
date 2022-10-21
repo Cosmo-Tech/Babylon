@@ -41,16 +41,13 @@ def test_convert_keys_case_ok_1():
 
 def test_convert_keys_case_ok_2():
     """Convert keys case test"""
-    converted = api.convert_keys_case(
-        [{"a": 1}, {"b": 1}], lambda x: x.upper())
+    converted = api.convert_keys_case([{"a": 1}, {"b": 1}], lambda x: x.upper())
     assert converted == [{"A": 1}, {"B": 1}]
 
 
 def test_convert_keys_case_ok_3():
     """Convert keys case test"""
-    params = {
-        "parametersValues": {"a": 1, "b": 1}
-    }
+    params = {"parametersValues": {"a": 1, "b": 1}}
     # Should ignore key case if inside a parametersValues
     converted = api.convert_keys_case(params, lambda x: x.upper())
     assert converted["parametersValues".upper()] == params["parametersValues"]

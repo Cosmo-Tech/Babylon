@@ -25,10 +25,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @pass_connector_api
 @argument("connector_id", type=str)
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
-def delete(connector_api: ConnectorApi,
-           connector_id: str,
-           dry_run: bool = False,
-           force_validation: bool = False):
+def delete(connector_api: ConnectorApi, connector_id: str, dry_run: bool = False, force_validation: bool = False):
     """Unregister a connector via Cosmotech API."""
 
     if dry_run:

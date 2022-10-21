@@ -3,6 +3,19 @@
 Babylon use a hierarchy of groups, subgroups, and commands to allow the user to guide him. So if you want to create a
 new set of commands you will want to make sure to group them in a logical structure.
 
+## Guidelines
+
+Babylon code style is enforced with three tools that block pull requests and push on the main branch.
+
+### Formatting with yapf
+A `.style.yapf` file is included at the root of the project and specifies specific parameters Babylon uses. Please integrate `yapf` autoformatting within your IDE choice.
+
+### Linting with Flake8
+A `.flake8` file is included at the root of the project and specifies specific parameters Babylon uses. Please integrate `flake8` linting within your IDE of choice.
+
+### Testing with pytest
+Units tests are located in the `tests` folder. Tests should be run when the `Babylon/utils` are modified as it is for now the only part of the code that is automated.
+
 ## The plugin `babylon dev-tools`
 
 The plugin `babylon dev-tools` is available, once you added it you can do `babylon dev-tools --help` to check the existing commands

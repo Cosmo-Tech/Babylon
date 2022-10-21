@@ -14,11 +14,8 @@ logger = logging.getLogger("Babylon")
 
 
 @click.command()
-@click.argument("plugin_folder", type=click.Path(file_okay=False,
-                                                 dir_okay=True,
-                                                 readable=True,
-                                                 writable=True,
-                                                 path_type=pathlib.Path))
+@click.argument("plugin_folder",
+                type=click.Path(file_okay=False, dir_okay=True, readable=True, writable=True, path_type=pathlib.Path))
 @click.argument("plugin_name")
 @click.option("-a", "--add", "add", is_flag=True, help="Add the created plugin to the config.")
 @pass_environment
@@ -61,5 +58,5 @@ def initialize_plugin(environment: Environment, plugin_name: str, plugin_folder:
     if add:
         environment.configuration.add_plugin(plugin_folder)
         logger.info(f"Plugin {plugin_name} was added to the configuration.")
-    logger.info(f"Use `babylon config plugin` to see how to interact with it")
+    logger.info("Use `babylon config plugin` to see how to interact with it")
     logger.info(f"Use `babylon dev-tools --plugin {plugin_name}` to use dev commands on your plugin")

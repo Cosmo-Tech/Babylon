@@ -1,7 +1,6 @@
 import json
 import logging
 import pathlib
-import pprint
 from typing import Optional
 
 import click
@@ -18,11 +17,10 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
 
 @command()
 @pass_dt_client
-@option("-o", "--output_file", "output_file", type=click.Path(exists=False,
-                                                              file_okay=True,
-                                                              dir_okay=False,
-                                                              readable=True,
-                                                              path_type=pathlib.Path),
+@option("-o",
+        "--output_file",
+        "output_file",
+        type=click.Path(exists=False, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
         help="Write full output of the adt api in target file")
 def list_models(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path]):
     """List all models id from ADT"""
@@ -33,7 +31,7 @@ def list_models(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Pat
     data = dt_client.list_models(include_model_definition=True)
 
     logger.info("Listing all model ids :")
-        
+
     _file_content = []
     for model in data:
         model: DigitalTwinsModelData

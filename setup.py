@@ -1,4 +1,3 @@
-
 from setuptools import setup, find_packages
 from Babylon.version import get_version
 
@@ -17,11 +16,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    entry_points={
-        'console_scripts':
-        [
-            'babylon=Babylon.main:main',
-        ]
-    },
+    entry_points={'console_scripts': ['babylon=Babylon.main:main']},
     install_requires=required,
 )
