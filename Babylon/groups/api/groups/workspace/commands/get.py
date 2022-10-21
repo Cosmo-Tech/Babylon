@@ -77,10 +77,8 @@ def get(
 
     if not workspace_id:
         if not workspace_file:
-            logger.error(
-                "No id passed as argument or option use -d option"
-                " to pass an json or yaml file containing an workspace id."
-            )
+            logger.error("No id passed as argument or option use -d option"
+                         " to pass an json or yaml file containing an workspace id.")
             return
 
         converted_workspace_content = get_api_file(
