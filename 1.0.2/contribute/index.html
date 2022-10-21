@@ -403,6 +403,40 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#guidelines" class="md-nav__link">
+    Guidelines
+  </a>
+  
+    <nav class="md-nav" aria-label="Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#formatting-with-yapf" class="md-nav__link">
+    Formatting with yapf
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linting-with-flake8" class="md-nav__link">
+    Linting with Flake8
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-with-pytest" class="md-nav__link">
+    Testing with pytest
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-plugin-babylon-dev-tools" class="md-nav__link">
     The plugin babylon dev-tools
   </a>
@@ -818,6 +852,40 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#guidelines" class="md-nav__link">
+    Guidelines
+  </a>
+  
+    <nav class="md-nav" aria-label="Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#formatting-with-yapf" class="md-nav__link">
+    Formatting with yapf
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linting-with-flake8" class="md-nav__link">
+    Linting with Flake8
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-with-pytest" class="md-nav__link">
+    Testing with pytest
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-plugin-babylon-dev-tools" class="md-nav__link">
     The plugin babylon dev-tools
   </a>
@@ -950,6 +1018,14 @@
 <h1 id="how-to-contribute-to-babylon">How-to contribute to Babylon</h1>
 <p>Babylon use a hierarchy of groups, subgroups, and commands to allow the user to guide him. So if you want to create a
 new set of commands you will want to make sure to group them in a logical structure.</p>
+<h2 id="guidelines">Guidelines</h2>
+<p>Babylon code style is enforced with three tools that block pull requests and push on the main branch.</p>
+<h3 id="formatting-with-yapf">Formatting with yapf</h3>
+<p>A <code>.style.yapf</code> file is included at the root of the project and specifies specific parameters Babylon uses. Please integrate <code>yapf</code> autoformatting within your IDE choice.</p>
+<h3 id="linting-with-flake8">Linting with Flake8</h3>
+<p>A <code>.flake8</code> file is included at the root of the project and specifies specific parameters Babylon uses. Please integrate <code>flake8</code> linting within your IDE of choice.</p>
+<h3 id="testing-with-pytest">Testing with pytest</h3>
+<p>Units tests are located in the <code>tests</code> folder. Tests should be run when the <code>Babylon/utils</code> are modified as it is for now the only part of the code that is automated.</p>
 <h2 id="the-plugin-babylon-dev-tools">The plugin <code>babylon dev-tools</code></h2>
 <p>The plugin <code>babylon dev-tools</code> is available, once you added it you can do <code>babylon dev-tools --help</code> to check the existing commands</p>
 <h3 id="adding-the-plugin">Adding the plugin</h3>
