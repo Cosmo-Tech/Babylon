@@ -78,6 +78,6 @@ def get_current(
             json.dump(converted_content, _f, ensure_ascii=False)
         except TypeError:
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-    logger.info(f"Datset {workspace_id} detail was dumped on {output_file}")
+    logger.info(f"Dataset {workspace_id} detail was dumped on {output_file}")
     logger.debug(pformat(retrieved_workspace))
 

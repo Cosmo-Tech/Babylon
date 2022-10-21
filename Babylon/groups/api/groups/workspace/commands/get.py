@@ -91,11 +91,8 @@ def get(
             logger.error("Error : can not get Workspace definition, please check your file")
             return
 
-        if converted_workspace_content["id"]:
-            workspace_id = converted_workspace_content["id"]
-        elif converted_workspace_content["workspace_id"]:
-            workspace_id = converted_workspace_content["workspace_id"]
-        else:
+        workspace_id = converted_workspace_content["id"] or converted_workspace_content["workspace_id"]
+        if not workspace_id:
             logger.error(f"Error: Could not found workspace id in {workspace_file}.")
             return
 
