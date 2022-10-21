@@ -532,6 +532,61 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-api-dataset" class="md-nav__link">
+    dataset
+  </a>
+  
+    <nav class="md-nav" aria-label="dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-get-current" class="md-nav__link">
+    get-current
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-update" class="md-nav__link">
+    update
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-api-organization" class="md-nav__link">
     organization
   </a>
@@ -1270,6 +1325,61 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-api-dataset" class="md-nav__link">
+    dataset
+  </a>
+  
+    <nav class="md-nav" aria-label="dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-get-current" class="md-nav__link">
+    get-current
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-dataset-update" class="md-nav__link">
+    update
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-api-organization" class="md-nav__link">
     organization
   </a>
@@ -1829,6 +1939,7 @@
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#babylon-api-connector">connector</a></em>: Subgroup handling Connectors in the cosmotech API</li>
+<li><em><a href="#babylon-api-dataset">dataset</a></em>: Subgroup handling Datasets in the cosmotech API</li>
 <li><em><a href="#babylon-api-organization">organization</a></em>: Subgroup handling Organizations in the cosmotech API</li>
 <li><em><a href="#babylon-api-solution">solution</a></em>: Subgroup handling Solution in the cosmotech API</li>
 </ul>
@@ -2008,6 +2119,301 @@
 <td>text</td>
 <td>Fields witch will be keep in response data, by default all</td>
 <td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-api-dataset">babylon api dataset</h4>
+<p>Subgroup handling Datasets in the cosmotech API</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api dataset [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-api-dataset-create">create</a></em>: Register new dataset by sending description file to the API.</li>
+<li><em><a href="#babylon-api-dataset-delete">delete</a></em>: Unregister a dataset via Cosmotech APi.</li>
+<li><em><a href="#babylon-api-dataset-get">get</a></em>: Get the state of the dataset in the API.</li>
+<li><em><a href="#babylon-api-dataset-get-all">get-all</a></em>: Get all registered datasets.</li>
+<li><em><a href="#babylon-api-dataset-get-current">get-current</a></em>: Get the state of the dataset in the API.</li>
+<li><em><a href="#babylon-api-dataset-update">update</a></em>: Send a JSON or YAML file to the API to update a dataset.</li>
+</ul>
+<h5 id="babylon-api-dataset-create">babylon api dataset create</h5>
+<p>Register new dataset by sending description file to the API.</p>
+<p>Requires key <code>connector</code> in the deployment config file.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api dataset create [OPTIONS] [DATASET_FILE]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the path be relative to the working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-n</code>, <code>--name</code></td>
+<td>text</td>
+<td>New dataset name</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-d</code>, <code>--description</code></td>
+<td>text</td>
+<td>New dataset description</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-s</code>, <code>--select</code></td>
+<td>boolean</td>
+<td>If true, the created Organization will be set as organization of current babylon context</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-dataset-delete">babylon api dataset delete</h5>
+<p>Unregister a dataset via Cosmotech APi.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api dataset delete [OPTIONS] [DATASET_ID]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the path be relative to the working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-d</code>, <code>--dataset-file</code></td>
+<td>text</td>
+<td>In case the dataset id is retrieved from a file</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-dataset-get">babylon api dataset get</h5>
+<p>Get the state of the dataset in the API.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api dataset get [OPTIONS] DATASET_ID
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--fields</code></td>
+<td>text</td>
+<td>Fields witch will be keep in response data, by default all</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the path be relative to the working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--from-file</code></td>
+<td>boolean</td>
+<td>In case the dataset id is retrieved from a file</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-dataset-get-all">babylon api dataset get-all</h5>
+<p>Get all registered datasets.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api dataset get-all [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--fields</code></td>
+<td>text</td>
+<td>Fields witch will be keep in response data, by default all</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-dataset-get-current">babylon api dataset get-current</h5>
+<p>Get the state of the dataset in the API.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires key <code>dataset_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api dataset get-current [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--fields</code></td>
+<td>text</td>
+<td>Fields witch will be keep in response data, by default all</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-dataset-update">babylon api dataset update</h5>
+<p>Send a JSON or YAML file to the API to update a dataset.</p>
+<p>Requires key <code>dataset_id</code> in the deployment config file.</p>
+<p>Requires key <code>connector</code> in the deployment config file.</p>
+<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Allows dry runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api dataset update [OPTIONS] DATASET_FILE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the path be relative to the working directory ?</td>
+<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
