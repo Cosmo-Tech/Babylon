@@ -66,7 +66,8 @@ def delete(
     if not workspace_id:
         if not workspace_file:
             logger.error(
-                "Error: No id passed as argument or option use -d option to pass an json or yaml file containing an workspace id."
+                "No id passed as argument or option use -d option"
+                " to pass an json or yaml file containing an workspace id."
             )
             return
 
@@ -76,12 +77,12 @@ def delete(
             logger=logger,
         )
         if not converted_workspace_content:
-            logger.error("Error : can not get Workspace definition, please check your file")
+            logger.error("Can not get Workspace definition, please check your file")
             return
 
         workspace_id = converted_workspace_content["id"] or converted_workspace_content["workspace_id"]
         if not workspace_id:
-            logger.error(f"Error: Could not found workspace id in {workspace_file}.")
+            logger.error(f"Could not found workspace id in {workspace_file}.")
             return
 
     try:
@@ -96,7 +97,8 @@ def delete(
     if not force_validation:
 
         if not confirm(
-                f"You are trying to delete workspace {workspace_id} workspaces of organization {organization_id} \nDo you want to continue?"
+                f"You are trying to delete workspace {workspace_id} workspaces of organization {organization_id} \n"
+                "Do you want to continue?"
         ):
             logger.info("Workspace deletion aborted.")
             return

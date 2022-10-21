@@ -80,7 +80,7 @@ class WorkingDir:
                         missing_keys, superfluous_keys = compare_yaml_keys(template_file_path, local_file_path)
                         if missing_keys:
                             has_err = True
-                            error_logger(f"YAML ERROR: In file {local_file_path}")
+                            error_logger(f"YAML: In file {local_file_path}")
                             error_logger("            The following keys are missing :")
                             for _k in missing_keys:
                                 error_logger(f"            - {_k}")

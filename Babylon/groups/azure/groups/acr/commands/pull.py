@@ -52,4 +52,4 @@ def pull(ctx: Context, acr_registry_name: str, acr_image_reference: str, registr
     except docker.errors.NotFound:
         logger.error(f"Registry {registry} does not contain {image}")
     except docker.errors.APIError as api_error:
-        logger.error(f"API Error: {api_error}")
+        logger.error(f"API {api_error}")

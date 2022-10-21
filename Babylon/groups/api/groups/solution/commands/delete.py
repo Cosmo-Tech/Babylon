@@ -90,7 +90,8 @@ def delete(
     if not force_validation:
 
         if not confirm(
-                f"You are trying to delete solution {solution_id} solutions of organization {organization_id} \nDo you want to continue?"
+                f"You are trying to delete solution {solution_id} solutions of organization {organization_id} \n"
+                "Do you want to continue?"
         ):
             logger.info("Solution deletion aborted.")
             return
