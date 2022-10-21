@@ -1,21 +1,17 @@
-import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
-from click import Path
 from click import argument
 from click import command
+from click import confirm
 from click import make_pass_decorator
 from click import option
+from click import prompt
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from ......utils.api import convert_keys_case
-from ......utils.api import filter_api_response_item
 from ......utils.api import get_api_file
-from ......utils.api import underscore_to_camel
 from ......utils.decorators import allow_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
@@ -29,20 +25,13 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @allow_dry_run
 @pass_solution_api
 @timing_decorator
-@argument("solution_id")
 @require_deployment_key("organization_id", "organization_id")
 @option(
-    "-o",
-    "--output-file",
-    "output_file",
-    help="File to which content should be outputted (json-formatted)",
-    type=Path(),
-)
-@option(
     "-f",
-    "--fields",
-    "fields",
-    help="Fields witch will be keep in response data, by default all",
+    "--force",
+    "force_validation",
+    is_flag=True,
+    help="Don't ask for validation before delete",
 )
 @option(
     "-e",
@@ -58,20 +47,20 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     is_flag=True,
     help="In case the solution id is retrieved from a file",
 )
-def get(
+@argument("solution_id")
+def delete(
     solution_api: SolutionApi,
-    solution_id: str,
     organization_id: str,
-    output_file: Optional[str] = None,
-    fields: Optional[str] = None,
+    solution_id: str,
+    dry_run: bool = False,
     from_file: bool = False,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: bool = False,
+    force_validation: bool = False,
 ):
-    """Get the state of the solution in the API."""
+    """Unregister a solution via Cosmotech APi."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call solution_api.find_solution_by_id")
+        logger.info("DRY RUN - Would call solution_api.delete_solution")
         return
 
     if from_file:
@@ -90,7 +79,7 @@ def get(
             return
 
     try:
-        retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
+        solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
         logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
         return
@@ -98,18 +87,27 @@ def get(
         logger.error("Unauthorized access to the cosmotech api")
         return
 
-    if fields:
-        retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
-    if not output_file:
-        logger.info(f"Solution {solution_id} details :")
-        logger.info(pformat(retrieved_solution))
-        return
+    if not force_validation:
 
-    converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
-    with open(output_file, "w") as _f:
-        try:
-            json.dump(converted_content, _f, ensure_ascii=False)
-        except TypeError:
-            json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-    logger.debug(pformat(retrieved_solution))
-    logger.info(f"Content was dumped on {output_file}")
+        if not confirm(
+            f"You are trying to delete solution {solution_id} solutions of organization {organization_id} \nDo you want to continue?"
+        ):
+            logger.info("Solution deletion aborted.")
+            return
+
+        confirm_solution_id = prompt("Confirm solution id ")
+        if confirm_solution_id != solution_id:
+            logger.error("The solution id you have type didn't mach with solution you are trying to delete id")
+            return
+
+    logger.info(f"Deleting solution {solution_id}")
+
+    try:
+        solution_api.delete_solution(organization_id=organization_id, solution_id=solution_id)
+    except UnauthorizedException:
+        logger.error("Unauthorized access to the cosmotech api")
+        return
+    except NotFoundException:
+        logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
+        return
+    logger.info(f"Solutions {solution_id} of organization {organization_id} deleted.")

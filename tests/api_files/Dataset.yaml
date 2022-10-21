@@ -1,0 +1,14 @@
+name: ###
+description: reference model in ADT
+# id: [dataset id]
+tags:
+  - ADT
+  - Babylon
+  - Reference
+  - dataset
+  - Test
+connector:
+  id: ###
+  parametersValues:
+    AZURE_DIGITAL_TWINS_URL: https://###.api.###.digitaltwins.azure.net
+    CSM_NUMBER_OF_THREAD: 1
