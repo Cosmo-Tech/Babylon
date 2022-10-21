@@ -100,7 +100,7 @@ def delete(
     if not force_validation:
 
         if not confirm(
-            f"You are trying to delete dataset {dataset_id} datasets of organization {organization_id} \nDo you want to continue?"
+                f"You are trying to delete dataset {dataset_id} datasets of organization {organization_id} \nDo you want to continue?"
         ):
             logger.info("Dataset deletion aborted.")
             return

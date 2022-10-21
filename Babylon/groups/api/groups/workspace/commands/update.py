@@ -74,9 +74,9 @@ def update(
     del converted_workspace_content["id"]
 
     try:
-        retrieved_workspace = workspace_api.update_workspace(
-            workspace_id=workspace_id, organization_id=organization_id, workspace=converted_workspace_content
-        )
+        retrieved_workspace = workspace_api.update_workspace(workspace_id=workspace_id,
+                                                             organization_id=organization_id,
+                                                             workspace=converted_workspace_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return

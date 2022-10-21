@@ -1,0 +1,13 @@
+name: ###
+description: reference model in ADT
+# id: [dataset id]
+tags:
+  - ADT
+  - ###
+  - Reference
+  - dataset
+connector:
+  id: ###
+  parametersValues:
+    AZURE_DIGITAL_TWINS_URL: ###
+    CSM_NUMBER_OF_THREAD: 1

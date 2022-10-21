@@ -96,8 +96,7 @@ def create(
 
     converted_workspace_content = get_api_file(
         api_file_path=workspace_file
-        if workspace_file
-        else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml",
+        if workspace_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml",
         use_working_dir_file=use_working_dir_file if workspace_file else False,
         logger=logger,
     )
@@ -115,9 +114,8 @@ def create(
     converted_workspace_content["solution"]["solution_id"] = solution_id
 
     try:
-        retrieved_workspace = workspace_api.create_workspace(
-            organization_id=organization_id, workspace=converted_workspace_content
-        )
+        retrieved_workspace = workspace_api.create_workspace(organization_id=organization_id,
+                                                             workspace=converted_workspace_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return

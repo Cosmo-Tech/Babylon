@@ -57,7 +57,8 @@ def get_current(
         return
 
     try:
-        retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id, organization_id=organization_id)
+        retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id,
+                                                                 organization_id=organization_id)
     except NotFoundException:
         logger.error(f"Workspace {workspace_id} does not exists in organization {organization_id}.")
         return
@@ -80,4 +81,3 @@ def get_current(
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
     logger.info(f"Dataset {workspace_id} detail was dumped on {output_file}")
     logger.debug(pformat(retrieved_workspace))
-

@@ -97,9 +97,8 @@ def get(
             return
 
     try:
-        retrieved_workspace = workspace_api.find_workspace_by_id(
-            workspace_id=workspace_id, organization_id=organization_id
-        )
+        retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id,
+                                                                 organization_id=organization_id)
     except NotFoundException:
         logger.error(f"Workspace {workspace_id} does not exists in organization {organization_id}.")
         return

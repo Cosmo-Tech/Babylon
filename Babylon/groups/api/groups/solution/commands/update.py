@@ -59,9 +59,9 @@ def update(
         return
 
     try:
-        retrieved_solution = solution_api.update_solution(
-            solution_id=solution_id, organization_id=organization_id, solution=converted_solution_content
-        )
+        retrieved_solution = solution_api.update_solution(solution_id=solution_id,
+                                                          organization_id=organization_id,
+                                                          solution=converted_solution_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return
