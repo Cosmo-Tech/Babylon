@@ -16,22 +16,10 @@ from .yaml_utils import read_yaml_key
 from .yaml_utils import write_yaml_value
 
 
-def _save_after_run(func: typing.Callable[..., typing.Any]) -> typing.Callable[..., typing.Any]:
-
-    @wraps(func)
-    def wrapper(self: typing.Any, *args: typing.List[typing.Any], **kwargs: typing.Dict[typing.Any, typing.Any]):
-        r = func(self, *args, **kwargs)
-        self.save_config()
-        return r
-
-    return wrapper
-
-
 class Configuration:
     """
     Base object created to store in file the configuration used in babylon
     """
-
     def __init__(self, logger: logging.Logger, config_directory: pathlib.Path):
         self.config_dir = config_directory
         self.logger = logger
@@ -62,7 +50,6 @@ class Configuration:
         for _p in self.plugins:
             yield _p['name']
 
-    @_save_after_run
     def activate_plugin(self, plugin_name: str) -> bool:
         """
         Will activate a given plugin
@@ -72,10 +59,10 @@ class Configuration:
         for _p in self.plugins:
             if _p['name'] == plugin_name:
                 _p['active'] = True
+                self.save_config()
                 return True
         return False
 
-    @_save_after_run
     def deactivate_plugin(self, plugin_name: str) -> bool:
         """
         Will deactivate a given plugin
@@ -85,10 +72,10 @@ class Configuration:
         for _p in self.plugins:
             if _p['name'] == plugin_name:
                 _p['active'] = False
+                self.save_config()
                 return True
         return False
 
-    @_save_after_run
     def remove_plugin(self, plugin_name: str) -> bool:
         """
         Will remove a given plugin
@@ -99,9 +86,9 @@ class Configuration:
         if len(plugins) == len(self.plugins):
             return False
         self.plugins = plugins
+        self.save_config()
         return True
 
-    @_save_after_run
     def add_plugin(self, plugin_path: pathlib.Path) -> typing.Optional[str]:
         """
         Will add a plugin to the config given a plugin path
@@ -131,6 +118,7 @@ class Configuration:
 
         plugin_entry = dict(name=plugin_name, path=str(plugin_path.absolute()), active=True)
         self.plugins.append(plugin_entry)
+        self.save_config()
         return str(plugin_name)
 
     def __list_config_folder_files(self, folder_name: str) -> typing.Generator[pathlib.Path, None, None]:
@@ -153,7 +141,6 @@ class Configuration:
         """
         return self.__list_config_folder_files("platforms")
 
-    @_save_after_run
     def set_deploy(self, deploy_path: pathlib.Path) -> bool:
         """
         Change configured deployment to the one given
@@ -164,9 +151,9 @@ class Configuration:
             self.logger.error(f"{deploy_path} is not an existing deployment")
             return False
         self.deploy = deploy_path.absolute()
+        self.save_config()
         return True
 
-    @_save_after_run
     def set_platform(self, platform_path: pathlib.Path) -> bool:
         """
         Change configured platform to the one given
@@ -177,6 +164,7 @@ class Configuration:
             self.logger.error(f"{platform_path} is not an existing platform")
             return False
         self.platform = platform_path.absolute()
+        self.save_config()
         return True
 
     def create_deploy(self, deploy_name: str):
