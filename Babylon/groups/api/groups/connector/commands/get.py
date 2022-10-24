@@ -11,11 +11,11 @@ from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.api import convert_keys_case
-from Babylon.utils.api import filter_api_response_item
-from Babylon.utils.api import underscore_to_camel
-from Babylon.utils.decorators import allow_dry_run
-from Babylon.utils.decorators import timing_decorator
+from ......utils.api import convert_keys_case
+from ......utils.api import filter_api_response_item
+from ......utils.api import underscore_to_camel
+from ......utils.decorators import allow_dry_run
+from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
 
@@ -26,24 +26,30 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @allow_dry_run
 @timing_decorator
 @pass_connector_api
-@option("-o",
-        "--output_file",
-        "output_file",
-        help="File to which content should be outputted (json-formatted)",
-        type=str)
+@option(
+    "-o",
+    "--output_file",
+    "output_file",
+    help="File to which content should be outputted (json-formatted)",
+    type=str,
+)
 @argument("connector_id", type=str)
-@option("-f",
-        "--fields",
-        "fields",
-        required=False,
-        type=str,
-        help="Fields witch will be keep in response data, by default all")
-def get(connector_api: ConnectorApi,
-        connector_id,
-        output_file: Optional[str] = None,
-        fields: str = None,
-        dry_run: bool = False):
-    """Get an registered connector data."""
+@option(
+    "-f",
+    "--fields",
+    "fields",
+    required=False,
+    type=str,
+    help="Fields witch will be keep in response data, by default all"
+)
+def get(
+    connector_api: ConnectorApi,
+    connector_id: str,
+    output_file: Optional[str] = None,
+    fields: Optional[str] = None,
+    dry_run: Optional[bool] = False,
+):
+    """Get a registered connector details."""
 
     if dry_run:
         logger.info("DRY RUN - Would call connector_api.find_connector_by_id")
@@ -56,15 +62,21 @@ def get(connector_api: ConnectorApi,
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error("Connector with id %s does not exists.", connector_id)
+        logger.error(f"Connector with id {connector_id} does not exists.")
         return
+
     if fields:
-        retrieved_connector = filter_api_response_item(retrieved_connector, fields.split(","))
+        retrieved_connector = filter_api_response_item(retrieved_connector, fields.replace(" ", "").split(","))
+    logger.debug(pformat(retrieved_connector))
     if not output_file:
-        logger.info("Connector %s details : ", connector_id)
+        logger.info(f"Connector {connector_id} details : ")
         logger.info(pformat(retrieved_connector))
-    else:
-        converted_content = convert_keys_case(retrieved_connector.to_dict(), underscore_to_camel)
-        with open(output_file, "w") as _file:
-            json.dump(converted_content, _file, ensure_ascii=False)
-        logger.info("Connector %s data was dumped on %s.", connector_id, output_file)
+        return
+
+    converted_connector_content = convert_keys_case(retrieved_connector, underscore_to_camel)
+    with open(output_file, "w") as _f:
+        try:
+            json.dump(converted_connector_content.to_dict(), _f, ensure_ascii=False)
+        except AttributeError:
+            json.dump(converted_connector_content, _f, ensure_ascii=False)
+        logger.info(f"Connector {connector_id} data was dumped on {output_file}.")
