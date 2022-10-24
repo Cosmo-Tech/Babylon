@@ -19,6 +19,7 @@ class Configuration:
     """
     Base object created to store in file the configuration used in babylon
     """
+
     def __init__(self, logger: logging.Logger, config_directory: pathlib.Path):
         self.config_dir = config_directory
         self.logger = logger
