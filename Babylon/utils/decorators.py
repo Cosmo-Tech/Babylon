@@ -185,8 +185,8 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None) -> Calla
                 logger.error("Could not find environment in click context")
                 raise click.Abort()
             config = env.configuration
-            if (key_value := config.get_platform_var(yaml_key)) is not None:
-                if arg_name is not None:
+            if (key_value := config.get_platform_var(yaml_key)):
+                if arg_name:
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
@@ -218,8 +218,8 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None) -> Cal
                 logger.error("Could not find environment in click context")
                 raise click.Abort()
             config = env.configuration
-            if (key_value := config.get_deploy_var(yaml_key)) is not None:
-                if arg_name is not None:
+            if (key_value := config.get_deploy_var(yaml_key)):
+                if arg_name:
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
