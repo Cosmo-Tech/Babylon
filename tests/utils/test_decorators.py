@@ -19,7 +19,7 @@ def test_prepend_doc():
     def my_func():
         """This is my doc"""
 
-    assert "This is my doc" in my_func.__doc__
+    assert "This is my doc" in (my_func.__doc__ or "")
 
 
 def test_timing():
@@ -29,7 +29,7 @@ def test_timing():
     def my_func():
         time.sleep(1e-2)
 
-    logs = []
+    logs: list[str] = []
     with patch("logging.Logger.debug", logs.append):
         my_func()
     assert any("Starting" in log for log in logs)
@@ -71,7 +71,7 @@ def test_working_dir_yaml_fail():
 
     env = Environment(None, WorkingDir(Path("tests/environments/Default"), logging))
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(KeyError):
         my_func()
 
 
@@ -97,7 +97,7 @@ def test_working_dir_requires_file_fail():
 
     env = Environment(None, WorkingDir(Path("tests/environments/Default"), logging))
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(FileNotFoundError):
         my_func()
 
 
@@ -109,7 +109,7 @@ def test_requires_program_does_not_exists():
         pass
 
     ctx = click.Context(click.Command('cmd'))
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(FileNotFoundError):
         my_func()
 
 
@@ -134,20 +134,20 @@ def test_require_platform_key_fail():
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(KeyError):
         my_func()
 
 
 def test_require_platform_key_ok():
     """Test decorators"""
 
-    @deco.require_platform_key("platform")
+    @deco.require_platform_key("api_url")
     def my_func():
         pass
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx:
         my_func()
 
 
@@ -160,7 +160,7 @@ def test_require_deploy_key_fail():
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(KeyError):
         my_func()
 
 

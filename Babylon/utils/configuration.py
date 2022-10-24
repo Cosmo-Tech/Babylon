@@ -305,12 +305,12 @@ class Configuration:
 
     def __str__(self) -> str:
         _ret: typing.List[str] = ["Configuration:", f"  dir: {self.config_dir}", f"  deployment: {self.deploy}"]
-        with open(self.get_deploy_path(), "r") as file:
-            for k, v in yaml.safe_load(file).items():
+        with open(self.get_deploy_path(), "r") as _file:
+            for k, v in yaml.safe_load(_file).items():
                 _ret.append(f"    {k}: {v}")
         _ret.append(f"  platform: {self.platform}")
-        with open(self.get_platform_path(), "r") as file:
-            for k, v in yaml.safe_load(file).items():
+        with open(self.get_platform_path(), "r") as _file:
+            for k, v in yaml.safe_load(_file).items():
                 _ret.append(f"    {k}: {v}")
         _ret.append("  plugins:")
         for plugin in self.plugins:
