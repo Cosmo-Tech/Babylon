@@ -1,9 +1,9 @@
-from typing import IO
+from typing import TextIO
 
 import mkdocs_gen_files
 import requirements
 
-_md_file: IO
+_md_file: TextIO
 with mkdocs_gen_files.open("dependencies.md", "w") as _md_file, open("requirements.txt") as _req:
     content = ["# List of dependencies", ""]
 
