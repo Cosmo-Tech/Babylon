@@ -19,8 +19,8 @@ pass_base_path = make_pass_decorator(pathlib.Path)
 def list_required_keys(base_path: pathlib.Path, group_name: list[str]):
     """Check code base to list platform and deployment keys
 if GROUP_NAME is defined will limit the check to the given group"""
-    platform_template_keys = set()
-    deployment_template_keys = set()
+    platform_template_keys = set[str]()
+    deployment_template_keys = set[str]()
 
     if any([not is_valid_command_name(n) for n in group_name]):
         logger.error(f"`{' '.join(group_name)}` contains illegal characters (only accept alphanumeric or -)")
@@ -53,12 +53,12 @@ if GROUP_NAME is defined will limit the check to the given group"""
     if platform_template_keys:
         logger.info(" -Required platform keys:")
         for k in sorted(platform_template_keys):
-            logger.info("  -" + k)
+            logger.info(f"  -{k}")
     else:
         logger.info(" -No platform keys are required")
     if deployment_template_keys:
         logger.info(" -Required deployment keys:")
         for k in sorted(deployment_template_keys):
-            logger.info("  -" + k)
+            logger.info(f"  -{k}")
     else:
         logger.info(" -No deployment keys are required")

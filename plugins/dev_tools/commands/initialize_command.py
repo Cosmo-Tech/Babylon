@@ -4,6 +4,7 @@ import shutil
 
 from click import argument
 from click import command
+from click import Context
 from click import pass_context
 from click import make_pass_decorator
 
@@ -22,7 +23,7 @@ pass_base_path = make_pass_decorator(pathlib.Path)
 @pass_base_path
 @pass_context
 @timing_decorator
-def initialize_command(ctx, base_path: pathlib.Path, group_name: list[str], command_name: str):
+def initialize_command(ctx: Context, base_path: pathlib.Path, group_name: list[str], command_name: str):
     """Will initialize code for COMMAND_NAME and make it available in GROUP_NAME
 
 COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
@@ -56,7 +57,7 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
     shutil.copy(template_path, command_file_path)
 
     parent_commands_init = group_path / "commands/__init__.py"
-    _pci_content = []
+    _pci_content: list[str] = []
     with open(parent_commands_init) as _pgi_file:
         for _line in _pgi_file:
             _pci_content.append(_line)
@@ -65,7 +66,7 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
     with open(parent_commands_init, "w") as _pgi_file:
         _pgi_file.write("".join(_pci_content))
 
-    _cf_content = []
+    _cf_content: list[str] = []
     with open(command_file_path) as _gi_file:
         for _line in _gi_file:
             _cf_content.append(_line.replace('command_template', command_name))

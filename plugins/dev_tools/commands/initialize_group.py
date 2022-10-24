@@ -54,7 +54,7 @@ GROUP_NAME must only contain alphanumeric characters or -"""
     shutil.copytree(template_path, target_group_path)
 
     parent_group_init = parent_group_path / "groups/__init__.py"
-    _pgi_content = []
+    _pgi_content: list[str] = []
     with open(parent_group_init) as _pgi_file:
         for _line in _pgi_file:
             _pgi_content.append(_line)
@@ -66,7 +66,7 @@ GROUP_NAME must only contain alphanumeric characters or -"""
         _pgi_file.write("".join(_pgi_content))
 
     group_init = target_group_path / "__init__.py"
-    _gi_content = []
+    _gi_content: list[str] = []
     with open(group_init) as _gi_file:
         for _line in _gi_file:
             _gi_content.append(_line.replace('group_template', group_name[-1]))

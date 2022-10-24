@@ -56,7 +56,7 @@ env = Environment(configuration=conf, working_dir=work_dir)
               is_eager=True,
               help="Show this message and exit.")
 @prepend_doc_with_ascii
-def main(ctx, tests_mode, dry_run):
+def main(ctx: click.Context, tests_mode: bool, dry_run: bool):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
 The following environment variables are available to override the working directory or the configuration:

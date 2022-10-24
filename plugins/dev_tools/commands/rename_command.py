@@ -57,14 +57,14 @@ COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""
     logger.debug(f"Renaming command `{old_command_name}` in group `{' '.join(group_name)}` to `{new_command_name}`")
 
     parent_commands_init = group_path / "commands/__init__.py"
-    _pci_content = []
+    _pci_content: list[str] = []
     with open(parent_commands_init) as _pgi_file:
         for _line in _pgi_file:
             _pci_content.append(_line.replace(old_command_name, new_command_name))
     with open(parent_commands_init, "w") as _pgi_file:
         _pgi_file.write("".join(_pci_content))
 
-    _cf_content = []
+    _cf_content: list[str] = []
     with open(old_command_file_path) as _gi_file:
         for _line in _gi_file:
             if _line.startswith(f"def {old_command_name}"):

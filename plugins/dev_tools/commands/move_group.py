@@ -56,7 +56,7 @@ def move_group(ctx: Context, base_path: pathlib.Path):
         old_parent_group_path = base_path
 
     old_parent_group_init = old_parent_group_path / "groups/__init__.py"
-    _pgi_content = []
+    _pgi_content: list[str] = []
     with open(old_parent_group_init) as _pgi_file:
         for _line in _pgi_file:
             if old_group_name[-1] not in _line:
@@ -91,7 +91,7 @@ def move_group(ctx: Context, base_path: pathlib.Path):
 
     group_init = new_group_path / "__init__.py"
 
-    _gi_content = []
+    _gi_content: list[str] = []
     with open(group_init) as _gi_file:
         for _line in _gi_file:
             _line = _line.replace(f"def {old_group_name[-1]}", f"def {new_group_name[-1]}")
@@ -115,7 +115,7 @@ def move_group(ctx: Context, base_path: pathlib.Path):
 
             for _f_name in glob.glob(str(pathlib.Path(root) / "*.py")):
                 _f_local_path = _r / _f_name
-                _f_content = []
+                _f_content: list[str] = []
                 with open(_f_name) as _f:
                     for _line in _f:
                         if _line.startswith("from .."):
