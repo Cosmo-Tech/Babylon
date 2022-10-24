@@ -101,7 +101,7 @@ class WorkingDir:
 
     def requires_yaml_key(self, yaml_path: str, yaml_key: str) -> bool:
         v = self.get_yaml_key(yaml_path, yaml_key)
-        return v is not None
+        return bool(v)
 
     def get_yaml_key(self, yaml_path: str, yaml_key: str) -> Optional[object]:
         """

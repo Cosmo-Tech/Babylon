@@ -66,7 +66,7 @@ def search(
         use_working_dir_file=use_working_dir_file,
         logger=logger,
     )
-    if converted_search_parameters_content is None:
+    if not converted_search_parameters_content:
         logger.error("Error : can not get correct dataset tag definition, please check your tag.YAML file")
         return
 

@@ -27,7 +27,7 @@ def dev_tools(ctx: click.Context, environment: Environment, plugin: Optional[str
         config = environment.configuration
         if plugin not in list(config.get_available_plugin()):
             logger.error(f"Plugin `{plugin}` does not exists.")
-            raise click.Abort()
+            raise FileNotFoundError()
         else:
             for _p in config.plugins:
                 if _p['name'] == plugin:

@@ -65,7 +65,7 @@ def create(
         logger=logger,
     )
 
-    if converted_organization_content is None:
+    if not converted_organization_content:
         logger.error("Can not get Organization definition, please check your Organization.YAML file")
         return
 

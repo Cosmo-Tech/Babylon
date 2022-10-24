@@ -90,7 +90,7 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
             env = click.get_current_context().find_object(Environment)
             if not env:
                 logger.error("Could not find environment in click context")
-                raise click.Abort()
+                raise ValueError()
             working_dir = env.working_dir
             if working_dir.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
                 if arg_name:
@@ -100,7 +100,7 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
 
             logger.error(f"Key {yaml_key} can not be found in {yaml_path}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise KeyError()
 
         wrapper.__doc__ = "\n\n".join(
             [wrapper.__doc__ or "", f"Requires key `{yaml_key}` in `{yaml_path}` in the working_dir."])
@@ -124,17 +124,17 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None) ->
             env = click.get_current_context().find_object(Environment)
             if not env:
                 logger.error("Could not find environment in click context")
-                raise click.Abort()
+                raise ValueError()
             working_dir = env.working_dir
             if working_dir.requires_file(file_path=file_path):
-                if arg_name is not None:
+                if arg_name:
                     kwargs[arg_name] = working_dir.get_file(file_path=file_path)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
 
             logger.error(f"Working_dir is missing {file_path}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise FileNotFoundError()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires the file `{file_path}` in the working_dir."])
@@ -159,7 +159,7 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
 
             logger.error(f"{program_name} is not installed.")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise FileNotFoundError()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires the program `{program_name}` to run."])
@@ -183,7 +183,7 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None) -> Calla
             env = click.get_current_context().find_object(Environment)
             if not env:
                 logger.error("Could not find environment in click context")
-                raise click.Abort()
+                raise ValueError()
             config = env.configuration
             if (key_value := config.get_platform_var(yaml_key)):
                 if arg_name:
@@ -192,7 +192,7 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None) -> Calla
                 return func(*args, **kwargs)
             logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise KeyError()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the platform config file."])
@@ -216,7 +216,7 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None) -> Cal
             env = click.get_current_context().find_object(Environment)
             if not env:
                 logger.error("Could not find environment in click context")
-                raise click.Abort()
+                raise ValueError()
             config = env.configuration
             if (key_value := config.get_deploy_var(yaml_key)):
                 if arg_name:
@@ -225,7 +225,7 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None) -> Cal
                 return func(*args, **kwargs)
             logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise KeyError()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the deployment config file."])
