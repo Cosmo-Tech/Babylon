@@ -1,14 +1,15 @@
-key: ADT Connector
-name: ADT Connector
+key:
+name:
+description:
 repository: cosmo-tech/azure-digital-twins-simulator-connector
-version: 2.4.0
-azureAuthenticationWithCustomerAppRegistration: true
-ioTypes:
-  - read
-description: Connector for Azure Digital Twins. Read ADT and write the data in CSV for a ScenarioRun
+version:
 tags:
   - ADT
 url: https://github.com/Cosmo-Tech/azure-digital-twins-simulator-connector
+ioTypes:
+  - read
+azureAuthenticationWithCustomerAppRegistration:
+azureManagedIdentity:
 parameterGroups:
   - id: parameters
     label: Parameters
