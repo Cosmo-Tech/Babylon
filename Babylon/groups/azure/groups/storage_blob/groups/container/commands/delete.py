@@ -19,7 +19,7 @@ pass_blobclient = make_pass_decorator(BlobServiceClient)
 @argument("container_name")
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 def delete(blobclient: BlobServiceClient, container_name: str, force_validation: bool = False):
-    """Creates a new storageblob container with the given name"""
+    """Deletes a storageblob container with the given name"""
     if not force_validation:
         if not confirm(f"You are trying to delete container {container_name} \nDo you want to continue ?"):
             logger.info("Container deletion aborted.")

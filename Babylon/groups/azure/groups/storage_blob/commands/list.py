@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
 
-from azure.core.exceptions import HttpResponseError
 from azure.storage.blob import BlobServiceClient
 from click import command
 from click import make_pass_decorator
@@ -14,7 +13,7 @@ pass_blobclient = make_pass_decorator(BlobServiceClient)
 @command()
 @pass_blobclient
 def list(blobclient: BlobServiceClient) -> Optional[str]:
-    """Creates a new storageblob container with the given name"""
+    """Lists storage containers from a given account"""
     logger.info(f"Listing containers from storage account {blobclient.account_name}")
     try:
         containers = blobclient.list_containers()
