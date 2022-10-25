@@ -7,6 +7,7 @@ msrest
 # Azure services requirements
 azure-digitaltwins-core
 azure-containerregistry
+azure-storage-blob
 
 # Click requirements
 click
