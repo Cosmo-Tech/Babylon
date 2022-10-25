@@ -10,6 +10,7 @@ from .....utils.decorators import require_deployment_key
 
 logger = logging.getLogger()
 
+
 @group()
 @pass_context
 @require_deployment_key("storage_account_name", "storage_account_name")
