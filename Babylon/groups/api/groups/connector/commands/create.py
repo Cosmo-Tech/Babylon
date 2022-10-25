@@ -31,54 +31,31 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @timing_decorator
 @pass_connector_api
 @pass_environment
-@option(
-    "-f",
-    "--connector-file",
-    "connector_file",
-    type=str,
-    help="Your custom Connector description file path",
-)
-@option(
-    "-t",
-    "--type",
-    "connector_type",
-    required=True,
-    type=Choice(["ADT", "STORAGE"], case_sensitive=False),
-    help="Connector type, allowed values : [ADT, STORAGE]"
-)
-@option(
-    "-s",
-    "--select",
-    "select",
-    type=bool,
-    help="Select this new Connector as one of babylon context Connectors ?",
-    default=True
-)
-@option(
-    "-o",
-    "--output-file",
-    "output_file",
-    help="The path to the file where the new Connector content should be outputted (json-formatted)",
-    type=Path(),
-)
-@option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the Connector file path be relative to Babylon working directory ?"
-)
-@argument(
-    "connector-name",
-    required=True,
-)
-@option(
-    "-v",
-    "--version",
-    "connector_version",
-    required=True,
-    help="Version of the Connector",
-)
+@option("-f", "--connector-file", "connector_file", type=str, help="Your custom Connector description file path")
+@option("-t",
+        "--type",
+        "connector_type",
+        required=True,
+        type=Choice(["ADT", "STORAGE"], case_sensitive=False),
+        help="Connector type, allowed values : [ADT, STORAGE]")
+@option("-s",
+        "--select",
+        "select",
+        type=bool,
+        help="Select this new Connector as one of babylon context Connectors ?",
+        default=True)
+@option("-o",
+        "--output-file",
+        "output_file",
+        help="The path to the file where the new Connector content should be outputted (json-formatted)",
+        type=Path())
+@option("-e",
+        "--use-working-dir-file",
+        "use_working_dir_file",
+        is_flag=True,
+        help="Should the Connector file path be relative to Babylon working directory ?")
+@argument("connector-name", required=True)
+@option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
 def create(
     env: Environment,
     connector_api: ConnectorApi,

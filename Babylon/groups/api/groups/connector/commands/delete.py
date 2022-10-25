@@ -66,10 +66,8 @@ def delete(
 
     if not connector_id:
         if not connector_file:
-            logger.error(
-                "No id passed as argument or option use -d option"
-                " to pass an json or yaml file containing an connector id."
-            )
+            logger.error("No id passed as argument or option use -d option"
+                         " to pass an json or yaml file containing an connector id.")
             return
 
         converted_connector_content = get_api_file(
@@ -106,10 +104,8 @@ def delete(
 
         confirm_connector_id = prompt("Confirm connector id ")
         if confirm_connector_id != connector_id:
-            logger.error(
-                "Wrong Connector id, "
-                "the id must be the same as the one that has been provide in delete command argument"
-            )
+            logger.error("Wrong Connector id, "
+                         "the id must be the same as the one that has been provide in delete command argument")
             return
 
     logger.info(f"Deleting connector {connector_id}")

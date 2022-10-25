@@ -25,19 +25,12 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @allow_dry_run
 @timing_decorator
 @pass_connector_api
-@option(
-    "-o",
-    "--output_file",
-    "output_file",
-    help="The path to the file where Connectors should be outputted (json-formatted)",
-    type=Path(),
-)
-@option(
-    "-f",
-    "--fields",
-    "fields",
-    help="Fields witch will be keep in response data, by default all",
-)
+@option("-o",
+        "--output_file",
+        "output_file",
+        help="The path to the file where Connectors should be outputted (json-formatted)",
+        type=Path())
+@option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
 def get_all(
     connector_api: ConnectorApi,
     output_file: Optional[str] = None,

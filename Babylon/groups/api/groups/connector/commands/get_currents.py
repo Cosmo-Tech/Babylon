@@ -27,21 +27,17 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @allow_dry_run
 @timing_decorator
 @pass_connector_api
-@option(
-    "-o",
-    "--output_file",
-    "output_file",
-    help="The path to the file where Connectors should be outputted (json-formatted)",
-    type=Path(),
-)
-@option(
-    "-f",
-    "--fields",
-    "fields",
-    required=False,
-    type=str,
-    help="Fields witch will be keep in response data, by default all"
-)
+@option("-o",
+        "--output_file",
+        "output_file",
+        help="The path to the file where Connectors should be outputted (json-formatted)",
+        type=Path())
+@option("-f",
+        "--fields",
+        "fields",
+        required=False,
+        type=str,
+        help="Fields witch will be keep in response data, by default all")
 @require_deployment_key("adt_connector_id", "adt_connector_id")
 @require_deployment_key("storage_connector_id", "storage_connector_id")
 def get_currents(
