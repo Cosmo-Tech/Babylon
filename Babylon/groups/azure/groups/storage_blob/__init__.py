@@ -14,13 +14,14 @@ logger = logging.getLogger("Babylon")
 
 @group()
 @option("-a", "--account", "account", help="Storage account name")
+@option("-u", "--url", "url", help="Storage account url")
 @pass_context
 @require_deployment_key("storage_account_name", "storage_account_name")
-def storage_blob(ctx: Context, account: str, storage_account_name: str):
+def storage_blob(ctx: Context, account: str, url: str, storage_account_name: str):
     """Group interacting with Azure Storage Blob"""
     account_name = account or storage_account_name
-    logger.debug(f"Connecting to storage account '{account_name}'")
-    account_url = f"https://{account_name}.blob.core.windows.net"
+    account_url = url or f"https://{account_name}.blob.core.windows.net"
+    logger.debug(f"Connecting to storage account '{account_url}'")
     blob_client = BlobServiceClient(account_url, ctx.parent.obj)
     ctx.obj = blob_client
 
