@@ -19,7 +19,7 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
 @pass_dt_client
 @option(
     "-o",
-    "--output_file",
+    "--output-file",
     "output_file",
     type=click.Path(exists=False, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="Write full output of the adt api in target file",
