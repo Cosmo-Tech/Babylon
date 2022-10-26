@@ -3,8 +3,8 @@ import subprocess
 import typing
 
 from azure.containerregistry import ContainerRegistryClient
-from click import command
 from click import Context
+from click import command
 from click import option
 from click import pass_context
 

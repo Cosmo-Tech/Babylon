@@ -1,11 +1,13 @@
-import sys
 import logging
-from azure.identity import DefaultAzureCredential
-from azure.core.exceptions import ClientAuthenticationError
-from click import group, pass_context
-from click.core import Context
-from Babylon.utils.decorators import require_platform_key
+import sys
 
+from azure.core.exceptions import ClientAuthenticationError
+from azure.identity import DefaultAzureCredential
+from click import group
+from click import pass_context
+from click.core import Context
+
+from Babylon.utils.decorators import require_platform_key
 from .commands import list_commands
 from .groups import list_groups
 

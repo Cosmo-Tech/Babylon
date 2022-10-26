@@ -1,10 +1,10 @@
 import logging
 
 from azure.mgmt.kusto import KustoManagementClient
+from click import Context
 from click import argument
 from click import command
 from click import confirm
-from click import Context
 from click import option
 from click import pass_context
 

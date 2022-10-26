@@ -21,6 +21,7 @@ Cosmotech-Acceleration-Library
 # Other requirements
 pyyaml
 docker
+terrasnek
 
 # Testing requirements
 pytest

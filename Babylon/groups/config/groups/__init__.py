@@ -1,6 +1,6 @@
-from .plugin import plugin
-from .platform import platform
 from .deployment import deployment
+from .platform import platform
+from .plugin import plugin
 
 list_groups = [
     plugin,

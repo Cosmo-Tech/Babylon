@@ -6,8 +6,8 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
-from cosmotech_api.exceptions import UnauthorizedException
 from cosmotech_api.api.organization_api import OrganizationApi
+from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import get_api_file
