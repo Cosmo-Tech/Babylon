@@ -81,4 +81,5 @@ def upload(dt_client: DigitalTwinsClient,
         for model in model_file_content:
             upload_one_model(dt_client, model, override_if_exists, dry_run)
         return
-        upload_one_model(dt_client, model_file_content, override_if_exists, dry_run)
+
+    upload_one_model(dt_client, model_file_content, override_if_exists, dry_run)
