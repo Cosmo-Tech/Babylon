@@ -43,7 +43,7 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
 def list(
     digital_twins_client: AzureDigitalTwinsManagementClient,
     resource_group_name: str,
-    output_file: Optional[pathlib.Path],
+    output_file: Optional[pathlib.Path] = None,
     fields: Optional[str] = None,
 ):
     """Get all azure digital twins instances"""
