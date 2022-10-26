@@ -14,8 +14,7 @@ logger = logging.getLogger("Babylon")
 
 def command_tree(obj):
     if isinstance(obj, click.Group):
-        return {name: command_tree(value)
-                for name, value in obj.commands.items()}
+        return {name: command_tree(value) for name, value in obj.commands.items()}
 
 
 def file_deps(tree, _path):
