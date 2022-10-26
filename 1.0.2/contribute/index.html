@@ -1146,9 +1146,9 @@ command_groups = [
 <h3 id="adding-a-new-command-to-an-existing-group">Adding a new command to an existing group</h3>
 <h4 id="template">Template</h4>
 <p>This template can be copied in the <code>commands</code> package for the group we want to add the command to.</p>
-<pre><code class="language-python">from click import command
+<pre><code class="language-python">import logging
 
-import logging
+from click import command
 
 logger = logging.getLogger(&quot;Babylon&quot;)
 
