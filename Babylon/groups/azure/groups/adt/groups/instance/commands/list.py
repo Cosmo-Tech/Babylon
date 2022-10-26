@@ -31,7 +31,7 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
     "--output-file",
     "output_file",
     type=click.Path(),
-    help="Write full output of the adt api in target file",
+    help="The path to the file where ADT instances details should be outputted (json-formatted)",
 )
 @option(
     "-f",
