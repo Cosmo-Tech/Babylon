@@ -1,7 +1,6 @@
 import json
 import logging
 import pathlib
-import pprint
 from typing import Optional
 
 import click

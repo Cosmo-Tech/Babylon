@@ -5,6 +5,7 @@ from pprint import pformat
 from typing import Optional
 
 import click
+from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import command
 from click import make_pass_decorator
@@ -14,6 +15,7 @@ from ........utils.api import convert_keys_case
 from ........utils.api import filter_api_response
 from ........utils.api import underscore_to_camel
 from ........utils.decorators import require_platform_key
+from ........utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
 
@@ -22,19 +24,19 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
 
 @command()
 @pass_digital_twins_client
+@timing_decorator
 @require_platform_key("resource_group_name", "resource_group_name")
 @option(
     "-o",
     "--output_file",
     "output_file",
-    type=click.Path(exists=False, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
+    type=click.Path(),
     help="Write full output of the adt api in target file",
 )
 @option(
     "-f",
     "--fields",
     "fields",
-    required=False,
     type=str,
     help="Fields witch will be keep in response data, by default all",
 )
@@ -45,11 +47,14 @@ def list(
     fields: Optional[str] = None,
 ):
     """Get all azure digital twins instances"""
+    try:
+        instances = digital_twins_client.digital_twins.list_by_resource_group(resource_group_name)
+    except HttpResponseError as _http_error:
+        error_message = _http_error.message.split("\n")
+        logging.error(f"Cannot retrieve ADT instances list : {error_message[0]}")
+        return
 
-    instances = digital_twins_client.digital_twins.list_by_resource_group(resource_group_name)
     instances = [_ele.as_dict() for _ele in instances]
-    for ele in instances:
-        del ele["id"]
 
     if fields:
         fields = fields.replace(" ", "").split(",")
