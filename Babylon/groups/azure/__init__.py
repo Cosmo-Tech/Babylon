@@ -11,6 +11,7 @@ from ...utils.decorators import require_platform_key
 from ...utils.decorators import requires_external_program
 from .commands import list_commands
 from .groups import list_groups
+from ...utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
 
