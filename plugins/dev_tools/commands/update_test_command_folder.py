@@ -1,6 +1,5 @@
 import logging
 import pathlib
-import sys
 
 from click import command
 
@@ -23,6 +22,7 @@ def initialize_tests(tree, parent_folder: pathlib.Path):
             if not _k_path.exists():
                 logger.info(f"Creating file {_k_path}")
                 f = _k_path.open("x")
+                f.write("babylon " + " ".join(str(_k_path).split('tests/commands/')[1].split('/')))
                 f.close()
 
 
