@@ -12,5 +12,3 @@ database_name: ""
 digital_twin_url: ""
 # ACR image reference (my_repository:my_tag)
 acr_image_reference: ""
-# Storage account name
-storage_account_name: ""

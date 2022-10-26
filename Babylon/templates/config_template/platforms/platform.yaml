@@ -17,3 +17,6 @@ resource_group_name: ""
 acr_registry_name: ""
 # resources_location: azure resource location ex: westeurope
 resources_location: ""
+# Storage account name
+storage_account_name: ""
+
