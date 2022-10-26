@@ -17,4 +17,3 @@ resource_group_name: ""
 acr_registry_name: ""
 # Storage account name
 storage_account_name: ""
-
