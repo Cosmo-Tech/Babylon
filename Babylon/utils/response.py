@@ -30,7 +30,6 @@ class CommandResponse():
     def __str__(self) -> str:
         return "\n".join([
             f"Command: {self.command}", "\n".join([f"  -  {key}: {param}" for key, param in self.params.items()]),
-            f"Status code: {self.status_code}",
-            "Return value:",
+            f"Status code: {self.status_code}", "Return value:",
             pformat(self.data)
         ])
