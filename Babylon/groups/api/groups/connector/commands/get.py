@@ -3,6 +3,7 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
+from click import Path
 from click import argument
 from click import command
 from click import make_pass_decorator
@@ -30,14 +31,9 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "--output_file",
         "output_file",
         help="File to which content should be outputted (json-formatted)",
-        type=str)
+        type=Path())
 @argument("connector_id", type=str)
-@option("-f",
-        "--fields",
-        "fields",
-        required=False,
-        type=str,
-        help="Fields witch will be keep in response data, by default all")
+@option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
 def get(
     connector_api: ConnectorApi,
     connector_id: str,

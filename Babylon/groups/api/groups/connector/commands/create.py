@@ -54,7 +54,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "use_working_dir_file",
         is_flag=True,
         help="Should the Connector file path be relative to Babylon working directory ?")
-@argument("connector-name", required=True)
+@argument("connector-name")
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
 def create(
     env: Environment,
@@ -87,9 +87,9 @@ def create(
 
     converted_connector_content["name"] = connector_name
     converted_connector_content["version"] = connector_version
-    if "key" not in converted_connector_content or not converted_connector_content["key"]:
+    if not converted_connector_content.get("key"):
         converted_connector_content["key"] = connector_name.replace(" ", "")
-    if "description" not in converted_connector_content or not converted_connector_content["description"]:
+    if not converted_connector_content.get("description"):
         converted_connector_content["description"] = connector_name
 
     try:

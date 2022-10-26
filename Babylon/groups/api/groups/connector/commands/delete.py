@@ -27,7 +27,6 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @pass_connector_api
 @argument(
     "connector_id",
-    type=str,
     required=False,
 )
 @option(
