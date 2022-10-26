@@ -62,7 +62,10 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool,
           type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
 @allow_dry_run
-def upload(dt_client: DigitalTwinsClient, model_file: pathlib.Path, override_if_exists: bool = False, dry_run: bool = False):
+def upload(dt_client: DigitalTwinsClient,
+           model_file: pathlib.Path,
+           override_if_exists: bool = False,
+           dry_run: bool = False):
     """Upload MODEL_FILE to adt
 
     MODEL_FILE must be a json file"""
