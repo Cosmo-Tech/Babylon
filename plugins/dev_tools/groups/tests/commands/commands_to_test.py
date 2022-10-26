@@ -18,10 +18,10 @@ def command_tree(obj):
 
 
 def file_deps(tree, _path):
-    _name = _path + '/__init__.py'
+    _name = f'{_path}/__init__.py'
     if not pathlib.Path(_name).exists():
         return
-    n_tree = dict(name=_path + '/__init__.py')
+    n_tree = dict(name=_name)
     for k, v in tree.items():
         if v:
             _p = _path + "/groups/" + k.replace('-', '_')
@@ -77,7 +77,7 @@ def augment_with_utils(deps_tree):
 @command()
 @click.argument("git_ref")
 @click.option("-o", "--output", "output", help="Target file to write list of commands to be tested")
-def tests_todo(git_ref: str, output: Optional[str]):
+def commands_to_test(git_ref: str, output: Optional[str]):
     """List commands that require testing since GIT_REF"""
     r = Repo(".")
 
@@ -104,16 +104,17 @@ def tests_todo(git_ref: str, output: Optional[str]):
     for diff in diffs_paths:
         path_to_check.update(tree3.get(diff, []))
 
-    if path_to_check:
-        logger.info("Commands that require a test :")
-        if output:
-            with open(output, "w") as f:
-                f.write("")
-
-        for cmd in list(sorted(map(path_to_cmd, list(path_to_check)))):
-            logger.info(f"  {cmd}")
-            if output:
-                with open(output, "a") as f:
-                    f.write(f"{cmd}\n")
-    else:
+    if not path_to_check:
         logger.info("No command requires a test")
+        return
+
+    logger.info("Commands that require a test :")
+    if output:
+        with open(output, "w") as f:
+            f.write("")
+
+    for cmd in list(sorted(map(path_to_cmd, list(path_to_check)))):
+        logger.info(f"  {cmd}")
+        if output:
+            with open(output, "a") as f:
+                f.write(f"{cmd}\n")
