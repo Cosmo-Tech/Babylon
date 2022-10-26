@@ -24,7 +24,7 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
     type=click.Path(exists=False, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="Write full output of the adt api in target file",
 )
-def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path]):
+def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None):
     """List all models id from ADT"""
     if output_file and output_file.suffix != ".json":
         logger.error(f"{output_file} is not a json file")
