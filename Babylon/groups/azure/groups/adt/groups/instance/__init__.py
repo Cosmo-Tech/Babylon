@@ -1,8 +1,7 @@
+from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import group
 from click import pass_context
 from click.core import Context
-
-from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 
 from .......utils.decorators import require_platform_key
 from .commands import list_commands

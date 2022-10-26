@@ -1,10 +1,9 @@
+from azure.digitaltwins.core import DigitalTwinsClient
 from click import group
 from click import pass_context
 from click.core import Context
-from azure.digitaltwins.core import DigitalTwinsClient
 
 from .......utils.decorators import require_deployment_key
-
 from .commands import list_commands
 from .groups import list_groups
 

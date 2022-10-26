@@ -1,4 +1,5 @@
 import logging
+from pprint import pformat
 from typing import Optional
 
 from azure.core.exceptions import HttpResponseError
@@ -6,7 +7,6 @@ from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument
 from click import command
 from click import make_pass_decorator
-from pprint import pformat
 
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
