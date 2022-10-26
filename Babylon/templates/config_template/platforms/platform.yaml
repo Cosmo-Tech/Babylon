@@ -15,3 +15,5 @@ cluster_name: ""
 resource_group_name: ""
 # ACR registry name source_registry.azurecr.io)
 acr_registry_name: ""
+# Storage account name
+storage_account_name: ""
