@@ -1,18 +1,18 @@
 import logging
+from uuid import uuid4
 
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.kusto.models import DatabasePrincipalAssignment
-from click import argument
 from click import Choice
-from click import command
 from click import Context
+from click import argument
+from click import command
 from click import option
 from click import pass_context
-from uuid import uuid4
 
-from ........utils.decorators import require_platform_key
-from ........utils.decorators import require_deployment_key
 from ........utils.decorators import allow_dry_run
+from ........utils.decorators import require_deployment_key
+from ........utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
 """Command Tests

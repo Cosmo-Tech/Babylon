@@ -1,12 +1,13 @@
 import logging
-
-from azure.mgmt.kusto import KustoManagementClient
-from click import command
-from click import Context
-from click import pass_context
 from pprint import pformat
 
-from ........utils.decorators import require_platform_key, require_deployment_key
+from azure.mgmt.kusto import KustoManagementClient
+from click import Context
+from click import command
+from click import pass_context
+
+from ........utils.decorators import require_deployment_key
+from ........utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
 """Command Tests

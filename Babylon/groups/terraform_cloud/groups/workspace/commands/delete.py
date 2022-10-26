@@ -23,16 +23,10 @@ pass_tfc = click.make_pass_decorator(TFC)
 @pass_tfc
 @pass_environment
 @allow_dry_run
-@option("-f", "--force", "force", is_flag=True,
-        help="Should validation be skipped ?")
+@option("-f", "--force", "force", is_flag=True, help="Should validation be skipped ?")
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-def delete(env: Environment,
-           api: TFC,
-           workspace_id_wd: str,
-           workspace_id: Optional[str],
-           force: bool,
-           dry_run: bool):
+def delete(env: Environment, api: TFC, workspace_id_wd: str, workspace_id: Optional[str], force: bool, dry_run: bool):
     """Delete a workspace from the organization"""
     workspace_id = workspace_id_wd or workspace_id
 

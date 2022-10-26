@@ -1,5 +1,6 @@
 import cosmotech_api
-from click import group, pass_context
+from click import group
+from click import pass_context
 from click.core import Context
 from cosmotech_api.api.connector_api import ConnectorApi
 

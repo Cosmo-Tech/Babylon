@@ -1,8 +1,9 @@
 import logging
+
 from azure.storage.blob import BlobServiceClient
 from click import group
-from click import pass_context
 from click import option
+from click import pass_context
 from click.core import Context
 
 from .commands import list_commands

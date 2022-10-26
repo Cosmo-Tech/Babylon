@@ -16,14 +16,14 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@option("-o", "--output", "output_file",
-        type=click.Path(file_okay=True,
-                        dir_okay=False,
-                        readable=True,
-                        path_type=pathlib.Path),
-        help="File to which content should be outputted (json-formatted)", )
-def get_all(api: TFC,
-            output_file: Optional[pathlib.Path]):
+@option(
+    "-o",
+    "--output",
+    "output_file",
+    type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
+    help="File to which content should be outputted (json-formatted)",
+)
+def get_all(api: TFC, output_file: Optional[pathlib.Path]):
     """Get all available workspaces in the organization"""
     ws = api.workspaces.list()
     r = []
