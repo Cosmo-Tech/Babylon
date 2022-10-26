@@ -1,5 +1,4 @@
 import logging
-from pprint import pformat
 from typing import Optional
 
 from azure.core.exceptions import HttpResponseError
