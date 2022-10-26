@@ -55,7 +55,7 @@ def create(
         )
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
-        logger.error(pformat(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}"))
+        logger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
         return
 
     # Long-running operations return a poller object; calling poller.result()

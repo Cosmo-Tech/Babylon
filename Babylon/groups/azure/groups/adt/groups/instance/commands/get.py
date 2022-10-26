@@ -45,7 +45,7 @@ def get(
         instance = digital_twins_client.digital_twins.get(resource_group_name, adt_instance_name)
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
-        logging.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
+        logger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
         return
     instance = instance.as_dict()
     del instance["id"]

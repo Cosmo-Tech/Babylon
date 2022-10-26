@@ -51,7 +51,7 @@ def list(
         instances = digital_twins_client.digital_twins.list_by_resource_group(resource_group_name)
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
-        logging.error(f"Cannot retrieve ADT instances list : {error_message[0]}")
+        logger.error(f"Cannot retrieve ADT instances list : {error_message[0]}")
         return
 
     instances = [_ele.as_dict() for _ele in instances]

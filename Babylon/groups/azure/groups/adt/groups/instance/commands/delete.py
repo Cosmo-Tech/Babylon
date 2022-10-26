@@ -46,7 +46,7 @@ def delete(digital_twins_client: AzureDigitalTwinsManagementClient,
         poller = digital_twins_client.digital_twins.begin_delete(resource_group_name, adt_instance_name)
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
-        logging.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
+        loger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
         return
 
     # Long-running operations return a poller object; calling poller.result()
