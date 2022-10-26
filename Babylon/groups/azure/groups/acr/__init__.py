@@ -6,8 +6,6 @@ from .commands import list_commands
 from .groups import list_groups
 from .....utils.decorators import requires_external_program
 
-logger = logging.getLogger("Babylon")
-
 
 @group()
 @requires_external_program("docker")
