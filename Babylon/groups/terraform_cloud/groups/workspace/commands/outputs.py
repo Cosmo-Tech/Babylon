@@ -55,9 +55,7 @@ Sensitive outputs are not readable, use -s option to access the state in the web
         logger.error(f"Workspace {workspace_id} has no outputs")
         return
 
-    r = []
     logger.info(pprint.pformat(ws['data']))
-    r.append(ws['data'])
 
     state_url = f"{api.get_url()}/app/{api.get_org()}/workspaces/{ws_name}/states"
     if states_webpage_open:

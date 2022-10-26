@@ -29,7 +29,10 @@ def list_all_vars(api: TFC,
 
     existing_keys = []
 
-    for ws_var in sorted(ws_vars.get('data'), key=lambda _r: _r.get('attributes', {}).get('key', '')):
+    def get_attr_key(_r):
+        return _r.get('attributes', {}).get('key', '')
+
+    for ws_var in sorted(ws_vars.get('data'), key=get_attr_key):
         r.append(ws_var)
         existing_keys.append(ws_var['attributes']['key'])
 

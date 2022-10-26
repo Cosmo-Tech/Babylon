@@ -52,13 +52,13 @@ def delete(env: Environment,
     if dry_run:
         logger.info(f"DRY RUN - Would send query to delete {workspace_id}")
         return
-    else:
-        try:
-            ws = api.workspaces.destroy(workspace_id=workspace_id)
-            logger.info(f"Workspace {workspace_id} has been deleted")
-        except TFCHTTPNotFound:
-            logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
-            return
+
+    try:
+        api.workspaces.destroy(workspace_id=workspace_id)
+        logger.info(f"Workspace {workspace_id} has been deleted")
+    except TFCHTTPNotFound:
+        logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
+        return
 
     if workspace_id_wd == workspace_id:
         logger.info("Unsetting key workspace_id from working dir file as it does not exists anymore")

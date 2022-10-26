@@ -19,14 +19,14 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
+@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @option("-o", "--output", "output_file",
         type=click.Path(file_okay=True,
                         dir_okay=False,
                         readable=True,
                         path_type=pathlib.Path),
         help="File to which content should be outputted (json-formatted)", )
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
-@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 def get(api: TFC,
         workspace_id_wd: str,
         workspace_id: Optional[str],
@@ -38,9 +38,8 @@ def get(api: TFC,
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
         return
-    r = []
+
     logger.info(pprint.pformat(ws['data']))
-    r.append(ws['data'])
 
     if output_file:
         with open(output_file, "w") as _file:
