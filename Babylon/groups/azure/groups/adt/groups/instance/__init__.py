@@ -13,7 +13,7 @@ from .groups import list_groups
 @pass_context
 @require_platform_key("azure_subscription", "azure_subscription")
 def instance(ctx: Context, azure_subscription: str):
-    """Group initialized from a template"""
+    """Subgroup dedicate to Azure digital twins instance management"""
     _credential = ctx.parent.obj
     ctx.obj = AzureDigitalTwinsManagementClient(_credential, azure_subscription)
 
