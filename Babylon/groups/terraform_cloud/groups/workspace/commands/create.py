@@ -52,7 +52,8 @@ def create(env: Environment,
     """Use given parameters to create a workspace in the organization"""
 
     workspace_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/workspace_payload_with_github.json"
-    workspace_payload = json.load(open(workspace_payload_template))
+    with open(workspace_payload_template) as _f:
+        workspace_payload = json.load(_f)
     workspace_payload['data']['attributes']['name'] = workspace_name
     workspace_payload['data']['attributes']['working-directory'] = working_directory
     workspace_payload['data']['attributes']['vcs-repo']['branch'] = vcs_branch

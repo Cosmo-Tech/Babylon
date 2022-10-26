@@ -47,13 +47,14 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
         logger.info(f"DRY RUN - Checking if workspace {workspace_id} exists")
     else:
         try:
-            ws = api.workspaces.show(workspace_id=workspace_id)
+            api.workspaces.show(workspace_id=workspace_id)
         except TFCHTTPNotFound:
             logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
             return
 
     run_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/run_workspace_payload.json"
-    run_payload = json.load(open(run_payload_template))
+    with open(run_payload_template) as _f:
+        run_payload = json.load(_f)
     run_payload['data']['attributes']['message'] = run_message
     run_payload['data']['attributes']['allow-empty-apply'] = allow_empty_apply
     run_payload['data']['relationships']['workspace']['data']['id'] = workspace_id

@@ -27,7 +27,11 @@ def get_all(api: TFC,
     """Get all available workspaces in the organization"""
     ws = api.workspaces.list()
     r = []
-    for _ws in sorted(ws.get('data'), key=lambda _r: _r.get('attributes', {}).get('latest-change-at', '')):
+
+    def get_last_changed(_r):
+        return _r.get('attributes', {}).get('latest-change-at', '')
+
+    for _ws in sorted(ws.get('data'), key=get_last_changed):
         logger.info(pprint.pformat(_ws))
         r.append(_ws)
 

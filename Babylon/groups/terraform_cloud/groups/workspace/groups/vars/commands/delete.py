@@ -49,7 +49,7 @@ def delete(api: TFC,
 
     if dry_run:
         logger.info(f"DRY RUN - Would look up id for var {var_key} in workspace {workspace_id}")
-        logger.info(f"DRY RUN - Would send delete query to the API for the variable")
+        logger.info("DRY RUN - Would send delete query to the API for the variable")
     else:
         r = list(v
                  for v in list_all_vars(api, workspace_id, lookup_var_sets=False)

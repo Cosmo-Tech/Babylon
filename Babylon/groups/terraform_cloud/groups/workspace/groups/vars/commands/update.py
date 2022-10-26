@@ -43,7 +43,8 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     workspace_id = workspace_id_wd or workspace_id
 
     var_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/var_for_workspace_create.json"
-    var_payload = json.load(open(var_payload_template))
+    with open(var_payload_template) as _f:
+        var_payload = json.load(_f)
 
     if dry_run:
         original_var = var_payload['data']
