@@ -1,13 +1,13 @@
 import json
 import pathlib
 import re
+from typing import Any
+from typing import Iterable
 
 import click
-from .environment import Environment
-
-from typing import Any, Iterable
-
 import yaml
+
+from .environment import Environment
 
 camel_pat = re.compile(r'([A-Z])')
 

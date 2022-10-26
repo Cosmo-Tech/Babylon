@@ -1,0 +1,16 @@
+{
+  "data": {
+    "attributes": {
+      "name": null,
+      "resource-count": 0,
+      "terraform_version": "0.11.1",
+      "working-directory": null,
+      "vcs-repo": {
+        "identifier": null,
+        "branch": null,
+        "oauth-token-id": null
+      }
+    },
+    "type": "workspaces"
+  }
+}

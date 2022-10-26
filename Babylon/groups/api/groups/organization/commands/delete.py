@@ -4,8 +4,8 @@ from click import argument
 from click import command
 from click import confirm
 from click import make_pass_decorator
-from click import prompt
 from click import option
+from click import prompt
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException

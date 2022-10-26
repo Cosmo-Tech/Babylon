@@ -1,0 +1,17 @@
+{
+  "data": {
+    "attributes": {
+      "message": null,
+      "allow-empty-apply": null
+    },
+    "type": "runs",
+    "relationships": {
+      "workspace": {
+        "data": {
+          "type": "workspaces",
+          "id": null
+        }
+      }
+    }
+  }
+}
