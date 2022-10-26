@@ -18,31 +18,6 @@ def test_copy_template(copytree: callable):
     copytree.assert_called()
 
 
-def test_working_compare_1():
-    """Testing working dir"""
-    workdir = WorkingDir(Path("tests/resources/workingdir/"), logging)
-    assert workdir.compare_to_template()
-
-
-def test_working_compare_2():
-    """Testing working dir"""
-    workdir = WorkingDir(Path("tests/resources/workingdir/"), logging)
-    assert workdir.compare_to_template(update_if_error=True)
-
-
-@patch("shutil.copytree")
-def test_working_compare_fail(_):
-    """Testing working dir"""
-    workdir = WorkingDir(Path("tests/resources/a"), logging)
-    assert not workdir.compare_to_template()
-
-
-def test_working_compare_zip():
-    """Testing working dir"""
-    workdir = WorkingDir(Path("tests/resources/workingdir.zip"), logging)
-    assert workdir.compare_to_template()
-
-
 @patch("shutil.copytree")
 def test_working_compare_zip_fail(_):
     """Testing working dir"""
