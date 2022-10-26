@@ -1,6 +1,6 @@
-from click import command
-
 import logging
+
+from click import command
 
 logger = logging.getLogger("Babylon")
 

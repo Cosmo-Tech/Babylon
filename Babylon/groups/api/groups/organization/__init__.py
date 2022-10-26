@@ -1,13 +1,11 @@
 from click import group
 from click import pass_context
 from click.core import Context
-
-from .commands import list_commands
-from .groups import list_groups
-
 from cosmotech_api import ApiClient
 from cosmotech_api.api.organization_api import OrganizationApi
 
+from .commands import list_commands
+from .groups import list_groups
 from .....utils.decorators import pass_api_configuration
 
 

@@ -1,11 +1,10 @@
 import logging
 
+import yaml
 from click import command
 
 from ....utils.configuration import Configuration
 from ....utils.decorators import pass_config
-
-import yaml
 
 logger = logging.getLogger("Babylon")
 

@@ -12,7 +12,8 @@ import click
 import yaml
 
 from . import TEMPLATE_FOLDER_PATH
-from .yaml_utils import read_yaml_key, write_yaml_value
+from .yaml_utils import read_yaml_key
+from .yaml_utils import write_yaml_value
 
 
 class Configuration:

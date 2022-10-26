@@ -2,14 +2,15 @@ import logging
 import subprocess
 import typing
 
+import docker
 from azure.containerregistry import ContainerRegistryClient
-from click import command
 from click import Context
+from click import command
 from click import option
 from click import pass_context
-import docker
 
-from ......utils.decorators import require_deployment_key, require_platform_key
+from ......utils.decorators import require_deployment_key
+from ......utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
 """Command Tests

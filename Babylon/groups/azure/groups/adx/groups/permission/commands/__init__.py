@@ -1,7 +1,7 @@
 from .delete import delete
-from .set import set
-from .get_all import get_all
 from .get import get
+from .get_all import get_all
+from .set import set
 
 list_commands = [
     delete,
