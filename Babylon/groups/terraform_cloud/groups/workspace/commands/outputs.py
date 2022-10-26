@@ -20,23 +20,22 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@option("-o", "--output", "output_file",
-        type=click.Path(file_okay=True,
-                        dir_okay=False,
-                        readable=True,
-                        path_type=pathlib.Path),
-        help="File to which content should be outputted (json-formatted)", )
-@option("-w", "--workspace", "workspace_id",
-        help="Id of the workspace to use")
-@option("-s", "--states", "states_webpage_open",
+@option(
+    "-o",
+    "--output",
+    "output_file",
+    type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
+    help="File to which content should be outputted (json-formatted)",
+)
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
+@option("-s",
+        "--states",
+        "states_webpage_open",
         is_flag=True,
         help="Add this option to open the webapp page to the states of the workspace.\n"
-             "(Allow to see content of sensitives outputs)")
+        "(Allow to see content of sensitives outputs)")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-def outputs(api: TFC,
-            workspace_id_wd: str,
-            workspace_id: Optional[str],
-            output_file: Optional[pathlib.Path],
+def outputs(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path],
             states_webpage_open: bool):
     """List outputs of a workspace.
 

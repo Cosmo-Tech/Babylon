@@ -6,9 +6,7 @@ from terrasnek.exceptions import TFCHTTPNotFound
 logger = logging.getLogger("Babylon")
 
 
-def list_all_vars(api: TFC,
-                  workspace_id: str,
-                  lookup_var_sets: bool = True) -> list[dict]:
+def list_all_vars(api: TFC, workspace_id: str, lookup_var_sets: bool = True) -> list[dict]:
     """
     List all existing vars from a workspace
     either in a setted var or in a variable set

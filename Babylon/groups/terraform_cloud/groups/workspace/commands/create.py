@@ -26,29 +26,25 @@ pass_tfc = click.make_pass_decorator(TFC)
 @pass_tfc
 @pass_environment
 @allow_dry_run
-@option("-o", "--output", "output_file",
-        type=click.Path(file_okay=True,
-                        dir_okay=False,
-                        readable=True,
-                        path_type=pathlib.Path),
-        help="File to which content should be outputted (json-formatted)", )
-@option("-s", "--select", "select", is_flag=True,
+@option(
+    "-o",
+    "--output",
+    "output_file",
+    type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
+    help="File to which content should be outputted (json-formatted)",
+)
+@option("-s",
+        "--select",
+        "select",
+        is_flag=True,
         help="Should the id of the created workspace set in the working dir file ?")
 @argument("workspace_name")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "working_directory", "working_directory")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_identifier", "vcs_identifier")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_branch", "vcs_branch")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_oauth_token_id", "vcs_oauth_token_id")
-def create(env: Environment,
-           api: TFC,
-           workspace_name: str,
-           working_directory: str,
-           vcs_identifier: str,
-           vcs_branch: str,
-           vcs_oauth_token_id: str,
-           output_file: Optional[pathlib.Path],
-           dry_run: bool,
-           select: bool):
+def create(env: Environment, api: TFC, workspace_name: str, working_directory: str, vcs_identifier: str,
+           vcs_branch: str, vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], dry_run: bool, select: bool):
     """Use given parameters to create a workspace in the organization"""
 
     workspace_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/workspace_payload_with_github.json"

@@ -28,13 +28,8 @@ pass_tfc = click.make_pass_decorator(TFC)
 @argument("var_key")
 @option("--value", "var_value", help="A new value to apply to the variable")
 @option("--description", "var_description", help="A new description to apply to the variable")
-def update(api: TFC,
-           workspace_id_wd: str,
-           workspace_id: Optional[str],
-           var_key: str,
-           var_value: Optional[str],
-           var_description: Optional[str],
-           dry_run: bool):
+def update(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: Optional[str],
+           var_description: Optional[str], dry_run: bool):
     """Update VAR_KEY variable in a workspace
 
 More information on the arguments can be found at :

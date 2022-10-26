@@ -1,6 +1,6 @@
 from .get_all import get_all
-from .push import push
 from .pull import pull
+from .push import push
 
 list_commands = [
     get_all,

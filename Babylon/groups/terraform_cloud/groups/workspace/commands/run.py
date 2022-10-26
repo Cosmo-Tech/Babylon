@@ -10,9 +10,9 @@ from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
 
-from ......utils.decorators import working_dir_requires_yaml_key
-from ......utils.decorators import allow_dry_run
 from ......utils import TEMPLATE_FOLDER_PATH
+from ......utils.decorators import allow_dry_run
+from ......utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
 
@@ -21,24 +21,20 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@option("-o", "--output", "output_file",
-        type=click.Path(file_okay=True,
-                        dir_okay=False,
-                        readable=True,
-                        path_type=pathlib.Path),
-        help="File to which content should be outputted (json-formatted)", )
+@option(
+    "-o",
+    "--output",
+    "output_file",
+    type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
+    help="File to which content should be outputted (json-formatted)",
+)
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @option("-m", "--message", "run_message", help="Message added to the run.", default="Run started with Babylon")
 @option("--allow_empty_apply", "allow_empty_apply", is_flag=True, help="Can this run have an empty apply ?")
 @allow_dry_run
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-def run(api: TFC,
-        workspace_id_wd: str,
-        workspace_id: Optional[str],
-        run_message: str,
-        allow_empty_apply: bool,
-        output_file: Optional[pathlib.Path],
-        dry_run: bool):
+def run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], run_message: str, allow_empty_apply: bool,
+        output_file: Optional[pathlib.Path], dry_run: bool):
     """Start the run of a workspace
 
 More info on runs can be found at: https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run#create-a-run"""

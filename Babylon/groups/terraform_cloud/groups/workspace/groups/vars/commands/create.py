@@ -30,16 +30,8 @@ pass_tfc = click.make_pass_decorator(TFC)
 @argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False))
 @option("--hcl", "var_hcl", is_flag=True, help="Should the var be evaluated as a HCL string")
 @option("--sensitive", "var_sensitive", is_flag=True, help="Is the var sensitive")
-def create(api: TFC,
-           workspace_id_wd: str,
-           workspace_id: Optional[str],
-           var_key: str,
-           var_value: str,
-           var_description: str,
-           var_category: str,
-           var_hcl: bool,
-           var_sensitive: bool,
-           dry_run: bool):
+def create(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: str,
+           var_description: str, var_category: str, var_hcl: bool, var_sensitive: bool, dry_run: bool):
     """Set VAR_KEY variable to VAR_VALUE in a workspace
 
 More information on the arguments can be found at :

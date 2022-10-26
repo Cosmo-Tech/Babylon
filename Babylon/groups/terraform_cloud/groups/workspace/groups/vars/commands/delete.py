@@ -25,12 +25,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("-f", "--force", "force", is_flag=True, help="Should validation be skipped ?")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @argument("var_key")
-def delete(api: TFC,
-           workspace_id_wd: str,
-           workspace_id: Optional[str],
-           var_key: str,
-           dry_run: bool,
-           force: bool):
+def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, dry_run: bool, force: bool):
     """Delete VAR_KEY variable in a workspace"""
     workspace_id = workspace_id or workspace_id_wd
 
@@ -51,9 +46,8 @@ def delete(api: TFC,
         logger.info(f"DRY RUN - Would look up id for var {var_key} in workspace {workspace_id}")
         logger.info("DRY RUN - Would send delete query to the API for the variable")
     else:
-        r = list(v
-                 for v in list_all_vars(api, workspace_id, lookup_var_sets=False)
-                 if v['attributes']['key'] == var_key)
+        r = list(
+            v for v in list_all_vars(api, workspace_id, lookup_var_sets=False) if v['attributes']['key'] == var_key)
 
         if not r:
             logger.error(f"Var {var_key} is not set for workspace {workspace_id}")
