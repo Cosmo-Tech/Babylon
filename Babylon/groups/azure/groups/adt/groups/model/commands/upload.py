@@ -71,7 +71,8 @@ def upload(dt_client: DigitalTwinsClient, model_file: pathlib.Path, override_if_
         logger.error(f"{model_file} is not a json file")
         return
 
-    model_file_content = json.load(open(model_file, "r"))
+with open(model_file, "r')) as file:
+    model_file_content = json.load(file)
 
     if type(model_file_content) is list:
         for model in model_file_content:
