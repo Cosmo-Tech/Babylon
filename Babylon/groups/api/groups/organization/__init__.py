@@ -4,9 +4,9 @@ from click.core import Context
 from cosmotech_api import ApiClient
 from cosmotech_api.api.organization_api import OrganizationApi
 
+from .....utils.decorators import pass_api_configuration
 from .commands import list_commands
 from .groups import list_groups
-from .....utils.decorators import pass_api_configuration
 
 
 @group()

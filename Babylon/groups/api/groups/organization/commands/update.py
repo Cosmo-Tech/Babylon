@@ -1,7 +1,7 @@
 from logging import getLogger
 from pprint import pformat
+from typing import Optional
 
-from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
@@ -24,7 +24,11 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 @timing_decorator
 @pass_organization_api
 @require_deployment_key("organization_id", "organization_id")
-@argument("organization_file")
+@option("-i",
+        "--organization-file",
+        "organization_file",
+        help="Your new Organization description file path",
+        required=True)
 @option(
     "-e",
     "--use-working-dir-file",
@@ -36,10 +40,14 @@ def update(
     organization_api: OrganizationApi,
     organization_file: str,
     organization_id: str,
-    use_working_dir_file: bool = False,
-    dry_run: bool = False,
+    use_working_dir_file: Optional[bool] = False,
+    dry_run: Optional[bool] = False,
 ):
     """Update an Organization by sending a JSON or YAML file to Cosmotech Api."""
+
+    if dry_run:
+        logger.info("DRY RUN - Would call organization_api.update_organization")
+        return
 
     converted_organization_content = get_api_file(
         api_file_path=organization_file,
@@ -47,13 +55,7 @@ def update(
         logger=logger,
     )
     if not converted_organization_content:
-        logger.error("Error : can not get Organization definition, please check your Organization.YAML file")
-        return
-
-    if dry_run:
-        logger.info("DRY RUN - Would call organization_api.update_organization")
-        retrieved_data = converted_organization_content
-        retrieved_data["id"] = "<DRY RUN>"
+        logger.error("Can not get Organization definition, please check your Organization.YAML file")
         return
 
     try:
@@ -65,8 +67,8 @@ def update(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error("Organization with id %s does not exists.", organization_id)
+        logger.error(f"Organization with id {organization_id} does not exists.")
         return
 
     logger.debug(pformat(retrieved_data))
-    logger.info("Updated organization with id: %s", retrieved_data["id"])
+    logger.info(f"Updated organization with id: {retrieved_data['id']}")
