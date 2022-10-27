@@ -1,7 +1,8 @@
 import logging
+import rich.logging
 
 
-class MultiLineHandler(logging.StreamHandler):
+class MultiLineHandler(rich.logging.RichHandler):
     """
     Simple multiple line Handler for logging.
     Will separate multiline logs and emit them one line at a time
