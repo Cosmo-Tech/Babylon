@@ -8,6 +8,8 @@ tags:
 url: https://github.com/Cosmo-Tech/azure-storage-simulator-connector
 ioTypes:
   - read
+azureAuthenticationWithCustomerAppRegistration:
+azureManagedIdentity:
 parameterGroups:
   - id: parameters
     label: Parameters

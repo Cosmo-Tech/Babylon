@@ -4,7 +4,7 @@ from click import pass_context
 from click.core import Context
 from cosmotech_api.api.connector_api import ConnectorApi
 
-from Babylon.utils.decorators import pass_api_configuration
+from .....utils.decorators import pass_api_configuration
 from .commands import list_commands
 from .groups import list_groups
 
