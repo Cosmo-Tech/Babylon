@@ -13,7 +13,10 @@ azure_subscription: ""
 cluster_name: ""
 # resource_group_name: The name fo the resource group used on the platform
 resource_group_name: ""
-# ACR registry name source_registry.azurecr.io)
+# ACR registry name source_registry.azurecr.io
 acr_registry_name: ""
+# resources_location: azure resource location ex: westeurope
+resources_location: ""
 # Storage account name
 storage_account_name: ""
+
