@@ -14,6 +14,7 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install -e .
+      - run: pip install -r plugins/dev_tools/requirements.txt
       - name: Extract version
         shell: bash
         run: echo "##[set-output name=version;]$(python -c 'from Babylon.version import VERSION; print(VERSION)')"

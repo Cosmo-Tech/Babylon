@@ -18,8 +18,13 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
-      - name: flake8 Lint
+      - name: flake8 Lint Babylon
         uses: py-actions/flake8@v2
         with:
           max-line-length: "120"
           path: "Babylon"
+      - name: flake8 Lint plugins/dev-tools
+        uses: py-actions/flake8@v2
+        with:
+          max-line-length: "120"
+          path: "plugins/dev_tools"
