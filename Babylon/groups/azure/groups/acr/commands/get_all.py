@@ -11,13 +11,6 @@ from click import pass_context
 from ......utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure acr ls
-Should list all images in the registry given in config
-> babylon azure acr ls -r my_registry
-Should list all images in the given registry
-Can be checked against `az acr repository list --name my_registry --output table`
-"""
 
 
 @command()
