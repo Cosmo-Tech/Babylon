@@ -1,1 +1,2 @@
 # Specific requirements for the plugin
+GitPython>=3.1

@@ -1,9 +1,9 @@
+from .initialize_command import initialize_command
+from .initialize_group import initialize_group
 from .initialize_plugin import initialize_plugin
 from .list_required_keys import list_required_keys
 from .move_group import move_group
 from .rename_command import rename_command
-from .initialize_command import initialize_command
-from .initialize_group import initialize_group
 
 list_commands = [
     initialize_plugin,
