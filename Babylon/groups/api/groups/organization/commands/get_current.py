@@ -3,6 +3,7 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
+from click import Path
 from click import command
 from click import make_pass_decorator
 from click import option
@@ -26,33 +27,29 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 @allow_dry_run
 @timing_decorator
 @pass_organization_api
+@option("-o",
+        "--output-file",
+        "output_file",
+        help="The path to the file where the new Organization content should be outputted (json-formatted)",
+        type=Path())
 @require_deployment_key("organization_id", "organization_id")
-@option(
-    "-o",
-    "--output_file",
-    "output_file",
-    help="File to which content should be outputted (json-formatted)",
-)
 @option(
     "-f",
     "--fields",
     "fields",
-    required=False,
-    type=str,
     help="Fields witch will be keep in response data, by default all",
 )
 def get_current(
     organization_api: OrganizationApi,
     organization_id: str,
     output_file: Optional[str] = None,
-    fields: str = None,
-    dry_run: bool = False,
+    fields: Optional[str] = None,
+    dry_run: Optional[bool] = False,
 ):
-    """Get the state of current configuration organization in the API."""
+    """Get the state of the current organization in the API."""
 
     if dry_run:
         logger.info("DRY RUN - Would call organization_api.find_organization_by_id")
-        retrieved_organization = {"Babylon": "<DRY RUN>"}
         return
 
     try:
@@ -61,16 +58,21 @@ def get_current(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error("Organization with id {organization_id} does not exist.")
+        logger.error(f"Organization with id {organization_id} does not exist.")
         return
 
     if fields:
-        retrieved_organization = filter_api_response_item(retrieved_organization, fields.split(","))
-    if output_file:
-        converted_content = convert_keys_case(retrieved_organization.to_dict(), underscore_to_camel)
-        with open(output_file, "w") as _file:
-            json.dump(converted_content, _file, ensure_ascii=False)
-        logger.info("Organization {organization_id} data was dumped on {output_file}.")
+        retrieved_organization = filter_api_response_item(retrieved_organization, fields.replace(" ", "").split(","))
+    logger.debug(pformat(retrieved_organization))
+    if not output_file:
+        logger.info(f"Organization {organization_id} details : ")
+        logger.info(pformat(retrieved_organization))
         return
-    logger.info(f"Organization {organization_id} details :")
-    logger.info(pformat(retrieved_organization))
+
+    converted_organization_content = convert_keys_case(retrieved_organization, underscore_to_camel)
+    with open(output_file, "w") as _f:
+        try:
+            json.dump(converted_organization_content.to_dict(), _f, ensure_ascii=False)
+        except AttributeError:
+            json.dump(converted_organization_content, _f, ensure_ascii=False)
+        logger.info(f"Organization {organization_id} data was dumped on {output_file}.")

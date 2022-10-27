@@ -60,12 +60,12 @@ def delete(
     """Unregister a Connector via Cosmotech API."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call connector_api.unregister_connector qnd unregister a Connector")
+        logger.info("DRY RUN - Would call connector_api.unregister_connector and unregister a Connector")
         return
 
     if not connector_id:
         if not connector_file:
-            logger.error("No id passed as argument or option use -d option"
+            logger.error("No id passed as argument or option use -i option"
                          " to pass an json or yaml file containing an connector id.")
             return
 
@@ -75,7 +75,7 @@ def delete(
             logger=logger,
         )
         if not converted_connector_content:
-            logger.error("Can not get Workspace definition, please check your file")
+            logger.error("Can not get Connector definition, please check your file")
             return
 
         if "id" not in converted_connector_content and "dataset_id" not in converted_connector_content:

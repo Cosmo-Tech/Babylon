@@ -32,7 +32,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "output_file",
         help="File to which content should be outputted (json-formatted)",
         type=Path())
-@argument("connector_id", type=str)
+@argument("connector-id")
 @option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
 def get(
     connector_api: ConnectorApi,
@@ -45,7 +45,6 @@ def get(
 
     if dry_run:
         logger.info("DRY RUN - Would call connector_api.find_connector_by_id")
-        retrieved_connector = {"Babylon": "<DRY RUN>"}
         return
 
     try:
