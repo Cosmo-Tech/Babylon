@@ -8,6 +8,7 @@ import sys
 
 import click
 import click_log
+import rich.console
 
 from .commands import list_commands
 from .groups import list_groups
@@ -20,8 +21,8 @@ from .utils.logging import MultiLineHandler
 from .utils.working_dir import WorkingDir
 
 logger = logging.getLogger("Babylon")
-handler = MultiLineHandler(sys.stdout)
-formatter = logging.Formatter('{levelname:>8} - {asctime} | {message}', style='{', datefmt='%Y/%m/%d - %H:%M:%S')
+handler = MultiLineHandler(show_path=False, omit_repeated_times=False)
+formatter = logging.Formatter('{message}', style='{', datefmt='%Y/%m/%d - %H:%M:%S')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
@@ -57,7 +58,13 @@ The following environment variables are available to override the working direct
 - `BABYLON_WORKING_DIRECTORY`: path to a folder to use as a working directory
     """
     if tests_mode:
-        handler.setFormatter(logging.Formatter('{message}', style='{'))
+        logger.removeHandler(handler)
+        test_handler = MultiLineHandler(console=rich.console.Console(no_color=True),
+                                        show_path=False,
+                                        omit_repeated_times=False,
+                                        show_time=False,
+                                        show_level=False)
+        logger.addHandler(test_handler)
     env.dry_run = dry_run
     ctx.obj = env
 
