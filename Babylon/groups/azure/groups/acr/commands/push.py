@@ -17,18 +17,6 @@ from ......utils.decorators import require_platform_key
 logger = logging.getLogger("Babylon")
 
 pass_cr_client = make_pass_decorator(ContainerRegistryClient)
-"""Command Tests
-> babylon azure acr push this_image_does_not_exist
-Should provide a clean error log
-> babylon azure acr push existing_image:tag_that_does_not_exist
-Should provide a clean error log
-> babylon azure acr push existing_image:existing_tag
-Should add a new entry to `az acr repository list --name my_registry`
-> babylon azure acr push existing_image -r my_registry
-Should a new entry to `az acr repository list --name my_registry` with the `latest` tag
-> babylon azure acr push
-Should a new entry to `az acr repository list --name my_registry` with the values specified in conf
-"""
 
 
 @command()

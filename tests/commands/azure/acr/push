@@ -1,1 +1,26 @@
-babylon azure acr push
+## Babylon azure acr push
+
+To test the new commands proceed as follow:
+- install the new dependencies using `pip install -r requirements.txt`
+- Add or edit the following lines in `config/platforms/platform.yml`
+```yaml
+api_url: "https://dev.api.cosmotech.com"
+api_scope: "http://dev.api.cosmotech.com/.default"
+# ACR destination registry name
+acr_registry_name: "phoenixml.azurecr.io"
+```
+
+### Commands
+
+Please first pull hello-world locally with `docker pull hello-world`
+```bash
+babylon acr push
+```
+Should add a new entry to `az acr repository list --name my_registry` with the `latest` tag
+
+### Clean
+
+Clean the hello world image with
+```bash
+az acr repository delete -n phoenixml --repository hello-world
+```

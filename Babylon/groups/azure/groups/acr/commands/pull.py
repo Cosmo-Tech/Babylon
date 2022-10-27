@@ -13,14 +13,6 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure acr pull
-Should add a new entry to `docker image ls`
-> babylon azure acr pull my_image:latest
-Should add a new entry to `docker image ls`
-> babylon azure acr pull -r my_registry my_image:my_tag
-Should add new entry to `docker image ls`
-"""
 
 
 @command()

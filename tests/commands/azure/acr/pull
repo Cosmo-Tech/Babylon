@@ -1,1 +1,34 @@
-babylon azure acr pull
+## Babylon azure acr pull
+
+To test the new commands proceed as follow:
+- install the new dependencies using `pip install -r requirements.txt`
+- Add or edit the following lines in `config/platforms/platform.yml`
+```yaml
+api_url: "https://dev.api.cosmotech.com"
+api_scope: "http://dev.api.cosmotech.com/.default"
+# ACR destination registry name
+acr_registry_name: "phoenixml.azurecr.io"
+```
+
+### Commands
+
+Please choose an existing image with `az acr repository list --name phoenixml --output table`
+```bash
+babylon acr pull this_image_does_not_exist
+```
+Should provide a clean error log
+```bash
+babylon acr pull existing_image -t existing_tag
+```
+Should add a new entry to `docker image ls`
+```bash
+babylon acr pull existing_image
+```
+Should a new entry to `docker image ls` with the latest tag
+
+### Clean
+Clean docker images using
+```bash
+docker image ls
+docker image rm image_id
+```
