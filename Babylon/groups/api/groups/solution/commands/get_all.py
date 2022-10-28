@@ -32,7 +32,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "-o",
     "--output-file",
     "output_file",
-    help="File to which content should be outputted (json-formatted)",
+    help="The path to the file where Solutions should be outputted (json-formatted)",
     type=Path(),
 )
 @option(
@@ -44,14 +44,14 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 def get_all(
     solution_api: SolutionApi,
     organization_id: str,
-    output_file: Optional[str] = None,
     fields: Optional[str] = None,
-    dry_run: bool = False,
+    dry_run: Optional[bool] = False,
+    output_file: Optional[str] = None,
 ):
     """Get all registered solutions."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call solution_api.find_all_solutions")
+        logger.info("DRY RUN - Would call solution_api.find_all_solutions to get all registered solution")
         return
 
     try:
@@ -66,6 +66,7 @@ def get_all(
     if fields:
         retrieved_solutions = filter_api_response(retrieved_solutions, fields.replace(" ", "").split(","))
     logger.info(f"Found {len(retrieved_solutions)} solutions")
+    logger.debug(pformat(retrieved_solutions))
     if not output_file:
         logger.info(pformat(retrieved_solutions, sort_dicts=False))
         return

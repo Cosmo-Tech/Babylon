@@ -39,44 +39,52 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "use_working_dir_file",
     is_flag=True,
     help="Should the path be relative to the working directory ?",
-    type=bool,
 )
 @option(
-    "--from-file",
-    "from_file",
-    is_flag=True,
-    help="In case the solution id is retrieved from a file",
+    "-i",
+    "--solution-file",
+    "solution_file",
+    help="Your Solution description file path",
 )
-@argument("solution_id")
+@argument("solution-id", required=False)
 def delete(
     solution_api: SolutionApi,
     organization_id: str,
-    solution_id: str,
-    dry_run: bool = False,
-    from_file: bool = False,
+    solution_id: Optional[str] = None,
+    dry_run: Optional[bool] = False,
+    solution_file: Optional[str] = None,
+    force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
-    force_validation: bool = False,
-):
+) -> Optional[str]:
     """Unregister a solution via Cosmotech APi."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call solution_api.delete_solution")
+        logger.info("DRY RUN - Would call solution_api.delete_solution to delete an solution")
         return
 
-    if from_file:
-        solution_file = solution_id
+    if not solution_id:
+        if not solution_file:
+            logger.error("No id passed as argument or option \n"
+                         "Use -i option to pass an json or yaml file containing an solution id.")
+            return
+
         converted_solution_content = get_api_file(
             api_file_path=solution_file,
             use_working_dir_file=use_working_dir_file,
             logger=logger,
         )
-        if converted_solution_content["id"]:
-            solution_id = converted_solution_content["id"]
-        elif converted_solution_content["solution_id"]:
-            solution_id = converted_solution_content["solution_id"]
-        else:
-            logger.error(f"Could not found solution id in {solution_file}.")
+        if not converted_solution_content:
+            logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
             return
+
+        try:
+            solution_id = converted_solution_content["id"]
+        except KeyError:
+            try:
+                solution_id = converted_solution_content["solution_id"]
+            except KeyError:
+                logger.error("Can not get solution id, please check your file")
+                return
 
     try:
         solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
@@ -110,3 +118,5 @@ def delete(
         logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
         return
     logger.info(f"Solutions {solution_id} of organization {organization_id} deleted.")
+
+    return solution_id

@@ -12,3 +12,10 @@ database_name: ""
 digital_twin_url: ""
 # ACR image reference (my_repository:my_tag)
 acr_image_reference: ""
+# acr_image_reference (repository:tag) deprecated : image repository should be simulator_repository and tag sould be simulator_version
+# simulator_repository: the solution simulator repository (repository value in Solution.yaml)
+simulator_repository: ""
+# simulator_version: the solution simulator version (version value in Solution.yaml)
+simulator_version: ""
+# simulator_url:the solution simulator url (url value in Solution.yaml)
+simulator_url: ""

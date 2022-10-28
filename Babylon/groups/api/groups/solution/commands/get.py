@@ -29,14 +29,20 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @allow_dry_run
 @pass_solution_api
 @timing_decorator
-@argument("solution_id")
+@argument("solution-id", required=False)
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
     "--output-file",
     "output_file",
-    help="File to which content should be outputted (json-formatted)",
+    help="The path to the file where Connector details should be outputted (json-formatted)",
     type=Path(),
+)
+@option(
+    "-i",
+    "--solution-file",
+    "solution_file",
+    help="Your Solution description file path",
 )
 @option(
     "-f",
@@ -50,44 +56,46 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "use_working_dir_file",
     is_flag=True,
     help="Should the path be relative to the working directory ?",
-    type=bool,
-)
-@option(
-    "--from-file",
-    "from_file",
-    is_flag=True,
-    help="In case the solution id is retrieved from a file",
 )
 def get(
     solution_api: SolutionApi,
-    solution_id: str,
     organization_id: str,
-    output_file: Optional[str] = None,
+    solution_id: Optional[str] = None,
     fields: Optional[str] = None,
-    from_file: bool = False,
+    dry_run: Optional[bool] = False,
+    output_file: Optional[str] = None,
+    solution_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: bool = False,
 ):
     """Get the state of the solution in the API."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call solution_api.find_solution_by_id")
+        logger.info("DRY RUN - Would call solution_api.find_solution_by_id to get an solution details")
         return
 
-    if from_file:
-        solution_file = solution_id
+    if not solution_id:
+        if not solution_file:
+            logger.error("No id passed as argument or option \n"
+                         "Use -i option to pass an json or yaml file containing an solution id.")
+            return
+
         converted_solution_content = get_api_file(
             api_file_path=solution_file,
             use_working_dir_file=use_working_dir_file,
             logger=logger,
         )
-        if converted_solution_content["id"]:
-            solution_id = converted_solution_content["id"]
-        elif converted_solution_content["solution_id"]:
-            solution_id = converted_solution_content["solution_id"]
-        else:
-            logger.error(f"Could not found solution id in {solution_file}.")
+        if not converted_solution_content:
+            logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
             return
+
+        try:
+            solution_id = converted_solution_content["id"]
+        except KeyError:
+            try:
+                solution_id = converted_solution_content["solution_id"]
+            except KeyError:
+                logger.error("Can not get solution id, please check your file")
+                return
 
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
@@ -100,6 +108,7 @@ def get(
 
     if fields:
         retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
+    logger.debug(pformat(retrieved_solution))
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
         logger.info(pformat(retrieved_solution))
@@ -108,8 +117,7 @@ def get(
     converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
     with open(output_file, "w") as _f:
         try:
-            json.dump(converted_content, _f, ensure_ascii=False)
-        except TypeError:
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-    logger.debug(pformat(retrieved_solution))
+        except AttributeError:
+            json.dump(converted_content, _f, ensure_ascii=False)
     logger.info(f"Content was dumped on {output_file}")

@@ -71,4 +71,4 @@ def get(
             json.dump(converted_connector_content.to_dict(), _f, ensure_ascii=False)
         except AttributeError:
             json.dump(converted_connector_content, _f, ensure_ascii=False)
-        logger.info(f"Connector {connector_id} data was dumped on {output_file}.")
+    logger.info(f"Connector {connector_id} data was dumped on {output_file}.")

@@ -24,7 +24,10 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @allow_dry_run
 @timing_decorator
 @pass_solution_api
-@argument("solution_file")
+@argument("solution-id", required=False)
+@require_deployment_key("simulator_url", "simulator_url")
+@require_deployment_key("simulator_version", "simulator_version")
+@require_deployment_key("simulator_repository", "simulator_repository")
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
 @option(
@@ -32,31 +35,52 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--use-working-dir-file",
     "use_working_dir_file",
     is_flag=True,
-    type=bool,
     help="Should the path be relative to the working directory ?",
+)
+@option(
+    "-i",
+    "--solution-file",
+    "solution_file",
+    help="Your custom Solution description file path",
 )
 def update(
     solution_api: SolutionApi,
-    solution_file: str,
     organization_id: str,
     solution_id: str,
-    use_working_dir_file: Optional[bool] = False,
+    simulator_url: str,
+    simulator_version: str,
+    simulator_repository: str,
     dry_run: Optional[bool] = False,
+    solution_file: Optional[str] = None,
+    use_working_dir_file: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to update a solution."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call solution_api.create_solution")
+        logger.info("DRY RUN - Would call solution_api.create_solution to update an solution")
         return
 
-    converted_solution_content = get_api_file(
-        api_file_path=solution_file,
-        use_working_dir_file=use_working_dir_file,
-        logger=logger,
-    )
-    if not converted_solution_content:
-        logger.error("Error : can not get correct connector definition, please check your Solution.YAML file")
-        return
+    converted_solution_content = dict()
+
+    if solution_file:
+        converted_solution_content = get_api_file(
+            api_file_path=solution_file,
+            use_working_dir_file=use_working_dir_file,
+            logger=logger,
+        )
+
+        if not converted_solution_content:
+            logger.error("Can not get correct connector definition, please check your Solution.YAML file")
+            return
+
+        try:
+            del converted_solution_content["id"]
+        except Exception:
+            ...
+
+    converted_solution_content["version"] = simulator_version
+    converted_solution_content["repository"] = simulator_repository
+    converted_solution_content["url"] = simulator_url
 
     try:
         retrieved_solution = solution_api.update_solution(solution_id=solution_id,
@@ -69,5 +93,8 @@ def update(
         logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
         return
 
+    logger.info(f"Updated solution: {solution_id}  with \n"
+                f" - url: {retrieved_solution['url']}\n"
+                f" - repository: {retrieved_solution['repository']}\n"
+                f" - version: {retrieved_solution['version']}")
     logger.debug(pformat(retrieved_solution))
-    logger.info(f"Solution: {retrieved_solution['id']} updated.")
