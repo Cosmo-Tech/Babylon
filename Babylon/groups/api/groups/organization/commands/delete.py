@@ -113,9 +113,12 @@ def delete(
         logger.info(f"Organization with id {organization_id} deleted.")
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} does not exists.")
+        return
     except ForbiddenException:
         logger.error(f"You are not allowed to delete the Organization : {organization_id}")
+        return
 
     return organization_id
