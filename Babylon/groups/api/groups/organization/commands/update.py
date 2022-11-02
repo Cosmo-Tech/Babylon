@@ -6,6 +6,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
+from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
@@ -68,6 +69,9 @@ def update(
         return
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} does not exists.")
+        return
+    except ForbiddenException:
+        logger.error(f"You are not allowed to update the Organization : {organization_id}")
         return
 
     logger.debug(pformat(retrieved_data))
