@@ -7,6 +7,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
+from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
@@ -91,6 +92,9 @@ def update(
         return
     except NotFoundException:
         logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
+        return
+    except ForbiddenException:
+        logger.error(f"You are not allowed to update the Solution : {solution_id}")
         return
 
     logger.info(f"Updated solution: {solution_id}  with \n"
