@@ -4,6 +4,8 @@ organization_id: ""
 solution_id: ""
 # workspace_id : the id of the workspace on the API
 workspace_id: ""
+# workspace_key : the key of the workspace on the API shared with Terraform configuration
+workspace_key: ""
 # api_url : the url of the API (used for validation)
 api_url: ""
 # database_name : the name of the database used in Azure Data Explorer
@@ -12,3 +14,11 @@ database_name: ""
 digital_twin_url: ""
 # ACR image reference (my_repository:my_tag)
 acr_image_reference: ""
+# send_scenario_metadata_to_event_hub: Set this property to false to not send scenario metada to Azure Event Hub Namespace for this Workspace.
+# The Event Hub Namespace must be named \'<organization_id\>-<workspace_id\>\' (in lower case).
+# This Namespace must also contain two Event Hubs named \'probesmeasures\' and \'scenariorun\'.
+send_scenario_metadata_to_event_hub: true
+# use_dedicated_event_hub_namespace: Set this property to false to not to use a dedicated Azure Event Hub Namespace for this Workspace.
+# The Event Hub Namespace must be named \'<organization_id\>-<workspace_id\>\' (in lower case).
+# This Namespace must also contain two Event Hubs named \'scenariometadata\' and \'scenariorunmetadata\'.
+use_dedicated_event_hub_namespace: true

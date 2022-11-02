@@ -8,7 +8,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
-from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -32,7 +32,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "-o",
     "--output-file",
     "output_file",
-    help="File to which content should be outputted (json-formatted)",
+    help="The path to the file where Workspaces should be outputted (json-formatted)",
     type=Path(),
 )
 @option(
@@ -44,9 +44,9 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 def get_all(
     workspace_api: WorkspaceApi,
     organization_id: str,
-    output_file: Optional[str] = None,
     fields: Optional[str] = None,
     dry_run: Optional[bool] = False,
+    output_file: Optional[str] = None,
 ):
     """Get all registered workspaces."""
 
@@ -56,11 +56,10 @@ def get_all(
 
     try:
         retrieved_workspaces = workspace_api.find_all_workspaces(organization_id)
-    except NotFoundException:
-        logger.error(f"Organization {organization_id} was not found.")
-        return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
+    except ServiceException:
+        logger.error(f"ServiceException: Organization {organization_id} was not found.")
         return
 
     if fields:
