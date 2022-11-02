@@ -32,7 +32,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @timing_decorator
 @pass_workspace_api
 @pass_environment
-@argument("workspace_file", required=False)
+@argument("workspace-name")
 @require_deployment_key("send_scenario_metadata_to_event_hub", "send_scenario_metadata_to_event_hub")
 @require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
 @require_deployment_key("organization_id", "organization_id")
@@ -42,27 +42,25 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "--use-working-dir-file",
     "use_working_dir_file",
     is_flag=True,
-    type=bool,
     help="Should the path be relative to the working directory ?",
 )
 @option(
-    "-n",
-    "--name",
-    "workspace_name",
-    required=True,
-    help="New workspace name",
+    "-i",
+    "--workspace-file",
+    "workspace_file",
+    help="Your custom workspace definition file path",
 )
 @option(
     "-d",
     "--description",
     "workspace_description",
-    help="New workspace description",
+    help="Workspace description",
 )
 @option(
     "-o",
     "--output-file",
     "output_file",
-    help="File to which content should be outputted (json-formatted)",
+    help="The path to the file where the created workspace should be outputted (json-formatted)",
     type=Path(),
 )
 @option(
@@ -76,22 +74,22 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 def create(
     env: Environment,
     workspace_api: WorkspaceApi,
+    select: bool,
+    solution_id: str,
     organization_id: str,
     workspace_name: str,
-    send_scenario_metadata_to_event_hub: str,
     use_dedicated_event_hub_namespace: str,
-    solution_id: str,
-    select: bool,
-    workspace_file: Optional[str] = None,
+    send_scenario_metadata_to_event_hub: str,
+    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
+    workspace_file: Optional[str] = None,
     workspace_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: Optional[bool] = False,
-):
+) -> Optional[str]:
     """Send a JSON or YAML file to the API to create a workspace."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call workspace_api.create_workspace")
+        logger.info("DRY RUN - Would call workspace_api.create_workspace to register a new Workspace")
         return
 
     converted_workspace_content = get_api_file(
@@ -101,7 +99,7 @@ def create(
         logger=logger,
     )
     if not converted_workspace_content:
-        logger.error("Error : can not get correct workspace definition, please check your Workspace.YAML file")
+        logger.error("Can not get correct workspace definition, please check your Workspace.YAML file")
         return
 
     if not workspace_description and "workspace_description" not in converted_workspace_content:
@@ -109,9 +107,16 @@ def create(
 
     converted_workspace_content["name"] = workspace_name
     converted_workspace_content["key"] = workspace_name.replace(" ", "")
-    converted_workspace_content["sendScenarioMetadataToEventHub"] = send_scenario_metadata_to_event_hub
-    converted_workspace_content["useDedicatedEventHubNamespace"] = use_dedicated_event_hub_namespace
+    converted_workspace_content["send_scenario_metadata_to_event_hub"] = send_scenario_metadata_to_event_hub
+    converted_workspace_content["use_dedicated_event_hub_namespace"] = use_dedicated_event_hub_namespace
     converted_workspace_content["solution"]["solution_id"] = solution_id
+
+    if converted_workspace_content.get("id"):
+        del converted_workspace_content["id"]
+    if converted_workspace_content.get("workspace_id"):
+        del converted_workspace_content["workspace_id"]
+
+    logger.info(f"Creating Workspace {workspace_name}")
 
     try:
         retrieved_workspace = workspace_api.create_workspace(organization_id=organization_id,
@@ -120,13 +125,19 @@ def create(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Organization with id {organization_id} does not exists.")
+        logger.error(f"Solution {solution_id} not found in organization {organization_id}")
         return
 
     if select:
         env.configuration.set_deploy_var("workspace_id", retrieved_workspace["id"])
+        env.configuration.set_deploy_var("workspace_key", retrieved_workspace["key"])
 
-    logger.info(f"Created new workspace with id: {retrieved_workspace['id']}")
+    logger.info(
+        "Created new workspace with \n"
+        f" - id: {retrieved_workspace['id']}\n"
+        f" - key: {retrieved_workspace['key']}\n"
+        f" - send_scenario_metadata_to_event_hub: {retrieved_workspace['send_scenario_metadata_to_event_hub']}\n"
+        f" - use_dedicated_event_hub_namespace: {retrieved_workspace['use_dedicated_event_hub_namespace']}")
     logger.debug(pformat(retrieved_workspace))
 
     if output_file:
@@ -137,3 +148,5 @@ def create(
             except TypeError:
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
+
+    return retrieved_workspace['id']
