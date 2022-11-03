@@ -32,11 +32,10 @@ def push(credentials: DefaultAzureCredential, acr_dest_registry_name: str, simul
     try:
         image_obj = client.images.get(image)
     except docker.errors.ImageNotFound:
-        logger.error(f"Image {image} not found locally")
+        logger.error(f"Local image {image} not found")
         return
-    logger.info(f"Pushing image {image}")
 
-    # Rename image with registry url if it is not present
+    logger.debug("Renaming image with registry prefix")
     ref_parts = image.split("/")
     if len(ref_parts) > 1:
         ref_parts[0] = registry
@@ -44,21 +43,16 @@ def push(credentials: DefaultAzureCredential, acr_dest_registry_name: str, simul
         ref_parts = [registry, *ref_parts]
     ref: str = "/".join(ref_parts)
 
-    # Rename image with remote repository prefix
     image_obj.tag(ref)
 
-    logs: str = client.images.push(repository=ref)
+    logger.info(f"Pushing image {image} to {ref}")
+    try:
+        client.images.push(repository=ref)
+    except docker.error.APIError as e:
+        logger.error(f"Could not push image {image} to registry {registry}: {e}")
+        return
 
-    # Remove image with remote repository prefix
+    logger.debug("Removing local image with remote registry prefix")
     client.images.remove(ref)
-    # Log status
-    for resp in logs.split("\n"):
-        if not resp:
-            continue
-        decoded = json.loads(resp)
-        status = decoded.get("status")
-        if status:
-            logger.info(status)
-        error = decoded.get("errorDetail")
-        if error:
-            logger.error(error.get("message"))
+
+    logger.info(f"Successfully pushed image {image} to registry {registry}")

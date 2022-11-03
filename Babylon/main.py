@@ -58,7 +58,7 @@ The following environment variables are available to override the working direct
 - `BABYLON_CONFIG_DIRECTORY`: path to a folder to use as a configuration directory
 - `BABYLON_WORKING_DIRECTORY`: path to a folder to use as a working directory
     """
-    install(show_locals=True)
+    install()
     if tests_mode:
         logger.removeHandler(handler)
         test_handler = MultiLineHandler(console=rich.console.Console(no_color=True),
