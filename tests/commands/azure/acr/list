@@ -1,4 +1,4 @@
-## Babylon azure acr get-all
+## Babylon azure acr list
 
 To test the new commands proceed as follow:
 - install the new dependencies using `pip install -r requirements.txt`
@@ -6,14 +6,20 @@ To test the new commands proceed as follow:
 ```yaml
 api_url: "https://dev.api.cosmotech.com"
 api_scope: "http://dev.api.cosmotech.com/.default"
+# ACR source registry name
+acr_src_registry_name: "phoenixml.azurecr.io"
 # ACR destination registry name
-acr_registry_name: "phoenixml.azurecr.io"
+acr_dest_registry_name: "phoenixml.azurecr.io"
 ```
 
 ### Commands
 
 ```bash
-babylon acr ls
+babylon azure acr list
 ```
 Should list all images in the given registry
-Can be checked against `az acr repository list --name my_registry --output table`
+Can be checked against `az acr repository list --name phoenixml --output table`
+
+```bash
+babylon azure acr list -r existing_registry
+```
