@@ -7,7 +7,8 @@ from click import group
 from click import pass_context
 from click.core import Context
 
-from Babylon.utils.decorators import require_platform_key
+from ...utils.decorators import require_platform_key
+from ...utils.decorators import requires_external_program
 from .commands import list_commands
 from .groups import list_groups
 
@@ -16,6 +17,7 @@ logger = logging.getLogger("Babylon")
 
 @group()
 @pass_context
+@requires_external_program("az")
 @require_platform_key("api_scope", "api_scope")
 def azure(ctx: Context, api_scope: str):
     """Group allowing communication with Microsoft Azure Cloud"""

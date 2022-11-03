@@ -1,9 +1,11 @@
-from .get_all import get_all
+from .delete import delete
+from .list import list
 from .pull import pull
 from .push import push
 
 list_commands = [
-    get_all,
+    delete,
+    list,
     push,
     pull,
 ]

@@ -1,16 +1,17 @@
-from click import group
-from click import pass_context
-from click.core import Context
+import logging
 
-from Babylon.utils.decorators import requires_external_program
+from click import group
+
 from .commands import list_commands
 from .groups import list_groups
+from .....utils.decorators import requires_external_program
+
+logger = logging.getLogger("Babylon")
 
 
 @group()
 @requires_external_program("docker")
-@pass_context
-def acr(ctx: Context):
+def acr():
     """Group interacting with Azure Container Registry"""
 
 
