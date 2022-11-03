@@ -69,7 +69,7 @@ def delete(
 
     if not workspace_id:
         if not workspace_file:
-            logger.error("No id passed as argument or option use -d option"
+            logger.error("No id passed as argument or option use -i option"
                          " to pass an json or yaml file containing an workspace id.")
             return
 
@@ -82,14 +82,10 @@ def delete(
             logger.error("Can not get Workspace definition, please check your file")
             return
 
-        try:
-            workspace_id = converted_workspace_content["id"]
-        except KeyError:
-            try:
-                workspace_id = converted_workspace_content["workspace_id"]
-            except KeyError:
-                logger.error("Can not get solution id, please check your file")
-                return
+        workspace_id = converted_workspace_content.get("id") or converted_workspace_content.get("workspace_id")
+        if not workspace_id:
+            logger.error("Can not get solution id, please check your file")
+            return
 
     try:
         workspace_api.find_workspace_by_id(workspace_id=workspace_id, organization_id=organization_id)
