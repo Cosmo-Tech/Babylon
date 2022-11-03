@@ -15,7 +15,7 @@ cluster_name: ""
 resource_group_name: ""
 # ACR source registry name source_registry.azurecr.io
 acr_src_registry_name: ""
-# ACR destination registry name source_registry.azurecr.io
+# ACR destination registry name dest_registry.azurecr.io
 acr_dest_registry_name: ""
 # resources_location: azure resource location ex: westeurope
 resources_location: ""
