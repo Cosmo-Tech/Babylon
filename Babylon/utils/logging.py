@@ -9,6 +9,9 @@ class MultiLineHandler(rich.logging.RichHandler):
     """
 
     def emit(self, record: logging.LogRecord) -> None:
+        if not isinstance(record.msg, str):
+            super().emit(record)
+            return
         base_msg = record.msg[:]
         for line in base_msg.split("\n"):
             record.msg = line
