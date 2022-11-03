@@ -29,6 +29,6 @@ def registry_connect(registry: str,
                      password=decoded.get("accessToken"),
                      registry=registry)
     except docker.errors.APIError:
-        logger.error("Could not connect to container registry")
+        logger.error(f"Could not connect to container registry {registry}")
         return registry_client, client
     return registry_client, client

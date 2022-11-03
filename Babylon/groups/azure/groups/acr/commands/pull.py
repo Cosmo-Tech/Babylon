@@ -34,16 +34,19 @@ def pull(credentials: DefaultAzureCredential,
     registry = registry or acr_src_registry_name
     _, client = registry_connect(registry, credentials)
     repo = f"{registry}/{image}"
-    logger.info(f"Pulling image {image}")
+    logger.info(f"Pulling remote image {image} from registry {registry}")
     try:
         img = client.images.pull(repository=repo)
-        # Retag the image without the registry name
+        logger.debug("Renaming local image without registry prefix")
         img.tag(image)
-        # Remove image with registry name
+        logger.debug("Removing local image with registry prefix")
         client.images.remove(image=repo)
     except docker.errors.NotFound:
-        logger.error(f"Registry {registry} does not contain {image}")
+        logger.error(f"Image {image} not found in registry {registry} ")
+        return
     except docker.errors.APIError as api_error:
         logger.error(api_error)
+        return
     except Exception as e:
         logger.error(str(e))
+    logger.info(f"Successfully pulled image {image} from registry {registry}")
