@@ -1,4 +1,4 @@
-## Babylon azure acr pull
+## Babylon azure acr delete
 
 To test the new commands proceed as follow:
 - install the new dependencies using `pip install -r requirements.txt`
@@ -22,22 +22,10 @@ simulator_version: "latest"
 ### Commands
 
 ```bash
-babylon azure acr pull -i this_image_does_not_exist
+babylon azure acr delete --direction dest
 ```
-Should provide a clean error log
-Please choose an existing image with `az acr repository list --name phoenixml --output table`
+Should ask for confirmation and delete image specified in `deploy.yaml` from the remote registry specified in `platform.yaml`
 ```bash
-babylon azure acr pull -i existing_image:existing_tag
+babylon azure acr delete --direction dest --force
 ```
-Should add a new entry to `docker image ls`
-```bash
-babylon azure acr pull
-```
-Should a new entry to `docker image ls` with the name specified in the `deploy.yaml` file
-
-### Clean
-Clean docker images using
-```bash
-docker image ls
-docker image rm image_id
-```
+Should delete image without asking for confirmation

@@ -6,18 +6,22 @@ To test the new commands proceed as follow:
 ```yaml
 api_url: "https://dev.api.cosmotech.com"
 api_scope: "http://dev.api.cosmotech.com/.default"
+# ACR source registry name
+acr_src_registry_name: "phoenixml.azurecr.io"
 # ACR destination registry name
-acr_registry_name: "phoenixml.azurecr.io"
+acr_dest_registry_name: "phoenixml.azurecr.io"
 ```
 
 ### Commands
 
 Please first pull hello-world locally with `docker pull hello-world`
 ```bash
-babylon acr push
+babylon azure acr push
 ```
 Should add a new entry to `az acr repository list --name my_registry` with the `latest` tag
-
+```bash
+babylon azure acr push
+```
 ### Clean
 
 Clean the hello world image with
