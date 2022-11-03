@@ -78,14 +78,11 @@ def delete(
             logger.error("Can not get organization definition, please check your file")
             return
 
-        try:
-            organization_id = converted_organization_content["id"]
-        except KeyError:
-            try:
-                organization_id = converted_organization_content["organization_id"]
-            except KeyError:
-                logger.error("Can not get organization id, please check your file")
-                return
+        organization_id = converted_organization_content.get("id") or \
+            converted_organization_content.get("organization_id")
+        if not organization_id:
+            logger.error("Can not get organization id, please check your file")
+            return
 
     try:
         organization_api.find_organization_by_id(organization_id)
