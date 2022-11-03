@@ -78,14 +78,10 @@ def delete(
             logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
             return
 
-        try:
-            solution_id = converted_solution_content["id"]
-        except KeyError:
-            try:
-                solution_id = converted_solution_content["solution_id"]
-            except KeyError:
-                logger.error("Can not get solution id, please check your file")
-                return
+        solution_id = converted_solution_content.get("id") or converted_solution_content.get("solution_id")
+        if not solution_id:
+            logger.error("Can not get solution id, please check your file")
+            return
 
     try:
         solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
