@@ -13,3 +13,4 @@ poetry.lock
 typings/
 .config/
 .vscode/
+pyproject.toml
