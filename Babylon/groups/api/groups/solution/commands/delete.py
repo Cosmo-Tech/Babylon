@@ -27,7 +27,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @describe_dry_run("Would call **solution_api.delete_solution** to delete an solution")
 @pass_solution_api
 @timing_decorator
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option(
     "-f",
     "--force",

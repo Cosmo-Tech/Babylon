@@ -32,7 +32,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         "output_file",
         help="The path to the file where the new Organization content should be outputted (json-formatted)",
         type=Path())
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option(
     "-f",
     "--fields",

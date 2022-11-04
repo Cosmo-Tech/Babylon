@@ -10,7 +10,7 @@ from .groups import list_groups
 
 @group()
 @pass_context
-@require_deployment_key("digital_twin_url", "digital_twin_url")
+@require_deployment_key("digital_twin_url")
 def model(ctx: Context, digital_twin_url: str):
     """Subgroup dedicate to Azure digital twins models management"""
     ctx.obj = DigitalTwinsClient(credential=ctx.parent.obj, endpoint=digital_twin_url)

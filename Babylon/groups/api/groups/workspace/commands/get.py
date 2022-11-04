@@ -31,7 +31,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @pass_workspace_api
 @timing_decorator
 @argument("workspace-id", required=False)
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option(
     "-o",
     "--output-file",

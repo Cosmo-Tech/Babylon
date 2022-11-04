@@ -15,9 +15,9 @@ logger = logging.getLogger("Babylon")
 
 @click.command()
 @pass_kmc
-@require_platform_key("cluster_name", "cluster_name")
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_deployment_key("database_name", "database_name")
+@require_platform_key("cluster_name")
+@require_platform_key("resource_group_name")
+@require_deployment_key("database_name")
 @timing_decorator
 def list_scripts(kmc: KustoManagementClient, cluster_name: str, resource_group_name: str, database_name: str):
     """List scripts on the database"""

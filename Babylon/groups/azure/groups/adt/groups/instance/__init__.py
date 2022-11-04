@@ -10,7 +10,7 @@ from .groups import list_groups
 
 @group()
 @pass_context
-@require_platform_key("azure_subscription", "azure_subscription")
+@require_platform_key("azure_subscription")
 def instance(ctx: Context, azure_subscription: str):
     """Subgroup dedicate to Azure digital twins instance management"""
     _credential = ctx.parent.obj

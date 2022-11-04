@@ -17,9 +17,9 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 
 @command()
 @pass_credentials
-@require_platform_key("acr_dest_registry_name", "acr_dest_registry_name")
-@require_deployment_key("simulator_repository", "simulator_repository")
-@require_deployment_key("simulator_version", "simulator_version")
+@require_platform_key("acr_dest_registry_name")
+@require_deployment_key("simulator_repository")
+@require_deployment_key("simulator_version")
 @option("-i", "--image", help="Local docker image to push")
 @option("-r", "--registry", help="Container Registry name to push to, example: myregistry.azurecr.io")
 def push(credentials: DefaultAzureCredential, acr_dest_registry_name: str, simulator_repository: str,

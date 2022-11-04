@@ -27,11 +27,11 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @timing_decorator
 @pass_solution_api
 @argument("solution-id", required=False)
-@require_deployment_key("simulator_url", "simulator_url")
-@require_deployment_key("simulator_version", "simulator_version")
-@require_deployment_key("simulator_repository", "simulator_repository")
-@require_deployment_key("organization_id", "organization_id")
-@require_deployment_key("solution_id", "solution_id")
+@require_deployment_key("simulator_url")
+@require_deployment_key("simulator_version")
+@require_deployment_key("simulator_repository")
+@require_deployment_key("organization_id")
+@require_deployment_key("solution_id")
 @option(
     "-e",
     "--use-working-dir-file",

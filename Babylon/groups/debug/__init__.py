@@ -7,8 +7,8 @@ from ...utils.decorators import require_platform_key
 
 @group()
 @pass_context
-@require_platform_key("k8s_context", "k8s_context")
-@require_platform_key("k8s_namespace", "k8s_namespace")
+@require_platform_key("k8s_context")
+@require_platform_key("k8s_namespace")
 def debug(ctx, k8s_context, k8s_namespace):
     """Add debug capacities of runs"""
     ctx.obj = (k8s_context, k8s_namespace)

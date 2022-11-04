@@ -23,9 +23,9 @@ Should log a clean error message
 
 @command()
 @pass_context
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_platform_key("cluster_name", "cluster_name")
-@require_deployment_key("database_name", "database_name")
+@require_platform_key("resource_group_name")
+@require_platform_key("cluster_name")
+@require_deployment_key("database_name")
 @argument("principal_id", type=str)
 @option("-f", "--force", is_flag=True, help="Don't ask for validation before delete")
 @describe_dry_run("Would go through each role of given principal and delete them.")

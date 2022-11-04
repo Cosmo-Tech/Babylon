@@ -27,8 +27,8 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @describe_dry_run("Would call **workspace_api.find_workspace_by_id**")
 @pass_workspace_api
 @timing_decorator
-@require_deployment_key("workspace_id", "workspace_id")
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("workspace_id")
+@require_deployment_key("organization_id")
 @option(
     "-o",
     "--output-file",

@@ -28,7 +28,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @pass_dataset_api
 @timing_decorator
 @argument("search_parameters", type=str)
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option(
     "-o",
     "--output_file",

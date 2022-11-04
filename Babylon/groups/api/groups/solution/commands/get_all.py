@@ -28,7 +28,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @describe_dry_run("Would call **solution_api.find_all_solutions** to get all registered solution")
 @pass_solution_api
 @timing_decorator
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option(
     "-o",
     "--output-file",

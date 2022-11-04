@@ -168,71 +168,52 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
     return wrap_function
 
 
-def require_platform_key(yaml_key: str, arg_name: Optional[str] = None) -> Callable[..., Any]:
+def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
     """
-    Decorator allowing to check if the platform in config has specific key
-    If the check is failed the command won't run, and following checks won't be done
-    :param yaml_key: the required key
-    :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
+    Decorator calling a getter with an argument and storing the result as an inserted argument
+    :param getter: function
     """
+    def wrapper_key(yaml_key: str, required: Optional[bool] = True) -> Callable[..., Any]:
+        def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
-    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            env = click.get_current_context().find_object(Environment)
-            if not env:
-                logger.error("Could not find environment in click context")
-                raise ValueError()
-            config = env.configuration
-            if (key_value := config.get_platform_var(yaml_key)):
-                if arg_name:
-                    kwargs[arg_name] = key_value
-                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
+            @wraps(func)
+            def wrapper(*args: Any, **kwargs: Any):
+                kwargs[yaml_key] = getter(yaml_key)
+                logger.debug(f"Adding parameter {yaml_key} = {kwargs[yaml_key]} to {func.__name__}")
+                if required and not kwargs[yaml_key]:
+                    logger.error(f"Key {yaml_key} can not be found in {getter.__doc__}")
+                    logger.error(f"{click.get_current_context().command.name} won't run without it.")
+                    raise KeyError()
                 return func(*args, **kwargs)
-            logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
-            logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise KeyError()
 
-        doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the platform config file."])
-        return wrapper
+            doc = wrapper.__doc__ or ""
+            wrapper.__doc__ = "\n\n".join([doc, f"Requires `{yaml_key}` in {getter.__doc__}."])
+            return wrapper
 
-    return wrap_function
+        return wrap_function
+    return wrapper_key
 
 
-def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None) -> Callable[..., Any]:
-    """
-    Decorator allowing to check if the deployment in config has specific key
-    If the check is failed the command won't run, and following checks won't be done
-    :param yaml_key: the required key
-    :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
-    """
+def get_deploy(yaml_key: str) -> Optional[Any]:
+    """deploy config file"""
+    env = click.get_current_context().find_object(Environment)
+    if not env:
+        logger.error("Could not find environment in click context")
+        raise ValueError()
+    return env.configuration.get_deploy_var(yaml_key)
 
-    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            env = click.get_current_context().find_object(Environment)
-            if not env:
-                logger.error("Could not find environment in click context")
-                raise ValueError()
-            config = env.configuration
-            if (key_value := config.get_deploy_var(yaml_key)):
-                if arg_name:
-                    kwargs[arg_name] = key_value
-                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
-                return func(*args, **kwargs)
-            logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
-            logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise KeyError()
+def get_platform(yaml_key: str) -> Optional[Any]:
+    """platform config file"""
+    env = click.get_current_context().find_object(Environment)
+    if not env:
+        logger.error("Could not find environment in click context")
+        raise ValueError()
+    return env.configuration.get_platform_var(yaml_key)
 
-        doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the deployment config file."])
-        return wrapper
 
-    return wrap_function
-
+require_deployment_key = insert_argument(get_deploy)
+require_platform_key = insert_argument(get_platform)
 
 pass_working_dir = click.make_pass_decorator(WorkingDir)
 pass_config = click.make_pass_decorator(Configuration)

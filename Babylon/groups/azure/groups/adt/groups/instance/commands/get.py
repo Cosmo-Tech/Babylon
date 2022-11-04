@@ -25,7 +25,7 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
 @command()
 @pass_digital_twins_client
 @timing_decorator
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_platform_key("resource_group_name")
 @option(
     "-o",
     "--output_file",

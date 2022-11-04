@@ -18,9 +18,9 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 
 @command()
 @pass_credentials
-@require_platform_key("acr_src_registry_name", "acr_src_registry_name")
-@require_deployment_key("simulator_repository", "simulator_repository")
-@require_deployment_key("simulator_version", "simulator_version")
+@require_platform_key("acr_src_registry_name")
+@require_deployment_key("simulator_repository")
+@require_deployment_key("simulator_version")
 @option("-r", "--registry", help="Container Registry name to pull from, example: myregistry.azurecr.io")
 @option("-i", "--image", help="Remote docker image to pull, example hello-world:latest")
 def pull(credentials: DefaultAzureCredential,

@@ -24,7 +24,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 @describe_dry_run("Would call **organization_api.update_organization**")
 @timing_decorator
 @pass_organization_api
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option("-i",
         "--organization-file",
         "organization_file",

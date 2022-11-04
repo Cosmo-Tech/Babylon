@@ -14,8 +14,8 @@ from ...utils.decorators import require_platform_key
 
 @group()
 @pass_context
-@require_platform_key("api_scope", "api_scope")
-@require_platform_key("api_url", "api_url")
+@require_platform_key("api_scope")
+@require_platform_key("api_url")
 def api(ctx: Context, api_scope: str, api_url: str):
     """Group handling communication with the cosmotech API"""
     try:

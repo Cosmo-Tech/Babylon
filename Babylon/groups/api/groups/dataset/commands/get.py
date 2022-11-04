@@ -31,7 +31,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @pass_dataset_api
 @timing_decorator
 @argument("dataset_id")
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option(
     "-o",
     "--output-file",

@@ -10,7 +10,7 @@ from .....utils.decorators import require_platform_key
 
 @group()
 @pass_context
-@require_platform_key("azure_subscription", "azure_subscription")
+@require_platform_key("azure_subscription")
 def adx(ctx: Context, azure_subscription: str):
     """Group interacting with Azure Data Explorer"""
     ctx.obj = KustoManagementClient(credential=ctx.parent.obj,

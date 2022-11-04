@@ -22,7 +22,7 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
 @timing_decorator
 @pass_digital_twins_client
 @argument("adt_instance_name")
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_platform_key("resource_group_name")
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 def delete(digital_twins_client: AzureDigitalTwinsManagementClient,
            resource_group_name: str,

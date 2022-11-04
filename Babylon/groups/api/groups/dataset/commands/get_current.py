@@ -28,8 +28,8 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @describe_dry_run("Would call **dataset_api.find_dataset_by_id**")
 @pass_dataset_api
 @timing_decorator
-@require_deployment_key("dataset_id", "dataset_id")
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("dataset_id")
+@require_deployment_key("organization_id")
 @option(
     "-o",
     "--output-file",

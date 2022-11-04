@@ -31,7 +31,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @pass_solution_api
 @timing_decorator
 @argument("solution-id", required=False)
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("organization_id")
 @option(
     "-o",
     "--output-file",

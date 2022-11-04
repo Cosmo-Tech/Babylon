@@ -33,10 +33,10 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @pass_solution_api
 @pass_environment
 @argument("solution-name")
-@require_deployment_key("simulator_repository", "simulator_repository")
-@require_deployment_key("simulator_version", "simulator_version")
-@require_deployment_key("simulator_url", "simulator_url")
-@require_deployment_key("organization_id", "organization_id")
+@require_deployment_key("simulator_repository")
+@require_deployment_key("simulator_version")
+@require_deployment_key("simulator_url")
+@require_deployment_key("organization_id")
 @option(
     "-e",
     "--use-working-dir-file",

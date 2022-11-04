@@ -34,8 +34,8 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @pass_dataset_api
 @pass_environment
 @argument("dataset_file", type=str, required=False)
-@require_deployment_key("organization_id", "organization_id")
-@require_deployment_key("connector", "connector")
+@require_deployment_key("organization_id")
+@require_deployment_key("connector")
 @option(
     "-e",
     "--use-working-dir-file",

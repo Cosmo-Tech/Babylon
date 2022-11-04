@@ -129,7 +129,7 @@ def test_require_platform_key_fail():
     """Test decorators"""
 
     @deco.require_platform_key("thisDoesNotExists")
-    def my_func():
+    def my_func(thisDoesNotExists: str):
         pass
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
@@ -142,7 +142,7 @@ def test_require_platform_key_ok():
     """Test decorators"""
 
     @deco.require_platform_key("api_url")
-    def my_func():
+    def my_func(api_url: str):
         pass
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
@@ -155,7 +155,7 @@ def test_require_deploy_key_fail():
     """Test decorators"""
 
     @deco.require_deployment_key("thisDoesNotExists")
-    def my_func():
+    def my_func(thisDoesNotExists):
         pass
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
@@ -168,7 +168,7 @@ def test_require_deploy_key_ok():
     """Test decorators"""
 
     @deco.require_deployment_key("api_url")
-    def my_func():
+    def my_func(api_url):
         pass
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)

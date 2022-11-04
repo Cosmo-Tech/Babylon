@@ -34,10 +34,10 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @pass_workspace_api
 @pass_environment
 @argument("workspace-name")
-@require_deployment_key("send_scenario_metadata_to_event_hub", "send_scenario_metadata_to_event_hub")
-@require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
-@require_deployment_key("organization_id", "organization_id")
-@require_deployment_key("solution_id", "solution_id")
+@require_deployment_key("send_scenario_metadata_to_event_hub")
+@require_deployment_key("use_dedicated_event_hub_namespace")
+@require_deployment_key("organization_id")
+@require_deployment_key("solution_id")
 @option(
     "-e",
     "--use-working-dir-file",

@@ -18,8 +18,8 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
 @command()
 @pass_digital_twins_client
 @argument("adt_instance_name")
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_platform_key("resources_location", "resources_location")
+@require_platform_key("resource_group_name")
+@require_platform_key("resources_location")
 @timing_decorator
 def create(
     digital_twins_client: AzureDigitalTwinsManagementClient,
