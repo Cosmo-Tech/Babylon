@@ -3366,7 +3366,7 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-api-solution-create">create</a></em>: Send a JSON or YAML file to the API to create a solution.</li>
+<li><em><a href="#babylon-api-solution-create">create</a></em>: Send a JSON or YAML file to the API to create an solution.</li>
 <li><em><a href="#babylon-api-solution-delete">delete</a></em>: Unregister a solution via Cosmotech APi.</li>
 <li><em><a href="#babylon-api-solution-get">get</a></em>: Get the state of the solution in the API.</li>
 <li><em><a href="#babylon-api-solution-get-all">get-all</a></em>: Get all registered solutions.</li>
@@ -3374,13 +3374,14 @@
 <li><em><a href="#babylon-api-solution-update">update</a></em>: Send a JSON or YAML file to the API to update a solution.</li>
 </ul>
 <h5 id="babylon-api-solution-create">babylon api solution create</h5>
-<p>Send a JSON or YAML file to the API to create a solution.</p>
+<p>Send a JSON or YAML file to the API to create an solution.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>solution_repository</code> in the deployment config file.</p>
-<p>Requires key <code>solution_version</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_url</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api solution create [OPTIONS] [SOLUTION_FILE]
+<pre><code>babylon api solution create [OPTIONS] SOLUTION_NAME
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3400,10 +3401,10 @@
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>-n</code>, <code>--name</code></td>
+<td><code>-i</code>, <code>--solution-file</code></td>
 <td>text</td>
-<td>New solution name</td>
-<td>_required</td>
+<td>Your custom Solution description file path</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-d</code>, <code>--description</code></td>
@@ -3436,7 +3437,7 @@
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api solution delete [OPTIONS] SOLUTION_ID
+<pre><code>babylon api solution delete [OPTIONS] [SOLUTION_ID]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3462,10 +3463,10 @@
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>--from-file</code></td>
-<td>boolean</td>
-<td>In case the solution id is retrieved from a file</td>
-<td><code>False</code></td>
+<td><code>-i</code>, <code>--solution-file</code></td>
+<td>text</td>
+<td>Your Solution description file path</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -3480,7 +3481,7 @@
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api solution get [OPTIONS] SOLUTION_ID
+<pre><code>babylon api solution get [OPTIONS] [SOLUTION_ID]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3496,7 +3497,13 @@
 <tr>
 <td><code>-o</code>, <code>--output-file</code></td>
 <td>path</td>
-<td>File to which content should be outputted (json-formatted)</td>
+<td>The path to the file where Connector details should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-i</code>, <code>--solution-file</code></td>
+<td>text</td>
+<td>Your Solution description file path</td>
 <td>None</td>
 </tr>
 <tr>
@@ -3509,12 +3516,6 @@
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
 <td>boolean</td>
 <td>Should the path be relative to the working directory ?</td>
-<td><code>False</code></td>
-</tr>
-<tr>
-<td><code>--from-file</code></td>
-<td>boolean</td>
-<td>In case the solution id is retrieved from a file</td>
 <td><code>False</code></td>
 </tr>
 <tr>
@@ -3546,7 +3547,7 @@
 <tr>
 <td><code>-o</code>, <code>--output-file</code></td>
 <td>path</td>
-<td>File to which content should be outputted (json-formatted)</td>
+<td>The path to the file where Solutions should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
 <tr>
@@ -3585,7 +3586,7 @@
 <tr>
 <td><code>-o</code>, <code>--output-file</code></td>
 <td>path</td>
-<td>File to which content should be outputted (json-formatted)</td>
+<td>The path to the file where Connector details should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
 <tr>
@@ -3606,9 +3607,12 @@
 <p>Send a JSON or YAML file to the API to update a solution.</p>
 <p>Requires key <code>solution_id</code> in the deployment config file.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_url</code> in the deployment config file.</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api solution update [OPTIONS] SOLUTION_FILE
+<pre><code>babylon api solution update [OPTIONS] [SOLUTION_ID]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3626,6 +3630,12 @@
 <td>boolean</td>
 <td>Should the path be relative to the working directory ?</td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-i</code>, <code>--solution-file</code></td>
+<td>text</td>
+<td>Your custom Solution description file path</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
