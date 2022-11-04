@@ -68,15 +68,8 @@ def complete_yaml(template_yaml: pathlib.Path, target_yaml: pathlib.Path):
     """
     with template_yaml.open() as _te, target_yaml.open() as _ta:
         _template = yaml.safe_load(_te)
-        _target = yaml.safe_load(_ta)
-        try:
-            for k, v in _template.items():
-                try:
-                    _target.setdefault(k, v)
-                except AttributeError:
-                    _target = dict()
-                    _target.setdefault(k, v)
-        except AttributeError:
-            pass
+        _target = yaml.safe_load(_ta) or {}
+        for k, v in _template.items():
+            _target.setdefault(k, v)
     with target_yaml.open("w") as _ta:
         yaml.safe_dump(_target, _ta)
