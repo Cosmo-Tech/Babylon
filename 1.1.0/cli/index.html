@@ -780,8 +780,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-acr-get-all" class="md-nav__link">
-    get-all
+  <a href="#babylon-azure-acr-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-acr-list" class="md-nav__link">
+    list
   </a>
   
 </li>
@@ -1873,8 +1880,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-acr-get-all" class="md-nav__link">
-    get-all
+  <a href="#babylon-azure-acr-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-acr-list" class="md-nav__link">
+    list
   </a>
   
 </li>
@@ -3115,18 +3129,18 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-api-organization-create">create</a></em>: Register new organization by sending a JSON or YAML file to Cosmotech Api</li>
+<li><em><a href="#babylon-api-organization-create">create</a></em>: Register new organization by sending a JSON or YAML file</li>
 <li><em><a href="#babylon-api-organization-delete">delete</a></em>: Delete organization via Cosmotech APi.</li>
 <li><em><a href="#babylon-api-organization-get">get</a></em>: Get the state of an specific organization in the API.</li>
 <li><em><a href="#babylon-api-organization-get-all">get-all</a></em>: Get all registered organization.</li>
-<li><em><a href="#babylon-api-organization-get-current">get-current</a></em>: Get the state of current configuration organization in the API.</li>
+<li><em><a href="#babylon-api-organization-get-current">get-current</a></em>: Get the state of the current organization in the API.</li>
 <li><em><a href="#babylon-api-organization-update">update</a></em>: Update an Organization by sending a JSON or YAML file to Cosmotech Api.</li>
 </ul>
 <h5 id="babylon-api-organization-create">babylon api organization create</h5>
-<p>Register new organization by sending a JSON or YAML file to Cosmotech Api</p>
+<p>Register new organization by sending a JSON or YAML file</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api organization create [OPTIONS] [ORGANIZATION_FILE]
+<pre><code>babylon api organization create [OPTIONS] ORGANIZATION_NAME
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3140,22 +3154,28 @@
 </thead>
 <tbody>
 <tr>
-<td><code>-e</code>, <code>--use-working-dir-file</code></td>
-<td>boolean</td>
-<td>Should the path be relative to the working directory ?</td>
-<td><code>False</code></td>
+<td><code>-i</code>, <code>--organization-file</code></td>
+<td>text</td>
+<td>Your custom Organization description file path</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--select</code></td>
 <td>boolean</td>
-<td>If true, the created Organization will be set as organization of current babylon context</td>
+<td>Select this new Organization as one of babylon context Organizations ?</td>
 <td><code>True</code></td>
 </tr>
 <tr>
-<td><code>-n</code>, <code>--name</code></td>
-<td>text</td>
-<td>New organization name</td>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>The path to the file where the new Organization content should be outputted (json-formatted)</td>
 <td>None</td>
+</tr>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the Organization file path be relative to Babylon working directory ?</td>
+<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -3169,7 +3189,7 @@
 <p>Delete organization via Cosmotech APi.</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api organization delete [OPTIONS] ORGANIZATION_ID
+<pre><code>babylon api organization delete [OPTIONS] [ORGANIZATION_ID]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3183,9 +3203,21 @@
 </thead>
 <tbody>
 <tr>
+<td><code>-i</code>, <code>--organization-file</code></td>
+<td>text</td>
+<td>In case the organization id is retrieved from a file</td>
+<td>None</td>
+</tr>
+<tr>
 <td><code>-f</code>, <code>--force</code></td>
 <td>boolean</td>
 <td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the path be relative to the working directory ?</td>
 <td><code>False</code></td>
 </tr>
 <tr>
@@ -3214,9 +3246,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output_file</code></td>
-<td>text</td>
-<td>File to which content should be outputted (json-formatted)</td>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>The path to the file where the new Organization content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
 <tr>
@@ -3251,9 +3283,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output_file</code></td>
-<td>text</td>
-<td>File to which content should be outputted (json-formatted)</td>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>The path to the file where the new Organization content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
 <tr>
@@ -3271,7 +3303,7 @@
 </tbody>
 </table>
 <h5 id="babylon-api-organization-get-current">babylon api organization get-current</h5>
-<p>Get the state of current configuration organization in the API.</p>
+<p>Get the state of the current organization in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
@@ -3289,9 +3321,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output_file</code></td>
-<td>text</td>
-<td>File to which content should be outputted (json-formatted)</td>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>The path to the file where the new Organization content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
 <tr>
@@ -3313,7 +3345,7 @@
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api organization update [OPTIONS] ORGANIZATION_FILE
+<pre><code>babylon api organization update [OPTIONS]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3326,6 +3358,12 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>-i</code>, <code>--organization-file</code></td>
+<td>text</td>
+<td>Your new Organization description file path</td>
+<td>_required</td>
+</tr>
 <tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
 <td>boolean</td>
@@ -3958,6 +3996,7 @@
 <h3 id="babylon-azure">babylon azure</h3>
 <p>Group allowing communication with Microsoft Azure Cloud</p>
 <p>Requires key <code>api_scope</code> in the platform config file.</p>
+<p>Requires the program <code>az</code> to run.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure [OPTIONS] COMMAND [ARGS]...
 </code></pre>
@@ -4014,15 +4053,69 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-azure-acr-get-all">get-all</a></em>: List all docker images in the specified registry</li>
+<li><em><a href="#babylon-azure-acr-delete">delete</a></em>: Delete docker image from selected repository</li>
+<li><em><a href="#babylon-azure-acr-list">list</a></em>: List all docker images in the specified registry</li>
 <li><em><a href="#babylon-azure-acr-pull">pull</a></em>: Pulls a docker image from the ACR registry given in platform configuration</li>
 <li><em><a href="#babylon-azure-acr-push">push</a></em>: Push a docker image to the ACR registry given in platform configuration</li>
 </ul>
-<h5 id="babylon-azure-acr-get-all">babylon azure acr get-all</h5>
-<p>List all docker images in the specified registry</p>
-<p>Requires key <code>acr_registry_name</code> in the platform config file.</p>
+<h5 id="babylon-azure-acr-delete">babylon azure acr delete</h5>
+<p>Delete docker image from selected repository</p>
+<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
+<p>Requires key <code>acr_dest_registry_name</code> in the platform config file.</p>
+<p>Requires key <code>acr_src_registry_name</code> in the platform config file.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon azure acr get-all [OPTIONS]
+<pre><code>babylon azure acr delete [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-r</code>, <code>--registry</code></td>
+<td>text</td>
+<td>Container Registry name to delete from, example: myregistry.azurecr.io</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-d</code>, <code>--direction</code></td>
+<td>choice (<code>src</code> &#x7C; <code>dest</code>)</td>
+<td>Container Registry to delete from</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-i</code>, <code>--image</code></td>
+<td>text</td>
+<td>Remote docker image to pull, example hello-world:latest</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-acr-list">babylon azure acr list</h5>
+<p>List all docker images in the specified registry</p>
+<p>Requires key <code>acr_dest_registry_name</code> in the platform config file.</p>
+<p>Requires key <code>acr_src_registry_name</code> in the platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure acr list [OPTIONS]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -4042,6 +4135,12 @@
 <td>None</td>
 </tr>
 <tr>
+<td><code>-d</code>, <code>--direction</code></td>
+<td>choice (<code>src</code> &#x7C; <code>dest</code>)</td>
+<td>Container Registry choice to delete from</td>
+<td>None</td>
+</tr>
+<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -4051,8 +4150,9 @@
 </table>
 <h5 id="babylon-azure-acr-pull">babylon azure acr pull</h5>
 <p>Pulls a docker image from the ACR registry given in platform configuration</p>
-<p>Requires key <code>acr_image_reference</code> in the deployment config file.</p>
-<p>Requires key <code>acr_registry_name</code> in the platform config file.</p>
+<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
+<p>Requires key <code>acr_src_registry_name</code> in the platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr pull [OPTIONS]
 </code></pre>
@@ -4068,15 +4168,15 @@
 </thead>
 <tbody>
 <tr>
-<td><code>-i</code>, <code>--image</code></td>
-<td>text</td>
-<td>Local docker image to pull</td>
-<td>None</td>
-</tr>
-<tr>
 <td><code>-r</code>, <code>--registry</code></td>
 <td>text</td>
 <td>Container Registry name to pull from, example: myregistry.azurecr.io</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-i</code>, <code>--image</code></td>
+<td>text</td>
+<td>Remote docker image to pull, example hello-world:latest</td>
 <td>None</td>
 </tr>
 <tr>
@@ -4089,8 +4189,9 @@
 </table>
 <h5 id="babylon-azure-acr-push">babylon azure acr push</h5>
 <p>Push a docker image to the ACR registry given in platform configuration</p>
-<p>Requires key <code>acr_image_reference</code> in the deployment config file.</p>
-<p>Requires key <code>acr_registry_name</code> in the platform config file.</p>
+<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
+<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
+<p>Requires key <code>acr_dest_registry_name</code> in the platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr push [OPTIONS]
 </code></pre>
