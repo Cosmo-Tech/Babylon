@@ -129,7 +129,6 @@ def create(
                 f" - key: {retrieved_solution['key']}\n"
                 f" - repository: {retrieved_solution['repository']}\n"
                 f" - version: {retrieved_solution['version']}")
-    logger.debug(pformat(retrieved_solution))
 
     if output_file:
         converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
