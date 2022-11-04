@@ -28,10 +28,10 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 config_directory = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
-conf = Configuration(logger, config_directory=config_directory)
+conf = Configuration(config_directory=config_directory)
 
 working_directory_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
-work_dir = WorkingDir(working_dir_path=working_directory_path, logger=logger)
+work_dir = WorkingDir(working_dir_path=working_directory_path)
 
 env = Environment(configuration=conf, working_dir=work_dir)
 
