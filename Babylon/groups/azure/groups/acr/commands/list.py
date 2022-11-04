@@ -27,7 +27,7 @@ def list(credentials: DefaultAzureCredential, acr_src_registry_name: str, acr_de
     """List all docker images in the specified registry"""
     registry = registry or {"src": acr_src_registry_name, "dest": acr_dest_registry_name}.get(direction)
     if not registry:
-        logger.error("Please specify a registry to list from with --from or --registry")
+        logger.error("Please specify a registry to list from with --direction or --registry")
         return
     cr_client, _ = registry_connect(registry, credentials)
     logger.info("Getting repositories stored in registry %s", registry)
