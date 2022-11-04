@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -32,24 +31,23 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @timing_decorator
 @pass_solution_api
 @pass_environment
-@argument("solution_file", required=False)
-@require_deployment_key("solution_version", "solution_version")
-@require_deployment_key("solution_repository", "solution_repository")
+@argument("solution-name")
+@require_deployment_key("simulator_repository", "simulator_repository")
+@require_deployment_key("simulator_version", "simulator_version")
+@require_deployment_key("simulator_url", "simulator_url")
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-e",
     "--use-working-dir-file",
     "use_working_dir_file",
     is_flag=True,
-    type=bool,
     help="Should the path be relative to the working directory ?",
 )
 @option(
-    "-n",
-    "--name",
-    "solution_name",
-    required=True,
-    help="New solution name",
+    "-i",
+    "--solution-file",
+    "solution_file",
+    help="Your custom Solution description file path",
 )
 @option(
     "-d",
@@ -75,21 +73,22 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 def create(
     env: Environment,
     solution_api: SolutionApi,
+    select: bool,
     organization_id: str,
     solution_name: str,
-    solution_version: str,
-    solution_repository: str,
-    solution_file: str,
-    select: bool,
+    simulator_url: str,
+    simulator_version: str,
+    simulator_repository: str,
     output_file: Optional[str] = None,
+    solution_file: Optional[str] = None,
     solution_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
     dry_run: Optional[bool] = False,
-):
-    """Send a JSON or YAML file to the API to create a solution."""
+) -> Optional[str]:
+    """Send a JSON or YAML file to the API to create an solution."""
 
     if dry_run:
-        logger.info("DRY RUN - Would call solution_api.create_solution")
+        logger.info("DRY RUN - Would call solution_api.create_solution to register a new solution")
         return
 
     converted_solution_content = get_api_file(
@@ -107,8 +106,9 @@ def create(
 
     converted_solution_content["name"] = solution_name
     converted_solution_content["key"] = solution_name.replace(" ", "")
-    converted_solution_content["version"] = solution_version
-    converted_solution_content["repository"] = solution_repository
+    converted_solution_content["version"] = simulator_version
+    converted_solution_content["repository"] = simulator_repository
+    converted_solution_content["url"] = simulator_url
 
     try:
         retrieved_solution = solution_api.create_solution(organization_id=organization_id,
@@ -123,8 +123,11 @@ def create(
     if select:
         env.configuration.set_deploy_var("solution_id", retrieved_solution["id"])
 
-    logger.info(f"Created new solution with id: {retrieved_solution['id']}")
-    logger.debug(pformat(retrieved_solution))
+    logger.info("Created new solution with \n"
+                f" - id: {retrieved_solution['id']}\n"
+                f" - key: {retrieved_solution['key']}\n"
+                f" - repository: {retrieved_solution['repository']}\n"
+                f" - version: {retrieved_solution['version']}")
 
     if output_file:
         converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
@@ -134,3 +137,5 @@ def create(
             except TypeError:
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
+
+    return retrieved_solution['id']

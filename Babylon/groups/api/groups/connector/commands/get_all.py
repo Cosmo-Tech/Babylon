@@ -48,10 +48,10 @@ def get_all(
         logger.error("Unauthorized access to the cosmotech api")
         return
 
-    logger.info(f"Found {len(retrieved_connectors)} connectors")
-    logger.debug(pformat(retrieved_connectors))
     if fields:
         retrieved_connectors = filter_api_response(retrieved_connectors, fields.replace(" ", "").split(","))
+    logger.info(f"Found {len(retrieved_connectors)} connectors")
+    logger.debug(pformat(retrieved_connectors))
     if not output_file:
         logger.info(pformat(retrieved_connectors))
         return
