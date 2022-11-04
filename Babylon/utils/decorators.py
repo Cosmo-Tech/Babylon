@@ -173,7 +173,9 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
     Decorator calling a getter with an argument and storing the result as an inserted argument
     :param getter: function
     """
+
     def wrapper_key(yaml_key: str, required: Optional[bool] = True) -> Callable[..., Any]:
+
         def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
             @wraps(func)
@@ -191,6 +193,7 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
             return wrapper
 
         return wrap_function
+
     return wrapper_key
 
 
