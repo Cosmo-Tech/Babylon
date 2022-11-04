@@ -29,20 +29,19 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @allow_dry_run
 @pass_workspace_api
 @timing_decorator
-@argument("workspace_id", type=str)
+@argument("workspace-id", required=False)
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",
     "--output-file",
     "output_file",
-    help="File to which content should be outputted (json-formatted)",
+    help="The path to the file where Workspace details should be outputted (json-formatted)",
     type=Path(),
 )
 @option(
     "-f",
     "--fields",
     "fields",
-    type=str,
     help="Fields witch will be keep in response data, by default all",
 )
 @option(
@@ -51,23 +50,22 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "use_working_dir_file",
     is_flag=True,
     help="Should the path be relative to the working directory ?",
-    type=bool,
 )
 @option(
-    "-w",
+    "-i",
     "--workspace-file",
     "workspace_file",
     help="In case the workspace id is retrieved from a file",
 )
 def get(
     workspace_api: WorkspaceApi,
-    workspace_id: str,
     organization_id: str,
+    fields: Optional[str] = None,
+    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
+    workspace_id: Optional[str] = None,
     workspace_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    fields: str = None,
-    dry_run: bool = False,
 ):
     """Get the state of the workspace in the API."""
 
@@ -90,19 +88,23 @@ def get(
             logger.error("Error : can not get Workspace definition, please check your file")
             return
 
-        workspace_id = converted_workspace_content["id"] or converted_workspace_content["workspace_id"]
-        if not workspace_id:
-            logger.error(f"Could not found workspace id in {workspace_file}.")
-            return
+        try:
+            workspace_id = converted_workspace_content["id"]
+        except KeyError:
+            try:
+                workspace_id = converted_workspace_content["workspace_id"]
+            except KeyError:
+                logger.error("Can not get solution id, please check your file")
+                return
 
     try:
         retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id,
                                                                  organization_id=organization_id)
-    except NotFoundException:
-        logger.error(f"Workspace {workspace_id} does not exists in organization {organization_id}.")
-        return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except NotFoundException:
+        logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
         return
 
     if fields:
@@ -118,5 +120,5 @@ def get(
             json.dump(converted_content, _f, ensure_ascii=False)
         except TypeError:
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-    logger.info(f"Datset {workspace_id} detail was dumped on {output_file}")
+    logger.info(f"Workspace {workspace_id} detail was dumped on {output_file}")
     logger.debug(pformat(retrieved_workspace))

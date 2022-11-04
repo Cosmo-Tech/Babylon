@@ -33,7 +33,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "-o",
     "--output-file",
     "output_file",
-    help="File to which content should be outputted (json-formatted)",
+    help="The path to the file where Workspace details should be outputted (json-formatted)",
     type=Path(),
 )
 @option(
@@ -46,9 +46,9 @@ def get_current(
     workspace_api: WorkspaceApi,
     workspace_id: str,
     organization_id: str,
-    output_file: Optional[str] = None,
     fields: Optional[str] = None,
     dry_run: Optional[bool] = False,
+    output_file: Optional[str] = None,
 ):
     """Get the state of the workspace in the API."""
 
@@ -59,11 +59,11 @@ def get_current(
     try:
         retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id,
                                                                  organization_id=organization_id)
-    except NotFoundException:
-        logger.error(f"Workspace {workspace_id} does not exists in organization {organization_id}.")
-        return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except NotFoundException:
+        logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
         return
 
     if fields:
