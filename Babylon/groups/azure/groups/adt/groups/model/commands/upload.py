@@ -1,3 +1,4 @@
+import glob
 import json
 import logging
 import pathlib
@@ -55,29 +56,32 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool)
 
 @command()
 @pass_dt_client
-@argument("model_file",
-          type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
+@argument("model_file_folder",
+          type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
 @option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
 @describe_dry_run("Would go through the given file and upload the models to ADT")
 def upload(
     dt_client: DigitalTwinsClient,
-    model_file: pathlib.Path,
+    model_file_folder: pathlib.Path,
     override_if_exists: bool = False,
 ):
-    """Upload MODEL_FILE to adt
+    """Upload MODEL_FILE_FOLDER content to adt
 
-    MODEL_FILE must be a json file"""
+    MODEL_FILE_FOLDER must be a folder containing json file"""
 
-    if model_file.suffix != ".json":
-        logger.error(f"{model_file} is not a json file")
-        return
+    model_files = glob.glob(str(model_file_folder / "*.json"))
+    for _model_file in model_files:
+        model_file = pathlib.Path(_model_file)
+        if model_file.suffix != ".json":
+            logger.error(f"{model_file} is not a json file")
+            continue
 
-    with open(model_file, "r") as file:
-        model_file_content = json.load(file)
+        with open(model_file, "r") as file:
+            model_file_content = json.load(file)
 
-    if type(model_file_content) is list:
-        for model in model_file_content:
-            upload_one_model(dt_client, model, override_if_exists)
-        return
+        if type(model_file_content) is list:
+            for model in model_file_content:
+                upload_one_model(dt_client, model, override_if_exists)
+            continue
 
-    upload_one_model(dt_client, model_file_content, override_if_exists)
+        upload_one_model(dt_client, model_file_content, override_if_exists)
