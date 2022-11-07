@@ -13,7 +13,7 @@ from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
@@ -25,7 +25,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **workspace_api.delete_workspace** to delete a workspace")
 @pass_workspace_api
 @pass_environment
 @timing_decorator
@@ -55,17 +55,12 @@ def delete(
     env: Environment,
     workspace_api: WorkspaceApi,
     organization_id: str,
-    dry_run: Optional[bool] = False,
     workspace_id: Optional[str] = None,
     workspace_file: Optional[str] = None,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
 ) -> Optional[str]:
     """Unregister a workspace via Cosmotech APi."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call workspace_api.delete_workspace to delete a workspace")
-        return
 
     if not workspace_id:
         if not workspace_file:

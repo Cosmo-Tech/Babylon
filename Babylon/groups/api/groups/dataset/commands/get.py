@@ -16,7 +16,7 @@ from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -26,7 +26,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **dataset_api.find_dataset_by_id**")
 @pass_dataset_api
 @timing_decorator
 @argument("dataset_id")
@@ -66,13 +66,8 @@ def get(
     from_file: bool = False,
     use_working_dir_file: Optional[bool] = False,
     fields: str = None,
-    dry_run: bool = False,
 ):
     """Get the state of the dataset in the API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call dataset_api.find_dataset_by_id")
-        return
 
     if from_file:
         dataset_file = dataset_id

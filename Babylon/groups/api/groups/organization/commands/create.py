@@ -15,7 +15,7 @@ from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
@@ -26,7 +26,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **organization_api.create_organization** to register a new Organization")
 @timing_decorator
 @pass_organization_api
 @pass_environment
@@ -53,16 +53,11 @@ def create(
     organization_api: OrganizationApi,
     select: bool,
     organization_name: str,
-    dry_run: bool = False,
     output_file: Optional[str] = None,
     organization_file: Optional[str] = None,
     use_working_dir_file: bool = False,
 ) -> Optional[str]:
     """Register new organization by sending a JSON or YAML file"""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call organization_api.create_organization to register a new Organization")
-        return
 
     converted_organization_content = get_api_file(
         api_file_path=organization_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Organization.yaml",

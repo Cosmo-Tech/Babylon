@@ -16,7 +16,7 @@ from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
@@ -27,7 +27,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **connector_api.create_connector** to register a new Connector")
 @timing_decorator
 @pass_connector_api
 @pass_environment
@@ -63,16 +63,11 @@ def create(
     connector_type: str,
     connector_name: str,
     connector_version: str,
-    dry_run: Optional[str] = False,
     output_file: Optional[str] = None,
     connector_file: Optional[str] = None,
     use_working_dir_file: Optional[str] = False,
 ):
     """Register a new Connector by sending a JSON or YAML file to the API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call connector_api.create_connector to register a new Connector")
-        return
 
     connector_type = connector_type.upper()
     converted_connector_content = get_api_file(
