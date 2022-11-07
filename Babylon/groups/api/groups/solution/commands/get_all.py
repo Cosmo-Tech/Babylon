@@ -66,7 +66,7 @@ def get_all(
     logger.info(f"Found {len(retrieved_solutions)} solutions")
     logger.debug(Pretty(retrieved_solutions))
     if not output_file:
-        logger.info(Pretty(retrieved_solutions, sort_dicts=False))
+        logger.info(Pretty(retrieved_solutions))
         return
 
     _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]

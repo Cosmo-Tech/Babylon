@@ -1,18 +1,17 @@
 import logging
-import typing
+from typing import Optional
 
 from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import ResourceNotFoundError
 from azure.core.exceptions import HttpResponseError
 from click import Choice
 from click import command
-from click import confirm
 from click import option
-from click import prompt
 from click import make_pass_decorator
 
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import require_deployment_key
+from ......utils.interactive import confirm_deletion
 from ..registry_connect import registry_connect
 
 logger = logging.getLogger("Babylon")
@@ -41,10 +40,10 @@ def delete(credentials: DefaultAzureCredential,
            acr_dest_registry_name: str,
            simulator_repository: str,
            simulator_version: str,
-           registry: typing.Optional[str] = None,
-           direction: typing.Optional[str] = None,
-           image: typing.Optional[str] = None,
-           force_validation: typing.Optional[bool] = False):
+           registry: Optional[str] = None,
+           direction: Optional[str] = None,
+           image: Optional[str] = None,
+           force_validation: bool = False):
     """Delete docker image from selected repository"""
     registry = registry or {"src": acr_src_registry_name, "dest": acr_dest_registry_name}.get(direction)
     if not registry:
@@ -59,16 +58,8 @@ def delete(credentials: DefaultAzureCredential,
         logger.error(f"Image {image} not found in registry {registry}")
         return
 
-    if not force_validation:
-        if not confirm(f"You are trying to delete image {image} \nDo you want to continue ?"):
-            logger.info("Image deletion aborted.")
-            return
-
-        confirm_image_name = prompt("Confirm image name ")
-        if confirm_image_name != image:
-            logger.error("Wrong image name, "
-                         "the names must be the same as the one that has been provide in delete command argument")
-            return
+    if not force_validation and not confirm_deletion("Image", image):
+        return
 
     logger.info(f"Deleting image {image} from registry {registry}")
     try:
