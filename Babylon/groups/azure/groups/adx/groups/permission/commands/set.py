@@ -15,16 +15,6 @@ from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure adx permission set "existing_principal_id" -r Viewer
-Should ask for the missing principal type
-> babylon azure adx permission set "existing_principal_id" -t App
-Should ask for the missing principal role
-> babylon azure adx permission set "existing_principal_id" -t App -r Viewer
-Should ask for the missing principal role
-> babylon azure adx permission set "unknown_principal_id" -t App -r Viewer
-Should log a clean error message
-"""
 
 
 @command()
@@ -49,7 +39,6 @@ def set(ctx: Context, resource_group_name: str, cluster_name: str, database_name
     """Set permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
-    principal_assignment_name = str(uuid4())
     logger.info("Creating assignment...")
 
     kusto_mgmt.database_principal_assignments.begin_create_or_update(resource_group_name, cluster_name, database_name,

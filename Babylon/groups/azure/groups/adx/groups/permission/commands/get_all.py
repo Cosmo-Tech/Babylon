@@ -1,19 +1,19 @@
 import logging
-from pprint import pformat
+import pathlib
+import json
 
 from azure.mgmt.kusto import KustoManagementClient
 from click import Context
 from click import command
 from click import pass_context
+from click import option
+from click import Path
+from rich.pretty import Pretty
 
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure adx permission get-all
-Should list all available assignments
-"""
 
 
 @command()
@@ -21,10 +21,22 @@ Should list all available assignments
 @require_platform_key("resource_group_name")
 @require_platform_key("cluster_name")
 @require_deployment_key("database_name")
-def get_all(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str):
+@option(
+    "-o",
+    "--output-file",
+    "output_file",
+    type=Path(writable=True),
+    help="The path to the file where ADT instances details should be outputted (json-formatted)",
+)
+def get_all(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, output_file: pathlib.Path):
     """Get all permission assignments in the database"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     logger.info("Getting assignments...")
     assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, cluster_name, database_name)
-    for ent in assignments:
-        logger.info(f"{pformat(ent.__dict__)}")
+    assigns = [assign.__dict__ for assign in assignments]
+    if not output_file:
+        logger.info(Pretty(assigns))
+        return
+
+    with open(output_file, "w") as _f:
+        json.dump(assigns, _f, ensure_ascii=False)

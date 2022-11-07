@@ -34,7 +34,7 @@ In the script instances of "<database name>" will be replaced by the actual data
     if script_file.suffix != ".kql":
         logger.warning(f"File {script_file.name} is not a kql file. Errors could happen.")
     script_name = f"{int(time.time() // 1)}-{script_file.name}"
-    with open(script_file) as _script_file:
+    with open(script_file, "r") as _script_file:
         logger.info(f"Reading {script_file}")
         script_content = _script_file.read().replace("<database name>", database_name)
         logger.info("Sending script to database.")
