@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -10,6 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 from cosmotech_api.exceptions import ServiceException
 
@@ -37,7 +37,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "--output-file",
     "output_file",
     help="The path to the file where Workspace details should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-f",
@@ -65,7 +65,7 @@ def get(
     output_file: Optional[str] = None,
     workspace_id: Optional[str] = None,
     workspace_file: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ):
     """Get the state of the workspace in the API."""
 
@@ -110,7 +110,7 @@ def get(
         retrieved_workspace = filter_api_response_item(retrieved_workspace, fields.split(","))
     if not output_file:
         logger.info(f"Workspace {workspace_id} details :")
-        logger.info(pformat(retrieved_workspace))
+        logger.info(Pretty(retrieved_workspace))
         return
 
     converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)
@@ -120,4 +120,4 @@ def get(
         except TypeError:
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
     logger.info(f"Workspace {workspace_id} detail was dumped on {output_file}")
-    logger.debug(pformat(retrieved_workspace))
+    logger.debug(Pretty(retrieved_workspace))

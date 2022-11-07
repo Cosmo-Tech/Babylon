@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -10,6 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
@@ -62,7 +62,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "--output-file",
     "output_file",
     help="The path to the file where the created workspace should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-s",
@@ -84,13 +84,13 @@ def create(
     output_file: Optional[str] = None,
     workspace_file: Optional[str] = None,
     workspace_description: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ) -> Optional[str]:
     """Send a JSON or YAML file to the API to create a workspace."""
 
+    api_file_path = workspace_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml"
     converted_workspace_content = get_api_file(
-        api_file_path=workspace_file
-        if workspace_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml",
+        api_file_path=api_file_path,
         use_working_dir_file=use_working_dir_file if workspace_file else False,
         logger=logger,
     )
@@ -107,10 +107,8 @@ def create(
     converted_workspace_content["use_dedicated_event_hub_namespace"] = use_dedicated_event_hub_namespace
     converted_workspace_content["solution"]["solution_id"] = solution_id
 
-    if converted_workspace_content.get("id"):
-        del converted_workspace_content["id"]
-    if converted_workspace_content.get("workspace_id"):
-        del converted_workspace_content["workspace_id"]
+    converted_workspace_content.pop("id", None)
+    converted_workspace_content.pop("workspace_id", None)
 
     logger.info(f"Creating Workspace {workspace_name}")
 
@@ -137,7 +135,7 @@ def create(
         f" - key: {retrieved_workspace['key']}\n"
         f" - send_scenario_metadata_to_event_hub: {retrieved_workspace['send_scenario_metadata_to_event_hub']}\n"
         f" - use_dedicated_event_hub_namespace: {retrieved_workspace['use_dedicated_event_hub_namespace']}")
-    logger.debug(pformat(retrieved_workspace))
+    logger.debug(Pretty(retrieved_workspace))
 
     if output_file:
         converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)

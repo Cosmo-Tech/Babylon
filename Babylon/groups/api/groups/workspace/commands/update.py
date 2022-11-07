@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -11,6 +10,7 @@ from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -43,7 +43,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "--output-file",
     "output_file",
     help="The path to the file where new Workspace details should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @require_deployment_key("use_dedicated_event_hub_namespace")
 @require_deployment_key("use_dedicated_event_hub_namespace")
@@ -65,7 +65,7 @@ def update(
     use_dedicated_event_hub_namespace: str,
     send_scenario_metadata_to_event_hub: str,
     output_file: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ):
     """Send a JSON or YAML file to the API to update a workspace."""
 
@@ -82,12 +82,10 @@ def update(
     converted_workspace_content["use_dedicated_event_hub_namespace"] = use_dedicated_event_hub_namespace
     converted_workspace_content["solution"]["solution_id"] = solution_id
 
-    if "id" not in converted_workspace_content:
+    workspace_id = converted_workspace_content.pop("id", None)
+    if not workspace_id:
         logger.error("Error : can not get connector id in the Connector.YAML file")
         return
-
-    workspace_id = converted_workspace_content["id"]
-    del converted_workspace_content["id"]
 
     try:
         retrieved_workspace = workspace_api.update_workspace(workspace_id=workspace_id,
@@ -117,5 +115,5 @@ def update(
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    logger.debug(pformat(retrieved_workspace))
+    logger.debug(Pretty(retrieved_workspace))
     logger.info(f"Workspace: {retrieved_workspace['id']} updated.")

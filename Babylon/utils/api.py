@@ -3,7 +3,9 @@ import logging
 import pathlib
 import re
 from typing import Any
+from typing import Dict
 from typing import Callable
+from typing import List
 from typing import Iterable
 
 import click
@@ -63,7 +65,7 @@ def convert_keys_case(element: Any, convert_function: Callable[[str], str]) -> A
     return element
 
 
-def filter_api_response_item(api_response_body: Any, fields: Iterable[str]) -> Any:
+def filter_api_response_item(api_response_body: Any, fields: Iterable[str]) -> Dict[Any, Any]:
     """
     This function allow to apply a filter on an api unique response body keys
     :param api_response_body: A single api response data in key=>value format
@@ -75,7 +77,7 @@ def filter_api_response_item(api_response_body: Any, fields: Iterable[str]) -> A
     return {_key: _value for _key, _value in _api_response_body.items() if _key in fields}
 
 
-def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> Any:
+def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> List[Dict[Any, Any]]:
     """
     This function allow to apply a filter on an api response list body keys
     :param api_response_body: A Set api response data in key=>value format

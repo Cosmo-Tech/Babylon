@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -9,6 +8,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -33,7 +33,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "--output-file",
     "output_file",
     help="The path to the file where Workspaces should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-f",
@@ -61,7 +61,7 @@ def get_all(
         retrieved_workspaces = filter_api_response(retrieved_workspaces, fields.split(","))
     logger.info(f"Found {len(retrieved_workspaces)} workspaces")
     if not output_file:
-        logger.info(pformat(retrieved_workspaces, sort_dicts=False))
+        logger.info(Pretty(retrieved_workspaces))
         return
 
     _workspaces_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_workspaces]
