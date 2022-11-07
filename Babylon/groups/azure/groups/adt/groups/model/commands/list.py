@@ -21,7 +21,7 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
     "-o",
     "--output-file",
     "output_file",
-    type=click.Path(exists=False, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
+    type=click.Path(file_okay=True, writable=True),
     help="Write full output of the adt api in target file",
 )
 def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None):
@@ -42,5 +42,8 @@ def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = No
             _file_content.append(model.as_dict())
 
     if output_file:
-        logger.info(f"Writing models to {output_file.absolute()}")
-        json.dump(_file_content, open(output_file, "w"))
+        return
+
+    logger.info(f"Writing models to {output_file.absolute()}")
+    with open(output_file, "w") as _f:
+        json.dump(_file_content, _f, ensure_ascii=False)

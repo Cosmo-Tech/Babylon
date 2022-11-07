@@ -1,7 +1,6 @@
 import json
 import logging
 import pathlib
-from pprint import pformat
 from typing import Optional
 
 import click
@@ -11,6 +10,7 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
+from rich.pretty import Pretty
 
 from ........utils.api import convert_keys_case
 from ........utils.api import underscore_to_camel
@@ -30,7 +30,7 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
     "-o",
     "--output_file",
     "output_file",
-    type=click.Path(),
+    type=click.Path(writable=True),
     help="The path to the file where the retrieved ADT instance details should be outputted (json-formatted)",
 )
 @argument("adt_instance_name")
@@ -48,13 +48,13 @@ def get(
         logger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
         return
     instance = instance.as_dict()
-    del instance["id"]
+    instance.remove("id")
 
-    if output_file:
-        _instances_to_dump = convert_keys_case(instance, underscore_to_camel)
-        with open(output_file, "w") as _file:
-            json.dump(_instances_to_dump, _file, ensure_ascii=False)
-        logger.info("Full content was dumped on %s", output_file)
+    if not output_file:
+        logger.info(Pretty(instance))
         return
 
-    logger.info(pformat(instance))
+    _instances_to_dump = convert_keys_case(instance, underscore_to_camel)
+    with open(output_file, "w") as _file:
+        json.dump(_instances_to_dump, _file, ensure_ascii=False)
+    logger.info(f"Full content was dumped on {output_file}")

@@ -1,7 +1,6 @@
 import json
 import logging
 import pathlib
-from pprint import pformat
 from typing import Optional
 
 import click
@@ -10,6 +9,7 @@ from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import command
 from click import make_pass_decorator
 from click import option
+from rich.pretty import Pretty
 
 from ........utils.api import convert_keys_case
 from ........utils.api import filter_api_response
@@ -30,7 +30,7 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
     "-o",
     "--output-file",
     "output_file",
-    type=click.Path(),
+    type=click.Path(writable=True),
     help="The path to the file where ADT instances details should be outputted (json-formatted)",
 )
 @option(
@@ -60,11 +60,12 @@ def list(
         fields = fields.replace(" ", "").split(",")
         instances = filter_api_response(instances, fields)
 
-    if output_file:
-        _instances_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in instances]
-        with open(output_file, "w") as _file:
-            json.dump(_instances_to_dump, _file, ensure_ascii=False)
-        logger.info("Full content was dumped on %s", output_file)
+    if not output_file:
+        logger.info(Pretty(instances))
         return
 
-    logger.info(pformat(instances))
+    _instances_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in instances]
+    with open(output_file, "w") as _file:
+        json.dump(_instances_to_dump, _file, ensure_ascii=False)
+    logger.info("Full content was dumped on %s", output_file)
+    return

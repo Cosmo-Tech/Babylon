@@ -2,7 +2,6 @@ import glob
 import json
 import logging
 import pathlib
-import pprint
 
 import click
 from azure.core.exceptions import ResourceExistsError
@@ -12,6 +11,7 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
+from rich.pretty import Pretty
 
 from ........utils.decorators import describe_dry_run
 
@@ -27,9 +27,8 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool)
     :param override: Should the model be overridden if it exists ?
     :return: True if the model was uploaded
     """
-    try:
-        model_id = model["@id"]
-    except KeyError:
+    model_id = model.get("@id")
+    if not model_id:
         logger.error("Given model is missing `@id`")
         return False
 
@@ -42,7 +41,7 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool)
             pass
 
     logger.info(f"Uploading model {model_id}")
-    logger.debug(pprint.pformat(model))
+    logger.debug(Pretty(model))
 
     try:
         dt_client.create_models([
