@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -10,6 +9,7 @@ from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -35,7 +35,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--output-file",
     "output_file",
     help="The path to the file where Connector details should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-f",
@@ -65,10 +65,10 @@ def get_current(
 
     if fields:
         retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
-    logger.debug(pformat(retrieved_solution))
+    logger.debug(Pretty(retrieved_solution))
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
-        logger.info(pformat(retrieved_solution))
+        logger.info(Pretty(retrieved_solution))
         return
 
     converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)

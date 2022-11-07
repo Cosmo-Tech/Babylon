@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -10,6 +9,7 @@ from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -34,7 +34,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--output-file",
     "output_file",
     help="The path to the file where Solutions should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-f",
@@ -64,9 +64,9 @@ def get_all(
     if fields:
         retrieved_solutions = filter_api_response(retrieved_solutions, fields.replace(" ", "").split(","))
     logger.info(f"Found {len(retrieved_solutions)} solutions")
-    logger.debug(pformat(retrieved_solutions))
+    logger.debug(Pretty(retrieved_solutions))
     if not output_file:
-        logger.info(pformat(retrieved_solutions, sort_dicts=False))
+        logger.info(Pretty(retrieved_solutions, sort_dicts=False))
         return
 
     _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]

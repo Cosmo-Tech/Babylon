@@ -3,10 +3,8 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
@@ -15,6 +13,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
+from ......utils.interactive import confirm_deletion
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -54,8 +53,8 @@ def delete(
     organization_id: str,
     solution_id: Optional[str] = None,
     solution_file: Optional[str] = None,
-    force_validation: Optional[bool] = False,
-    use_working_dir_file: Optional[bool] = False,
+    force_validation: bool = False,
+    use_working_dir_file: bool = False,
 ) -> Optional[str]:
     """Unregister a solution via Cosmotech APi."""
 
@@ -91,17 +90,8 @@ def delete(
         logger.error(f"Organization with id {organization_id} not found.")
         return
 
-    if not force_validation:
-
-        if not confirm(f"You are trying to delete solution {solution_id} solutions of organization {organization_id} \n"
-                       "Do you want to continue?"):
-            logger.info("Solution deletion aborted.")
-            return
-
-        confirm_solution_id = prompt("Confirm solution id ")
-        if confirm_solution_id != solution_id:
-            logger.error("The solution id you have type didn't mach with solution you are trying to delete id")
-            return
+    if not force_validation and not confirm_deletion("Solution", solution_id):
+        return
 
     logger.info(f"Deleting solution {solution_id}")
 

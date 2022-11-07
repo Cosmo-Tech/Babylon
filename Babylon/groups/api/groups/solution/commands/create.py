@@ -61,7 +61,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "--output-file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-s",
@@ -71,25 +71,23 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     help="Select this new Solution as babylon context solution ?",
     default=True,
 )
-def create(
-    env: Environment,
-    solution_api: SolutionApi,
-    select: bool,
-    organization_id: str,
-    solution_name: str,
-    simulator_url: str,
-    simulator_version: str,
-    simulator_repository: str,
-    output_file: Optional[str] = None,
-    solution_file: Optional[str] = None,
-    solution_description: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
-) -> Optional[str]:
+def create(env: Environment,
+           solution_api: SolutionApi,
+           select: bool,
+           organization_id: str,
+           solution_name: str,
+           simulator_url: str,
+           simulator_version: str,
+           simulator_repository: str,
+           output_file: Optional[str] = None,
+           solution_file: Optional[str] = None,
+           solution_description: Optional[str] = None,
+           use_working_dir_file: bool = False) -> Optional[str]:
     """Send a JSON or YAML file to the API to create an solution."""
 
+    api_file_path = solution_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml"
     converted_solution_content = get_api_file(
-        api_file_path=solution_file
-        if solution_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",
+        api_file_path=api_file_path,
         use_working_dir_file=use_working_dir_file if solution_file else False,
         logger=logger,
     )

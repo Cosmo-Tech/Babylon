@@ -1,5 +1,4 @@
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import argument
@@ -10,6 +9,7 @@ from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -53,11 +53,11 @@ def update(
     simulator_version: str,
     simulator_repository: str,
     solution_file: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ):
     """Send a JSON or YAML file to the API to update a solution."""
 
-    converted_solution_content = dict()
+    converted_solution_content = {}
 
     if solution_file:
         converted_solution_content = get_api_file(
@@ -67,7 +67,7 @@ def update(
         )
 
         if not converted_solution_content:
-            logger.error("Can not get correct connector definition, please check your Solution.YAML file")
+            logger.error("Can not get correct solution definition, please check your Solution.YAML file")
             return
 
         try:
@@ -100,4 +100,4 @@ def update(
                 f" - url: {retrieved_solution['url']}\n"
                 f" - repository: {retrieved_solution['repository']}\n"
                 f" - version: {retrieved_solution['version']}")
-    logger.debug(pformat(retrieved_solution))
+    logger.debug(Pretty(retrieved_solution))
