@@ -1,6 +1,4 @@
 from logging import getLogger
-from pprint import pformat
-from typing import Optional
 
 from click import command
 from click import make_pass_decorator
@@ -8,6 +6,7 @@ from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -41,7 +40,7 @@ def update(
     organization_api: OrganizationApi,
     organization_file: str,
     organization_id: str,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ):
     """Update an Organization by sending a JSON or YAML file to Cosmotech Api."""
 
@@ -69,5 +68,5 @@ def update(
         logger.error(f"You are not allowed to update the Organization : {organization_id}")
         return
 
-    logger.debug(pformat(retrieved_data))
+    logger.debug(Pretty(retrieved_data))
     logger.info(f"Updated organization with id: {retrieved_data['id']}")

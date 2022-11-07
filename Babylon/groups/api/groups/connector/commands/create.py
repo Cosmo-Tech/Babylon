@@ -80,7 +80,6 @@ def create(
         logger.error("Error : can not get correct Connector definition, please check your Connector.YAML file")
         return
 
-
     converted_connector_content["name"] = connector_name
     converted_connector_content["version"] = connector_version
     converted_connector_content.setdefault("key", connector_name.replace(" ", ""))

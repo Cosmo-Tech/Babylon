@@ -1,6 +1,4 @@
 from logging import getLogger
-from pprint import pformat
-from typing import Optional
 
 from click import argument
 from click import command
@@ -10,6 +8,7 @@ from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -42,7 +41,7 @@ def update(
     connector: str,
     organization_id: str,
     dataset_id: str,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ):
     """Send a JSON or YAML file to the API to update a dataset."""
 
@@ -81,5 +80,5 @@ def update(
         logger.error(f"You are not allowed to update the dataset : {dataset_id}")
         return
 
-    logger.debug(pformat(retrieved_dataset))
+    logger.debug(Pretty(retrieved_dataset))
     logger.info(f"Updated dataset with id: {retrieved_dataset['id']}")

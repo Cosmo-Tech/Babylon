@@ -1,15 +1,16 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
+from click import Path
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -34,7 +35,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "--output_file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=str,
+    type=Path(writable=True),
 )
 @option(
     "-f",
@@ -51,14 +52,12 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     is_flag=True,
     help="Should the path be relative to the working directory ?",
 )
-def search(
-    dataset_api: DatasetApi,
-    organization_id: str,
-    search_parameters: str,
-    output_file: Optional[str] = None,
-    use_working_dir_file: bool = False,
-    fields: str = None,
-):
+def search(dataset_api: DatasetApi,
+           organization_id: str,
+           search_parameters: str,
+           output_file: Optional[str] = None,
+           use_working_dir_file: bool = False,
+           fields: Optional[str] = None):
     """Get all dataset having corresponding tag."""
 
     converted_search_parameters_content = get_api_file(
@@ -91,4 +90,4 @@ def search(
             json.dump(_datasets_to_dump, _file, ensure_ascii=False)
         logger.info("Full content was dumped on %s.", output_file)
         return
-    logger.info(pformat(retrieved_datasets, sort_dicts=False))
+    logger.info(Pretty(retrieved_datasets))

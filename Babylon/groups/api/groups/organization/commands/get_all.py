@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -8,6 +7,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -29,7 +29,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         "--output-file",
         "output_file",
         help="The path to the file where the new Organization content should be outputted (json-formatted)",
-        type=Path())
+        type=Path(writable=True))
 @option(
     "-f",
     "--fields",
@@ -50,11 +50,11 @@ def get_all(
         return
 
     logger.info(f"Found {len(retrieved_organizations)} organizations")
-    logger.debug(pformat(retrieved_organizations))
+    logger.debug(Pretty(retrieved_organizations))
     if fields:
         retrieved_organizations = filter_api_response(retrieved_organizations, fields.replace(" ", "").split(","))
     if not output_file:
-        logger.info(pformat(retrieved_organizations))
+        logger.info(Pretty(retrieved_organizations))
         return
 
     _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]

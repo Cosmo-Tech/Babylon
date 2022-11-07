@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -10,6 +9,7 @@ from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -34,7 +34,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "--output-file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-f",
@@ -42,12 +42,10 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "fields",
     help="Fields witch will be keep in response data, by default all",
 )
-def get_all(
-    dataset_api: DatasetApi,
-    organization_id: str,
-    output_file: Optional[str] = None,
-    fields: str = None,
-):
+def get_all(dataset_api: DatasetApi,
+            organization_id: str,
+            output_file: Optional[str] = None,
+            fields: Optional[str] = None):
     """Get all registered datasets."""
     try:
         retrieved_datasets = dataset_api.find_all_datasets(organization_id)
@@ -65,7 +63,7 @@ def get_all(
         retrieved_datasets = filter_api_response(retrieved_datasets, fields.replace(" ", "").split(","))
     logger.info(f"Found {len(retrieved_datasets)} datasets")
     if not output_file:
-        logger.info(pformat(retrieved_datasets, sort_dicts=False))
+        logger.info(Pretty(retrieved_datasets))
         return
 
     _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]

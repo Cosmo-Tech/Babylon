@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -9,6 +8,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
@@ -41,7 +41,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         "--output-file",
         "output_file",
         help="The path to the file where the new Organization content should be outputted (json-formatted)",
-        type=Path())
+        type=Path(writable=True))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",
@@ -82,7 +82,7 @@ def create(
             "organization_id",
             retrieved_organization["id"],
         )  # May return environnement error
-    logger.debug(pformat(retrieved_organization))
+    logger.debug(Pretty(retrieved_organization))
     logger.info(f"Created new organization with id: {retrieved_organization['id']}")
 
     if output_file:

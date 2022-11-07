@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -11,6 +10,7 @@ from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
@@ -63,7 +63,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     "--output-file",
     "output_file",
     help="File to which content should be outputted (json-formatted)",
-    type=Path(),
+    type=Path(writable=True),
 )
 @option(
     "-s",
@@ -83,7 +83,7 @@ def create(
     dataset_file: Optional[str] = None,
     dataset_name: Optional[str] = None,
     dataset_description: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ):
     """Register new dataset by sending description file to the API."""
 
@@ -104,9 +104,7 @@ def create(
     if not dataset_description and "dataset_description" not in converted_dataset_content:
         converted_dataset_content["description"] = dataset_name
 
-    if "name" not in converted_dataset_content:
-        converted_dataset_content["name"] = dataset_name
-
+    converted_dataset_content.setdefault("name", dataset_name)
     converted_dataset_content["connector"] = connector
 
     try:
@@ -126,13 +124,15 @@ def create(
         env.configuration.set_deploy_var("dataset_id", retrieved_dataset["id"])
 
     logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
-    logger.debug(pformat(retrieved_dataset))
+    logger.debug(Pretty(retrieved_dataset))
 
-    if output_file:
-        converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
-        with open(output_file, "w") as _f:
-            try:
-                json.dump(converted_content, _f, ensure_ascii=False)
-            except TypeError:
-                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Content was dumped on {output_file}")
+    if not output_file:
+        return
+
+    converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
+    with open(output_file, "w") as _f:
+        try:
+            json.dump(converted_content, _f, ensure_ascii=False)
+        except TypeError:
+            json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
+    logger.info(f"Content was dumped on {output_file}")

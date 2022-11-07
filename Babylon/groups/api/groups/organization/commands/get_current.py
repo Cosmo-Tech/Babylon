@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -9,6 +8,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import NotFoundException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -31,7 +31,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         "--output-file",
         "output_file",
         help="The path to the file where the new Organization content should be outputted (json-formatted)",
-        type=Path())
+        type=Path(writable=True))
 @require_deployment_key("organization_id")
 @option(
     "-f",
@@ -58,10 +58,10 @@ def get_current(
 
     if fields:
         retrieved_organization = filter_api_response_item(retrieved_organization, fields.replace(" ", "").split(","))
-    logger.debug(pformat(retrieved_organization))
+    logger.debug(Pretty(retrieved_organization))
     if not output_file:
         logger.info(f"Organization {organization_id} details : ")
-        logger.info(pformat(retrieved_organization))
+        logger.info(Pretty(retrieved_organization))
         return
 
     converted_organization_content = convert_keys_case(retrieved_organization, underscore_to_camel)

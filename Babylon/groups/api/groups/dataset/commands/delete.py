@@ -3,10 +3,8 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
@@ -15,6 +13,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
+from ......utils.interactive import confirm_deletion
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -56,8 +55,8 @@ def delete(
     organization_id: str,
     dataset_file: Optional[str] = None,
     dataset_id: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
-    force_validation: Optional[bool] = False,
+    use_working_dir_file: bool = False,
+    force_validation: bool = False,
 ):
     """Unregister a dataset via Cosmotech API."""
 
@@ -76,11 +75,8 @@ def delete(
             logger.error("Error : can not get Dataset definition, please check your file")
             return
 
-        if converted_dataset_content["id"]:
-            dataset_id = converted_dataset_content["id"]
-        elif converted_dataset_content["dataset_id"]:
-            dataset_id = converted_dataset_content["dataset_id"]
-        else:
+        dataset_id = converted_dataset_content.get("id") or converted_dataset_content.get("dataset_id")
+        if not dataset_id:
             logger.error(f"Could not found dataset id in {dataset_file}.")
             return
 
@@ -96,17 +92,8 @@ def delete(
         logger.error(f"Organization with id {organization_id}  not found.")
         return
 
-    if not force_validation:
-
-        if not confirm(f"You are trying to delete dataset {dataset_id} datasets of organization {organization_id} \n"
-                       "Do you want to continue?"):
-            logger.info("Dataset deletion aborted.")
-            return
-
-        confirm_dataset_id = prompt("Confirm dataset id ")
-        if confirm_dataset_id != dataset_id:
-            logger.error("The dataset id you have type didn't mach with dataset you are trying to delete id")
-            return
+    if not force_validation and not confirm_deletion("dataset", dataset_id):
+        return
 
     logger.info(f"Deleting dataset {dataset_id}")
 
