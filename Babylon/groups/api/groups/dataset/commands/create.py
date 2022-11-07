@@ -10,7 +10,7 @@ from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
@@ -124,9 +124,9 @@ def create(
         env.configuration.set_deploy_var("dataset_id", retrieved_dataset["id"])
 
     logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
-    logger.debug(Pretty(retrieved_dataset))
 
     if not output_file:
+        print(retrieved_dataset)
         return
 
     converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)

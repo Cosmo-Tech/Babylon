@@ -8,7 +8,7 @@ from click import command
 from click import pass_context
 from click import option
 from click import Path
-from rich.pretty import Pretty
+from rich import print
 
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
@@ -35,7 +35,7 @@ def get_all(ctx: Context, resource_group_name: str, cluster_name: str, database_
     assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, cluster_name, database_name)
     assigns = [assign.__dict__ for assign in assignments]
     if not output_file:
-        logger.info(Pretty(assigns))
+        print(assigns)
         return
 
     with open(output_file, "w") as _f:

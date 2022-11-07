@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 from unittest.mock import patch, mock_open
 from Babylon.utils.configuration import Configuration

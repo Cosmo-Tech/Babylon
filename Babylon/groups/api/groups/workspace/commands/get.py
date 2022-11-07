@@ -9,7 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 from cosmotech_api.exceptions import ServiceException
 
@@ -110,7 +110,7 @@ def get(
         retrieved_workspace = filter_api_response_item(retrieved_workspace, fields.split(","))
     if not output_file:
         logger.info(f"Workspace {workspace_id} details :")
-        logger.info(Pretty(retrieved_workspace))
+        print(retrieved_workspace)
         return
 
     converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)
@@ -120,4 +120,4 @@ def get(
         except TypeError:
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
     logger.info(f"Workspace {workspace_id} detail was dumped on {output_file}")
-    logger.debug(Pretty(retrieved_workspace))
+    logger.debug(retrieved_workspace)

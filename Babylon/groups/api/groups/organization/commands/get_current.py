@@ -8,7 +8,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import NotFoundException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -58,10 +58,10 @@ def get_current(
 
     if fields:
         retrieved_organization = filter_api_response_item(retrieved_organization, fields.replace(" ", "").split(","))
-    logger.debug(Pretty(retrieved_organization))
+    logger.debug(retrieved_organization)
     if not output_file:
         logger.info(f"Organization {organization_id} details : ")
-        logger.info(Pretty(retrieved_organization))
+        print(retrieved_organization)
         return
 
     converted_organization_content = convert_keys_case(retrieved_organization, underscore_to_camel)

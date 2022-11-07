@@ -9,7 +9,7 @@ from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -63,7 +63,7 @@ def get_all(dataset_api: DatasetApi,
         retrieved_datasets = filter_api_response(retrieved_datasets, fields.replace(" ", "").split(","))
     logger.info(f"Found {len(retrieved_datasets)} datasets")
     if not output_file:
-        logger.info(Pretty(retrieved_datasets))
+        print(retrieved_datasets)
         return
 
     _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]

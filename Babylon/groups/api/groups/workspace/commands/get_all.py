@@ -8,7 +8,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -61,7 +61,7 @@ def get_all(
         retrieved_workspaces = filter_api_response(retrieved_workspaces, fields.split(","))
     logger.info(f"Found {len(retrieved_workspaces)} workspaces")
     if not output_file:
-        logger.info(Pretty(retrieved_workspaces))
+        print(retrieved_workspaces)
         return
 
     _workspaces_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_workspaces]

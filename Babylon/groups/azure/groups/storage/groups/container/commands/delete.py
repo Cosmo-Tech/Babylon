@@ -4,10 +4,8 @@ from azure.core.exceptions import HttpResponseError
 from azure.storage.blob import BlobServiceClient
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 
 from ........utils.interactive import confirm_deletion
 

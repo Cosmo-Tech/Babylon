@@ -9,7 +9,7 @@ from click import command
 from click import option
 from click import Path
 from click import make_pass_decorator
-from rich.pretty import Pretty
+from rich import print
 
 from ......utils.decorators import require_platform_key
 from ..registry_connect import registry_connect
@@ -51,7 +51,7 @@ def list(credentials: DefaultAzureCredential,
         logger.error(f"Could not list from registry {registry}")
         return
     if not output_file:
-        logger.info(Pretty(repos))
+        print(repos)
         return
     with open(output_file, "w") as _file:
         json.dump(repos, _file, ensure_ascii=False)

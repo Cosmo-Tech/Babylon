@@ -1,7 +1,6 @@
-import logging
 import time
-from pathlib import Path
 from unittest.mock import patch
+from pathlib import Path
 
 import click
 import pytest

@@ -10,7 +10,6 @@ from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -115,5 +114,5 @@ def update(
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    logger.debug(Pretty(retrieved_workspace))
+    logger.debug(retrieved_workspace)
     logger.info(f"Workspace: {retrieved_workspace['id']} updated.")

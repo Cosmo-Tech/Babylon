@@ -10,7 +10,6 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import UnauthorizedException
-from rich.pretty import Pretty
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
@@ -94,7 +93,7 @@ def create(
     if select:
         env.configuration.set_deploy_var(f"{connector_type.lower()}_connector_id", retrieved_connector["id"])
 
-    logger.debug(Pretty(retrieved_connector))
+    logger.debug(retrieved_connector)
     logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
 
     if output_file:

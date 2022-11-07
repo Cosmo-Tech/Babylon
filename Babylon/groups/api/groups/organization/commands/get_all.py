@@ -7,7 +7,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -50,11 +50,11 @@ def get_all(
         return
 
     logger.info(f"Found {len(retrieved_organizations)} organizations")
-    logger.debug(Pretty(retrieved_organizations))
+    logger.debug(retrieved_organizations)
     if fields:
         retrieved_organizations = filter_api_response(retrieved_organizations, fields.replace(" ", "").split(","))
     if not output_file:
-        logger.info(Pretty(retrieved_organizations))
+        print(retrieved_organizations)
         return
 
     _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]

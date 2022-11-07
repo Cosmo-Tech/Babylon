@@ -11,7 +11,6 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
-from rich.pretty import Pretty
 
 from ........utils.decorators import describe_dry_run
 
@@ -41,7 +40,7 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool)
             pass
 
     logger.info(f"Uploading model {model_id}")
-    logger.debug(Pretty(model))
+    logger.debug(model)
 
     try:
         dt_client.create_models([

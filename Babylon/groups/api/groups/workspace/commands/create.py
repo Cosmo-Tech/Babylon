@@ -9,7 +9,6 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
-from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
@@ -135,7 +134,7 @@ def create(
         f" - key: {retrieved_workspace['key']}\n"
         f" - send_scenario_metadata_to_event_hub: {retrieved_workspace['send_scenario_metadata_to_event_hub']}\n"
         f" - use_dedicated_event_hub_namespace: {retrieved_workspace['use_dedicated_event_hub_namespace']}")
-    logger.debug(Pretty(retrieved_workspace))
+    logger.debug(retrieved_workspace)
 
     if output_file:
         converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)

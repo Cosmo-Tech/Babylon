@@ -9,7 +9,6 @@ from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -100,4 +99,4 @@ def update(
                 f" - url: {retrieved_solution['url']}\n"
                 f" - repository: {retrieved_solution['repository']}\n"
                 f" - version: {retrieved_solution['version']}")
-    logger.debug(Pretty(retrieved_solution))
+    logger.debug(retrieved_solution)

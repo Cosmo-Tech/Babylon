@@ -8,7 +8,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import NotFoundException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -64,11 +64,10 @@ def get_currents(
 
     retrieved_connectors = [retrieved_adt_connector, retrieved_storage_connector]
     logger.info("Retrieving current platform Connectors ...")
-    logger.debug(Pretty(retrieved_connectors))
     if fields:
         retrieved_connectors = filter_api_response(retrieved_connectors, fields.replace(" ", "").split(","))
     if not output_file:
-        logger.info(Pretty(retrieved_connectors))
+        print(retrieved_connectors)
         return
 
     _connectors_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_connectors]

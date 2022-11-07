@@ -9,7 +9,7 @@ from click import command
 from click import pass_context
 from click import Path
 from click import option
-from rich.pretty import Pretty
+from rich import print
 
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
@@ -30,7 +30,11 @@ logger = logging.getLogger("Babylon")
     type=Path(writable=True),
     help="The path to the file where ADT instances details should be outputted (json-formatted)",
 )
-def get(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str,
+def get(ctx: Context,
+        resource_group_name: str,
+        cluster_name: str,
+        database_name: str,
+        principal_id: str,
         output_file: Optional[str] = None):
     """Get permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
@@ -42,7 +46,7 @@ def get(ctx: Context, resource_group_name: str, cluster_name: str, database_name
     logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
     assigns = [assign.__dict__ for assign in assignments]
     if not output_file:
-        logger.info(Pretty(assigns))
+        print(assigns)
         return
 
     with open(output_file, "w") as _f:

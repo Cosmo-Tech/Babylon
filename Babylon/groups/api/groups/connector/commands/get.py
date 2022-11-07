@@ -9,7 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import NotFoundException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -53,10 +53,9 @@ def get(
 
     if fields:
         retrieved_connector = filter_api_response_item(retrieved_connector, fields.replace(" ", "").split(","))
-    logger.debug(Pretty(retrieved_connector))
     if not output_file:
         logger.info(f"Connector {connector_id} details : ")
-        logger.info(Pretty(retrieved_connector))
+        print(retrieved_connector)
         return
 
     converted_connector_content = convert_keys_case(retrieved_connector, underscore_to_camel)

@@ -9,7 +9,7 @@ from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -65,7 +65,7 @@ def get_current(dataset_api: DatasetApi,
         retrieved_dataset = filter_api_response_item(retrieved_dataset, fields.replace(" ", "").split(","))
     if not output_file:
         logger.info(f"Dataset {dataset_id} details :")
-        logger.info(Pretty(retrieved_dataset))
+        print(retrieved_dataset)
         return
 
     converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
@@ -75,4 +75,3 @@ def get_current(dataset_api: DatasetApi,
         except TypeError:
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
     logger.info(f"Dataset {dataset_id} detail was dumped on {output_file}")
-    logger.debug(Pretty(retrieved_dataset))

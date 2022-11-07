@@ -8,7 +8,6 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
-from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
@@ -82,7 +81,7 @@ def create(
             "organization_id",
             retrieved_organization["id"],
         )  # May return environnement error
-    logger.debug(Pretty(retrieved_organization))
+    logger.debug(retrieved_organization)
     logger.info(f"Created new organization with id: {retrieved_organization['id']}")
 
     if output_file:

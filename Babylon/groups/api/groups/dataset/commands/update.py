@@ -8,7 +8,7 @@ from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -80,5 +80,5 @@ def update(
         logger.error(f"You are not allowed to update the dataset : {dataset_id}")
         return
 
-    logger.debug(Pretty(retrieved_dataset))
+    print(retrieved_dataset)
     logger.info(f"Updated dataset with id: {retrieved_dataset['id']}")

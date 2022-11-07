@@ -6,7 +6,6 @@ from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
-from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -68,5 +67,5 @@ def update(
         logger.error(f"You are not allowed to update the Organization : {organization_id}")
         return
 
-    logger.debug(Pretty(retrieved_data))
+    logger.debug(retrieved_data)
     logger.info(f"Updated organization with id: {retrieved_data['id']}")

@@ -9,7 +9,7 @@ from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
-from rich.pretty import Pretty
+from rich import print
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -65,10 +65,10 @@ def get_current(
 
     if fields:
         retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
-    logger.debug(Pretty(retrieved_solution))
+    logger.debug(retrieved_solution)
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
-        logger.info(Pretty(retrieved_solution))
+        print(retrieved_solution)
         return
 
     converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)

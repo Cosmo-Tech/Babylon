@@ -1,6 +1,5 @@
 import json
 import logging
-import pathlib
 from typing import Optional
 
 import click
@@ -10,7 +9,7 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 from click import option
-from rich.pretty import Pretty
+from rich import print
 
 from ........utils.api import convert_keys_case
 from ........utils.api import underscore_to_camel
@@ -51,7 +50,7 @@ def get(
     instance.remove("id")
 
     if not output_file:
-        logger.info(Pretty(instance))
+        print(instance)
         return
 
     _instances_to_dump = convert_keys_case(instance, underscore_to_camel)
