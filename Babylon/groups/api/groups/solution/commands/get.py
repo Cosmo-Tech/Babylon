@@ -65,7 +65,7 @@ def get(
     fields: Optional[str] = None,
     output_file: Optional[str] = None,
     solution_file: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
+    use_working_dir_file: bool = False,
 ):
     """Get the state of the solution in the API."""
 

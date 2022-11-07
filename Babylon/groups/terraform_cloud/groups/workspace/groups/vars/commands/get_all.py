@@ -28,7 +28,10 @@ pass_tfc = click.make_pass_decorator(TFC)
 )
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-def get_all(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path]):
+def get_all(api: TFC,
+            workspace_id_wd: str,
+            workspace_id: Optional[str] = None,
+            output_file: Optional[pathlib.Path] = None):
     """Get all available variables in the workspace"""
     workspace_id = workspace_id or workspace_id_wd
     r = list_all_vars(api, workspace_id)

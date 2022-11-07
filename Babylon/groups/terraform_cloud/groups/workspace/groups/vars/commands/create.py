@@ -21,13 +21,13 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @describe_dry_run("Sending a variable creation payload to terraform")
 @argument("var_key")
 @argument("var_value")
 @argument("var_description")
 @argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False))
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @option("--hcl", "var_hcl", is_flag=True, help="Should the var be evaluated as a HCL string")
 @option("--sensitive", "var_sensitive", is_flag=True, help="Is the var sensitive")
 def create(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: str,

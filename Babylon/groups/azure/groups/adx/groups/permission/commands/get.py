@@ -31,7 +31,7 @@ logger = logging.getLogger("Babylon")
     help="The path to the file where ADT instances details should be outputted (json-formatted)",
 )
 def get(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str,
-        output_file: Optional[str]):
+        output_file: Optional[str] = None):
     """Get permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, cluster_name, database_name)

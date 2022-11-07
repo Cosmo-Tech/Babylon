@@ -20,6 +20,8 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
+@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
+@argument("var_key")
 @option(
     "-o",
     "--output",
@@ -28,9 +30,11 @@ pass_tfc = click.make_pass_decorator(TFC)
     help="File to which content should be outputted (json-formatted)",
 )
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
-@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-@argument("var_key")
-def get(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, output_file: Optional[pathlib.Path]):
+def get(api: TFC,
+        workspace_id_wd: str,
+        var_key: str,
+        workspace_id: Optional[str] = None,
+        output_file: Optional[pathlib.Path] = None):
     """Get VAR_KEY variable in a workspace"""
     workspace_id = workspace_id or workspace_id_wd
     r = list(v for v in list_all_vars(api, workspace_id) if v['attributes']['key'] == var_key)

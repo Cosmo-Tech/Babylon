@@ -77,7 +77,7 @@ def augment_with_utils(deps_tree):
 @command()
 @click.argument("git_ref")
 @click.option("-o", "--output", "output", help="Target file to write list of commands to be tested")
-def commands_to_test(git_ref: str, output: Optional[str]):
+def commands_to_test(git_ref: str, output: Optional[str] = None):
     """List commands that require testing since GIT_REF"""
     r = Repo(".")
 

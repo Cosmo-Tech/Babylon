@@ -22,10 +22,10 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @describe_dry_run("Would send a variable update payload to terraform")
 @argument("var_key")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @option("--value", "var_value", help="A new value to apply to the variable")
 @option("--description", "var_description", help="A new description to apply to the variable")
 def update(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: Optional[str],

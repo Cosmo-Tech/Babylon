@@ -38,7 +38,7 @@ def get(
     digital_twins_client: AzureDigitalTwinsManagementClient,
     resource_group_name: str,
     adt_instance_name: str,
-    output_file: Optional[pathlib.Path],
+    output_file: Optional[str] = None,
 ):
     """Get an azure digital twins instance details"""
     try:

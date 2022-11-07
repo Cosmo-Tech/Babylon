@@ -20,6 +20,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
+@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @option(
     "-o",
     "--output",
@@ -34,9 +35,11 @@ pass_tfc = click.make_pass_decorator(TFC)
         is_flag=True,
         help="Add this option to open the webapp page to the states of the workspace.\n"
         "(Allow to see content of sensitives outputs)")
-@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-def outputs(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path],
-            states_webpage_open: bool):
+def outputs(api: TFC,
+            workspace_id_wd: str,
+            workspace_id: Optional[str] = None,
+            output_file: Optional[pathlib.Path] = None,
+            states_webpage_open: bool = False):
     """List outputs of a workspace.
 
 Sensitive outputs are not readable, use -s option to access the state in the web application to get those."""

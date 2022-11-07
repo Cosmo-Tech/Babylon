@@ -19,6 +19,8 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
+@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @option(
     "-o",
     "--output",
@@ -26,9 +28,10 @@ pass_tfc = click.make_pass_decorator(TFC)
     type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="File to which content should be outputted (json-formatted)",
 )
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
-@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-def last_run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path]):
+def last_run(api: TFC,
+             workspace_id_wd: str,
+             workspace_id: Optional[str] = None,
+             output_file: Optional[pathlib.Path] = None):
     """Get state of the last run of a workspace"""
     workspace_id = workspace_id or workspace_id_wd
     try:

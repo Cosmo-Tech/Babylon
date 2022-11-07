@@ -52,8 +52,8 @@ def delete(
     connector_api: ConnectorApi,
     connector_id: str,
     connector_file: Optional[str] = None,
-    force_validation: Optional[bool] = False,
-    use_working_dir_file: Optional[bool] = False,
+    force_validation: bool = False,
+    use_working_dir_file: bool = False,
 ):
     """Unregister a Connector via Cosmotech API."""
 

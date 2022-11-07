@@ -21,7 +21,7 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
     "-o",
     "--output-file",
     "output_file",
-    type=click.Path(file_okay=True, writable=True),
+    type=click.Path(file_okay=True, writable=True, path_type=pathlib.Path),
     help="Write full output of the adt api in target file",
 )
 def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None):

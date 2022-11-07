@@ -35,8 +35,8 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 def list(credentials: DefaultAzureCredential,
          acr_src_registry_name: str,
          acr_dest_registry_name: str,
-         registry: Optional[str],
-         direction: Optional[str],
+         registry: Optional[str] = None,
+         direction: Optional[str] = None,
          output_file: Optional[str] = None):
     """List all docker images in the specified registry"""
     registry = registry or {"src": acr_src_registry_name, "dest": acr_dest_registry_name}.get(direction)
