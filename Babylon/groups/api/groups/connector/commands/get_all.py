@@ -13,7 +13,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
@@ -22,7 +22,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **connector_api.find_all_connectors** and retrieve all registered Connectors")
 @timing_decorator
 @pass_connector_api
 @option("-o",
@@ -35,12 +35,8 @@ def get_all(
     connector_api: ConnectorApi,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
 ):
     """Get all registered connectors."""
-    if dry_run:
-        logger.info("DRY RUN - Would call connector_api.find_all_connectors and retrieve all registered Connectors")
-        return
 
     try:
         retrieved_connectors = connector_api.find_all_connectors()

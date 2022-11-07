@@ -11,7 +11,7 @@ from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -21,7 +21,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **organization_api.update_organization**")
 @timing_decorator
 @pass_organization_api
 @require_deployment_key("organization_id", "organization_id")
@@ -42,13 +42,8 @@ def update(
     organization_file: str,
     organization_id: str,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: Optional[bool] = False,
 ):
     """Update an Organization by sending a JSON or YAML file to Cosmotech Api."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call organization_api.update_organization")
-        return
 
     converted_organization_content = get_api_file(
         api_file_path=organization_file,

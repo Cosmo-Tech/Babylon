@@ -12,7 +12,7 @@ from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -22,7 +22,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **solution_api.create_solution** to update an solution")
 @timing_decorator
 @pass_solution_api
 @argument("solution-id", required=False)
@@ -51,15 +51,10 @@ def update(
     simulator_url: str,
     simulator_version: str,
     simulator_repository: str,
-    dry_run: Optional[bool] = False,
     solution_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to update a solution."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call solution_api.create_solution to update an solution")
-        return
 
     converted_solution_content = dict()
 

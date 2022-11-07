@@ -56,21 +56,22 @@ def timing_decorator(func):
     return wrapper
 
 
-def allow_dry_run(func):
+def describe_dry_run(description: str):
     """
-    Decorator adding dry_run parameter to the function call
-    :param func: The function being decorated
+    Add a dry run description for the decorated call
+    :param description: description to de displayed during dry runs (accepts markdown content)
     """
 
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        environment: Environment = click.get_current_context().find_object(Environment)
-        kwargs["dry_run"] = environment.dry_run
-        return func(*args, **kwargs)
+    def wrap_function(func):
 
-    doc = wrapper.__doc__ or ""
-    wrapper.__doc__ = "\n\n".join([doc, "Allows dry runs."])
-    return wrapper
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        wrapper.dry_run = description
+        return wrapper
+
+    return wrap_function
 
 
 def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional[str] = None):

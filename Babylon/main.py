@@ -20,6 +20,7 @@ from .utils.help import HELP_CONTEXT_OVERRIDE
 from .utils.help import print_cmd_help
 from .utils.logging import MultiLineHandler
 from .utils.working_dir import WorkingDir
+from .utils.dry_run import display_dry_run
 
 logger = logging.getLogger("Babylon")
 handler = MultiLineHandler(show_path=False, omit_repeated_times=False)
@@ -39,7 +40,13 @@ env = Environment(configuration=conf, working_dir=work_dir)
 @click.group(name='babylon', context_settings=HELP_CONTEXT_OVERRIDE)
 @click_log.simple_verbosity_option(logger)
 @click.option("--tests", "tests_mode", is_flag=True, help="Enable test mode, this mode changes output formatting.")
-@click.option("-n", "--dry-run", "dry_run", is_flag=True, help="Will run commands in dry-run mode")
+@click.option("-n",
+              "--dry-run",
+              "dry_run",
+              callback=display_dry_run,
+              is_flag=True,
+              is_eager=True,
+              help="Will run commands in dry-run mode")
 @click.pass_context
 @click.option("-h",
               "--help",

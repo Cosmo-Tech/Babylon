@@ -15,7 +15,7 @@ from Babylon.utils.api import convert_keys_case
 from Babylon.utils.api import filter_api_response
 from Babylon.utils.api import get_api_file
 from Babylon.utils.api import underscore_to_camel
-from Babylon.utils.decorators import allow_dry_run
+from Babylon.utils.decorators import describe_dry_run
 from Babylon.utils.decorators import require_deployment_key
 from Babylon.utils.decorators import timing_decorator
 
@@ -25,7 +25,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **dataset_api.search_datasets**")
 @pass_dataset_api
 @timing_decorator
 @argument("search_parameters", type=str)
@@ -59,7 +59,6 @@ def search(
     output_file: Optional[str] = None,
     use_working_dir_file: bool = False,
     fields: str = None,
-    dry_run: bool = False,
 ):
     """Get all dataset having corresponding tag."""
 
@@ -72,17 +71,14 @@ def search(
         logger.error("Error : can not get correct dataset tag definition, please check your tag.YAML file")
         return
 
-    if dry_run:
-        logger.info("DRY RUN - Would call dataset_api.search_datasets")
-        retrieved_datasets = [{"Babylon": "<DRY RUN>"}]
-        return
-
     try:
         retrieved_datasets = dataset_api.search_datasets(organization_id, converted_search_parameters_content)
     except NotFoundException:
         logger.error(f"Organization {organization_id} was not found.")
+        return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
 
     if fields:
         retrieved_datasets = filter_api_response(retrieved_datasets, fields.split(","))

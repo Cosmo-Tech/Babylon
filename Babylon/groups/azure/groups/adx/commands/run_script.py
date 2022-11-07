@@ -7,7 +7,7 @@ from azure.core.exceptions import HttpResponseError
 from azure.mgmt.kusto import KustoManagementClient
 from click import make_pass_decorator
 
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
@@ -24,10 +24,10 @@ logger = logging.getLogger("Babylon")
 @require_deployment_key("database_name", "database_name")
 @click.argument("script_file",
                 type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
-@allow_dry_run
+@describe_dry_run("Would send the content of the given script to ADX then delete it once run is finished")
 @timing_decorator
 def run_script(kmc: KustoManagementClient, cluster_name: str, resource_group_name: str, database_name: str,
-               script_file: pathlib.Path, dry_run: bool):
+               script_file: pathlib.Path):
     """Open SCRIPT_FILE and run it on the database
 
 In the script instances of "<database name>" will be replaced by the actual database name"""
@@ -37,10 +37,6 @@ In the script instances of "<database name>" will be replaced by the actual data
     with open(script_file) as _script_file:
         logger.info(f"Reading {script_file}")
         script_content = _script_file.read().replace("<database name>", database_name)
-        if dry_run:
-            logger.info("Sending the following script:")
-            logger.info(script_content)
-            return
         logger.info("Sending script to database.")
         s = kmc.scripts.begin_create_or_update(resource_group_name=resource_group_name,
                                                cluster_name=cluster_name,

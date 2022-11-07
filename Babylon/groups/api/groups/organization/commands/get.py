@@ -15,7 +15,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
@@ -24,7 +24,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **organization_api.find_organization_by_id**")
 @timing_decorator
 @pass_organization_api
 @option("-o",
@@ -44,13 +44,8 @@ def get(
     organization_id: str,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
 ):
     """Get the state of an specific organization in the API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call organization_api.find_organization_by_id")
-        return
 
     try:
         retrieved_organization = organization_api.find_organization_by_id(organization_id)

@@ -13,7 +13,7 @@ from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -23,7 +23,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **solution_api.delete_solution** to delete an solution")
 @pass_solution_api
 @timing_decorator
 @require_deployment_key("organization_id", "organization_id")
@@ -52,16 +52,11 @@ def delete(
     solution_api: SolutionApi,
     organization_id: str,
     solution_id: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     solution_file: Optional[str] = None,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
 ) -> Optional[str]:
     """Unregister a solution via Cosmotech APi."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call solution_api.delete_solution to delete an solution")
-        return
 
     if not solution_id:
         if not solution_file:

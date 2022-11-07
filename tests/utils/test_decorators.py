@@ -1,13 +1,15 @@
-import time
 import logging
-from unittest.mock import patch
+import time
 from pathlib import Path
-import pytest
+from unittest.mock import patch
+
 import click
+import pytest
+
 import Babylon.utils.decorators as deco
+from Babylon.utils.configuration import Configuration
 from Babylon.utils.environment import Environment
 from Babylon.utils.working_dir import WorkingDir
-from Babylon.utils.configuration import Configuration
 
 
 def test_prepend_doc():
@@ -34,18 +36,17 @@ def test_timing():
     assert any("Ending" in log for log in logs)
 
 
-def test_allow_dry_run():
+def test_describe_dry_run():
     """Test decorators"""
 
-    @deco.allow_dry_run
-    def my_func(dry_run: bool = False) -> bool:
-        return dry_run
+    dry_run_description = "Test Description"
 
-    env = Environment(None, None)
-    env.dry_run = True
-    ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx:
-        assert my_func()
+    @deco.describe_dry_run(dry_run_description)
+    def my_func() -> bool:
+        return True
+
+    assert "dry_run" in my_func.__dict__
+    assert dry_run_description == my_func.__dict__['dry_run']
 
 
 def test_working_dir_yaml():

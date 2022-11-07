@@ -13,7 +13,7 @@ from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
@@ -22,7 +22,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **connector_api.unregister_connector** and unregister a Connector")
 @timing_decorator
 @pass_connector_api
 @argument(
@@ -53,15 +53,10 @@ def delete(
     connector_api: ConnectorApi,
     connector_id: str,
     connector_file: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
 ):
     """Unregister a Connector via Cosmotech API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call connector_api.unregister_connector and unregister a Connector")
-        return
 
     if not connector_id:
         if not connector_file:
