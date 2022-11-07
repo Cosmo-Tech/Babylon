@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -9,6 +8,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import NotFoundException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -31,7 +31,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "--output_file",
         "output_file",
         help="The path to the file where Connectors should be outputted (json-formatted)",
-        type=Path())
+        type=Path(writable=True))
 @option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
 @require_deployment_key("adt_connector_id")
 @require_deployment_key("storage_connector_id")
@@ -64,11 +64,11 @@ def get_currents(
 
     retrieved_connectors = [retrieved_adt_connector, retrieved_storage_connector]
     logger.info("Retrieving current platform Connectors ...")
-    logger.debug(pformat(retrieved_connectors))
+    logger.debug(Pretty(retrieved_connectors))
     if fields:
         retrieved_connectors = filter_api_response(retrieved_connectors, fields.replace(" ", "").split(","))
     if not output_file:
-        logger.info(pformat(retrieved_connectors))
+        logger.info(Pretty(retrieved_connectors))
         return
 
     _connectors_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_connectors]

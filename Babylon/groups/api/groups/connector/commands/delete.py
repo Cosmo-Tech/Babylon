@@ -3,10 +3,8 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
@@ -15,6 +13,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
+from ......utils.interactive import confirm_deletion
 
 logger = getLogger("Babylon")
 
@@ -73,14 +72,10 @@ def delete(
             logger.error("Can not get Connector definition, please check your file")
             return
 
-        if "id" not in converted_connector_content and "dataset_id" not in converted_connector_content:
+        connector_id = converted_connector_content.get("id") or converted_connector_content.get("dataset_id")
+        if not connector_id:
             logger.error(f"Could not found connector id in {connector_file}.")
             return
-
-        try:
-            connector_id = converted_connector_content["id"]
-        except KeyError:
-            connector_id = converted_connector_content["dataset_id"]
 
     try:
         connector_api.find_connector_by_id(connector_id)
@@ -91,16 +86,8 @@ def delete(
         logger.error(f"Connector with id {connector_id} not found.")
         return
 
-    if not force_validation:
-        if not confirm(f"You are trying to delete connector {connector_id} \nDo you want to continue ?"):
-            logger.info("Connector deletion aborted.")
-            return
-
-        confirm_connector_id = prompt("Confirm connector id ")
-        if confirm_connector_id != connector_id:
-            logger.error("Wrong Connector id, "
-                         "the id must be the same as the one that has been provide in delete command argument")
-            return
+    if not force_validation and not confirm_deletion("Connector", connector_id):
+        return
 
     logger.info(f"Deleting connector {connector_id}")
 

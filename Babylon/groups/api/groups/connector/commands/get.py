@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Path
@@ -10,6 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import NotFoundException
+from rich.pretty import Pretty
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -31,7 +31,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "--output_file",
         "output_file",
         help="File to which content should be outputted (json-formatted)",
-        type=Path())
+        type=Path(writable=True))
 @argument("connector-id")
 @option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
 def get(
@@ -53,10 +53,10 @@ def get(
 
     if fields:
         retrieved_connector = filter_api_response_item(retrieved_connector, fields.replace(" ", "").split(","))
-    logger.debug(pformat(retrieved_connector))
+    logger.debug(Pretty(retrieved_connector))
     if not output_file:
         logger.info(f"Connector {connector_id} details : ")
-        logger.info(pformat(retrieved_connector))
+        logger.info(Pretty(retrieved_connector))
         return
 
     converted_connector_content = convert_keys_case(retrieved_connector, underscore_to_camel)

@@ -1,6 +1,5 @@
 import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import Choice
@@ -11,6 +10,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import UnauthorizedException
+from rich.pretty import Pretty
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
@@ -31,13 +31,13 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @timing_decorator
 @pass_connector_api
 @pass_environment
-@option("-f", "--connector-file", "connector_file", type=str, help="Your custom Connector description file path")
+@option("-f", "--connector-file", "connector_file", help="Your custom Connector description file path")
 @option("-t",
         "--type",
         "connector_type",
         required=True,
         type=Choice(["ADT", "STORAGE"], case_sensitive=False),
-        help="Connector type, allowed values : [ADT, STORAGE]")
+        help="Connector type")
 @option("-s",
         "--select",
         "select",
@@ -48,7 +48,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "--output-file",
         "output_file",
         help="The path to the file where the new Connector content should be outputted (json-formatted)",
-        type=Path())
+        type=Path(writable=True))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",
@@ -80,12 +80,11 @@ def create(
         logger.error("Error : can not get correct Connector definition, please check your Connector.YAML file")
         return
 
+
     converted_connector_content["name"] = connector_name
     converted_connector_content["version"] = connector_version
-    if not converted_connector_content.get("key"):
-        converted_connector_content["key"] = connector_name.replace(" ", "")
-    if not converted_connector_content.get("description"):
-        converted_connector_content["description"] = connector_name
+    converted_connector_content.setdefault("key", connector_name.replace(" ", ""))
+    converted_connector_content.setdefault("description", connector_name)
 
     try:
         retrieved_connector = connector_api.register_connector(connector=converted_connector_content)
@@ -96,7 +95,7 @@ def create(
     if select:
         env.configuration.set_deploy_var(f"{connector_type.lower()}_connector_id", retrieved_connector["id"])
 
-    logger.debug(pformat(retrieved_connector))
+    logger.debug(Pretty(retrieved_connector))
     logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
 
     if output_file:
