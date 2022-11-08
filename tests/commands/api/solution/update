@@ -1,1 +1,7 @@
-babylon api solution update
+## babylon api solution update
+
+### Commands
+
+```bash
+babylon api solution update tests/api_files/Solution.yaml
+```

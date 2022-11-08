@@ -1,1 +1,7 @@
-babylon api solution delete
+## babylon api solution delete
+
+### Commands
+
+```bash
+babylon api solution delete [solution_id] -f
+```

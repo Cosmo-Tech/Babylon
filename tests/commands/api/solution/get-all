@@ -1,1 +1,10 @@
+## babylon api solution get-all
+
+### Commands
+
+```bash
 babylon api solution get-all
+babylon api solution get-all -f 'id,name'
+babylon api solution get-all -o ../test.json
+babylon api solution get-all -f 'id,name' -o ../test.json
+```

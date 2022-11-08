@@ -1,1 +1,10 @@
+## babylon api solution get-current
+
+### Commands
+
+```bash
 babylon api solution get-current
+babylon api solution get-current -f 'id,name'
+babylon api solution get-current -o ../test.json
+babylon api solution get-current -f 'id,name' -o ../test.json
+```
