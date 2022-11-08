@@ -1,1 +1,22 @@
+## babylon api dataset get-all
+The Dataset subgroup require Connector subgroup available or at least one registered connector details.
+You need to add manually an ADT connector details in your deploy configuration file.
+
+```yaml
+connector:
+  id: #mandatory
+  parametersValues:
+    AZURE_DIGITAL_TWINS_URL: https://.............api.............digitaltwins.azure.net
+    CSM_NUMBER_OF_THREAD: 1
+```
+You should first create a dataset with the Cosmotech API and grab its id.
+
+### Commands
+```bash
 babylon api dataset get-all
+```
+Should print all registered dataset.  
+These datasets data can be dump into a json file with the option -o
+
+### Errors
+- If not authenticated you should receive a clean error log: `Unauthorized`

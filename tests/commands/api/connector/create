@@ -6,7 +6,7 @@ To test this command proceed as follow
 
 ### Commands
 ```bash
-babylon api connector create  -v 1.1.18 -t STORAGE -n "Babylon Storage Test Connector"
+babylon api connector create -v 1.1.18 -t STORAGE -n "Babylon Storage Test Connector"
 ```
 Should register a new connector using the template defined in `Babylon/templates/working_dir_template/API/Connector.STORAGE.yaml`.
 
