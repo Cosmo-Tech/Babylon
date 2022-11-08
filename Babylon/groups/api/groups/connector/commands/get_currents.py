@@ -55,7 +55,7 @@ def get_currents(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Connector with id {adt_connector_id} does not exists.")
+        logger.error(f"Connector with id {adt_connector_id} does not exist.")
         return
 
     try:
@@ -64,7 +64,7 @@ def get_currents(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Connector with id {storage_connector_id} does not exists.")
+        logger.error(f"Connector with id {storage_connector_id} does not exist.")
         return
 
     retrieved_connectors = [retrieved_adt_connector, retrieved_storage_connector]

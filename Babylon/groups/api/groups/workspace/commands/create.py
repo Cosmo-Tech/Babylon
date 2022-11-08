@@ -21,6 +21,7 @@ from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from cosmotech_api.exceptions import ServiceException
 
 logger = getLogger("Babylon")
 
@@ -124,8 +125,11 @@ def create(
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return
+    except ServiceException:
+        logger.error(f"Organization {organization_id} or Solution {solution_id} not found.")
+        return
     except NotFoundException:
-        logger.error(f"Solution {solution_id} not found in organization {organization_id}")
+        logger.error(f"Organization {organization_id} or Solution {solution_id} not found.")
         return
 
     if select:

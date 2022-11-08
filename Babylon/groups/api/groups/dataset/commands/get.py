@@ -10,6 +10,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -92,10 +93,13 @@ def get(
     try:
         retrieved_dataset = dataset_api.find_dataset_by_id(dataset_id=dataset_id, organization_id=organization_id)
     except NotFoundException:
-        logger.error(f"Dataset {dataset_id} does not exists in organization {organization_id}.")
+        logger.error(f"Dataset {dataset_id} does not  in organization {organization_id}.")
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} does not exist.")
         return
 
     if fields:

@@ -93,7 +93,7 @@ def delete(
         logger.error("Unauthorized access to the cosmotech api.")
         return
     except NotFoundException:
-        logger.error(f"Connector with id {connector_id} does not exists.")
+        logger.error(f"Connector with id {connector_id} does not exist.")
         return
 
     if not force_validation:

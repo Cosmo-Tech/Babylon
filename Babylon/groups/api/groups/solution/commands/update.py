@@ -9,6 +9,7 @@ from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -93,8 +94,11 @@ def update(
     except NotFoundException:
         logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
         return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} does not exists.")
+        return
     except ForbiddenException:
-        logger.error(f"You are not allowed to update the Solution : {solution_id}")
+        logger.error(f"You are not allowed to update the solution : {solution_id}")
         return
 
     logger.info(f"Updated solution: {solution_id}  with \n"

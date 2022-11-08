@@ -9,6 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -59,10 +60,13 @@ def get_current(
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
-        logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
+        logger.error(f"Solution {solution_id} does not exist in organization {organization_id}.")
         return
     except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
+        logger.error("Unauthorized access to the cosmotech api.")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} does not exist.")
         return
 
     if fields:

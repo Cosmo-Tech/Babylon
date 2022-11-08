@@ -10,6 +10,7 @@ from click import prompt
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -89,11 +90,15 @@ def delete(
 
     try:
         workspace_api.find_workspace_by_id(workspace_id=workspace_id, organization_id=organization_id)
-    except NotFoundException:
-        logger.error(f"Workspace {workspace_id} does not exists in organization {organization_id}.")
-        return
+
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id : {organization_id} not found.")
+        return
+    except NotFoundException:
+        logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
         return
 
     if not force_validation:

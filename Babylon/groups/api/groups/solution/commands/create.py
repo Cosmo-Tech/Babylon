@@ -9,6 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils import TEMPLATE_FOLDER_PATH
@@ -117,7 +118,10 @@ def create(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Organization with id {organization_id} does not exists.")
+        logger.error(f"Organization with id {organization_id} does not exist.")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} does not exist.")
         return
 
     if select:
