@@ -4,8 +4,9 @@ from click import pass_context
 from click.core import Context
 from cosmotech_api.api.solution_api import SolutionApi
 
-from .commands import list_commands
 from .....utils.decorators import pass_api_configuration
+from .commands import list_commands
+from .groups import list_groups
 
 
 @group()
@@ -19,3 +20,6 @@ def solution(ctx: Context, api_configuration):
 
 for _command in list_commands:
     solution.add_command(_command)
+
+for _group in list_groups:
+    solution.add_command(_group)
