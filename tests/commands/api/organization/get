@@ -1,1 +1,21 @@
-babylon api organization get
+## babylon api organization get
+Use Get all first after that copy one organization id to test
+
+`Babylon api organization get c-organizationid`
+
+Should print one organization details
+
+These details can be dump into a json file with the option -o
+
+If your are not or bad authenticated you will receive a clean Unauthorized error log
+
+If any organization with this id doesn't exist  you will receive a clean Not Found error log
+
+Usage of response filter :
+You can use `-f` option to select fields you want in result
+`-f key1,key2`  work
+`-f 'key1,key2'` work
+`-f "key1,key2"` work
+
+As common json filter tools if any of the specified filed are not in the initial result data, you will get an empty response.
+
