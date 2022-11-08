@@ -1,1 +1,17 @@
-babylon api workspace create
+## babylon api workspace create
+- organization api
+- solution api
+- deploy key: 
+
+```yaml
+ solution_id: ##
+ organization_id: ##
+ use_dedicated_event_hub_namespace: ##
+ send_scenario_metadata_to_event_hub: ##
+```
+
+### Commands
+```bash
+babylon api workspace create -n "Babylon workspace"
+```
+

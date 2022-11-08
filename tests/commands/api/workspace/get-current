@@ -1,1 +1,23 @@
+## babylon api workspace get-current
+- organization api
+- solution api
+- deploy key: 
+
+```yaml
+ solution_id: ##
+ organization_id: ##
+ use_dedicated_event_hub_namespace: ##
+ send_scenario_metadata_to_event_hub: ##
+```
+
+### Commands
+```bash
+# get the current workspace set in babylon deploy config
 babylon api workspace get-current
+# get the current workspace set in babylon deploy config and filter fields to retrieve only id and name
+babylon api workspace get-current -f 'id,name'
+# dump the the current workspace set in babylon deploy in json file
+babylon api workspace get-current -o ../test.json
+# get the the current workspace set in babylon deploys, filter fields to retrieve only id and name name and dump them in a file
+babylon api workspace get-current -f 'id,name' -o ../test.json
+```

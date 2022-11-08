@@ -1,1 +1,21 @@
-babylon api workspace get
+## babylon api workspace get
+- organization api
+- solution api
+- deploy key: 
+
+```yaml
+ solution_id: ##
+ organization_id: ##
+ use_dedicated_event_hub_namespace: ##
+ send_scenario_metadata_to_event_hub: ##
+```
+
+### Commands
+```bash
+babylon api workspace get [workspace_id]
+# dump the created workspace details in json file
+babylon api workspace get [workspace_id] -o ../test.json
+# get the created workspace details, filter fields to retrieve only id and name name and dump them in a file
+babylon api workspace get [workspace_id] -f 'id,name' -o ../test.json
+```
+
