@@ -85,6 +85,7 @@ def search(
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
     except ServiceException:
         logger.error(f"Organization with id {organization_id} does not exist.")
         return
