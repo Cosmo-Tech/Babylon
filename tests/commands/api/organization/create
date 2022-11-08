@@ -1,1 +1,22 @@
-babylon api organization create
+
+## babylon api organization create
+
+`babylon api organization create -n 'Babylon test Organization'`
+
+This command will create an organization Object throw Cosmotech API based on generic template on `Babylon/template/working_dir_template/API/Organization.yaml`
+
+This template does not have an default name value `-n`  option is mandatory
+
+You can use your own template file to create a new organization, in this case you can set the organization name directly in the template file `name: org name`; `-n`  option should override the name and the created organization name with the name specified in `-n` option.
+
+<span style="color:red;font-weight:700;">
+    Possible API error when you exeded azure cosmo DB quota, in this case you can delete unused object you created and it should be ok.
+</span>
+
+If the new organization creation completed, `organization_id` in deploy config file will be set with the id of the created organization. We can manage this action with `-s` option : default True if false `organization_id` will not be set.
+
+Notice :  `-s`option automatically override existing `organization_id` valued in deploy config file.
+
+The optimal use case is creating via template, the only requirement is to set `-n` option
+
+If you are using custom template file, the name must be set at least in your file or in option if not you will receive a clean error log.-
