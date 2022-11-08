@@ -1,1 +1,14 @@
+## babylon api connector get-currents
+
+### Commands
+```bash
 babylon api connector get-currents
+```
+Should print current connectors in the API
+```bash
+babylon api connector get-currents -o output.json
+```
+Should output the connectors details in an `output.json` file.
+
+### Errors
+- If not authenticated you should receive a clean error log: `Unauthorized`

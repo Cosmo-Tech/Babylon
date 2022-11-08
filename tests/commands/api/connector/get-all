@@ -1,1 +1,14 @@
+## babylon api connector get-all
+
+### Commands
+```bash
 babylon api connector get-all
+```
+Should print all connectors in the API
+```bash
+babylon api connector get-all -o output.json
+```
+Should output the connectors details in an `output.json` file.
+
+### Errors
+- If not authenticated you should receive a clean error log: `Unauthorized`

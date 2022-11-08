@@ -11,7 +11,7 @@ babylon api connector create  -v 1.1.18 -t STORAGE -n "Babylon Storage Test Conn
 Should register a new connector using the template defined in `Babylon/templates/working_dir_template/API/Connector.STORAGE.yaml`.
 
 ```bash
-babylon api connector create -n "Babylon Storage Test Connector" -v 1.1.18 -t ADT tests/api_files/ADT_Connector.yaml
+babylon api connector create -n "Babylon ADT Test Connector" -v 1.1.18 -t ADT tests/api_files/ADT_Connector.yaml
 ```
 Should register a new connector using the template defined in `tests/api_files/ADT_Connector.yaml`.
 
