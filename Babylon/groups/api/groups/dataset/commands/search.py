@@ -82,6 +82,7 @@ def search(
         retrieved_datasets = dataset_api.search_datasets(organization_id, converted_search_parameters_content)
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} does not exist.")
+        return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
     except ServiceException:
