@@ -6,11 +6,11 @@ To test this command proceed as follow
 
 ### Commands
 ```bash
-Babylon api connector get -c [connector_id]
+Babylon api connector get c-[connector_id]
 ```
 Should print this connector details.
 ```bash
-Babylon api connector get -c [connector_id] -o output.json
+Babylon api connector get c-[connector_id] -o output.json
 ```
 Should print the connector details in an `output.json` file.
 

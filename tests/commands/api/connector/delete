@@ -6,12 +6,12 @@ To test this command proceed as follow
 
 ### Commands
 ```bash
-Babylon api connector delete -c [connector_id]
+Babylon api connector delete c-[connector_id]
 ```
 Should ask for a y/n confirmation, press n to cancel
 
 ```bash
-Babylon api connector delete -c [connector_id] -f
+Babylon api connector delete c-[connector_id] -f
 ```
 Should proceed with connector deletion
 
