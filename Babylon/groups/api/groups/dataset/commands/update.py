@@ -7,7 +7,9 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
+from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -26,7 +28,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @timing_decorator
 @argument("dataset_file")
 @require_deployment_key("organization_id", "organization_id")
-@require_deployment_key("connector", "connector")
 @require_deployment_key("dataset_id", "dataset_id")
 @option(
     "-e",
@@ -68,10 +69,16 @@ def update(
             dataset=converted_dataset_content,
         )
     except NotFoundException:
-        logger.error(f"Dataset {dataset_id} does not exists in organization {organization_id}.")
+        logger.error(f"Dataset {dataset_id} not found in organization {organization_id}.")
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} not found.")
+        return
+    except ForbiddenException:
+        logger.error(f"You are not allowed to update the dataset : {dataset_id}")
         return
 
     logger.debug(pformat(retrieved_dataset))

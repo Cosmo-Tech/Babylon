@@ -10,6 +10,7 @@ from click import prompt
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -81,10 +82,13 @@ def delete(
     try:
         solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
-        logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
+        logger.error(f"Solution {solution_id} not found in organization {organization_id}.")
         return
     except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
+        logger.error("Unauthorized access to the cosmotech api.")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} not found.")
         return
 
     if not force_validation:
@@ -107,11 +111,12 @@ def delete(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Solution {solution_id} does not exists in organization {organization_id}.")
+        logger.error(f"Solution {solution_id} not found in organization {organization_id}.")
         return
     except ForbiddenException:
         logger.error(f"You are not allowed to delete the Solution : {solution_id}")
         return
+
     logger.info(f"Solutions {solution_id} of organization {organization_id} deleted.")
 
     return solution_id

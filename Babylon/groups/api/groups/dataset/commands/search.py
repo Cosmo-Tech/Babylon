@@ -9,15 +9,14 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from Babylon.utils.api import convert_keys_case
-from Babylon.utils.api import filter_api_response
-from Babylon.utils.api import get_api_file
-from Babylon.utils.api import underscore_to_camel
-from Babylon.utils.decorators import describe_dry_run
-from Babylon.utils.decorators import require_deployment_key
-from Babylon.utils.decorators import timing_decorator
+from ......utils.api import convert_keys_case
+from ......utils.api import filter_api_response
+from ......utils.api import get_api_file
+from ......utils.api import underscore_to_camel
+from ......utils.decorators import describe_dry_run, require_deployment_key, timing_decorator
 
 logger = getLogger("Babylon")
 
@@ -74,10 +73,13 @@ def search(
     try:
         retrieved_datasets = dataset_api.search_datasets(organization_id, converted_search_parameters_content)
     except NotFoundException:
-        logger.error(f"Organization {organization_id} was not found.")
+        logger.error(f"Organization with id {organization_id} not found.")
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} not found.")
         return
 
     if fields:

@@ -9,6 +9,7 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import convert_keys_case
@@ -55,6 +56,9 @@ def get_all(
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} not found.")
         return
 
     if fields:

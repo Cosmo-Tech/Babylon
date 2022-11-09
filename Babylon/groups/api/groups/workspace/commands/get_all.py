@@ -54,7 +54,7 @@ def get_all(
         logger.error("Unauthorized access to the cosmotech api.")
         return
     except ServiceException:
-        logger.error(f"ServiceException: Organization {organization_id} was not found.")
+        logger.error(f"Organization with id : {organization_id} not found.")
         return
 
     if fields:

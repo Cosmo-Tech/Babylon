@@ -8,7 +8,9 @@ from click import make_pass_decorator
 from click import option
 from click import prompt
 from cosmotech_api.api.dataset_api import DatasetApi
+from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
@@ -85,10 +87,13 @@ def delete(
     try:
         dataset_api.find_dataset_by_id(dataset_id=dataset_id, organization_id=organization_id)
     except NotFoundException:
-        logger.error(f"Dataset {dataset_id} does not exists in organization {organization_id}.")
+        logger.error(f"Dataset {dataset_id} not found in organization {organization_id}.")
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id}  not found.")
         return
 
     if not force_validation:
@@ -111,6 +116,9 @@ def delete(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Organization with id {organization_id} does not exists.")
+        logger.error(f"Dataset with id {dataset_id} not found.")
         return
-    logger.info(f"Datasets {dataset_id} of organization {organization_id} deleted.")
+    except ForbiddenException:
+        logger.error(f"You are not allowed to delete dataset : {dataset_id}")
+        return
+    logger.info(f"Dataset {dataset_id} of organization {organization_id} deleted.")

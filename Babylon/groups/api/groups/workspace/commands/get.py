@@ -11,6 +11,7 @@ from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.exceptions import ServiceException
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
@@ -97,6 +98,9 @@ def get(
                                                                  organization_id=organization_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
+        return
+    except ServiceException:
+        logger.error(f"Organization with id : {organization_id} not found.")
         return
     except NotFoundException:
         logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
