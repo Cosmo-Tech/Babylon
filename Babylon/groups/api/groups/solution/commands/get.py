@@ -101,13 +101,13 @@ def get(
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
-        logger.error(f"Solution {solution_id} does not exist in organization {organization_id}.")
+        logger.error(f"Solution {solution_id} not found in organization {organization_id}.")
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
         return
     except ServiceException:
-        logger.error(f"Organization with id {organization_id} does not exist.")
+        logger.error(f"Organization with id {organization_id} not found.")
         return
 
     if fields:

@@ -121,10 +121,10 @@ def create(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} does not exist.")
+        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} not found.")
         return
     except ServiceException:
-        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} does not exist.")
+        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} not found.")
         return
 
     if select:

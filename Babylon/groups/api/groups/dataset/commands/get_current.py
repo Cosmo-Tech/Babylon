@@ -60,13 +60,13 @@ def get_current(
     try:
         retrieved_dataset = dataset_api.find_dataset_by_id(dataset_id=dataset_id, organization_id=organization_id)
     except NotFoundException:
-        logger.error(f"Dataset {dataset_id} does not exist in organization {organization_id}.")
+        logger.error(f"Dataset {dataset_id} not found in organization {organization_id}.")
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         return
     except ServiceException:
-        logger.error(f"Organization with id {organization_id} does not exist.")
+        logger.error(f"Organization with id {organization_id} not found.")
         return
 
     if fields:

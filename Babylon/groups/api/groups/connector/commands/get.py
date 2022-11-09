@@ -53,7 +53,7 @@ def get(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Connector with id {connector_id} does not exist.")
+        logger.error(f"Connector with id {connector_id} not found.")
         return
 
     if fields:
