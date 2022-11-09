@@ -1,10 +1,10 @@
 from .acr import acr
 from .adt import adt
 from .adx import adx
-from .storage_blob import storage_blob
+from .storage import storage
 
 list_groups = [
-    storage_blob,
+    storage,
     acr,
     adt,
     adx,
