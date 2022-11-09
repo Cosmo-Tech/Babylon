@@ -1,1 +1,14 @@
-babylon azure adx permission delete
+## babylon azure adx permission delete
+#### Commands
+```bash
+babylon azure adx permission delete -f "existing_principal_id"
+```
+Should delete permissions of the specified principal
+```bash
+babylon azure adx permission delete "existing_principal_id"
+```
+Should ask for confirmation and abort if the confirmation workflow is incorrect
+```bash
+babylon azure adx permission delete "unknown_principal_id"
+```
+Should log a clean error message

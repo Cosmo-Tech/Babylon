@@ -1,1 +1,6 @@
+# babylon azure adx permission get-all
+### Commands
+```console
 babylon azure adx permission get-all
+```
+Should list all available assignments

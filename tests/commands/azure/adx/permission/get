@@ -1,1 +1,10 @@
-babylon azure adx permission get
+## babylon azure adx permission get
+### Commands
+```bash
+babylon azure adx permission get "existing_principal_id"
+```
+Should return the principal assignments
+```bash
+babylon azure adx permission get "unknown_principal_id"
+```
+Should log a clean error message
