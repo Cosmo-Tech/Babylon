@@ -969,15 +969,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob" class="md-nav__link">
-    storage-blob
+  <a href="#babylon-azure-storage" class="md-nav__link">
+    storage
   </a>
   
-    <nav class="md-nav" aria-label="storage-blob">
+    <nav class="md-nav" aria-label="storage">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-container" class="md-nav__link">
+  <a href="#babylon-azure-storage-container" class="md-nav__link">
     container
   </a>
   
@@ -985,28 +985,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-container-create" class="md-nav__link">
+  <a href="#babylon-azure-storage-container-create" class="md-nav__link">
     create
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-container-delete" class="md-nav__link">
+  <a href="#babylon-azure-storage-container-delete" class="md-nav__link">
     delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-storage-container-get-all" class="md-nav__link">
+    get-all
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-list" class="md-nav__link">
-    list
-  </a>
   
 </li>
         
@@ -2069,15 +2069,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob" class="md-nav__link">
-    storage-blob
+  <a href="#babylon-azure-storage" class="md-nav__link">
+    storage
   </a>
   
-    <nav class="md-nav" aria-label="storage-blob">
+    <nav class="md-nav" aria-label="storage">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-container" class="md-nav__link">
+  <a href="#babylon-azure-storage-container" class="md-nav__link">
     container
   </a>
   
@@ -2085,28 +2085,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-container-create" class="md-nav__link">
+  <a href="#babylon-azure-storage-container-create" class="md-nav__link">
     create
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-container-delete" class="md-nav__link">
+  <a href="#babylon-azure-storage-container-delete" class="md-nav__link">
     delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-storage-container-get-all" class="md-nav__link">
+    get-all
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#babylon-azure-storage-blob-list" class="md-nav__link">
-    list
-  </a>
   
 </li>
         
@@ -3995,7 +3995,7 @@
 <li><em><a href="#babylon-azure-acr">acr</a></em>: Group interacting with Azure Container Registry</li>
 <li><em><a href="#babylon-azure-adt">adt</a></em>: Allow communication with Azure Digital Twin</li>
 <li><em><a href="#babylon-azure-adx">adx</a></em>: Group interacting with Azure Data Explorer</li>
-<li><em><a href="#babylon-azure-storage-blob">storage-blob</a></em>: Group interacting with Azure Storage Blob</li>
+<li><em><a href="#babylon-azure-storage">storage</a></em>: Group interacting with Azure Storage Blob</li>
 </ul>
 <h4 id="babylon-azure-acr">babylon azure acr</h4>
 <p>Group interacting with Azure Container Registry</p>
@@ -4745,11 +4745,11 @@
 </tr>
 </tbody>
 </table>
-<h4 id="babylon-azure-storage-blob">babylon azure storage-blob</h4>
+<h4 id="babylon-azure-storage">babylon azure storage</h4>
 <p>Group interacting with Azure Storage Blob</p>
 <p>Requires key <code>storage_account_name</code> in the platform config file.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon azure storage-blob [OPTIONS] COMMAND [ARGS]...
+<pre><code>babylon azure storage [OPTIONS] COMMAND [ARGS]...
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -4784,13 +4784,12 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-azure-storage-blob-container">container</a></em>: Group interacting with Azure Storage Blob containers</li>
-<li><em><a href="#babylon-azure-storage-blob-list">list</a></em>: Lists storage containers from a given account</li>
+<li><em><a href="#babylon-azure-storage-container">container</a></em>: Group interacting with Azure Storage Blob containers</li>
 </ul>
-<h5 id="babylon-azure-storage-blob-container">babylon azure storage-blob container</h5>
+<h5 id="babylon-azure-storage-container">babylon azure storage container</h5>
 <p>Group interacting with Azure Storage Blob containers</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon azure storage-blob container [OPTIONS] COMMAND [ARGS]...
+<pre><code>babylon azure storage container [OPTIONS] COMMAND [ARGS]...
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -4813,13 +4812,14 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-azure-storage-blob-container-create">create</a></em>: Creates a new storageblob container with the given name</li>
-<li><em><a href="#babylon-azure-storage-blob-container-delete">delete</a></em>: Deletes a storageblob container with the given name</li>
+<li><em><a href="#babylon-azure-storage-container-create">create</a></em>: Creates a new storageblob container with the given name</li>
+<li><em><a href="#babylon-azure-storage-container-delete">delete</a></em>: Deletes a storageblob container with the given name</li>
+<li><em><a href="#babylon-azure-storage-container-get-all">get-all</a></em>: Lists storage containers from a given account</li>
 </ul>
-<h6 id="babylon-azure-storage-blob-container-create">babylon azure storage-blob container create</h6>
+<h6 id="babylon-azure-storage-container-create">babylon azure storage container create</h6>
 <p>Creates a new storageblob container with the given name</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon azure storage-blob container create [OPTIONS] CONTAINER_NAME
+<pre><code>babylon azure storage container create [OPTIONS] CONTAINER_NAME
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -4840,10 +4840,10 @@
 </tr>
 </tbody>
 </table>
-<h6 id="babylon-azure-storage-blob-container-delete">babylon azure storage-blob container delete</h6>
+<h6 id="babylon-azure-storage-container-delete">babylon azure storage container delete</h6>
 <p>Deletes a storageblob container with the given name</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon azure storage-blob container delete [OPTIONS] CONTAINER_NAME
+<pre><code>babylon azure storage container delete [OPTIONS] CONTAINER_NAME
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -4870,10 +4870,10 @@
 </tr>
 </tbody>
 </table>
-<h5 id="babylon-azure-storage-blob-list">babylon azure storage-blob list</h5>
+<h6 id="babylon-azure-storage-container-get-all">babylon azure storage container get-all</h6>
 <p>Lists storage containers from a given account</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon azure storage-blob list [OPTIONS]
+<pre><code>babylon azure storage container get-all [OPTIONS]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
