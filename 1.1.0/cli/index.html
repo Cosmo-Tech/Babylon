@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.8">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.9">
     
     
       
@@ -20,7 +20,7 @@
       <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.815d1a91.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.08040f6c.min.css">
         
           
           
@@ -58,7 +58,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="indigo">
   
     
     
@@ -2593,7 +2593,6 @@
 </ul>
 <h5 id="babylon-api-connector-create">babylon api connector create</h5>
 <p>Register a new Connector by sending a JSON or YAML file to the API.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api connector create [OPTIONS] CONNECTOR_NAME
 </code></pre>
@@ -2654,7 +2653,6 @@
 </table>
 <h5 id="babylon-api-connector-delete">babylon api connector delete</h5>
 <p>Unregister a Connector via Cosmotech API.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api connector delete [OPTIONS] [CONNECTOR_ID]
 </code></pre>
@@ -2697,7 +2695,6 @@
 </table>
 <h5 id="babylon-api-connector-get">babylon api connector get</h5>
 <p>Get a registered connector details.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api connector get [OPTIONS] CONNECTOR_ID
 </code></pre>
@@ -2734,7 +2731,6 @@
 </table>
 <h5 id="babylon-api-connector-get-all">babylon api connector get-all</h5>
 <p>Get all registered connectors.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api connector get-all [OPTIONS]
 </code></pre>
@@ -2773,7 +2769,6 @@
 <p>Get a registered connector details.</p>
 <p>Requires key <code>storage_connector_id</code> in the deployment config file.</p>
 <p>Requires key <code>adt_connector_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api connector get-currents [OPTIONS]
 </code></pre>
@@ -2835,7 +2830,7 @@
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#babylon-api-dataset-create">create</a></em>: Register new dataset by sending description file to the API.</li>
-<li><em><a href="#babylon-api-dataset-delete">delete</a></em>: Unregister a dataset via Cosmotech APi.</li>
+<li><em><a href="#babylon-api-dataset-delete">delete</a></em>: Unregister a dataset via Cosmotech API.</li>
 <li><em><a href="#babylon-api-dataset-get">get</a></em>: Get the state of the dataset in the API.</li>
 <li><em><a href="#babylon-api-dataset-get-all">get-all</a></em>: Get all registered datasets.</li>
 <li><em><a href="#babylon-api-dataset-get-current">get-current</a></em>: Get the state of the dataset in the API.</li>
@@ -2845,7 +2840,6 @@
 <p>Register new dataset by sending description file to the API.</p>
 <p>Requires key <code>connector</code> in the deployment config file.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset create [OPTIONS] [DATASET_FILE]
 </code></pre>
@@ -2899,9 +2893,8 @@
 </tbody>
 </table>
 <h5 id="babylon-api-dataset-delete">babylon api dataset delete</h5>
-<p>Unregister a dataset via Cosmotech APi.</p>
+<p>Unregister a dataset via Cosmotech API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset delete [OPTIONS] [DATASET_ID]
 </code></pre>
@@ -2945,7 +2938,6 @@
 <h5 id="babylon-api-dataset-get">babylon api dataset get</h5>
 <p>Get the state of the dataset in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset get [OPTIONS] DATASET_ID
 </code></pre>
@@ -2995,7 +2987,6 @@
 <h5 id="babylon-api-dataset-get-all">babylon api dataset get-all</h5>
 <p>Get all registered datasets.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset get-all [OPTIONS]
 </code></pre>
@@ -3034,7 +3025,6 @@
 <p>Get the state of the dataset in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Requires key <code>dataset_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset get-current [OPTIONS]
 </code></pre>
@@ -3074,7 +3064,6 @@
 <p>Requires key <code>dataset_id</code> in the deployment config file.</p>
 <p>Requires key <code>connector</code> in the deployment config file.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset update [OPTIONS] DATASET_FILE
 </code></pre>
@@ -3138,7 +3127,6 @@
 </ul>
 <h5 id="babylon-api-organization-create">babylon api organization create</h5>
 <p>Register new organization by sending a JSON or YAML file</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization create [OPTIONS] ORGANIZATION_NAME
 </code></pre>
@@ -3187,7 +3175,6 @@
 </table>
 <h5 id="babylon-api-organization-delete">babylon api organization delete</h5>
 <p>Delete organization via Cosmotech APi.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization delete [OPTIONS] [ORGANIZATION_ID]
 </code></pre>
@@ -3230,7 +3217,6 @@
 </table>
 <h5 id="babylon-api-organization-get">babylon api organization get</h5>
 <p>Get the state of an specific organization in the API.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization get [OPTIONS] ORGANIZATION_ID
 </code></pre>
@@ -3267,7 +3253,6 @@
 </table>
 <h5 id="babylon-api-organization-get-all">babylon api organization get-all</h5>
 <p>Get all registered organization.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization get-all [OPTIONS]
 </code></pre>
@@ -3305,7 +3290,6 @@
 <h5 id="babylon-api-organization-get-current">babylon api organization get-current</h5>
 <p>Get the state of the current organization in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization get-current [OPTIONS]
 </code></pre>
@@ -3343,7 +3327,6 @@
 <h5 id="babylon-api-organization-update">babylon api organization update</h5>
 <p>Update an Organization by sending a JSON or YAML file to Cosmotech Api.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization update [OPTIONS]
 </code></pre>
@@ -3417,7 +3400,6 @@
 <p>Requires key <code>simulator_url</code> in the deployment config file.</p>
 <p>Requires key <code>simulator_version</code> in the deployment config file.</p>
 <p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution create [OPTIONS] SOLUTION_NAME
 </code></pre>
@@ -3473,7 +3455,6 @@
 <h5 id="babylon-api-solution-delete">babylon api solution delete</h5>
 <p>Unregister a solution via Cosmotech APi.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution delete [OPTIONS] [SOLUTION_ID]
 </code></pre>
@@ -3517,7 +3498,6 @@
 <h5 id="babylon-api-solution-get">babylon api solution get</h5>
 <p>Get the state of the solution in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution get [OPTIONS] [SOLUTION_ID]
 </code></pre>
@@ -3567,7 +3547,6 @@
 <h5 id="babylon-api-solution-get-all">babylon api solution get-all</h5>
 <p>Get all registered solutions.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution get-all [OPTIONS]
 </code></pre>
@@ -3606,7 +3585,6 @@
 <p>Get the state of the solution in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Requires key <code>solution_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution get-current [OPTIONS]
 </code></pre>
@@ -3648,7 +3626,6 @@
 <p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
 <p>Requires key <code>simulator_version</code> in the deployment config file.</p>
 <p>Requires key <code>simulator_url</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution update [OPTIONS] [SOLUTION_ID]
 </code></pre>
@@ -3722,7 +3699,6 @@
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Requires key <code>use_dedicated_event_hub_namespace</code> in the deployment config file.</p>
 <p>Requires key <code>send_scenario_metadata_to_event_hub</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace create [OPTIONS] WORKSPACE_NAME
 </code></pre>
@@ -3778,7 +3754,6 @@
 <h5 id="babylon-api-workspace-delete">babylon api workspace delete</h5>
 <p>Unregister a workspace via Cosmotech APi.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace delete [OPTIONS] [WORKSPACE_ID]
 </code></pre>
@@ -3822,7 +3797,6 @@
 <h5 id="babylon-api-workspace-get">babylon api workspace get</h5>
 <p>Get the state of the workspace in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace get [OPTIONS] [WORKSPACE_ID]
 </code></pre>
@@ -3872,7 +3846,6 @@
 <h5 id="babylon-api-workspace-get-all">babylon api workspace get-all</h5>
 <p>Get all registered workspaces.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace get-all [OPTIONS]
 </code></pre>
@@ -3911,7 +3884,6 @@
 <p>Get the state of the workspace in the API.</p>
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Requires key <code>workspace_id</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace get-current [OPTIONS]
 </code></pre>
@@ -3952,7 +3924,6 @@
 <p>Requires key <code>organization_id</code> in the deployment config file.</p>
 <p>Requires key <code>use_dedicated_event_hub_namespace</code> in the deployment config file.</p>
 <p>Requires key <code>use_dedicated_event_hub_namespace</code> in the deployment config file.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace update [OPTIONS]
 </code></pre>
@@ -4474,9 +4445,7 @@
 </table>
 <h6 id="babylon-azure-adt-model-upload">babylon azure adt model upload</h6>
 <p>Upload MODEL_FILE to adt</p>
-<pre><code>MODEL_FILE must be a json file
-</code></pre>
-<p>Allows dry runs.</p>
+<p>MODEL_FILE must be a json file</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adt model upload [OPTIONS] MODEL_FILE
 </code></pre>
@@ -4597,7 +4566,6 @@
 </ul>
 <h6 id="babylon-azure-adx-permission-delete">babylon azure adx permission delete</h6>
 <p>Delete all permission assignments applied to the given principal id</p>
-<p>Allows dry runs.</p>
 <p>Requires key <code>database_name</code> in the deployment config file.</p>
 <p>Requires key <code>cluster_name</code> in the platform config file.</p>
 <p>Requires key <code>resource_group_name</code> in the platform config file.</p>
@@ -4685,7 +4653,6 @@
 </table>
 <h6 id="babylon-azure-adx-permission-set">babylon azure adx permission set</h6>
 <p>Set permission assignments applied to the given principal id</p>
-<p>Allows dry runs.</p>
 <p>Requires key <code>database_name</code> in the deployment config file.</p>
 <p>Requires key <code>cluster_name</code> in the platform config file.</p>
 <p>Requires key <code>resource_group_name</code> in the platform config file.</p>
@@ -4725,7 +4692,6 @@
 </table>
 <h5 id="babylon-azure-adx-run-folder">babylon azure adx run-folder</h5>
 <p>Run all script files (.kql) from SCRIPT_FOLDER</p>
-<p>Allows dry runs.</p>
 <p>Requires key <code>database_name</code> in the deployment config file.</p>
 <p>Requires key <code>resource_group_name</code> in the platform config file.</p>
 <p>Requires key <code>cluster_name</code> in the platform config file.</p>
@@ -4754,7 +4720,6 @@
 <h5 id="babylon-azure-adx-run-script">babylon azure adx run-script</h5>
 <p>Open SCRIPT_FILE and run it on the database</p>
 <p>In the script instances of "<database name>" will be replaced by the actual database name</p>
-<p>Allows dry runs.</p>
 <p>Requires key <code>database_name</code> in the deployment config file.</p>
 <p>Requires key <code>resource_group_name</code> in the platform config file.</p>
 <p>Requires key <code>cluster_name</code> in the platform config file.</p>
@@ -5471,7 +5436,6 @@
 <p>Requires key <code>vcs_branch</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p>Requires key <code>vcs_identifier</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p>Requires key <code>working_directory</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon terraform-cloud workspace create [OPTIONS] WORKSPACE_NAME
 </code></pre>
@@ -5509,7 +5473,6 @@
 <h5 id="babylon-terraform-cloud-workspace-delete">babylon terraform-cloud workspace delete</h5>
 <p>Delete a workspace from the organization</p>
 <p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon terraform-cloud workspace delete [OPTIONS]
 </code></pre>
@@ -5702,7 +5665,6 @@
 <p>Start the run of a workspace</p>
 <p>More info on runs can be found at: https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run#create-a-run</p>
 <p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon terraform-cloud workspace run [OPTIONS]
 </code></pre>
@@ -5785,7 +5747,6 @@
 <p>Set VAR_KEY variable to VAR_VALUE in a workspace</p>
 <p>More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body</p>
-<p>Allows dry runs.</p>
 <p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon terraform-cloud workspace vars create [OPTIONS] VAR_KEY VAR_VALUE
@@ -5831,7 +5792,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <h6 id="babylon-terraform-cloud-workspace-vars-delete">babylon terraform-cloud workspace vars delete</h6>
 <p>Delete VAR_KEY variable in a workspace</p>
 <p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
-<p>Allows dry runs.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon terraform-cloud workspace vars delete [OPTIONS] VAR_KEY
 </code></pre>
@@ -5944,7 +5904,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <p>Update VAR_KEY variable in a workspace</p>
 <p>More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body</p>
-<p>Allows dry runs.</p>
 <p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon terraform-cloud workspace vars update [OPTIONS] VAR_KEY
