@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @option("-u", "--url", "url", help="Storage account url")
 @pass_context
 @require_platform_key("storage_account_name", "storage_account_name")
-def storage_blob(ctx: Context, account: str, url: str, storage_account_name: str):
+def storage(ctx: Context, account: str, url: str, storage_account_name: str):
     """Group interacting with Azure Storage Blob"""
     account_name = account or storage_account_name
     account_url = url or f"https://{account_name}.blob.core.windows.net"
@@ -28,7 +28,7 @@ def storage_blob(ctx: Context, account: str, url: str, storage_account_name: str
 
 
 for _command in list_commands:
-    storage_blob.add_command(_command)
+    storage.add_command(_command)
 
 for _group in list_groups:
-    storage_blob.add_command(_group)
+    storage.add_command(_group)
