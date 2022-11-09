@@ -1,1 +1,21 @@
+## babylon azure storage-blob list
+Add the following key in your `config/deployments/deploy.yml` file 
+```yaml
+# Storage account name
+storage_account_name: "..."
+```
+Containers status can be checked with the following ``az cli`` command
+```bash
+az storage container list --account-name "..." --output table
+```
+
+# Commands
+```bash
 babylon azure storage-blob list
+```
+Should display the newly created container with it's url
+```bash
+babylon azure storage-blob --account [account_name] list
+babylon azure storage-blob --url [account_url] list
+```
+It is possible to use the --account or --url option to specify another storage account
