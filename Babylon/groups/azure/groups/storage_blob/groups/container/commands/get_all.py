@@ -12,7 +12,7 @@ pass_blobclient = make_pass_decorator(BlobServiceClient)
 
 @command()
 @pass_blobclient
-def list(blobclient: BlobServiceClient) -> Optional[str]:
+def get_all(blobclient: BlobServiceClient) -> Optional[str]:
     """Lists storage containers from a given account"""
     logger.info(f"Listing containers from storage account {blobclient.account_name}")
     try:
