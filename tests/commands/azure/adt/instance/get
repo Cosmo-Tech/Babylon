@@ -1,1 +1,19 @@
-babylon azure adt instance get
+## Babylon azure adt instance get
+To test the new commands proceed as follow:
+- install the new dependencies using `pip install -r requirements.txt`
+- Fill the following keys in `config/platforms/platform.yaml`
+```yaml
+resource_group_name: "..."
+```
+
+### Commands
+
+```bash
+babylon azure adt instance get adt_instance_name
+```
+Should return this adt instance details
+
+```bash
+babylon azure adt instance get adt_instance_name -o output.json
+```
+Should output adt instance details in the output.json file

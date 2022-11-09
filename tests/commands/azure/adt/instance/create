@@ -1,1 +1,15 @@
-babylon azure adt instance create
+## Babylon azure adt instance create
+To test the new commands proceed as follow:
+- install the new dependencies using `pip install -r requirements.txt`
+- Fill the following keys in `config/platforms/platform.yaml`
+```yaml
+resource_location: "..."
+resource_group_name: "..."
+```
+
+### Commands
+
+```bash
+babylon azure adt instance create adt_instance_name
+```
+Should create a new ADT instance in the resource group defined in `platform.yaml`
