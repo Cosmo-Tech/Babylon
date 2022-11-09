@@ -16,7 +16,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
@@ -28,7 +28,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **workspace_api.create_workspace**")
 @timing_decorator
 @pass_workspace_api
 @pass_environment
@@ -64,15 +64,10 @@ def update(
     organization_id: str,
     use_dedicated_event_hub_namespace: str,
     send_scenario_metadata_to_event_hub: str,
-    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to update a workspace."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call workspace_api.create_workspace")
-        return
 
     converted_workspace_content = get_api_file(
         api_file_path=workspace_file,

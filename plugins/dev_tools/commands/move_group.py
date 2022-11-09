@@ -9,12 +9,10 @@ from click import make_pass_decorator
 from click import pass_context
 from click.core import Context
 
-from .initialize_group import initialize_group
-from Babylon.utils.decorators import allow_dry_run
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import ask_for_group
 from Babylon.utils.string import is_valid_command_name
-from Babylon.utils.string import to_header_line
+from .initialize_group import initialize_group
 
 logger = logging.getLogger("Babylon")
 pass_base_path = make_pass_decorator(pathlib.Path)
@@ -23,9 +21,8 @@ pass_base_path = make_pass_decorator(pathlib.Path)
 @command()
 @pass_base_path
 @pass_context
-@allow_dry_run
 @timing_decorator
-def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
+def move_group(ctx: Context, base_path: pathlib.Path):
     """Command made to move groups"""
     babylon_groups_path = base_path / "groups"
 
@@ -64,31 +61,22 @@ def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
         for _line in _pgi_file:
             if old_group_name[-1] not in _line:
                 _pgi_content.append(_line)
-    if dry_run:
-        logger.info(to_header_line(f"Updating {old_parent_group_init} to remove new group"))
-        logger.info("".join(_pgi_content))
-    else:
-        logger.info(f"Updating {old_parent_group_init} to remove old group")
-        with open(old_parent_group_init, "w") as _pgi_file:
-            _pgi_file.write("".join(_pgi_content))
+
+    logger.info(f"Updating {old_parent_group_init} to remove old group")
+    with open(old_parent_group_init, "w") as _pgi_file:
+        _pgi_file.write("".join(_pgi_content))
 
     if len(new_group_name) > 1:
         parent_group_path = babylon_groups_path / "/groups/".join(new_group_name[:-1])
         if not parent_group_path.exists():
             logger.info(f"Group `{' '.join(new_group_name[:-1])}`"
                         "does not exists creating it before creating `{new_group_name[-1]}`.")
-            if not dry_run:
-                ctx.invoke(initialize_group, group_name=new_group_name[:-1])
+            ctx.invoke(initialize_group, group_name=new_group_name[:-1])
     else:
         parent_group_path = base_path
 
-    if dry_run:
-        logger.info(to_header_line("Moving group to new location"))
-        logger.info(f"From: {old_group_path}")
-        logger.info(f"To: {new_group_path}")
-    else:
-        logger.info("Moving group to new location")
-        shutil.move(old_group_path, new_group_path)
+    logger.info("Moving group to new location")
+    shutil.move(old_group_path, new_group_path)
 
     parent_group_init = parent_group_path / "groups/__init__.py"
     _pgi_content = []
@@ -97,17 +85,11 @@ def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
             _pgi_content.append(_line)
         _pgi_content.insert(0, f'from .{new_group_name[-1]} import {new_group_name[-1]}\n')
         _pgi_content.insert(_pgi_content.index('list_groups = [\n') + 1, f'    {new_group_name[-1]},\n')
-    if dry_run:
-        logger.info(to_header_line(f"Updating {parent_group_init} to add new group"))
-        logger.info("".join(_pgi_content))
-    else:
-        logger.info(f"Updating {parent_group_init} to add new group")
-        with open(parent_group_init, "w") as _pgi_file:
-            _pgi_file.write("".join(_pgi_content))
+    logger.info(f"Updating {parent_group_init} to add new group")
+    with open(parent_group_init, "w") as _pgi_file:
+        _pgi_file.write("".join(_pgi_content))
 
     group_init = new_group_path / "__init__.py"
-    if dry_run:
-        group_init = old_group_path / "__init__.py"
 
     _gi_content = []
     with open(group_init) as _gi_file:
@@ -116,13 +98,9 @@ def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
             _line = _line.replace(f"{old_group_name[-1]}.add_command", f"{new_group_name[-1]}.add_command")
             _gi_content.append(_line)
 
-    if dry_run:
-        logger.info(to_header_line(f"Writing {new_group_path / '__init__.py'}"))
-        logger.info("".join(_gi_content))
-    else:
-        logger.info(f"Writing {new_group_path / '__init__.py'}")
-        with open(group_init, "w") as _gi_file:
-            _gi_file.write("".join(_gi_content))
+    logger.info(f"Writing {new_group_path / '__init__.py'}")
+    with open(group_init, "w") as _gi_file:
+        _gi_file.write("".join(_gi_content))
 
     old_depth = len(old_group_name)
     new_depth = len(new_group_name)
@@ -132,8 +110,6 @@ def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
     if depth_change != 0:
         logger.info("Updating relative import depths to match new group organization")
         gr_path = new_group_path
-        if dry_run:
-            gr_path = old_group_path
         for root, _, _ in os.walk(gr_path):
             _r = pathlib.Path(root).relative_to(gr_path)
 
@@ -148,10 +124,7 @@ def move_group(ctx: Context, base_path: pathlib.Path, dry_run: bool = False):
                             elif depth_change < 0:
                                 _line = _line[:5] + _line[5 - (depth_change * 2):]
                         _f_content.append(_line)
-                if dry_run:
-                    logger.info(to_header_line(f"Updating {new_group_path / _f_local_path}"))
-                    logger.info("".join(_f_content))
-                else:
-                    logger.info(f"Updating {new_group_path / _f_local_path}")
-                    with open(_f_name, "w") as _f:
-                        _f.write("".join(_f_content))
+
+                logger.info(f"Updating {new_group_path / _f_local_path}")
+                with open(_f_name, "w") as _f:
+                    _f.write("".join(_f_content))

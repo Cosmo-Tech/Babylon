@@ -14,7 +14,7 @@ from cosmotech_api.exceptions import ServiceException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -24,7 +24,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **workspace_api.find_workspace_by_id**")
 @pass_workspace_api
 @timing_decorator
 @require_deployment_key("workspace_id", "workspace_id")
@@ -47,14 +47,9 @@ def get_current(
     workspace_id: str,
     organization_id: str,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
 ):
     """Get the state of the workspace in the API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call workspace_api.find_workspace_by_id")
-        return
 
     try:
         retrieved_workspace = workspace_api.find_workspace_by_id(workspace_id=workspace_id,

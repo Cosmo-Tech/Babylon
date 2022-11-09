@@ -15,7 +15,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
@@ -24,7 +24,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **connector_api.find_connector_by_id**")
 @timing_decorator
 @pass_connector_api
 @option("-o",
@@ -39,13 +39,8 @@ def get(
     connector_id: str,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
 ):
     """Get a registered connector details."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call connector_api.find_connector_by_id")
-        return
 
     try:
         retrieved_connector = connector_api.find_connector_by_id(connector_id)

@@ -13,7 +13,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
@@ -22,7 +22,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **organization_api.find_all_organizations**")
 @timing_decorator
 @pass_organization_api
 @option("-o",
@@ -40,13 +40,8 @@ def get_all(
     organization_api: OrganizationApi,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
 ):
     """Get all registered organization."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call organization_api.find_all_organizations")
-        return
 
     try:
         retrieved_organizations = organization_api.find_all_organizations()

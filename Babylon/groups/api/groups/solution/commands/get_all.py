@@ -15,7 +15,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -25,7 +25,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **solution_api.find_all_solutions** to get all registered solution")
 @pass_solution_api
 @timing_decorator
 @require_deployment_key("organization_id", "organization_id")
@@ -46,15 +46,9 @@ def get_all(
     solution_api: SolutionApi,
     organization_id: str,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
 ):
     """Get all registered solutions."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call solution_api.find_all_solutions to get all registered solution")
-        return
-
     try:
         retrieved_solutions = solution_api.find_all_solutions(organization_id)
     except NotFoundException:

@@ -17,7 +17,7 @@ from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
@@ -29,7 +29,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **dataset_api.create_dataset**")
 @timing_decorator
 @pass_dataset_api
 @pass_environment
@@ -84,13 +84,8 @@ def create(
     dataset_name: Optional[str] = None,
     dataset_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: bool = False,
 ):
     """Register new dataset by sending description file to the API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call dataset_api.create_dataset")
-        return
 
     if not dataset_file and not dataset_name:
         logger.error("Error : can not get an dataset name, please check your Dataset.YAML file or set --name option")

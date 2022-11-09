@@ -17,7 +17,7 @@ from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -27,7 +27,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **solution_api.find_solution_by_id** to get an solution details")
 @pass_solution_api
 @timing_decorator
 @argument("solution-id", required=False)
@@ -63,16 +63,11 @@ def get(
     organization_id: str,
     solution_id: Optional[str] = None,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
     solution_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
 ):
     """Get the state of the solution in the API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call solution_api.find_solution_by_id to get an solution details")
-        return
 
     if not solution_id:
         if not solution_file:

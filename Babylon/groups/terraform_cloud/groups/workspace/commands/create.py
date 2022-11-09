@@ -12,7 +12,7 @@ from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
 from ......utils import TEMPLATE_FOLDER_PATH
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.environment import Environment
@@ -25,7 +25,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @command()
 @pass_tfc
 @pass_environment
-@allow_dry_run
+@describe_dry_run("Would send a workspace creation payload to terraform")
 @option(
     "-o",
     "--output",
@@ -44,7 +44,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_branch", "vcs_branch")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_oauth_token_id", "vcs_oauth_token_id")
 def create(env: Environment, api: TFC, workspace_name: str, working_directory: str, vcs_identifier: str,
-           vcs_branch: str, vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], dry_run: bool, select: bool):
+           vcs_branch: str, vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], select: bool):
     """Use given parameters to create a workspace in the organization"""
 
     workspace_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/workspace_payload_with_github.json"
@@ -56,19 +56,14 @@ def create(env: Environment, api: TFC, workspace_name: str, working_directory: s
     workspace_payload['data']['attributes']['vcs-repo']['identifier'] = vcs_identifier
     workspace_payload['data']['attributes']['vcs-repo']['oauth-token-id'] = vcs_oauth_token_id
 
-    if dry_run:
-        ws = workspace_payload
-        logger.info("DRY RUN - Would send the following payload to terraform")
-        logger.info(pprint.pformat(ws))
-    else:
-        logger.info("Sending payload to terraform")
-        try:
-            ws = api.workspaces.create(payload=workspace_payload)
-        except TFCHTTPUnprocessableEntity as _error:
-            logger.error(f"An issue appeared while processing workspace {workspace_name}:")
-            logger.error(pprint.pformat(_error.args))
-            return
-        logger.info(pprint.pformat(ws['data']))
+    logger.info("Sending payload to terraform")
+    try:
+        ws = api.workspaces.create(payload=workspace_payload)
+    except TFCHTTPUnprocessableEntity as _error:
+        logger.error(f"An issue appeared while processing workspace {workspace_name}:")
+        logger.error(pprint.pformat(_error.args))
+        return
+    logger.info(pprint.pformat(ws['data']))
 
     if select:
         ws_id = ws['data']['id']

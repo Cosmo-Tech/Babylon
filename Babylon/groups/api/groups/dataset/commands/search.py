@@ -20,13 +20,14 @@ from ......utils.decorators import allow_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
+
 logger = getLogger("Babylon")
 
 pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **dataset_api.search_datasets**")
 @pass_dataset_api
 @timing_decorator
 @argument("search_parameters", type=str)
@@ -60,7 +61,6 @@ def search(
     output_file: Optional[str] = None,
     use_working_dir_file: bool = False,
     fields: str = None,
-    dry_run: bool = False,
 ):
     """Get all dataset having corresponding tag."""
 
@@ -71,11 +71,6 @@ def search(
     )
     if converted_search_parameters_content is None:
         logger.error("Error : can not get correct dataset tag definition, please check your tag.YAML file")
-        return
-
-    if dry_run:
-        logger.info("DRY RUN - Would call dataset_api.search_datasets")
-        retrieved_datasets = [{"Babylon": "<DRY RUN>"}]
         return
 
     try:

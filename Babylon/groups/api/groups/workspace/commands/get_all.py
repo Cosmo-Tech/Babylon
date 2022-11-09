@@ -14,7 +14,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -24,7 +24,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **workspace_api.find_all_workspaces**")
 @pass_workspace_api
 @timing_decorator
 @require_deployment_key("organization_id", "organization_id")
@@ -45,15 +45,9 @@ def get_all(
     workspace_api: WorkspaceApi,
     organization_id: str,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
 ):
     """Get all registered workspaces."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call workspace_api.find_all_workspaces")
-        return
-
     try:
         retrieved_workspaces = workspace_api.find_all_workspaces(organization_id)
     except UnauthorizedException:

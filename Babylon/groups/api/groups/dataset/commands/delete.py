@@ -14,7 +14,7 @@ from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -24,7 +24,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **dataset_api.delete_dataset**")
 @pass_dataset_api
 @timing_decorator
 @require_deployment_key("organization_id", "organization_id")
@@ -57,14 +57,9 @@ def delete(
     dataset_file: Optional[str] = None,
     dataset_id: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-    dry_run: Optional[bool] = False,
     force_validation: Optional[bool] = False,
 ):
-    """Unregister a dataset via Cosmotech APi."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call dataset_api.delete_dataset")
-        return
+    """Unregister a dataset via Cosmotech API."""
 
     if not dataset_id:
         if not dataset_file:

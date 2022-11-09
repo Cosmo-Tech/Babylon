@@ -10,7 +10,7 @@ from click import command
 from click import option
 from click import pass_context
 
-from ........utils.decorators import allow_dry_run
+from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 
@@ -43,18 +43,14 @@ Should log a clean error message
         type=Choice(["User", "Group", "App"], case_sensitive=False),
         required=True,
         help="Principal type of the given ID")
-@allow_dry_run
+@describe_dry_run("Would add ROLE to PRINCIPAL_ID")
 def set(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str, role: str,
-        principal_type: str, dry_run: bool):
+        principal_type: str):
     """Set permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
     principal_assignment_name = str(uuid4())
     logger.info("Creating assignment...")
-
-    if dry_run:
-        logger.info(f"DRY RUN - Would add role {role} to principal {principal_type}:{principal_id}")
-        return
 
     kusto_mgmt.database_principal_assignments.begin_create_or_update(resource_group_name, cluster_name, database_name,
                                                                      principal_assignment_name, parameters)

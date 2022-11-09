@@ -15,7 +15,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -25,7 +25,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **dataset_api.find_all_datasets**")
 @pass_dataset_api
 @timing_decorator
 @require_deployment_key("organization_id", "organization_id")
@@ -47,14 +47,8 @@ def get_all(
     organization_id: str,
     output_file: Optional[str] = None,
     fields: str = None,
-    dry_run: bool = False,
 ):
     """Get all registered datasets."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call dataset_api.find_all_datasets")
-        return
-
     try:
         retrieved_datasets = dataset_api.find_all_datasets(organization_id)
     except NotFoundException:

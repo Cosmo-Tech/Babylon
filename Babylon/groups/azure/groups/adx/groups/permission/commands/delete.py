@@ -8,7 +8,7 @@ from click import confirm
 from click import option
 from click import pass_context
 
-from ........utils.decorators import allow_dry_run
+from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 
@@ -28,13 +28,12 @@ Should log a clean error message
 @require_deployment_key("database_name", "database_name")
 @argument("principal_id", type=str)
 @option("-f", "--force", is_flag=True, help="Don't ask for validation before delete")
-@allow_dry_run
+@describe_dry_run("Would go through each role of given principal and delete them.")
 def delete(ctx: Context,
            resource_group_name: str,
            cluster_name: str,
            database_name: str,
            principal_id: str,
-           dry_run: bool,
            force: bool = False):
     """Delete all permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
@@ -50,11 +49,6 @@ def delete(ctx: Context,
                 f"Do you confirm deletion of {assign.role} permission for {assign.principal_name} ?"):
             logger.info(
                 f"Aborting deletion of role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
-            continue
-
-        if dry_run:
-            logger.info(
-                f"DRY RUN - Would delete role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
             continue
 
         logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")

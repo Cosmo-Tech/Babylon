@@ -13,7 +13,7 @@ from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 
 logger = getLogger("Babylon")
@@ -22,7 +22,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **organization_api.unregister_organization**")
 @timing_decorator
 @pass_organization_api
 @argument(
@@ -53,15 +53,10 @@ def delete(
     organization_api: OrganizationApi,
     organization_id: str,
     organization_file: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
 ) -> Optional[str]:
     """Delete organization via Cosmotech APi."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call organization_api.unregister_organization")
-        return
 
     if not organization_id:
         if not organization_file:
@@ -78,8 +73,8 @@ def delete(
             logger.error("Can not get organization definition, please check your file")
             return
 
-        organization_id = converted_organization_content.get("id") or \
-            converted_organization_content.get("organization_id")
+        organization_id = converted_organization_content.get("id") or converted_organization_content.get(
+            "organization_id")
         if not organization_id:
             logger.error("Can not get organization id, please check your file")
             return

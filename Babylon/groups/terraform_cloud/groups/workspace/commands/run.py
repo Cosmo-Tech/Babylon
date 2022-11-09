@@ -11,7 +11,7 @@ from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
 
 from ......utils import TEMPLATE_FOLDER_PATH
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
@@ -31,22 +31,22 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @option("-m", "--message", "run_message", help="Message added to the run.", default="Run started with Babylon")
 @option("--allow_empty_apply", "allow_empty_apply", is_flag=True, help="Can this run have an empty apply ?")
-@allow_dry_run
+@describe_dry_run("""Would check if WORKSPACE_ID exists
+
+Then create a run for it sending a creation payload""")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 def run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], run_message: str, allow_empty_apply: bool,
-        output_file: Optional[pathlib.Path], dry_run: bool):
+        output_file: Optional[pathlib.Path]):
     """Start the run of a workspace
 
 More info on runs can be found at: https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run#create-a-run"""
     workspace_id = workspace_id or workspace_id_wd
-    if dry_run:
-        logger.info(f"DRY RUN - Checking if workspace {workspace_id} exists")
-    else:
-        try:
-            api.workspaces.show(workspace_id=workspace_id)
-        except TFCHTTPNotFound:
-            logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
-            return
+
+    try:
+        api.workspaces.show(workspace_id=workspace_id)
+    except TFCHTTPNotFound:
+        logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
+        return
 
     run_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/run_workspace_payload.json"
     with open(run_payload_template) as _f:
@@ -55,14 +55,10 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
     run_payload['data']['attributes']['allow-empty-apply'] = allow_empty_apply
     run_payload['data']['relationships']['workspace']['data']['id'] = workspace_id
 
-    if dry_run:
-        logger.info(f"DRY RUN - Creating run for workspace {workspace_id} with the following payload")
-        logger.info(pprint.pformat(run_payload))
-    else:
-        logger.info("Sending payload to API")
-        r = api.runs.create(run_payload)
-        logger.info("Run successfully created")
-        logger.info(pprint.pformat(r))
-        if output_file:
-            with open(output_file, "w") as _file:
-                json.dump(r['data'], _file, ensure_ascii=False)
+    logger.info("Sending payload to API")
+    r = api.runs.create(run_payload)
+    logger.info("Run successfully created")
+    logger.info(pprint.pformat(r))
+    if output_file:
+        with open(output_file, "w") as _file:
+            json.dump(r['data'], _file, ensure_ascii=False)

@@ -15,7 +15,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import allow_dry_run
+from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 
@@ -25,7 +25,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
-@allow_dry_run
+@describe_dry_run("Would call **solution_api.find_solution_by_id** get the current solution details")
 @pass_solution_api
 @timing_decorator
 @require_deployment_key("solution_id", "solution_id")
@@ -48,15 +48,9 @@ def get_current(
     solution_id: str,
     organization_id: str,
     fields: Optional[str] = None,
-    dry_run: Optional[bool] = False,
     output_file: Optional[str] = None,
 ):
     """Get the state of the solution in the API."""
-
-    if dry_run:
-        logger.info("DRY RUN - Would call solution_api.find_solution_by_id get the current solution details")
-        return
-
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
