@@ -79,7 +79,7 @@ def upload(
         with open(model_file, "r") as file:
             model_file_content = json.load(file)
 
-        if type(model_file_content) is list:
+        if isinstance(model_file_content, list):
             for model in model_file_content:
                 upload_one_model(dt_client, model, override_if_exists)
             continue
