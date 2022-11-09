@@ -69,7 +69,7 @@ def update(
             dataset=converted_dataset_content,
         )
     except NotFoundException:
-        logger.error(f"Dataset {dataset_id} not founds in organization {organization_id}.")
+        logger.error(f"Dataset {dataset_id} not found in organization {organization_id}.")
         return
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
