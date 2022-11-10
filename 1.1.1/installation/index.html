@@ -341,6 +341,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#running-babylon-with-docker" class="md-nav__link">
+    Running Babylon with Docker
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dev-mode-installation" class="md-nav__link">
     Dev mode installation
   </a>
@@ -717,6 +724,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#running-babylon-with-docker" class="md-nav__link">
+    Running Babylon with Docker
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dev-mode-installation" class="md-nav__link">
     Dev mode installation
   </a>
@@ -750,6 +764,14 @@
 cd Babylon
 pip install .
 </code></pre>
+<h2 id="running-babylon-with-docker">Running Babylon with Docker</h2>
+<pre><code class="language-bash">docker pull ghcr.io/cosmo-tech/babylon:latest
+mkdir config workingdir
+docker run -it --rm --mount type=bind,source=&quot;$(pwd)&quot;/config,target=/opt/babylon/config --mount type=bind,source=&quot;$(pwd)&quot;/workingdir,target=/etc/babylon/workingdir babylon
+</code></pre>
+<p>Then you can access and edit the following host directories:
+- Configuration is in host <code>config/</code> directory, (<code>/opt/babylon/config/</code> in the container)
+- Configuration is in host <code>workingdir/</code> directory, (<code>/etc/babylon/workingdir/</code> in the container)</p>
 <h2 id="dev-mode-installation">Dev mode installation</h2>
 <p>If you want to develop on top of Babylon you can set it up in developer mode (<code>-e</code>)</p>
 <p>And if you don't want to multiply versions of Babylon, you can also add it in a virtual environment (requires <code>venv</code>) </p>
