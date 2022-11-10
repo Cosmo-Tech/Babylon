@@ -11,7 +11,6 @@ from click import Context
 
 from ......utils.decorators import require_platform_key
 from ......utils.response import CommandResponse
-from ......utils.response import CommandStatus
 from ..registry_connect import registry_connect
 
 logger = logging.getLogger("Babylon")
@@ -30,13 +29,13 @@ def list(ctx: Context, acr_src_registry_name: str, acr_dest_registry_name: str, 
     registry = registry or {"src": acr_src_registry_name, "dest": acr_dest_registry_name}.get(direction)
     if not registry:
         logger.error("Please specify a registry to list from with --direction or --registry")
-        return CommandResponse(ctx.command, ctx.params, status_code=CommandStatus.ERROR)
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     cr_client, _ = registry_connect(registry, credentials)
     logger.info("Getting repositories stored in registry %s", registry)
     try:
         repos = [repo for repo in cr_client.list_repository_names()]
     except ServiceRequestError:
         logger.error(f"Could not list from registry {registry}")
-        return CommandResponse(ctx.command, ctx.params, status_code=CommandStatus.ERROR)
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     logger.info(repos)
-    return CommandResponse(ctx.command, ctx.params, data={"repositories": repos})
+    return CommandResponse(data={"repositories": repos})
