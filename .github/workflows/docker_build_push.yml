@@ -3,6 +3,7 @@ on:
   create:
     tags:
       - v*
+on: workflow-dispatch
 jobs:
   build-babylon:
     runs-on: ubuntu-latest
