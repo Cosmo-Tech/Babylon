@@ -10,9 +10,12 @@ pip install .
 ```bash
 docker pull ghcr.io/cosmo-tech/babylon:latest
 mkdir config
-docker run -it --rm --mount type=bind,source="$(pwd)"/config,target=/opt/babylon/config babylon
+mkdir workingdir
+docker run -it --rm --mount type=bind,source="$(pwd)"/config,target=/opt/babylon/config --mount type=bind,source="$(pwd)"/workingdir,target=/etc/babylon/workingdir babylon
 ```
-Then you can access config files in the `/config` directory of your current folder
+Then you can access and edit the following host directories:
+- Configuration is in host `config/` directory, (`/opt/babylon/config/` in the container)
+- Configuration is in host `workingdir/` directory, (`/etc/babylon/workingdir/` in the container)
 
 ## Dev mode installation
 

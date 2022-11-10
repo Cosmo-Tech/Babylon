@@ -4,7 +4,7 @@ LABEL org.label-schema.name="Babylon"
 LABEL org.label-schema.description="Babylon is a tool designed to simplify interaction between Cosmo Tech solutions and the Azure environment."
 LABEL org.label-schema.url="https://github.com/Cosmo-Tech/Babylon"
 LABEL org.label-schema.maintainer="alexis.fossart@cosmotech.com"
-LABEL org.label-schema.docker.cmd="docker run -it --rm --mount type=bind,source="$(pwd)"/config,target=/opt/babylon/config babylon"
+LABEL org.label-schema.docker.cmd="docker run -it --rm --mount type=bind,source=\"$(pwd)\"/config,target=/opt/babylon/config --mount type=bind,source=\"$(pwd)\"/workingdir,target=/etc/babylon/workingdir babylon"
 
 # Install external programs
 RUN apt-get update && apt-get install -y curl apt-transport-https
@@ -28,5 +28,6 @@ WORKDIR /app/
 RUN pip install .
 RUN echo 'eval "$(_BABYLON_COMPLETE=bash_source babylon)"' >> ~/.bashrc
 ENV BABYLON_CONFIG_DIRECTORY=/opt/babylon/config
+ENV BABYLON_WORKING_DIRECTORY=/etc/babylon/workingdir
 
 ENTRYPOINT ["bash"]
