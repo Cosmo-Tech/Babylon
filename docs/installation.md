@@ -9,8 +9,7 @@ pip install .
 ## Running Babylon with Docker
 ```bash
 docker pull ghcr.io/cosmo-tech/babylon:latest
-mkdir config
-mkdir workingdir
+mkdir config workingdir
 docker run -it --rm --mount type=bind,source="$(pwd)"/config,target=/opt/babylon/config --mount type=bind,source="$(pwd)"/workingdir,target=/etc/babylon/workingdir babylon
 ```
 Then you can access and edit the following host directories:
