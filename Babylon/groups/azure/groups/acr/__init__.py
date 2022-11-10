@@ -1,5 +1,3 @@
-import logging
-
 from click import group
 
 from .commands import list_commands
