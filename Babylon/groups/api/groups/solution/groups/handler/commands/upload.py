@@ -9,10 +9,8 @@ from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
-from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from ........utils.decorators import allow_dry_run
 from ........utils.decorators import pass_environment
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import timing_decorator
@@ -24,7 +22,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
-@allow_dry_run
 @timing_decorator
 @pass_solution_api
 @pass_environment
@@ -51,6 +48,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
         ],
         case_sensitive=False,
     ),
+    required=True,
     help="Handler type, allowed values\
         :[parameters_handler, validator,\
             prerun, engine, postrun, scenariodata_transform]",
@@ -77,9 +75,11 @@ def upload(
 ) -> Optional[str]:
     """Send a JSON or YAML file to the API to create an solution."""
 
+    handler = open(handler_path, 'rb')
+
+    logger.info(f"Uploading {handler_id} handler to solution {solution_id}")
     try:
-        handler = open(handler_path, 'rb')
-        _ = solution_api.upload_run_template_handler(
+        response = solution_api.upload_run_template_handler(
             organization_id=organization_id,
             solution_id=solution_id,
             run_template_id=run_template_id,
@@ -92,7 +92,9 @@ def upload(
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
         return
-    except ServiceException:
-        logger.error(f"Organization with id {organization_id} and or Solution {solution_id} not found.")
-        return
-    logger.info("Created new solution with ")
+    # except ServiceException:
+    #     logger.error(f"Organization with id {organization_id} and or Solution {solution_id} not found.")
+    #     return
+
+    logger.info(response)
+    logger.info(f"{handler_id} handler uploaded to solution {solution_id} successfully")
