@@ -6,6 +6,14 @@ cd Babylon
 pip install .
 ```
 
+## Running Babylon with Docker
+```bash
+docker pull ghcr.io/cosmo-tech/babylon:latest
+mkdir config
+docker run -it --rm --mount type=bind,source="$(pwd)"/config,target=/opt/babylon/config babylon
+```
+Then you can access config files in the `/config` directory of your current folder
+
 ## Dev mode installation
 
 If you want to develop on top of Babylon you can set it up in developer mode (`-e`)
