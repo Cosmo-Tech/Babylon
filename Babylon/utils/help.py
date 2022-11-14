@@ -18,6 +18,10 @@ def print_cmd_help(ctx: click.Context, param: click.Parameter, value: str):
         click.echo(ctx.get_help())
         ctx.exit()
 
+    # In case no help is found in the parameters we should not go further
+    if not any(help_arg in args for help_arg in HELP_CONTEXT_OVERRIDE['help_option_names']):
+        return
+
     # create the command object manually and parse its arguments
     cmd = group
 

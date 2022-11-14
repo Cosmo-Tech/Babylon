@@ -30,6 +30,7 @@ nav:
         - classes:
             - Configuration: 'Utils/config.md'
             - Working Directory: 'Utils/working_dir.md'
+        - typing: 'Utils/typing.md'
         - functions:
             - Decorators: 'Utils/decorators.md'
             - Cosmotech Api: 'Utils/api.md'

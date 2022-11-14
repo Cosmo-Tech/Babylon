@@ -2,8 +2,6 @@
 # -*- coding:utf-8 -*-
 import importlib.util
 import logging
-import os
-import pathlib
 import sys
 
 import click
@@ -13,14 +11,12 @@ from rich.traceback import install
 
 from .commands import list_commands
 from .groups import list_groups
-from .utils.configuration import Configuration
 from .utils.decorators import prepend_doc_with_ascii
-from .utils.environment import Environment
+from .utils.dry_run import display_dry_run
+from .utils.environment import initialize_environment
 from .utils.help import HELP_CONTEXT_OVERRIDE
 from .utils.help import print_cmd_help
 from .utils.logging import MultiLineHandler
-from .utils.working_dir import WorkingDir
-from .utils.dry_run import display_dry_run
 
 logger = logging.getLogger("Babylon")
 handler = MultiLineHandler(show_path=False, omit_repeated_times=False)
@@ -28,13 +24,7 @@ formatter = logging.Formatter('{message}', style='{', datefmt='%Y/%m/%d - %H:%M:
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-config_directory = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
-conf = Configuration(config_directory=config_directory)
-
-working_directory_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
-work_dir = WorkingDir(working_dir_path=working_directory_path)
-
-env = Environment(configuration=conf, working_dir=work_dir)
+env = initialize_environment(logger)
 
 
 @click.group(name='babylon', context_settings=HELP_CONTEXT_OVERRIDE)
@@ -78,7 +68,7 @@ The following environment variables are available to override the working direct
     ctx.obj = env
 
 
-for plugin_name, _plugin_path in conf.get_active_plugins():
+for plugin_name, _plugin_path in env.configuration.get_active_plugins():
     init_path = _plugin_path / "__init__.py"
 
     _plugin_name = "BabylonPlugin." + plugin_name
