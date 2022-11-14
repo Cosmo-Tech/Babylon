@@ -20,6 +20,7 @@ Cosmotech-Acceleration-Library
 
 # Other requirements
 pyyaml
+jmespath
 docker
 terrasnek
 rich

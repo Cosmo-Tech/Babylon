@@ -290,6 +290,26 @@ class Configuration:
             return
         write_yaml_value(_path, var_name, var_value)
 
+    def get_deploy(self) -> Any:
+        """
+        Get deploy file after a yaml load
+        :return: result of yaml.safe_load for the deploy file
+        """
+        if not (_path := self.get_deploy_path()).exists():
+            return dict()
+        with _path.open("r") as _f:
+            return yaml.safe_load(_f)
+
+    def get_platform(self) -> Any:
+        """
+        Get platform file after a yaml load
+        :return: result of yaml.safe_load for the platform file
+        """
+        if not (_path := self.get_platform_path()).exists():
+            return dict()
+        with _path.open("r") as _f:
+            return yaml.safe_load(_f)
+
     def check_api(self) -> bool:
         """
         :return: True if the api targeted in the deploy is the same as the platform we use
