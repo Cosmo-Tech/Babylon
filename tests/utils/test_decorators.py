@@ -56,7 +56,7 @@ def test_working_dir_yaml():
     def my_func():
         pass
 
-    env = Environment(None, WorkingDir(Path("tests/environments/Default"), logging))
+    env = Environment(None, WorkingDir(Path("tests/environments/Default")))
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx:
         my_func()
@@ -69,7 +69,7 @@ def test_working_dir_yaml_fail():
     def my_func():
         pass
 
-    env = Environment(None, WorkingDir(Path("tests/environments/Default"), logging))
+    env = Environment(None, WorkingDir(Path("tests/environments/Default")))
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx, pytest.raises(click.Abort):
         my_func()
@@ -82,7 +82,7 @@ def test_working_dir_requires_file():
     def my_func():
         pass
 
-    env = Environment(None, WorkingDir(Path("tests/environments/Default"), logging))
+    env = Environment(None, WorkingDir(Path("tests/environments/Default")))
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx:
         my_func()
@@ -95,7 +95,7 @@ def test_working_dir_requires_file_fail():
     def my_func():
         pass
 
-    env = Environment(None, WorkingDir(Path("tests/environments/Default"), logging))
+    env = Environment(None, WorkingDir(Path("tests/environments/Default")))
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx, pytest.raises(click.Abort):
         my_func()
@@ -132,7 +132,7 @@ def test_require_platform_key_fail():
     def my_func():
         pass
 
-    env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
+    env = Environment(Configuration(config_directory=Path("tests/environments/Default")), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx, pytest.raises(click.Abort):
         my_func()
@@ -145,7 +145,7 @@ def test_require_platform_key_ok():
     def my_func():
         pass
 
-    env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
+    env = Environment(Configuration(config_directory=Path("tests/environments/Default")), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx, pytest.raises(click.Abort):
         my_func()
@@ -158,7 +158,7 @@ def test_require_deploy_key_fail():
     def my_func():
         pass
 
-    env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
+    env = Environment(Configuration(config_directory=Path("tests/environments/Default")), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx, pytest.raises(click.Abort):
         my_func()
@@ -171,7 +171,7 @@ def test_require_deploy_key_ok():
     def my_func():
         pass
 
-    env = Environment(Configuration(config_directory=Path("tests/environments/Default"), logger=logging), None)
+    env = Environment(Configuration(config_directory=Path("tests/environments/Default")), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
     with ctx:
         my_func()

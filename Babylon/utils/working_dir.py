@@ -2,7 +2,7 @@ import os
 import pathlib
 import shutil
 import zipfile
-from logging import Logger
+import logging
 from typing import Optional
 
 import yaml
@@ -12,13 +12,15 @@ from .yaml_utils import compare_yaml_keys
 from .yaml_utils import complete_yaml
 from .yaml_utils import write_yaml_value
 
+logger = logging.getLogger("Babylon")
+
 
 class WorkingDir:
     """
     Simple class describing a working_dir for Babylon use
     """
 
-    def __init__(self, working_dir_path: pathlib.Path, logger: Logger):
+    def __init__(self, working_dir_path: pathlib.Path):
         """
         Initialize the working_dir, if not template_path is given will use the default one.
         :param working_dir_path: Path to the Working_dir
@@ -30,7 +32,6 @@ class WorkingDir:
         if self.is_zip:
             self.zip_file = zipfile.ZipFile(self.path)
             self.path = zipfile.Path(self.zip_file)
-        self.logger = logger
         self.template_path = TEMPLATE_FOLDER_PATH / "working_dir_template"
 
     def copy_template(self):
@@ -47,21 +48,19 @@ class WorkingDir:
         :return: Is the working_dir valid ?
         """
         _root = pathlib.Path(self.template_path)
-        error_logger = self.logger.error
-        if update_if_error:
-            error_logger = self.logger.info
+        error_level = logging.INFO if update_if_error else logging.ERROR
         has_err = False
-        self.logger.debug(f"Starting check of working_dir found on {self.path}")
+        logger.debug(f"Starting check of working_dir found on {self.path}")
         for root, dirs, files in os.walk(self.template_path):
             rel_path = pathlib.Path(os.path.relpath(root, _root))
             local_dir_path = self.path / rel_path
             template_dir_path = _root / rel_path
-            self.logger.debug(f"Starting checks for dir {local_dir_path}")
+            logger.debug(f"Starting checks for dir {local_dir_path}")
             if not local_dir_path.exists() and not (rel_path == pathlib.Path(".") and self.is_zip):
-                error_logger(f"MISSING DIR: {local_dir_path}")
+                logger.log(error_level, f"MISSING DIR: {local_dir_path}")
                 has_err = True
                 if update_if_error and not self.is_zip:
-                    error_logger("CORRECTION :  Creating it")
+                    logger.log(error_level, "CORRECTION :  Creating it")
                     shutil.copytree(template_dir_path, str(local_dir_path), dirs_exist_ok=True)
                 continue
             for _f in files:
@@ -69,31 +68,31 @@ class WorkingDir:
                 template_file_path = _root / f_rel_path
                 local_file_path = self.path / f_rel_path
                 if os.path.getsize(_root / f_rel_path) > -1:
-                    self.logger.debug(f"Starting check for file {local_file_path}")
+                    logger.debug(f"Starting check for file {local_file_path}")
                     if not local_file_path.exists():
-                        error_logger(f"MISSING FILE: {local_file_path}")
+                        logger.log(error_level, f"MISSING FILE: {local_file_path}")
                         has_err = True
                         if update_if_error and not self.is_zip:
-                            error_logger("CORRECTION:   Copying it from template")
+                            logger.log(error_level, "CORRECTION:   Copying it from template")
                             shutil.copy(template_file_path, str(local_file_path))
                     elif local_file_path.name.endswith(".yaml"):
-                        self.logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
+                        logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
                         missing_keys, superfluous_keys = compare_yaml_keys(template_file_path, local_file_path)
                         if missing_keys:
                             has_err = True
-                            error_logger(f"YAML: In file {local_file_path}")
-                            error_logger("            The following keys are missing :")
+                            logger.log(error_level, f"YAML: In file {local_file_path}")
+                            logger.log(error_level, "            The following keys are missing :")
                             for _k in missing_keys:
-                                error_logger(f"            - {_k}")
+                                logger.log(error_level, f"            - {_k}")
                             if update_if_error and not self.is_zip:
-                                error_logger("CORRECTION: Adding them")
+                                logger.log(error_level, "CORRECTION: Adding them")
                                 complete_yaml(template_file_path, local_file_path)
                         if superfluous_keys:
-                            self.logger.debug(f"YAML ISSUE: In file {local_file_path}")
-                            self.logger.debug("            The following keys are superfluous :")
+                            logger.debug(f"YAML ISSUE: In file {local_file_path}")
+                            logger.debug("            The following keys are superfluous :")
                             for _k in superfluous_keys:
-                                self.logger.debug(f"            - {_k}")
-        self.logger.debug(f"Finished check of working_dir found on {self.path}")
+                                logger.debug(f"            - {_k}")
+        logger.debug(f"Finished check of working_dir found on {self.path}")
         return not has_err
 
     def requires_file(self, file_path: str) -> bool:
@@ -170,12 +169,12 @@ class WorkingDir:
         if _p.is_dir():
             _p = _p / pathlib.Path("working_dir.zip")
         if _p.exists():
-            self.logger.warning("Target path already exists.")
+            logger.warning("Target path already exists.")
             if not force_overwrite:
-                self.logger.warning("Abandoning zipping process.")
+                logger.warning("Abandoning zipping process.")
                 return None
         if _p.suffix != ".zip":
-            self.logger.error(f"{_p} is not a correct zip file name")
+            logger.error(f"{_p} is not a correct zip file name")
             return None
         if self.is_zip:
             shutil.copy(str(self.path)[:-1], _p)
