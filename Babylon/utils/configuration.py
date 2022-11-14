@@ -1,6 +1,8 @@
 import os
 import pathlib
 import pprint
+from typing import Any
+from typing import Generator
 import shutil
 import subprocess
 import sys
@@ -29,7 +31,7 @@ class Configuration:
             shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
             self.deploy = self.config_dir.absolute() / "deployments/deploy.yaml"
             self.platform = self.config_dir.absolute() / "platforms/platform.yaml"
-            self.plugins = list()
+            self.plugins: list[dict[str, Any]] = list()
             self.save_config()
         else:
             self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
@@ -40,16 +42,13 @@ class Configuration:
         """
         Yields all activated plugins path
         """
-        for _p in self.plugins:
-            if _p['active']:
-                yield _p['name'], pathlib.Path(_p['path'])
+        return [(_p["name"], pathlib.Path(_p["path"])) for _p in self.plugins if _p.get("active")]
 
     def get_available_plugin(self) -> list[str]:
         """
         Yields all available plugin names
         """
-        for _p in self.plugins:
-            yield _p['name']
+        return [_p["name"] for _p in self.plugins]
 
     def activate_plugin(self, plugin_name: str) -> bool:
         """
@@ -83,13 +82,12 @@ class Configuration:
         :param plugin_name: the plugin to remove
         :return: Did the plugin get removed ?
         """
-        _plugins = list()
-        for _p in self.plugins:
-            if _p['name'] != plugin_name:
-                _plugins.append(_p)
-        self.plugins = _plugins
-        self.save_config()
-        return True
+        for idx, _p in enumerate(self.plugins):
+            if _p['name'] == plugin_name:
+                self.plugins.pop(idx)
+                self.save_config()
+                return True
+        return False
 
     def add_plugin(self, plugin_path: pathlib.Path) -> Optional[str]:
         """
@@ -123,7 +121,7 @@ class Configuration:
         self.save_config()
         return str(plugin_name)
 
-    def __list_config_folder_files(self, folder_name: str) -> list[pathlib.Path]:
+    def __list_config_folder_files(self, folder_name: str) -> Generator[pathlib.Path, None, None]:
         for root, _, files in os.walk(self.config_dir / folder_name):
             for _f in files:
                 _file_name = pathlib.Path(root) / pathlib.Path(_f)
@@ -149,13 +147,12 @@ class Configuration:
         :param deploy_path: the deployment path
         :return: True if the change was a success
         """
-        if deploy_path.exists():
-            self.deploy = deploy_path.absolute()
-            self.save_config()
-            return True
-        else:
+        if not deploy_path.exists():
             logger.error(f"{deploy_path} is not an existing deployment")
             return False
+        self.deploy = deploy_path.absolute()
+        self.save_config()
+        return True
 
     def set_platform(self, platform_path: pathlib.Path) -> bool:
         """
@@ -163,13 +160,12 @@ class Configuration:
         :param platform_path: the platform path
         :return: True if the change was a success
         """
-        if platform_path.exists():
-            self.platform = platform_path.absolute()
-            self.save_config()
-            return True
-        else:
+        if not platform_path.exists():
             logger.error(f"{platform_path} is not an existing platform")
             return False
+        self.platform = platform_path.absolute()
+        self.save_config()
+        return True
 
     def create_deploy(self, deploy_name: str):
         """
@@ -202,8 +198,8 @@ class Configuration:
         """
         if not deploy_path.exists():
             logger.error(f"Deployment {deploy_path} does not exists")
-        else:
-            click.edit(filename=str(deploy_path))
+            return
+        click.edit(filename=str(deploy_path))
 
     def edit_platform(self, platform_path: pathlib.Path):
         """
@@ -212,23 +208,23 @@ class Configuration:
         """
         if not platform_path.exists():
             logger.error(f"Platform {platform_path} does not exists")
-        else:
-            click.edit(filename=str(platform_path))
+            return
+        click.edit(filename=str(platform_path))
 
     def save_config(self):
         """
         Save the current config
         """
-        _d = yaml.safe_load(open(self.config_dir / "config.yaml", "r")) or dict()
-        _d['deploy'] = str(self.deploy)
-        _d['platform'] = str(self.platform)
-        _d['plugins'] = self.plugins
-
-        if not _d.get('locked', False):
-            logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
-            yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
-        else:
+        with open(self.config_dir / "config.yaml", "r") as _file:
+            _d = yaml.safe_load(_file) or {}
+            _d['deploy'] = str(self.deploy)
+            _d['platform'] = str(self.platform)
+            _d['plugins'] = self.plugins
+        if _d.get("locked", False):
             logger.error("Current config file is locked and won't be updated.")
+            return
+        logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
+        yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
 
     def get_deploy_path(self) -> Optional[pathlib.Path]:
         """
@@ -262,8 +258,7 @@ class Configuration:
         """
         if not (_path := self.get_deploy_path()).exists():
             return None
-        else:
-            return read_yaml_key(_path, var_name)
+        return read_yaml_key(_path, var_name)
 
     def get_platform_var(self, var_name) -> Optional[object]:
         """
@@ -273,8 +268,7 @@ class Configuration:
         """
         if not (_path := self.get_platform_path()).exists():
             return None
-        else:
-            return read_yaml_key(_path, var_name)
+        return read_yaml_key(_path, var_name)
 
     def set_deploy_var(self, var_name, var_value) -> None:
         """
@@ -310,18 +304,17 @@ class Configuration:
             return False
         return True
 
-    def __str__(self):
-        _ret = list()
-        _ret.append("Configuration:")
-        _ret.append(f"  dir: {self.config_dir}")
-        _ret.append(f"  deployment: {self.deploy}")
-        for k, v in yaml.safe_load(open(self.get_deploy_path())).items():
-            _ret.append(f"    {k}: {v}")
+    def __str__(self) -> str:
+        _ret: list[str] = ["Configuration:", f"  dir: {self.config_dir}", f"  deployment: {self.deploy}"]
+        with open(self.get_deploy_path(), "r") as _file:
+            for k, v in yaml.safe_load(_file).items():
+                _ret.append(f"    {k}: {v}")
         _ret.append(f"  platform: {self.platform}")
-        for k, v in yaml.safe_load(open(self.get_platform_path())).items():
-            _ret.append(f"    {k}: {v}")
+        with open(self.get_platform_path(), "r") as _file:
+            for k, v in yaml.safe_load(_file).items():
+                _ret.append(f"    {k}: {v}")
         _ret.append("  plugins:")
         for plugin in self.plugins:
-            state = '[' + ("x" if plugin['active'] else " ") + "]"
+            state = "[x]" if plugin.get('active') else "[ ]"
             _ret.append(f"    {state} {plugin['name']}: {plugin['path']}")
         return "\n".join(_ret)
