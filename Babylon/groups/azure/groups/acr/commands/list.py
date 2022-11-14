@@ -2,14 +2,13 @@ import logging
 import typing
 
 from azure.identity import DefaultAzureCredential
-from azure.core.exceptions import ServiceRequestError
+from ......modules.azure.acr import AzureAcr
 from click import Choice
 from click import command
 from click import option
 from click import make_pass_decorator
 
 from ......utils.decorators import require_platform_key
-from ..registry_connect import registry_connect
 
 logger = logging.getLogger("Babylon")
 
@@ -25,15 +24,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 def list(credentials: DefaultAzureCredential, acr_src_registry_name: str, acr_dest_registry_name: str,
          registry: typing.Optional[str], direction: typing.Optional[str]):
     """List all docker images in the specified registry"""
+    acr = AzureAcr()
     registry = registry or {"src": acr_src_registry_name, "dest": acr_dest_registry_name}.get(direction)
-    if not registry:
-        logger.error("Please specify a registry to list from with --from or --registry")
-        return
-    cr_client, _ = registry_connect(registry, credentials)
-    logger.info("Getting repositories stored in registry %s", registry)
-    try:
-        repos = [repo for repo in cr_client.list_repository_names()]
-    except ServiceRequestError:
-        logger.error(f"Could not list from registry {registry}")
-        return
-    logger.info(repos)
+    acr.connect(credentials, registry)
+    return acr.list()

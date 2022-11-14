@@ -2,14 +2,13 @@ import logging
 import typing
 
 from azure.identity import DefaultAzureCredential
-import docker
 from click import command
 from click import option
 from click import make_pass_decorator
 
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
-from ..registry_connect import registry_connect
+from ......modules.azure.acr import AzureAcr
 
 logger = logging.getLogger("Babylon")
 
@@ -32,21 +31,6 @@ def pull(credentials: DefaultAzureCredential,
     """Pulls a docker image from the ACR registry given in platform configuration"""
     image = image or f"{simulator_repository}:{simulator_version}"
     registry = registry or acr_src_registry_name
-    _, client = registry_connect(registry, credentials)
-    repo = f"{registry}/{image}"
-    logger.info(f"Pulling remote image {image} from registry {registry}")
-    try:
-        img = client.images.pull(repository=repo)
-        logger.debug("Renaming local image without registry prefix")
-        img.tag(image)
-        logger.debug("Removing local image with registry prefix")
-        client.images.remove(image=repo)
-    except docker.errors.NotFound:
-        logger.error(f"Image {image} not found in registry {registry} ")
-        return
-    except docker.errors.APIError as api_error:
-        logger.error(api_error)
-        return
-    except Exception as e:
-        logger.error(str(e))
-    logger.info(f"Successfully pulled image {image} from registry {registry}")
+    acr = AzureAcr()
+    acr.connect(credentials, registry)
+    acr.pull(image)
