@@ -3,10 +3,8 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
@@ -15,6 +13,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
+from ......utils.interactive import confirm_deletion
 
 logger = getLogger("Babylon")
 
@@ -88,15 +87,8 @@ def delete(
         logger.error(f"Organization with id {organization_id} not found.")
         return
 
-    if not force_validation:
-        if not confirm(f"You are trying to delete organization {organization_id} \nDo you want to continue?"):
-            logger.info("Organization deletion aborted.")
-            return
-
-        confirm_organization_id = prompt("Confirm organization id ")
-        if confirm_organization_id != organization_id:
-            logger.error("The Organization id you have type didn't mach with Organization you are trying to delete id")
-            return
+    if not force_validation and not confirm_deletion("organization", organization_id):
+        return
 
     logger.info(f"Deleting organization {organization_id}")
 

@@ -3,16 +3,15 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
 from ......utils.api import get_api_file
+from ......utils.interactive import confirm_deletion
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 
@@ -91,16 +90,8 @@ def delete(
         logger.error(f"Connector with id {connector_id} not found.")
         return
 
-    if not force_validation:
-        if not confirm(f"You are trying to delete connector {connector_id} \nDo you want to continue ?"):
-            logger.info("Connector deletion aborted.")
-            return
-
-        confirm_connector_id = prompt("Confirm connector id ")
-        if confirm_connector_id != connector_id:
-            logger.error("Wrong Connector id, "
-                         "the id must be the same as the one that has been provide in delete command argument")
-            return
+    if not force_validation and not confirm_deletion("connector", connector_id):
+        return
 
     logger.info(f"Deleting connector {connector_id}")
 
