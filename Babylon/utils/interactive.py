@@ -1,10 +1,13 @@
+import logging
 from math import log10
+
 from typing import Any
 from typing import Optional
-
 import click
 
 MAX_RETRIES = 3
+
+logger = logging.getLogger("Babylon")
 
 
 def ask_for_group(prompt: str, exists: bool = False) -> list[str]:
@@ -67,3 +70,26 @@ def select_from_list(elements: list[Any], actual: Optional[Any] = None) -> Optio
             else:
                 click.echo("Max number of tries reached.")
                 return None
+
+
+def confirm_deletion(entity_type: str, entity_id: str) -> bool:
+    """Ask for confirmation for deletion of an object
+    :param entity_type: Entity type
+    :type entity_type: str
+    :param entity_id: Entity ID
+    :type entity_id: str
+    :return: Should execution continue ?
+    :rtype: bool
+    """
+    if not click.confirm(f"You are trying to delete {entity_type} {entity_id} \nDo you want to continue ?"):
+        logger.info(f"{entity_type} deletion aborted.")
+        return False
+    for _ in range(0, MAX_RETRIES):
+        confirm_connector_id = click.prompt(f"Confirm deletion by typing {entity_type} ID {entity_id}")
+        if confirm_connector_id != entity_id:
+            logger.error(f"Wrong {entity_type}, "
+                         f"to confirm deletion, please type {entity_type} ID {entity_id}")
+            continue
+        return True
+    logger.error(f"{entity_type} deletion aborted")
+    return False
