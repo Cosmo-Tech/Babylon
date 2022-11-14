@@ -6,14 +6,13 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.core.exceptions import HttpResponseError
 from click import Choice
 from click import command
-from click import confirm
 from click import option
-from click import prompt
 from click import make_pass_decorator
 
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import require_deployment_key
 from ..registry_connect import registry_connect
+from ......utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
 
@@ -59,16 +58,8 @@ def delete(credentials: DefaultAzureCredential,
         logger.error(f"Image {image} not found in registry {registry}")
         return
 
-    if not force_validation:
-        if not confirm(f"You are trying to delete image {image} \nDo you want to continue ?"):
-            logger.info("Image deletion aborted.")
-            return
-
-        confirm_image_name = prompt("Confirm image name ")
-        if confirm_image_name != image:
-            logger.error("Wrong image name, "
-                         "the names must be the same as the one that has been provide in delete command argument")
-            return
+    if not force_validation and not confirm_deletion("image", image):
+        return
 
     logger.info(f"Deleting image {image} from registry {registry}")
     try:

@@ -5,13 +5,12 @@ from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
+from ........utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
 
@@ -30,16 +29,8 @@ def delete(digital_twins_client: AzureDigitalTwinsManagementClient,
            force_validation: Optional[bool] = False) -> Optional[str]:
     """Delete a ADT instance in current platform resource group"""
 
-    if not force_validation:
-        if not confirm(f"You are trying to delete adt resource {adt_instance_name} \nDo you want to continue ?"):
-            logger.info("Adt instance deletion aborted.")
-            return
-
-        confirm_adt_instance_name = prompt("Confirm Adt instance name")
-        if confirm_adt_instance_name != adt_instance_name:
-            logger.error("Wrong Adt instance name , "
-                         "the id must be the same as the one that has been provide in delete command argument")
-            return
+    if not force_validation and not confirm_deletion("instance", adt_instance_name):
+        return
 
     logger.info(f"Deleting Adt instance {adt_instance_name}")
     try:

@@ -3,10 +3,8 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
@@ -17,6 +15,7 @@ from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.interactive import confirm_deletion
 
 logger = getLogger("Babylon")
 
@@ -96,17 +95,8 @@ def delete(
         logger.error(f"Organization with id {organization_id}  not found.")
         return
 
-    if not force_validation:
-
-        if not confirm(f"You are trying to delete dataset {dataset_id} datasets of organization {organization_id} \n"
-                       "Do you want to continue?"):
-            logger.info("Dataset deletion aborted.")
-            return
-
-        confirm_dataset_id = prompt("Confirm dataset id ")
-        if confirm_dataset_id != dataset_id:
-            logger.error("The dataset id you have type didn't mach with dataset you are trying to delete id")
-            return
+    if not force_validation and not confirm_deletion("dataset", dataset_id):
+        return
 
     logger.info(f"Deleting dataset {dataset_id}")
 

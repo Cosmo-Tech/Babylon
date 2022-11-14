@@ -4,14 +4,13 @@ from typing import Optional
 import click
 from click import argument
 from click import command
-from click import confirm
 from click import option
-from click import prompt
 from terrasnek.api import TFC
 
 from ..list_all_vars import list_all_vars
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import working_dir_requires_yaml_key
+from ........utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
 
@@ -24,25 +23,15 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 Then would send delete query to the API for it""")
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
-@option("-f", "--force", "force", is_flag=True, help="Should validation be skipped ?")
+@option("-f", "--force", "force_validation", is_flag=True, help="Should validation be skipped ?")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @argument("var_key")
-def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, force: bool):
+def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, force_validation: bool):
     """Delete VAR_KEY variable in a workspace"""
     workspace_id = workspace_id or workspace_id_wd
 
-    if not force:
-        if not confirm(f"You are trying to delete var {var_key} \nDo you want to continue?"):
-            logger.info("Variable deletion aborted.")
-            return
-
-        confirm_var_key = prompt("Confirm variable key ")
-        if confirm_var_key != var_key:
-            logger.error("The variable key you typed did not match, delete canceled.")
-            return
-        logger.info(f"Deleting variable {var_key}")
-    else:
-        logger.info(f"Force deleting variable {var_key}")
+    if not force_validation and not confirm_deletion("variable", var_key):
+        return
 
     r = list(v for v in list_all_vars(api, workspace_id, lookup_var_sets=False) if v['attributes']['key'] == var_key)
 

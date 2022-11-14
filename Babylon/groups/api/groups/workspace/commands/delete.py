@@ -3,10 +3,8 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import confirm
 from click import make_pass_decorator
 from click import option
-from click import prompt
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
@@ -19,6 +17,7 @@ from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils.interactive import confirm_deletion
 
 logger = getLogger("Babylon")
 
@@ -96,18 +95,8 @@ def delete(
         logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
         return
 
-    if not force_validation:
-
-        if not confirm(
-                f"You are trying to delete workspace {workspace_id} workspaces of organization {organization_id} \n"
-                "Do you want to continue?"):
-            logger.info("Workspace deletion aborted.")
-            return
-
-        confirm_workspace_id = prompt("Confirm workspace id ")
-        if confirm_workspace_id != workspace_id:
-            logger.error("The workspace id you have type didn't mach with workspace you are trying to delete id")
-            return
+    if not force_validation and not confirm_deletion("workspace", workspace_id):
+        return
 
     logger.info(f"Deleting workspace {workspace_id}")
 
