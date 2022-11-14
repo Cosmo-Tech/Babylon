@@ -51,7 +51,7 @@ class WorkingDir:
         error_level = logging.INFO if update_if_error else logging.ERROR
         has_err = False
         logger.debug(f"Starting check of working_dir found on {self.path}")
-        for root, dirs, files in os.walk(self.template_path):
+        for root, _, files in os.walk(self.template_path):
             rel_path = pathlib.Path(os.path.relpath(root, _root))
             local_dir_path = self.path / rel_path
             template_dir_path = _root / rel_path
@@ -100,7 +100,7 @@ class WorkingDir:
 
     def requires_yaml_key(self, yaml_path: str, yaml_key: str) -> bool:
         v = self.get_yaml_key(yaml_path, yaml_key)
-        return v is not None
+        return bool(v)
 
     def get_yaml_key(self, yaml_path: str, yaml_key: str) -> Optional[object]:
         """
@@ -149,7 +149,7 @@ class WorkingDir:
                 content.append(f"  - {_f}")
         else:
             _r = str(self.path)
-            for root, dirs, files in os.walk(str(self.path)):
+            for root, _, files in os.walk(str(self.path)):
                 rel_path = os.path.relpath(root, _r)
                 if rel_path != ".":
                     content.append(f"  - {rel_path}/")
@@ -180,7 +180,7 @@ class WorkingDir:
             shutil.copy(str(self.path)[:-1], _p)
         else:
             with zipfile.ZipFile(_p, "w") as _z_file:
-                for root, dirs, files in os.walk(str(self.path)):
+                for root, _, files in os.walk(str(self.path)):
                     for _f in files:
                         _z_file.write(os.path.join(root, _f), os.path.relpath(os.path.join(root, _f), str(self.path)))
         return str(_p)
