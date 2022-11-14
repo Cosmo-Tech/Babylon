@@ -4,8 +4,7 @@ import pprint
 import shutil
 import subprocess
 import sys
-from functools import wraps
-from logging import Logger
+import logging
 from typing import Optional
 
 import click
@@ -15,27 +14,18 @@ from . import TEMPLATE_FOLDER_PATH
 from .yaml_utils import read_yaml_key
 from .yaml_utils import write_yaml_value
 
+logger = logging.getLogger("Babylon")
+
 
 class Configuration:
     """
     Base object created to store in file the configuration used in babylon
     """
 
-    def __save_after_run(func):
-
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            r = func(self, *args, **kwargs)
-            self.save_config()
-            return r
-
-        return wrapper
-
-    def __init__(self, logger: Logger, config_directory: pathlib.Path):
+    def __init__(self, config_directory: pathlib.Path):
         self.config_dir = config_directory
-        self.logger = logger
         if not self.config_dir.exists():
-            self.logger.warning("No config folder existing - Creating it.")
+            logger.warning("No config folder existing - Creating it.")
             shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
             self.deploy = self.config_dir.absolute() / "deployments/deploy.yaml"
             self.platform = self.config_dir.absolute() / "platforms/platform.yaml"
@@ -61,7 +51,6 @@ class Configuration:
         for _p in self.plugins:
             yield _p['name']
 
-    @__save_after_run
     def activate_plugin(self, plugin_name: str) -> bool:
         """
         Will activate a given plugin
@@ -71,10 +60,10 @@ class Configuration:
         for _p in self.plugins:
             if _p['name'] == plugin_name:
                 _p['active'] = True
+                self.save_config()
                 return True
         return False
 
-    @__save_after_run
     def deactivate_plugin(self, plugin_name: str) -> bool:
         """
         Will deactivate a given plugin
@@ -84,10 +73,10 @@ class Configuration:
         for _p in self.plugins:
             if _p['name'] == plugin_name:
                 _p['active'] = False
+                self.save_config()
                 return True
         return False
 
-    @__save_after_run
     def remove_plugin(self, plugin_name: str) -> bool:
         """
         Will remove a given plugin
@@ -99,9 +88,9 @@ class Configuration:
             if _p['name'] != plugin_name:
                 _plugins.append(_p)
         self.plugins = _plugins
+        self.save_config()
         return True
 
-    @__save_after_run
     def add_plugin(self, plugin_path: pathlib.Path) -> Optional[str]:
         """
         Will add a plugin to the config given a plugin path
@@ -110,15 +99,15 @@ class Configuration:
         """
         plugin_config_path = plugin_path / "plugin_config.yaml"
         if not plugin_config_path.exists():
-            self.logger.error(f"`{plugin_path}` is not a valid plugin folder")
+            logger.error(f"`{plugin_path}` is not a valid plugin folder")
             return None
         plugin_name = read_yaml_key(plugin_config_path, "plugin_name")
         if plugin_name is None:
-            self.logger.error(f"`{plugin_path}` is not a valid plugin folder, no plugin_name found.")
+            logger.error(f"`{plugin_path}` is not a valid plugin folder, no plugin_name found.")
             return None
 
         if plugin_name in self.get_available_plugin():
-            self.logger.error(f"`{plugin_name}` is an already existing plugin")
+            logger.error(f"`{plugin_name}` is an already existing plugin")
             return None
 
         requirements_path = plugin_path / "requirements.txt"
@@ -126,11 +115,12 @@ class Configuration:
             try:
                 subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', str(requirements_path.absolute())])
             except subprocess.CalledProcessError:
-                self.logger.error(f"Issues while installing requirements for `{plugin_name}`")
+                logger.error(f"Issues while installing requirements for `{plugin_name}`")
                 return None
 
         plugin_entry = dict(name=plugin_name, path=str(plugin_path.absolute()), active=True)
         self.plugins.append(plugin_entry)
+        self.save_config()
         return str(plugin_name)
 
     def __list_config_folder_files(self, folder_name: str) -> list[pathlib.Path]:
@@ -153,7 +143,6 @@ class Configuration:
         """
         return self.__list_config_folder_files("platforms")
 
-    @__save_after_run
     def set_deploy(self, deploy_path: pathlib.Path) -> bool:
         """
         Change configured deployment to the one given
@@ -162,12 +151,12 @@ class Configuration:
         """
         if deploy_path.exists():
             self.deploy = deploy_path.absolute()
+            self.save_config()
             return True
         else:
-            self.logger.error(f"{deploy_path} is not an existing deployment")
+            logger.error(f"{deploy_path} is not an existing deployment")
             return False
 
-    @__save_after_run
     def set_platform(self, platform_path: pathlib.Path) -> bool:
         """
         Change configured platform to the one given
@@ -176,9 +165,10 @@ class Configuration:
         """
         if platform_path.exists():
             self.platform = platform_path.absolute()
+            self.save_config()
             return True
         else:
-            self.logger.error(f"{platform_path} is not an existing platform")
+            logger.error(f"{platform_path} is not an existing platform")
             return False
 
     def create_deploy(self, deploy_name: str):
@@ -188,7 +178,7 @@ class Configuration:
         """
         _target = self.config_dir / "deployments" / f"{deploy_name}.yaml"
         if _target.exists():
-            self.logger.error(f"Deployment {deploy_name} already exists")
+            logger.error(f"Deployment {deploy_name} already exists")
             return
         _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/deployments/deploy.yaml", _target)
         click.edit(filename=str(_t))
@@ -200,7 +190,7 @@ class Configuration:
         """
         _target = self.config_dir / "platforms" / f"{platform_name}.yaml"
         if _target.exists():
-            self.logger.error(f"Platform {platform_name} already exists")
+            logger.error(f"Platform {platform_name} already exists")
             return
         _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/platforms/platform.yaml", _target)
         click.edit(filename=str(_t))
@@ -211,7 +201,7 @@ class Configuration:
         :param deploy_path: the path of the deployment
         """
         if not deploy_path.exists():
-            self.logger.error(f"Deployment {deploy_path} does not exists")
+            logger.error(f"Deployment {deploy_path} does not exists")
         else:
             click.edit(filename=str(deploy_path))
 
@@ -221,7 +211,7 @@ class Configuration:
         :param platform_path: the path of the platform
         """
         if not platform_path.exists():
-            self.logger.error(f"Platform {platform_path} does not exists")
+            logger.error(f"Platform {platform_path} does not exists")
         else:
             click.edit(filename=str(platform_path))
 
@@ -235,10 +225,10 @@ class Configuration:
         _d['plugins'] = self.plugins
 
         if not _d.get('locked', False):
-            self.logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
+            logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
             yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
         else:
-            self.logger.error("Current config file is locked and won't be updated.")
+            logger.error("Current config file is locked and won't be updated.")
 
     def get_deploy_path(self) -> Optional[pathlib.Path]:
         """
@@ -314,9 +304,9 @@ class Configuration:
         target_platform = self.get_deploy_var("api_url")
 
         if config_platform != target_platform:
-            self.logger.warning("The platform targeted by the deploy is not the platform configured.")
-            self.logger.warning(f"  deploy  : {target_platform}")
-            self.logger.warning(f"  platform: {config_platform}")
+            logger.warning("The platform targeted by the deploy is not the platform configured.")
+            logger.warning(f"  deploy  : {target_platform}")
+            logger.warning(f"  platform: {config_platform}")
             return False
         return True
 
