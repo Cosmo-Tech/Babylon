@@ -9,6 +9,7 @@ azure-digitaltwins-core
 azure-containerregistry
 azure-storage-blob
 azure-mgmt-digitaltwins
+azure-mgmt-resource>=21.2.1
 
 # Click requirements
 click
