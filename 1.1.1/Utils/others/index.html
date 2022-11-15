@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.9">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.20d9efc8.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.472b142f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.08040f6c.min.css">
@@ -58,7 +58,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="">
   
     
     
@@ -625,6 +625,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#Babylon.utils.interactive.confirm_deletion" class="md-nav__link">
+    confirm_deletion()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#Babylon.utils.interactive.element_to_str" class="md-nav__link">
     element_to_str()
   </a>
@@ -842,6 +849,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#Babylon.utils.interactive.confirm_deletion" class="md-nav__link">
+    confirm_deletion()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#Babylon.utils.interactive.element_to_str" class="md-nav__link">
     element_to_str()
   </a>
@@ -1052,6 +1066,76 @@
                 <code>list[str]</code>
           </td>
           <td><p>the list of subgroups composing the path to the group</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.interactive.confirm_deletion" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">confirm_deletion</span><span class="p">(</span><span class="n">entity_type</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Ask for confirmation for deletion of an object</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>entity_type</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Entity type</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>entity_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Entity ID</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Should execution continue ?</p></td>
         </tr>
     </tbody>
   </table>
