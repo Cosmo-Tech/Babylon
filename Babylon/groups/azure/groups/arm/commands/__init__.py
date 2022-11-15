@@ -1,7 +1,9 @@
+from .delete import delete
 from .create import create
-from .deploy import deploy
+from .run import run
 
 list_commands = [
+    delete,
     create,
-    deploy,
+    run,
 ]

@@ -2,7 +2,6 @@ import logging
 from typing import Optional
 
 from azure.mgmt.resource import ResourceManagementClient
-from click import Choice
 from click import argument
 from click import command
 from click import make_pass_decorator
@@ -21,8 +20,6 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @argument("deployment_name")
 @option("-t", "--template-uri", "template_uri")
 def create(
-    arm_client: ResourceManagementClient,
-    deployment_mode: str,
     deployment_name: str,
     template_uri: Optional[str] = '',
 ):
