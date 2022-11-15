@@ -48,7 +48,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     required=True,
     help="Handler type, allowed values\
         :[parameters_handler, validator,\
-            prerun, engine, postrun, scenariodata_transform]",
+            prerun, engine, postrun, scenariodata_transform]"                                                             ,
 )
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
@@ -60,7 +60,7 @@ def download(
     handler_id: str,
     run_template_id: str,
 ) -> Optional[str]:
-    """Send a JSON or YAML file to the API to create an solution."""
+    """Download a solution handler zip."""
 
     logger.info(f"Downloading {handler_id} handler from solution {solution_id}")
     try:

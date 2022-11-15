@@ -28,14 +28,14 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @argument("handler-path", type=Path())
 @option("-o", "--override", "override", is_flag=True)
 @option(
-    "-t",
+    "-r",
     "--run-template",
     "run_template_id",
     help="The run Template identifier",
     required=True,
 )
 @option(
-    "-h",
+    "-t",
     "--handler-type",
     "handler_id",
     type=Choice(
@@ -50,9 +50,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
         case_sensitive=False,
     ),
     required=True,
-    help="Handler type, allowed values\
-        :[parameters_handler, validator,\
-            prerun, engine, postrun, scenariodata_transform]",
+    help="Handler type",
 )
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
@@ -66,7 +64,7 @@ def upload(
     run_template_id: str,
     override: Optional[bool] = False,
 ) -> Optional[str]:
-    """Send a JSON or YAML file to the API to create an solution."""
+    """Upload a solution handler zip."""
 
     if not handler_path.endswith(".zip"):
         logger.error(f"{handler_path} is not a zip archive")
