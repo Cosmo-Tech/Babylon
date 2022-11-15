@@ -48,7 +48,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     required=True,
     help="Handler type, allowed values\
         :[parameters_handler, validator,\
-            prerun, engine, postrun, scenariodata_transform]"                                                             ,
+            prerun, engine, postrun, scenariodata_transform]",
 )
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
