@@ -9,7 +9,7 @@ from .groups import list_groups
 @group()
 @pass_context
 def handler(ctx: Context):
-    """Group initialized from a template"""
+    """Group allowing solution handler management"""
     pass
 
 
