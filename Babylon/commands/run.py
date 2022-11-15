@@ -40,6 +40,7 @@ def _insert_from_forward(step: dict[str, Any], data: dict[str, Any]) -> dict[str
         options[key] = data[fwd_k]
     return {**step, "arguments": arguments, "options": options}
 
+
 @click.command
 @click.pass_context
 @click.argument("script", type=click.Path(readable=True, dir_okay=False))
