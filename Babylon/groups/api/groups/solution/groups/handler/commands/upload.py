@@ -8,13 +8,14 @@ from click import command
 from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
+from cosmotech_api.exceptions import ApiException
 from cosmotech_api.exceptions import NotFoundException
+from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 
-from ........utils.decorators import pass_environment
+from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import timing_decorator
-from ........utils.environment import Environment
 
 logger = getLogger("Babylon")
 
@@ -24,8 +25,8 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @command()
 @timing_decorator
 @pass_solution_api
-@pass_environment
 @argument("handler-path", type=Path())
+@option("-o", "--override", "override", is_flag=True)
 @option(
     "-t",
     "--run-template",
@@ -55,27 +56,27 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 )
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
-@option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the path be relative to the working directory ?",
-)
+@describe_dry_run("Would call **solution_api.upload_run_template_handler** to upload a solution handler zip")
 def upload(
-    env: Environment,
     solution_api: SolutionApi,
     organization_id: str,
     solution_id: str,
     handler_path: str,
-    handler_id: str,
+    handler_id: Path,
     run_template_id: str,
-    use_working_dir_file: Optional[bool] = False,
-    dry_run: Optional[bool] = False,
+    override: Optional[bool] = False,
 ) -> Optional[str]:
     """Send a JSON or YAML file to the API to create an solution."""
 
-    handler = open(handler_path, 'rb')
+    if not handler_path.endswith(".zip"):
+        logger.error(f"{handler_path} is not a zip archive")
+        return
+
+    try:
+        handler = open(handler_path, 'rb')
+    except IOError:
+        logger.error(f"{handler_path} : file not found")
+        return
 
     logger.info(f"Uploading {handler_id} handler to solution {solution_id}")
     try:
@@ -85,6 +86,7 @@ def upload(
             run_template_id=run_template_id,
             handler_id=handler_id,
             body=handler,
+            overwrite=override,
         )
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
@@ -92,9 +94,12 @@ def upload(
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
         return
-    # except ServiceException:
-    #     logger.error(f"Organization with id {organization_id} and or Solution {solution_id} not found.")
-    #     return
+    except ServiceException:
+        logger.error(f"Organization with id {organization_id} and or Solution {solution_id} not found.")
+        return
+    except ApiException as e:
+        logger.error(f"An error occurred : { e.body}")
+        return
 
     logger.info(response)
     logger.info(f"{handler_id} handler uploaded to solution {solution_id} successfully")
