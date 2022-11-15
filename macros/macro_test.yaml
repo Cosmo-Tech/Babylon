@@ -3,11 +3,11 @@ description: This is a simple macro to demonstrate command chaining
 steps:
   - name: Getting list of container registries in source
     command: azure acr list
-    params:
+    options:
       direction: src
     forward:
       src_repos: repositories[0]
   - name: Getting list of container registry in destination
     command: azure acr pull
-    params:
+    options:
       image: $src_repos$
