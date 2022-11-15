@@ -19,7 +19,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @pass_arm_client
 @argument("deployment_file_path")
 @require_platform_key("resource_group_name", "resource_group_name")
-def deploy(
+def run(
     arm_client: ResourceManagementClient,
     deployment_file_path: str,
     resource_group_name: str,
