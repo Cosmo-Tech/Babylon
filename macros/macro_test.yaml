@@ -6,11 +6,8 @@ steps:
     params:
       direction: src
     forward:
-      source_registries: data
-      other_val: data
+      src_repos: repositories[0]
   - name: Getting list of container registry in destination
-    command: azure acr list
+    command: azure acr pull
     params:
-      direction: dest
-    forward:
-      destination_registries: data
+      image: $src_repos$

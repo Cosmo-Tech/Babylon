@@ -1,8 +1,10 @@
 import logging
 import yaml
 from typing import Dict, Any
+import re
 import click
 from importlib import import_module
+import jmespath
 
 from ..utils.response import CommandResponse
 
@@ -33,7 +35,20 @@ def run(ctx: click.Context, script: str):
     root = ctx.find_root()
     forward_data = {}
     for step in macro.get("steps", []):
+
+        # Insert values from forward in parameters
+        for key, param in step.get("params", {}).items():
+            needle = re.match(r"\$\w+\$", param)
+            if not needle:
+                continue
+            fwd_k = needle.group().replace("$", "")
+            # Replacing variable symbol by its actual value
+            step["params"][key] = forward_data[fwd_k]
+
         response: CommandResponse = execute_step(root, step)
+
+        # Forwarding response data to next commands
         for fwd_k, data_k in step.get("forward", {}).items():
-            forward_data[fwd_k] = response.data
+            forward_data[fwd_k] = jmespath.search(data_k, response.data)
+
     logger.info(forward_data)
