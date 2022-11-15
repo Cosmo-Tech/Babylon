@@ -23,6 +23,7 @@ pyyaml
 docker
 terrasnek
 rich
+jmespath
 
 # Testing requirements
 pytest
