@@ -1,0 +1,16 @@
+name: Test macro
+description: This is a simple macro to demonstrate command chaining
+steps:
+  - name: Getting list of container registries in source
+    command: azure acr list
+    params:
+      direction: src
+    forward:
+      source_registries: data
+      other_val: data
+  - name: Getting list of container registry in destination
+    command: azure acr list
+    params:
+      direction: dest
+    forward:
+      destination_registries: data
