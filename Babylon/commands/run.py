@@ -13,7 +13,7 @@ def execute_step(root: click.Context, step: Dict[str, Any]):
     logger.info(step.get("name"))
     commands = step.get("command", "").split(" ")
     to_import = "".join(
-            ["Babylon", "".join([f".groups.{group}" for group in commands[:-1]]), f".commands.{commands[-1]}"])
+        ["Babylon", "".join([f".groups.{group}" for group in commands[:-1]]), f".commands.{commands[-1]}"])
     command_module = import_module(to_import, "Babylon")
     cmd = getattr(command_module, commands[-1])
     return root.invoke(cmd, **step.get("params", {}))
