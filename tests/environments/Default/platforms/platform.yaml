@@ -1,5 +1,5 @@
 # api_url : the url of the API
-api_url: ""
+api_url: "azerty.com"
 # api_scope : the default scope used by the API
 api_scope: ""
 # k8s_context : the name of the k8s context that should be used
