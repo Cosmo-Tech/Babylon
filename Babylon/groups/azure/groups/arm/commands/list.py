@@ -1,9 +1,8 @@
 import logging
-from typing import Optional
+from pprint import pformat
 
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
-from click import argument
 from click import command
 from click import make_pass_decorator
 
@@ -16,26 +15,24 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 
 @command()
 @pass_arm_client
-@argument("deployment_name")
 @require_platform_key("resource_group_name", "resource_group_name")
-def delete(
+def list(
     arm_client: ResourceManagementClient,
-    deployment_name: str,
     resource_group_name: str,
-) -> Optional[str]:
-    """Delete a resource deployment via arm deployment."""
+):
+    """List all the deployments for a resource group."""
 
-    logger.info(f"Deleting resource deployment {deployment_name} ...")
     try:
-        poller = arm_client.deployments.begin_delete(
-            resource_group_name=resource_group_name,
-            deployment_name=deployment_name,
-        )
+        deployment_list = arm_client.deployments.list_by_resource_group(resource_group_name)
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
         return
 
-    logger.debug(poller.result())
-    logger.info(f"Deployment {deployment_name} deleted with status : {poller.status()}")
+    deployments = [{
+        'name': _ele.as_dict()['name'],
+        'provisioning_state': _ele.as_dict()['properties']['provisioning_state'],
+    } for _ele in deployment_list]
 
-    return poller.status()
+    logger.debug(deployment_list)
+    logger.info(pformat(deployments))
+    logger.info(f"Found {len(deployments)} deployments")

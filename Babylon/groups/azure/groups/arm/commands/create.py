@@ -9,6 +9,7 @@ from click import option
 from ruamel.yaml import YAML
 
 from ......utils import TEMPLATE_FOLDER_PATH
+from ......utils.decorators import describe_dry_run
 
 logger = logging.getLogger("Babylon")
 
@@ -19,13 +20,14 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @pass_arm_client
 @argument("deployment_name")
 @option("-t", "--template-uri", "template_uri")
+@describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
 def create(
     deployment_name: str,
-    template_uri: Optional[str] = '',
+    template_uri: Optional[str] = "",
 ):
-    """Command created from a template"""
+    """Apply a resource deployment config via arm deployment."""
 
-    _azure_deployment_template = TEMPLATE_FOLDER_PATH / "azure_ressouce_manager/azure_deployment.yaml"
+    _azure_deployment_template = TEMPLATE_FOLDER_PATH / "azure_resource_manager/azure_deployment.yaml"
     _commented_yaml_loader = YAML()
 
     with open(_azure_deployment_template, mode='r') as file:
@@ -36,3 +38,5 @@ def create(
 
     with open(deployment_name + ".yaml", "w") as _f:
         _commented_yaml_loader.dump(arm_deployment, _f)
+
+    logger.info(f"Resource deployment config created, content was dumped in {deployment_name}.yaml")

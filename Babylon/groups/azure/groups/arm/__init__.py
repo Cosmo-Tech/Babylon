@@ -12,7 +12,7 @@ from .groups import list_groups
 @pass_context
 @require_platform_key("azure_subscription", "azure_subscription")
 def arm(ctx: Context, azure_subscription: str):
-    """Group initialized from a template"""
+    """Group interacting with Azure Resources Manager"""
     ctx.obj = ResourceManagementClient(credential=ctx.parent.obj, subscription_id=azure_subscription)
 
 
