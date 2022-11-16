@@ -35,7 +35,7 @@ def element_to_str(element: Any, actual: Optional[Any] = None):
     :return: a string representation of the element prefixed with a box if actual is present
     """
     ret = []
-    if actual is not None:
+    if actual:
         ret.append("[x]" if actual == element else "[ ]")
     ret.append(str(element))
     return " - ".join(ret)

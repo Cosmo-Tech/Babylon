@@ -89,7 +89,7 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
         def wrapper(*args, **kwargs):
             working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
             if working_dir.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
-                if arg_name is not None:
+                if arg_name:
                     kwargs[arg_name] = working_dir.get_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
@@ -119,7 +119,7 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
         def wrapper(*args, **kwargs):
             working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
             if working_dir.requires_file(file_path=file_path):
-                if arg_name is not None:
+                if arg_name:
                     kwargs[arg_name] = working_dir.get_file(file_path=file_path)
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
@@ -146,7 +146,7 @@ def requires_external_program(program_name: str):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            if shutil.which(program_name) is not None:
+            if shutil.which(program_name):
                 return func(*args, **kwargs)
 
             logger.error(f"{program_name} is not installed.")
@@ -173,8 +173,8 @@ def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             config = click.get_current_context().find_object(Environment).configuration
-            if (key_value := config.get_platform_var(yaml_key)) is not None:
-                if arg_name is not None:
+            if (key_value := config.get_platform_var(yaml_key)):
+                if arg_name:
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
@@ -203,8 +203,8 @@ def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             config = click.get_current_context().find_object(Environment).configuration
-            if (key_value := config.get_deploy_var(yaml_key)) is not None:
-                if arg_name is not None:
+            if (key_value := config.get_deploy_var(yaml_key)):
+                if arg_name:
                     kwargs[arg_name] = key_value
                     logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
