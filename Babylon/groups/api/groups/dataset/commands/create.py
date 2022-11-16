@@ -18,10 +18,8 @@ from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
-from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
-from ......utils.environment import Environment
 from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
@@ -33,10 +31,9 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @describe_dry_run("Would call **dataset_api.create_dataset**")
 @timing_decorator
 @pass_dataset_api
-@pass_environment
-@argument("dataset_file", required=False, type=QueryType())
+@argument("dataset-name", required=False, type=QueryType())
+@option("-c", "--connector-id", "connector_id")
 @require_deployment_key("organization_id", "organization_id")
-@require_deployment_key("connector", "connector")
 @option(
     "-e",
     "--use-working-dir-file",
@@ -46,11 +43,11 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     type=bool,
 )
 @option(
-    "-n",
-    "--name",
-    "dataset_name",
+    "-i",
+    "--dataset-file",
+    "dataset_file",
     type=str,
-    help="New dataset name",
+    help="Your custom dataset description file",
 )
 @option(
     "-d",
@@ -66,31 +63,17 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     help="File to which content should be outputted (json-formatted)",
     type=Path(),
 )
-@option(
-    "-s",
-    "--select",
-    "select",
-    type=bool,
-    help="If true, the created Organization will be set as organization of current babylon context",
-    default=True,
-)
 def create(
-    env: Environment,
     dataset_api: DatasetApi,
     organization_id: str,
-    select: bool,
-    connector: str,
+    dataset_name: str,
+    connector_id: Optional[str] = None,
     output_file: Optional[str] = None,
     dataset_file: Optional[str] = None,
-    dataset_name: Optional[str] = None,
     dataset_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-):
+) -> Optional[str]:
     """Register new dataset by sending description file to the API."""
-
-    if not dataset_file and not dataset_name:
-        logger.error("Error : can not get an dataset name, please check your Dataset.YAML file or set --name option")
-        return
 
     converted_dataset_content = get_api_file(
         api_file_path=dataset_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Dataset.yaml",
@@ -105,10 +88,8 @@ def create(
     if not dataset_description and "dataset_description" not in converted_dataset_content:
         converted_dataset_content["description"] = dataset_name
 
-    if "name" not in converted_dataset_content:
-        converted_dataset_content["name"] = dataset_name
-
-    converted_dataset_content["connector"] = connector
+    converted_dataset_content["name"] = dataset_name
+    converted_dataset_content["connector"]["id"] = connector_id
 
     try:
         retrieved_dataset = dataset_api.create_dataset(organization_id=organization_id,
@@ -117,14 +98,11 @@ def create(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except NotFoundException:
-        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} not found.")
+        logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
         return
     except ServiceException:
-        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} not found.")
+        logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
         return
-
-    if select:
-        env.configuration.set_deploy_var("dataset_id", retrieved_dataset["id"])
 
     logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
     logger.debug(pformat(retrieved_dataset))
@@ -137,3 +115,5 @@ def create(
             except TypeError:
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
+
+    return retrieved_dataset['id']
