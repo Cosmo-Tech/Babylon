@@ -1,3 +1,4 @@
+# id: [connector id]
 key:
 name:
 description:
@@ -5,6 +6,7 @@ repository: cosmo-tech/azure-digital-twins-simulator-connector
 version:
 tags:
   - ADT
+  - Babylon
 url: https://github.com/Cosmo-Tech/azure-digital-twins-simulator-connector
 ioTypes:
   - read

@@ -5,8 +5,8 @@ description: ###
 repository: ###
 version: ###
 tags:
-  - ###
-  - ###
+  # - ###
+  # - ###
 
 parameters:
   - id: parameter1
@@ -30,7 +30,7 @@ runTemplates:
     csmSimulation: simulation
     tags:
       - Simulation
-      - ###
+      # $- ###
     computeSize: basic
     noDataIngestionState: false
     fetchDatasets: true
