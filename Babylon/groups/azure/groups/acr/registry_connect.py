@@ -25,6 +25,11 @@ def registry_connect(registry: str,
     # Login to docker with the returned access token
     client = docker.from_env()
     try:
+        client.ping()
+    except Exception:
+        logger.error("Could not ping local docker client, check if the docker service is running")
+        return registry_client, client
+    try:
         client.login(username="00000000-0000-0000-0000-000000000000",
                      password=decoded.get("accessToken"),
                      registry=registry)

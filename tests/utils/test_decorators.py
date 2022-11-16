@@ -70,7 +70,7 @@ def test_working_dir_yaml_fail():
 
     env = Environment(None, WorkingDir(Path("tests/environments/Default")))
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(KeyError):
         my_func()
 
 
@@ -96,7 +96,7 @@ def test_working_dir_requires_file_fail():
 
     env = Environment(None, WorkingDir(Path("tests/environments/Default")))
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(FileNotFoundError):
         my_func()
 
 
@@ -108,7 +108,7 @@ def test_requires_program_does_not_exists():
         pass
 
     ctx = click.Context(click.Command('cmd'))
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(FileNotFoundError):
         my_func()
 
 
@@ -133,7 +133,7 @@ def test_require_platform_key_fail():
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default")), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(KeyError):
         my_func()
 
 
@@ -146,27 +146,27 @@ def test_require_platform_key_ok():
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default")), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(KeyError):
         my_func()
 
 
 def test_require_deploy_key_fail():
     """Test decorators"""
 
-    @deco.require_deployment_key("thisDoesNotExists")
-    def my_func():
+    @deco.require_deployment_key("thisDoesNotExists", "arg_1")
+    def my_func(arg_1: str):
         pass
 
     env = Environment(Configuration(config_directory=Path("tests/environments/Default")), None)
     ctx = click.Context(click.Command('cmd'), obj=env)
-    with ctx, pytest.raises(click.Abort):
+    with ctx, pytest.raises(KeyError):
         my_func()
 
 
 def test_require_deploy_key_ok():
     """Test decorators"""
 
-    @deco.require_deployment_key("api_url")
+    @deco.require_deployment_key("api_url", insert=False)
     def my_func():
         pass
 
