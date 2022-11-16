@@ -2,7 +2,7 @@ import logging
 import shutil
 import time
 from functools import wraps
-from typing import Optional
+from typing import Any, Callable, Optional
 
 import click
 import cosmotech_api
@@ -15,14 +15,14 @@ from ..version import get_version
 logger = logging.getLogger("Babylon")
 
 
-def prepend_doc_with_ascii(func):
+def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator used to add a babylon ascii art in the documentation of a function
     :param func: The function being decorated
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         return func(*args, **kwargs)
 
     babylon_ascii = ("\b", r" ____              __                 ___  ",
@@ -34,19 +34,19 @@ def prepend_doc_with_ascii(func):
                      r"    \/___/  \/__/\/_/ \/___/   `/___/> \\/____/ \/___/  \/_/\/_/  ",
                      r"                                  /\___/  ", r"                                  \/__/  ",
                      f"                                                           v{get_version()}\n", "")
-    doc = wrapper.__doc__
+    doc = wrapper.__doc__ or ""
     wrapper.__doc__ = "\n".join(babylon_ascii) + doc
     return wrapper
 
 
-def timing_decorator(func):
+def timing_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator adding timings before and after the run of a function
     :param func: The function being decorated
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         logger.debug(f"{func.__name__} : Starting")
         start_time = time.time()
         resp = func(*args, **kwargs)
@@ -74,7 +74,7 @@ def describe_dry_run(description: str):
     return wrap_function
 
 
-def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional[str] = None):
+def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optional[str] = None) -> Callable[..., Any]:
     """
     Decorator allowing to check if the working_dir has specific key in a yaml file.
     If the check is failed the command won't run, and following checks won't be done
@@ -83,11 +83,15 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
     :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
     """
 
-    def wrap_function(func):
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
+        def wrapper(*args: Any, **kwargs: Any):
+            env = click.get_current_context().find_object(Environment)
+            if not env:
+                logger.error("Could not find environment in click context")
+                raise ValueError()
+            working_dir = env.working_dir
             if working_dir.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
                 if arg_name:
                     kwargs[arg_name] = working_dir.get_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key)
@@ -96,16 +100,16 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
 
             logger.error(f"Key {yaml_key} can not be found in {yaml_path}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise KeyError()
 
-        doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in `{yaml_path}` in the working_dir."])
+        wrapper.__doc__ = "\n\n".join(
+            [wrapper.__doc__ or "", f"Requires key `{yaml_key}` in `{yaml_path}` in the working_dir."])
         return wrapper
 
     return wrap_function
 
 
-def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
+def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None) -> Callable[..., Any]:
     """
     Decorator allowing to check if the working_dir has a specific file.
     If the check is failed the command won't run, and following checks won't be done
@@ -113,11 +117,15 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
     :param arg_name: Optional parameter that if set will send the effective path of the required file to the given arg
     """
 
-    def wrap_function(func):
+    def wrap_function(func: Callable[..., Any]):
 
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            working_dir: WorkingDir = click.get_current_context().find_object(Environment).working_dir
+        def wrapper(*args: Any, **kwargs: Any):
+            env = click.get_current_context().find_object(Environment)
+            if not env:
+                logger.error("Could not find environment in click context")
+                raise ValueError()
+            working_dir = env.working_dir
             if working_dir.requires_file(file_path=file_path):
                 if arg_name:
                     kwargs[arg_name] = working_dir.get_file(file_path=file_path)
@@ -126,7 +134,7 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
 
             logger.error(f"Working_dir is missing {file_path}")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise FileNotFoundError()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires the file `{file_path}` in the working_dir."])
@@ -135,23 +143,23 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None):
     return wrap_function
 
 
-def requires_external_program(program_name: str):
+def requires_external_program(program_name: str) -> Callable[..., Any]:
     """
     Decorator allowing to check if a specific executable is available.
     If the check is failed the command won't run, and following checks won't be done
     :param program_name: the name of the required program
     """
 
-    def wrap_function(func):
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any):
             if shutil.which(program_name):
                 return func(*args, **kwargs)
 
             logger.error(f"{program_name} is not installed.")
             logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            raise FileNotFoundError()
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires the program `{program_name}` to run."])
@@ -160,65 +168,57 @@ def requires_external_program(program_name: str):
     return wrap_function
 
 
-def require_platform_key(yaml_key: str, arg_name: Optional[str] = None):
+def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
     """
-    Decorator allowing to check if the platform in config has specific key
-    If the check is failed the command won't run, and following checks won't be done
-    :param yaml_key: the required key
-    :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
+    Decorator calling a getter with an argument and storing the result as an inserted argument
+    :param getter: function
     """
 
-    def wrap_function(func):
+    def wrapper_key(yaml_key: str, arg_name: Optional[str] = None, insert: bool = True, required: bool = True) -> Callable[..., Any]:
 
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            config = click.get_current_context().find_object(Environment).configuration
-            if (key_value := config.get_platform_var(yaml_key)):
-                if arg_name:
-                    kwargs[arg_name] = key_value
-                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
+        def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
+            @wraps(func)
+            def wrapper(*args: Any, **kwargs: Any):
+                value = getter(yaml_key)
+                if insert:
+                    kwargs[arg_name or yaml_key] = value
+                logger.debug(f"Adding parameter {yaml_key} = {value} to {func.__name__}")
+                if not value and required:
+                    logger.error(f"Key {yaml_key} can not be found in {getter.__doc__}")
+                    logger.error(f"{click.get_current_context().command.name} won't run without it.")
+                    raise KeyError()
                 return func(*args, **kwargs)
 
-            logger.error(f"Key {yaml_key} can not be found in {config.get_platform_path()}")
-            logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
+            doc = wrapper.__doc__ or ""
+            wrapper.__doc__ = "\n\n".join([doc, f"Requires `{yaml_key}` in {getter.__doc__}."])
+            return wrapper
 
-        doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the platform config file."])
-        return wrapper
+        return wrap_function
 
-    return wrap_function
+    return wrapper_key
 
 
-def require_deployment_key(yaml_key: str, arg_name: Optional[str] = None):
-    """
-    Decorator allowing to check if the deployment in config has specific key
-    If the check is failed the command won't run, and following checks won't be done
-    :param yaml_key: the required key
-    :param arg_name: optional parameter that will send the value of the yaml key to the given arg of the function
-    """
+def get_deploy(yaml_key: str) -> Optional[Any]:
+    """deploy config file"""
+    env = click.get_current_context().find_object(Environment)
+    if not env:
+        logger.error("Could not find environment in click context")
+        raise ValueError()
+    return env.configuration.get_deploy_var(yaml_key)
 
-    def wrap_function(func):
 
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            config = click.get_current_context().find_object(Environment).configuration
-            if (key_value := config.get_deploy_var(yaml_key)):
-                if arg_name:
-                    kwargs[arg_name] = key_value
-                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
-                return func(*args, **kwargs)
+def get_platform(yaml_key: str) -> Optional[Any]:
+    """platform config file"""
+    env = click.get_current_context().find_object(Environment)
+    if not env:
+        logger.error("Could not find environment in click context")
+        raise ValueError()
+    return env.configuration.get_platform_var(yaml_key)
 
-            logger.error(f"Key {yaml_key} can not be found in {config.get_deploy_path()}")
-            logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise click.Abort()
 
-        doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc, f"Requires key `{yaml_key}` in the deployment config file."])
-        return wrapper
-
-    return wrap_function
-
+require_deployment_key = insert_argument(get_deploy)
+require_platform_key = insert_argument(get_platform)
 
 pass_working_dir = click.make_pass_decorator(WorkingDir)
 pass_config = click.make_pass_decorator(Configuration)
