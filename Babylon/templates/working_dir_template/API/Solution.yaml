@@ -1,4 +1,4 @@
-# id: <>
+# id: [soution_id]
 key: ###
 name: ###
 description: ###
@@ -30,7 +30,7 @@ runTemplates:
     csmSimulation: simulation
     tags:
       - Simulation
-      # $- ###
+      # - ###
     computeSize: basic
     noDataIngestionState: false
     fetchDatasets: true

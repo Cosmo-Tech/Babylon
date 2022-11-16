@@ -3,6 +3,6 @@ description: ###
 key: ###
 name: ###
 solution:
-  solutionId: sol-###
+  solutionId: # [soution_id]
 useDedicatedEventHubNamespace: ##
 sendScenarioMetadataToEventHub: ##
