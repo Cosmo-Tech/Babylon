@@ -21,7 +21,7 @@ def execute_step(root: click.Context, step: Dict[str, Any]):
     return root.invoke(cmd, *step.get("arguments", []), **step.get("options", {}))
 
 
-def _insert_from_forward(step: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
+def _insert_from_forward(step: dict[str, Any], fwd_data: dict[str, Any]) -> dict[str, Any]:
     # Inserting values for arguments
     arguments = step.get("arguments", [])
     for idx, argument in enumerate(arguments):
@@ -29,7 +29,7 @@ def _insert_from_forward(step: dict[str, Any], data: dict[str, Any]) -> dict[str
         if not needle:
             continue
         fwd_k = needle.group().replace("$", "")
-        arguments[idx] = data[fwd_k]
+        arguments[idx] = fwd_data[fwd_k]
     # Inserting values for options
     options = step.get("options", {})
     for key, option in options.items():
@@ -37,7 +37,7 @@ def _insert_from_forward(step: dict[str, Any], data: dict[str, Any]) -> dict[str
         if not needle:
             continue
         fwd_k = needle.group().replace("$", "")
-        options[key] = data[fwd_k]
+        options[key] = fwd_data[fwd_k]
     return {**step, "arguments": arguments, "options": options}
 
 
@@ -60,5 +60,3 @@ def run(ctx: click.Context, script: str):
         # Forwarding response data to next commands
         for fwd_k, data_k in step.get("forward", {}).items():
             forward_data[fwd_k] = jmespath.search(data_k, response.data)
-
-    logger.info(forward_data)

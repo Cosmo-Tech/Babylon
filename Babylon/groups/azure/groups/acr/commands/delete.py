@@ -1,13 +1,11 @@
 import logging
 import typing
 
-from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import ResourceNotFoundError
 from azure.core.exceptions import HttpResponseError
 from click import Choice
 from click import command
 from click import option
-from click import make_pass_decorator
 
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import require_deployment_key
@@ -16,11 +14,8 @@ from ......utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
 
-pass_credentials = make_pass_decorator(DefaultAzureCredential)
-
 
 @command()
-@pass_credentials
 @require_platform_key("acr_src_registry_name", "acr_src_registry_name")
 @require_platform_key("acr_dest_registry_name", "acr_dest_registry_name")
 @require_deployment_key("simulator_repository", "simulator_repository")
@@ -35,8 +30,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
-def delete(credentials: DefaultAzureCredential,
-           acr_src_registry_name: str,
+def delete(acr_src_registry_name: str,
            acr_dest_registry_name: str,
            simulator_repository: str,
            simulator_version: str,
@@ -49,7 +43,7 @@ def delete(credentials: DefaultAzureCredential,
     if not registry:
         logger.error("Please specify a registry to delete from with --direction or --registry")
         return
-    cr_client, _ = registry_connect(registry, credentials)
+    cr_client, _ = registry_connect(registry)
     image = image or f"{simulator_repository}:{simulator_version}"
     image = f"{image}:latest" if ":" not in image else image
     try:

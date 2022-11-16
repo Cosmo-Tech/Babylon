@@ -7,7 +7,6 @@ from click import option
 
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
-from ....connect import azure_connect
 from ..registry_connect import registry_connect
 
 logger = logging.getLogger("Babylon")
@@ -27,8 +26,7 @@ def pull(acr_src_registry_name: str,
     """Pulls a docker image from the ACR registry given in platform configuration"""
     image = image or f"{simulator_repository}:{simulator_version}"
     registry = registry or acr_src_registry_name
-    credentials = azure_connect()
-    _, client = registry_connect(registry, credentials)
+    _, client = registry_connect(registry)
     repo = f"{registry}/{image}"
     logger.info(f"Pulling remote image {image} from registry {registry}")
     try:
