@@ -1,1 +1,7 @@
+## babylon terraform-cloud workspace vars get-all
+
+### Commands
+```bash
 babylon terraform-cloud workspace vars get-all
+```
+Should display a list of vars

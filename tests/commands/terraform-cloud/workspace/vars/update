@@ -1,1 +1,7 @@
-babylon terraform-cloud workspace vars update
+## babylon terraform-cloud workspace vars update
+
+### Commands
+```bash
+babylon terraform-cloud workspace vars update MyVar --value MyUpdatedValue --description MyUpdatedDescription
+```
+Should display an update of the var

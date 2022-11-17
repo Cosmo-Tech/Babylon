@@ -1,1 +1,7 @@
+## babylon terraform-cloud workspace run
+
+### Commands
+```bash
 babylon terraform-cloud workspace run
+```
+Should return information on the created run

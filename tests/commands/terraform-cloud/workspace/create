@@ -1,1 +1,11 @@
-babylon terraform-cloud workspace create
+## babylon terraform-cloud workspace create
+
+### Commands
+```bash
+babylon terraform-cloud workspace create TestWorkspace -s
+```
+Should create the test workspace, -s option should set it's id as a selected ID
+```bash
+babylon terraform-cloud workspace create TestWorkspace -s
+```
+Should display an error (Workspace name already used)

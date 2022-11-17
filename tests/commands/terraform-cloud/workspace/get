@@ -1,1 +1,11 @@
+## babylon terraform-cloud workspace get
+
+### Commands
+```bash
 babylon terraform-cloud workspace get
+```
+Should return the workspace previously created
+```bash
+babylon terraform-cloud workspace get -w NonExistingWorkspace
+```
+Should display an error (workspace ids on the API are of the form "ws-<hash>" so any other string should work as non existing)
