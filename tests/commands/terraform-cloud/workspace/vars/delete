@@ -1,1 +1,11 @@
-babylon terraform-cloud workspace vars delete
+## babylon terraform-cloud workspace vars delete
+
+### Commands
+```bash
+babylon terraform-cloud workspace vars delete MyVar
+```
+Should display that the var is being deleted
+```bash
+babylon terraform-cloud workspace vars delete MyNonExistingVar
+```
+Should display an error (Undefined variable)

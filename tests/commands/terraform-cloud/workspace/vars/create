@@ -1,1 +1,16 @@
-babylon terraform-cloud workspace vars create
+## babylon terraform-cloud workspace vars create
+
+### Commands
+
+```bash
+babylon terraform-cloud workspace vars create MyVar MyValue MyDescription
+```
+The var should be created and available
+```bash
+babylon terraform-cloud workspace vars create MySensitiveVar MyValue MyDescription --sensitive
+```
+The sensitive var should be created and available
+```bash
+babylon terraform-cloud workspace vars create MyVar MyValue MyDescription
+```
+Should display an error, already defined

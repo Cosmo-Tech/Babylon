@@ -1,1 +1,7 @@
+## babylon terraform-cloud workspace get-all
+
+### Commands
+```bash
 babylon terraform-cloud workspace get-all
+```
+Should return a long list of workspaces
