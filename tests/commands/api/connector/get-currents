@@ -1,4 +1,7 @@
 ## babylon api connector get-currents
+To test this command proceed as follow
+- Connect to the Cosmotech API with Swagger, Postman or equivalent...
+- Make sure there are one or several connectors already registered in the API
 
 ### Commands
 ```bash

@@ -1,8 +1,6 @@
 ## babylon api connector create
 To test this command proceed as follow
 - Connect to the Cosmotech API with Swagger, Postman or equivalent...
-- Create a new disposable connector using Swagger
-- Copy the connector `id` returned by the create request
 
 ### Commands
 ```bash
