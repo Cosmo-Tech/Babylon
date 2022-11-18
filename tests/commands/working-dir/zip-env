@@ -1,1 +1,7 @@
-babylon working-dir zip-env
+## babylon working-dir zip-env
+
+### Commands
+```bash
+babylon working-dir zip-env test_dir.zip
+```
+Should create a `test_dir.zip` file that contains the current working directory.

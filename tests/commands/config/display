@@ -1,1 +1,7 @@
+## babylon config display
+
+## Commands
+```bash
 babylon config display
+```
+Should display all key value pairs from `deploy.yaml` and `platform.yaml`
