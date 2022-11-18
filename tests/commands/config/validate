@@ -1,1 +1,7 @@
+## babylon config validate
+
+## Commands
+```bash
 babylon config validate
+```
+Should display missing and empty keys from `deploy.yaml` and `platform.yaml`

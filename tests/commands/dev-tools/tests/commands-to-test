@@ -1,1 +1,12 @@
-babylon dev-tools tests commands-to-test
+## babylon dev-tools tests commands-to-test
+
+### Commands
+```bash
+babylon dev-tools tests commands-to-test 1.0.0
+```
+Should show most of existing commands
+
+```bash
+babylon dev-tools tests commands-to-test main
+```
+Should not show any command if you are on the main branch

@@ -1,1 +1,7 @@
-babylon dev-tools tests how-to-test-command
+## babylon dev-tools tests how-to-test-command
+
+### Commands
+```bash
+babylon dev-tools tests how-to-test-command config display
+```
+Should show test commands for `babylon config display`

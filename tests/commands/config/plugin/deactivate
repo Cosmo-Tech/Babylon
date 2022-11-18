@@ -1,1 +1,7 @@
-babylon config plugin deactivate
+## babylon config plugin deactivate
+
+### Commands
+```bash
+babylon config plugin deactivate dev_tools
+```
+Should deactivate the plugin, `babylon dev-tools` should fail
