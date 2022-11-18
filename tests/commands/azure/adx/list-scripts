@@ -1,1 +1,7 @@
 ## babylon azure adx list-scripts
+
+### Commands
+```bash
+babylon azure adx list-scripts
+```
+Should show scripts present in the ADX database

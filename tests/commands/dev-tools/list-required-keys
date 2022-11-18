@@ -1,1 +1,4 @@
-babylon dev-tools list-required-keys
+## babylon dev-tools list-required-keys
+
+### Commands
+Should list all required keys in config files `deploy` and `platform`

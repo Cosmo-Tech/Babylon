@@ -1,3 +1,7 @@
 ## babylon config platform select
 
 ### Commands
+```bash
+babylon config platform select
+```
+Should prompt to select a platform file in the configuration files
