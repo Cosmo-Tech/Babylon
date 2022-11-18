@@ -1,1 +1,7 @@
 ## babylon azure adx run-folder
+
+### Commands
+```bash
+babylon azure adx run-folder [script_folder]
+```
+Should run database scripts given in `script_folder`

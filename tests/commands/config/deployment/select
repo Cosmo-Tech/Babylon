@@ -1,3 +1,7 @@
 ## babylon config deployment select
 
 ### Commands
+```bash
+babylon config deployment select
+```
+Should prompt to select a deploy file in the configuration files
