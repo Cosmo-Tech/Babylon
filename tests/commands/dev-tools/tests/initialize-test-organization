@@ -1,1 +1,4 @@
-babylon dev-tools tests initialize-test-organization
+## babylon dev-tools tests initialize-test-organization
+
+### Commands
+Should create tests folder

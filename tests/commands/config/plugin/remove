@@ -1,1 +1,4 @@
-babylon config plugin remove
+## babylon config plugin remove
+
+### Commands
+Should remove the plugin, `babylon dev-tools` should fail
