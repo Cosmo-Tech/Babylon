@@ -1,1 +1,7 @@
+## babylon working-dir init
+
+### Commands
+```bash
 babylon working-dir init
+```
+Should initialize the current working dir with template files.

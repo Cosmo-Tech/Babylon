@@ -1,1 +1,7 @@
+## babylon working-dir display
+
+### Commands
+```bash
 babylon working-dir display
+```
+Should list the working dir content and its path
