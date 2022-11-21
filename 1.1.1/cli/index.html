@@ -2527,8 +2527,8 @@
 </ul>
 <h3 id="babylon-api">babylon api</h3>
 <p>Group handling communication with the cosmotech API</p>
-<p>Requires key <code>api_url</code> in the platform config file.</p>
-<p>Requires key <code>api_scope</code> in the platform config file.</p>
+<p>Requires <code>api_url</code> in platform config file.</p>
+<p>Requires <code>api_scope</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api [OPTIONS] COMMAND [ARGS]...
 </code></pre>
@@ -2767,8 +2767,8 @@
 </table>
 <h5 id="babylon-api-connector-get-currents">babylon api connector get-currents</h5>
 <p>Get a registered connector details.</p>
-<p>Requires key <code>storage_connector_id</code> in the deployment config file.</p>
-<p>Requires key <code>adt_connector_id</code> in the deployment config file.</p>
+<p>Requires <code>storage_connector_id</code> in deploy config file.</p>
+<p>Requires <code>adt_connector_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api connector get-currents [OPTIONS]
 </code></pre>
@@ -2838,8 +2838,8 @@
 </ul>
 <h5 id="babylon-api-dataset-create">babylon api dataset create</h5>
 <p>Register new dataset by sending description file to the API.</p>
-<p>Requires key <code>connector</code> in the deployment config file.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>connector</code> in deploy config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset create [OPTIONS] [DATASET_FILE]
 </code></pre>
@@ -2894,7 +2894,7 @@
 </table>
 <h5 id="babylon-api-dataset-delete">babylon api dataset delete</h5>
 <p>Unregister a dataset via Cosmotech API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset delete [OPTIONS] [DATASET_ID]
 </code></pre>
@@ -2937,7 +2937,7 @@
 </table>
 <h5 id="babylon-api-dataset-get">babylon api dataset get</h5>
 <p>Get the state of the dataset in the API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset get [OPTIONS] DATASET_ID
 </code></pre>
@@ -2986,7 +2986,7 @@
 </table>
 <h5 id="babylon-api-dataset-get-all">babylon api dataset get-all</h5>
 <p>Get all registered datasets.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset get-all [OPTIONS]
 </code></pre>
@@ -3023,8 +3023,8 @@
 </table>
 <h5 id="babylon-api-dataset-get-current">babylon api dataset get-current</h5>
 <p>Get the state of the dataset in the API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>dataset_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p>Requires <code>dataset_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset get-current [OPTIONS]
 </code></pre>
@@ -3061,8 +3061,8 @@
 </table>
 <h5 id="babylon-api-dataset-update">babylon api dataset update</h5>
 <p>Send a JSON or YAML file to the API to update a dataset.</p>
-<p>Requires key <code>dataset_id</code> in the deployment config file.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>dataset_id</code> in deploy config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api dataset update [OPTIONS] DATASET_FILE
 </code></pre>
@@ -3288,7 +3288,7 @@
 </table>
 <h5 id="babylon-api-organization-get-current">babylon api organization get-current</h5>
 <p>Get the state of the current organization in the API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization get-current [OPTIONS]
 </code></pre>
@@ -3325,7 +3325,7 @@
 </table>
 <h5 id="babylon-api-organization-update">babylon api organization update</h5>
 <p>Update an Organization by sending a JSON or YAML file to Cosmotech Api.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api organization update [OPTIONS]
 </code></pre>
@@ -3395,10 +3395,10 @@
 </ul>
 <h5 id="babylon-api-solution-create">babylon api solution create</h5>
 <p>Send a JSON or YAML file to the API to create an solution.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_url</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p>Requires <code>simulator_url</code> in deploy config file.</p>
+<p>Requires <code>simulator_version</code> in deploy config file.</p>
+<p>Requires <code>simulator_repository</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution create [OPTIONS] SOLUTION_NAME
 </code></pre>
@@ -3453,7 +3453,7 @@
 </table>
 <h5 id="babylon-api-solution-delete">babylon api solution delete</h5>
 <p>Unregister a solution via Cosmotech APi.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution delete [OPTIONS] [SOLUTION_ID]
 </code></pre>
@@ -3496,7 +3496,7 @@
 </table>
 <h5 id="babylon-api-solution-get">babylon api solution get</h5>
 <p>Get the state of the solution in the API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution get [OPTIONS] [SOLUTION_ID]
 </code></pre>
@@ -3545,7 +3545,7 @@
 </table>
 <h5 id="babylon-api-solution-get-all">babylon api solution get-all</h5>
 <p>Get all registered solutions.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution get-all [OPTIONS]
 </code></pre>
@@ -3582,8 +3582,8 @@
 </table>
 <h5 id="babylon-api-solution-get-current">babylon api solution get-current</h5>
 <p>Get the state of the solution in the API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>solution_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p>Requires <code>solution_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution get-current [OPTIONS]
 </code></pre>
@@ -3620,11 +3620,11 @@
 </table>
 <h5 id="babylon-api-solution-update">babylon api solution update</h5>
 <p>Send a JSON or YAML file to the API to update a solution.</p>
-<p>Requires key <code>solution_id</code> in the deployment config file.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_url</code> in the deployment config file.</p>
+<p>Requires <code>solution_id</code> in deploy config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p>Requires <code>simulator_repository</code> in deploy config file.</p>
+<p>Requires <code>simulator_version</code> in deploy config file.</p>
+<p>Requires <code>simulator_url</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api solution update [OPTIONS] [SOLUTION_ID]
 </code></pre>
@@ -3694,10 +3694,10 @@
 </ul>
 <h5 id="babylon-api-workspace-create">babylon api workspace create</h5>
 <p>Send a JSON or YAML file to the API to create a workspace.</p>
-<p>Requires key <code>solution_id</code> in the deployment config file.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>use_dedicated_event_hub_namespace</code> in the deployment config file.</p>
-<p>Requires key <code>send_scenario_metadata_to_event_hub</code> in the deployment config file.</p>
+<p>Requires <code>solution_id</code> in deploy config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p>Requires <code>use_dedicated_event_hub_namespace</code> in deploy config file.</p>
+<p>Requires <code>send_scenario_metadata_to_event_hub</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace create [OPTIONS] WORKSPACE_NAME
 </code></pre>
@@ -3752,7 +3752,7 @@
 </table>
 <h5 id="babylon-api-workspace-delete">babylon api workspace delete</h5>
 <p>Unregister a workspace via Cosmotech APi.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace delete [OPTIONS] [WORKSPACE_ID]
 </code></pre>
@@ -3795,7 +3795,7 @@
 </table>
 <h5 id="babylon-api-workspace-get">babylon api workspace get</h5>
 <p>Get the state of the workspace in the API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace get [OPTIONS] [WORKSPACE_ID]
 </code></pre>
@@ -3844,7 +3844,7 @@
 </table>
 <h5 id="babylon-api-workspace-get-all">babylon api workspace get-all</h5>
 <p>Get all registered workspaces.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace get-all [OPTIONS]
 </code></pre>
@@ -3881,8 +3881,8 @@
 </table>
 <h5 id="babylon-api-workspace-get-current">babylon api workspace get-current</h5>
 <p>Get the state of the workspace in the API.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>workspace_id</code> in the deployment config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p>Requires <code>workspace_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace get-current [OPTIONS]
 </code></pre>
@@ -3919,10 +3919,10 @@
 </table>
 <h5 id="babylon-api-workspace-update">babylon api workspace update</h5>
 <p>Send a JSON or YAML file to the API to update a workspace.</p>
-<p>Requires key <code>solution_id</code> in the deployment config file.</p>
-<p>Requires key <code>organization_id</code> in the deployment config file.</p>
-<p>Requires key <code>use_dedicated_event_hub_namespace</code> in the deployment config file.</p>
-<p>Requires key <code>use_dedicated_event_hub_namespace</code> in the deployment config file.</p>
+<p>Requires <code>solution_id</code> in deploy config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p>Requires <code>use_dedicated_event_hub_namespace</code> in deploy config file.</p>
+<p>Requires <code>use_dedicated_event_hub_namespace</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon api workspace update [OPTIONS]
 </code></pre>
@@ -3965,7 +3965,7 @@
 </table>
 <h3 id="babylon-azure">babylon azure</h3>
 <p>Group allowing communication with Microsoft Azure Cloud</p>
-<p>Requires key <code>api_scope</code> in the platform config file.</p>
+<p>Requires <code>api_scope</code> in platform config file.</p>
 <p>Requires the program <code>az</code> to run.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure [OPTIONS] COMMAND [ARGS]...
@@ -4030,10 +4030,10 @@
 </ul>
 <h5 id="babylon-azure-acr-delete">babylon azure acr delete</h5>
 <p>Delete docker image from selected repository</p>
-<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
-<p>Requires key <code>acr_dest_registry_name</code> in the platform config file.</p>
-<p>Requires key <code>acr_src_registry_name</code> in the platform config file.</p>
+<p>Requires <code>simulator_version</code> in deploy config file.</p>
+<p>Requires <code>simulator_repository</code> in deploy config file.</p>
+<p>Requires <code>acr_dest_registry_name</code> in platform config file.</p>
+<p>Requires <code>acr_src_registry_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr delete [OPTIONS]
 </code></pre>
@@ -4082,8 +4082,8 @@
 </table>
 <h5 id="babylon-azure-acr-list">babylon azure acr list</h5>
 <p>List all docker images in the specified registry</p>
-<p>Requires key <code>acr_dest_registry_name</code> in the platform config file.</p>
-<p>Requires key <code>acr_src_registry_name</code> in the platform config file.</p>
+<p>Requires <code>acr_dest_registry_name</code> in platform config file.</p>
+<p>Requires <code>acr_src_registry_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr list [OPTIONS]
 </code></pre>
@@ -4120,9 +4120,9 @@
 </table>
 <h5 id="babylon-azure-acr-pull">babylon azure acr pull</h5>
 <p>Pulls a docker image from the ACR registry given in platform configuration</p>
-<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
-<p>Requires key <code>acr_src_registry_name</code> in the platform config file.</p>
+<p>Requires <code>simulator_version</code> in deploy config file.</p>
+<p>Requires <code>simulator_repository</code> in deploy config file.</p>
+<p>Requires <code>acr_src_registry_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr pull [OPTIONS]
 </code></pre>
@@ -4159,9 +4159,9 @@
 </table>
 <h5 id="babylon-azure-acr-push">babylon azure acr push</h5>
 <p>Push a docker image to the ACR registry given in platform configuration</p>
-<p>Requires key <code>simulator_version</code> in the deployment config file.</p>
-<p>Requires key <code>simulator_repository</code> in the deployment config file.</p>
-<p>Requires key <code>acr_dest_registry_name</code> in the platform config file.</p>
+<p>Requires <code>simulator_version</code> in deploy config file.</p>
+<p>Requires <code>simulator_repository</code> in deploy config file.</p>
+<p>Requires <code>acr_dest_registry_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure acr push [OPTIONS]
 </code></pre>
@@ -4227,7 +4227,7 @@
 </ul>
 <h5 id="babylon-azure-adt-instance">babylon azure adt instance</h5>
 <p>Subgroup dedicate to Azure digital twins instance management</p>
-<p>Requires key <code>azure_subscription</code> in the platform config file.</p>
+<p>Requires <code>azure_subscription</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adt instance [OPTIONS] COMMAND [ARGS]...
 </code></pre>
@@ -4259,8 +4259,8 @@
 </ul>
 <h6 id="babylon-azure-adt-instance-create">babylon azure adt instance create</h6>
 <p>Create a new ADT instance in current platform resource group</p>
-<p>Requires key <code>resources_location</code> in the platform config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>resources_location</code> in platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adt instance create [OPTIONS] ADT_INSTANCE_NAME
 </code></pre>
@@ -4285,7 +4285,7 @@
 </table>
 <h6 id="babylon-azure-adt-instance-delete">babylon azure adt instance delete</h6>
 <p>Delete a ADT instance in current platform resource group</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adt instance delete [OPTIONS] ADT_INSTANCE_NAME
 </code></pre>
@@ -4316,7 +4316,7 @@
 </table>
 <h6 id="babylon-azure-adt-instance-get">babylon azure adt instance get</h6>
 <p>Get an azure digital twins instance details</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adt instance get [OPTIONS] ADT_INSTANCE_NAME
 </code></pre>
@@ -4347,7 +4347,7 @@
 </table>
 <h6 id="babylon-azure-adt-instance-list">babylon azure adt instance list</h6>
 <p>Get all azure digital twins instances</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adt instance list [OPTIONS]
 </code></pre>
@@ -4384,7 +4384,7 @@
 </table>
 <h5 id="babylon-azure-adt-model">babylon azure adt model</h5>
 <p>Subgroup dedicate to Azure digital twins models management</p>
-<p>Requires key <code>digital_twin_url</code> in the deployment config file.</p>
+<p>Requires <code>digital_twin_url</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adt model [OPTIONS] COMMAND [ARGS]...
 </code></pre>
@@ -4475,7 +4475,7 @@
 </table>
 <h4 id="babylon-azure-adx">babylon azure adx</h4>
 <p>Group interacting with Azure Data Explorer</p>
-<p>Requires key <code>azure_subscription</code> in the platform config file.</p>
+<p>Requires <code>azure_subscription</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx [OPTIONS] COMMAND [ARGS]...
 </code></pre>
@@ -4507,9 +4507,9 @@
 </ul>
 <h5 id="babylon-azure-adx-list-scripts">babylon azure adx list-scripts</h5>
 <p>List scripts on the database</p>
-<p>Requires key <code>database_name</code> in the deployment config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
-<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p>Requires <code>database_name</code> in deploy config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p>Requires <code>cluster_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx list-scripts [OPTIONS]
 </code></pre>
@@ -4565,9 +4565,9 @@
 </ul>
 <h6 id="babylon-azure-adx-permission-delete">babylon azure adx permission delete</h6>
 <p>Delete all permission assignments applied to the given principal id</p>
-<p>Requires key <code>database_name</code> in the deployment config file.</p>
-<p>Requires key <code>cluster_name</code> in the platform config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>database_name</code> in deploy config file.</p>
+<p>Requires <code>cluster_name</code> in platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx permission delete [OPTIONS] PRINCIPAL_ID
 </code></pre>
@@ -4598,9 +4598,9 @@
 </table>
 <h6 id="babylon-azure-adx-permission-get">babylon azure adx permission get</h6>
 <p>Get permission assignments applied to the given principal id</p>
-<p>Requires key <code>database_name</code> in the deployment config file.</p>
-<p>Requires key <code>cluster_name</code> in the platform config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>database_name</code> in deploy config file.</p>
+<p>Requires <code>cluster_name</code> in platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx permission get [OPTIONS] PRINCIPAL_ID
 </code></pre>
@@ -4625,9 +4625,9 @@
 </table>
 <h6 id="babylon-azure-adx-permission-get-all">babylon azure adx permission get-all</h6>
 <p>Get all permission assignments in the database</p>
-<p>Requires key <code>database_name</code> in the deployment config file.</p>
-<p>Requires key <code>cluster_name</code> in the platform config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>database_name</code> in deploy config file.</p>
+<p>Requires <code>cluster_name</code> in platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx permission get-all [OPTIONS]
 </code></pre>
@@ -4652,9 +4652,9 @@
 </table>
 <h6 id="babylon-azure-adx-permission-set">babylon azure adx permission set</h6>
 <p>Set permission assignments applied to the given principal id</p>
-<p>Requires key <code>database_name</code> in the deployment config file.</p>
-<p>Requires key <code>cluster_name</code> in the platform config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
+<p>Requires <code>database_name</code> in deploy config file.</p>
+<p>Requires <code>cluster_name</code> in platform config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx permission set [OPTIONS] PRINCIPAL_ID
 </code></pre>
@@ -4691,9 +4691,9 @@
 </table>
 <h5 id="babylon-azure-adx-run-folder">babylon azure adx run-folder</h5>
 <p>Run all script files (.kql) from SCRIPT_FOLDER</p>
-<p>Requires key <code>database_name</code> in the deployment config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
-<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p>Requires <code>database_name</code> in deploy config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p>Requires <code>cluster_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx run-folder [OPTIONS] SCRIPT_FOLDER
 </code></pre>
@@ -4719,9 +4719,9 @@
 <h5 id="babylon-azure-adx-run-script">babylon azure adx run-script</h5>
 <p>Open SCRIPT_FILE and run it on the database</p>
 <p>In the script instances of "<database name>" will be replaced by the actual database name</p>
-<p>Requires key <code>database_name</code> in the deployment config file.</p>
-<p>Requires key <code>resource_group_name</code> in the platform config file.</p>
-<p>Requires key <code>cluster_name</code> in the platform config file.</p>
+<p>Requires <code>database_name</code> in deploy config file.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p>Requires <code>cluster_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx run-script [OPTIONS] SCRIPT_FILE
 </code></pre>
@@ -4746,7 +4746,7 @@
 </table>
 <h4 id="babylon-azure-storage">babylon azure storage</h4>
 <p>Group interacting with Azure Storage Blob</p>
-<p>Requires key <code>storage_account_name</code> in the platform config file.</p>
+<p>Requires <code>storage_account_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure storage [OPTIONS] COMMAND [ARGS]...
 </code></pre>
@@ -5310,8 +5310,8 @@
 </table>
 <h3 id="babylon-debug">babylon debug</h3>
 <p>Add debug capacities of runs</p>
-<p>Requires key <code>k8s_namespace</code> in the platform config file.</p>
-<p>Requires key <code>k8s_context</code> in the platform config file.</p>
+<p>Requires <code>k8s_namespace</code> in platform config file.</p>
+<p>Requires <code>k8s_context</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon debug [OPTIONS] COMMAND [ARGS]...
 </code></pre>

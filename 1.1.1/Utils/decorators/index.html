@@ -589,22 +589,29 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#Babylon.utils.decorators.get_from_deploy_config" class="md-nav__link">
+    get_from_deploy_config()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#Babylon.utils.decorators.get_from_platform_config" class="md-nav__link">
+    get_from_platform_config()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#Babylon.utils.decorators.insert_argument" class="md-nav__link">
+    insert_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#Babylon.utils.decorators.prepend_doc_with_ascii" class="md-nav__link">
     prepend_doc_with_ascii()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#Babylon.utils.decorators.require_deployment_key" class="md-nav__link">
-    require_deployment_key()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#Babylon.utils.decorators.require_platform_key" class="md-nav__link">
-    require_platform_key()
   </a>
   
 </li>
@@ -768,22 +775,29 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#Babylon.utils.decorators.get_from_deploy_config" class="md-nav__link">
+    get_from_deploy_config()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#Babylon.utils.decorators.get_from_platform_config" class="md-nav__link">
+    get_from_platform_config()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#Babylon.utils.decorators.insert_argument" class="md-nav__link">
+    insert_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#Babylon.utils.decorators.prepend_doc_with_ascii" class="md-nav__link">
     prepend_doc_with_ascii()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#Babylon.utils.decorators.require_deployment_key" class="md-nav__link">
-    require_deployment_key()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#Babylon.utils.decorators.require_platform_key" class="md-nav__link">
-    require_platform_key()
   </a>
   
 </li>
@@ -901,6 +915,84 @@
 
 
 
+<h2 id="Babylon.utils.decorators.get_from_deploy_config" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_from_deploy_config</span><span class="p">(</span><span class="n">yaml_key</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>deploy config file</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="Babylon.utils.decorators.get_from_platform_config" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_from_platform_config</span><span class="p">(</span><span class="n">yaml_key</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>platform config file</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="Babylon.utils.decorators.insert_argument" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">insert_argument</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Decorator calling a getter with an argument and storing the result as an inserted argument</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>getter</code></td>
+          <td>
+                <code><span title="typing.Callable">Callable</span>[[str], <span title="typing.Any">Any</span>]</code>
+          </td>
+          <td><p>function</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
 <h2 id="Babylon.utils.decorators.prepend_doc_with_ascii" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">prepend_doc_with_ascii</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></code>
 
@@ -925,116 +1017,11 @@
         <tr>
           <td><code>func</code></td>
           <td>
+                <code><span title="typing.Callable">Callable</span>[..., <span title="typing.Any">Any</span>]</code>
           </td>
           <td><p>The function being decorated</p></td>
           <td>
               <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-  </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-
-<h2 id="Babylon.utils.decorators.require_deployment_key" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">require_deployment_key</span><span class="p">(</span><span class="n">yaml_key</span><span class="p">,</span> <span class="n">arg_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
-
-</h2>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Decorator allowing to check if the deployment in config has specific key
-If the check is failed the command won't run, and following checks won't be done</p>
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>yaml_key</code></td>
-          <td>
-                <code>str</code>
-          </td>
-          <td><p>the required key</p></td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>arg_name</code></td>
-          <td>
-                <code><span title="typing.Optional">Optional</span>[str]</code>
-          </td>
-          <td><p>optional parameter that will send the value of the yaml key to the given arg of the function</p></td>
-          <td>
-                <code>None</code>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-  </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-
-<h2 id="Babylon.utils.decorators.require_platform_key" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">require_platform_key</span><span class="p">(</span><span class="n">yaml_key</span><span class="p">,</span> <span class="n">arg_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
-
-</h2>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Decorator allowing to check if the platform in config has specific key
-If the check is failed the command won't run, and following checks won't be done</p>
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>yaml_key</code></td>
-          <td>
-                <code>str</code>
-          </td>
-          <td><p>the required key</p></td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>arg_name</code></td>
-          <td>
-                <code><span title="typing.Optional">Optional</span>[str]</code>
-          </td>
-          <td><p>optional parameter that will send the value of the yaml key to the given arg of the function</p></td>
-          <td>
-                <code>None</code>
           </td>
         </tr>
     </tbody>
@@ -1115,6 +1102,7 @@ If the check is failed the command won't run, and following checks won't be done
         <tr>
           <td><code>func</code></td>
           <td>
+                <code><span title="typing.Callable">Callable</span>[..., <span title="typing.Any">Any</span>]</code>
           </td>
           <td><p>The function being decorated</p></td>
           <td>
