@@ -16,6 +16,7 @@ from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -26,7 +27,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @describe_dry_run("Would call **dataset_api.update_dataset**")
 @pass_dataset_api
 @timing_decorator
-@argument("dataset_file")
+@argument("dataset_file", type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("dataset_id", "dataset_id")
 @option(

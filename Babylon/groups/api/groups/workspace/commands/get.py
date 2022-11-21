@@ -20,6 +20,7 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -30,7 +31,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @describe_dry_run("Would call **workspace_api.find_workspace_by_id**")
 @pass_workspace_api
 @timing_decorator
-@argument("workspace-id", required=False)
+@argument("workspace-id", required=False, type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",

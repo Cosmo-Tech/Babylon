@@ -20,6 +20,7 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -30,7 +31,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @describe_dry_run("Would call **solution_api.find_solution_by_id** to get an solution details")
 @pass_solution_api
 @timing_decorator
-@argument("solution-id", required=False)
+@argument("solution-id", required=False, type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",

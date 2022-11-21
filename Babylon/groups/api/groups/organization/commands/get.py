@@ -17,6 +17,7 @@ from ......utils.api import filter_api_response_item
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -32,7 +33,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         "output_file",
         help="The path to the file where the new Organization content should be outputted (json-formatted)",
         type=Path())
-@argument("organization-id", type=str)
+@argument("organization-id", type=QueryType())
 @option(
     "-f",
     "--fields",

@@ -16,6 +16,7 @@ from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -26,7 +27,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @describe_dry_run("Would call **solution_api.create_solution** to update an solution")
 @timing_decorator
 @pass_solution_api
-@argument("solution-id", required=False)
+@argument("solution-id", required=False, type=QueryType())
 @require_deployment_key("simulator_url", "simulator_url")
 @require_deployment_key("simulator_version", "simulator_version")
 @require_deployment_key("simulator_repository", "simulator_repository")

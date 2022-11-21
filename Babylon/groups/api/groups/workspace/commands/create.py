@@ -21,6 +21,7 @@ from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils.typing import QueryType
 from cosmotech_api.exceptions import ServiceException
 
 logger = getLogger("Babylon")
@@ -33,7 +34,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @timing_decorator
 @pass_workspace_api
 @pass_environment
-@argument("workspace-name")
+@argument("workspace-name", type=QueryType())
 @require_deployment_key("send_scenario_metadata_to_event_hub", "send_scenario_metadata_to_event_hub")
 @require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
 @require_deployment_key("organization_id", "organization_id")
