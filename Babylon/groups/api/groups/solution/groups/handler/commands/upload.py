@@ -99,5 +99,5 @@ def upload(
         logger.error(f"An error occurred : { e.body}")
         return
 
-    logger.info(response)
+    logger.debug(response)
     logger.info(f"{handler_id} handler uploaded to solution {solution_id} successfully")
