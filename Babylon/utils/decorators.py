@@ -174,7 +174,11 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
     :param getter: function
     """
 
-    def wrapper_key(yaml_key: str, arg_name: Optional[str] = None, insert: bool = True, required: bool = True) -> Callable[..., Any]:
+    def wrapper_key(yaml_key: str,
+                    arg_name: Optional[str] = None,
+                    insert: bool = True,
+                    required: bool = True) -> Callable[..., Any]:
+        insert_key = arg_name or yaml_key
 
         def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
@@ -182,7 +186,7 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
             def wrapper(*args: Any, **kwargs: Any):
                 value = getter(yaml_key)
                 if insert:
-                    kwargs[arg_name or yaml_key] = value
+                    kwargs[insert_key] = value
                 logger.debug(f"Adding parameter {yaml_key} = {value} to {func.__name__}")
                 if not value and required:
                     logger.error(f"Key {yaml_key} can not be found in {getter.__doc__}")
@@ -190,6 +194,8 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
                     raise KeyError()
                 return func(*args, **kwargs)
 
+            if not required:
+                return wrapper
             doc = wrapper.__doc__ or ""
             wrapper.__doc__ = "\n\n".join([doc, f"Requires `{yaml_key}` in {getter.__doc__}."])
             return wrapper
