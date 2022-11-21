@@ -188,7 +188,7 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
                 if insert:
                     kwargs[insert_key] = value
                 logger.debug(f"Adding parameter {yaml_key} = {value} to {func.__name__}")
-                if not value and required:
+                if value in [None, ""] and required:
                     logger.error(f"Key {yaml_key} can not be found in {getter.__doc__}")
                     logger.error(f"{click.get_current_context().command.name} won't run without it.")
                     raise KeyError()
