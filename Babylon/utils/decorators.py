@@ -205,7 +205,7 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
     return wrapper_key
 
 
-def get_deploy(yaml_key: str) -> Optional[Any]:
+def get_from_deploy_config(yaml_key: str) -> Optional[Any]:
     """deploy config file"""
     env = click.get_current_context().find_object(Environment)
     if not env:
@@ -214,7 +214,7 @@ def get_deploy(yaml_key: str) -> Optional[Any]:
     return env.configuration.get_deploy_var(yaml_key)
 
 
-def get_platform(yaml_key: str) -> Optional[Any]:
+def get_from_platform_config(yaml_key: str) -> Optional[Any]:
     """platform config file"""
     env = click.get_current_context().find_object(Environment)
     if not env:
@@ -223,8 +223,8 @@ def get_platform(yaml_key: str) -> Optional[Any]:
     return env.configuration.get_platform_var(yaml_key)
 
 
-require_deployment_key = insert_argument(get_deploy)
-require_platform_key = insert_argument(get_platform)
+require_deployment_key = insert_argument(get_from_deploy_config)
+require_platform_key = insert_argument(get_from_platform_config)
 
 pass_working_dir = click.make_pass_decorator(WorkingDir)
 pass_config = click.make_pass_decorator(Configuration)
