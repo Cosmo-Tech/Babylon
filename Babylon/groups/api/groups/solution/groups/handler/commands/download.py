@@ -50,9 +50,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 )
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("solution_id", "solution_id")
-@describe_dry_run(
-    "Would call **solution_api.download_run_template_handler** to download a solution handler zip"
-)
+@describe_dry_run("Would call **solution_api.download_run_template_handler** to download a solution handler zip")
 def download(
     solution_api: SolutionApi,
     organization_id: str,
