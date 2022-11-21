@@ -21,6 +21,7 @@ from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -32,7 +33,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @timing_decorator
 @pass_solution_api
 @pass_environment
-@argument("solution-name")
+@argument("solution-name", type=QueryType())
 @require_deployment_key("simulator_repository", "simulator_repository")
 @require_deployment_key("simulator_version", "simulator_version")
 @require_deployment_key("simulator_url", "simulator_url")

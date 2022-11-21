@@ -16,6 +16,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -47,7 +48,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     "solution_file",
     help="Your Solution description file path",
 )
-@argument("solution-id", required=False)
+@argument("solution-id", required=False, type=QueryType())
 def delete(
     solution_api: SolutionApi,
     organization_id: str,

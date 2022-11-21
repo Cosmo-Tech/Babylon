@@ -22,6 +22,7 @@ from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -33,7 +34,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @timing_decorator
 @pass_dataset_api
 @pass_environment
-@argument("dataset_file", type=str, required=False)
+@argument("dataset_file", required=False, type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @require_deployment_key("connector", "connector")
 @option(

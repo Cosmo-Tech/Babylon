@@ -16,6 +16,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -49,7 +50,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     help="In case the dataset id is retrieved from a file",
     required=False,
 )
-@argument("dataset_id", type=str, required=False)
+@argument("dataset_id", type=QueryType(), required=False)
 def delete(
     dataset_api: DatasetApi,
     organization_id: str,

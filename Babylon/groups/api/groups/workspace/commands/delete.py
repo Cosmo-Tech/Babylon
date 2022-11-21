@@ -18,6 +18,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
 from ......utils.interactive import confirm_deletion
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -50,7 +51,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     "workspace_file",
     help="In case the workspace id is retrieved from a file",
 )
-@argument("workspace_id", required=False)
+@argument("workspace_id", required=False, type=QueryType())
 def delete(
     env: Environment,
     workspace_api: WorkspaceApi,

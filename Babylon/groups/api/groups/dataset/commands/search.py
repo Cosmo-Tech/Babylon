@@ -17,6 +17,7 @@ from ......utils.api import filter_api_response
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run, require_deployment_key, timing_decorator
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -27,7 +28,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @describe_dry_run("Would call **dataset_api.search_datasets**")
 @pass_dataset_api
 @timing_decorator
-@argument("search_parameters", type=str)
+@argument("search_parameters", type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-o",

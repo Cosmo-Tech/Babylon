@@ -20,6 +20,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -54,7 +55,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "use_working_dir_file",
         is_flag=True,
         help="Should the Connector file path be relative to Babylon working directory ?")
-@argument("connector-name")
+@argument("connector-name", type=QueryType())
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
 def create(
     env: Environment,
