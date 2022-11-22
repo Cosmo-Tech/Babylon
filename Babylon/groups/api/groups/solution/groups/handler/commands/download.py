@@ -83,7 +83,7 @@ def download(
         return
 
     with open(run_template_id + ".zip", "w") as _f:
-        IO.write(response, _f)
+        _f.write(response.read())
 
     logger.debug(response)
     logger.info(f"{handler_id} handler downloaded from solution {solution_id} successfully")
