@@ -44,7 +44,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     type=bool,
 )
 @option(
-    "-d",
+    "-i",
     "--dataset-file",
     "dataset_file",
     help="In case the dataset id is retrieved from a file",
