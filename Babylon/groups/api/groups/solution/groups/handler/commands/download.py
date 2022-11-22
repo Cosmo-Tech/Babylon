@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import IO
 from typing import Optional
 
 from click import Choice
@@ -82,7 +81,7 @@ def download(
         logger.error("No retrieved handler")
         return
 
-    with open(run_template_id + ".zip", "w") as _f:
+    with open(run_template_id + ".zip", "wb") as _f:
         _f.write(response.read())
 
     logger.debug(response)
