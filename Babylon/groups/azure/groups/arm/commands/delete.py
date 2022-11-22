@@ -6,8 +6,11 @@ from azure.mgmt.resource import ResourceManagementClient
 from click import argument
 from click import command
 from click import make_pass_decorator
+from click import option
 
 from ......utils.decorators import require_platform_key
+from ......utils.interactive import confirm_deletion
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -18,12 +21,23 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @pass_arm_client
 @argument("deployment_name")
 @require_platform_key("resource_group_name", "resource_group_name")
+@option(
+    "-f",
+    "--force",
+    "force_validation",
+    is_flag=True,
+    help="Don't ask for validation before delete",
+)
 def delete(
     arm_client: ResourceManagementClient,
     deployment_name: str,
     resource_group_name: str,
-) -> Optional[str]:
+    force_validation: Optional[bool] = False,
+) -> CommandResponse:
     """Delete a resource deployment via arm deployment."""
+
+    if not force_validation and not confirm_deletion("azure deployment", deployment_name):
+        return
 
     logger.info(f"Deleting resource deployment {deployment_name} ...")
     try:
@@ -38,4 +52,4 @@ def delete(
     logger.debug(poller.result())
     logger.info(f"Deployment {deployment_name} deleted with status : {poller.status()}")
 
-    return poller.status()
+    return CommandResponse(data={"status": poller.status()})

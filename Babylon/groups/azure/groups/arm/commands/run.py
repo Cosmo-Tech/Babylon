@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
@@ -10,6 +9,7 @@ from click import make_pass_decorator
 from ruamel.yaml import YAML
 
 from ......utils.decorators import require_platform_key
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -24,7 +24,7 @@ def run(
     arm_client: ResourceManagementClient,
     deployment_config_file_path: str,
     resource_group_name: str,
-) -> Optional[str]:
+) -> CommandResponse:
     """Apply a resource deployment config via arm deployment."""
 
     _commented_yaml_loader = YAML()
@@ -61,4 +61,4 @@ def run(
     logger.info(f"Deployment finished with status : {poller.status()}. \
                  \nMore details at : {poller.result()['id']}")
 
-    return poller.status()
+    return CommandResponse(data={"status": poller.status()})
