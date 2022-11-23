@@ -24,6 +24,7 @@ docker>=6.0.0
 jmespath>=1.0.1
 terrasnek>=0.1.10
 rich>=12.6.0
+jmespath>=1.0.1
 
 # Testing requirements
 pytest>=7.1.3
