@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#Babylon.utils.typing.QueryType" class="md-skip">
+        <a href="#specific-types" class="md-skip">
           Skip to content
         </a>
       
@@ -554,16 +554,63 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#querytype" class="md-nav__link">
+    QueryType
+  </a>
+  
+    <nav class="md-nav" aria-label="QueryType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-in-a-command" class="md-nav__link">
+    Example in a command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-use" class="md-nav__link">
+    Example use
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.typing.QueryType" class="md-nav__link">
+    QueryType
+  </a>
+  
+    <nav class="md-nav" aria-label="QueryType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#Babylon.utils.typing.QueryType.shell_complete" class="md-nav__link">
     shell_complete()
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#Babylon.utils.typing.QueryType.convert" class="md-nav__link">
     convert()
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -731,16 +778,63 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#querytype" class="md-nav__link">
+    QueryType
+  </a>
+  
+    <nav class="md-nav" aria-label="QueryType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-in-a-command" class="md-nav__link">
+    Example in a command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-use" class="md-nav__link">
+    Example use
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.typing.QueryType" class="md-nav__link">
+    QueryType
+  </a>
+  
+    <nav class="md-nav" aria-label="QueryType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#Babylon.utils.typing.QueryType.shell_complete" class="md-nav__link">
     shell_complete()
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#Babylon.utils.typing.QueryType.convert" class="md-nav__link">
     convert()
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -759,15 +853,55 @@
                   
 
 
+<h1 id="specific-types">Specific types</h1>
+<h2 id="querytype">QueryType</h2>
+<p>This type adds a capacity to easliy use file content as parameter to function.</p>
+<h3 id="example-in-a-command">Example in a command</h3>
+<p>The following code is an example of use of the type:</p>
+<pre><code class="language-python">from Babylon.utils.typing import QueryType
+import click
+
+@click.command()
+@click.argument(&quot;my_arg&quot;, type=QueryType())
+def my_call(my_arg):
+    print(&quot;The value of my arg is :&quot;)
+    print(my_arg)
+</code></pre>
+<h3 id="usage">Usage</h3>
+<p>The <code>QueryType</code> accepts the following syntaxes :</p>
+<ul>
+<li><code>%deploy%&lt;JMESPath Query&gt;</code> : This will apply the given JMESPath query to the deploy config file and send the result as an argument instead.</li>
+<li><code>%platform%&lt;JMESPath Query&gt;</code> : Same as above but will get applied to the platform config file.</li>
+<li><code>%workdir[File/Path]%&lt;JMESPath Query&gt;</code> : This syntax will apply the JMESPath query to the give file in the working directory</li>
+</ul>
+<h3 id="example-use">Example use</h3>
+<p>Using the previously defined command and the following example config files</p>
+<pre><code class="language-yaml"># Deploy
+solution_id: &quot;MySolution&quot;
+</code></pre>
+<pre><code class="language-yaml"># Platform
+organization_id: &quot;MyOrganization&quot;
+</code></pre>
+<p>We can except the following results :</p>
+<pre><code class="language-bash">my_call %deploy%solution_id
+# The value of my arg is :
+# MySolution
+my_call %platform%*
+# The value of my arg is :
+# ['MyOrganization']
+</code></pre>
+<p>For more information on the JMESPath syntax I invite you to check the following website : <a href="https://jmespath.org">JMESPath.org</a></p>
+
+
 <div class="doc doc-object doc-class">
 
 
 
-<h1 id="Babylon.utils.typing.QueryType" class="doc doc-heading">
+<h3 id="Babylon.utils.typing.QueryType" class="doc doc-heading">
         <code>Babylon.utils.typing.QueryType</code>
 
 
-</h1>
+</h3>
 
 
   <div class="doc doc-contents first">
@@ -793,10 +927,10 @@
 
 
 
-<h2 id="Babylon.utils.typing.QueryType.shell_complete" class="doc doc-heading">
+<h4 id="Babylon.utils.typing.QueryType.shell_complete" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">shell_complete</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">incomplete</span><span class="p">)</span></code>
 
-</h2>
+</h4>
 
 
   <div class="doc doc-contents ">
@@ -873,10 +1007,10 @@
 
 
 
-<h2 id="Babylon.utils.typing.QueryType.convert" class="doc doc-heading">
+<h4 id="Babylon.utils.typing.QueryType.convert" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span></code>
 
-</h2>
+</h4>
 
 
   <div class="doc doc-contents ">
