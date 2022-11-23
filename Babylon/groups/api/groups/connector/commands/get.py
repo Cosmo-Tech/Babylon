@@ -17,6 +17,7 @@ from ......utils.api import filter_api_response_item
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -32,7 +33,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         "output_file",
         help="File to which content should be outputted (json-formatted)",
         type=Path())
-@argument("connector-id")
+@argument("connector-id", type=QueryType())
 @option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
 def get(
     connector_api: ConnectorApi,

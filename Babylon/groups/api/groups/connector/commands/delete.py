@@ -10,6 +10,7 @@ from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 
+from ......utils.typing import QueryType
 from ......utils.api import get_api_file
 from ......utils.interactive import confirm_deletion
 from ......utils.decorators import describe_dry_run
@@ -27,6 +28,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @argument(
     "connector_id",
     required=False,
+    type=QueryType(),
 )
 @option(
     "-i",

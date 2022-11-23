@@ -1,8 +1,10 @@
+import json
 import os
 import pathlib
 import shutil
 import zipfile
 import logging
+from typing import Any
 from typing import Optional
 
 import yaml
@@ -137,6 +139,20 @@ class WorkingDir:
         """
         target_file_path = self.path / pathlib.Path(file_path)
         return target_file_path
+
+    def get_file_content(self, file_path: str) -> Any:
+        """
+        Return the content of a file from the working dir
+        :param file_path: the path to the file inside the working dir
+        :return: a dump of the file content in python object
+        """
+        _p = self.get_file(file_path)
+        with open(_p) as _f:
+            if _p.suffix == ".json":
+                return json.load(_f)
+            elif _p.suffix == ".yaml":
+                return yaml.safe_load(_f)
+            return list(_l for _l in _f)
 
     def __str__(self):
         _ret = [

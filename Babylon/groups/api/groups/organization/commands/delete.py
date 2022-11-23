@@ -14,6 +14,7 @@ from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -27,6 +28,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 @argument(
     "organization_id",
     required=False,
+    type=QueryType(),
 )
 @option(
     "-i",

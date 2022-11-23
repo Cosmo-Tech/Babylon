@@ -19,6 +19,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -47,7 +48,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         "use_working_dir_file",
         is_flag=True,
         help="Should the Organization file path be relative to Babylon working directory ?")
-@argument("organization-name")
+@argument("organization-name", type=QueryType())
 def create(
     env: Environment,
     organization_api: OrganizationApi,
