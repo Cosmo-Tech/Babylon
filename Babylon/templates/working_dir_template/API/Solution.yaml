@@ -1,12 +1,12 @@
-# id: <>
+# id: [soution_id]
 key: ###
 name: ###
 description: ###
 repository: ###
 version: ###
 tags:
-  - ###
-  - ###
+  # - ###
+  # - ###
 
 parameters:
   - id: parameter1
@@ -30,7 +30,7 @@ runTemplates:
     csmSimulation: simulation
     tags:
       - Simulation
-      - ###
+      # - ###
     computeSize: basic
     noDataIngestionState: false
     fetchDatasets: true

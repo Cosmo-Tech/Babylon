@@ -17,9 +17,7 @@ from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
-from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
-from ......utils.environment import Environment
 from ......utils.typing import QueryType
 
 logger = getLogger("Babylon")
@@ -31,20 +29,13 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @describe_dry_run("Would call **connector_api.create_connector** to register a new Connector")
 @timing_decorator
 @pass_connector_api
-@pass_environment
-@option("-f", "--connector-file", "connector_file", type=str, help="Your custom Connector description file path")
+@option("-i", "--connector-file", "connector_file", type=str, help="Your custom Connector description file path")
 @option("-t",
         "--type",
         "connector_type",
         required=True,
         type=Choice(["ADT", "STORAGE"], case_sensitive=False),
         help="Connector type, allowed values : [ADT, STORAGE]")
-@option("-s",
-        "--select",
-        "select",
-        type=bool,
-        help="Select this new Connector as one of babylon context Connectors ?",
-        default=True)
 @option("-o",
         "--output-file",
         "output_file",
@@ -58,16 +49,14 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @argument("connector-name", type=QueryType())
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
 def create(
-    env: Environment,
     connector_api: ConnectorApi,
-    select: bool,
     connector_type: str,
     connector_name: str,
     connector_version: str,
     output_file: Optional[str] = None,
     connector_file: Optional[str] = None,
     use_working_dir_file: Optional[str] = False,
-):
+) -> Optional[str]:
     """Register a new Connector by sending a JSON or YAML file to the API."""
 
     connector_type = connector_type.upper()
@@ -94,9 +83,6 @@ def create(
         logger.error("Unauthorized access to the cosmotech api")
         return
 
-    if select:
-        env.configuration.set_deploy_var(f"{connector_type.lower()}_connector_id", retrieved_connector["id"])
-
     logger.debug(pformat(retrieved_connector))
     logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
 
@@ -108,3 +94,5 @@ def create(
             except TypeError:
                 json.dump(converted_connector_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
+
+    return retrieved_connector['id']
