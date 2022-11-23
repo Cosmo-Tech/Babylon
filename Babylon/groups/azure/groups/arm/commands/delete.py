@@ -37,7 +37,7 @@ def delete(
     """Delete a resource deployment via arm deployment."""
 
     if not force_validation and not confirm_deletion("azure deployment", deployment_name):
-        return
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
 
     logger.info(f"Deleting resource deployment {deployment_name} ...")
     try:
