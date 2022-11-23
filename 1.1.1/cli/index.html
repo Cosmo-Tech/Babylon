@@ -2676,7 +2676,7 @@
 </thead>
 <tbody>
 <tr>
-<td><code>-f</code>, <code>--connector-file</code></td>
+<td><code>-i</code>, <code>--connector-file</code></td>
 <td>text</td>
 <td>Your custom Connector description file path</td>
 <td>None</td>
@@ -2686,12 +2686,6 @@
 <td>choice (<code>ADT</code> &#x7C; <code>STORAGE</code>)</td>
 <td>Connector type, allowed values : [ADT, STORAGE]</td>
 <td>_required</td>
-</tr>
-<tr>
-<td><code>-s</code>, <code>--select</code></td>
-<td>boolean</td>
-<td>Select this new Connector as one of babylon context Connectors ?</td>
-<td><code>True</code></td>
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output-file</code></td>
@@ -2906,10 +2900,9 @@
 </ul>
 <h5 id="babylon-api-dataset-create">babylon api dataset create</h5>
 <p>Register new dataset by sending description file to the API.</p>
-<p>Requires <code>connector</code> in deploy config file.</p>
 <p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api dataset create [OPTIONS] [DATASET_FILE]
+<pre><code>babylon api dataset create [OPTIONS] [DATASET_NAME]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -2923,15 +2916,21 @@
 </thead>
 <tbody>
 <tr>
+<td><code>-c</code>, <code>--connector-id</code></td>
+<td>text</td>
+<td>N/A</td>
+<td>None</td>
+</tr>
+<tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
 <td>boolean</td>
 <td>Should the path be relative to the working directory ?</td>
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>-n</code>, <code>--name</code></td>
+<td><code>-i</code>, <code>--dataset-file</code></td>
 <td>text</td>
-<td>New dataset name</td>
+<td>Your custom dataset description file</td>
 <td>None</td>
 </tr>
 <tr>
@@ -2945,12 +2944,6 @@
 <td>path</td>
 <td>File to which content should be outputted (json-formatted)</td>
 <td>None</td>
-</tr>
-<tr>
-<td><code>-s</code>, <code>--select</code></td>
-<td>boolean</td>
-<td>If true, the created Organization will be set as organization of current babylon context</td>
-<td><code>True</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -2990,7 +2983,7 @@
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>-d</code>, <code>--dataset-file</code></td>
+<td><code>-i</code>, <code>--dataset-file</code></td>
 <td>text</td>
 <td>In case the dataset id is retrieved from a file</td>
 <td>None</td>
@@ -3129,10 +3122,9 @@
 </table>
 <h5 id="babylon-api-dataset-update">babylon api dataset update</h5>
 <p>Send a JSON or YAML file to the API to update a dataset.</p>
-<p>Requires <code>dataset_id</code> in deploy config file.</p>
 <p>Requires <code>organization_id</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon api dataset update [OPTIONS] DATASET_FILE
+<pre><code>babylon api dataset update [OPTIONS] DATASET_ID
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -3146,10 +3138,28 @@
 </thead>
 <tbody>
 <tr>
+<td><code>-c</code>, <code>--connector-id</code></td>
+<td>text</td>
+<td>N/A</td>
+<td>None</td>
+</tr>
+<tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
 <td>boolean</td>
 <td>Should the path be relative to the working directory ?</td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-i</code>, <code>--dataset-file</code></td>
+<td>text</td>
+<td>Your custom dataset description file</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output-file</code></td>
+<td>path</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
