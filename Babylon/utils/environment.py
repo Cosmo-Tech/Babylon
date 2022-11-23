@@ -15,7 +15,7 @@ class Environment:
         self.working_dir = working_dir
 
 
-def initialize_environment(logger) -> Environment:
+def initialize_environment() -> Environment:
     config_directory = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
     conf = Configuration(config_directory=config_directory)
 

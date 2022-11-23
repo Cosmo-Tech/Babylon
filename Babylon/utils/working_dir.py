@@ -152,8 +152,7 @@ class WorkingDir:
                 return json.load(_f)
             elif _p.suffix == ".yaml":
                 return yaml.safe_load(_f)
-            else:
-                return list(_l for _l in _f)
+            return list(_l for _l in _f)
 
     def __str__(self):
         _ret = [
