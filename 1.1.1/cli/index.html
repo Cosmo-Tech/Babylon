@@ -692,6 +692,33 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-api-solution-handler" class="md-nav__link">
+    handler
+  </a>
+  
+    <nav class="md-nav" aria-label="handler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-handler-download" class="md-nav__link">
+    download
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-handler-upload" class="md-nav__link">
+    upload
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-api-solution-update" class="md-nav__link">
     update
   </a>
@@ -1788,6 +1815,33 @@
   <a href="#babylon-api-solution-get-current" class="md-nav__link">
     get-current
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-handler" class="md-nav__link">
+    handler
+  </a>
+  
+    <nav class="md-nav" aria-label="handler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-handler-download" class="md-nav__link">
+    download
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-api-solution-handler-upload" class="md-nav__link">
+    upload
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -3391,6 +3445,7 @@
 <li><em><a href="#babylon-api-solution-get">get</a></em>: Get the state of the solution in the API.</li>
 <li><em><a href="#babylon-api-solution-get-all">get-all</a></em>: Get all registered solutions.</li>
 <li><em><a href="#babylon-api-solution-get-current">get-current</a></em>: Get the state of the solution in the API.</li>
+<li><em><a href="#babylon-api-solution-handler">handler</a></em>: Group allowing solution handler management</li>
 <li><em><a href="#babylon-api-solution-update">update</a></em>: Send a JSON or YAML file to the API to update a solution.</li>
 </ul>
 <h5 id="babylon-api-solution-create">babylon api solution create</h5>
@@ -3609,6 +3664,117 @@
 <td>text</td>
 <td>Fields witch will be keep in response data, by default all</td>
 <td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-api-solution-handler">babylon api solution handler</h5>
+<p>Group allowing solution handler management</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution handler [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-api-solution-handler-download">download</a></em>: Download a solution handler zip.</li>
+<li><em><a href="#babylon-api-solution-handler-upload">upload</a></em>: Upload a solution handler zip.</li>
+</ul>
+<h6 id="babylon-api-solution-handler-download">babylon api solution handler download</h6>
+<p>Download a solution handler zip.</p>
+<p>Requires <code>solution_id</code> in deploy config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution handler download [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-r</code>, <code>--run-template</code></td>
+<td>text</td>
+<td>The run Template identifier</td>
+<td>_required</td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--handler-type</code></td>
+<td>choice (<code>parameters_handler</code> &#x7C; <code>validator</code> &#x7C; <code>prerun</code> &#x7C; <code>engine</code> &#x7C; <code>postrun</code> &#x7C; <code>scenariodata_transform</code>)</td>
+<td>Handler type</td>
+<td>_required</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h6 id="babylon-api-solution-handler-upload">babylon api solution handler upload</h6>
+<p>Upload a solution handler zip.</p>
+<p>Requires <code>solution_id</code> in deploy config file.</p>
+<p>Requires <code>organization_id</code> in deploy config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon api solution handler upload [OPTIONS] HANDLER_PATH
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--override</code></td>
+<td>boolean</td>
+<td>N/A</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-r</code>, <code>--run-template</code></td>
+<td>text</td>
+<td>The run Template identifier</td>
+<td>_required</td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--handler-type</code></td>
+<td>choice (<code>parameters_handler</code> &#x7C; <code>validator</code> &#x7C; <code>prerun</code> &#x7C; <code>engine</code> &#x7C; <code>postrun</code> &#x7C; <code>scenariodata_transform</code>)</td>
+<td>Handler type</td>
+<td>_required</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
