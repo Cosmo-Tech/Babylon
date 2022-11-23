@@ -47,7 +47,7 @@ def delete(
         )
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
-        return
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
 
     logger.debug(poller.result())
     logger.info(f"Deployment {deployment_name} deleted with status : {poller.status()}")
