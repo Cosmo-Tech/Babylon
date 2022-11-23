@@ -519,22 +519,36 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../Utils/typing/" class="md-nav__link">
+        typing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_4_3">
+        <label class="md-nav__link" for="__nav_4_4">
           functions
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="functions" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_3">
+        <label class="md-nav__title" for="__nav_4_4">
           <span class="md-nav__icon md-icon"></span>
           functions
         </label>
@@ -600,18 +614,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_4_4">
+        <label class="md-nav__link" for="__nav_4_5">
           plugins
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="plugins" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_4">
+        <label class="md-nav__title" for="__nav_4_5">
           <span class="md-nav__icon md-icon"></span>
           plugins
         </label>
@@ -691,6 +705,13 @@
           <li class="md-nav__item">
   <a href="#dev-tools-move-group" class="md-nav__link">
     move-group
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev-tools-parameter-value" class="md-nav__link">
+    parameter-value
   </a>
   
 </li>
@@ -831,6 +852,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dev-tools-parameter-value" class="md-nav__link">
+    parameter-value
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#dev-tools-rename-command" class="md-nav__link">
     rename-command
   </a>
@@ -931,6 +959,7 @@
 <li><em><a href="#dev-tools-initialize-plugin">initialize-plugin</a></em>: Will initialize PLUGIN_NAME in PLUGIN_FOLDER</li>
 <li><em><a href="#dev-tools-list-required-keys">list-required-keys</a></em>: Check code base to list platform and deployment keys</li>
 <li><em><a href="#dev-tools-move-group">move-group</a></em>: Command made to move groups</li>
+<li><em><a href="#dev-tools-parameter-value">parameter-value</a></em>: Will display the value of the given QueryType argument</li>
 <li><em><a href="#dev-tools-rename-command">rename-command</a></em>: Will rename OLD_COMMAND_NAME to NEW_COMMAND_NAME in GROUP_NAME</li>
 <li><em><a href="#dev-tools-tests">tests</a></em>: Sub group for test commands</li>
 </ul>
@@ -1043,6 +1072,30 @@ if GROUP_NAME is defined will limit the check to the given group</p>
 <p>Command made to move groups</p>
 <p><strong>Usage:</strong></p>
 <pre><code>dev-tools move-group [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="dev-tools-parameter-value">dev-tools parameter-value</h3>
+<p>Will display the value of the given QueryType argument</p>
+<p><strong>Usage:</strong></p>
+<pre><code>dev-tools parameter-value [OPTIONS] ARG
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
