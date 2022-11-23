@@ -24,7 +24,7 @@ formatter = logging.Formatter('{message}', style='{', datefmt='%Y/%m/%d - %H:%M:
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-env = initialize_environment(logger)
+env = initialize_environment()
 
 
 @click.group(name='babylon', context_settings=HELP_CONTEXT_OVERRIDE)
