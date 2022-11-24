@@ -996,6 +996,47 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-azure-arm" class="md-nav__link">
+    arm
+  </a>
+  
+    <nav class="md-nav" aria-label="arm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-azure-storage" class="md-nav__link">
     storage
   </a>
@@ -2127,6 +2168,47 @@
           <li class="md-nav__item">
   <a href="#babylon-azure-adx-run-script" class="md-nav__link">
     run-script
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm" class="md-nav__link">
+    arm
+  </a>
+  
+    <nav class="md-nav" aria-label="arm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-arm-run" class="md-nav__link">
+    run
   </a>
   
 </li>
@@ -4184,6 +4266,7 @@
 <li><em><a href="#babylon-azure-acr">acr</a></em>: Group interacting with Azure Container Registry</li>
 <li><em><a href="#babylon-azure-adt">adt</a></em>: Allow communication with Azure Digital Twin</li>
 <li><em><a href="#babylon-azure-adx">adx</a></em>: Group interacting with Azure Data Explorer</li>
+<li><em><a href="#babylon-azure-arm">arm</a></em>: Group interacting with Azure Resources Manager</li>
 <li><em><a href="#babylon-azure-storage">storage</a></em>: Group interacting with Azure Storage Blob</li>
 </ul>
 <h4 id="babylon-azure-acr">babylon azure acr</h4>
@@ -4914,6 +4997,149 @@
 <p>Requires <code>cluster_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx run-script [OPTIONS] SCRIPT_FILE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-azure-arm">babylon azure arm</h4>
+<p>Group interacting with Azure Resources Manager</p>
+<p>Requires <code>azure_subscription</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure arm [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-azure-arm-create">create</a></em>: Create a resource deployment config.</li>
+<li><em><a href="#babylon-azure-arm-delete">delete</a></em>: Delete a resource deployment via arm deployment.</li>
+<li><em><a href="#babylon-azure-arm-list">list</a></em>: List all the deployments for a resource group.</li>
+<li><em><a href="#babylon-azure-arm-run">run</a></em>: Apply a resource deployment config via arm deployment.</li>
+</ul>
+<h5 id="babylon-azure-arm-create">babylon azure arm create</h5>
+<p>Create a resource deployment config.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure arm create [OPTIONS] DEPLOYMENT_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-t</code>, <code>--template-uri</code></td>
+<td>text</td>
+<td>N/A</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-arm-delete">babylon azure arm delete</h5>
+<p>Delete a resource deployment via arm deployment.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure arm delete [OPTIONS] DEPLOYMENT_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-arm-list">babylon azure arm list</h5>
+<p>List all the deployments for a resource group.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure arm list [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-arm-run">babylon azure arm run</h5>
+<p>Apply a resource deployment config via arm deployment.</p>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure arm run [OPTIONS] DEPLOYMENT_CONFIG_FILE_PATH
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -6230,6 +6456,12 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>-i</code>, <code>--working-dir-zip</code></td>
+<td>text</td>
+<td>N/A</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
