@@ -17,6 +17,7 @@ from .utils.environment import initialize_environment
 from .utils.help import HELP_CONTEXT_OVERRIDE
 from .utils.help import print_cmd_help
 from .utils.logging import MultiLineHandler
+from .version import VERSION
 
 logger = logging.getLogger("Babylon")
 handler = MultiLineHandler(show_path=False, omit_repeated_times=False)
@@ -25,6 +26,13 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 env = initialize_environment()
+
+
+def print_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo(VERSION)
+    ctx.exit()
 
 
 @click.group(name='babylon', context_settings=HELP_CONTEXT_OVERRIDE)
@@ -45,6 +53,8 @@ env = initialize_environment()
               expose_value=False,
               is_eager=True,
               help="Show this message and exit.")
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
 @prepend_doc_with_ascii
 def main(ctx, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
