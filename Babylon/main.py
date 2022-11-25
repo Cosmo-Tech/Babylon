@@ -53,8 +53,7 @@ def print_version(ctx, param, value):
               expose_value=False,
               is_eager=True,
               help="Show this message and exit.")
-@click.option('--version', is_flag=True, callback=print_version,
-              expose_value=False, is_eager=True)
+@click.option('--version', is_flag=True, callback=print_version, expose_value=False, is_eager=True)
 @prepend_doc_with_ascii
 def main(ctx, tests_mode, dry_run):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
