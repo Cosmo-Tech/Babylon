@@ -4,14 +4,14 @@ from click import pass_context
 from click import Context
 import requests
 
-from ......utils.decorators import require_platform_key
+from ......utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_context
-@require_platform_key("powerbi_workspace_id")
+@require_deployment_key("powerbi_workspace_id")
 def get_all(ctx: Context, powerbi_workspace_id: str):
     """Get all info from powerbi reports"""
     access_token = ctx.obj.token
