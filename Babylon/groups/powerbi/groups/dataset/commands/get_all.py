@@ -1,11 +1,21 @@
 import logging
-
 from click import command
+from click import pass_context
+from click import Context
+import requests
+
+from ......utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-def get_all():
-    """Command created from a template"""
-    logger.warning("This command was initialized from a template and is empty")
+@pass_context
+@require_deployment_key("powerbi_workspace_id")
+def get_all(ctx: Context, powerbi_workspace_id: str):
+    """Get a list of all powerbi datasets in the current workspace"""
+    access_token = ctx.obj.token
+    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
+    urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{powerbi_workspace_id}/datasets"
+    response = requests.get(url=urls_reports, headers=header)
+    logger.info(response.json()["value"])
