@@ -6,7 +6,6 @@ from click import option
 from click import pass_context
 from click import Context
 
-
 logger = logging.getLogger("Babylon")
 
 
