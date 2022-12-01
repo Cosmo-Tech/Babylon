@@ -9,6 +9,7 @@ from click import option
 from click import Path
 
 from ......utils.decorators import require_deployment_key
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -23,11 +24,16 @@ logger = logging.getLogger("Babylon")
         type=Path(writable=True, dir_okay=False),
         required=True,
         help="output filename (.pbix)")
-def download(ctx: Context, powerbi_workspace_id: str, report_id: str, output_file: str):
+def download(ctx: Context, powerbi_workspace_id: str, report_id: str, output_file: str) -> CommandResponse:
     """Download a report"""
     access_token = ctx.obj.token
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{powerbi_workspace_id}/reports/{report_id}/Export"
-    response = requests.get(url=url_report, headers=header)
+    try:
+        response = requests.get(url=url_report, headers=header)
+    except Exception as e:
+        logger.error(f"Request failed {e}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     with open(output_file, "wb") as file:
         file.write(response.content)
+    return CommandResponse()
