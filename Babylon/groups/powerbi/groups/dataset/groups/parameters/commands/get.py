@@ -9,7 +9,6 @@ from click import Context
 from ........utils.decorators import require_deployment_key
 from ........utils.response import CommandResponse
 
-
 logger = logging.getLogger("Babylon")
 
 
