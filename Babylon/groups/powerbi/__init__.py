@@ -15,7 +15,7 @@ from ...utils.decorators import require_platform_key
 @pass_context
 @require_platform_key("powerbi_api_scope")
 def powerbi(ctx: Context, powerbi_api_scope: str):
-    """Group interacting with PowerBI"""
+    """Group handling communication with PowerBI API"""
     try:
         token = DefaultAzureCredential().get_token(powerbi_api_scope)
     except ClientAuthenticationError:
