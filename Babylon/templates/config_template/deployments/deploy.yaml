@@ -29,5 +29,5 @@ send_scenario_metadata_to_event_hub: true
 # The Event Hub Namespace must be named \'<organization_id\>-<workspace_id\>\' (in lower case).
 # This Namespace must also contain two Event Hubs named \'scenariometadata\' and \'scenariorunmetadata\'.
 use_dedicated_event_hub_namespace: true
-# Powerbi workspace id
+# PowerBI workspace id
 powerbi_workspace_id: ""
