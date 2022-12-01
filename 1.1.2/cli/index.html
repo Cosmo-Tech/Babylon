@@ -17,10 +17,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.472b142f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.975780f9.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.08040f6c.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
         
           
           
@@ -1245,6 +1245,79 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-powerbi" class="md-nav__link">
+    powerbi
+  </a>
+  
+    <nav class="md-nav" aria-label="powerbi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-dataset" class="md-nav__link">
+    dataset
+  </a>
+  
+    <nav class="md-nav" aria-label="dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-dataset-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-report" class="md-nav__link">
+    report
+  </a>
+  
+    <nav class="md-nav" aria-label="report">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-report-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-workspace" class="md-nav__link">
+    workspace
+  </a>
+  
+    <nav class="md-nav" aria-label="workspace">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-workspace-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-terraform-cloud" class="md-nav__link">
     terraform-cloud
   </a>
@@ -2427,6 +2500,79 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-powerbi" class="md-nav__link">
+    powerbi
+  </a>
+  
+    <nav class="md-nav" aria-label="powerbi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-dataset" class="md-nav__link">
+    dataset
+  </a>
+  
+    <nav class="md-nav" aria-label="dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-dataset-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-report" class="md-nav__link">
+    report
+  </a>
+  
+    <nav class="md-nav" aria-label="report">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-report-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-workspace" class="md-nav__link">
+    workspace
+  </a>
+  
+    <nav class="md-nav" aria-label="workspace">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-workspace-get-all" class="md-nav__link">
+    get-all
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-terraform-cloud" class="md-nav__link">
     terraform-cloud
   </a>
@@ -2678,6 +2824,7 @@
 <li><em><a href="#babylon-azure">azure</a></em>: Group allowing communication with Microsoft Azure Cloud</li>
 <li><em><a href="#babylon-config">config</a></em>: Group made to work on the config</li>
 <li><em><a href="#babylon-debug">debug</a></em>: Add debug capacities of runs</li>
+<li><em><a href="#babylon-powerbi">powerbi</a></em>: Group interacting with PowerBI</li>
 <li><em><a href="#babylon-terraform-cloud">terraform-cloud</a></em>: Group allowing interactions with the Terraform Cloud API</li>
 <li><em><a href="#babylon-working-dir">working-dir</a></em>: Command group handling working directory information</li>
 </ul>
@@ -5785,6 +5932,193 @@
 </tr>
 </tbody>
 </table>
+<h3 id="babylon-powerbi">babylon powerbi</h3>
+<p>Group interacting with PowerBI</p>
+<p>Requires <code>powerbi_api_scope</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-powerbi-dataset">dataset</a></em>: Group initialized from a template</li>
+<li><em><a href="#babylon-powerbi-report">report</a></em>: Group initialized from a template</li>
+<li><em><a href="#babylon-powerbi-workspace">workspace</a></em>: Group initialized from a template</li>
+</ul>
+<h4 id="babylon-powerbi-dataset">babylon powerbi dataset</h4>
+<p>Group initialized from a template</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi dataset [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-powerbi-dataset-get-all">get-all</a></em>: Command created from a template</li>
+</ul>
+<h5 id="babylon-powerbi-dataset-get-all">babylon powerbi dataset get-all</h5>
+<p>Command created from a template</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi dataset get-all [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-powerbi-report">babylon powerbi report</h4>
+<p>Group initialized from a template</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi report [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-powerbi-report-get-all">get-all</a></em>: Command created from a template</li>
+</ul>
+<h5 id="babylon-powerbi-report-get-all">babylon powerbi report get-all</h5>
+<p>Command created from a template</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi report get-all [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-powerbi-workspace">babylon powerbi workspace</h4>
+<p>Group initialized from a template</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi workspace [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-powerbi-workspace-get-all">get-all</a></em>: Command created from a template</li>
+</ul>
+<h5 id="babylon-powerbi-workspace-get-all">babylon powerbi workspace get-all</h5>
+<p>Command created from a template</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi workspace get-all [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h3 id="babylon-terraform-cloud">babylon terraform-cloud</h3>
 <p>Group allowing interactions with the Terraform Cloud API</p>
 <p>Requires key <code>organization</code> in <code>terraform_cloud.yaml</code> in the working_dir.</p>
@@ -6610,8 +6944,9 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.top"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d6c3db9e.min.js"></script>
+      <script src="../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
       
+    
     
   </body>
 </html>
