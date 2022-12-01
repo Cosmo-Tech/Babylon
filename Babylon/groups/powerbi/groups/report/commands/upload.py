@@ -8,14 +8,14 @@ from click import command
 from click import argument
 from click import Path
 
-from ......utils.decorators import require_platform_key
+from ......utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_context
-@require_platform_key("powerbi_workspace_id")
+@require_deployment_key("powerbi_workspace_id")
 @argument("pbxi_filename", type=Path(readable=True, dir_okay=False))
 def upload(ctx: Context, powerbi_workspace_id: str, pbxi_filename: str):
     """Publish the given pbxi file to the PowerBI workspace"""

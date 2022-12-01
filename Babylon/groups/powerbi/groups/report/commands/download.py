@@ -8,14 +8,14 @@ from click import argument
 from click import option
 from click import Path
 
-from ......utils.decorators import require_platform_key
+from ......utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_context
-@require_platform_key("powerbi_workspace_id")
+@require_deployment_key("powerbi_workspace_id")
 @argument("report_id")
 @option("-o",
         "--output_file",
