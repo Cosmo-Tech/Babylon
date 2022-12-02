@@ -1,8 +1,9 @@
 import logging
+import requests
+
 from click import command
 from click import pass_context
 from click import Context
-import requests
 
 from ......utils.response import CommandResponse
 
