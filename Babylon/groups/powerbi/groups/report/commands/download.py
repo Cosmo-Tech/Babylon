@@ -1,5 +1,6 @@
 import logging
 import requests
+from typing import Optional
 
 from click import command
 from click import pass_context
@@ -24,11 +25,17 @@ logger = logging.getLogger("Babylon")
         type=Path(writable=True, dir_okay=False),
         required=True,
         help="output filename (.pbix)")
-def download(ctx: Context, powerbi_workspace_id: str, report_id: str, output_file: str) -> CommandResponse:
+@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+def download(ctx: Context,
+             powerbi_workspace_id: str,
+             report_id: str,
+             output_file: str,
+             workspace_id: Optional[str] = None) -> CommandResponse:
     """Download a report"""
     access_token = ctx.obj.token
+    workspace_id = workspace_id or powerbi_workspace_id
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
-    url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{powerbi_workspace_id}/reports/{report_id}/Export"
+    url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
     try:
         response = requests.get(url=url_report, headers=header)
     except Exception as e:
