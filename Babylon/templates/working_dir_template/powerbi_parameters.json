@@ -1,0 +1,12 @@
+{
+    "updateDetails": [
+        {
+            "name": "ADX_Cluster",
+            "newValue": "https://${cluster_name}.${cluster_region}.kusto.windows.net"
+        },
+        {
+            "name": "ADX_Database",
+            "newValue": "${database_name}"
+        }
+    ]
+}
