@@ -55,7 +55,7 @@ def create(
     connector_version: str,
     output_file: Optional[str] = None,
     connector_file: Optional[str] = None,
-    use_working_dir_file: Optional[str] = False,
+    use_working_dir_file: bool = False,
 ) -> Optional[str]:
     """Register a new Connector by sending a JSON or YAML file to the API."""
 
