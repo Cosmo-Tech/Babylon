@@ -43,4 +43,4 @@ def download(ctx: Context,
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     with open(output_file, "wb") as file:
         file.write(response.content)
-    return CommandResponse()
+    return CommandResponse(data={"file": output_file})

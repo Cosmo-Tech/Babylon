@@ -1,0 +1,11 @@
+{
+    "updateDetails": [
+        {
+            "datasourceType": "Extension",
+            "connectionDetails": {
+                "path": "https://${cluster_name}.${cluster_region}.kusto.windows.net",
+                "kind": "AzureDataExplorer"
+            }
+        }
+    ]
+}
