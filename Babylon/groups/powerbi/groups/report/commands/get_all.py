@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @require_deployment_key("powerbi_workspace_id")
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
 def get_all(ctx: Context, powerbi_workspace_id: str, workspace_id: Optional[str] = None) -> CommandResponse:
-    """Get all info from powerbi reports"""
+    """Get info from every powerbi reports of a workspace"""
     access_token = ctx.obj.token
     workspace_id = workspace_id or powerbi_workspace_id
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
