@@ -19,7 +19,7 @@ You can grab a `dataset id` for testing using `babylon powerbi dataset get-all`.
 ```bash
 babylon powerbi dataset parameters update [dataset-id]
 ```
-Should updates parameters data from the given dataset.
+Should update parameters data from the given dataset.
 Data will use the cluster and database defined in deployment configuration.
 Can be checked in the powerBI web app.
 
