@@ -1,1 +1,22 @@
-babylon powerbi report upload
+## babylon powerbi report upload
+
+To test the new commands proceed as follow:
+- Add or edit the following lines in `config/platforms/platform.yaml`
+```yaml
+# Powerbi api scope
+powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
+```
+- Add or edit the following lines in `config/deployments/deploy.yaml`²
+```yaml
+# Powerbi workspace id
+powerbi_workspace_id: ""
+```
+
+You should first grab a `.pbix` file for testing.
+
+### Commands
+
+```bash
+babylon powerbi report upload [report-file.pbix]
+```
+Should upload the file to the powerbi workspace, check in the PowerBI web app.
