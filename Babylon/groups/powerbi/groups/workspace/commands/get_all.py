@@ -22,5 +22,6 @@ def get_all(ctx: Context) -> CommandResponse:
     except Exception as e:
         logger.error(f"Request failed {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    logger.info(response.json())
-    return CommandResponse(data=response.json())
+    workspace_data = response.json()
+    logger.info(workspace_data.get("value"))
+    return CommandResponse(data=workspace_data.get("value"))
