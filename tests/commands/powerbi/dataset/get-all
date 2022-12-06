@@ -21,7 +21,7 @@ Should list all datasets in the given workspace
 Can be checked in the powerBI web app.
 
 ```bash
-babylon azure acr list -w [workspace_id]
+babylon powerbi dataset get-all -w [workspace_id]
 ```
 Should list all datasets in the given workspace
 Can be checked in the powerBI web app.
