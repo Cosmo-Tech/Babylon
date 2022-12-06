@@ -23,7 +23,7 @@ Should display parameters data from the given dataset
 Can be checked in the powerBI web app.
 
 ```bash
-babylon powerbi dataset datasource get -w [workspace_id] [dataset-id]
+babylon powerbi dataset parameters get -w [workspace_id] [dataset-id]
 ```
 Should display parameters data from the given dataset in the given workspace
 Can be checked in the powerBI web app.
