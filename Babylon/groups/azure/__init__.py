@@ -1,7 +1,5 @@
 import logging
-import sys
 
-from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import DefaultAzureCredential
 from click import group
 from click import pass_context
@@ -18,17 +16,9 @@ logger = logging.getLogger("Babylon")
 @group()
 @pass_context
 @requires_external_program("az")
-@require_platform_key("api_scope", "api_scope")
-def azure(ctx: Context, api_scope: str):
+def azure(ctx: Context):
     """Group allowing communication with Microsoft Azure Cloud"""
-    creds = DefaultAzureCredential()
-    try:
-        # Authentication fails only when token can't be retrieved
-        creds.get_token(api_scope)
-        ctx.obj = creds
-    except ClientAuthenticationError:
-        logger.error("Please login to azure CLI with `az login`")
-        sys.exit(1)
+    ctx.obj = DefaultAzureCredential()
 
 
 for _command in list_commands:
