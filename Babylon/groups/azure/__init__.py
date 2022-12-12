@@ -5,7 +5,6 @@ from click import group
 from click import pass_context
 from click.core import Context
 
-from ...utils.decorators import require_platform_key
 from ...utils.decorators import requires_external_program
 from .commands import list_commands
 from .groups import list_groups
