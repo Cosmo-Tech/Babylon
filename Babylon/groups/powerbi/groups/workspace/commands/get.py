@@ -1,14 +1,15 @@
 import logging
-import requests
 from typing import Optional
 
+import requests
+from click import Context
 from click import command
 from click import option
 from click import pass_context
-from click import Context
 
-from ......utils.response import CommandResponse
 from ......utils.decorators import require_deployment_key
+from ......utils.logging import table_repr
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -19,11 +20,13 @@ logger = logging.getLogger("Babylon")
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
 @option("-i", "--id", "id")
 @option("-n", "--name", "name")
-def get(ctx: Context,
-        powerbi_workspace_id: str,
-        workspace_id: Optional[str] = None,
-        id: Optional[str] = None,
-        name: Optional[str] = None) -> CommandResponse:
+def get(
+    ctx: Context,
+    powerbi_workspace_id: str,
+    workspace_id: Optional[str] = None,
+    id: Optional[str] = None,
+    name: Optional[str] = None
+) -> CommandResponse:
     """Get a specific workspace information"""
     workspace_id = id or workspace_id or powerbi_workspace_id
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups'
@@ -35,6 +38,11 @@ def get(ctx: Context,
     except Exception as e:
         logger.error(f"Request failed {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    workspace_data = response.json()
+    workspace_data = response.json().get("value")
     logger.info(workspace_data.get("value"))
-    return CommandResponse(data=workspace_data.get("value"))
+    if not workspace_data:
+        logger.error(f"{workspace_id} was not found")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+
+    logger.info("\n".join(table_repr(workspace_data)))
+    return CommandResponse(data=workspace_data)
