@@ -1,0 +1,20 @@
+## babylon powerbi workspace create
+
+To test the new commands proceed as follow:
+- Add or edit the following lines in `config/platforms/platform.yaml`
+```yaml
+# Powerbi api scope
+powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
+```
+- Add or edit the following lines in `config/deployments/deploy.yaml`²
+```yaml
+# Powerbi workspace id
+powerbi_workspace_id: ""
+```
+
+### Commands
+
+```bash
+babylon powerbi workspace create MyWorkspaceName
+```
+Should create a new workspace in the powerbi app, you can check by directly using the app.

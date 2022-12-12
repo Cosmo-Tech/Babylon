@@ -1,0 +1,33 @@
+## babylon powerbi workspace users update
+
+To test the new commands proceed as follow:
+- Add or edit the following lines in `config/platforms/platform.yaml`
+```yaml
+# Powerbi api scope
+powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
+```
+- Add or edit the following lines in `config/deployments/deploy.yaml`²
+```yaml
+# Powerbi workspace id
+powerbi_workspace_id: ""
+```
+
+### Commands
+
+```bash
+babylon powerbi workspace users update -w [workspace-id] [user-identifier] [user-type] [user-permission]
+```
+Should update the given user in the powerbi workspace chaning its access rights, can be checked in the power bi app.
+
+#### User types :
+- App : Used for service principals users (uuid from the service principal from Azure)
+- Group : Group principal type (object ID from an AAD group)
+- User : Used for individual users types (user mail address)
+- None : No principal type. Use for whole organization level access
+
+#### Permission levels:
+- Admin : Admin rights
+- Member : Read, reshare and explore rights
+- Contributor : Read and explore rights
+- Viewer : Read-only rights
+- None : No access to content
