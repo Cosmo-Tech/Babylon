@@ -4,15 +4,14 @@ from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
-from ...utils.decorators import pass_environment
+from ...utils.environment import Environment
 
 
 @group()
-@pass_environment
 @pass_context
-def config(ctx: Context, env):
+def config(ctx: Context):
     """Group made to work on the config"""
-    ctx.obj = env.configuration
+    ctx.obj = Environment().configuration
 
 
 for _command in list_commands:

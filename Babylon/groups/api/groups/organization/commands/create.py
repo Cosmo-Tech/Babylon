@@ -16,7 +16,6 @@ from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
-from ......utils.decorators import pass_environment
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
 from ......utils.typing import QueryType
@@ -30,7 +29,6 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
 @describe_dry_run("Would call **organization_api.create_organization** to register a new Organization")
 @timing_decorator
 @pass_organization_api
-@pass_environment
 @option("-i", "--organization-file", "organization_file", help="Your custom Organization description file path")
 @option("-s",
         "--select",
@@ -50,7 +48,6 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         help="Should the Organization file path be relative to Babylon working directory ?")
 @argument("organization-name", type=QueryType())
 def create(
-    env: Environment,
     organization_api: OrganizationApi,
     select: bool,
     organization_name: str,
@@ -59,7 +56,7 @@ def create(
     use_working_dir_file: bool = False,
 ) -> Optional[str]:
     """Register new organization by sending a JSON or YAML file"""
-
+    env = Environment()
     converted_organization_content = get_api_file(
         api_file_path=organization_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Organization.yaml",
         use_working_dir_file=use_working_dir_file if organization_file else False,

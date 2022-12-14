@@ -13,7 +13,7 @@ from .commands import list_commands
 from .groups import list_groups
 from .utils.decorators import prepend_doc_with_ascii
 from .utils.dry_run import display_dry_run
-from .utils.environment import initialize_environment
+from .utils.environment import Environment
 from .utils.help import HELP_CONTEXT_OVERRIDE
 from .utils.help import print_cmd_help
 from .utils.logging import MultiLineHandler
@@ -25,7 +25,7 @@ formatter = logging.Formatter('{message}', style='{', datefmt='%Y/%m/%d - %H:%M:
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-env = initialize_environment()
+env = Environment()
 
 
 def print_version(ctx, param, value):

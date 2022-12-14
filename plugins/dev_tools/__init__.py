@@ -8,7 +8,7 @@ from click import option
 from click import pass_context
 
 from Babylon.utils import BABYLON_PATH
-from Babylon.utils.decorators import pass_environment
+from Babylon.utils.environment import Environment
 from .commands import list_commands
 from .groups import list_groups
 
@@ -16,11 +16,11 @@ logger = logging.getLogger("Babylon")
 
 
 @group()
-@pass_environment
 @pass_context
 @option("-p", "--plugin", "plugin", type=str, required=False)
-def dev_tools(ctx, environment, plugin: Optional[str] = None):
+def dev_tools(ctx, plugin: Optional[str] = None):
     """Plugin used to simplify some development operations"""
+    environment = Environment()
     base_path = BABYLON_PATH
     if plugin:
         config = environment.configuration

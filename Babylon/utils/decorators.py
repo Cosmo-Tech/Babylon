@@ -2,7 +2,9 @@ import logging
 import shutil
 import time
 from functools import wraps
-from typing import Any, Callable, Optional
+from typing import Any
+from typing import Callable
+from typing import Optional
 
 import click
 import cosmotech_api
@@ -228,5 +230,4 @@ require_platform_key = insert_argument(get_from_platform_config)
 
 pass_working_dir = click.make_pass_decorator(WorkingDir)
 pass_config = click.make_pass_decorator(Configuration)
-pass_environment = click.make_pass_decorator(Environment)
 pass_api_configuration = click.make_pass_decorator(cosmotech_api.Configuration)
