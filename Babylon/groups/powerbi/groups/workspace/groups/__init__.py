@@ -1,5 +1,5 @@
-from .users import users
+from .user import user
 
 list_groups = [
-    users,
+    user,
 ]
