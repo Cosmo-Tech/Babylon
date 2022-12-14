@@ -26,11 +26,9 @@ logger = logging.getLogger("Babylon")
 @argument("group_user_access_right",
           type=Choice(["Admin", "Contributor", "Member", "Viewer", "None"], case_sensitive=False))
 @require_deployment_key("powerbi_workspace_id", required=False)
-def update(
-    ctx: Context, powerbi_workspace_id: str, override_workspace_id: Optional[str], identifier: str,
-    principal_type: str, group_user_access_right: str
-):
-    """Updates an existing user in the power bi workspace using the following information:
+def add(ctx: Context, powerbi_workspace_id: str, override_workspace_id: Optional[str], identifier: str,
+        principal_type: str, group_user_access_right: str):
+    """Adds a new user to the power bi workspace using the following information:
 
 \b
 IDENTIFIER : an identifier for the user to add
@@ -60,10 +58,10 @@ GROUP USER ACCESS RIGHT :
         "principalType": principal_type,
     }
 
-    api_out = requests.put(url=url_users, headers=header, json=body)
-    if api_out.status_code == 200:
-        logger.info(
-            f"{identifier} was successfully updated as a '{group_user_access_right}' to workspace {workspace_id}")
-    else:
-        logger.error(f"Issues while updating {identifier} as a '{group_user_access_right}' to workspace {workspace_id}")
+    api_out = requests.post(url=url_users, headers=header, json=body)
+    if api_out.status_code != 200:
+        logger.error(f"Issues while adding {identifier} as a '{group_user_access_right}' to workspace {workspace_id}")
         logger.error(pretty_repr(json.loads(api_out.text)))
+        return
+
+    logger.info(f"{identifier} was successfully added as a '{group_user_access_right}' to workspace {workspace_id}")
