@@ -25,6 +25,7 @@ nav:
         - Contribute: 'contribute.md'
         - Environments: 'environment.md'
         - Plugins: 'plugins.md'
+        - Macro commands: 'macro.md'
     - References:
         - babylon: 'cli.md'
         - classes:
