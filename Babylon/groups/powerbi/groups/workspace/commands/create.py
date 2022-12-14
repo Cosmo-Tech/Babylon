@@ -23,7 +23,7 @@ logger = logging.getLogger("Babylon")
     "-o",
     "--output-file",
     "output_file",
-    help="The path to the file where Solutions should be outputted (json-formatted)",
+    help="The path to the file where Wosrkspace data should be outputted (json-formatted)",
     type=Path(dir_okay=False, path_type=pathlib.Path),
 )
 @argument("workspace_name", type=QueryType())
