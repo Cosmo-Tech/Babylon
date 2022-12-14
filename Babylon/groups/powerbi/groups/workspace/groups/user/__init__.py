@@ -8,13 +8,13 @@ from .groups import list_groups
 
 @group()
 @pass_context
-def users(ctx: Context):
+def user(ctx: Context):
     """Subgroup allowing control of the users and their access to the workspace"""
     pass
 
 
 for _command in list_commands:
-    users.add_command(_command)
+    user.add_command(_command)
 
 for _group in list_groups:
-    users.add_command(_group)
+    user.add_command(_group)
