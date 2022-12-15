@@ -10,6 +10,7 @@ from click import pass_context
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
+from ........utils.decorators import timing_decorator
 from ........utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
@@ -29,6 +30,7 @@ Should log a clean error message
 @argument("principal_id", type=str)
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 @describe_dry_run("Would go through each role of given principal and delete them.")
+@timing_decorator
 def delete(ctx: Context,
            resource_group_name: str,
            cluster_name: str,

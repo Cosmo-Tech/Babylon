@@ -1,15 +1,16 @@
 import logging
 import typing
 
-from azure.identity import DefaultAzureCredential
 import docker
+from azure.identity import DefaultAzureCredential
 from click import command
-from click import option
 from click import make_pass_decorator
+from click import option
 
+from ..registry_connect import registry_connect
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
-from ..registry_connect import registry_connect
+from ......utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
 
@@ -23,6 +24,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 @require_deployment_key("simulator_version", "simulator_version")
 @option("-r", "--registry", help="Container Registry name to pull from, example: myregistry.azurecr.io")
 @option("-i", "--image", help="Remote docker image to pull, example hello-world:latest")
+@timing_decorator
 def pull(credentials: DefaultAzureCredential,
          acr_src_registry_name: str,
          simulator_repository: str,

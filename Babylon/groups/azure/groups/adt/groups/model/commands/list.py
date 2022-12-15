@@ -10,6 +10,8 @@ from click import command
 from click import make_pass_decorator
 from click import option
 
+from ........utils.decorators import timing_decorator
+
 logger = logging.getLogger("Babylon")
 
 pass_dt_client = make_pass_decorator(DigitalTwinsClient)
@@ -24,6 +26,7 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
     type=click.Path(exists=False, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="Write full output of the adt api in target file",
 )
+@timing_decorator
 def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None):
     """List all models id from ADT"""
     if output_file and output_file.suffix != ".json":

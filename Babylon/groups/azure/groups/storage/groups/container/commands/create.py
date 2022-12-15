@@ -7,6 +7,8 @@ from click import argument
 from click import command
 from click import make_pass_decorator
 
+from ........utils.decorators import timing_decorator
+
 logger = logging.getLogger("Babylon")
 
 pass_blobclient = make_pass_decorator(BlobServiceClient)
@@ -14,6 +16,7 @@ pass_blobclient = make_pass_decorator(BlobServiceClient)
 
 @command()
 @pass_blobclient
+@timing_decorator
 @argument("container_name")
 def create(blobclient: BlobServiceClient, container_name: str) -> Optional[str]:
     """Creates a new storageblob container with the given name"""

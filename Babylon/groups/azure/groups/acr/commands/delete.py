@@ -1,17 +1,18 @@
 import logging
 import typing
 
-from azure.identity import DefaultAzureCredential
-from azure.core.exceptions import ResourceNotFoundError
 from azure.core.exceptions import HttpResponseError
+from azure.core.exceptions import ResourceNotFoundError
+from azure.identity import DefaultAzureCredential
 from click import Choice
 from click import command
-from click import option
 from click import make_pass_decorator
+from click import option
 
-from ......utils.decorators import require_platform_key
-from ......utils.decorators import require_deployment_key
 from ..registry_connect import registry_connect
+from ......utils.decorators import require_deployment_key
+from ......utils.decorators import require_platform_key
+from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
@@ -35,6 +36,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
+@timing_decorator
 def delete(credentials: DefaultAzureCredential,
            acr_src_registry_name: str,
            acr_dest_registry_name: str,

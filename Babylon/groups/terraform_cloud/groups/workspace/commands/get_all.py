@@ -9,6 +9,8 @@ from click import command
 from click import option
 from terrasnek.api import TFC
 
+from ......utils.decorators import timing_decorator
+
 logger = logging.getLogger("Babylon")
 
 pass_tfc = click.make_pass_decorator(TFC)
@@ -23,6 +25,7 @@ pass_tfc = click.make_pass_decorator(TFC)
     type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="File to which content should be outputted (json-formatted)",
 )
+@timing_decorator
 def get_all(api: TFC, output_file: Optional[pathlib.Path]):
     """Get all available workspaces in the organization"""
     ws = api.workspaces.list()

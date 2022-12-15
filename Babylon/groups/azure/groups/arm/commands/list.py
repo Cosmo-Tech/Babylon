@@ -6,6 +6,7 @@ from click import command
 from click import make_pass_decorator
 
 from ......utils.decorators import require_platform_key
+from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -16,6 +17,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @command()
 @pass_arm_client
 @require_platform_key("resource_group_name", "resource_group_name")
+@timing_decorator
 def list(
     arm_client: ResourceManagementClient,
     resource_group_name: str,

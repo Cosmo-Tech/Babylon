@@ -12,6 +12,7 @@ from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
 from ........utils import TEMPLATE_FOLDER_PATH
 from ........utils.decorators import describe_dry_run
+from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
@@ -30,6 +31,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False))
 @option("--hcl", "var_hcl", is_flag=True, help="Should the var be evaluated as a HCL string")
 @option("--sensitive", "var_sensitive", is_flag=True, help="Is the var sensitive")
+@timing_decorator
 def create(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: str,
            var_description: str, var_category: str, var_hcl: bool, var_sensitive: bool):
     """Set VAR_KEY variable to VAR_VALUE in a workspace

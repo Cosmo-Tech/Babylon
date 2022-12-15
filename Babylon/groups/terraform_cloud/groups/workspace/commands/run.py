@@ -12,6 +12,7 @@ from terrasnek.exceptions import TFCHTTPNotFound
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.decorators import describe_dry_run
+from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
@@ -35,6 +36,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 Then create a run for it sending a creation payload""")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
+@timing_decorator
 def run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], run_message: str, allow_empty_apply: bool,
         output_file: Optional[pathlib.Path]):
     """Start the run of a workspace
