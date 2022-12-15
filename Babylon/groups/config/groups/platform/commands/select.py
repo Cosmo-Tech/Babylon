@@ -6,20 +6,19 @@ import click
 from click import argument
 from click import command
 
-from ......utils.configuration import Configuration
-from ......utils.decorators import pass_config
+from ......utils.environment import Environment
 from ......utils.interactive import select_from_list
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_config
 @argument("platform", required=False, type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True))
-def select(config: Configuration, platform: Optional[pathlib.Path] = None):
+def select(platform: Optional[pathlib.Path] = None):
     """Change current selected platform
 
     if not argument is passed will run in interactive mode"""
+    config = Environment().configuration
 
     if platform:
         if config.set_platform(platform):

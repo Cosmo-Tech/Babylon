@@ -3,16 +3,15 @@ import logging
 import yaml
 from click import command
 
-from ....utils.configuration import Configuration
-from ....utils.decorators import pass_config
+from ....utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_config
-def validate(config: Configuration):
+def validate():
     """Validate current config"""
+    config = Environment().configuration
     config.check_api()
     for k, v in yaml.safe_load(open(config.get_deploy_path())).items():
         if v == "":

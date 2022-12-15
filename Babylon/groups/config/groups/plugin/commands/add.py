@@ -5,17 +5,16 @@ import click
 from click import argument
 from click import command
 
-from ......utils.configuration import Configuration
-from ......utils.decorators import pass_config
+from ......utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_config
 @argument("plugin_path", type=click.Path(file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
-def add(config: Configuration, plugin_path: pathlib.Path):
+def add(plugin_path: pathlib.Path):
     """Add a plugin found at PLUGIN_PATH"""
+    config = Environment().configuration
     plugin_name = config.add_plugin(plugin_path)
     if plugin_name:
         logger.info(f"Plugin {plugin_name} was added to config.")

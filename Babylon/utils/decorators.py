@@ -9,9 +9,7 @@ from typing import Optional
 import click
 import cosmotech_api
 
-from .configuration import Configuration
 from .environment import Environment
-from .working_dir import WorkingDir
 from ..version import get_version
 
 logger = logging.getLogger("Babylon")
@@ -228,6 +226,4 @@ def get_from_platform_config(yaml_key: str) -> Optional[Any]:
 require_deployment_key = insert_argument(get_from_deploy_config)
 require_platform_key = insert_argument(get_from_platform_config)
 
-pass_working_dir = click.make_pass_decorator(WorkingDir)
-pass_config = click.make_pass_decorator(Configuration)
 pass_api_configuration = click.make_pass_decorator(cosmotech_api.Configuration)
