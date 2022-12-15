@@ -2,7 +2,6 @@ import logging
 
 from click import command
 
-from ....utils.configuration import Configuration
 from ....utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
