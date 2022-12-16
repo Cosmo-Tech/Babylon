@@ -39,7 +39,7 @@ def get(
         logger.error(f"Request failed {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     workspace_data = response.json().get("value")
-    logger.info(workspace_data.get("value"))
+    logger.info(workspace_data)
     if not workspace_data:
         logger.error(f"{workspace_id} was not found")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
