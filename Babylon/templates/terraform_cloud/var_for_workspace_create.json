@@ -8,14 +8,6 @@
       "category":null,
       "hcl":false,
       "sensitive":false
-    },
-    "relationships": {
-      "workspace": {
-        "data": {
-          "id":null,
-          "type":"workspaces"
-        }
-      }
     }
   }
 }

@@ -46,4 +46,4 @@ def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key:
 
     logger.info(f"Deleting {var_key} from workspace {workspace_id}")
 
-    r = api.vars.destroy(variable_id=var_id)
+    r = api.workspace_vars.destroy(workspace_id=workspace_id, variable_id=var_id)

@@ -32,8 +32,10 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("--hcl", "var_hcl", is_flag=True, help="Should the var be evaluated as a HCL string")
 @option("--sensitive", "var_sensitive", is_flag=True, help="Is the var sensitive")
 @timing_decorator
-def create(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: str,
-           var_description: str, var_category: str, var_hcl: bool, var_sensitive: bool):
+def create(
+    api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: str,
+    var_description: str, var_category: str, var_hcl: bool, var_sensitive: bool
+):
     """Set VAR_KEY variable to VAR_VALUE in a workspace
 
 More information on the arguments can be found at :
@@ -52,10 +54,9 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     var_payload['data']['attributes']['category'] = var_category
     var_payload['data']['attributes']['hcl'] = var_hcl
     var_payload['data']['attributes']['sensitive'] = var_sensitive
-    var_payload['data']['relationships']['workspace']['data']['id'] = workspace_id
 
     try:
-        r = api.vars.create(payload=var_payload)
+        r = api.workspace_vars.create(payload=var_payload)
     except TFCHTTPUnprocessableEntity as _error:
         logger.error(f"An issue appeared while processing variable {var_key} for workspace {workspace_id}:")
         logger.error(pprint.pformat(_error.args))
