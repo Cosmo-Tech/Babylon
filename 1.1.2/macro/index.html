@@ -13,7 +13,7 @@
     
     
       
-        <title>Installation - babylon</title>
+        <title>Macro commands - babylon</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#installation" class="md-skip">
+        <a href="#macro-commands" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Installation
+              Macro commands
             
           </span>
         </div>
@@ -172,15 +172,13 @@
         
   
   
-    
-  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="./" class="md-tabs__link md-tabs__link--active">
+      <a href="../installation/" class="md-tabs__link">
         Getting started
       </a>
     </li>
@@ -190,13 +188,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../contribute/" class="md-tabs__link">
+      <a href="../contribute/" class="md-tabs__link md-tabs__link--active">
         Concepts
       </a>
     </li>
@@ -277,14 +277,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
       
       
       
@@ -305,66 +303,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Installation
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
         Installation
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#running-babylon-with-docker" class="md-nav__link">
-    Running Babylon with Docker
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dev-mode-installation" class="md-nav__link">
-    Dev mode installation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#autocompletion" class="md-nav__link">
-    Autocompletion
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -396,12 +339,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
       
       
       
@@ -464,11 +409,92 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../macro/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Macro commands
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Macro commands
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#concept" class="md-nav__link">
+    Concept
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helpers" class="md-nav__link">
+    Helpers
+  </a>
+  
+    <nav class="md-nav" aria-label="Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.command_helper.run_command" class="md-nav__link">
+    run_command()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#return-type" class="md-nav__link">
+    Return type
+  </a>
+  
+    <nav class="md-nav" aria-label="Return type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.response.CommandResponse" class="md-nav__link">
+    CommandResponse
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -752,23 +778,49 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#running-babylon-with-docker" class="md-nav__link">
-    Running Babylon with Docker
+  <a href="#concept" class="md-nav__link">
+    Concept
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#dev-mode-installation" class="md-nav__link">
-    Dev mode installation
+  <a href="#helpers" class="md-nav__link">
+    Helpers
   </a>
+  
+    <nav class="md-nav" aria-label="Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.command_helper.run_command" class="md-nav__link">
+    run_command()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#autocompletion" class="md-nav__link">
-    Autocompletion
+  <a href="#return-type" class="md-nav__link">
+    Return type
   </a>
+  
+    <nav class="md-nav" aria-label="Return type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.response.CommandResponse" class="md-nav__link">
+    CommandResponse
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -787,39 +839,92 @@
                   
 
 
-<h1 id="installation">Installation</h1>
-<pre><code class="language-bash">git clone git@github.com:Cosmo-Tech/Babylon.git
-cd Babylon
-pip install .
-</code></pre>
-<h2 id="running-babylon-with-docker">Running Babylon with Docker</h2>
-<pre><code class="language-bash">docker pull ghcr.io/cosmo-tech/babylon:latest
-mkdir config workingdir
-docker run -it --rm --mount type=bind,source=&quot;$(pwd)&quot;/config,target=/opt/babylon/config --mount type=bind,source=&quot;$(pwd)&quot;/workingdir,target=/etc/babylon/workingdir babylon
-</code></pre>
-<p>Then you can access and edit the following host directories:
-- Configuration is in host <code>config/</code> directory, (<code>/opt/babylon/config/</code> in the container)
-- Configuration is in host <code>workingdir/</code> directory, (<code>/etc/babylon/workingdir/</code> in the container)</p>
-<h2 id="dev-mode-installation">Dev mode installation</h2>
-<p>If you want to develop on top of Babylon you can set it up in developer mode (<code>-e</code>)</p>
-<p>And if you don't want to multiply versions of Babylon, you can also add it in a virtual environment (requires <code>venv</code>) </p>
-<pre><code class="language-bash">python -m venv .venv       # Create your venv named .venv
-source .venv/bin/activate  # Activate your venv
-pip install -e .           # Install Babylon in developer mode
-</code></pre>
-<p>The next line is optional, run it if you want to have the dev-tools plugin to facilitate command &amp; groups manipulation</p>
-<pre><code class="language-bash">babylon config plugin add plugins/dev_tools # Add the plugin dev_tools situated in the folder plugins/dev_tools
-</code></pre>
-<h2 id="autocompletion">Autocompletion</h2>
-<p>After install you can run the following commands to get autocompletion (in bash, and stays effective after restarts as you modify your <code>.bashrc</code>)</p>
-<pre><code class="language-bash">echo 'eval &quot;$(_BABYLON_COMPLETE=bash_source babylon)&quot;' &gt;&gt; ~/.bashrc
-source ~/.bashrc
-</code></pre>
-<p>You can also only run the following command to have autocompletion until you close your current terminal :</p>
-<pre><code class="language-bash">eval &quot;$(_BABYLON_COMPLETE=bash_source babylon)&quot;
-</code></pre>
-<p>For other type of command line you can check <a href="https://click.palletsprojects.com/en/8.1.x/shell-completion/">this link</a>
-for official click documentation</p>
+<h1 id="macro-commands">Macro commands</h1>
+<h2 id="concept">Concept</h2>
+<p>The idea of a macro command is to allow the developer to do a script of commands inside of Babylon instead of using bash or other technologies.</p>
+<p>To make this possible 2 elements are required : 
+- A way to call a command inside another command
+- A way for commands to exchange information between their runs</p>
+<h2 id="helpers">Helpers</h2>
+<p>The following function exists to help you run other commands inside a command.</p>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.command_helper.run_command" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">run_command</span>
+
+
+</h3>
+<div class="highlight"><pre><span></span><code><span class="n">run_command</span><span class="p">(</span><span class="n">command_line</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents first">
+  
+      <p>Helper used to run a command</p>
+
+  <p>Parameters:</p>
+  <ul>
+      <li class="field-body">
+        <b>command_line</b>
+            (<code>list[str]</code>)
+        – <p>command line of the command to run</p>
+      </li>
+  </ul>
+
+  <p>Returns:</p>
+  <ul>
+      <li class="field-body">
+            <code><span title="typing.Any">Any</span></code>
+        – <p>result of the command</p>
+      </li>
+  </ul>
+
+  </div>
+
+</div><h2 id="return-type">Return type</h2>
+<p>The following class was defined as a response type for commands allowing returns to keep information</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="Babylon.utils.response.CommandResponse" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">CommandResponse</span>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+
+  
+      <p>Contains command, status and data output from a command return value</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
 
 
 
@@ -845,7 +950,7 @@ for official click documentation</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home" rel="prev">
+        <a href="../plugins/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Plugins" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -854,20 +959,20 @@ for official click documentation</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Home
+              Plugins
             </div>
           </div>
         </a>
       
       
         
-        <a href="../dependencies/" class="md-footer__link md-footer__link--next" aria-label="Next: Dependencies" rel="next">
+        <a href="../cli/" class="md-footer__link md-footer__link--next" aria-label="Next: babylon" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Dependencies
+              babylon
             </div>
           </div>
           <div class="md-footer__button md-icon">
