@@ -1,17 +1,12 @@
 from click import group
-from click import pass_context
-from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
-from ...utils.environment import Environment
 
 
 @group()
-@pass_context
-def config(ctx: Context):
+def config():
     """Group made to work on the config"""
-    ctx.obj = Environment().configuration
 
 
 for _command in list_commands:
