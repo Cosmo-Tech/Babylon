@@ -9,7 +9,7 @@ from .groups import list_groups
 @group()
 @pass_context
 def parameters(ctx: Context):
-    """Group initialized from a template"""
+    """Command group handling PowerBI dataset parameters"""
     pass
 
 

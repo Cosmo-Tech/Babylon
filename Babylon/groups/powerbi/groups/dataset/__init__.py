@@ -9,7 +9,7 @@ from .groups import list_groups
 @group()
 @pass_context
 def dataset(ctx: Context):
-    """Group interacting with PowerBI Datasets"""
+    """Command group handling PowerBI datasets"""
     pass
 
 
