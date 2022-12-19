@@ -28,7 +28,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @argument("var_key")
 @argument("var_value")
 @argument("var_description")
-@argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False))
+@argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False), default='terraform')
 @option("--hcl", "var_hcl", is_flag=True, help="Should the var be evaluated as a HCL string")
 @option("--sensitive", "var_sensitive", is_flag=True, help="Is the var sensitive")
 @timing_decorator
