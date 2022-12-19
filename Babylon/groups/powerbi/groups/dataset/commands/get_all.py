@@ -28,5 +28,6 @@ def get_all(ctx: Context, powerbi_workspace_id: str, workspace_id: Optional[str]
     except Exception as e:
         logger.error(f"Request failed {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    logger.info(response.json().get("value"))
-    return CommandResponse(data=response.json())
+    output_data = response.json().get("value")
+    logger.info("\n".join([str(data) for data in output_data]))
+    return CommandResponse(data=output_data)
