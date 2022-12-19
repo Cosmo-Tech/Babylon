@@ -7,9 +7,10 @@ from click import command
 from click import make_pass_decorator
 from click import option
 
-from ..registry_connect import registry_connect
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
+from ......utils.typing import QueryType
+from ..registry_connect import registry_connect
 from ......utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
@@ -18,16 +19,16 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 
 @command()
 @pass_credentials
-@require_platform_key("acr_dest_registry_name", "acr_dest_registry_name")
+@require_platform_key("acr_registry_name", "acr_registry_name")
 @require_deployment_key("simulator_repository", "simulator_repository")
 @require_deployment_key("simulator_version", "simulator_version")
-@option("-i", "--image", help="Local docker image to push")
-@option("-r", "--registry", help="Container Registry name to push to, example: myregistry.azurecr.io")
+@option("-i", "--image", type=QueryType(), help="Local docker image to push")
+@option("-r", "--registry", type=QueryType(), help="Container Registry name to push to, example: myregistry.azurecr.io")
 @timing_decorator
-def push(credentials: DefaultAzureCredential, acr_dest_registry_name: str, simulator_repository: str,
-         simulator_version: str, image: typing.Optional[str], registry: typing.Optional[str]):
+def push(credentials: DefaultAzureCredential, acr_registry_name: str, simulator_repository: str, simulator_version: str,
+         image: typing.Optional[str], registry: typing.Optional[str]):
     """Push a docker image to the ACR registry given in platform configuration"""
-    registry: str = registry or acr_dest_registry_name
+    registry: str = registry or acr_registry_name
     image: str = image or f"{simulator_repository}:{simulator_version}"
     _, client = registry_connect(registry, credentials)
     try:
