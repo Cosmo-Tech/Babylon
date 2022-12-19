@@ -12,6 +12,7 @@ from ........utils.decorators import describe_dry_run
 from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
 from ........utils.interactive import confirm_deletion
+from ........utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -23,10 +24,10 @@ pass_tfc = click.make_pass_decorator(TFC)
 @describe_dry_run("""Would look up id for VAR_KEY in WORKSPACE_ID
 
 Then would send delete query to the API for it""")
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @option("-f", "--force", "force_validation", is_flag=True, help="Should validation be skipped ?")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
-@argument("var_key")
+@argument("var_key", type=QueryType())
 @timing_decorator
 def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, force_validation: bool):
     """Delete VAR_KEY variable in a workspace"""
