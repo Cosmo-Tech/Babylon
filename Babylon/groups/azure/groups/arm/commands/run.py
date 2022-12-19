@@ -9,6 +9,7 @@ from click import make_pass_decorator
 from ruamel.yaml import YAML
 
 from ......utils.decorators import require_platform_key
+from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -20,6 +21,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @pass_arm_client
 @argument("deployment-config-file-path")
 @require_platform_key("resource_group_name", "resource_group_name")
+@timing_decorator
 def run(
     arm_client: ResourceManagementClient,
     deployment_config_file_path: str,

@@ -13,7 +13,7 @@ from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.decorators import describe_dry_run
-from ......utils.decorators import pass_environment
+from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.environment import Environment
 
@@ -24,7 +24,6 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@pass_environment
 @describe_dry_run("Would send a workspace creation payload to terraform")
 @option(
     "-o",
@@ -43,10 +42,11 @@ pass_tfc = click.make_pass_decorator(TFC)
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_identifier", "vcs_identifier")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_branch", "vcs_branch")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_oauth_token_id", "vcs_oauth_token_id")
-def create(env: Environment, api: TFC, workspace_name: str, working_directory: str, vcs_identifier: str,
-           vcs_branch: str, vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], select: bool):
+@timing_decorator
+def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier: str, vcs_branch: str,
+           vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], select: bool):
     """Use given parameters to create a workspace in the organization"""
-
+    env = Environment()
     workspace_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/workspace_payload_with_github.json"
     with open(workspace_payload_template) as _f:
         workspace_payload = json.load(_f)

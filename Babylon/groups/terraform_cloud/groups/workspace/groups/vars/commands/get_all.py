@@ -10,6 +10,7 @@ from click import option
 from terrasnek.api import TFC
 
 from ..list_all_vars import list_all_vars
+from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
@@ -28,6 +29,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 )
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
+@timing_decorator
 def get_all(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path]):
     """Get all available variables in the workspace"""
     workspace_id = workspace_id or workspace_id_wd

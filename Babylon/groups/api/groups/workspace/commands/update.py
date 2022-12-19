@@ -17,7 +17,6 @@ from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
-from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
@@ -31,7 +30,6 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
 @describe_dry_run("Would call **workspace_api.create_workspace**")
 @timing_decorator
 @pass_workspace_api
-@pass_environment
 @option(
     "-i",
     "--workspace-file",
@@ -57,7 +55,6 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     help="Should the path be relative to the working directory ?",
 )
 def update(
-    env: Environment,
     workspace_api: WorkspaceApi,
     solution_id: str,
     workspace_file: str,
@@ -68,7 +65,7 @@ def update(
     use_working_dir_file: Optional[bool] = False,
 ):
     """Send a JSON or YAML file to the API to update a workspace."""
-
+    env = Environment()
     converted_workspace_content = get_api_file(
         api_file_path=workspace_file,
         use_working_dir_file=use_working_dir_file,

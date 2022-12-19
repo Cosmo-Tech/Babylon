@@ -11,6 +11,7 @@ from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
 
+from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
@@ -35,6 +36,7 @@ pass_tfc = click.make_pass_decorator(TFC)
         help="Add this option to open the webapp page to the states of the workspace.\n"
         "(Allow to see content of sensitives outputs)")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
+@timing_decorator
 def outputs(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path],
             states_webpage_open: bool):
     """List outputs of a workspace.

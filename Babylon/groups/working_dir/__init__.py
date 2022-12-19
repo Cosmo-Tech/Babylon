@@ -1,17 +1,12 @@
 from click import group
-from click import pass_context
 
 from .commands import list_commands
 from .groups import list_groups
-from ...utils.decorators import pass_environment
 
 
 @group()
-@pass_environment
-@pass_context
-def working_dir(ctx, environment):
+def working_dir():
     """Command group handling working directory information"""
-    ctx.obj = environment.working_dir
 
 
 for _command in list_commands:

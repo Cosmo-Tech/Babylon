@@ -13,6 +13,7 @@ from click import pass_context
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
+from ........utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
 """Command Tests
@@ -44,6 +45,7 @@ Should log a clean error message
         required=True,
         help="Principal type of the given ID")
 @describe_dry_run("Would add ROLE to PRINCIPAL_ID")
+@timing_decorator
 def set(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str, role: str,
         principal_type: str):
     """Set permission assignments applied to the given principal id"""

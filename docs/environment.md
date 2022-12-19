@@ -5,6 +5,8 @@ An environment is a combination of 2 parts :
 - A working directory
 - A configuration
 
+Simple access to the full environment can be made by using the singleton `Babylon.utils.environment.Environment`
+
 ## Working Directory
 
 A working directory is the ensemble of files you will need to have a running simulator on the cloud.

@@ -10,6 +10,7 @@ from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
 
+from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
@@ -28,6 +29,7 @@ pass_tfc = click.make_pass_decorator(TFC)
     type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="File to which content should be outputted (json-formatted)",
 )
+@timing_decorator
 def get(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path]):
     """Get a workspace in the organization"""
     workspace_id = workspace_id or workspace_id_wd

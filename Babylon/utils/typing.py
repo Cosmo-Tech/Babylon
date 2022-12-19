@@ -10,10 +10,10 @@ from click import ParamType
 from click import Parameter
 from click.shell_completion import CompletionItem
 
-from .environment import initialize_environment
+from .environment import Environment
 
 logger = logging.getLogger("Babylon")
-env = initialize_environment()
+env = Environment()
 
 WORKING_DIR_STRING = "workdir"
 DEPLOY_STRING = "deploy"

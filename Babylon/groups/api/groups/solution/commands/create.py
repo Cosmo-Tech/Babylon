@@ -17,7 +17,6 @@ from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
-from ......utils.decorators import pass_environment
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
@@ -32,7 +31,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @describe_dry_run("Would call **solution_api.create_solution** to register a new solution")
 @timing_decorator
 @pass_solution_api
-@pass_environment
 @argument("solution-name", type=QueryType())
 @require_deployment_key("simulator_repository", "simulator_repository")
 @require_deployment_key("simulator_version", "simulator_version")
@@ -73,7 +71,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     default=True,
 )
 def create(
-    env: Environment,
     solution_api: SolutionApi,
     select: bool,
     organization_id: str,
@@ -88,6 +85,7 @@ def create(
 ) -> Optional[str]:
     """Send a JSON or YAML file to the API to create an solution."""
 
+    env = Environment()
     converted_solution_content = get_api_file(
         api_file_path=solution_file
         if solution_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",

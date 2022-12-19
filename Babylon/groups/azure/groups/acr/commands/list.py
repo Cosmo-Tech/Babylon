@@ -1,16 +1,17 @@
 import logging
 import typing
 
-from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import ServiceRequestError
+from azure.identity import DefaultAzureCredential
 from click import Choice
 from click import command
-from click import option
 from click import make_pass_decorator
+from click import option
 
-from ......utils.decorators import require_platform_key
-from ......utils.response import CommandResponse
 from ..registry_connect import registry_connect
+from ......utils.decorators import require_platform_key
+from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -23,6 +24,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 @require_platform_key("acr_dest_registry_name", "acr_dest_registry_name")
 @option("-r", "--registry", help="Container Registry name to scan, example: myregistry.azurecr.io")
 @option("-d", "--direction", type=Choice(["src", "dest"]), help="Container Registry choice to delete from")
+@timing_decorator
 def list(credentials: DefaultAzureCredential, acr_src_registry_name: str, acr_dest_registry_name: str,
          registry: typing.Optional[str], direction: typing.Optional[str]) -> CommandResponse:
     """List all docker images in the specified registry"""

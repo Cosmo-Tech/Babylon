@@ -9,6 +9,7 @@ from click import make_pass_decorator
 from click import option
 
 from ......utils.decorators import require_platform_key
+from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.response import CommandResponse
 
@@ -28,6 +29,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
     is_flag=True,
     help="Don't ask for validation before delete",
 )
+@timing_decorator
 def delete(
     arm_client: ResourceManagementClient,
     deployment_name: str,

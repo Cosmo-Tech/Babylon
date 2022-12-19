@@ -10,6 +10,7 @@ from ruamel.yaml import YAML
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.decorators import describe_dry_run
+from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -22,6 +23,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @argument("deployment_name")
 @option("-t", "--template-uri", "template_uri")
 @describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
+@timing_decorator
 def create(
     deployment_name: str,
     template_uri: Optional[str] = "",

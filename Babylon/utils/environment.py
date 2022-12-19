@@ -1,5 +1,6 @@
 import os
 import pathlib
+from typing import Optional
 
 import click
 
@@ -7,20 +8,38 @@ from .configuration import Configuration
 from .working_dir import WorkingDir
 
 
-class Environment:
+class SingletonMeta(type):
+    """
+    The Singleton class can be implemented in different ways in Python. Some
+    possible methods include: base class, decorator, metaclass. We will use the
+    metaclass because it is best suited for this purpose.
+    """
 
-    def __init__(self, configuration: Configuration, working_dir: WorkingDir):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        """
+        Possible changes to the value of the `__init__` argument do not affect
+        the returned instance.
+        """
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class Environment(metaclass=SingletonMeta):
+    configuration: Optional[Configuration] = None
+    working_dir: Optional[WorkingDir] = None
+
+    def __init__(self):
         self.dry_run = False
-        self.configuration = configuration
-        self.working_dir = working_dir
 
+        self.set_configuration(pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon"))))
+        self.set_working_dir(pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', ".")))
 
-def initialize_environment() -> Environment:
-    config_directory = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
-    conf = Configuration(config_directory=config_directory)
+    def set_configuration(self, configuration_path: pathlib.Path):
+        self.configuration = Configuration(config_directory=configuration_path)
 
-    working_directory_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
-    work_dir = WorkingDir(working_dir_path=working_directory_path)
-
-    env = Environment(configuration=conf, working_dir=work_dir)
-    return env
+    def set_working_dir(self, working_dir_path: pathlib.Path):
+        self.working_dir = WorkingDir(working_dir_path=working_dir_path)

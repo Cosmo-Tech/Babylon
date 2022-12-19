@@ -14,6 +14,7 @@ from click import make_pass_decorator
 from click import option
 
 from ........utils.decorators import describe_dry_run
+from ........utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
 
@@ -60,6 +61,7 @@ def upload_one_model(dt_client: DigitalTwinsClient, model: dict, override: bool)
           type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
 @option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
 @describe_dry_run("Would go through the given file and upload the models to ADT")
+@timing_decorator
 def upload(
     dt_client: DigitalTwinsClient,
     model_file_folder: pathlib.Path,

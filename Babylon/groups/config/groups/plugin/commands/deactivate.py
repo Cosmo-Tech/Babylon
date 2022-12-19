@@ -3,17 +3,16 @@ import logging
 from click import argument
 from click import command
 
-from ......utils.configuration import Configuration
-from ......utils.decorators import pass_config
+from ......utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_config
 @argument("plugin", type=str)
-def deactivate(config: Configuration, plugin: str):
+def deactivate(plugin: str):
     """Deactivate PLUGIN"""
+    config = Environment().configuration
     plugins = list(config.get_available_plugin())
     if plugin in plugins:
         config.deactivate_plugin(plugin)

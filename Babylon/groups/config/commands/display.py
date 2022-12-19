@@ -2,14 +2,12 @@ import logging
 
 from click import command
 
-from ....utils.configuration import Configuration
-from ....utils.decorators import pass_config
+from ....utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_config
-def display(config: Configuration):
+def display():
     """Display current config"""
-    logger.info(str(config))
+    logger.info(str(Environment().configuration))

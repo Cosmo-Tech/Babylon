@@ -7,6 +7,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 
+from ........utils.decorators import timing_decorator
 from ........utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
@@ -17,6 +18,7 @@ pass_blobclient = make_pass_decorator(BlobServiceClient)
 @command()
 @pass_blobclient
 @argument("container_name")
+@timing_decorator
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 def delete(blobclient: BlobServiceClient, container_name: str, force_validation: bool = False):
     """Deletes a storageblob container with the given name"""

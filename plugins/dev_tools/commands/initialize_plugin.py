@@ -7,7 +7,6 @@ import click
 
 from Babylon.utils import TEMPLATE_FOLDER_PATH
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import pass_environment
 from Babylon.utils.string import is_valid_command_name
 
 logger = logging.getLogger("Babylon")
@@ -18,10 +17,9 @@ logger = logging.getLogger("Babylon")
                 type=click.Path(file_okay=False, dir_okay=True, readable=True, writable=True, path_type=pathlib.Path))
 @click.argument("plugin_name")
 @click.option("-a", "--add", "add", is_flag=True, help="Add the created plugin to the config.")
-@pass_environment
-def initialize_plugin(environment: Environment, plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):
+def initialize_plugin(plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):
     """Will initialize PLUGIN_NAME in PLUGIN_FOLDER"""
-
+    environment = Environment()
     plugin_name = plugin_name.replace("-", "_")
     if not is_valid_command_name(plugin_name):
         logger.error(f"`{plugin_name}` contains illegal characters")
