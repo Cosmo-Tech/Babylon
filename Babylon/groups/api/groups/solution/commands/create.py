@@ -103,7 +103,6 @@ def create(
     converted_solution_content["key"] = solution_name.replace(" ", "")
     converted_solution_content["version"] = simulator_version
     converted_solution_content["repository"] = simulator_repository
-    converted_solution_content["url"] = simulator_url
 
     try:
         retrieved_solution = solution_api.create_solution(organization_id=organization_id,
