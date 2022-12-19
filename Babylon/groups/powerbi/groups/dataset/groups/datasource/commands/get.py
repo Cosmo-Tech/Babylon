@@ -33,6 +33,6 @@ def get(ctx: Context,
     except Exception as e:
         logger.error(f"Request failed {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    report_data = response.json()
-    logger.info(report_data.get("value"))
-    return CommandResponse(data=report_data.get("value"))
+    output_data = response.json().get("value")
+    logger.info("\n".join([str(data) for data in output_data]))
+    return CommandResponse(data=output_data)
