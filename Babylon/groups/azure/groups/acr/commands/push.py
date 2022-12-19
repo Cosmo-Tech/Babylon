@@ -9,9 +9,9 @@ from click import option
 
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
+from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
 from ..registry_connect import registry_connect
-from ......utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
 pass_credentials = make_pass_decorator(DefaultAzureCredential)
