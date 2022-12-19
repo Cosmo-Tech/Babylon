@@ -35,7 +35,6 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
             "privacyLevel": "Organizational",
         }
     }
-    print(credential_details['credentialDetails']["credentials"])
     try:
         response = requests.patch(url=update_url, headers=header, json=credential_details)
     except Exception as e:
@@ -44,7 +43,6 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
     if response.status_code != 200:
         logger.error("Request failed: %s", response.reason)
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    report_data = response.json()
-    print(report_data)
-    logger.info(report_data.get("value"))
-    return CommandResponse(data=report_data.get("value"))
+    report_data = response.json().get("value")
+    logger.info(report_data)
+    return CommandResponse(data=report_data)
