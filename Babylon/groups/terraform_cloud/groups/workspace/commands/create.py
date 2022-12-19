@@ -68,6 +68,7 @@ def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier
     if select:
         ws_id = ws['data']['id']
         env.working_dir.set_yaml_key("terraform_workspace.yaml", "workspace_id", ws_id)
+        env.working_dir.set_yaml_key("terraform_workspace.yaml", "workspace_name", workspace_name)
 
     if output_file:
         with open(output_file, "w") as _file:
