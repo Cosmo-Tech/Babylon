@@ -17,12 +17,10 @@ def list_all_vars(api: TFC, workspace_id: str, lookup_var_sets: bool = True) -> 
     """
 
     try:
-        ws = api.workspaces.show(workspace_id=workspace_id)
+        ws_vars = api.workspace_vars.list(workspace_id=workspace_id)
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
         return []
-    workspace_name = ws['data']['attributes']['name']
-    ws_vars = api.vars.list(workspace_name=workspace_name)
     r = []
 
     existing_keys = []

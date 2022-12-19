@@ -14,6 +14,7 @@ from ........utils import TEMPLATE_FOLDER_PATH
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
+from ........utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -22,13 +23,13 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @describe_dry_run("Sending a variable creation payload to terraform")
-@argument("var_key")
-@argument("var_value")
-@argument("var_description")
-@argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False))
+@argument("var_key", type=QueryType())
+@argument("var_value", type=QueryType())
+@argument("var_description", type=QueryType())
+@argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False), default='terraform')
 @option("--hcl", "var_hcl", is_flag=True, help="Should the var be evaluated as a HCL string")
 @option("--sensitive", "var_sensitive", is_flag=True, help="Is the var sensitive")
 @timing_decorator
@@ -52,10 +53,9 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     var_payload['data']['attributes']['category'] = var_category
     var_payload['data']['attributes']['hcl'] = var_hcl
     var_payload['data']['attributes']['sensitive'] = var_sensitive
-    var_payload['data']['relationships']['workspace']['data']['id'] = workspace_id
 
     try:
-        r = api.vars.create(payload=var_payload)
+        r = api.workspace_vars.create(payload=var_payload)
     except TFCHTTPUnprocessableEntity as _error:
         logger.error(f"An issue appeared while processing variable {var_key} for workspace {workspace_id}:")
         logger.error(pprint.pformat(_error.args))

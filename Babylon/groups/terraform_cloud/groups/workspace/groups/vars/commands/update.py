@@ -15,6 +15,7 @@ from ........utils import TEMPLATE_FOLDER_PATH
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
+from ........utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -23,12 +24,12 @@ pass_tfc = click.make_pass_decorator(TFC)
 
 @command()
 @pass_tfc
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @describe_dry_run("Would send a variable update payload to terraform")
-@argument("var_key")
-@option("--value", "var_value", help="A new value to apply to the variable")
-@option("--description", "var_description", help="A new description to apply to the variable")
+@argument("var_key", type=QueryType())
+@option("--value", "var_value", help="A new value to apply to the variable", type=QueryType())
+@option("--description", "var_description", help="A new description to apply to the variable", type=QueryType())
 @timing_decorator
 def update(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: Optional[str],
            var_description: Optional[str]):
@@ -59,7 +60,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     var_payload['data']['attributes']['description'] = var_description or original_var['attributes']['description']
 
     try:
-        r = api.vars.update(variable_id=original_var['id'], payload=var_payload)
+        r = api.workspace_vars.update(variable_id=original_var['id'], payload=var_payload)
     except TFCHTTPUnprocessableEntity as _error:
         logger.error(f"An issue appeared while processing variable {var_key} for workspace {workspace_id}:")
         logger.error(pprint.pformat(_error.args))
