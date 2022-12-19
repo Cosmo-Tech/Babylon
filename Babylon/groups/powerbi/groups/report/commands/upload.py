@@ -2,6 +2,7 @@ import logging
 import requests
 import os
 from typing import Optional
+import pathlib
 
 from click import pass_context
 from click import Context
@@ -19,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_context
 @require_deployment_key("powerbi_workspace_id")
-@argument("pbxi_filename", type=Path(readable=True, dir_okay=False))
+@argument("pbxi_filename", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
 def upload(ctx: Context,
            powerbi_workspace_id: str,

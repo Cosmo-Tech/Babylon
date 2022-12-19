@@ -2,6 +2,7 @@ import logging
 import requests
 from typing import Optional
 from string import Template
+import pathlib
 
 from click import command
 from click import Context
@@ -22,7 +23,7 @@ logger = logging.getLogger("Babylon")
 @pass_context
 @require_deployment_key("powerbi_workspace_id")
 @argument("dataset_id")
-@option("-f", "--file", "update_file", type=Path(readable=True, dir_okay=False))
+@option("-f", "--file", "update_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
 def update(ctx: Context,
            powerbi_workspace_id: str,

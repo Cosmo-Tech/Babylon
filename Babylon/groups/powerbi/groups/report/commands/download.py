@@ -1,6 +1,7 @@
 import logging
 import requests
 from typing import Optional
+import pathlib
 
 from click import command
 from click import pass_context
@@ -22,7 +23,7 @@ logger = logging.getLogger("Babylon")
 @option("-o",
         "--output_file",
         "output_file",
-        type=Path(writable=True, dir_okay=False),
+        type=Path(writable=True, dir_okay=False, path_type=pathlib.Path),
         required=True,
         help="output filename (.pbix)")
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
@@ -43,4 +44,5 @@ def download(ctx: Context,
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     with open(output_file, "wb") as file:
         file.write(response.content)
+        logger.info(f"Report was saved as {output_file}")
     return CommandResponse(data={"file": output_file})
