@@ -28,7 +28,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
         "--use-working-dir-file",
         "use_working_dir_file",
         is_flag=True,
-        help="Should the Organization file path be relative to Babylon working directory ?")
+        help="Should the ARM file path be relative to Babylon working directory ?")
 @timing_decorator
 def run(
     arm_client: ResourceManagementClient,
