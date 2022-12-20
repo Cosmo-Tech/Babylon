@@ -9,14 +9,15 @@ from click import Context
 from click import option
 
 from ........utils.response import CommandResponse
+from ........utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_context
-@argument("datasource_id")
-@option("-g", "--gateway-id", "gateway_id", help="PowerBI datasource gateway ID")
+@argument("datasource_id", type=QueryType())
+@option("-g", "--gateway-id", "gateway_id", help="PowerBI datasource gateway ID", type=QueryType(), required=True)
 def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[str] = None) -> CommandResponse:
     """Get datasource details of a given dataset"""
     access_token = ctx.obj.token
