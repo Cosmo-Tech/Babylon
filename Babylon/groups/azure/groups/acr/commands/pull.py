@@ -27,15 +27,15 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 @option("-i", "--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
 @timing_decorator
 def pull(credentials: DefaultAzureCredential,
-         cms_acr_registry_name: str,
-         cms_simulator_repository: str,
+         csm_acr_registry_name: str,
+         csm_simulator_repository: str,
          simulator_repository: str,
          simulator_version: str,
          registry: typing.Optional[str] = None,
          image: typing.Optional[str] = None):
     """Pulls a docker image from the ACR registry given in platform configuration"""
-    image = image or f"{cms_simulator_repository}:{simulator_version}"
-    registry = registry or cms_acr_registry_name
+    image = image or f"{csm_simulator_repository}:{simulator_version}"
+    registry = registry or csm_acr_registry_name
     _, client = registry_connect(registry, credentials)
     repo = f"{registry}/{image}"
     logger.info(f"Pulling remote image {image} from registry {registry}")
