@@ -28,7 +28,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @timing_decorator
 @pass_solution_api
 @argument("solution-id", required=False, type=QueryType())
-@require_deployment_key("simulator_url", "simulator_url")
 @require_deployment_key("simulator_version", "simulator_version")
 @require_deployment_key("simulator_repository", "simulator_repository")
 @require_deployment_key("organization_id", "organization_id")
@@ -78,7 +77,6 @@ def update(
 
     converted_solution_content["version"] = simulator_version
     converted_solution_content["repository"] = simulator_repository
-    converted_solution_content["url"] = simulator_url
 
     try:
         retrieved_solution = solution_api.update_solution(solution_id=solution_id,
@@ -98,7 +96,6 @@ def update(
         return
 
     logger.info(f"Updated solution: {solution_id}  with \n"
-                f" - url: {retrieved_solution['url']}\n"
                 f" - repository: {retrieved_solution['repository']}\n"
                 f" - version: {retrieved_solution['version']}")
     logger.debug(pformat(retrieved_solution))

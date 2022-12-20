@@ -8,10 +8,11 @@ from click import command
 from click import make_pass_decorator
 from click import option
 
-from ..registry_connect import registry_connect
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.typing import QueryType
+from ..registry_connect import registry_connect
 
 logger = logging.getLogger("Babylon")
 
@@ -20,15 +21,19 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 
 @command()
 @pass_credentials
-@require_platform_key("acr_src_registry_name", "acr_src_registry_name")
-@require_platform_key("acr_dest_registry_name", "acr_dest_registry_name")
-@option("-r", "--registry", help="Container Registry name to scan, example: myregistry.azurecr.io")
-@option("-d", "--direction", type=Choice(["src", "dest"]), help="Container Registry choice to delete from")
+@require_platform_key("csm_acr_registry_name", "csm_acr_registry_name")
+@require_platform_key("acr_registry_name", "acr_registry_name")
+@option("-r", "--registry", type=QueryType(), help="Container Registry name to scan, example: myregistry.azurecr.io")
+@option("-d",
+        "--direction",
+        type=QueryType(),
+        type=Choice(["src", "dest"]),
+        help="Container Registry choice to delete from")
 @timing_decorator
-def list(credentials: DefaultAzureCredential, acr_src_registry_name: str, acr_dest_registry_name: str,
+def list(credentials: DefaultAzureCredential, csm_acr_registry_name: str, acr_registry_name: str,
          registry: typing.Optional[str], direction: typing.Optional[str]) -> CommandResponse:
     """List all docker images in the specified registry"""
-    registry = registry or {"src": acr_src_registry_name, "dest": acr_dest_registry_name}.get(direction)
+    registry = registry or {"src": csm_acr_registry_name, "dest": acr_registry_name}.get(direction)
     if not registry:
         logger.error("Please specify a registry to list from with --direction or --registry")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)

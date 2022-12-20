@@ -34,7 +34,6 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @argument("solution-name", type=QueryType())
 @require_deployment_key("simulator_repository", "simulator_repository")
 @require_deployment_key("simulator_version", "simulator_version")
-@require_deployment_key("simulator_url", "simulator_url")
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-e",
@@ -75,7 +74,6 @@ def create(
     select: bool,
     organization_id: str,
     solution_name: str,
-    simulator_url: str,
     simulator_version: str,
     simulator_repository: str,
     output_file: Optional[str] = None,
