@@ -44,9 +44,10 @@ def update(ctx: Context,
         details = Template(template).substitute(data)
     try:
         response = requests.post(url=update_url, data=details, headers=header)
-    except Exception:
-        response = None
-    if not response or "error" in response.text:
+    except Exception as e:
+        logger.error(f"Request failed: {e}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    if response.status_code != 200:
         logger.error(f"Request failed: {response.text}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     logger.info(f"Successfully updated dataset datasource {response.text}")

@@ -18,15 +18,13 @@ logger = logging.getLogger("Babylon")
 @pass_context
 @require_deployment_key("powerbi_workspace_id")
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
-@option("-i", "--id", "id")
 @option("-n", "--name", "name")
 def get(ctx: Context,
         powerbi_workspace_id: str,
         workspace_id: Optional[str] = None,
-        id: Optional[str] = None,
         name: Optional[str] = None) -> CommandResponse:
     """Get a specific workspace information"""
-    workspace_id = id or workspace_id or powerbi_workspace_id
+    workspace_id = workspace_id or powerbi_workspace_id
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups'
     access_token = ctx.obj.token
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
@@ -35,6 +33,9 @@ def get(ctx: Context,
         response = requests.get(url=url_groups, headers=header, params=params)
     except Exception as e:
         logger.error(f"Request failed {e}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    if response.status_code != 200:
+        logger.error(f"Request failed: {response.text}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     workspace_data = response.json().get("value")
     logger.info(workspace_data)

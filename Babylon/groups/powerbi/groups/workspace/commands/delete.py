@@ -6,11 +6,11 @@ from click import Context
 from click import command
 from click import option
 from click import pass_context
-from rich.pretty import pretty_repr
 
 from ......utils.decorators import require_deployment_key
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -34,9 +34,9 @@ def delete(ctx: Context, powerbi_workspace_id: str, override_workspace_id: Optio
         return
     url_delete = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}'
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
-    api_out = requests.delete(url=url_delete, headers=header)
-    if api_out.status_code == 200:
-        logger.info(f"{workspace_id} was successfully removed from power bi app")
-    else:
-        logger.error(f"Issues while removing {workspace_id}")
-        logger.error(pretty_repr(api_out.__dict__))
+    response = requests.delete(url=url_delete, headers=header)
+    if response.status_code != 200:
+        logger.error(f"Request failed:{response.text}")
+        return
+    logger.info(f"{workspace_id} was successfully removed from power bi app")
+    return CommandResponse()

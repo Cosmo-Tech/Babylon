@@ -40,7 +40,10 @@ def download(ctx: Context,
     try:
         response = requests.get(url=url_report, headers=header)
     except Exception as e:
-        logger.error(f"Request failed {e}")
+        logger.error(f"Request failed: {e}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    if response.status_code != 200:
+        logger.error(f"Request failed: {response.text}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     with open(output_file, "wb") as file:
         file.write(response.content)

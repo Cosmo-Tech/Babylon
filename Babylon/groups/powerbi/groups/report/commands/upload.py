@@ -37,7 +37,10 @@ def upload(ctx: Context,
         try:
             response = session.post(url=route, headers=header, files={"file": _f})
         except Exception as e:
-            logger.error(f"Request failed {e}")
+            logger.error(f"Request failed: {e}")
+            return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        if response.status_code != 200:
+            logger.error(f"Request failed: {response.text}")
             return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     logger.info(response.json())
-    return CommandResponse(response.json())
+    return CommandResponse(data=response.json())

@@ -44,6 +44,9 @@ def get(ctx: Context,
     except Exception as e:
         logger.error(f"Request failed {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    if response.status_code != 200:
+        logger.error(f"Request failed: {response.text}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     output_data = response.json().get("value")
     if not output_file:
         logger.info(output_data)
