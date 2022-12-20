@@ -1,7 +1,6 @@
 import logging
 import requests
 from typing import Optional
-import json
 
 from click import command
 from click import argument
@@ -26,10 +25,7 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
     credential_details = {
         "credentialDetails": {
             "credentialType": "OAuth2",
-            "credentials": json.dumps({"credentialData": [{
-                "name": "accessToken",
-                "value": f"{access_token}"
-            }]}),
+            "useCallerAADIdentity": True,
             "encryptedConnection": "Encrypted",
             "encryptionAlgorithm": "None",
             "privacyLevel": "Organizational",
@@ -41,8 +37,7 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
         logger.error(f"Request failed: {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     if response.status_code != 200:
-        logger.error("Request failed: %s", response.reason)
+        logger.error("Request failed: %s", response.text)
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    report_data = response.json().get("value")
-    logger.info(report_data)
-    return CommandResponse(data=report_data)
+    logger.info(f"Successfully updated credentials of datasource {datasource_id}")
+    return CommandResponse()
