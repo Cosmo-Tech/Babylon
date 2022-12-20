@@ -33,7 +33,9 @@ def pull(credentials: DefaultAzureCredential,
          simulator_version: str,
          registry: typing.Optional[str] = None,
          image: typing.Optional[str] = None):
-    """Pulls a docker image from the ACR registry given in platform configuration"""
+    """Pulls a docker image from the ACR registry given in platform configuration.
+       Also tag the docker image into the new reference (docker tag).
+    """
     image = image or f"{csm_simulator_repository}:{simulator_version}"
     registry = registry or csm_acr_registry_name
     _, client = registry_connect(registry, credentials)
