@@ -26,7 +26,6 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 @option("-r", "--registry", type=QueryType(), help="Container Registry name to scan, example: myregistry.azurecr.io")
 @option("-d",
         "--direction",
-        type=QueryType(),
         type=Choice(["src", "dest"]),
         help="Container Registry choice to delete from")
 @timing_decorator
