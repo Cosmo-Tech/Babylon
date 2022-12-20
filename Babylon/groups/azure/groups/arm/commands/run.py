@@ -6,8 +6,11 @@ from azure.mgmt.resource.resources.models import DeploymentMode
 from click import argument
 from click import command
 from click import make_pass_decorator
-from ruamel.yaml import YAML
+from click import option
 
+from ......utils.api import convert_keys_case
+from ......utils.api import get_api_file
+from ......utils.api import underscore_to_camel
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
@@ -21,20 +24,27 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @pass_arm_client
 @argument("deployment-config-file-path")
 @require_platform_key("resource_group_name", "resource_group_name")
+@option("-e",
+        "--use-working-dir-file",
+        "use_working_dir_file",
+        is_flag=True,
+        help="Should the Organization file path be relative to Babylon working directory ?")
 @timing_decorator
 def run(
     arm_client: ResourceManagementClient,
     deployment_config_file_path: str,
     resource_group_name: str,
+    use_working_dir_file: bool = False,
 ) -> CommandResponse:
     """Apply a resource deployment config via arm deployment."""
 
-    _commented_yaml_loader = YAML()
-
-    with open(deployment_config_file_path, mode='r') as _file:
-        arm_deployment = _commented_yaml_loader.load(_file)
-
-    parameters = {k: {'value': v} for k, v in arm_deployment.get("parameters").items()}
+    arm_deployment = get_api_file(
+        api_file_path=deployment_config_file_path,
+        use_working_dir_file=use_working_dir_file,
+        logger=logger,
+    )
+    formatted_parameters = convert_keys_case(arm_deployment.get("parameters"), underscore_to_camel)
+    parameters = {k: {'value': v} for k, v in dict(formatted_parameters).items()}
     template_uri = arm_deployment.get("template_uri")
     deployment_name = arm_deployment.get("deployment_name")
     deployment_properties = dict({
