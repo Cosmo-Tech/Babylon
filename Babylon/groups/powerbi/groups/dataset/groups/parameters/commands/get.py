@@ -1,15 +1,18 @@
 import logging
 import requests
 from typing import Optional
+import json
 
 from click import command
 from click import argument
 from click import pass_context
 from click import Context
 from click import option
+from click import Path
 
 from ........utils.decorators import require_deployment_key
 from ........utils.response import CommandResponse
+from ........utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -17,12 +20,20 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_context
 @require_deployment_key("powerbi_workspace_id")
-@argument("dataset_id")
+@argument("dataset_id", type=QueryType())
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option(
+    "-o",
+    "--output-file",
+    "output_file",
+    help="File to which content should be outputted (json-formatted)",
+    type=Path(),
+)
 def get(ctx: Context,
         powerbi_workspace_id: str,
         dataset_id: str,
-        workspace_id: Optional[str] = None) -> CommandResponse:
+        workspace_id: Optional[str] = None,
+        output_file: Optional[str] = None) -> CommandResponse:
     """Get parameters of a given dataset"""
     access_token = ctx.obj.token
     workspace_id = workspace_id or powerbi_workspace_id
@@ -33,6 +44,11 @@ def get(ctx: Context,
     except Exception as e:
         logger.error(f"Request failed {e}")
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    report_data = response.json()
-    logger.info(report_data.get("value"))
-    return CommandResponse(data=report_data.get("value"))
+    output_data = response.json().get("value")
+    if not output_file:
+        logger.info(output_data)
+        return CommandResponse(data=output_data)
+    with open(output_file, "w") as _file:
+        json.dump(output_data, _file, ensure_ascii=False)
+    logger.info("Full content was dumped on %s.", output_file)
+    return CommandResponse(data=output_data)
