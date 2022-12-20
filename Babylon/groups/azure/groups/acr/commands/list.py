@@ -24,10 +24,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 @require_platform_key("csm_acr_registry_name", "csm_acr_registry_name")
 @require_platform_key("acr_registry_name", "acr_registry_name")
 @option("-r", "--registry", type=QueryType(), help="Container Registry name to scan, example: myregistry.azurecr.io")
-@option("-d",
-        "--direction",
-        type=Choice(["src", "dest"]),
-        help="Container Registry choice to delete from")
+@option("-d", "--direction", type=Choice(["src", "dest"]), help="Container Registry choice to delete from")
 @timing_decorator
 def list(credentials: DefaultAzureCredential, csm_acr_registry_name: str, acr_registry_name: str,
          registry: typing.Optional[str], direction: typing.Optional[str]) -> CommandResponse:
