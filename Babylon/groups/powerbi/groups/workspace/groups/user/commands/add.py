@@ -56,7 +56,7 @@ GROUP USER ACCESS RIGHT :
         "principalType": principal_type,
     }
     response = oauth_request(url=url_users, access_token=access_token, json_data=body, type="POST")
-    if not response:
+    if response is None:
         return CommandResponse.fail()
     logger.info(f"{identifier} was successfully added as a '{group_user_access_right}' to workspace {workspace_id}")
     return CommandResponse()

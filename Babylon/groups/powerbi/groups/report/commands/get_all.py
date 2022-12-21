@@ -29,7 +29,7 @@ def get_all(ctx: Context, powerbi_workspace_id: str, workspace_id: Optional[str]
         return CommandResponse.fail()
     urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports"
     response = oauth_request(url=urls_reports, access_token=access_token)
-    if not response:
+    if response is None:
         return CommandResponse.fail()
     output_data = response.get("value")
     logger.info("\n".join([str(data) for data in output_data]))
