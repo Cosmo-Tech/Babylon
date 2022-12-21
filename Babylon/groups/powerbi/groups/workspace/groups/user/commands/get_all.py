@@ -27,7 +27,7 @@ logger = logging.getLogger("Babylon")
     help="The path to the file where Solutions should be outputted (json-formatted)",
     type=Path(dir_okay=False),
 )
-@option("-w", "--workspace", "override_workspace_id", required=False, type=QueryType())
+@option("-w", "--workspace", "override_workspace_id", type=QueryType())
 @require_deployment_key("powerbi_workspace_id", required=False)
 def get_all(ctx: Context,
             powerbi_workspace_id: str,
@@ -41,7 +41,11 @@ def get_all(ctx: Context,
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users'
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
-    api_out = requests.get(url=url_users, headers=header)
+    try:
+        api_out = requests.get(url=url_users, headers=header)
+    except Exception as e:
+        logger.error(f"Request failed: {e}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     users = api_out.json()['value']
     if not output_file:
         logger.info("\n".join(table_repr(users)))

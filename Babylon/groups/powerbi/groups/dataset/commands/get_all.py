@@ -1,8 +1,9 @@
 import logging
 from typing import Optional
-import requests
 import json
 
+import requests
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -17,7 +18,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_context
-@require_deployment_key("powerbi_workspace_id")
+@require_deployment_key("powerbi_workspace_id", required=False)
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
 @option(
     "-o",
@@ -32,7 +33,10 @@ def get_all(ctx: Context,
             output_file: Optional[str] = None) -> CommandResponse:
     """Get a list of all powerbi datasets in the current workspace"""
     workspace_id = workspace_id or powerbi_workspace_id
-    access_token = ctx.obj.token
+    if not workspace_id:
+        logger.error("A workspace id is required either in your config or with parameter '-w'")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    access_token = ctx.find_object(AccessToken).token
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
     try:
