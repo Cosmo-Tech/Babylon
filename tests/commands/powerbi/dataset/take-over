@@ -1,1 +1,23 @@
-babylon powerbi dataset take-over
+## babylon powerbi dataset take-over
+
+To test the new commands proceed as follow:
+- Add or edit the following lines in `config/platforms/platform.yaml`
+```yaml
+# Powerbi api scope
+powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
+```
+- Add or edit the following lines in `config/deployments/deploy.yaml`²
+```yaml
+# Powerbi workspace id
+powerbi_workspace_id: ""
+```
+
+You can grab a `dataset id` for testing using `babylon powerbi dataset get-all`.
+
+### Commands
+
+```bash
+babylon powerbi dataset take-over [dataset-id]
+```
+Should take ownership of the given dataset
+Can be checked in the powerBI web app.
