@@ -9,8 +9,8 @@ k8s_context: ""
 k8s_namespace: ""
 # azure_subscription : The azure subscription used to contain the platform
 azure_subscription: ""
-# cluster_name: The name of the Azure Data Explorer Cluster
-cluster_name: ""
+# adx_cluster_name: The name of the Azure Data Explorer Cluster
+adx_cluster_name: ""
 # resource_group_name: The name fo the resource group used on the platform
 resource_group_name: ""
 # ACR registry name source_registry.azurecr.io

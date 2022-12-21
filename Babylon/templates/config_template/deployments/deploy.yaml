@@ -8,8 +8,8 @@ workspace_id: ""
 workspace_key: ""
 # api_url : the url of the API (used for validation)
 api_url: ""
-# database_name : the name of the database used in Azure Data Explorer
-database_name: ""
+# adx_database_name : the name of the database used in Azure Data Explorer
+adx_database_name: ""
 # digital_twin_url : URL of the digital twin to use
 digital_twin_url: ""
 # csm_simulator_repository: the solution simulator source repository

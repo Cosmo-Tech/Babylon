@@ -31,8 +31,8 @@ Should log a clean error message
 @command()
 @pass_context
 @require_platform_key("resource_group_name", "resource_group_name")
-@require_platform_key("cluster_name", "cluster_name")
-@require_deployment_key("database_name", "database_name")
+@require_platform_key("adx_cluster_name", "adx_cluster_name")
+@require_deployment_key("adx_database_name", "adx_database_name")
 @argument("principal_id", type=str)
 @option("-r",
         "--role",
@@ -46,14 +46,15 @@ Should log a clean error message
         help="Principal type of the given ID")
 @describe_dry_run("Would add ROLE to PRINCIPAL_ID")
 @timing_decorator
-def set(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str, role: str,
-        principal_type: str):
+def set(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_database_name: str, principal_id: str,
+        role: str, principal_type: str):
     """Set permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
     principal_assignment_name = str(uuid4())
     logger.info("Creating assignment...")
 
-    kusto_mgmt.database_principal_assignments.begin_create_or_update(resource_group_name, cluster_name, database_name,
-                                                                     principal_assignment_name, parameters)
+    kusto_mgmt.database_principal_assignments.begin_create_or_update(resource_group_name, adx_cluster_name,
+                                                                     adx_database_name, principal_assignment_name,
+                                                                     parameters)
     logger.info(f"Successfully created a new {role} assignment to {principal_type} {principal_id}")
