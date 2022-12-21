@@ -25,7 +25,7 @@ def get_all(ctx: Context, powerbi_workspace_id: str, workspace_id: Optional[str]
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     access_token = ctx.find_object(AccessToken).token
     url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
     response = oauth_request(url, access_token)

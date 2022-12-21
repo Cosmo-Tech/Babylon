@@ -55,7 +55,7 @@ GROUP USER ACCESS RIGHT :
         "groupUserAccessRight": group_user_access_right,
         "principalType": principal_type,
     }
-    response = oauth_request(url=url_users, access_token=access_token, json_data=body)
+    response = oauth_request(url=url_users, access_token=access_token, json_data=body, type="PUT")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"{identifier} was successfully updated as a '{group_user_access_right}' to workspace {workspace_id}")

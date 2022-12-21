@@ -38,7 +38,7 @@ def delete(ctx: Context, powerbi_workspace_id: str, override_workspace_id: Optio
     if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):
         return CommandResponse.fail()
     url_delete = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}'
-    response = oauth_request(url=url_delete, access_token=access_token)
+    response = oauth_request(url=url_delete, access_token=access_token, type="DELETE")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"{workspace_id} was successfully removed from power bi app")
