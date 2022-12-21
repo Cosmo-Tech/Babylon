@@ -1,6 +1,8 @@
 from typing import Any
 from typing import Optional
 from typing import Generator
+import json
+
 from click import Context
 from click import get_current_context
 
@@ -39,3 +41,10 @@ class CommandResponse():
             f"Status code: {self.status_code}", "Return value:",
             str(self.data)
         ])
+
+    def toJSON(self) -> str:
+        return json.dumps(self.data, indent=4)
+
+    @classmethod
+    def fail(cls) -> Any:
+        return cls(status_code=CommandResponse.STATUS_ERROR)

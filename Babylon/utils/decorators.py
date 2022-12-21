@@ -39,6 +39,23 @@ def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
+def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Add output to file option to a command"""
+
+    @wraps(func)
+    @click.option("-o", "--output", "output_file", help="File to which content should be outputted (json-formatted)")
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        output_file = kwargs.pop("output_file")
+        response = func(*args, **kwargs)
+        if not output_file:
+            return response
+        with open(output_file, "w") as _f:
+            _f.write(response.toJSON())
+        return response
+
+    return wrapper
+
+
 def timing_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator adding timings before and after the run of a function

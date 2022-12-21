@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
 
-import requests
 from azure.core.credentials import AccessToken
 from click import Context
 from click import command
@@ -12,6 +11,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.logging import table_repr
 from ......utils.response import CommandResponse
 from ......utils.typing import QueryType
+from ......utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
 
@@ -29,24 +29,17 @@ def get(ctx: Context,
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups'
     access_token = ctx.find_object(AccessToken).token
-    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     params = {"$filter": f"id eq '{workspace_id}'"} if workspace_id else {"$filter": f"name eq '{name}'"}
-    try:
-        response = requests.get(url=url_groups, headers=header, params=params)
-    except Exception as e:
-        logger.error(f"Request failed {e}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    if response.status_code != 200:
-        logger.error(f"Request failed: {response.text}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    workspace_data = response.json().get("value")
+    response = oauth_request(url=url_groups, access_token=access_token, params=params)
+    if response is None:
+        return CommandResponse.fail()
+    workspace_data = response.get("value")
     logger.info(workspace_data)
     if not workspace_data:
         logger.error(f"{workspace_id} was not found")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-
+        return CommandResponse.fail()
     logger.info("\n".join(table_repr(workspace_data)))
     return CommandResponse(data=workspace_data)
