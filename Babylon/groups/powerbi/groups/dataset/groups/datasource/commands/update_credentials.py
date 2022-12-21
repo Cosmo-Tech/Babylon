@@ -1,7 +1,8 @@
 import logging
-import requests
 from typing import Optional
 
+import requests
+from azure.core.credentials import AccessToken
 from click import command
 from click import argument
 from click import pass_context
@@ -20,7 +21,7 @@ logger = logging.getLogger("Babylon")
 @option("-g", "--gateway-id", "gateway_id", help="PowerBI datasource gateway ID", type=QueryType(), required=True)
 def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[str] = None) -> CommandResponse:
     """Get datasource details of a given dataset"""
-    access_token = ctx.obj.token
+    access_token = ctx.find_object(AccessToken).token
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     update_url = f"https://api.powerbi.com/v1.0/myorg/gateways/{gateway_id}/datasources/{datasource_id}"
     credential_details = {

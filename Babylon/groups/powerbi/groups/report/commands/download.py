@@ -1,8 +1,9 @@
 import logging
-import requests
 from typing import Optional
 import pathlib
 
+import requests
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -18,7 +19,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_context
-@require_deployment_key("powerbi_workspace_id")
+@require_deployment_key("powerbi_workspace_id", required=False)
 @argument("report_id")
 @option("-o",
         "--output_file",
@@ -33,8 +34,11 @@ def download(ctx: Context,
              output_file: str,
              workspace_id: Optional[str] = None) -> CommandResponse:
     """Download a report"""
-    access_token = ctx.obj.token
+    access_token = ctx.find_object(AccessToken).token
     workspace_id = workspace_id or powerbi_workspace_id
+    if not workspace_id:
+        logger.error("A workspace id is required either in your config or with parameter '-w'")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
     try:

@@ -56,7 +56,11 @@ GROUP USER ACCESS RIGHT :
         "groupUserAccessRight": group_user_access_right,
         "principalType": principal_type,
     }
-    response = requests.post(url=url_users, headers=header, json=body)
+    try:
+        response = requests.post(url=url_users, headers=header, json=body)
+    except Exception as e:
+        logger.error(f"Request failed: {e}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     if response.status_code != 200:
         logger.error(f"Issues while adding {identifier} as a '{group_user_access_right}' to workspace {workspace_id}")
         logger.error(f"Request failed: {response.text}")

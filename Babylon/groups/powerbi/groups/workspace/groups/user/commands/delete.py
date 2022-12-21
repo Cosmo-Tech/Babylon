@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_context
-@option("-w", "--workspace", "override_workspace_id", required=False, type=QueryType())
+@option("-w", "--workspace", "override_workspace_id", type=QueryType())
 @argument("identifier", type=QueryType())
 @option(
     "-f",
@@ -46,7 +46,11 @@ def delete(
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     if not force_validation and not confirm_deletion("user", identifier):
         return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    response = requests.delete(url=url_users, headers=header)
+    try:
+        response = requests.delete(url=url_users, headers=header)
+    except Exception as e:
+        logger.error(f"Request failed: {e}")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     if response.status_code != 200:
         logger.error(f"Issues while removing {identifier} from workspace {workspace_id}")
         logger.error(f"Request failed{response.text}")

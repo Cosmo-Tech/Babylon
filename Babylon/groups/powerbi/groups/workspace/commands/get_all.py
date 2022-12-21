@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 
 import requests
+from azure.core.credentials import AccessToken
 from click import Context
 from click import Path
 from click import command
@@ -26,7 +27,7 @@ logger = logging.getLogger("Babylon")
 )
 def get_all(ctx: Context, output_file: Optional[str]) -> CommandResponse:
     """Get all workspace information for the given account"""
-    access_token = ctx.parent.obj.token
+    access_token = ctx.find_object(AccessToken).token
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups'
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     response = requests.get(url=url_groups, headers=header)

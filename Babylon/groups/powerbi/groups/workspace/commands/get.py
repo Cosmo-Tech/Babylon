@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 
 import requests
+from azure.core.credentials import AccessToken
 from click import Context
 from click import command
 from click import option
@@ -10,14 +11,15 @@ from click import pass_context
 from ......utils.decorators import require_deployment_key
 from ......utils.logging import table_repr
 from ......utils.response import CommandResponse
+from ......utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_context
-@require_deployment_key("powerbi_workspace_id")
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@require_deployment_key("powerbi_workspace_id", required=False)
+@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("-n", "--name", "name")
 def get(ctx: Context,
         powerbi_workspace_id: str,
@@ -25,8 +27,11 @@ def get(ctx: Context,
         name: Optional[str] = None) -> CommandResponse:
     """Get a specific workspace information"""
     workspace_id = workspace_id or powerbi_workspace_id
+    if not workspace_id:
+        logger.error("A workspace id is required either in your config or with parameter '-w'")
+        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups'
-    access_token = ctx.obj.token
+    access_token = ctx.find_object(AccessToken).token
     header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     params = {"$filter": f"id eq '{workspace_id}'"} if workspace_id else {"$filter": f"name eq '{name}'"}
     try:
