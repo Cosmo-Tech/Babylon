@@ -55,7 +55,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     var_payload['data']['attributes']['sensitive'] = var_sensitive
 
     try:
-        r = api.workspace_vars.create(payload=var_payload)
+        r = api.workspace_vars.create(workspace_id=workspace_id, payload=var_payload)
     except TFCHTTPUnprocessableEntity as _error:
         logger.error(f"An issue appeared while processing variable {var_key} for workspace {workspace_id}:")
         logger.error(pprint.pformat(_error.args))
