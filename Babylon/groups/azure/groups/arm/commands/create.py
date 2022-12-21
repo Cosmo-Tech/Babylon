@@ -19,7 +19,6 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 
 
 @command()
-@pass_arm_client
 @argument("deployment_name")
 @option("-t", "--template-uri", "template_uri")
 @describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
