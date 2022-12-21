@@ -6,9 +6,7 @@ import click
 import pytest
 
 import Babylon.utils.decorators as deco
-from Babylon.utils.configuration import Configuration
 from Babylon.utils.environment import Environment
-from Babylon.utils.working_dir import WorkingDir
 
 
 def test_prepend_doc():
