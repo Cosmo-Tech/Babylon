@@ -23,14 +23,15 @@ Should log a clean error message
 @command()
 @pass_context
 @require_platform_key("resource_group_name", "resource_group_name")
-@require_platform_key("cluster_name", "cluster_name")
-@require_deployment_key("database_name", "database_name")
+@require_platform_key("adx_cluster_name", "adx_cluster_name")
+@require_deployment_key("adx_database_name", "adx_database_name")
 @argument("principal_id", type=str)
 @timing_decorator
-def get(ctx: Context, resource_group_name: str, cluster_name: str, database_name: str, principal_id: str):
+def get(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_database_name: str, principal_id: str):
     """Get permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
-    assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, cluster_name, database_name)
+    assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, adx_cluster_name,
+                                                                 adx_database_name)
     entity_assignments = [assignment for assignment in assignments if assignment.principal_id == principal_id]
     if not entity_assignments:
         logger.info(f"No assignment found for principal ID {principal_id}")
