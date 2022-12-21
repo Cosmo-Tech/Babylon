@@ -1,6 +1,5 @@
 import logging
 from typing import Optional
-import json
 
 from azure.core.credentials import AccessToken
 from click import command
