@@ -24,7 +24,7 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
     """Get datasource details of a given dataset"""
     access_token = ctx.find_object(AccessToken).token
     update_url = f"https://api.powerbi.com/v1.0/myorg/gateways/{gateway_id}/datasources/{datasource_id}"
-    credential_details = json.dumps({
+    credential_details = {
         "credentialDetails": {
             "credentialType": "OAuth2",
             "useCallerAADIdentity": True,
@@ -32,8 +32,8 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
             "encryptionAlgorithm": "None",
             "privacyLevel": "Organizational",
         }
-    })
-    response = oauth_request(url=update_url, access_token=access_token, data=credential_details, type="PATCH")
+    }
+    response = oauth_request(url=update_url, access_token=access_token, json_data=credential_details, type="PATCH")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully updated credentials of datasource {datasource_id}")
