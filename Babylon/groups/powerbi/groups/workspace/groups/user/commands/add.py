@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
 
-import requests
 from azure.core.credentials import AccessToken
 from click import Choice
 from click import Context
@@ -13,6 +12,7 @@ from click import pass_context
 from ........utils.decorators import require_deployment_key
 from ........utils.typing import QueryType
 from ........utils.response import CommandResponse
+from ........utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
 
@@ -48,22 +48,15 @@ GROUP USER ACCESS RIGHT :
     workspace_id = override_workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users'
-    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     body = {
         "identifier": identifier,
         "groupUserAccessRight": group_user_access_right,
         "principalType": principal_type,
     }
-    try:
-        response = requests.post(url=url_users, headers=header, json=body)
-    except Exception as e:
-        logger.error(f"Request failed: {e}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    if response.status_code != 200:
-        logger.error(f"Issues while adding {identifier} as a '{group_user_access_right}' to workspace {workspace_id}")
-        logger.error(f"Request failed: {response.text}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    response = oauth_request(url=url_users, access_token=access_token, json_data=body, type="POST")
+    if not response:
+        return CommandResponse.fail()
     logger.info(f"{identifier} was successfully added as a '{group_user_access_right}' to workspace {workspace_id}")
     return CommandResponse()

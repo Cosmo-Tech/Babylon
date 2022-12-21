@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
 
-import requests
 from azure.core.credentials import AccessToken
 from click import Context
 from click import command
@@ -12,6 +11,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
 
@@ -34,14 +34,12 @@ def delete(ctx: Context, powerbi_workspace_id: str, override_workspace_id: Optio
     workspace_id = override_workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     url_delete = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}'
-    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
-    response = requests.delete(url=url_delete, headers=header)
-    if response.status_code != 200:
-        logger.error(f"Request failed:{response.text}")
-        return
+    response = oauth_request(url=url_delete, access_token=access_token)
+    if response is None:
+        return CommandResponse.fail()
     logger.info(f"{workspace_id} was successfully removed from power bi app")
     return CommandResponse()

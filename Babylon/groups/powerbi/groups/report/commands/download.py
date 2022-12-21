@@ -2,7 +2,6 @@ import logging
 from typing import Optional
 import pathlib
 
-import requests
 from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
@@ -13,6 +12,7 @@ from click import Path
 
 from ......utils.decorators import require_deployment_key
 from ......utils.response import CommandResponse
+from ......utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
 
@@ -38,18 +38,12 @@ def download(ctx: Context,
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
+        return CommandResponse.fail()
     url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
-    try:
-        response = requests.get(url=url_report, headers=header)
-    except Exception as e:
-        logger.error(f"Request failed: {e}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    if response.status_code != 200:
-        logger.error(f"Request failed: {response.text}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    response = oauth_request(url=url_report, access_token=access_token)
+    if response is None:
+        return CommandResponse.fail()
     with open(output_file, "wb") as file:
-        file.write(response.content)
+        file.write(response)
         logger.info(f"Report was saved as {output_file}")
     return CommandResponse(data={"file": output_file})

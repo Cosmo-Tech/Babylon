@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
+import json
 
-import requests
 from azure.core.credentials import AccessToken
 from click import command
 from click import argument
@@ -11,6 +11,7 @@ from click import option
 
 from ........utils.response import CommandResponse
 from ........utils.typing import QueryType
+from ........utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
 
@@ -22,9 +23,8 @@ logger = logging.getLogger("Babylon")
 def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[str] = None) -> CommandResponse:
     """Get datasource details of a given dataset"""
     access_token = ctx.find_object(AccessToken).token
-    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
     update_url = f"https://api.powerbi.com/v1.0/myorg/gateways/{gateway_id}/datasources/{datasource_id}"
-    credential_details = {
+    credential_details = json.dumps({
         "credentialDetails": {
             "credentialType": "OAuth2",
             "useCallerAADIdentity": True,
@@ -32,14 +32,9 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
             "encryptionAlgorithm": "None",
             "privacyLevel": "Organizational",
         }
-    }
-    try:
-        response = requests.patch(url=update_url, headers=header, json=credential_details)
-    except Exception as e:
-        logger.error(f"Request failed: {e}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    if response.status_code != 200:
-        logger.error("Request failed: %s", response.text)
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+    })
+    response = oauth_request(url=update_url, access_token=access_token, data=credential_details, type="PATCH")
+    if response is None:
+        return CommandResponse.fail()
     logger.info(f"Successfully updated credentials of datasource {datasource_id}")
     return CommandResponse()

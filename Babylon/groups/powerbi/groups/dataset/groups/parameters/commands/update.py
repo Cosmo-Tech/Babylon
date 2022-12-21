@@ -3,7 +3,6 @@ from typing import Optional
 from string import Template
 import pathlib
 
-import requests
 from azure.core.credentials import AccessToken
 from click import command
 from click import Context
@@ -13,6 +12,7 @@ from click import Path
 from click import option
 
 from ........utils.decorators import require_deployment_key
+from ........utils.request import oauth_request
 from ........utils.environment import Environment
 from ........utils.response import CommandResponse
 from ........utils import TEMPLATE_FOLDER_PATH
@@ -36,8 +36,7 @@ def update(ctx: Context,
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
+        return CommandResponse.fail()
     update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
                   f"/datasets/{dataset_id}/Default.UpdateParameters")
     update_file = update_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/powerbi_parameters.json"
@@ -46,13 +45,8 @@ def update(ctx: Context,
         env = ctx.find_object(Environment)
         data = {**env.configuration.get_deploy(), **env.configuration.get_platform()}
         details = Template(template).substitute(data)
-    try:
-        response = requests.post(url=update_url, data=details, headers=header)
-    except Exception as e:
-        logger.error(f"Request failed: {e}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    if response.status_code != 200:
-        logger.error(f"Request failed: {response.text}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
-    logger.info(f"Successfully updated dataset datasource {response.text}")
+    response = oauth_request(url=update_url, access_token=access_token, data=details, type="POST")
+    if response is None:
+        return CommandResponse.fail()
+    logger.info(f"Successfully updated dataset parameters {response}")
     return CommandResponse()

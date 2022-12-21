@@ -32,7 +32,7 @@ def upload(ctx: Context,
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     header = {"Content-Type": "multipart/form-data", "Authorization": f"Bearer {access_token}"}
     dataset_name = os.path.splitext(pbxi_filename)[0]
     route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports?datasetDisplayName={dataset_name}"
@@ -42,9 +42,9 @@ def upload(ctx: Context,
             response = session.post(url=route, headers=header, files={"file": _f})
         except Exception as e:
             logger.error(f"Request failed: {e}")
-            return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+            return CommandResponse.fail()
         if response.status_code != 200:
-            logger.error(f"Request failed: {response.text}")
-            return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+            logger.error(f"Request failed ({response.status_code}): {response.text}")
+            return CommandResponse.fail()
     logger.info(response.json())
     return CommandResponse(data=response.json())
