@@ -31,6 +31,6 @@ def get_all(ctx: Context, powerbi_workspace_id: str, workspace_id: Optional[str]
     response = oauth_request(url=urls_reports, access_token=access_token)
     if response is None:
         return CommandResponse.fail()
-    output_data = response.get("value")
+    output_data = response.json().get("value")
     logger.info("\n".join([str(data) for data in output_data]))
     return CommandResponse(data=output_data)

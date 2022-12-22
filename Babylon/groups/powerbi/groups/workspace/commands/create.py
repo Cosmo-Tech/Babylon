@@ -26,7 +26,8 @@ def create(ctx: Context, workspace_name: str) -> CommandResponse:
     response = oauth_request(url=url_groups, access_token=access_token, json_data={"name": workspace_name}, type="POST")
     if response is None:
         return CommandResponse.fail()
+    output_data = response.json()
     logger.info("\n".join(table_repr([
-        response,
+        output_data,
     ])))
-    return CommandResponse(data=response)
+    return CommandResponse(data=output_data)

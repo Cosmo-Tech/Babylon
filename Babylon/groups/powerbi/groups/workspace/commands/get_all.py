@@ -23,6 +23,6 @@ def get_all(ctx: Context) -> CommandResponse:
     response = oauth_request(url=url_groups, access_token=access_token)
     if response is None:
         return CommandResponse.fail()
-    groups = response.get('value')
+    groups = response.json().get('value')
     logger.info("\n".join(table_repr(groups)))
     return CommandResponse(data=groups)
