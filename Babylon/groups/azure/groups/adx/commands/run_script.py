@@ -39,8 +39,8 @@ In the script instances of "<database name>" will be replaced by the actual data
         script_content = _script_file.read().replace("<database name>", adx_database_name)
         logger.info("Sending script to database.")
         s = kmc.scripts.begin_create_or_update(resource_group_name=resource_group_name,
-                                               adx_cluster_name=adx_cluster_name,
-                                               adx_database_name=adx_database_name,
+                                               cluster_name=adx_cluster_name,
+                                               database_name=adx_database_name,
                                                script_name=script_name,
                                                parameters={"script_content": script_content},
                                                polling_interval=1)
@@ -56,8 +56,8 @@ In the script instances of "<database name>" will be replaced by the actual data
         else:
             kmc.scripts.begin_delete(
                 resource_group_name=resource_group_name,
-                adx_cluster_name=adx_cluster_name,
-                adx_database_name=adx_database_name,
+                cluster_name=adx_cluster_name,
+                database_name=adx_database_name,
                 script_name=script_name,
             )
             logger.info("Script successfully ran.")
