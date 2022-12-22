@@ -33,6 +33,6 @@ def get_all(ctx: Context, powerbi_workspace_id: str, override_workspace_id: Opti
     response = oauth_request(url=url_users, access_token=access_token)
     if response is None:
         return CommandResponse.fail()
-    users = response.get("value")
+    users = response.json().get('value')
     logger.info("\n".join(table_repr(users)))
     return CommandResponse(data=users)

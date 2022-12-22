@@ -36,7 +36,7 @@ def get(ctx: Context,
     response = oauth_request(url=url_groups, access_token=access_token, params=params)
     if response is None:
         return CommandResponse.fail()
-    workspace_data = response.get("value")
+    workspace_data = response.json().get('value')
     logger.info(workspace_data)
     if not workspace_data:
         logger.error(f"{workspace_id} was not found")

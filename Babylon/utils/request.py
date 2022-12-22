@@ -31,17 +31,14 @@ def oauth_request(url: str,
     request_func = request_funcs.get(type.upper())
     if not request_func:
         logger.error(f"Could not find request of type {type}")
-        return
+        return None
     try:
         response = request_func(url=url, headers=header, data=data, json=json_data, params=params)
     except Exception as e:
         logger.error(f"Request failed: {e}")
-        return
-    if response.status_code != 200:
+        return None
+    if 200 < response.status_code >= 300:
         logger.error(f"Request failed ({response.status_code}): {response.text}")
-        return
-    try:
-        return response.json()
-    except Exception:
-        # If not json it returns bytes
-        return response.content
+        return None
+    logger.debug(f"Request success ({response.status_code}): {response.text}")
+    return response
