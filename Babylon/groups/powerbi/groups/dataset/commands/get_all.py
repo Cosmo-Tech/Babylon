@@ -32,5 +32,5 @@ def get_all(ctx: Context, powerbi_workspace_id: str, workspace_id: Optional[str]
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")
-    logger.info(output_data)
+    logger.info("\n".join([str(data) for data in output_data]))
     return CommandResponse(data=output_data)
