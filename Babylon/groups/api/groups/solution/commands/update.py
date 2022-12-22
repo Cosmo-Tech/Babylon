@@ -49,7 +49,6 @@ def update(
     solution_api: SolutionApi,
     organization_id: str,
     solution_id: str,
-    simulator_url: str,
     simulator_version: str,
     simulator_repository: str,
     solution_file: Optional[str] = None,
