@@ -74,10 +74,7 @@ def get(
 
     if from_file:
         dataset_file = dataset_id
-        converted_dataset_content = get_api_file(
-            api_file_path=dataset_file,
-            use_working_dir_file=use_working_dir_file
-        )
+        converted_dataset_content = get_api_file(api_file_path=dataset_file, use_working_dir_file=use_working_dir_file)
         if converted_dataset_content["id"]:
             dataset_id = converted_dataset_content["id"]
         elif converted_dataset_content["dataset_id"]:

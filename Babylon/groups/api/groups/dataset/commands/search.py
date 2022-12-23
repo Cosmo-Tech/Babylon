@@ -63,10 +63,8 @@ def search(
 ) -> CommandResponse:
     """Get all dataset having corresponding tag."""
 
-    converted_search_parameters_content = get_api_file(
-        api_file_path=search_parameters,
-        use_working_dir_file=use_working_dir_file
-    )
+    converted_search_parameters_content = get_api_file(api_file_path=search_parameters,
+                                                       use_working_dir_file=use_working_dir_file)
     if converted_search_parameters_content is None:
         logger.error("Error : can not get correct dataset tag definition, please check your tag.YAML file")
         return CommandResponse.fail()

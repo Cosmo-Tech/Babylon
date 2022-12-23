@@ -68,10 +68,7 @@ def delete(
                          " to pass an json or yaml file containing an dataset id.")
             return CommandResponse.fail()
 
-        converted_dataset_content = get_api_file(
-            api_file_path=dataset_file,
-            use_working_dir_file=use_working_dir_file
-        )
+        converted_dataset_content = get_api_file(api_file_path=dataset_file, use_working_dir_file=use_working_dir_file)
         if not converted_dataset_content:
             logger.error("Error : can not get Dataset definition, please check your file")
             return CommandResponse.fail()

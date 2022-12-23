@@ -60,10 +60,8 @@ def update(
     converted_solution_content = dict()
 
     if solution_file:
-        converted_solution_content = get_api_file(
-            api_file_path=solution_file,
-            use_working_dir_file=use_working_dir_file
-        )
+        converted_solution_content = get_api_file(api_file_path=solution_file,
+                                                  use_working_dir_file=use_working_dir_file)
 
         if not converted_solution_content:
             logger.error("Can not get correct connector definition, please check your Solution.YAML file")

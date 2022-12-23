@@ -76,10 +76,9 @@ def create(
 ) -> CommandResponse:
     """Register new dataset by sending description file to the API."""
 
-    converted_dataset_content = get_api_file(
-        api_file_path=dataset_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Dataset.yaml",
-        use_working_dir_file=use_working_dir_file if dataset_file else False
-    )
+    converted_dataset_content = get_api_file(api_file_path=dataset_file or
+                                             f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Dataset.yaml",
+                                             use_working_dir_file=use_working_dir_file if dataset_file else False)
 
     if not converted_dataset_content:
         logger.error("Error : can not get Dataset definition, please check your Dataset.YAML file")

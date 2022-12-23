@@ -66,10 +66,8 @@ def delete(
                          " to pass an json or yaml file containing an connector id.")
             return CommandResponse.fail()
 
-        converted_connector_content = get_api_file(
-            api_file_path=connector_file,
-            use_working_dir_file=use_working_dir_file
-        )
+        converted_connector_content = get_api_file(api_file_path=connector_file,
+                                                   use_working_dir_file=use_working_dir_file)
         if not converted_connector_content:
             logger.error("Can not get Connector definition, please check your file")
             return CommandResponse.fail()

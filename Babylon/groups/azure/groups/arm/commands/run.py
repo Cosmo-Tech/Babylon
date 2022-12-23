@@ -38,10 +38,7 @@ def run(
 ) -> CommandResponse:
     """Apply a resource deployment config via arm deployment."""
 
-    arm_deployment = get_api_file(
-        api_file_path=deployment_config_file_path,
-        use_working_dir_file=use_working_dir_file
-    )
+    arm_deployment = get_api_file(api_file_path=deployment_config_file_path, use_working_dir_file=use_working_dir_file)
     formatted_parameters = convert_keys_case(arm_deployment.get("parameters"), underscore_to_camel)
     parameters = {k: {'value': v} for k, v in dict(formatted_parameters).items()}
     template_uri = arm_deployment.get("template_uri")

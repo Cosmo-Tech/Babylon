@@ -85,11 +85,9 @@ def create(
     """Send a JSON or YAML file to the API to create an solution."""
 
     env = Environment()
-    converted_solution_content = get_api_file(
-        api_file_path=solution_file
-        if solution_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",
-        use_working_dir_file=use_working_dir_file if solution_file else False
-    )
+    converted_solution_content = get_api_file(api_file_path=solution_file if solution_file else
+                                              f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",
+                                              use_working_dir_file=use_working_dir_file if solution_file else False)
     if not converted_solution_content:
         logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
         return CommandResponse.fail()

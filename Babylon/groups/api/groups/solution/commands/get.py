@@ -77,10 +77,8 @@ def get(
                          "Use -i option to pass an json or yaml file containing an solution id.")
             return CommandResponse.fail()
 
-        converted_solution_content = get_api_file(
-            api_file_path=solution_file,
-            use_working_dir_file=use_working_dir_file
-        )
+        converted_solution_content = get_api_file(api_file_path=solution_file,
+                                                  use_working_dir_file=use_working_dir_file)
         if not converted_solution_content:
             logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
             return CommandResponse.fail()
