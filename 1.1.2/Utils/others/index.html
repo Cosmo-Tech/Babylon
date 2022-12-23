@@ -693,6 +693,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.logging.table_repr" class="md-nav__link">
+    table_repr()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -913,6 +920,13 @@
           <li class="md-nav__item">
   <a href="#Babylon.utils.logging.MultiLineHandler" class="md-nav__link">
     MultiLineHandler
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.logging.table_repr" class="md-nav__link">
+    table_repr()
   </a>
   
 </li>
@@ -1384,6 +1398,86 @@ Will separate multiline logs and emit them one line at a time</p>
 
 </div>
 
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.logging.table_repr" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">table_repr</span><span class="p">(</span><span class="n">table_content</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Take a list of dicts and will return a nice table representation</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>table_content</code></td>
+          <td>
+                <code>list[dict[<span title="typing.Any">Any</span>, <span title="typing.Any">Any</span>]]</code>
+          </td>
+          <td><p>list of dict to tabulate</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td><p>optional title for the table</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>caption</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td><p>optional caption for the table</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td><p>list of strings for a pretty table display</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
 
 
 
