@@ -34,7 +34,7 @@ def delete(ctx: Context,
            report_id: str,
            workspace_id: Optional[str] = None,
            force_validation: bool = False) -> CommandResponse:
-    """Get info from every powerbi reports of a workspace"""
+    """Delete a powerbi report in the current workspace"""
     access_token = ctx.find_object(AccessToken).token
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:

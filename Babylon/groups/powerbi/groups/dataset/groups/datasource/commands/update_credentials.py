@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @argument("datasource_id", type=QueryType())
 @option("-g", "--gateway-id", "gateway_id", help="PowerBI datasource gateway ID", type=QueryType(), required=True)
 def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[str] = None) -> CommandResponse:
-    """Get datasource details of a given dataset"""
+    """Update azure credentials of a given datasource"""
     access_token = ctx.find_object(AccessToken).token
     update_url = f"https://api.powerbi.com/v1.0/myorg/gateways/{gateway_id}/datasources/{datasource_id}"
     credential_details = {
