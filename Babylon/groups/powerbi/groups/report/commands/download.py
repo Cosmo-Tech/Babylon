@@ -40,6 +40,7 @@ def download(ctx: Context,
         logger.error("A workspace id is required either in your config or with parameter '-w'")
         return CommandResponse.fail()
     url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
+    logger.info(f"Downloading report {report_id} in file {output_file}...")
     response = oauth_request(url=url_report, access_token=access_token)
     if response is None:
         return CommandResponse.fail()

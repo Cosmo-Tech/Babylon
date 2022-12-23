@@ -51,6 +51,7 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
             return response
         with open(output_file, "w") as _f:
             _f.write(response.toJSON())
+        logger.info(f"Response was dumped in file {output_file}")
         return response
 
     return wrapper
