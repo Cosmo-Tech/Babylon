@@ -48,5 +48,5 @@ def update(ctx: Context,
     response = oauth_request(url=update_url, access_token=access_token, data=details, type="POST")
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Successfully updated dataset parameters {response}")
+    logger.info(f"Successfully updated dataset {dataset_id} parameters")
     return CommandResponse()
