@@ -21,6 +21,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -80,19 +81,18 @@ def create(
     solution_file: Optional[str] = None,
     solution_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-) -> Optional[str]:
+) -> CommandResponse:
     """Send a JSON or YAML file to the API to create an solution."""
 
     env = Environment()
     converted_solution_content = get_api_file(
         api_file_path=solution_file
         if solution_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Solution.yaml",
-        use_working_dir_file=use_working_dir_file if solution_file else False,
-        logger=logger,
+        use_working_dir_file=use_working_dir_file if solution_file else False
     )
     if not converted_solution_content:
         logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
-        return
+        return CommandResponse.fail()
 
     if not solution_description and "solution_description" not in converted_solution_content:
         converted_solution_content["description"] = solution_name
@@ -107,13 +107,13 @@ def create(
                                                           solution=converted_solution_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if select:
         env.configuration.set_deploy_var("solution_id", retrieved_solution["id"])
@@ -133,4 +133,4 @@ def create(
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    return retrieved_solution['id']
+    return CommandResponse(data=retrieved_solution)

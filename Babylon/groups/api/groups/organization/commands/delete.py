@@ -15,6 +15,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -56,41 +57,38 @@ def delete(
     organization_file: Optional[str] = None,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
-) -> Optional[str]:
+) -> CommandResponse:
     """Delete organization via Cosmotech APi."""
 
     if not organization_id:
         if not organization_file:
             logger.error("No id passed as argument or option \n"
                          "Use -i option to pass an json or yaml file containing an organization id.")
-            return
+            return CommandResponse.fail()
 
-        converted_organization_content = get_api_file(
-            api_file_path=organization_file,
-            use_working_dir_file=use_working_dir_file,
-            logger=logger,
-        )
+        converted_organization_content = get_api_file(api_file_path=organization_file,
+                                                      use_working_dir_file=use_working_dir_file)
         if not converted_organization_content:
             logger.error("Can not get organization definition, please check your file")
-            return
+            return CommandResponse.fail()
 
         organization_id = converted_organization_content.get("id") or converted_organization_content.get(
             "organization_id")
         if not organization_id:
             logger.error("Can not get organization id, please check your file")
-            return
+            return CommandResponse.fail()
 
     try:
         organization_api.find_organization_by_id(organization_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if not force_validation and not confirm_deletion("organization", organization_id):
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Deleting organization {organization_id}")
 
@@ -99,12 +97,12 @@ def delete(
         logger.info(f"Organization with id {organization_id} deleted.")
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except ForbiddenException:
         logger.error(f"You are not allowed to delete the Organization : {organization_id}")
-        return
+        return CommandResponse.fail()
 
-    return organization_id
+    return CommandResponse(data={"id": organization_id})

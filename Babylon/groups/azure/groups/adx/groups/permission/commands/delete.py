@@ -12,14 +12,9 @@ from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
 from ........utils.interactive import confirm_deletion
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure adx permission delete "existing_principal_id"
-Should ask confirmation, try y and no
-> babylon azure adx permission delete "unknown_principal_id"
-Should log a clean error message
-"""
 
 
 @command()
@@ -36,7 +31,7 @@ def delete(ctx: Context,
            adx_cluster_name: str,
            adx_database_name: str,
            principal_id: str,
-           force_validation: bool = False):
+           force_validation: bool = False) -> CommandResponse:
     """Delete all permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, adx_cluster_name,
@@ -44,13 +39,13 @@ def delete(ctx: Context,
     entity_assignments = [assign for assign in assignments if assign.principal_id == principal_id]
     if not entity_assignments:
         logger.error(f"No assignment found for principal ID {principal_id}")
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
     for assign in entity_assignments:
 
         if not force_validation and not confirm_deletion("permission", str(assign.role)):
-            return
+            return CommandResponse.fail()
 
         logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
         assign_name: str = str(assign.name).split("/")[-1]
@@ -58,3 +53,4 @@ def delete(ctx: Context,
                                                                adx_cluster_name,
                                                                adx_database_name,
                                                                principal_assignment_name=assign_name)
+    return CommandResponse()

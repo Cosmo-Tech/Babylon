@@ -5,6 +5,7 @@ from functools import wraps
 from typing import Any
 from typing import Callable
 from typing import Optional
+import json
 
 import click
 import cosmotech_api
@@ -50,7 +51,8 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         if not output_file:
             return response
         with open(output_file, "w") as _f:
-            _f.write(response.toJSON())
+            json.dump(response.toJSON(), _f, indent=4, ensure_ascii=False)
+
         logger.info(f"Response was dumped in file {output_file}")
         return response
 

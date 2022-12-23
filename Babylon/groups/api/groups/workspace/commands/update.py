@@ -20,6 +20,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -63,17 +64,13 @@ def update(
     send_scenario_metadata_to_event_hub: str,
     output_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-):
+) -> CommandResponse:
     """Send a JSON or YAML file to the API to update a workspace."""
     env = Environment()
-    converted_workspace_content = get_api_file(
-        api_file_path=workspace_file,
-        use_working_dir_file=use_working_dir_file,
-        logger=logger,
-    )
+    converted_workspace_content = get_api_file(api_file_path=workspace_file, use_working_dir_file=use_working_dir_file)
     if not converted_workspace_content:
         logger.error("Error : can not get correct connector definition, please check your Workspace.YAML file")
-        return
+        return CommandResponse.fail()
 
     converted_workspace_content["send_scenario_metadata_to_event_hub"] = send_scenario_metadata_to_event_hub
     converted_workspace_content["use_dedicated_event_hub_namespace"] = use_dedicated_event_hub_namespace
@@ -81,7 +78,7 @@ def update(
 
     if "id" not in converted_workspace_content:
         logger.error("Error : can not get connector id in the Connector.YAML file")
-        return
+        return CommandResponse.fail()
 
     workspace_id = converted_workspace_content["id"]
     del converted_workspace_content["id"]
@@ -92,16 +89,16 @@ def update(
                                                              workspace=converted_workspace_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id : {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
-        return
+        return CommandResponse.fail()
     except ForbiddenException:
         logger.error(f"You are not allowed to update the workspace : {workspace_id}")
-        return
+        return CommandResponse.fail()
 
     env.configuration.set_deploy_var("workspace_key", retrieved_workspace["key"])
 
@@ -116,3 +113,4 @@ def update(
 
     logger.debug(pformat(retrieved_workspace))
     logger.info(f"Workspace: {retrieved_workspace['id']} updated.")
+    return CommandResponse(data=retrieved_workspace)

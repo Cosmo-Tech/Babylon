@@ -12,6 +12,7 @@ from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
 
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 from ......utils.decorators import working_dir_requires_yaml_key
 
 logger = logging.getLogger("Babylon")
@@ -38,7 +39,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
 def outputs(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path],
-            states_webpage_open: bool):
+            states_webpage_open: bool) -> CommandResponse:
     """List outputs of a workspace.
 
 Sensitive outputs are not readable, use -s option to access the state in the web application to get those."""
@@ -48,13 +49,13 @@ Sensitive outputs are not readable, use -s option to access the state in the web
         ws_name = ws['data']['attributes']['name']
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
-        return
+        return CommandResponse.fail()
 
     try:
         ws = api.state_version_outputs.show_current_for_workspace(workspace_id=workspace_id)
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} has no outputs")
-        return
+        return CommandResponse.fail()
 
     logger.info(pprint.pformat(ws['data']))
 
@@ -68,3 +69,4 @@ Sensitive outputs are not readable, use -s option to access the state in the web
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(ws['data'], _file, ensure_ascii=False)
+    return CommandResponse(data=ws.get("data"))

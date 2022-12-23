@@ -18,6 +18,7 @@ from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run, require_deployment_key, timing_decorator
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -59,29 +60,28 @@ def search(
     output_file: Optional[str] = None,
     use_working_dir_file: bool = False,
     fields: str = None,
-):
+) -> CommandResponse:
     """Get all dataset having corresponding tag."""
 
     converted_search_parameters_content = get_api_file(
         api_file_path=search_parameters,
-        use_working_dir_file=use_working_dir_file,
-        logger=logger,
+        use_working_dir_file=use_working_dir_file
     )
     if converted_search_parameters_content is None:
         logger.error("Error : can not get correct dataset tag definition, please check your tag.YAML file")
-        return
+        return CommandResponse.fail()
 
     try:
         retrieved_datasets = dataset_api.search_datasets(organization_id, converted_search_parameters_content)
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if fields:
         retrieved_datasets = filter_api_response(retrieved_datasets, fields.split(","))
@@ -91,5 +91,5 @@ def search(
         with open(output_file, "w") as _file:
             json.dump(_datasets_to_dump, _file, ensure_ascii=False)
         logger.info("Full content was dumped on %s.", output_file)
-        return
     logger.info(pformat(retrieved_datasets, sort_dicts=False))
+    return CommandResponse(data={"datasets": retrieved_datasets})

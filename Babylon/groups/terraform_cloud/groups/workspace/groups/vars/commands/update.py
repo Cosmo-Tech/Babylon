@@ -16,6 +16,7 @@ from ........utils.decorators import describe_dry_run
 from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
 from ........utils.typing import QueryType
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -32,7 +33,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("--description", "var_description", help="A new description to apply to the variable", type=QueryType())
 @timing_decorator
 def update(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, var_value: Optional[str],
-           var_description: Optional[str]):
+           var_description: Optional[str]) -> CommandResponse:
     """Update VAR_KEY variable in a workspace
 
 More information on the arguments can be found at :
@@ -53,7 +54,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 
     if not original_var:
         logger.error(f"No original value for the variable {var_key} found for workspace {workspace_id}.")
-        return
+        return CommandResponse.fail()
 
     var_payload['data'] = original_var
     var_payload['data']['attributes']['value'] = var_value or original_var['attributes']['value']
@@ -64,6 +65,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     except TFCHTTPUnprocessableEntity as _error:
         logger.error(f"An issue appeared while processing variable {var_key} for workspace {workspace_id}:")
         logger.error(pprint.pformat(_error.args))
-        return
+        return CommandResponse.fail()
     logger.info(f"Variable {var_key} was correctly updated for workspace {workspace_id}")
     logger.info(pprint.pformat(r['data']))
+    return CommandResponse(data=r.get("data"))

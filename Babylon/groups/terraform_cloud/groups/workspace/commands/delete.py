@@ -12,6 +12,7 @@ from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.environment import Environment
 from ......utils.interactive import confirm_deletion
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -25,7 +26,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
-def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], force_validation: bool):
+def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], force_validation: bool) -> CommandResponse:
     """Delete a workspace from the organization"""
 
     env = Environment()
@@ -33,15 +34,16 @@ def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], force_va
     workspace_id = workspace_id_wd or workspace_id
 
     if not force_validation and not confirm_deletion("workspace", str(workspace_id)):
-        return
+        return CommandResponse.fail()
 
     try:
         api.workspaces.destroy(workspace_id=workspace_id)
         logger.info(f"Workspace {workspace_id} has been deleted")
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
-        return
+        return CommandResponse.fail()
 
     if workspace_id_wd == workspace_id:
         logger.info("Unsetting key workspace_id from working dir file as it does not exists anymore")
         env.working_dir.set_yaml_key("terraform_workspace.yaml", "workspace_id", "")
+    return CommandResponse()

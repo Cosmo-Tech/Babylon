@@ -21,6 +21,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -67,23 +68,22 @@ def get(
     output_file: Optional[str] = None,
     solution_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-):
+) -> CommandResponse:
     """Get the state of the solution in the API."""
 
     if not solution_id:
         if not solution_file:
             logger.error("No id passed as argument or option \n"
                          "Use -i option to pass an json or yaml file containing an solution id.")
-            return
+            return CommandResponse.fail()
 
         converted_solution_content = get_api_file(
             api_file_path=solution_file,
-            use_working_dir_file=use_working_dir_file,
-            logger=logger,
+            use_working_dir_file=use_working_dir_file
         )
         if not converted_solution_content:
             logger.error("Error : can not get correct solution definition, please check your Solution.YAML file")
-            return
+            return CommandResponse.fail()
 
         try:
             solution_id = converted_solution_content["id"]
@@ -92,19 +92,19 @@ def get(
                 solution_id = converted_solution_content["solution_id"]
             except KeyError:
                 logger.error("Can not get solution id, please check your file")
-                return
+                return CommandResponse.fail()
 
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
         logger.error(f"Solution {solution_id} not found in organization {organization_id}.")
-        return
+        return CommandResponse.fail()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if fields:
         retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
@@ -112,7 +112,7 @@ def get(
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
         logger.info(pformat(retrieved_solution))
-        return
+        return CommandResponse(data=retrieved_solution)
 
     converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
     with open(output_file, "w") as _f:
@@ -121,3 +121,4 @@ def get(
         except AttributeError:
             json.dump(converted_content, _f, ensure_ascii=False)
     logger.info(f"Content was dumped on {output_file}")
+    return CommandResponse(data=retrieved_solution)

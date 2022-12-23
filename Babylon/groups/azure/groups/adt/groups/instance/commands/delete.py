@@ -11,6 +11,7 @@ from click import option
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
 from ........utils.interactive import confirm_deletion
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -26,11 +27,11 @@ pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClien
 def delete(digital_twins_client: AzureDigitalTwinsManagementClient,
            resource_group_name: str,
            adt_instance_name: str,
-           force_validation: Optional[bool] = False) -> Optional[str]:
+           force_validation: Optional[bool] = False) -> CommandResponse:
     """Delete a ADT instance in current platform resource group"""
 
     if not force_validation and not confirm_deletion("instance", adt_instance_name):
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Deleting Adt instance {adt_instance_name}")
     try:
@@ -38,10 +39,10 @@ def delete(digital_twins_client: AzureDigitalTwinsManagementClient,
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
         logger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
-        return
+        return CommandResponse.fail()
 
     # Long-running operations return a poller object; calling poller.result()
     # waits for completion.
     adt_deletion_result = poller.result()
     logger.info(f"Deleted digital twins instance {adt_deletion_result.name}")
-    return adt_deletion_result.name
+    return CommandResponse(data={"name": adt_deletion_result.name})

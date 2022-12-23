@@ -10,6 +10,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 from .run_script import run_script
 
 pass_kmc = make_pass_decorator(KustoManagementClient)
@@ -32,13 +33,14 @@ def run_folder(
     resource_group_name: str,
     adx_database_name: str,
     script_folder: pathlib.Path,
-):
+) -> CommandResponse:
     """Run all script files (.kql) from SCRIPT_FOLDER"""
     files = glob.glob(str(script_folder / "*.kql"))
     if not files:
         logger.error(f"No script found in path {script_folder.absolute()}")
-        return
+        return CommandResponse.fail()
     for _file in files[::-1]:
         file_path = pathlib.Path(_file)
         logger.info(f"Found script {file_path} sending it to the database.")
         ctx.invoke(run_script, script_file=file_path)
+    return CommandResponse()

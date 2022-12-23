@@ -19,6 +19,7 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -56,19 +57,17 @@ def create(
     output_file: Optional[str] = None,
     connector_file: Optional[str] = None,
     use_working_dir_file: bool = False,
-) -> Optional[str]:
+) -> CommandResponse:
     """Register a new Connector by sending a JSON or YAML file to the API."""
 
     connector_type = connector_type.upper()
     converted_connector_content = get_api_file(
         api_file_path=connector_file
         if connector_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Connector.{connector_type}.yaml",
-        use_working_dir_file=use_working_dir_file if connector_file else False,
-        logger=logger,
-    )
+        use_working_dir_file=use_working_dir_file if connector_file else False)
     if not converted_connector_content:
         logger.error("Error : can not get correct Connector definition, please check your Connector.YAML file")
-        return
+        return CommandResponse.fail()
 
     converted_connector_content["name"] = connector_name
     converted_connector_content["version"] = connector_version
@@ -81,7 +80,7 @@ def create(
         retrieved_connector = connector_api.register_connector(connector=converted_connector_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
 
     logger.debug(pformat(retrieved_connector))
     logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
@@ -95,4 +94,4 @@ def create(
                 json.dump(converted_connector_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    return retrieved_connector['id']
+    return CommandResponse(data=retrieved_connector)

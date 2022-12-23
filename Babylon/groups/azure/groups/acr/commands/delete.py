@@ -14,6 +14,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -45,12 +46,12 @@ def delete(credentials: DefaultAzureCredential,
            registry: typing.Optional[str] = None,
            direction: typing.Optional[str] = None,
            image: typing.Optional[str] = None,
-           force_validation: typing.Optional[bool] = False):
+           force_validation: typing.Optional[bool] = False) -> CommandResponse:
     """Delete docker image from selected repository"""
     registry = registry or {"src": csm_acr_registry_name, "dest": acr_registry_name}.get(direction)
     if not registry:
         logger.error("Please specify a registry to delete from with --direction or --registry")
-        return
+        return CommandResponse.fail()
     cr_client, _ = registry_connect(registry, credentials)
     image = image or f"{simulator_repository}:{simulator_version}"
     image = f"{image}:latest" if ":" not in image else image
@@ -58,15 +59,16 @@ def delete(credentials: DefaultAzureCredential,
         props = cr_client.get_manifest_properties(*image.split(":"))
     except ResourceNotFoundError:
         logger.error(f"Image {image} not found in registry {registry}")
-        return
+        return CommandResponse.fail()
 
     if not force_validation and not confirm_deletion("image", image):
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Deleting image {image} from registry {registry}")
     try:
         cr_client.delete_manifest(props.repository_name, props.digest)
     except HttpResponseError as e:
         logger.error(f"Could not delete image {image} from registry {registry}: {str(e)}")
-        return
+        return CommandResponse.fail()
     logger.info(f"Successfully deleted image {image} from registry {registry}")
+    return CommandResponse()

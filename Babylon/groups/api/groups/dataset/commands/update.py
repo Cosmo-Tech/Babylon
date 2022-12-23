@@ -21,6 +21,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -64,22 +65,21 @@ def update(
     connector_id: Optional[str] = None,
     output_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-):
+) -> CommandResponse:
     """Send a JSON or YAML file to the API to update a dataset."""
 
     converted_dataset_content = get_api_file(
         api_file_path=dataset_file,
-        use_working_dir_file=use_working_dir_file,
-        logger=logger,
+        use_working_dir_file=use_working_dir_file
     )
 
     if not converted_dataset_content:
         logger.error("Error : can not get Dataset definition, please check your Dataset file")
-        return
+        return CommandResponse.fail()
 
     if "name" not in converted_dataset_content:
         logger.error("Error : can not get an dataset name, please check your Dataset file")
-        return
+        return CommandResponse.fail()
 
     if converted_dataset_content.get("id"):
         del converted_dataset_content["id"]
@@ -95,16 +95,16 @@ def update(
         )
     except NotFoundException:
         logger.error(f"Dataset {dataset_id} not found in organization {organization_id}.")
-        return
+        return CommandResponse.fail()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
-        return
+        return CommandResponse.fail()
     except ForbiddenException:
         logger.error(f"You are not allowed to update the dataset : {dataset_id}")
-        return
+        return CommandResponse.fail()
 
     if output_file:
         converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
@@ -117,3 +117,4 @@ def update(
 
     logger.debug(pformat(retrieved_dataset))
     logger.info(f"Updated dataset with id: {retrieved_dataset['id']}")
+    return CommandResponse(data=retrieved_dataset)

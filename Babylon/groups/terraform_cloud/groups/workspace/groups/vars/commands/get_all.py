@@ -13,6 +13,7 @@ from ..list_all_vars import list_all_vars
 from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
 from ........utils.typing import QueryType
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -31,7 +32,8 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
-def get_all(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path]):
+def get_all(api: TFC, workspace_id_wd: str, workspace_id: Optional[str],
+            output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Get all available variables in the workspace"""
     workspace_id = workspace_id or workspace_id_wd
     r = list_all_vars(api, workspace_id)
@@ -43,3 +45,4 @@ def get_all(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(r, _file, ensure_ascii=False)
+    return CommandResponse(data={"vars": r})

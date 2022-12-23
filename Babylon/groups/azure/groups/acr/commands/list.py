@@ -32,13 +32,13 @@ def list(credentials: DefaultAzureCredential, csm_acr_registry_name: str, acr_re
     registry = registry or {"src": csm_acr_registry_name, "dest": acr_registry_name}.get(direction)
     if not registry:
         logger.error("Please specify a registry to list from with --direction or --registry")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     cr_client, _ = registry_connect(registry, credentials)
     logger.info("Getting repositories stored in registry %s", registry)
     try:
         repos = [repo for repo in cr_client.list_repository_names()]
     except ServiceRequestError:
         logger.error(f"Could not list from registry {registry}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
     logger.info(repos)
     return CommandResponse(data={"repositories": repos})

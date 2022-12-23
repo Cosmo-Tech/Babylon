@@ -18,6 +18,7 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -47,26 +48,26 @@ def get_all(
     organization_id: str,
     output_file: Optional[str] = None,
     fields: str = None,
-):
+) -> CommandResponse:
     """Get all registered datasets."""
     try:
         retrieved_datasets = dataset_api.find_all_datasets(organization_id)
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if fields:
         retrieved_datasets = filter_api_response(retrieved_datasets, fields.replace(" ", "").split(","))
     logger.info(f"Found {len(retrieved_datasets)} datasets")
     if not output_file:
         logger.info(pformat(retrieved_datasets, sort_dicts=False))
-        return
+        return CommandResponse(data={"datasets": retrieved_datasets})
 
     _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]
     with open(output_file, "w") as _file:
@@ -75,3 +76,4 @@ def get_all(
         except AttributeError:
             json.dump(_datasets_to_dump, _file, ensure_ascii=False)
     logger.info("Full content was dumped on %s.", output_file)
+    return CommandResponse(data={"datasets": retrieved_datasets})

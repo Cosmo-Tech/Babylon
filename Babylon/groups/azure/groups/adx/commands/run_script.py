@@ -11,6 +11,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 pass_kmc = make_pass_decorator(KustoManagementClient)
 
@@ -27,7 +28,7 @@ logger = logging.getLogger("Babylon")
 @describe_dry_run("Would send the content of the given script to ADX then delete it once run is finished")
 @timing_decorator
 def run_script(kmc: KustoManagementClient, adx_cluster_name: str, resource_group_name: str, adx_database_name: str,
-               script_file: pathlib.Path):
+               script_file: pathlib.Path) -> CommandResponse:
     """Open SCRIPT_FILE and run it on the database
 
 In the script instances of "<database name>" will be replaced by the actual database name"""
@@ -61,3 +62,4 @@ In the script instances of "<database name>" will be replaced by the actual data
                 script_name=script_name,
             )
             logger.info("Script successfully ran.")
+    return CommandResponse()

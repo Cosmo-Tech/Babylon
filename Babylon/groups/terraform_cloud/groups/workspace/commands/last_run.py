@@ -12,6 +12,7 @@ from terrasnek.exceptions import TFCHTTPNotFound
 
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -30,14 +31,15 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
-def last_run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path]):
+def last_run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str],
+             output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Get state of the last run of a workspace"""
     workspace_id = workspace_id or workspace_id_wd
     try:
         r = api.runs.list_all(workspace_id=workspace_id)['data']
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} has no runs")
-        return
+        return CommandResponse.fail()
 
     ordered_runs = sorted(r, key=lambda run: run['attributes']['created-at'])
 
@@ -46,3 +48,4 @@ def last_run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(r['data'], _file, ensure_ascii=False)
+    return CommandResponse(data=r.get("data"))

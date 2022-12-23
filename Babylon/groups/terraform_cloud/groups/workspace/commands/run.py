@@ -14,6 +14,7 @@ from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -38,7 +39,7 @@ Then create a run for it sending a creation payload""")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
 def run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], run_message: str, allow_empty_apply: bool,
-        output_file: Optional[pathlib.Path]):
+        output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Start the run of a workspace
 
 More info on runs can be found at: https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run#create-a-run"""
@@ -48,7 +49,7 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
         api.workspaces.show(workspace_id=workspace_id)
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
-        return
+        return CommandResponse.fail()
 
     run_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/run_workspace_payload.json"
     with open(run_payload_template) as _f:
@@ -64,3 +65,4 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(r['data'], _file, ensure_ascii=False)
+    return CommandResponse(data=r.get("data"))

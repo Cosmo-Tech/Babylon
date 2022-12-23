@@ -15,6 +15,7 @@ from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -40,14 +41,14 @@ def get_all(
     organization_api: OrganizationApi,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
-):
+) -> CommandResponse:
     """Get all registered organization."""
 
     try:
         retrieved_organizations = organization_api.find_all_organizations()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Found {len(retrieved_organizations)} organizations")
     logger.debug(pformat(retrieved_organizations))
@@ -55,7 +56,7 @@ def get_all(
         retrieved_organizations = filter_api_response(retrieved_organizations, fields.replace(" ", "").split(","))
     if not output_file:
         logger.info(pformat(retrieved_organizations))
-        return
+        return CommandResponse({"organizations": retrieved_organizations})
 
     _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]
     with open(output_file, "w") as _file:
@@ -64,3 +65,4 @@ def get_all(
         except AttributeError:
             json.dump(_organizations_to_dump, _file, ensure_ascii=False)
     logger.info(f"Full content was dumped on {output_file}")
+    return CommandResponse({"organizations": retrieved_organizations})

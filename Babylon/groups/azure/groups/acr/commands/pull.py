@@ -11,6 +11,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 from ..registry_connect import registry_connect
 
 logger = logging.getLogger("Babylon")
@@ -32,7 +33,7 @@ def pull(credentials: DefaultAzureCredential,
          simulator_repository: str,
          simulator_version: str,
          registry: typing.Optional[str] = None,
-         image: typing.Optional[str] = None):
+         image: typing.Optional[str] = None) -> CommandResponse:
     """Pulls a docker image from the ACR registry given in platform configuration.
        Also tag the docker image into the new reference (docker tag).
     """
@@ -49,10 +50,11 @@ def pull(credentials: DefaultAzureCredential,
         client.images.remove(image=repo)
     except docker.errors.NotFound:
         logger.error(f"Image {image} not found in registry {registry} ")
-        return
+        return CommandResponse.fail()
     except docker.errors.APIError as api_error:
         logger.error(api_error)
-        return
+        return CommandResponse.fail()
     except Exception as e:
         logger.error(str(e))
     logger.info(f"Successfully pulled image {image} from registry {registry}")
+    return CommandResponse()

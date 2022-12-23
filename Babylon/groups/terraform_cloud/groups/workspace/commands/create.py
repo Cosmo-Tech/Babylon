@@ -16,6 +16,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.environment import Environment
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -44,7 +45,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_oauth_token_id", "vcs_oauth_token_id")
 @timing_decorator
 def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier: str, vcs_branch: str,
-           vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], select: bool):
+           vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], select: bool) -> CommandResponse:
     """Use given parameters to create a workspace in the organization"""
     env = Environment()
     workspace_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/workspace_payload_with_github.json"
@@ -62,7 +63,7 @@ def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier
     except TFCHTTPUnprocessableEntity as _error:
         logger.error(f"An issue appeared while processing workspace {workspace_name}:")
         logger.error(pprint.pformat(_error.args))
-        return
+        return CommandResponse.fail()
     logger.info(pprint.pformat(ws['data']))
 
     if select:
@@ -73,3 +74,4 @@ def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(ws['data'], _file, ensure_ascii=False)
+    return CommandResponse(data=ws.get("data"))

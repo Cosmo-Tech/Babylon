@@ -15,6 +15,7 @@ from ......utils.api import get_api_file
 from ......utils.interactive import confirm_deletion
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -56,27 +57,26 @@ def delete(
     connector_file: Optional[str] = None,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
-):
+) -> CommandResponse:
     """Unregister a Connector via Cosmotech API."""
 
     if not connector_id:
         if not connector_file:
             logger.error("No id passed as argument or option use -i option"
                          " to pass an json or yaml file containing an connector id.")
-            return
+            return CommandResponse.fail()
 
         converted_connector_content = get_api_file(
             api_file_path=connector_file,
-            use_working_dir_file=use_working_dir_file,
-            logger=logger,
+            use_working_dir_file=use_working_dir_file
         )
         if not converted_connector_content:
             logger.error("Can not get Connector definition, please check your file")
-            return
+            return CommandResponse.fail()
 
         if "id" not in converted_connector_content and "dataset_id" not in converted_connector_content:
             logger.error(f"Could not found connector id in {connector_file}.")
-            return
+            return CommandResponse.fail()
 
         try:
             connector_id = converted_connector_content["id"]
@@ -87,13 +87,13 @@ def delete(
         connector_api.find_connector_by_id(connector_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Connector with id {connector_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if not force_validation and not confirm_deletion("connector", connector_id):
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Deleting connector {connector_id}")
 
@@ -102,5 +102,8 @@ def delete(
         logger.info(f"Connector with id {connector_id} deleted.")
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
+        return CommandResponse.fail()
     except ForbiddenException:
         logger.error(f"You are not allowed to delete the connector {connector_id}")
+        return CommandResponse.fail()
+    return CommandResponse()

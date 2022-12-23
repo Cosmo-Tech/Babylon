@@ -16,6 +16,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -63,18 +64,18 @@ def upload(
     handler_id: Path,
     run_template_id: str,
     override: Optional[bool] = False,
-) -> Optional[str]:
+) -> CommandResponse:
     """Upload a solution handler zip."""
 
     if not handler_path.endswith(".zip"):
         logger.error(f"{handler_path} is not a zip archive")
-        return
+        return CommandResponse.fail()
 
     try:
         handler = open(handler_path, 'rb')
     except IOError:
         logger.error(f"{handler_path} : file not found")
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Uploading {handler_id} handler to solution {solution_id}")
     try:
@@ -88,16 +89,17 @@ def upload(
         )
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} and or Solution {solution_id} not found.")
-        return
+        return CommandResponse.fail()
     except ApiException as e:
         logger.error(f"An error occurred : { e.body}")
-        return
+        return CommandResponse.fail()
 
     logger.debug(response)
     logger.info(f"{handler_id} handler uploaded to solution {solution_id} successfully")
+    return CommandResponse(data={"id": handler_id})

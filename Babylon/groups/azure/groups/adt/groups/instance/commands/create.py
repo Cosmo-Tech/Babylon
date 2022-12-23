@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
@@ -9,6 +8,7 @@ from click import make_pass_decorator
 
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -26,7 +26,7 @@ def create(
     resource_group_name: str,
     resources_location: str,
     adt_instance_name: str,
-) -> Optional[str]:
+) -> CommandResponse:
     """Create a new ADT instance in current platform resource group"""
 
     availability_result = digital_twins_client.digital_twins.check_name_availability(
@@ -39,7 +39,7 @@ def create(
 
     if not availability_result.name_available:
         logger.info(availability_result.message)
-        return
+        return CommandResponse.fail()
 
     try:
         poller = digital_twins_client.digital_twins.begin_create_or_update(
@@ -55,10 +55,10 @@ def create(
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
         logger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
-        return
+        return CommandResponse.fail()
 
     # Long-running operations return a poller object; calling poller.result()
     # waits for completion.
     adt_creation_result = poller.result()
     logger.info(f"Provisioned digital twins instance {adt_creation_result.name}")
-    return adt_creation_result.name
+    return CommandResponse(data={"name": adt_creation_result.name})

@@ -9,12 +9,9 @@ from click import pass_context
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure adx permission get-all
-Should list all available assignments
-"""
 
 
 @command()
@@ -31,3 +28,4 @@ def get_all(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_d
                                                                  adx_database_name)
     for ent in assignments:
         logger.info(f"{pformat(ent.__dict__)}")
+    return CommandResponse(data={"assignments": assignments})

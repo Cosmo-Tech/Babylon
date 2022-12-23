@@ -22,6 +22,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -83,18 +84,15 @@ def create(
     workspace_file: Optional[str] = None,
     workspace_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-) -> Optional[str]:
+) -> CommandResponse:
     """Send a JSON or YAML file to the API to create a workspace."""
     env = Environment()
-    converted_workspace_content = get_api_file(
-        api_file_path=workspace_file
-        if workspace_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml",
-        use_working_dir_file=use_working_dir_file if workspace_file else False,
-        logger=logger,
-    )
+    converted_workspace_content = get_api_file(api_file_path=workspace_file if workspace_file else
+                                               f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml",
+                                               use_working_dir_file=use_working_dir_file if workspace_file else False)
     if not converted_workspace_content:
         logger.error("Can not get correct workspace definition, please check your Workspace.YAML file")
-        return
+        return CommandResponse.fail()
 
     if not workspace_description and "workspace_description" not in converted_workspace_content:
         converted_workspace_content["description"] = workspace_name
@@ -117,13 +115,13 @@ def create(
                                                              workspace=converted_workspace_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization {organization_id} or Solution {solution_id} not found.")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization {organization_id} or Solution {solution_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if select:
         env.configuration.set_deploy_var("workspace_id", retrieved_workspace["id"])
@@ -146,4 +144,4 @@ def create(
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    return retrieved_workspace['id']
+    return CommandResponse(data=retrieved_workspace)

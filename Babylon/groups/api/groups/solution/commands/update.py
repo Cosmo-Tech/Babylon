@@ -17,6 +17,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -53,7 +54,7 @@ def update(
     simulator_repository: str,
     solution_file: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-):
+) -> CommandResponse:
     """Send a JSON or YAML file to the API to update a solution."""
 
     converted_solution_content = dict()
@@ -61,13 +62,12 @@ def update(
     if solution_file:
         converted_solution_content = get_api_file(
             api_file_path=solution_file,
-            use_working_dir_file=use_working_dir_file,
-            logger=logger,
+            use_working_dir_file=use_working_dir_file
         )
 
         if not converted_solution_content:
             logger.error("Can not get correct connector definition, please check your Solution.YAML file")
-            return
+            return CommandResponse.fail()
 
         try:
             del converted_solution_content["id"]
@@ -83,18 +83,19 @@ def update(
                                                           solution=converted_solution_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Solution {solution_id} not found in organization {organization_id}.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except ForbiddenException:
         logger.error(f"You are not allowed to update the solution : {solution_id}")
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Updated solution: {solution_id}  with \n"
                 f" - repository: {retrieved_solution['repository']}\n"
                 f" - version: {retrieved_solution['version']}")
     logger.debug(pformat(retrieved_solution))
+    return CommandResponse(data=retrieved_solution)

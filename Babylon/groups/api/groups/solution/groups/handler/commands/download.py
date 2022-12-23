@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import Optional
 
 from click import Choice
 from click import command
@@ -13,6 +12,7 @@ from cosmotech_api.exceptions import UnauthorizedException
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -56,7 +56,7 @@ def download(
     solution_id: str,
     handler_id: str,
     run_template_id: str,
-) -> Optional[str]:
+) -> CommandResponse:
     """Download a solution handler zip."""
 
     logger.info(f"Downloading {handler_id} handler from solution {solution_id}")
@@ -69,20 +69,21 @@ def download(
         )
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} and or Solution {solution_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if not response:
         logger.error("No retrieved handler")
-        return
+        return CommandResponse.fail()
 
     with open(run_template_id + ".zip", "wb") as _f:
         _f.write(response.read())
 
     logger.debug(response)
     logger.info(f"{handler_id} handler downloaded from solution {solution_id} successfully")
+    return CommandResponse(data={"id": handler_id, "file": f"{run_template_id}.zip"})
