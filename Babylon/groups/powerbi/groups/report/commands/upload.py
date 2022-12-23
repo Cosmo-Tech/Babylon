@@ -43,7 +43,7 @@ def upload(ctx: Context,
         except Exception as e:
             logger.error(f"Request failed: {e}")
             return CommandResponse.fail()
-        if 200 < response.status_code >= 300:
+        if response.status_code >= 300:
             logger.error(f"Request failed ({response.status_code}): {response.text}")
             return CommandResponse.fail()
     logger.info(response.json())
