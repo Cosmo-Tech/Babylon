@@ -1,6 +1,7 @@
 import time
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
+from typing import Any
 
 import click
 import pytest
@@ -124,6 +125,22 @@ def test_requires_program_exists():
     ctx = click.Context(click.Command('cmd'))
     with ctx:
         my_func()
+
+
+def test_output_to_file():
+    """Test decorators"""
+    class Response:
+        def toJSON(self):
+            pass
+
+    @deco.output_to_file
+    def my_func() -> Any:
+        return Response()
+
+    with patch("builtins.open", mock_open()) as mock_file:
+        my_func(output_file="test")
+    mock_file.assert_called()
+    mock_file.return_value.write.assert_called()
 
 
 def test_require_platform_key_fail():
