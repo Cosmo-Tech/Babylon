@@ -27,7 +27,7 @@ def get(ctx: Context,
         powerbi_workspace_id: str,
         dataset_id: str,
         workspace_id: Optional[str] = None) -> CommandResponse:
-    """Get a list of all powerbi datasets in the current workspace"""
+    """Get a powerbi dataset in the current workspace"""
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")

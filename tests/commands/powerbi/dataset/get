@@ -1,4 +1,4 @@
-## babylon powerbi report upload
+## babylon powerbi dataset get
 
 To test the new commands proceed as follow:
 - Add or edit the following lines in `config/platforms/platform.yaml`
@@ -12,12 +12,12 @@ powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
 powerbi_workspace_id: ""
 ```
 
-You should first grab a `.pbix` file for testing.
+You can grab a `dataset id` for testing using `babylon powerbi dataset get-all`.
 
 ### Commands
 
 ```bash
-babylon powerbi report upload [report-file.pbix]
+babylon powerbi dataset get [dataset-id]
 ```
-Should upload the file to the powerbi workspace.
+Should return info of the given dataset
 Can be checked in the powerBI web app.

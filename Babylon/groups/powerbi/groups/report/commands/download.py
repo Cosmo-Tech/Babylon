@@ -33,7 +33,7 @@ def download(ctx: Context,
              report_id: str,
              output_file: str,
              workspace_id: Optional[str] = None) -> CommandResponse:
-    """Download a report"""
+    """Download a report in the current workspace"""
     access_token = ctx.find_object(AccessToken).token
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:

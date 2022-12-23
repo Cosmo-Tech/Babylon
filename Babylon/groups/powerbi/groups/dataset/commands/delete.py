@@ -34,7 +34,7 @@ def delete(ctx: Context,
            dataset_id: str,
            workspace_id: Optional[str] = None,
            force_validation: bool = False) -> CommandResponse:
-    """Delete a powerbi datasets in the current workspace"""
+    """Delete a powerbi dataset in the current workspace"""
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")

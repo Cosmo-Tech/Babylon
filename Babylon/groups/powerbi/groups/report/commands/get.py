@@ -24,7 +24,7 @@ logger = logging.getLogger("Babylon")
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
 @output_to_file
 def get(ctx: Context, powerbi_workspace_id: str, report_id: str, workspace_id: Optional[str] = None) -> CommandResponse:
-    """Get info from every powerbi reports of a workspace"""
+    """Get info from a powerbi report of a workspace"""
     access_token = ctx.find_object(AccessToken).token
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:

@@ -1,4 +1,4 @@
-## babylon powerbi report upload
+## babylon powerbi report delete
 
 To test the new commands proceed as follow:
 - Add or edit the following lines in `config/platforms/platform.yaml`
@@ -12,12 +12,12 @@ powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
 powerbi_workspace_id: ""
 ```
 
-You should first grab a `.pbix` file for testing.
+You can grab a `report id` for testing using `babylon powerbi report get-all`.
 
 ### Commands
 
 ```bash
-babylon powerbi report upload [report-file.pbix]
+babylon powerbi report delete [report-id]
 ```
-Should upload the file to the powerbi workspace.
+Should delete the given report
 Can be checked in the powerBI web app.
