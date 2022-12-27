@@ -33,7 +33,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @timing_decorator
 @argument("dataset-id", type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
-@option("-c", "--connector-id", "connector_id")
+@option("-c", "--connector-id", "connector_id", type=QueryType())
 @option(
     "-e",
     "--use-working-dir-file",
@@ -59,7 +59,6 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 def update(
     dataset_api: DatasetApi,
     dataset_file: str,
-    connector: str,
     organization_id: str,
     dataset_id: str,
     connector_id: Optional[str] = None,
@@ -101,7 +100,7 @@ def update(
         logger.error("Unauthorized access to the cosmotech api")
         return
     except ServiceException:
-        logger.error(f"Organization with id {organization_id} and or Connector {connector['id']} not found.")
+        logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
         return
     except ForbiddenException:
         logger.error(f"You are not allowed to update the dataset : {dataset_id}")
