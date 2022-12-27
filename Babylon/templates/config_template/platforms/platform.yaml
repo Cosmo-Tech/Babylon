@@ -12,7 +12,7 @@ resource_group_name: ""
 csm_acr_registry_name: ""
 # ACR destination registry name dest_registry.azurecr.io
 acr_registry_name: ""
-# resources_location: azure resource location ex: westeurope
+# resources_location: azure resource location used on the platform ex: westeurope
 resources_location: ""
 # Storage account name
 storage_account_name: ""

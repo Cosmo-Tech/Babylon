@@ -11,7 +11,7 @@ from click import option
 from ......utils.api import convert_keys_case
 from ......utils.api import get_api_file
 from ......utils.api import underscore_to_camel
-from ......utils.decorators import require_platform_key
+from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 
@@ -23,7 +23,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @command()
 @pass_arm_client
 @argument("deployment-config-file-path")
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_deployment_key("resource_group_name", "resource_group_name")
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",

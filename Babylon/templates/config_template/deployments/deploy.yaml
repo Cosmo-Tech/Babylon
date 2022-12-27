@@ -8,6 +8,10 @@ workspace_id: ""
 workspace_key: ""
 # api_url : the url of the API (used for validation)
 api_url: ""
+# resource_group_name: The name fo the resource group used for users deployment (function apps, webapp)
+resource_group_name: ""
+# resources_location: azure resource location for users deployment ex: westeurope
+resources_location: ""
 # adx_database_name : the name of the database used in Azure Data Explorer
 adx_database_name: ""
 # digital_twin_url : URL of the digital twin to use
