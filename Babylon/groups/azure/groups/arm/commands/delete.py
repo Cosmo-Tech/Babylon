@@ -8,7 +8,7 @@ from click import command
 from click import make_pass_decorator
 from click import option
 
-from ......utils.decorators import require_platform_key
+from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.response import CommandResponse
@@ -21,7 +21,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 @command()
 @pass_arm_client
 @argument("deployment_name")
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_deployment_key("resource_group_name", "resource_group_name")
 @option(
     "-f",
     "--force",

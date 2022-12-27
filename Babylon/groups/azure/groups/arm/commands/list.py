@@ -5,7 +5,7 @@ from azure.mgmt.resource import ResourceManagementClient
 from click import command
 from click import make_pass_decorator
 
-from ......utils.decorators import require_platform_key
+from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 
@@ -16,7 +16,7 @@ pass_arm_client = make_pass_decorator(ResourceManagementClient)
 
 @command()
 @pass_arm_client
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_deployment_key("resource_group_name", "resource_group_name")
 @timing_decorator
 def list(
     arm_client: ResourceManagementClient,
