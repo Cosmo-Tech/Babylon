@@ -32,7 +32,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 @timing_decorator
 @pass_dataset_api
 @argument("dataset-name", required=False, type=QueryType())
-@option("-c", "--connector-id", "connector_id")
+@option("-c", "--connector-id", "connector_id", type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-e",
