@@ -1,9 +1,7 @@
 from typing import Any
 from typing import Optional
-from typing import Generator
 import json
 
-from click import Context
 from click import get_current_context
 
 
@@ -18,18 +16,8 @@ class CommandResponse():
         self.status_code = status_code
         self.data = data
         ctx = get_current_context()
-        self.command = self._extract_command(ctx)
+        self.command = ctx.command_path.split(" ")
         self.params = ctx.params
-
-    def _extract_command(self, ctx: Context):
-
-        def gen_group(contx: Context) -> Generator[Context, Any, Any]:
-            ctx = contx
-            while ctx:
-                yield ctx
-                ctx: Optional[Context] = ctx.parent
-
-        return reversed([contx.command.name for contx in gen_group(ctx) if ctx.command.name])
 
     def to_dict(self) -> dict[str, Any]:
         return {"command": self.command, "params": self.params, "status_code": self.status_code, "data": self.data}
