@@ -1,4 +1,3 @@
-import logging
 from unittest.mock import patch, mock_open
 from Babylon.utils import api
 

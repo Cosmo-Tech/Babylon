@@ -5,7 +5,6 @@ from functools import wraps
 from typing import Any
 from typing import Callable
 from typing import Optional
-import json
 
 import click
 import cosmotech_api
