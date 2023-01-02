@@ -26,11 +26,17 @@ logger = logging.getLogger("Babylon")
 @argument("dataset_id")
 @option("-f", "--file", "update_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-e",
+        "--use-working-dir-file",
+        "use_working_dir_file",
+        is_flag=True,
+        help="Should the parameter file path be relative to Babylon working directory ?")
 def update(ctx: Context,
            powerbi_workspace_id: str,
            dataset_id: str,
            update_file: str,
-           workspace_id: Optional[str] = None) -> CommandResponse:
+           workspace_id: Optional[str] = None,
+           use_working_dir_file: bool = False) -> CommandResponse:
     """Update parameters of a given dataset"""
     access_token = ctx.find_object(AccessToken).token
     workspace_id = workspace_id or powerbi_workspace_id
@@ -38,9 +44,11 @@ def update(ctx: Context,
         logger.error("A workspace id is required either in your config or with parameter '-w'")
         return CommandResponse.fail()
     # Preparing parameter data
+    env = ctx.find_object(Environment)
+    if use_working_dir_file:
+        update_file = env.working_dir.get_file(str(update_file))
     with open(update_file, "r") as _file:
         template = _file.read()
-        env = ctx.find_object(Environment)
         data = {**env.configuration.get_deploy(), **env.configuration.get_platform()}
         details = Template(template).substitute(data)
     update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
