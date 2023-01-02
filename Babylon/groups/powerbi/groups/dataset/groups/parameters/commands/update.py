@@ -24,7 +24,7 @@ logger = logging.getLogger("Babylon")
 @pass_context
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("dataset_id")
-@option("-f", "--file", "update_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("-f", "--file", "update_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
 def update(ctx: Context,
            powerbi_workspace_id: str,
@@ -37,14 +37,14 @@ def update(ctx: Context,
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
         return CommandResponse.fail()
-    update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
-                  f"/datasets/{dataset_id}/Default.UpdateParameters")
-    update_file = update_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/powerbi_parameters.json"
+    # Preparing parameter data
     with open(update_file, "r") as _file:
         template = _file.read()
         env = ctx.find_object(Environment)
         data = {**env.configuration.get_deploy(), **env.configuration.get_platform()}
         details = Template(template).substitute(data)
+    update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
+                  f"/datasets/{dataset_id}/Default.UpdateParameters")
     response = oauth_request(url=update_url, access_token=access_token, data=details, type="POST")
     if response is None:
         return CommandResponse.fail()
