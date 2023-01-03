@@ -50,7 +50,11 @@ def update(ctx: Context,
     with open(update_file, "r") as _file:
         template = _file.read()
         data = {**env.configuration.get_deploy(), **env.configuration.get_platform()}
-        details = Template(template).substitute(data)
+        try:
+            details = Template(template).substitute(data)
+        except Exception as e:
+            logger.error(f"Could not fill parameters template: {e}")
+            return CommandResponse.fail()
     update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
                   f"/datasets/{dataset_id}/Default.UpdateParameters")
     response = oauth_request(url=update_url, access_token=access_token, data=details, type="POST")
