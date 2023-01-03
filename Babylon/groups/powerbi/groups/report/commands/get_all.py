@@ -6,6 +6,7 @@ from click import command
 from click import pass_context
 from click import Context
 from click import option
+from rich.pretty import pretty_repr
 
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import output_to_file
@@ -32,5 +33,5 @@ def get_all(ctx: Context, powerbi_workspace_id: str, workspace_id: Optional[str]
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")
-    logger.info("\n".join([str(data) for data in output_data]))
+    logger.info("\n".join([pretty_repr(data) for data in output_data]))
     return CommandResponse.success(output_data)
