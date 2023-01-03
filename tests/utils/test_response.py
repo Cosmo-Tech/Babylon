@@ -40,5 +40,5 @@ def test_response_json():
     """Testing command responses"""
     ctx = click.Context(click.Command('cmd'))
     with ctx:
-        response = CommandResponse(status_code=CommandResponse.STATUS_OK, data={"oups": True})
+        response = CommandResponse.success({"oups": True})
         response.toJSON()

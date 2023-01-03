@@ -129,9 +129,12 @@ def test_requires_program_exists():
 
 def test_output_to_file():
     """Test decorators"""
+
     class Response:
-        def toJSON(self):
-            pass
+
+        def dump(self, output_file: str):
+            with open(output_file, "w") as _f:
+                _f.write("COUCOU")
 
     @deco.output_to_file
     def my_func() -> Any:
