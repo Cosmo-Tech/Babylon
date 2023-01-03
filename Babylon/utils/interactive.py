@@ -89,10 +89,10 @@ def confirm_deletion(entity_type: str, entity_id: str) -> bool:
         logger.info(f"{entity_type} deletion aborted.")
         return False
     for _ in range(0, MAX_RETRIES):
-        confirm_connector_id = click.prompt(f"Confirm deletion by typing {entity_type} ID {entity_id}")
+        confirm_connector_id = click.prompt(f"Confirm deletion by typing {entity_type} ID: '{entity_id}'")
         if confirm_connector_id != entity_id:
             logger.error(f"Wrong {entity_type}, "
-                         f"to confirm deletion, please type {entity_type} ID {entity_id}")
+                         f"to confirm deletion, please type {entity_type} ID: '{entity_id}'")
             continue
         return True
     logger.error(f"{entity_type} deletion aborted")
