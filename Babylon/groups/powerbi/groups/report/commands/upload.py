@@ -15,10 +15,13 @@ from click import option
 from rich.pretty import pretty_repr
 
 from ......utils.decorators import require_deployment_key
+from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 from ......utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
+
+RETRY_WAIT_TIME = 0.5
 
 
 @command()
@@ -26,6 +29,7 @@ logger = logging.getLogger("Babylon")
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("pbix_filename", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@timing_decorator
 def upload(ctx: Context,
            powerbi_workspace_id: str,
            pbix_filename: str,
@@ -36,7 +40,7 @@ def upload(ctx: Context,
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
         return CommandResponse.fail()
-    name = pbix_filename or os.path.splitext(pbix_filename)[0]
+    name = os.path.splitext(pbix_filename)[0]
     header = {"Content-Type": "multipart/form-data", "Authorization": f"Bearer {access_token}"}
     route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports?datasetDisplayName={name}"
     session = requests.Session()
@@ -53,13 +57,13 @@ def upload(ctx: Context,
     # Wait for import end
     route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports/{import_data.get('id')}"
     output_data = {}
-    for _ in range(0, 10):
+    while True:
+        time.sleep(RETRY_WAIT_TIME)
         response = oauth_request(route, access_token)
         output_data = response.json()
-        if output_data.get("importState") == "Succeeded":
+        if output_data.get("importState") != "Publishing":
             break
-        logger.info("PowerBI import in progress...")
-        time.sleep(1)
+        logger.info("Waiting for import to finish...")
     if output_data.get("importState") != "Succeeded":
         logger.error(f"Failed to import report file {pbix_filename}")
         return CommandResponse.fail()

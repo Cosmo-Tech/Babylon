@@ -1,15 +1,13 @@
 import logging
-from typing import Optional
 
 from azure.core.credentials import AccessToken
 from click import Context
 from click import command
-from click import option
 from click import pass_context
 
+from ......utils.decorators import require_deployment_key
 from ......utils.logging import table_repr
 from ......utils.response import CommandResponse
-from ......utils.typing import QueryType
 from ......utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
@@ -17,22 +15,18 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_context
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@option("-n", "--name", "name", help="PowerBI workspace name")
-def get(ctx: Context, workspace_id: Optional[str] = None, name: Optional[str] = None) -> CommandResponse:
+@require_deployment_key("powerbi_workspace_id")
+def get_current(ctx: Context, powerbi_workspace_id: str) -> CommandResponse:
     """Get a specific workspace information"""
-    if not workspace_id and not name:
-        logger.error("A workspace id or name is required with parameter '-w' or '-n'")
-        return CommandResponse.fail()
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups'
     access_token = ctx.find_object(AccessToken).token
-    params = {"$filter": f"id eq '{workspace_id}'"} if workspace_id else {"$filter": f"name eq '{name}'"}
+    params = {"$filter": f"id eq '{powerbi_workspace_id}'"}
     response = oauth_request(url=url_groups, access_token=access_token, params=params)
     if response is None:
         return CommandResponse.fail()
     workspace_data = response.json().get('value')
     if not workspace_data:
-        logger.error(f"{workspace_id} was not found")
+        logger.error(f"{powerbi_workspace_id} was not found")
         return CommandResponse.fail()
     logger.info("\n".join(table_repr(workspace_data)))
-    return CommandResponse.success(workspace_data)
+    return CommandResponse(data=workspace_data)

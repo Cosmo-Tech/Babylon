@@ -15,7 +15,6 @@ from ........utils.decorators import require_deployment_key
 from ........utils.request import oauth_request
 from ........utils.environment import Environment
 from ........utils.response import CommandResponse
-from ........utils import TEMPLATE_FOLDER_PATH
 
 logger = logging.getLogger("Babylon")
 
