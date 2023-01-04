@@ -25,6 +25,7 @@ def test_response_dict():
         response = CommandResponse(status_code=CommandResponse.STATUS_OK, data={"oups": True})
         data = response.to_dict()
         assert data.get("status_code") == CommandResponse.STATUS_OK
+        assert data.get("data") == {"oups": True}
 
 
 def test_response_str():
@@ -32,7 +33,7 @@ def test_response_str():
     ctx = click.Context(click.Command('cmd'))
     with ctx:
         response = CommandResponse(status_code=CommandResponse.STATUS_OK, data={"oups": True})
-        print(str(response))
+        assert "'oups'" in str(response)
 
 
 def test_response_json():
