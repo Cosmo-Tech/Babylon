@@ -1,11 +1,15 @@
 import logging
+import sys
 from math import log10
-
 from typing import Any
 from typing import Optional
+
 import click
 
+from ..version import VERSION
+
 MAX_RETRIES = 3
+INTERACTIVE_ARG_VALUE = "--interactive-after"
 
 logger = logging.getLogger("Babylon")
 
@@ -93,3 +97,23 @@ def confirm_deletion(entity_type: str, entity_id: str) -> bool:
         return True
     logger.error(f"{entity_type} deletion aborted")
     return False
+
+
+def interactive_run(command_return, interactive: bool = False, **kwargs):
+    if not interactive:
+        return
+    from .command_helper import run_command
+    import code
+    _locals = dict(globals(), **{"command_return": command_return, "run_command": run_command})
+    shell = code.InteractiveConsole(locals=_locals)
+    sys.ps1 = "Babylon > "
+    import readline
+    from rlcompleter import Completer
+    completer = Completer(namespace=_locals)
+    readline.set_completer(completer.complete)
+    readline.parse_and_bind('tab:complete')
+    shell.interact(banner="Babylon interactive mode.\n"
+                   f"Babylon version: {VERSION}\n"
+                   "Result of command is in var `command_return`\n"
+                   "You can run another command using function `run_command`",
+                   exitmsg="Thanks for using Babylon")

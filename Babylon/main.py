@@ -2,11 +2,12 @@
 # -*- coding:utf-8 -*-
 import importlib.util
 import logging
+import os
 import sys
 
 import click
 import click_log
-import rich.console
+from rich.highlighter import NullHighlighter
 from rich.traceback import install
 
 from .commands import list_commands
@@ -16,6 +17,8 @@ from .utils.dry_run import display_dry_run
 from .utils.environment import Environment
 from .utils.help import HELP_CONTEXT_OVERRIDE
 from .utils.help import print_cmd_help
+from .utils.interactive import INTERACTIVE_ARG_VALUE
+from .utils.interactive import interactive_run
 from .utils.logging import MultiLineHandler
 from .version import VERSION
 
@@ -35,16 +38,22 @@ def print_version(ctx, param, value):
     ctx.exit()
 
 
-@click.group(name='babylon', context_settings=HELP_CONTEXT_OVERRIDE)
+@click.group(name='babylon', invoke_without_command=False, context_settings=HELP_CONTEXT_OVERRIDE)
 @click_log.simple_verbosity_option(logger)
-@click.option("--tests", "tests_mode", is_flag=True, help="Enable test mode, this mode changes output formatting.")
+@click.option("--bare",
+              "--raw",
+              "--tests",
+              "tests_mode",
+              is_flag=True,
+              help="Enable test mode, this mode changes output formatting.")
 @click.option("-n",
               "--dry-run",
               "dry_run",
               callback=display_dry_run,
               is_flag=True,
+              expose_value=False,
               is_eager=True,
-              help="Will run commands in dry-run mode")
+              help="Will run commands in dry-run mode.")
 @click.pass_context
 @click.option("-h",
               "--help",
@@ -53,9 +62,19 @@ def print_version(ctx, param, value):
               expose_value=False,
               is_eager=True,
               help="Show this message and exit.")
-@click.option('--version', is_flag=True, callback=print_version, expose_value=False, is_eager=True)
+@click.option('--version',
+              is_flag=True,
+              callback=print_version,
+              expose_value=False,
+              is_eager=True,
+              help="Print version number and return.")
+@click.option(INTERACTIVE_ARG_VALUE,
+              "interactive",
+              is_flag=True,
+              hidden=True,
+              help="Start an interactive session after command run.")
 @prepend_doc_with_ascii
-def main(ctx, tests_mode, dry_run):
+def main(ctx, tests_mode, interactive):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
 The following environment variables are available to override the working directory or the configuration:
@@ -64,18 +83,21 @@ The following environment variables are available to override the working direct
 - `BABYLON_CONFIG_DIRECTORY`: path to a folder to use as a configuration directory
 - `BABYLON_WORKING_DIRECTORY`: path to a folder to use as a working directory
     """
-    install()
     if tests_mode:
+        os.environ.setdefault("NO_COLOR", "True")
         logger.removeHandler(handler)
-        test_handler = MultiLineHandler(console=rich.console.Console(no_color=True),
+        test_handler = MultiLineHandler(highlighter=NullHighlighter(),
                                         show_path=False,
                                         omit_repeated_times=False,
                                         show_time=False,
                                         show_level=False)
         logger.addHandler(test_handler)
-    env.dry_run = dry_run
+    else:
+        install(width=os.get_terminal_size().columns)
     ctx.obj = env
 
+
+main.result_callback()(interactive_run)
 
 for plugin_name, _plugin_path in env.configuration.get_active_plugins():
     init_path = _plugin_path / "__init__.py"
