@@ -1,15 +1,26 @@
 import json
+import logging
 import os
 import pathlib
+import re
 from collections import defaultdict
 from typing import Any
 from typing import List
 from typing import Optional
 
 import click
+import jmespath
 
 from .configuration import Configuration
 from .working_dir import WorkingDir
+
+logger = logging.getLogger("Babylon")
+
+WORKING_DIR_STRING = "workdir"
+DEPLOY_STRING = "deploy"
+PLATFORM_STRING = "platform"
+STORE_STRING = "datastore"
+PATH_SYMBOL = "%"
 
 
 class SingletonMeta(type):
@@ -36,13 +47,12 @@ class Environment(metaclass=SingletonMeta):
     configuration: Optional[Configuration] = None
     working_dir: Optional[WorkingDir] = None
 
-    data_store = None
-
     def __init__(self):
         self.dry_run = False
 
         self.set_configuration(pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon"))))
         self.set_working_dir(pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', ".")))
+        self.data_store: defaultdict = defaultdict()
         self.reset_data_store()
 
     def set_configuration(self, configuration_path: pathlib.Path):
@@ -89,16 +99,83 @@ class Environment(metaclass=SingletonMeta):
         """
         if not len(data_path):
             raise KeyError("Require at least one component for the data path")
-        current_store = self.data_store
 
-        *intermediate_keys, final_key = data_path
-
-        for key in intermediate_keys:
-            current_store = current_store.get(key)
-            if not isinstance(current_store, dict):
-                raise KeyError("Data path is incorrect")
-
-        return current_store.get(final_key)
+        r = self.convert_data_query(f"{PATH_SYMBOL}{STORE_STRING}{PATH_SYMBOL}" + ".".join(data_path))
+        if r is None:
+            raise KeyError("Data path can't get data")
+        return r
 
     def printable_store(self) -> str:
         return json.dumps(self.data_store, indent=2, default=str)
+
+    def convert_data_query(self, query: str) -> Any:
+
+        extracted_content = self.extract_value_content(query)
+        if not extracted_content:
+            logger.debug(f"  '{query}' -> no conversion applied")
+            return None
+
+        _type, _file, _query = extracted_content
+        # Check content of platform / deploy
+        possibles = {
+            DEPLOY_STRING: (self.configuration.get_deploy(), self.configuration.get_deploy_path()),
+            PLATFORM_STRING: (self.configuration.get_platform(), self.configuration.get_platform_path())
+        }
+
+        if _type in possibles:
+            logger.debug(f"    Detected parameter type '{_type}' with query '{_query}'")
+            _data, _path = possibles.get(_type)
+            r = jmespath.search(_query, _data)
+            if r is None:
+                raise KeyError(f"Could not find results for query '{_query}' in {_path}")
+        elif _type == STORE_STRING:
+            logger.debug(f"    Detected parameter type '{_type}' with query '{_query}'")
+            r = jmespath.search(_query, self.data_store)
+        else:
+            # Check content of workdir
+            logger.debug(f"    Detected parameter type '{_type}' with query '{_query}' on file '{_file}'")
+            wd = self.working_dir
+            if not wd.requires_file(_file):
+                raise KeyError(f"File '{_file}' does not exists in current working dir.")
+
+            _content = wd.get_file_content(_file)
+            r = jmespath.search(_query, _content)
+            if r is None:
+                raise KeyError(f"Could not find results for query '{_query}' in '{wd.get_file(_file)}'")
+
+        return r
+
+    @staticmethod
+    def auto_completion_guide():
+        bases = [WORKING_DIR_STRING + '[]', DEPLOY_STRING, PLATFORM_STRING, STORE_STRING]
+        base_names = [f"{PATH_SYMBOL}{base}{PATH_SYMBOL}" for base in bases]
+        return base_names
+
+    @staticmethod
+    def extract_value_content(value: Any) -> Optional[tuple[str, Optional[str], str]]:
+        """
+        Extract interesting information from a given value
+        :param value: Value of the parameter to extract
+        :return: None if value has no interesting info else element, filepath, and query
+        """
+
+        if not isinstance(value, str):
+            return None
+
+        check_regex = re.compile(f"{PATH_SYMBOL}"
+                                 f"({PLATFORM_STRING}|{DEPLOY_STRING}|{WORKING_DIR_STRING}|{STORE_STRING})"
+                                 f"(?:(?<={WORKING_DIR_STRING})\\[(.+)])?"
+                                 f"{PATH_SYMBOL}"
+                                 f"(.+)")
+
+        # Regex groups captures :
+        # 1 : Element to query : platform/deploy/workdir
+        # 2 : File path to query in case of a working dir
+        # 3 : jmespath query to apply
+
+        match_content = check_regex.match(value)
+        if not match_content:
+            return None
+        _type, _file, _query = match_content.groups()
+
+        return _type, _file, _query
