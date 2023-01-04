@@ -1140,6 +1140,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-set-variable" class="md-nav__link">
+    set-variable
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1177,6 +1184,13 @@
           <li class="md-nav__item">
   <a href="#babylon-config-platform-select" class="md-nav__link">
     select
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-set-variable" class="md-nav__link">
+    set-variable
   </a>
   
 </li>
@@ -2560,6 +2574,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#babylon-config-deployment-set-variable" class="md-nav__link">
+    set-variable
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2597,6 +2618,13 @@
           <li class="md-nav__item">
   <a href="#babylon-config-platform-select" class="md-nav__link">
     select
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-platform-set-variable" class="md-nav__link">
+    set-variable
   </a>
   
 </li>
@@ -5874,6 +5902,7 @@
 <li><em><a href="#babylon-config-deployment-create">create</a></em>: Create a new deployment file DEPLOY.yaml and open editor to edit it</li>
 <li><em><a href="#babylon-config-deployment-edit">edit</a></em>: Open editor to edit variables in given deployment</li>
 <li><em><a href="#babylon-config-deployment-select">select</a></em>: Change current selected deployment</li>
+<li><em><a href="#babylon-config-deployment-set-variable">set-variable</a></em>: Set a deployment variable with a new value</li>
 </ul>
 <h5 id="babylon-config-deployment-create">babylon config deployment create</h5>
 <p>Create a new deployment file DEPLOY.yaml and open editor to edit it</p>
@@ -5949,6 +5978,30 @@
 </tr>
 </tbody>
 </table>
+<h5 id="babylon-config-deployment-set-variable">babylon config deployment set-variable</h5>
+<p>Set a deployment variable with a new value</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config deployment set-variable [OPTIONS] VARIABLE_KEY VARIABLE_VALUE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="babylon-config-display">babylon config display</h4>
 <p>Display current config</p>
 <p><strong>Usage:</strong></p>
@@ -6002,6 +6055,7 @@
 <li><em><a href="#babylon-config-platform-create">create</a></em>: <em>No description was provided with this command.</em></li>
 <li><em><a href="#babylon-config-platform-edit">edit</a></em>: Open editor to edit variables in given platform</li>
 <li><em><a href="#babylon-config-platform-select">select</a></em>: Change current selected platform</li>
+<li><em><a href="#babylon-config-platform-set-variable">set-variable</a></em>: Set a platform variable with a new value</li>
 </ul>
 <h5 id="babylon-config-platform-create">babylon config platform create</h5>
 <p><strong>Usage:</strong></p>
@@ -6056,6 +6110,30 @@
 <p>if not argument is passed will run in interactive mode</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon config platform select [OPTIONS] [PLATFORM]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-config-platform-set-variable">babylon config platform set-variable</h5>
+<p>Set a platform variable with a new value</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon config platform set-variable [OPTIONS] VARIABLE_KEY VARIABLE_VALUE
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
