@@ -63,7 +63,7 @@ def run(
         )
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
-        return CommandResponse.f(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
 
     logger.debug(poller.result())
     logger.info(f"Deployment finished with status : {poller.status()}. \
