@@ -15,7 +15,9 @@ def test_datastore_store_valid_key():
     env = Environment()
     env.reset_data_store()
 
-    path = ['SimpleKey', ]
+    path = [
+        'SimpleKey',
+    ]
     value = "Value"
 
     assert env.store_data(path, value)
