@@ -9,10 +9,8 @@ logger = logging.getLogger("Babylon")
 
 def oauth_request(url: str,
                   access_token: str,
-                  data: Any = {},
-                  json_data: Any = "",
-                  params: Any = {},
-                  type: str = "GET") -> Optional[Any]:
+                  type: str = "GET",
+                  **kwargs: dict[str, Any]) -> Optional[Any]:
     """Requests an API using OAuth authentication
 
     :param url: request url
@@ -33,7 +31,7 @@ def oauth_request(url: str,
         logger.error(f"Could not find request of type {type}")
         return None
     try:
-        response = request_func(url=url, headers=header, data=data, json=json_data, params=params)
+        response = request_func(url=url, headers=header, **kwargs)
     except Exception as e:
         logger.error(f"Request failed: {e}")
         return None
