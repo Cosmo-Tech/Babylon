@@ -41,4 +41,4 @@ def list(credentials: DefaultAzureCredential, csm_acr_registry_name: str, acr_re
         logger.error(f"Could not list from registry {registry}")
         return CommandResponse.fail()
     logger.info(repos)
-    return CommandResponse(data={"repositories": repos})
+    return CommandResponse.success({"repositories": repos})

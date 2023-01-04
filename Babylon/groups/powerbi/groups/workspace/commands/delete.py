@@ -42,4 +42,4 @@ def delete(ctx: Context, powerbi_workspace_id: str, override_workspace_id: Optio
     if response is None:
         return CommandResponse.fail()
     logger.info(f"{workspace_id} was successfully removed from power bi app")
-    return CommandResponse()
+    return CommandResponse.success()

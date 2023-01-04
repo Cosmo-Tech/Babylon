@@ -46,4 +46,4 @@ def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], force_va
     if workspace_id_wd == workspace_id:
         logger.info("Unsetting key workspace_id from working dir file as it does not exists anymore")
         env.working_dir.set_yaml_key("terraform_workspace.yaml", "workspace_id", "")
-    return CommandResponse()
+    return CommandResponse.success()

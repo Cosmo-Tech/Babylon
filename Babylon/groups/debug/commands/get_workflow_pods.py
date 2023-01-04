@@ -31,4 +31,4 @@ def get_workflow_pods(ctx, workflow) -> CommandResponse:
                                 stderr=subprocess.DEVNULL))
     items = r['items']
     logger.info(pprint.pformat(items))
-    return CommandResponse()
+    return CommandResponse.success()

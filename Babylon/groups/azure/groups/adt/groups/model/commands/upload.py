@@ -88,4 +88,4 @@ def upload(
             continue
 
         upload_one_model(dt_client, model_file_content, override_if_exists)
-        return CommandResponse()
+        return CommandResponse.success()

@@ -48,4 +48,4 @@ def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = No
     if output_file:
         logger.info(f"Writing models to {output_file.absolute()}")
         json.dump(_file_content, open(output_file, "w"))
-    return CommandResponse(data={"models": data})
+    return CommandResponse.success({"models": data})

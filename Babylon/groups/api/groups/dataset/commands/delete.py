@@ -110,4 +110,4 @@ def delete(
         logger.error(f"You are not allowed to delete dataset : {dataset_id}")
         return CommandResponse.fail()
     logger.info(f"Dataset {dataset_id} of organization {organization_id} deleted.")
-    return CommandResponse()
+    return CommandResponse.success()

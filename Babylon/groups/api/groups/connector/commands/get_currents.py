@@ -70,7 +70,7 @@ def get_currents(
         retrieved_connectors = filter_api_response(retrieved_connectors, fields.replace(" ", "").split(","))
     if not output_file:
         logger.info(pformat(retrieved_connectors))
-        return CommandResponse(data={"connectors": retrieved_connectors})
+        return CommandResponse.success({"connectors": retrieved_connectors})
 
     _connectors_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_connectors]
     with open(output_file, "w") as _file:
@@ -79,4 +79,4 @@ def get_currents(
         except AttributeError:
             json.dump(_connectors_to_dump, _file, ensure_ascii=False)
     logger.info(f"Full content was dumped on {output_file}")
-    return CommandResponse(data={"connectors": retrieved_connectors})
+    return CommandResponse.success({"connectors": retrieved_connectors})

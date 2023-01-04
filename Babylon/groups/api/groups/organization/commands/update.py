@@ -71,4 +71,4 @@ def update(
 
     logger.debug(pformat(retrieved_data))
     logger.info(f"Updated organization with id: {retrieved_data['id']}")
-    return CommandResponse(data=retrieved_data)
+    return CommandResponse.success(retrieved_data)

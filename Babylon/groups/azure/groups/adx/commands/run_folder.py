@@ -43,4 +43,4 @@ def run_folder(
         file_path = pathlib.Path(_file)
         logger.info(f"Found script {file_path} sending it to the database.")
         ctx.invoke(run_script, script_file=file_path)
-    return CommandResponse()
+    return CommandResponse.success()

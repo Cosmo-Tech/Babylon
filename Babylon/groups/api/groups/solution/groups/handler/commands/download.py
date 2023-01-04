@@ -86,4 +86,4 @@ def download(
 
     logger.debug(response)
     logger.info(f"{handler_id} handler downloaded from solution {solution_id} successfully")
-    return CommandResponse(data={"id": handler_id, "file": f"{run_template_id}.zip"})
+    return CommandResponse.success({"id": handler_id, "file": f"{run_template_id}.zip"})

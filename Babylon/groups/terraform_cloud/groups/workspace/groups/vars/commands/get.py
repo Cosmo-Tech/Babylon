@@ -49,4 +49,4 @@ def get(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: st
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(r[0], _file, ensure_ascii=False)
-    return CommandResponse(data=r[0])
+    return CommandResponse.success(r[0])

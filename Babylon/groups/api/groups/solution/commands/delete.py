@@ -105,4 +105,4 @@ def delete(
 
     logger.info(f"Solutions {solution_id} of organization {organization_id} deleted.")
 
-    return CommandResponse(data={"id": solution_id})
+    return CommandResponse.success({"id": solution_id})

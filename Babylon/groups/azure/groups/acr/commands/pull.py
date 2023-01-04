@@ -57,4 +57,4 @@ def pull(credentials: DefaultAzureCredential,
     except Exception as e:
         logger.error(str(e))
     logger.info(f"Successfully pulled image {image} from registry {registry}")
-    return CommandResponse()
+    return CommandResponse.success()

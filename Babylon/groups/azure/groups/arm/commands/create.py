@@ -42,4 +42,4 @@ def create(
         _commented_yaml_loader.dump(arm_deployment, _f)
 
     logger.info(f"Resource deployment config created, content was dumped in {deployment_name}.yaml")
-    return CommandResponse(data={"deployment_name": deployment_name})
+    return CommandResponse.success({"deployment_name": deployment_name})

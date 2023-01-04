@@ -24,7 +24,7 @@ def select(platform: Optional[pathlib.Path] = None) -> CommandResponse:
     if platform:
         if config.set_platform(platform):
             logger.info("Configuration successfully updated")
-            return CommandResponse()
+            return CommandResponse.success()
         logger.error(f"Configuration was not updated. {platform} is not a valid platform file.")
         return CommandResponse.fail()
     logger.debug("Interactive change of platform:")
@@ -33,6 +33,6 @@ def select(platform: Optional[pathlib.Path] = None) -> CommandResponse:
     if new_platform:
         config.set_platform(new_platform)
         logger.debug("Configuration successfully updated")
-        return CommandResponse()
+        return CommandResponse.success()
     logger.error("Issue while selecting new platform configuration")
     return CommandResponse.fail()

@@ -67,7 +67,7 @@ def get_all(
     logger.info(f"Found {len(retrieved_datasets)} datasets")
     if not output_file:
         logger.info(pformat(retrieved_datasets, sort_dicts=False))
-        return CommandResponse(data={"datasets": retrieved_datasets})
+        return CommandResponse.success({"datasets": retrieved_datasets})
 
     _datasets_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_datasets]
     with open(output_file, "w") as _file:
@@ -76,4 +76,4 @@ def get_all(
         except AttributeError:
             json.dump(_datasets_to_dump, _file, ensure_ascii=False)
     logger.info("Full content was dumped on %s.", output_file)
-    return CommandResponse(data={"datasets": retrieved_datasets})
+    return CommandResponse.success({"datasets": retrieved_datasets})

@@ -53,4 +53,4 @@ def delete(ctx: Context,
                                                                adx_cluster_name,
                                                                adx_database_name,
                                                                principal_assignment_name=assign_name)
-    return CommandResponse()
+    return CommandResponse.success()

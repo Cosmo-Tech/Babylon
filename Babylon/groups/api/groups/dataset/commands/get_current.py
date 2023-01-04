@@ -69,7 +69,7 @@ def get_current(
     if not output_file:
         logger.info(f"Dataset {dataset_id} details :")
         logger.info(pformat(retrieved_dataset))
-        return CommandResponse(data=retrieved_dataset)
+        return CommandResponse.success(retrieved_dataset)
 
     converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
     with open(output_file, "w") as _f:
@@ -79,4 +79,4 @@ def get_current(
             json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
     logger.info(f"Dataset {dataset_id} detail was dumped on {output_file}")
     logger.debug(pformat(retrieved_dataset))
-    return CommandResponse(data=retrieved_dataset)
+    return CommandResponse.success(retrieved_dataset)

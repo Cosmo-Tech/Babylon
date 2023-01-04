@@ -25,4 +25,4 @@ def get_all(ctx: Context) -> CommandResponse:
         return CommandResponse.fail()
     groups = response.json().get('value')
     logger.info("\n".join(table_repr(groups)))
-    return CommandResponse(data=groups)
+    return CommandResponse.success(groups)

@@ -28,4 +28,4 @@ def zip_env(path, force_overwrite) -> CommandResponse:
             logger.error("Did you try using the force_overwrite option?")
         return CommandResponse.fail()
     logger.info(f"working_dir was zipped in {out}")
-    return CommandResponse()
+    return CommandResponse.success()

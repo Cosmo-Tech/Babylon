@@ -25,4 +25,4 @@ def edit(platform: Optional[pathlib.Path] = None) -> CommandResponse:
         config.edit_platform(platform)
     else:
         config.edit_platform(config.get_platform_path())
-    return CommandResponse()
+    return CommandResponse.success()

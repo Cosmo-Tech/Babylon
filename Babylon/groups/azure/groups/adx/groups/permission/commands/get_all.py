@@ -28,4 +28,4 @@ def get_all(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_d
                                                                  adx_database_name)
     for ent in assignments:
         logger.info(f"{pformat(ent.__dict__)}")
-    return CommandResponse(data={"assignments": assignments})
+    return CommandResponse.success({"assignments": assignments})

@@ -36,4 +36,4 @@ def get(ctx: Context, powerbi_workspace_id: str, report_id: str, workspace_id: O
         return CommandResponse.fail()
     output_data = response.json()
     logger.info(output_data)
-    return CommandResponse(data=output_data)
+    return CommandResponse.success(output_data)

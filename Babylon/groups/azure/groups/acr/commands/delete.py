@@ -71,4 +71,4 @@ def delete(credentials: DefaultAzureCredential,
         logger.error(f"Could not delete image {image} from registry {registry}: {str(e)}")
         return CommandResponse.fail()
     logger.info(f"Successfully deleted image {image} from registry {registry}")
-    return CommandResponse()
+    return CommandResponse.success()

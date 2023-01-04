@@ -35,4 +35,4 @@ def get(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_datab
     logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
     for ent in entity_assignments:
         logger.info(f"{pformat(ent.__dict__)}")
-    return CommandResponse(data={"assignments": entity_assignments})
+    return CommandResponse.success({"assignments": entity_assignments})

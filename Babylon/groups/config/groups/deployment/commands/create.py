@@ -16,4 +16,4 @@ def create(deploy: str) -> CommandResponse:
     config = Environment().configuration
     if not config.create_deploy(deploy):
         return CommandResponse.fail()
-    return CommandResponse()
+    return CommandResponse.success()

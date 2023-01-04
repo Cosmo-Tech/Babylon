@@ -69,4 +69,4 @@ Sensitive outputs are not readable, use -s option to access the state in the web
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(ws['data'], _file, ensure_ascii=False)
-    return CommandResponse(data=ws.get("data"))
+    return CommandResponse.success(ws.get("data"))

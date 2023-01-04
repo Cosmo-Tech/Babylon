@@ -15,4 +15,4 @@ def create(platform: str) -> CommandResponse:
     config = Environment().configuration
     """Create a new platform file PLATFORM.yaml and open editor to edit it"""
     config.create_platform(platform)
-    return CommandResponse()
+    return CommandResponse.success()

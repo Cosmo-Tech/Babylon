@@ -58,4 +58,4 @@ def push(credentials: DefaultAzureCredential, acr_registry_name: str, simulator_
     logger.debug("Removing local image with remote registry prefix")
     client.images.remove(ref)
     logger.info(f"Successfully pushed image {image} to registry {registry}")
-    return CommandResponse()
+    return CommandResponse.success()

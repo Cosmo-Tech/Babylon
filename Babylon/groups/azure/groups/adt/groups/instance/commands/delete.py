@@ -45,4 +45,4 @@ def delete(digital_twins_client: AzureDigitalTwinsManagementClient,
     # waits for completion.
     adt_deletion_result = poller.result()
     logger.info(f"Deleted digital twins instance {adt_deletion_result.name}")
-    return CommandResponse(data={"name": adt_deletion_result.name})
+    return CommandResponse.success({"name": adt_deletion_result.name})

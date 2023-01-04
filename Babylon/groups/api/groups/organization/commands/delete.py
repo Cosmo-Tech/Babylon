@@ -105,4 +105,4 @@ def delete(
         logger.error(f"You are not allowed to delete the Organization : {organization_id}")
         return CommandResponse.fail()
 
-    return CommandResponse(data={"id": organization_id})
+    return CommandResponse.success({"id": organization_id})

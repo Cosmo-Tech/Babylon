@@ -56,7 +56,7 @@ def get_all(
         retrieved_organizations = filter_api_response(retrieved_organizations, fields.replace(" ", "").split(","))
     if not output_file:
         logger.info(pformat(retrieved_organizations))
-        return CommandResponse({"organizations": retrieved_organizations})
+        return CommandResponse.success({"organizations": retrieved_organizations})
 
     _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]
     with open(output_file, "w") as _file:
@@ -65,4 +65,4 @@ def get_all(
         except AttributeError:
             json.dump(_organizations_to_dump, _file, ensure_ascii=False)
     logger.info(f"Full content was dumped on {output_file}")
-    return CommandResponse({"organizations": retrieved_organizations})
+    return CommandResponse.success({"organizations": retrieved_organizations})

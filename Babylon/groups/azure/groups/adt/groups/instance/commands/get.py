@@ -58,4 +58,4 @@ def get(
         logger.info("Full content was dumped on %s", output_file)
 
     logger.info(pformat(instance))
-    return CommandResponse(data=instance)
+    return CommandResponse.success(instance)

@@ -96,4 +96,4 @@ def update(
                 f" - repository: {retrieved_solution['repository']}\n"
                 f" - version: {retrieved_solution['version']}")
     logger.debug(pformat(retrieved_solution))
-    return CommandResponse(data=retrieved_solution)
+    return CommandResponse.success(retrieved_solution)

@@ -65,4 +65,4 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(r['data'], _file, ensure_ascii=False)
-    return CommandResponse(data=r.get("data"))
+    return CommandResponse.success(r.get("data"))

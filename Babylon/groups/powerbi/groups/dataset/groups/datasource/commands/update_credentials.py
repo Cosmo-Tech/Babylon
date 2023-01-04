@@ -36,4 +36,4 @@ def update_credentials(ctx: Context, datasource_id: str, gateway_id: Optional[st
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully updated credentials of datasource {datasource_id}")
-    return CommandResponse()
+    return CommandResponse.success()

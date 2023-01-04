@@ -15,4 +15,4 @@ def display() -> CommandResponse:
     working_dir = Environment().working_dir
     """Display information about the current working_dir"""
     logger.info(str(working_dir))
-    return CommandResponse()
+    return CommandResponse.success()

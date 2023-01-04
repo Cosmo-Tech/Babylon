@@ -47,4 +47,4 @@ def delete(ctx: Context,
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Dataset id {dataset_id} successfully deleted.")
-    return CommandResponse()
+    return CommandResponse.success()

@@ -18,6 +18,6 @@ def activate(plugin: str) -> CommandResponse:
     if plugin in plugins:
         config.activate_plugin(plugin)
         logger.info(f"Plugin {plugin} was activated.")
-        return CommandResponse()
+        return CommandResponse.success()
     logger.error(f"Plugin {plugin} does not exists.")
     return CommandResponse.fail()

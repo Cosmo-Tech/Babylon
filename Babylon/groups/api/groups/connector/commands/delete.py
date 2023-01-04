@@ -104,4 +104,4 @@ def delete(
     except ForbiddenException:
         logger.error(f"You are not allowed to delete the connector {connector_id}")
         return CommandResponse.fail()
-    return CommandResponse()
+    return CommandResponse.success()

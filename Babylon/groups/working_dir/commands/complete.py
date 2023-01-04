@@ -22,6 +22,6 @@ def complete() -> CommandResponse:
     if not had_errors:
         logger.info("Issues were found with the working_dir")
         logger.info("Corrections were applied when necessary, please check the logs")
-        return CommandResponse()
+        return CommandResponse.success()
     logger.info("working_dir is correct, nothing was changed")
-    return CommandResponse()
+    return CommandResponse.success()

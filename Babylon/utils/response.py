@@ -1,8 +1,11 @@
 from typing import Any
 from typing import Optional
 import json
+import logging
 
 from click import get_current_context
+
+logger = logging.getLogger("Babylon")
 
 
 class CommandResponse():
@@ -33,6 +36,16 @@ class CommandResponse():
     def toJSON(self) -> str:
         return json.dumps(self.data, indent=4)
 
+    def dump(self, output_file: str):
+        """Dump command response data in a json file"""
+        with open(output_file, "w") as _f:
+            _f.write(self.toJSON())
+        logger.info(f"The JSON response was dumped in file: {output_file}")
+
     @classmethod
     def fail(cls) -> Any:
         return cls(status_code=CommandResponse.STATUS_ERROR)
+
+    @classmethod
+    def success(cls, data: Optional[dict[str, Any]] = None) -> Any:
+        return cls(status_code=CommandResponse.STATUS_OK, data=data)

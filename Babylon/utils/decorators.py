@@ -47,12 +47,8 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         output_file = kwargs.pop("output_file")
         response = func(*args, **kwargs)
-        if not output_file:
-            return response
-        with open(output_file, "w") as _f:
-            _f.write(response.toJSON())
-
-        logger.info(f"The JSON response was dumped in file: {output_file}")
+        if output_file:
+            response.dump(output_file)
         return response
 
     return wrapper

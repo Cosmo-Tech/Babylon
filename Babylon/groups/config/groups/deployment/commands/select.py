@@ -23,7 +23,7 @@ def select(deployment: Optional[pathlib.Path] = None) -> CommandResponse:
     if deployment:
         if config.set_deploy(deployment):
             logger.info("Configuration successfully updated")
-            return CommandResponse()
+            return CommandResponse.success()
         logger.error(f"Configuration was not updated. {deployment} is not a valid deployment file.")
         return CommandResponse.fail()
     logger.debug("Interactive change of deploy:")
@@ -34,4 +34,4 @@ def select(deployment: Optional[pathlib.Path] = None) -> CommandResponse:
         return CommandResponse.fail()
     config.set_deploy(new_deploy)
     logger.debug("Configuration successfully updated")
-    return CommandResponse()
+    return CommandResponse.success()

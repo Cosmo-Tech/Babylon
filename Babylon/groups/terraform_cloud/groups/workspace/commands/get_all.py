@@ -42,4 +42,4 @@ def get_all(api: TFC, output_file: Optional[pathlib.Path]) -> CommandResponse:
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(r, _file, ensure_ascii=False)
-    return CommandResponse(data={"workspaces": r})
+    return CommandResponse.success({"workspaces": r})

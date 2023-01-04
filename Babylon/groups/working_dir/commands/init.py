@@ -18,4 +18,4 @@ def init() -> CommandResponse:
         logger.error("You can't initialize a zip based working_dir.")
         return CommandResponse.fail()
     working_dir.copy_template()
-    return CommandResponse()
+    return CommandResponse.success()

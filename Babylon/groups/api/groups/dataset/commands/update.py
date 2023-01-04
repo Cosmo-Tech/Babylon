@@ -114,4 +114,4 @@ def update(
 
     logger.debug(pformat(retrieved_dataset))
     logger.info(f"Updated dataset with id: {retrieved_dataset['id']}")
-    return CommandResponse(data=retrieved_dataset)
+    return CommandResponse.success(retrieved_dataset)

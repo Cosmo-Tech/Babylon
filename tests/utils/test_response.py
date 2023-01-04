@@ -7,7 +7,7 @@ def test_response_empty():
     """Testing command responses"""
     ctx = click.Context(click.Command('cmd'))
     with ctx:
-        CommandResponse()
+        CommandResponse.success()
 
 
 def test_response_fail():

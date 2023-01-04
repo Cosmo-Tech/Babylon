@@ -68,4 +68,4 @@ def list(
         logger.info("Full content was dumped on %s", output_file)
 
     logger.info(pformat(instances))
-    return CommandResponse(data={"instances": instances})
+    return CommandResponse.success({"instances": instances})

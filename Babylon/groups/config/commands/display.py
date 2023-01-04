@@ -12,4 +12,4 @@ logger = logging.getLogger("Babylon")
 def display() -> CommandResponse:
     """Display current config"""
     logger.info(str(Environment().configuration))
-    return CommandResponse()
+    return CommandResponse.success()

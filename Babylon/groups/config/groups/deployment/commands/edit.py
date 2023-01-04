@@ -25,4 +25,4 @@ def edit(deployment: Optional[pathlib.Path] = None) -> CommandResponse:
         config.edit_deploy(deployment)
     else:
         config.edit_deploy(config.get_deploy_path())
-    return CommandResponse()
+    return CommandResponse.success()

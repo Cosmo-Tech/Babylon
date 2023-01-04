@@ -90,4 +90,4 @@ def search(
             json.dump(_datasets_to_dump, _file, ensure_ascii=False)
         logger.info("Full content was dumped on %s.", output_file)
     logger.info(pformat(retrieved_datasets, sort_dicts=False))
-    return CommandResponse(data={"datasets": retrieved_datasets})
+    return CommandResponse.success({"datasets": retrieved_datasets})

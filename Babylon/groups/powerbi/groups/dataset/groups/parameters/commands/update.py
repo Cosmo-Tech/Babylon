@@ -49,4 +49,4 @@ def update(ctx: Context,
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully updated dataset {dataset_id} parameters")
-    return CommandResponse()
+    return CommandResponse.success()

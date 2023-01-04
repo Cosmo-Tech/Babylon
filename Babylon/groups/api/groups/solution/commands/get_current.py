@@ -70,7 +70,7 @@ def get_current(
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
         logger.info(pformat(retrieved_solution))
-        return CommandResponse(data=retrieved_solution)
+        return CommandResponse.success(retrieved_solution)
 
     converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
     with open(output_file, "w") as _f:
@@ -79,4 +79,4 @@ def get_current(
         except AttributeError:
             json.dump(converted_content, _f, ensure_ascii=False)
     logger.info(f"Content was dumped on {output_file}")
-    return CommandResponse(data=retrieved_solution)
+    return CommandResponse.success(retrieved_solution)

@@ -74,4 +74,4 @@ def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(ws['data'], _file, ensure_ascii=False)
-    return CommandResponse(data=ws.get("data"))
+    return CommandResponse.success(ws.get("data"))

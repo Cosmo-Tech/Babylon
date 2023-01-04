@@ -19,4 +19,4 @@ def validate() -> CommandResponse:
         logger.error("Issues were found with the working_dir, please check the logs")
         return CommandResponse.fail()
     logger.info("working_dir is correct")
-    return CommandResponse()
+    return CommandResponse.success()

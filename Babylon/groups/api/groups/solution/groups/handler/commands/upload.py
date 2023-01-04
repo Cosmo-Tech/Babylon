@@ -102,4 +102,4 @@ def upload(
 
     logger.debug(response)
     logger.info(f"{handler_id} handler uploaded to solution {solution_id} successfully")
-    return CommandResponse(data={"id": handler_id})
+    return CommandResponse.success({"id": handler_id})

@@ -28,11 +28,11 @@ def list(
         deployment_list = arm_client.deployments.list_by_resource_group(resource_group_name)
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
 
     deployments = [{
         'name': _ele.as_dict()['name'],
         'provisioning_state': _ele.as_dict()['properties']['provisioning_state'],
     } for _ele in deployment_list]
 
-    return CommandResponse(data=deployments)
+    return CommandResponse.success(deployments)

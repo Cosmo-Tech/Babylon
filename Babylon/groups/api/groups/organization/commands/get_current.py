@@ -63,7 +63,7 @@ def get_current(
     if not output_file:
         logger.info(f"Organization {organization_id} details : ")
         logger.info(pformat(retrieved_organization))
-        return CommandResponse(data=retrieved_organization)
+        return CommandResponse.success(retrieved_organization)
 
     converted_organization_content = convert_keys_case(retrieved_organization, underscore_to_camel)
     with open(output_file, "w") as _f:
@@ -72,4 +72,4 @@ def get_current(
         except AttributeError:
             json.dump(converted_organization_content, _f, ensure_ascii=False)
         logger.info(f"Organization {organization_id} data was dumped on {output_file}.")
-    return CommandResponse(data=retrieved_organization)
+    return CommandResponse.success(retrieved_organization)

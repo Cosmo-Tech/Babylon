@@ -28,4 +28,4 @@ def list_scripts(kmc: KustoManagementClient, adx_cluster_name: str, resource_gro
                                      database_name=adx_database_name)
     for script in r:
         logger.info(f"{script.name}")
-    return CommandResponse(data={"scripts": r})
+    return CommandResponse.success({"scripts": r})

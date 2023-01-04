@@ -68,4 +68,4 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
         return CommandResponse.fail()
     logger.info(f"Variable {var_key} was correctly updated for workspace {workspace_id}")
     logger.info(pprint.pformat(r['data']))
-    return CommandResponse(data=r.get("data"))
+    return CommandResponse.success(r.get("data"))

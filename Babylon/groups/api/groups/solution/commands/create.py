@@ -131,4 +131,4 @@ def create(
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    return CommandResponse(data=retrieved_solution)
+    return CommandResponse.success(retrieved_solution)

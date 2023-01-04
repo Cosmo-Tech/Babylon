@@ -20,4 +20,4 @@ def validate() -> CommandResponse:
     for k, v in yaml.safe_load(open(config.get_platform_path())).items():
         if v == "":
             logger.warning(f"Platform variable `{k}` is empty")
-    return CommandResponse()
+    return CommandResponse.success()

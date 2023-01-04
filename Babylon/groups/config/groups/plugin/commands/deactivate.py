@@ -18,6 +18,6 @@ def deactivate(plugin: str) -> CommandResponse:
     if plugin in plugins:
         config.deactivate_plugin(plugin)
         logger.info(f"Plugin {plugin} was deactivated.")
-        return CommandResponse()
+        return CommandResponse.success()
     logger.error(f"Plugin {plugin} does not exists.")
     return CommandResponse.fail()

@@ -49,4 +49,4 @@ def set(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_datab
                                                                      adx_database_name, principal_assignment_name,
                                                                      parameters)
     logger.info(f"Successfully created a new {role} assignment to {principal_type} {principal_id}")
-    return CommandResponse()
+    return CommandResponse.success()

@@ -42,4 +42,4 @@ def get(ctx: Context,
         logger.error(f"{workspace_id} was not found")
         return CommandResponse.fail()
     logger.info("\n".join(table_repr(workspace_data)))
-    return CommandResponse(data=workspace_data)
+    return CommandResponse.success(workspace_data)

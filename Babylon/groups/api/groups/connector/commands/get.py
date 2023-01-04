@@ -59,7 +59,7 @@ def get(
     if not output_file:
         logger.info(f"Connector {connector_id} details : ")
         logger.info(pformat(retrieved_connector))
-        return CommandResponse(data=retrieved_connector)
+        return CommandResponse.success(retrieved_connector)
 
     converted_connector_content = convert_keys_case(retrieved_connector, underscore_to_camel)
     with open(output_file, "w") as _f:
@@ -68,4 +68,4 @@ def get(
         except AttributeError:
             json.dump(converted_connector_content, _f, ensure_ascii=False)
     logger.info(f"Connector {connector_id} data was dumped on {output_file}.")
-    return CommandResponse(data=retrieved_connector)
+    return CommandResponse.success(retrieved_connector)

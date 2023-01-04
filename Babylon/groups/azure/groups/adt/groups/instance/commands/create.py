@@ -61,4 +61,4 @@ def create(
     # waits for completion.
     adt_creation_result = poller.result()
     logger.info(f"Provisioned digital twins instance {adt_creation_result.name}")
-    return CommandResponse(data={"name": adt_creation_result.name})
+    return CommandResponse.success({"name": adt_creation_result.name})

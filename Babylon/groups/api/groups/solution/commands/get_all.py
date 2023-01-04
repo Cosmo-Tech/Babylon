@@ -68,7 +68,7 @@ def get_all(
     logger.debug(pformat(retrieved_solutions))
     if not output_file:
         logger.info(pformat(retrieved_solutions, sort_dicts=False))
-        return CommandResponse(data={"solutions": retrieved_solutions})
+        return CommandResponse.success({"solutions": retrieved_solutions})
 
     _solutions_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_solutions]
     with open(output_file, "w") as _file:
@@ -77,4 +77,4 @@ def get_all(
         except AttributeError:
             json.dump(_solutions_to_dump, _file, ensure_ascii=False)
     logger.info("Full content was dumped on %s.", output_file)
-    return CommandResponse(data={"solutions": retrieved_solutions})
+    return CommandResponse.success({"solutions": retrieved_solutions})

@@ -72,4 +72,4 @@ def get_all(
         except TypeError:
             json.dump([_ele.to_dict() for _ele in _workspaces_to_dump], _file, ensure_ascii=False)
     logger.info("Full content was dumped on %s.", output_file)
-    return CommandResponse(data={"workspaces": retrieved_workspaces})
+    return CommandResponse.success({"workspaces": retrieved_workspaces})

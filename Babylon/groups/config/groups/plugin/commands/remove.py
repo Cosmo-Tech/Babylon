@@ -18,6 +18,6 @@ def remove(plugin: str) -> CommandResponse:
     if plugin in plugins:
         config.remove_plugin(plugin)
         logger.info(f"Plugin {plugin} was removed.")
-        return CommandResponse()
+        return CommandResponse.success()
     logger.error(f"Plugin {plugin} does not exists.")
     return CommandResponse.fail()

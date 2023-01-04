@@ -113,4 +113,4 @@ def update(
 
     logger.debug(pformat(retrieved_workspace))
     logger.info(f"Workspace: {retrieved_workspace['id']} updated.")
-    return CommandResponse(data=retrieved_workspace)
+    return CommandResponse.success(retrieved_workspace)

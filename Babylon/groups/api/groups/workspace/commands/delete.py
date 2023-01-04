@@ -114,4 +114,4 @@ def delete(
     env.configuration.set_deploy_var("workspace_key", '')
     logger.info(f"Workspaces {workspace_id} of organization {organization_id} deleted.")
 
-    return CommandResponse(data={"id": workspace_id})
+    return CommandResponse.success({"id": workspace_id})

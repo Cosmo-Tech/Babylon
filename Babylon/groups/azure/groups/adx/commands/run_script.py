@@ -62,4 +62,4 @@ In the script instances of "<database name>" will be replaced by the actual data
                 script_name=script_name,
             )
             logger.info("Script successfully ran.")
-    return CommandResponse()
+    return CommandResponse.success()
