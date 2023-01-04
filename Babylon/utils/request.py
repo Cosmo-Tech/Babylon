@@ -7,10 +7,7 @@ import requests
 logger = logging.getLogger("Babylon")
 
 
-def oauth_request(url: str,
-                  access_token: str,
-                  type: str = "GET",
-                  **kwargs: dict[str, Any]) -> Optional[Any]:
+def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: dict[str, Any]) -> Optional[Any]:
     """Requests an API using OAuth authentication
 
     :param url: request url
