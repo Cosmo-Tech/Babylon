@@ -38,11 +38,7 @@ def run(
 ) -> CommandResponse:
     """Apply a resource deployment config via arm deployment."""
 
-    arm_deployment = get_api_file(
-        api_file_path=deployment_config_file_path,
-        use_working_dir_file=use_working_dir_file,
-        logger=logger,
-    )
+    arm_deployment = get_api_file(api_file_path=deployment_config_file_path, use_working_dir_file=use_working_dir_file)
     formatted_parameters = convert_keys_case(arm_deployment.get("parameters"), underscore_to_camel)
     parameters = {k: {'value': v} for k, v in dict(formatted_parameters).items()}
     template_uri = arm_deployment.get("template_uri")
@@ -67,10 +63,10 @@ def run(
         )
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
 
     logger.debug(poller.result())
     logger.info(f"Deployment finished with status : {poller.status()}. \
                  \nMore details at : {poller.result()['id']}")
 
-    return CommandResponse(data={"status": poller.status()})
+    return CommandResponse.success({"status": poller.status()})

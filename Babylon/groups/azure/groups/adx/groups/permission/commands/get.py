@@ -10,14 +10,9 @@ from click import pass_context
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure adx permission get "existing_principal_id"
-Should return the principal assignments
-> babylon azure adx permission get "unknown_principal_id"
-Should log a clean error message
-"""
 
 
 @command()
@@ -27,7 +22,8 @@ Should log a clean error message
 @require_deployment_key("adx_database_name", "adx_database_name")
 @argument("principal_id", type=str)
 @timing_decorator
-def get(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_database_name: str, principal_id: str):
+def get(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_database_name: str,
+        principal_id: str) -> CommandResponse:
     """Get permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     assignments = kusto_mgmt.database_principal_assignments.list(resource_group_name, adx_cluster_name,
@@ -35,7 +31,8 @@ def get(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_datab
     entity_assignments = [assignment for assignment in assignments if assignment.principal_id == principal_id]
     if not entity_assignments:
         logger.info(f"No assignment found for principal ID {principal_id}")
-        return
+        return CommandResponse.fail()
     logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
     for ent in entity_assignments:
         logger.info(f"{pformat(ent.__dict__)}")
+    return CommandResponse.success({"assignments": entity_assignments})

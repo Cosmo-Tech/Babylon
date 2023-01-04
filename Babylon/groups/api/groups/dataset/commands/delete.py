@@ -17,6 +17,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -58,23 +59,19 @@ def delete(
     dataset_id: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
     force_validation: Optional[bool] = False,
-):
+) -> CommandResponse:
     """Unregister a dataset via Cosmotech API."""
 
     if not dataset_id:
         if not dataset_file:
             logger.error("No id passed as argument or option use -d option"
                          " to pass an json or yaml file containing an dataset id.")
-            return
+            return CommandResponse.fail()
 
-        converted_dataset_content = get_api_file(
-            api_file_path=dataset_file,
-            use_working_dir_file=use_working_dir_file,
-            logger=logger,
-        )
+        converted_dataset_content = get_api_file(api_file_path=dataset_file, use_working_dir_file=use_working_dir_file)
         if not converted_dataset_content:
             logger.error("Error : can not get Dataset definition, please check your file")
-            return
+            return CommandResponse.fail()
 
         if converted_dataset_content["id"]:
             dataset_id = converted_dataset_content["id"]
@@ -82,22 +79,22 @@ def delete(
             dataset_id = converted_dataset_content["dataset_id"]
         else:
             logger.error(f"Could not found dataset id in {dataset_file}.")
-            return
+            return CommandResponse.fail()
 
     try:
         dataset_api.find_dataset_by_id(dataset_id=dataset_id, organization_id=organization_id)
     except NotFoundException:
         logger.error(f"Dataset {dataset_id} not found in organization {organization_id}.")
-        return
+        return CommandResponse.fail()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id}  not found.")
-        return
+        return CommandResponse.fail()
 
     if not force_validation and not confirm_deletion("dataset", dataset_id):
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Deleting dataset {dataset_id}")
 
@@ -105,11 +102,12 @@ def delete(
         dataset_api.delete_dataset(organization_id=organization_id, dataset_id=dataset_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Dataset with id {dataset_id} not found.")
-        return
+        return CommandResponse.fail()
     except ForbiddenException:
         logger.error(f"You are not allowed to delete dataset : {dataset_id}")
-        return
+        return CommandResponse.fail()
     logger.info(f"Dataset {dataset_id} of organization {organization_id} deleted.")
+    return CommandResponse.success()

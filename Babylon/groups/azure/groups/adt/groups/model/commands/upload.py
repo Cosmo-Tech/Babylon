@@ -15,6 +15,7 @@ from click import option
 
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -87,3 +88,4 @@ def upload(
             continue
 
         upload_one_model(dt_client, model_file_content, override_if_exists)
+        return CommandResponse.success()

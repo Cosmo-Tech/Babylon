@@ -14,6 +14,7 @@ from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -42,17 +43,16 @@ def update(
     organization_file: str,
     organization_id: str,
     use_working_dir_file: Optional[bool] = False,
-):
+) -> CommandResponse:
     """Update an Organization by sending a JSON or YAML file to Cosmotech Api."""
 
     converted_organization_content = get_api_file(
         api_file_path=organization_file,
         use_working_dir_file=use_working_dir_file,
-        logger=logger,
     )
     if not converted_organization_content:
         logger.error("Can not get Organization definition, please check your Organization.YAML file")
-        return
+        return CommandResponse.fail()
 
     try:
         retrieved_data = organization_api.update_organization(
@@ -61,13 +61,14 @@ def update(
         )
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
     except ForbiddenException:
         logger.error(f"You are not allowed to update the Organization : {organization_id}")
-        return
+        return CommandResponse.fail()
 
     logger.debug(pformat(retrieved_data))
     logger.info(f"Updated organization with id: {retrieved_data['id']}")
+    return CommandResponse.success(retrieved_data)

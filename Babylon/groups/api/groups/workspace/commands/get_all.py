@@ -17,6 +17,7 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -46,23 +47,23 @@ def get_all(
     organization_id: str,
     fields: Optional[str] = None,
     output_file: Optional[str] = None,
-):
+) -> CommandResponse:
     """Get all registered workspaces."""
     try:
         retrieved_workspaces = workspace_api.find_all_workspaces(organization_id)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id : {organization_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if fields:
         retrieved_workspaces = filter_api_response(retrieved_workspaces, fields.split(","))
     logger.info(f"Found {len(retrieved_workspaces)} workspaces")
     if not output_file:
         logger.info(pformat(retrieved_workspaces, sort_dicts=False))
-        return
+        return CommandResponse.fail()
 
     _workspaces_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_workspaces]
     with open(output_file, "w") as _file:
@@ -71,3 +72,4 @@ def get_all(
         except TypeError:
             json.dump([_ele.to_dict() for _ele in _workspaces_to_dump], _file, ensure_ascii=False)
     logger.info("Full content was dumped on %s.", output_file)
+    return CommandResponse.success({"workspaces": retrieved_workspaces})

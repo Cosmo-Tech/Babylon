@@ -1,6 +1,7 @@
 import json
 import pathlib
 import re
+import logging
 from typing import Any
 from typing import Iterable
 
@@ -10,6 +11,7 @@ import yaml
 from .environment import Environment
 
 camel_pat = re.compile(r'([A-Z])')
+logger = logging.getLogger("Babylon")
 
 
 def camel_to_underscore(name: Any) -> Any:
@@ -83,14 +85,13 @@ def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> A
     return [filter_api_response_item(ele, fields) for ele in api_response_body]
 
 
-def get_api_file(api_file_path: str, use_working_dir_file: bool, logger):
+def get_api_file(api_file_path: str, use_working_dir_file: bool):
     """
     This function will try to find the correct file, and return its content
         in a format ready to be used with the cosmotech api
     Accepts yaml and json files
     :param api_file_path: The path to the file to be loaded
     :param use_working_dir_file: Should the path be relative to the working directory ?
-    :param logger: the logger to be used to log info
     :return: None if the file was not found, else the content of the loaded file
     """
     _file_path = pathlib.Path(api_file_path)

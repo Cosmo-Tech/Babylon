@@ -44,4 +44,4 @@ def create(ctx: Context, workspace_name: str, select: bool) -> CommandResponse:
             "powerbi_workspace_id",
             output_data["id"],
         )  # May return environnement error
-    return CommandResponse(data=output_data)
+    return CommandResponse.success(output_data)

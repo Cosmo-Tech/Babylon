@@ -49,4 +49,4 @@ def delete(
     if response is None:
         return CommandResponse.fail()
     logger.info(f"{identifier} was successfully removed from workspace {workspace_id}")
-    return CommandResponse()
+    return CommandResponse.success()

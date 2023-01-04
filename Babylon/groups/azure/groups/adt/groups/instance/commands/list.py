@@ -16,6 +16,7 @@ from ........utils.api import filter_api_response
 from ........utils.api import underscore_to_camel
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -45,14 +46,14 @@ def list(
     resource_group_name: str,
     output_file: Optional[pathlib.Path] = None,
     fields: Optional[str] = None,
-):
+) -> CommandResponse:
     """Get all azure digital twins instances"""
     try:
         instances = digital_twins_client.digital_twins.list_by_resource_group(resource_group_name)
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
         logger.error(f"Cannot retrieve ADT instances list : {error_message[0]}")
-        return
+        return CommandResponse.fail()
 
     instances = [_ele.as_dict() for _ele in instances]
 
@@ -65,6 +66,6 @@ def list(
         with open(output_file, "w") as _file:
             json.dump(_instances_to_dump, _file, ensure_ascii=False)
         logger.info("Full content was dumped on %s", output_file)
-        return
 
     logger.info(pformat(instances))
+    return CommandResponse.success({"instances": instances})

@@ -59,4 +59,4 @@ GROUP USER ACCESS RIGHT :
     if response is None:
         return CommandResponse.fail()
     logger.info(f"{identifier} was successfully updated as a '{group_user_access_right}' to workspace {workspace_id}")
-    return CommandResponse()
+    return CommandResponse.success()

@@ -15,6 +15,7 @@ from ......utils.api import filter_api_response
 from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -35,14 +36,14 @@ def get_all(
     connector_api: ConnectorApi,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
-):
+) -> CommandResponse:
     """Get all registered connectors."""
 
     try:
         retrieved_connectors = connector_api.find_all_connectors()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
 
     if fields:
         retrieved_connectors = filter_api_response(retrieved_connectors, fields.replace(" ", "").split(","))
@@ -50,7 +51,7 @@ def get_all(
     logger.debug(pformat(retrieved_connectors))
     if not output_file:
         logger.info(pformat(retrieved_connectors))
-        return
+        return CommandResponse.success({"connectors": retrieved_connectors})
 
     _connectors_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_connectors]
     with open(output_file, "w") as _file:
@@ -59,3 +60,4 @@ def get_all(
         except AttributeError:
             json.dump(_connectors_to_dump, _file, ensure_ascii=False)
     logger.info(f"Full content was dumped on {output_file}")
+    return CommandResponse.success({"connectors": retrieved_connectors})

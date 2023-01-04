@@ -38,4 +38,4 @@ def get(ctx: Context,
         return CommandResponse.fail()
     output_data = response.json().get("value")
     logger.info(output_data)
-    return CommandResponse(data=output_data)
+    return CommandResponse.success(output_data)

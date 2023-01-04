@@ -21,6 +21,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -72,18 +73,16 @@ def create(
     dataset_file: Optional[str] = None,
     dataset_description: Optional[str] = None,
     use_working_dir_file: Optional[bool] = False,
-) -> Optional[str]:
+) -> CommandResponse:
     """Register new dataset by sending description file to the API."""
 
-    converted_dataset_content = get_api_file(
-        api_file_path=dataset_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Dataset.yaml",
-        use_working_dir_file=use_working_dir_file if dataset_file else False,
-        logger=logger,
-    )
+    converted_dataset_content = get_api_file(api_file_path=dataset_file or
+                                             f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Dataset.yaml",
+                                             use_working_dir_file=use_working_dir_file if dataset_file else False)
 
     if not converted_dataset_content:
         logger.error("Error : can not get Dataset definition, please check your Dataset.YAML file")
-        return
+        return CommandResponse.fail()
 
     if not dataset_description and "dataset_description" not in converted_dataset_content:
         converted_dataset_content["description"] = dataset_name
@@ -96,13 +95,13 @@ def create(
                                                        dataset=converted_dataset_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
     except NotFoundException:
         logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
     logger.debug(pformat(retrieved_dataset))
@@ -116,4 +115,4 @@ def create(
                 json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    return retrieved_dataset['id']
+    return CommandResponse.success(retrieved_dataset)

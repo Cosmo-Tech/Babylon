@@ -9,6 +9,7 @@ from click import pass_context
 
 from ....utils.decorators import requires_external_program
 from ....utils.decorators import timing_decorator
+from ....utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -18,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @argument("workflow")
 @requires_external_program('kubectl')
 @timing_decorator
-def get_workflow_pods(ctx, workflow):
+def get_workflow_pods(ctx, workflow) -> CommandResponse:
     """Get pods information for the given WORKFLOW"""
     k8s_context, k8s_namespace = ctx.obj
     subprocess.check_output(['kubectl', 'config', 'use-context', k8s_context])
@@ -30,3 +31,4 @@ def get_workflow_pods(ctx, workflow):
                                 stderr=subprocess.DEVNULL))
     items = r['items']
     logger.info(pprint.pformat(items))
+    return CommandResponse.success()

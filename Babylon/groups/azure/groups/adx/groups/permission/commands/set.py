@@ -14,18 +14,9 @@ from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
-"""Command Tests
-> babylon azure adx permission set "existing_principal_id" -r Viewer
-Should ask for the missing principal type
-> babylon azure adx permission set "existing_principal_id" -t App
-Should ask for the missing principal role
-> babylon azure adx permission set "existing_principal_id" -t App -r Viewer
-Should ask for the missing principal role
-> babylon azure adx permission set "unknown_principal_id" -t App -r Viewer
-Should log a clean error message
-"""
 
 
 @command()
@@ -47,7 +38,7 @@ Should log a clean error message
 @describe_dry_run("Would add ROLE to PRINCIPAL_ID")
 @timing_decorator
 def set(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_database_name: str, principal_id: str,
-        role: str, principal_type: str):
+        role: str, principal_type: str) -> CommandResponse:
     """Set permission assignments applied to the given principal id"""
     kusto_mgmt: KustoManagementClient = ctx.obj
     parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
@@ -58,3 +49,4 @@ def set(ctx: Context, resource_group_name: str, adx_cluster_name: str, adx_datab
                                                                      adx_database_name, principal_assignment_name,
                                                                      parameters)
     logger.info(f"Successfully created a new {role} assignment to {principal_type} {principal_id}")
+    return CommandResponse.success()

@@ -47,4 +47,4 @@ def download(ctx: Context,
     with open(output_file, "wb") as file:
         file.write(response.content)
         logger.info(f"Report was saved as {output_file}")
-    return CommandResponse(data={"file": output_file})
+    return CommandResponse.success({"file": output_file})

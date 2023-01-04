@@ -16,6 +16,7 @@ from ........utils.api import convert_keys_case
 from ........utils.api import underscore_to_camel
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -39,14 +40,14 @@ def get(
     resource_group_name: str,
     adt_instance_name: str,
     output_file: Optional[pathlib.Path],
-):
+) -> CommandResponse:
     """Get an azure digital twins instance details"""
     try:
         instance = digital_twins_client.digital_twins.get(resource_group_name, adt_instance_name)
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
         logger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
-        return
+        return CommandResponse.fail()
     instance = instance.as_dict()
     del instance["id"]
 
@@ -55,6 +56,6 @@ def get(
         with open(output_file, "w") as _file:
             json.dump(_instances_to_dump, _file, ensure_ascii=False)
         logger.info("Full content was dumped on %s", output_file)
-        return
 
     logger.info(pformat(instance))
+    return CommandResponse.success(instance)

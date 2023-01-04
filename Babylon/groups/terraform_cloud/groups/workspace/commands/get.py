@@ -12,6 +12,7 @@ from terrasnek.exceptions import TFCHTTPNotFound
 
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
+from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -30,17 +31,19 @@ pass_tfc = click.make_pass_decorator(TFC)
     help="File to which content should be outputted (json-formatted)",
 )
 @timing_decorator
-def get(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], output_file: Optional[pathlib.Path]):
+def get(api: TFC, workspace_id_wd: str, workspace_id: Optional[str],
+        output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Get a workspace in the organization"""
     workspace_id = workspace_id or workspace_id_wd
     try:
         ws = api.workspaces.show(workspace_id=workspace_id)
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
-        return
+        return CommandResponse.fail()
 
     logger.info(pprint.pformat(ws['data']))
 
     if output_file:
         with open(output_file, "w") as _file:
             json.dump(ws['data'], _file, ensure_ascii=False)
+    return CommandResponse.success(ws.get("data"))

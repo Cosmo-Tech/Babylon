@@ -18,6 +18,7 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -49,19 +50,19 @@ def get_current(
     organization_id: str,
     fields: Optional[str] = None,
     output_file: Optional[str] = None,
-):
+) -> CommandResponse:
     """Get the state of the solution in the API."""
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
         logger.error(f"Solution {solution_id} not found in organization {organization_id}.")
-        return
+        return CommandResponse.fail()
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api.")
-        return
+        return CommandResponse.fail()
     except ServiceException:
         logger.error(f"Organization with id {organization_id} not found.")
-        return
+        return CommandResponse.fail()
 
     if fields:
         retrieved_solution = filter_api_response_item(retrieved_solution, fields.replace(" ", "").split(","))
@@ -69,7 +70,7 @@ def get_current(
     if not output_file:
         logger.info(f"Solution {solution_id} details :")
         logger.info(pformat(retrieved_solution))
-        return
+        return CommandResponse.success(retrieved_solution)
 
     converted_content = convert_keys_case(retrieved_solution, underscore_to_camel)
     with open(output_file, "w") as _f:
@@ -78,3 +79,4 @@ def get_current(
         except AttributeError:
             json.dump(converted_content, _f, ensure_ascii=False)
     logger.info(f"Content was dumped on {output_file}")
+    return CommandResponse.success(retrieved_solution)

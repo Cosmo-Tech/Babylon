@@ -13,6 +13,7 @@ from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
 from ........utils.interactive import confirm_deletion
 from ........utils.typing import QueryType
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -29,18 +30,19 @@ Then would send delete query to the API for it""")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @argument("var_key", type=QueryType())
 @timing_decorator
-def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str, force_validation: bool):
+def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str,
+           force_validation: bool) -> CommandResponse:
     """Delete VAR_KEY variable in a workspace"""
     workspace_id = workspace_id or workspace_id_wd
 
     if not force_validation and not confirm_deletion("variable", var_key):
-        return
+        return CommandResponse.fail()
 
     r = list(v for v in list_all_vars(api, workspace_id, lookup_var_sets=False) if v['attributes']['key'] == var_key)
 
     if not r:
         logger.error(f"Var {var_key} is not set for workspace {workspace_id}")
-        return
+        return CommandResponse.fail()
 
     var_id = r[0]['id']
     logger.info(f"Found ID {var_id} for var {var_key} in workspace {workspace_id}")
@@ -48,3 +50,4 @@ def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key:
     logger.info(f"Deleting {var_key} from workspace {workspace_id}")
 
     r = api.workspace_vars.destroy(workspace_id=workspace_id, variable_id=var_id)
+    return CommandResponse.success()

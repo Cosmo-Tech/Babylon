@@ -19,6 +19,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
 from ......utils.typing import QueryType
+from ......utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
@@ -54,18 +55,16 @@ def create(
     output_file: Optional[str] = None,
     organization_file: Optional[str] = None,
     use_working_dir_file: bool = False,
-) -> Optional[str]:
+) -> CommandResponse:
     """Register new organization by sending a JSON or YAML file"""
     env = Environment()
     converted_organization_content = get_api_file(
         api_file_path=organization_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Organization.yaml",
-        use_working_dir_file=use_working_dir_file if organization_file else False,
-        logger=logger,
-    )
+        use_working_dir_file=use_working_dir_file if organization_file else False)
 
     if converted_organization_content is None:
         logger.error("Can not get Organization definition, please check your Organization.YAML file")
-        return
+        return CommandResponse.fail()
 
     converted_organization_content["name"] = organization_name
 
@@ -73,7 +72,7 @@ def create(
         retrieved_organization = organization_api.register_organization(organization=converted_organization_content)
     except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
-        return
+        return CommandResponse.fail()
 
     if select:
         env.configuration.set_deploy_var(
@@ -92,4 +91,4 @@ def create(
                 json.dump(converted_organization_content.to_dict(), _f, ensure_ascii=False)
         logger.info(f"Content was dumped on {output_file}")
 
-    return retrieved_organization['id']
+    return CommandResponse.success(retrieved_organization)

@@ -47,4 +47,4 @@ def upload(ctx: Context,
             logger.error(f"Request failed ({response.status_code}): {response.text}")
             return CommandResponse.fail()
     logger.info(response.json())
-    return CommandResponse(data=response.json())
+    return CommandResponse.success(response.json())

@@ -11,6 +11,7 @@ from click import make_pass_decorator
 from click import option
 
 from ........utils.decorators import timing_decorator
+from ........utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -27,11 +28,11 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
     help="Write full output of the adt api in target file",
 )
 @timing_decorator
-def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None):
+def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """List all models id from ADT"""
     if output_file and output_file.suffix != ".json":
         logger.error(f"{output_file} is not a json file")
-        return
+        return CommandResponse.fail()
 
     data = dt_client.list_models(include_model_definition=True)
 
@@ -47,3 +48,4 @@ def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = No
     if output_file:
         logger.info(f"Writing models to {output_file.absolute()}")
         json.dump(_file_content, open(output_file, "w"))
+    return CommandResponse.success({"models": data})

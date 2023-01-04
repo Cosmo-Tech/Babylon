@@ -39,7 +39,7 @@ def delete(
     """Delete a resource deployment via arm deployment."""
 
     if not force_validation and not confirm_deletion("azure deployment", deployment_name):
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
 
     logger.info(f"Deleting resource deployment {deployment_name} ...")
     try:
@@ -49,9 +49,9 @@ def delete(
         )
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
-        return CommandResponse(status_code=CommandResponse.STATUS_ERROR)
+        return CommandResponse.fail()
 
     logger.debug(poller.result())
     logger.info(f"Deployment {deployment_name} deleted with status : {poller.status()}")
 
-    return CommandResponse(data={"status": poller.status()})
+    return CommandResponse.success({"status": poller.status()})

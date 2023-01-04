@@ -35,4 +35,4 @@ def get_all(ctx: Context, powerbi_workspace_id: str, override_workspace_id: Opti
         return CommandResponse.fail()
     users = response.json().get('value')
     logger.info("\n".join(table_repr(users)))
-    return CommandResponse(data=users)
+    return CommandResponse.success(users)
