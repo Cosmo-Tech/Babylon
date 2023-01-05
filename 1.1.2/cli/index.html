@@ -1290,33 +1290,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-powerbi-dataset-datasource" class="md-nav__link">
-    datasource
-  </a>
-  
-    <nav class="md-nav" aria-label="datasource">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#babylon-powerbi-dataset-datasource-get" class="md-nav__link">
-    get
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#babylon-powerbi-dataset-datasource-update-credentials" class="md-nav__link">
-    update-credentials
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#babylon-powerbi-dataset-delete" class="md-nav__link">
     delete
   </a>
@@ -1367,6 +1340,13 @@
           <li class="md-nav__item">
   <a href="#babylon-powerbi-dataset-take-over" class="md-nav__link">
     take-over
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-dataset-update-credentials" class="md-nav__link">
+    update-credentials
   </a>
   
 </li>
@@ -1456,6 +1436,13 @@
           <li class="md-nav__item">
   <a href="#babylon-powerbi-workspace-get-all" class="md-nav__link">
     get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-workspace-get-current" class="md-nav__link">
+    get-current
   </a>
   
 </li>
@@ -2724,33 +2711,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#babylon-powerbi-dataset-datasource" class="md-nav__link">
-    datasource
-  </a>
-  
-    <nav class="md-nav" aria-label="datasource">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#babylon-powerbi-dataset-datasource-get" class="md-nav__link">
-    get
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#babylon-powerbi-dataset-datasource-update-credentials" class="md-nav__link">
-    update-credentials
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#babylon-powerbi-dataset-delete" class="md-nav__link">
     delete
   </a>
@@ -2801,6 +2761,13 @@
           <li class="md-nav__item">
   <a href="#babylon-powerbi-dataset-take-over" class="md-nav__link">
     take-over
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-dataset-update-credentials" class="md-nav__link">
+    update-credentials
   </a>
   
 </li>
@@ -2890,6 +2857,13 @@
           <li class="md-nav__item">
   <a href="#babylon-powerbi-workspace-get-all" class="md-nav__link">
     get-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-workspace-get-current" class="md-nav__link">
+    get-current
   </a>
   
 </li>
@@ -6417,108 +6391,13 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em><a href="#babylon-powerbi-dataset-datasource">datasource</a></em>: Command group handling PowerBI dataset datasources</li>
 <li><em><a href="#babylon-powerbi-dataset-delete">delete</a></em>: Delete a powerbi dataset in the current workspace</li>
 <li><em><a href="#babylon-powerbi-dataset-get">get</a></em>: Get a powerbi dataset in the current workspace</li>
 <li><em><a href="#babylon-powerbi-dataset-get-all">get-all</a></em>: Get a list of all powerbi datasets in the current workspace</li>
 <li><em><a href="#babylon-powerbi-dataset-parameters">parameters</a></em>: Command group handling PowerBI dataset parameters</li>
 <li><em><a href="#babylon-powerbi-dataset-take-over">take-over</a></em>: Take ownership of a powerbi dataset in the current workspace</li>
+<li><em><a href="#babylon-powerbi-dataset-update-credentials">update-credentials</a></em>: Update azure credentials of a given datasource</li>
 </ul>
-<h5 id="babylon-powerbi-dataset-datasource">babylon powerbi dataset datasource</h5>
-<p>Command group handling PowerBI dataset datasources</p>
-<p><strong>Usage:</strong></p>
-<pre><code>babylon powerbi dataset datasource [OPTIONS] COMMAND [ARGS]...
-</code></pre>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Subcommands</strong></p>
-<ul>
-<li><em><a href="#babylon-powerbi-dataset-datasource-get">get</a></em>: Get datasource details of a given dataset</li>
-<li><em><a href="#babylon-powerbi-dataset-datasource-update-credentials">update-credentials</a></em>: Update azure credentials of a given datasource</li>
-</ul>
-<h6 id="babylon-powerbi-dataset-datasource-get">babylon powerbi dataset datasource get</h6>
-<p>Get datasource details of a given dataset</p>
-<p><strong>Usage:</strong></p>
-<pre><code>babylon powerbi dataset datasource get [OPTIONS] DATASET_ID
-</code></pre>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-w</code>, <code>--workspace</code></td>
-<td>text</td>
-<td>PowerBI workspace ID</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted (json-formatted)</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h6 id="babylon-powerbi-dataset-datasource-update-credentials">babylon powerbi dataset datasource update-credentials</h6>
-<p>Update azure credentials of a given datasource</p>
-<p><strong>Usage:</strong></p>
-<pre><code>babylon powerbi dataset datasource update-credentials [OPTIONS] DATASOURCE_ID
-</code></pre>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-g</code>, <code>--gateway-id</code></td>
-<td>filetype</td>
-<td>PowerBI datasource gateway ID</td>
-<td>_required</td>
-</tr>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
 <h5 id="babylon-powerbi-dataset-delete">babylon powerbi dataset delete</h5>
 <p>Delete a powerbi dataset in the current workspace</p>
 <p><strong>Usage:</strong></p>
@@ -6712,8 +6591,44 @@
 <td><code>-f</code>, <code>--file</code></td>
 <td>file</td>
 <td>N/A</td>
+<td>_required</td>
+</tr>
+<tr>
+<td><code>-w</code>, <code>--workspace</code></td>
+<td>text</td>
+<td>PowerBI workspace ID</td>
 <td>None</td>
 </tr>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the parameter file path be relative to Babylon working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-powerbi-dataset-take-over">babylon powerbi dataset take-over</h5>
+<p>Take ownership of a powerbi dataset in the current workspace</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi dataset take-over [OPTIONS] DATASET_ID
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>text</td>
@@ -6728,10 +6643,10 @@
 </tr>
 </tbody>
 </table>
-<h5 id="babylon-powerbi-dataset-take-over">babylon powerbi dataset take-over</h5>
-<p>Take ownership of a powerbi dataset in the current workspace</p>
+<h5 id="babylon-powerbi-dataset-update-credentials">babylon powerbi dataset update-credentials</h5>
+<p>Update azure credentials of a given datasource</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon powerbi dataset take-over [OPTIONS] DATASET_ID
+<pre><code>babylon powerbi dataset update-credentials [OPTIONS] DATASET_ID
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -6937,7 +6852,7 @@
 <h5 id="babylon-powerbi-report-upload">babylon powerbi report upload</h5>
 <p>Publish the given pbxi file to the PowerBI workspace</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon powerbi report upload [OPTIONS] PBXI_FILENAME
+<pre><code>babylon powerbi report upload [OPTIONS] PBIX_FILENAME
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -6991,9 +6906,10 @@
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#babylon-powerbi-workspace-create">create</a></em>: Create workspace named WORKSPACE_NAME into Power Bi App</li>
-<li><em><a href="#babylon-powerbi-workspace-delete">delete</a></em>: Delete WORKSPACE_NAME from Power Bi APP</li>
+<li><em><a href="#babylon-powerbi-workspace-delete">delete</a></em>: Delete workspace from Power Bi APP</li>
 <li><em><a href="#babylon-powerbi-workspace-get">get</a></em>: Get a specific workspace information</li>
 <li><em><a href="#babylon-powerbi-workspace-get-all">get-all</a></em>: Get all workspace information for the given account</li>
+<li><em><a href="#babylon-powerbi-workspace-get-current">get-current</a></em>: Get a specific workspace information</li>
 <li><em><a href="#babylon-powerbi-workspace-user">user</a></em>: Subgroup allowing control of the users and their access to the workspace</li>
 </ul>
 <h5 id="babylon-powerbi-workspace-create">babylon powerbi workspace create</h5>
@@ -7033,9 +6949,9 @@
 </tbody>
 </table>
 <h5 id="babylon-powerbi-workspace-delete">babylon powerbi workspace delete</h5>
-<p>Delete WORKSPACE_NAME from Power Bi APP</p>
+<p>Delete workspace from Power Bi APP</p>
 <p><strong>Usage:</strong></p>
-<pre><code>babylon powerbi workspace delete [OPTIONS]
+<pre><code>babylon powerbi workspace delete [OPTIONS] WORKSPACE_ID
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
@@ -7048,12 +6964,6 @@
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
-<td>PowerBI workspace ID</td>
-<td>None</td>
-</tr>
 <tr>
 <td><code>-f</code>, <code>--force</code></td>
 <td>boolean</td>
@@ -7093,7 +7003,7 @@
 <tr>
 <td><code>-n</code>, <code>--name</code></td>
 <td>text</td>
-<td>N/A</td>
+<td>PowerBI workspace name</td>
 <td>None</td>
 </tr>
 <tr>
@@ -7126,6 +7036,31 @@
 <td>File to which content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-powerbi-workspace-get-current">babylon powerbi workspace get-current</h5>
+<p>Get a specific workspace information</p>
+<p>Requires <code>powerbi_workspace_id</code> in deploy config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi workspace get-current [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
