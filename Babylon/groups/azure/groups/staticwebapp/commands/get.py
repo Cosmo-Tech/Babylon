@@ -26,7 +26,7 @@ def get(ctx: Context, azure_subscription: str, resource_group_name: str, name: s
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01",
         access_token)
-    if not response:
+    if response is None:
         return CommandResponse.fail()
     output_data = response.json()
     logger.info(pretty_repr(output_data))

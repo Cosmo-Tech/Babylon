@@ -1,0 +1,17 @@
+{
+    "location": "westeurope",
+    "properties": {
+        "repositoryUrl": "https://github.com/username/RepoName",
+        "branch": "main",
+        "repositoryToken": "repoToken123",
+        "buildProperties": {
+            "appLocation": "app",
+            "apiLocation": "api",
+            "appArtifactLocation": "build"
+        }
+    },
+    "sku": {
+        "name": "Free",
+        "tier": "Free"
+    }
+}

@@ -23,7 +23,7 @@ def get_all(ctx: Context, azure_subscription: str) -> CommandResponse:
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/providers/Microsoft.Web/staticSites?api-version=2022-03-01",
         access_token)
-    if not response:
+    if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")
     logger.info(pretty_repr(output_data))
