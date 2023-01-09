@@ -21,8 +21,8 @@ def get_all(ctx: Context, azure_subscription: str) -> CommandResponse:
     credentials = ctx.find_object(DefaultAzureCredential)
     access_token = credentials.get_token("https://management.azure.com/.default").token
     response = oauth_request(
-        f"https://management.azure.com/subscriptions/{azure_subscription}/providers/Microsoft.Web/staticSites?api-version=2022-03-01",
-        access_token)
+        f"https://management.azure.com/subscriptions/{azure_subscription}/providers/"
+        "Microsoft.Web/staticSites?api-version=2022-03-01", access_token)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")
