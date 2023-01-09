@@ -1,6 +1,6 @@
 import logging
 
-from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -37,8 +37,7 @@ def delete(ctx: Context,
         logger.error("Plop")
         return CommandResponse.fail()
     logger.info(f"Deleting static webapp {name} from resource group {resource_group_name}")
-    credentials = ctx.find_object(DefaultAzureCredential)
-    access_token = credentials.get_token("https://management.azure.com/.default").token
+    access_token = ctx.find_object(AccessToken).token
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
         f"providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01",

@@ -1,6 +1,6 @@
 import logging
 
-from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -21,8 +21,7 @@ logger = logging.getLogger("Babylon")
 @argument("name")
 def get(ctx: Context, azure_subscription: str, resource_group_name: str, name: str) -> CommandResponse:
     """Get static webapp data from a resource group"""
-    credentials = ctx.find_object(DefaultAzureCredential)
-    access_token = credentials.get_token("https://management.azure.com/.default").token
+    access_token = ctx.find_object(AccessToken).token
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
         f"/providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01", access_token)

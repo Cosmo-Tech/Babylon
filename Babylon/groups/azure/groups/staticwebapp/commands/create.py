@@ -2,7 +2,7 @@ import logging
 import pathlib
 from string import Template
 
-from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -37,8 +37,7 @@ def create(ctx: Context,
            create_file: str,
            use_working_dir_file: bool = False) -> CommandResponse:
     """Create a static webapp data in the given resource group"""
-    credentials = ctx.find_object(DefaultAzureCredential)
-    access_token = credentials.get_token("https://management.azure.com/.default").token
+    access_token = ctx.find_object(AccessToken).token
     env = Environment()
     if use_working_dir_file:
         create_file = env.working_dir.get_file(str(create_file))
