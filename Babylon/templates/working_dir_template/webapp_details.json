@@ -1,9 +1,9 @@
 {
-    "location": "westeurope",
+    "location": "${webapp_location}",
     "properties": {
-        "repositoryUrl": "https://github.com/username/RepoName",
-        "branch": "main",
-        "repositoryToken": "repoToken123",
+        "repositoryUrl": "${webapp_repository}",
+        "branch": "${webapp_repository_branch}",
+        "repositoryToken": "${webapp_repository_token}",
         "buildProperties": {
             "appLocation": "app",
             "apiLocation": "api",
