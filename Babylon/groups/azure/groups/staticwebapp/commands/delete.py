@@ -46,5 +46,5 @@ def delete(ctx: Context,
         type="DELETE")
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Successfully deleted static webapp {name} from resource group {resource_group_name}")
+    logger.info(f"Successfully launched deletion of static webapp {name} from resource group {resource_group_name}")
     return CommandResponse.success()
