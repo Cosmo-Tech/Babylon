@@ -1,3 +1,4 @@
+from .staticwebapp import staticwebapp
 from .arm import arm
 from .acr import acr
 from .adt import adt
@@ -7,6 +8,7 @@ from .appinsight import appinsight
 
 
 list_groups = [
+    staticwebapp,
     arm,
     storage,
     acr,
