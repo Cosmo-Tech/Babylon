@@ -1,0 +1,9 @@
+{
+    "displayName": "babylon_test",
+    "signInAudience": "AzureADMyOrg",
+    "spa": {
+        "redirectUris": [
+            "https://DOMAIN_NAME_PREFIX.app.cosmotech.com/scenario"
+        ]
+    }
+}
