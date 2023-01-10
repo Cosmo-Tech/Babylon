@@ -1,0 +1,10 @@
+{
+    "properties": {
+        "POWER_BI_SCOPE": "https://analysis.windows.net/powerbi/api/.default",
+        "POWER_BI_AUTHORITY_URI": "https://login.microsoftonline.com/common/v2.0",
+        "POWER_BI_WORKSPACE_ID": "${powerbi_workspace_id}",
+        "POWER_BI_CLIENT_ID": "<CLIENT_ID>",
+        "POWER_BI_CLIENT_SECRET": "<CLIENT_SECRET>",
+        "POWER_BI_TENANT_ID": "<TENANT_ID>"
+    }
+}
