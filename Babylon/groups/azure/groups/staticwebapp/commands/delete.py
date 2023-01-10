@@ -40,11 +40,9 @@ def delete(ctx: Context,
         return CommandResponse.fail()
     logger.info(f"Deleting static webapp {name} from resource group {resource_group_name}")
     access_token = ctx.find_object(AccessToken).token
-    response = oauth_request(
-        f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-        f"providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01",
-        access_token,
-        type="DELETE")
+    route = (f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
+             f"providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01")
+    response = oauth_request(route, access_token, type="DELETE")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully launched deletion of static webapp {name} from resource group {resource_group_name}")

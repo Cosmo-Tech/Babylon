@@ -53,12 +53,9 @@ def create(ctx: Context,
         except Exception as e:
             logger.error(f"Could not fill parameters template: {e}")
             return CommandResponse.fail()
-    response = oauth_request(
-        f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-        f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01",
-        access_token,
-        type="PUT",
-        data=details)
+    route = (f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
+             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
+    response = oauth_request(route, access_token, type="PUT", data=details)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
