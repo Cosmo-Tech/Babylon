@@ -50,7 +50,7 @@ def create(ctx: Context,
         f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01")
     if use_working_dir_file:
         create_file = env.working_dir.get_file(str(create_file))
-    details = ""
+    details = '{"properties":{}}'
     if create_file:
         with open(create_file, "r") as _file:
             template = _file.read()

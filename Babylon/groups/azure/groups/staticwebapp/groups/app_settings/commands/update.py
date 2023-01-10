@@ -67,5 +67,5 @@ def update(ctx: Context,
         return CommandResponse.fail()
     output_data = response.json()
     logger.info(pretty_repr(output_data))
-    logger.info(f"Successfully launched creation of webapp {webapp_name} in resource group {resource_group_name}")
+    logger.info(f"Successfully launched creation of webapp {webapp_name} settings from file {settings_file}")
     return CommandResponse.success(output_data)
