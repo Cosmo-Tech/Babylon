@@ -5,7 +5,7 @@
         "branch": "${webapp_repository_branch}",
         "repositoryToken": "${webapp_repository_token}",
         "buildProperties": {
-            "appLocation": "app",
+            "appLocation": "/",
             "apiLocation": "api",
             "appArtifactLocation": "build"
         }

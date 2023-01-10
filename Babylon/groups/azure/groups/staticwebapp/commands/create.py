@@ -36,7 +36,10 @@ def create(ctx: Context,
            webapp_name: str,
            create_file: str,
            use_working_dir_file: bool = False) -> CommandResponse:
-    """Create a static webapp data in the given resource group"""
+    """
+    Create a static webapp data in the given resource group
+    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
+    """
     access_token = ctx.find_object(AccessToken).token
     env = Environment()
     if use_working_dir_file:

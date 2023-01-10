@@ -20,7 +20,10 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("resource_group_name", "resource_group_name")
 @argument("name")
 def get(ctx: Context, azure_subscription: str, resource_group_name: str, name: str) -> CommandResponse:
-    """Get static webapp data from a resource group"""
+    """
+    Get static webapp data from a resource group
+    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/get-static-site
+    """
     access_token = ctx.find_object(AccessToken).token
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"

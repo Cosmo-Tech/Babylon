@@ -17,7 +17,10 @@ logger = logging.getLogger("Babylon")
 @pass_context
 @require_platform_key("azure_subscription", "azure_subscription")
 def get_all(ctx: Context, azure_subscription: str) -> CommandResponse:
-    """Get all static webapps within the subscription"""
+    """
+    Get all static webapps within the subscription
+    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list
+    """
     access_token = ctx.find_object(AccessToken).token
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/providers/"
