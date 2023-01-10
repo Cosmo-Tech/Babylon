@@ -3,6 +3,8 @@ from .acr import acr
 from .adt import adt
 from .adx import adx
 from .storage import storage
+from .appinsight import appinsight
+
 
 list_groups = [
     arm,
@@ -10,4 +12,5 @@ list_groups = [
     acr,
     adt,
     adx,
+    appinsight
 ]
