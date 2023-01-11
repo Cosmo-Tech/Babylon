@@ -9,7 +9,7 @@ from .groups import list_groups
 @group()
 @pass_context
 def app(ctx: Context):
-    """Group initialized from a template"""
+    """Group interacting with Azure Active Directory Apps"""
     pass
 
 

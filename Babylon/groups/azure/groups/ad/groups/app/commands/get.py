@@ -1,6 +1,6 @@
 import logging
 
-from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -19,10 +19,9 @@ logger = logging.getLogger("Babylon")
 def get(ctx: Context, application_id: str) -> CommandResponse:
     """
     Get an app registration in active directory
-    https://learn.microsoft.com/en-us/graph/api/application-post-applications?view=graph-rest-1.0
+    https://learn.microsoft.com/en-us/graph/api/application-get
     """
-    credentials = ctx.find_object(DefaultAzureCredential)
-    access_token = credentials.get_token("https://graph.microsoft.com").token
+    access_token = ctx.find_object(AccessToken).token
     route = f"https://graph.microsoft.com/v1.0/applications/{application_id}"
     response = oauth_request(route, access_token)
     if response is None:

@@ -1,6 +1,6 @@
 import logging
 
-from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -21,13 +21,12 @@ logger = logging.getLogger("Babylon")
 def delete(ctx: Context, application_id: str, force_validation: bool = False) -> CommandResponse:
     """
     Delete an app in active directory
-    https://learn.microsoft.com/en-us/graph/api/application-post-applications?view=graph-rest-1.0
+    https://learn.microsoft.com/en-us/graph/api/application-delete
     """
     if not force_validation and not confirm_deletion("registration", application_id):
         return CommandResponse.fail()
-    credentials = ctx.find_object(DefaultAzureCredential)
+    access_token = ctx.find_object(AccessToken).token
     logger.info(f"Deleting app registration {application_id}")
-    access_token = credentials.get_token("https://graph.microsoft.com").token
     route = f"https://graph.microsoft.com/v1.0/applications/{application_id}"
     response = oauth_request(route, access_token, type="DELETE")
     if response is None:

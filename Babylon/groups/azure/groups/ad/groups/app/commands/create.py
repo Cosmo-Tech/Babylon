@@ -2,7 +2,7 @@ import logging
 import pathlib
 from string import Template
 
-from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AccessToken
 from click import command
 from click import pass_context
 from click import Context
@@ -32,10 +32,9 @@ logger = logging.getLogger("Babylon")
 def create(ctx: Context, registration_file: str, use_working_dir_file: bool = False) -> CommandResponse:
     """
     Register an app in active directory
-    https://learn.microsoft.com/en-us/graph/api/application-post-applications?view=graph-rest-1.0
+    https://learn.microsoft.com/en-us/graph/api/application-post-applications
     """
-    credentials = ctx.find_object(DefaultAzureCredential)
-    access_token = credentials.get_token("https://graph.microsoft.com").token
+    access_token = ctx.find_object(AccessToken).token
     route = "https://graph.microsoft.com/v1.0/applications"
     env = Environment()
     if use_working_dir_file:
