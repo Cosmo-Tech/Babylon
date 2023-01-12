@@ -16,15 +16,16 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_context
 @require_platform_key("azure_subscription", "azure_subscription")
-def get_all(ctx: Context, azure_subscription: str) -> CommandResponse:
+@require_platform_key("resource_group_name", "resource_group_name")
+def get_all(ctx: Context, azure_subscription: str, resource_group_name: str) -> CommandResponse:
     """
     Get all static webapps within the subscription
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list
     """
     access_token = ctx.find_object(AccessToken).token
     response = oauth_request(
-        f"https://management.azure.com/subscriptions/{azure_subscription}/providers/"
-        "Microsoft.Web/staticSites?api-version=2022-03-01", access_token)
+        f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
+        "/providers/Microsoft.Web/staticSites?api-version=2022-03-01", access_token)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")

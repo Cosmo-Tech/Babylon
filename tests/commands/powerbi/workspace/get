@@ -1,6 +1,11 @@
 ## babylon powerbi workspace get
 
 To test the new commands proceed as follow:
+- Add or edit the following lines in `config/platforms/platform.yaml`
+```yaml
+# Powerbi api scope
+powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
+```
 - Add or edit the following lines in `config/deployments/deploy.yaml`²
 ```yaml
 # Powerbi workspace id
@@ -12,14 +17,14 @@ You can grab a `workspace id` for testing using `babylon powerbi workspace get-a
 ### Commands
 
 ```bash
+babylon powerbi workspace get
+```
+Should display data from the workspace defined in `deploy.yml`.
+Can be checked in the powerBI web app.
+
+```bash
 babylon powerbi workspace get -w [workspace_id]
 ```
 Should display data from the given workspace.
 Can be checked in the powerBI web app.
 
-
-```bash
-babylon powerbi workspace get -n [workspace_name]
-```
-Should display data from the given workspace.
-Can be checked in the powerBI web app.
