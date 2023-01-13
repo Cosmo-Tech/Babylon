@@ -15,7 +15,7 @@
         <link rel="next" href="../Utils/config/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.3">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.4">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6b71719e.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.9c788c91.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
@@ -1008,6 +1008,47 @@
           <li class="md-nav__item">
   <a href="#babylon-azure-adx-run-script" class="md-nav__link">
     run-script
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight" class="md-nav__link">
+    appinsight
+  </a>
+  
+    <nav class="md-nav" aria-label="appinsight">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-list" class="md-nav__link">
+    list
   </a>
   
 </li>
@@ -2438,6 +2479,47 @@
           <li class="md-nav__item">
   <a href="#babylon-azure-adx-run-script" class="md-nav__link">
     run-script
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight" class="md-nav__link">
+    appinsight
+  </a>
+  
+    <nav class="md-nav" aria-label="appinsight">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-azure-appinsight-list" class="md-nav__link">
+    list
   </a>
   
 </li>
@@ -4780,6 +4862,7 @@
 <li><em><a href="#babylon-azure-acr">acr</a></em>: Group interacting with Azure Container Registry</li>
 <li><em><a href="#babylon-azure-adt">adt</a></em>: Allow communication with Azure Digital Twin</li>
 <li><em><a href="#babylon-azure-adx">adx</a></em>: Group interacting with Azure Data Explorer</li>
+<li><em><a href="#babylon-azure-appinsight">appinsight</a></em>: Group interacting with Azure App Insight</li>
 <li><em><a href="#babylon-azure-arm">arm</a></em>: Group interacting with Azure Resources Manager</li>
 <li><em><a href="#babylon-azure-storage">storage</a></em>: Group interacting with Azure Storage Blob</li>
 </ul>
@@ -5513,6 +5596,161 @@
 <p>Requires <code>adx_cluster_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <pre><code>babylon azure adx run-script [OPTIONS] SCRIPT_FILE
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-azure-appinsight">babylon azure appinsight</h4>
+<p>Group interacting with Azure App Insight</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure appinsight [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#babylon-azure-appinsight-create">create</a></em>: </li>
+<li><em><a href="#babylon-azure-appinsight-delete">delete</a></em>: </li>
+<li><em><a href="#babylon-azure-appinsight-get">get</a></em>: </li>
+<li><em><a href="#babylon-azure-appinsight-list">list</a></em>: </li>
+</ul>
+<h5 id="babylon-azure-appinsight-create">babylon azure appinsight create</h5>
+<pre><code>Create a app insight resource in the given resource group
+https://learn.microsoft.com/en-us/rest/api/application-insights/components/create-or-update
+</code></pre>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p>Requires <code>azure_subscription</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure appinsight create [OPTIONS] APPINSIGHT_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
+<td>file</td>
+<td>N/A</td>
+<td>_required</td>
+</tr>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the parameter file path be relative to Babylon working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-appinsight-delete">babylon azure appinsight delete</h5>
+<pre><code>Delete app insight data from a name
+https://learn.microsoft.com/en-us/rest/api/application-insights/components/delete
+</code></pre>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p>Requires <code>azure_subscription</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure appinsight delete [OPTIONS] NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-appinsight-get">babylon azure appinsight get</h5>
+<pre><code>Get app insight data from a name
+https://learn.microsoft.com/en-us/rest/api/application-insights/components/get
+</code></pre>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p>Requires <code>azure_subscription</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure appinsight get [OPTIONS] NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="babylon-azure-appinsight-list">babylon azure appinsight list</h5>
+<pre><code>list app insight data from a resource group
+https://learn.microsoft.com/en-us/rest/api/application-insights/components/list-by-resource-group
+</code></pre>
+<p>Requires <code>resource_group_name</code> in platform config file.</p>
+<p>Requires <code>azure_subscription</code> in platform config file.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon azure appinsight list [OPTIONS]
 </code></pre>
 <p><strong>Options:</strong></p>
 <table>
