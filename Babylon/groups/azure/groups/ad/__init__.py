@@ -22,6 +22,7 @@ def ad(ctx: Context):
         sys.exit(0)
     ctx.obj = token
 
+
 for _command in list_commands:
     ad.add_command(_command)
 

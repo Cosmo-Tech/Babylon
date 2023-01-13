@@ -15,14 +15,14 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_context
-@argument("application_id")
-def get(ctx: Context, application_id: str) -> CommandResponse:
+@argument("registration_id")
+def get(ctx: Context, registration_id: str) -> CommandResponse:
     """
     Get an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-get
     """
     access_token = ctx.find_object(AccessToken).token
-    route = f"https://graph.microsoft.com/v1.0/applications/{application_id}"
+    route = f"https://graph.microsoft.com/v1.0/applications/{registration_id}"
     response = oauth_request(route, access_token)
     if response is None:
         return CommandResponse.fail()
