@@ -1,5 +1,4 @@
 import logging
-from rich.pretty import pretty_repr
 
 from azure.core.credentials import AccessToken
 from click import command, argument
@@ -29,6 +28,5 @@ def delete(ctx: Context, azure_subscription: str, resource_group_name: str, name
     response = oauth_request(route, access_token, type="DELETE")
     if response is None:
         return CommandResponse.fail()
-    output_data = response.json()
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success(output_data)
+    logger.info(f'App insight {name} has been successfully deleted.')
+    return CommandResponse.success()
