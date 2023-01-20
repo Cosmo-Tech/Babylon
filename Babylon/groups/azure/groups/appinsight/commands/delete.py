@@ -28,5 +28,8 @@ def delete(ctx: Context, azure_subscription: str, resource_group_name: str, name
     response = oauth_request(route, access_token, type="DELETE")
     if response is None:
         return CommandResponse.fail()
-    logger.info(f'App insight {name} has been successfully deleted.')
+    if response.status_code == 204:
+        logger.warn(f"App Insight {name} doesn't exist")
+        return CommandResponse.fail()
+    logger.info(f'App Insight {name} has been successfully deleted.')
     return CommandResponse.success()
