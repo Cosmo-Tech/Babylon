@@ -13,6 +13,7 @@ from rich.pretty import pretty_repr
 from ........utils.request import oauth_request
 from ........utils.response import CommandResponse
 from ........utils.environment import Environment
+from ........utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
@@ -29,6 +30,7 @@ logger = logging.getLogger("Babylon")
         "use_working_dir_file",
         is_flag=True,
         help="Should the parameter file path be relative to Babylon working directory ?")
+@output_to_file
 def create(ctx: Context, registration_file: str, use_working_dir_file: bool = False) -> CommandResponse:
     """
     Register an app in active directory

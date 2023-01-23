@@ -8,12 +8,14 @@ from rich.pretty import pretty_repr
 
 from ........utils.request import oauth_request
 from ........utils.response import CommandResponse
+from ........utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_context
+@output_to_file
 def get_all(ctx: Context) -> CommandResponse:
     """
     Get all apps registered in active directory

@@ -9,6 +9,7 @@ from rich.pretty import pretty_repr
 
 from ........utils.request import oauth_request
 from ........utils.response import CommandResponse
+from ........utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
@@ -16,6 +17,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_context
 @argument("registration_id")
+@output_to_file
 def get(ctx: Context, registration_id: str) -> CommandResponse:
     """
     Get an app registration in active directory
