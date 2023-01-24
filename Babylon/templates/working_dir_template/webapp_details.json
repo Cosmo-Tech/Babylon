@@ -1,0 +1,17 @@
+{
+    "location": "${webapp_location}",
+    "properties": {
+        "repositoryUrl": "${webapp_repository}",
+        "branch": "${webapp_repository_branch}",
+        "repositoryToken": "${webapp_repository_token}",
+        "buildProperties": {
+            "appLocation": "/",
+            "apiLocation": "api",
+            "appArtifactLocation": "build"
+        }
+    },
+    "sku": {
+        "name": "Free",
+        "tier": "Free"
+    }
+}

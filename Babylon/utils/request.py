@@ -1,10 +1,23 @@
 import logging
 from typing import Any
 from typing import Optional
+from time import sleep
 
 import requests
 
 logger = logging.getLogger("Babylon")
+
+
+def poll_request(retries: int = 5, check_for_failure: bool = False, **kwargs: dict[str, Any]):
+    """Do a request until success or failure with a long polling"""
+    for _ in range(0, retries):
+        response = oauth_request(**kwargs)
+        if check_for_failure and response is None:
+            return
+        if not check_for_failure and response is not None:
+            return
+        sleep(1)
+    raise ValueError("Request polling failed")
 
 
 def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: dict[str, Any]) -> Optional[Any]:

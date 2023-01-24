@@ -1,0 +1,21 @@
+## Babylon azure staticwebapp get-all
+
+To test the new commands proceed as follow:
+- Add or edit the following lines in `config/platforms/platform.yaml`
+```yaml
+# WebApp azure location
+webapp_location: ""
+# WebApp Github Repository
+webapp_repository: ""
+# WebApp Github Repository branch
+webapp_repository_branch: "main"
+# WebApp Github Repository Token (will be moved in secrets)
+webapp_repository_token: ""
+```
+
+### Commands
+
+```bash
+babylon azure staticwebapp get-all
+```
+Should get all static webapps from the current subscription

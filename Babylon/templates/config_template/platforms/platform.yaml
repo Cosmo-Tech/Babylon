@@ -16,6 +16,3 @@ acr_registry_name: ""
 resources_location: ""
 # Storage account name
 storage_account_name: ""
-# PowerBI api scope
-powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
-
