@@ -988,6 +988,14 @@ send_scenario_metadata_to_event_hub: true
 use_dedicated_event_hub_namespace: true
 # PowerBI workspace id
 powerbi_workspace_id: &quot;&quot;
+# WebApp azure location
+webapp_location: &quot;&quot;
+# WebApp Github Repository
+webapp_repository: &quot;&quot;
+# WebApp Github Repository branch
+webapp_repository_branch: &quot;&quot;
+# WebApp Github Repository Token (will be moved in secrets)
+webapp_repository_token: &quot;&quot;
 </code></pre>
 <h3 id="platform">Platform</h3>
 <p>A platform is a cloud where you deployed an API, you set the information required to access given platform</p>
@@ -1011,9 +1019,6 @@ acr_registry_name: &quot;&quot;
 resources_location: &quot;&quot;
 # Storage account name
 storage_account_name: &quot;&quot;
-# PowerBI api scope
-powerbi_api_scope: &quot;https://analysis.windows.net/powerbi/api/.default&quot;
-
 </code></pre>
 <h2 id="environment-variables-override">Environment variables override</h2>
 <p>The following environment variables are available to override the default values used by babylon (for example while
