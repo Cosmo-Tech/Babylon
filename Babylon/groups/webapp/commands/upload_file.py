@@ -22,7 +22,7 @@ logger = logging.getLogger("Babylon")
         is_flag=True,
         help="Should the file path be relative to Babylon working directory ?")
 def upload_file(file: pathlib.Path, use_working_dir_file: bool = False) -> CommandResponse:
-    """Download the github repository locally"""
+    """Upload a file to the webapp github repository"""
     env = Environment()
     if use_working_dir_file:
         file = env.working_dir.get_file(file)
