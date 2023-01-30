@@ -179,3 +179,20 @@ class Environment(metaclass=SingletonMeta):
         _type, _file, _query = match_content.groups()
 
         return _type, _file, _query
+
+    def fill_template(self, template_file: str, data: dict[str, Any] = {}) -> str:
+        """
+        Fills a template with environment data using queries
+        :param template_file: Input template file path
+        :type template_file: str
+        :return: filled template
+        """
+
+        def lookup_value(match: re.Match[str]) -> str:
+            key = str(match.group(1))
+            return data.get(key) or self.convert_data_query(key)
+
+        with open(template_file, "r") as _file:
+            template_content = _file.read()
+        filled = re.sub(r"\$\{(.+)\}", lookup_value, template_content)
+        return filled
