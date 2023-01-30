@@ -4,6 +4,8 @@ api_url: ""
 api_scope: ""
 # azure_subscription : The azure subscription used to contain the platform
 azure_subscription: ""
+# azure_tenant_id: The azure tenant id used to contain the platform
+azure_tenant_id: ""
 # adx_cluster_name: The name of the Azure Data Explorer Cluster
 adx_cluster_name: ""
 # resource_group_name: The name fo the resource group used on the platform
