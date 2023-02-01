@@ -1,5 +1,6 @@
 # Babylon
 
+[![End-User-Documentation](https://img.shields.io/badge/End_User_Documentation-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://cosmo-tech.github.io/Babylon-End-User-Doc/)
 [![Documentation](https://img.shields.io/badge/Documentation-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://cosmo-tech.github.io/Babylon/)
 [![Cosmotech](https://img.shields.io/badge/Cosmotech-ffb039?style=for-the-badge&logoColor=black)](https://cosmotech.com/)
 

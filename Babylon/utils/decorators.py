@@ -102,10 +102,7 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
-            env = click.get_current_context().find_object(Environment)
-            if not env:
-                logger.error("Could not find environment in click context")
-                raise ValueError("Could not find environment in click context")
+            env = Environment()
             working_dir = env.working_dir
             if working_dir.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
                 if arg_name:
@@ -136,10 +133,7 @@ def working_dir_requires_file(file_path: str, arg_name: Optional[str] = None) ->
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
-            env = click.get_current_context().find_object(Environment)
-            if not env:
-                logger.error("Could not find environment in click context")
-                raise ValueError("Could not find environment in click context")
+            env = Environment()
             working_dir = env.working_dir
             if working_dir.requires_file(file_path=file_path):
                 if arg_name:
@@ -222,20 +216,12 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
 
 def get_from_deploy_config(yaml_key: str) -> Optional[Any]:
     """deploy config file"""
-    env = click.get_current_context().find_object(Environment)
-    if not env:
-        logger.error("Could not find environment in click context")
-        raise ValueError("Could not find environment in click context")
-    return env.configuration.get_deploy_var(yaml_key)
+    return Environment().configuration.get_deploy_var(yaml_key)
 
 
 def get_from_platform_config(yaml_key: str) -> Optional[Any]:
     """platform config file"""
-    env = click.get_current_context().find_object(Environment)
-    if not env:
-        logger.error("Could not find environment in click context")
-        raise ValueError("Could not find environment in click context")
-    return env.configuration.get_platform_var(yaml_key)
+    return Environment().configuration.get_platform_var(yaml_key)
 
 
 require_deployment_key = insert_argument(get_from_deploy_config)
