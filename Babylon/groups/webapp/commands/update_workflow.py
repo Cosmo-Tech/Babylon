@@ -29,15 +29,17 @@ def update_workflow(workflow_file: pathlib.Path, output_file: str, env_file: Opt
     with open(workflow_file, "r") as _f:
         data = yaml_loader.load(_f)
     logger.info(f"Updating github workflow {workflow_file}...")
-    data["jobs"] = {
-        "import_env": {
-            "name": "Import environment variables from a file",
-            "id": "import-env",
-            "shell": "bash",
-            "run": f"< {env_file} >> $GITHUB_ENV"
-        },
-        **data["jobs"]
-    }
+    data["jobs"]["build_and_deploy_job"]["steps"] = [{
+        "uses": "actions/checkout@v2",
+        "with": {
+            "submodules": "true"
+        }
+    }, {
+        "name": "Import environment variables from a file",
+        "id": "import-env",
+        "shell": "bash",
+        "run": f"< {env_file} >> $GITHUB_ENV"
+    }, *data["jobs"]["build_and_deploy_job"]["steps"][1:]]
     with open(output_file, "w") as _f:
         yaml_loader.dump(data, _f)
     logger.info(f"Successfully saved updated workflow file {output_file}")
