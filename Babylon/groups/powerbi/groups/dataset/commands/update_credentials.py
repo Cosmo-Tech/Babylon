@@ -51,7 +51,7 @@ def update_credentials(ctx: Context, powerbi_workspace_id: str, dataset_id: str,
         gateway_id = datasource.get('gatewayId')
         datasource_id = datasource.get('datasourceId')
         update_url = f"https://api.powerbi.com/v1.0/myorg/gateways/{gateway_id}/datasources/{datasource_id}"
-        response = oauth_request(url=update_url, access_token=access_token, json_data=credential_details, type="PATCH")
+        response = oauth_request(url=update_url, access_token=access_token, json=credential_details, type="PATCH")
         if response is None:
             logger.error(f"Could not update credentials of datasource {datasource_id}")
             continue
