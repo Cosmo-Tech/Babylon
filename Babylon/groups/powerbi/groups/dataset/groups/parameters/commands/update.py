@@ -37,7 +37,7 @@ def update(ctx: Context,
     details = {"updateDetails": [{"name": param[0], "newValue": param[1]} for param in params]}
     update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
                   f"/datasets/{dataset_id}/Default.UpdateParameters")
-    response = oauth_request(url=update_url, access_token=access_token, data=details, type="POST")
+    response = oauth_request(url=update_url, access_token=access_token, json=details, type="POST")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully updated dataset {dataset_id} parameters")
