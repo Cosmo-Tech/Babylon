@@ -5,7 +5,6 @@ import logging
 from typing import Any
 from typing import Iterable
 
-import click
 import yaml
 
 from .environment import Environment
@@ -96,7 +95,7 @@ def get_api_file(api_file_path: str, use_working_dir_file: bool):
     """
     _file_path = pathlib.Path(api_file_path)
     if use_working_dir_file:
-        _file_path = click.get_current_context().find_object(Environment).working_dir.get_file(api_file_path)
+        _file_path = Environment().working_dir.get_file(api_file_path)
     if not _file_path.exists():
         logger.error(f"{_file_path} does not exists.")
         return None
