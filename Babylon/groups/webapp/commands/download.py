@@ -15,6 +15,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @require_deployment_key("webapp_repository")
 @require_deployment_key("webapp_repository_branch")
+@require_deployment_key("webapp_repository_token")
 @argument("destination_folder")
 @option("-e",
         "--use-working-dir-file",
@@ -23,6 +24,7 @@ logger = logging.getLogger("Babylon")
         help="Should the destination folder path be relative to Babylon working directory ?")
 def download(webapp_repository: str,
              webapp_repository_branch: str,
+             webapp_repository_token: str,
              destination_folder: str,
              use_working_dir_file: bool = False) -> CommandResponse:
     """Download the github repository locally"""
@@ -32,6 +34,9 @@ def download(webapp_repository: str,
     if destination_folder.exists():
         logger.error(f"Local folder {destination_folder} already exists")
         return CommandResponse.fail()
-    git.Repo.clone_from(webapp_repository, destination_folder, branch=webapp_repository_branch)
+    # Will log using the given personal access token
+    repo_suffix = "/".join(webapp_repository.split("/")[-2:])
+    repo_w_token = f"https://oauth2:{webapp_repository_token}@github.com/{repo_suffix}.git"
+    git.Repo.clone_from(repo_w_token, destination_folder, branch=webapp_repository_branch)
     logger.info(f"Successfully cloned repository {webapp_repository} in folder {destination_folder}")
     return CommandResponse.success()
