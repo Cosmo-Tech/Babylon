@@ -15,16 +15,17 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @argument("workflow_file", type=Path(path_type=pathlib.Path))
+@option("-c", "--config_file", "config_file", help="Configuration file name", default="config.json")
 @option("-o",
         "--output_file",
         "output_file",
         help="File to which content should be outputted (json-formatted)",
-        type=Path(),
-        required=True)
-@option("--env", "env_file", help="Environment file name")
-def update_workflow(workflow_file: pathlib.Path, output_file: str, env_file: Optional[str] = None) -> CommandResponse:
-    """Update a github workflow file to read env from a file during deployment"""
-    env_file = env_file or "deploy.env"
+        type=Path())
+def update_workflow(workflow_file: pathlib.Path,
+                    config_file: str,
+                    output_file: Optional[str] = None) -> CommandResponse:
+    """Update a github workflow file to read environment from a config.json file during deployment"""
+    output_file = output_file or workflow_file
     yaml_loader = YAML()
     with open(workflow_file, "r") as _f:
         data = yaml_loader.load(_f)
@@ -38,7 +39,7 @@ def update_workflow(workflow_file: pathlib.Path, output_file: str, env_file: Opt
         "name": "Import environment variables from a file",
         "id": "import-env",
         "shell": "bash",
-        "run": f"< {env_file} >> $GITHUB_ENV"
+        "run": f"echo \"REACT_APP_BABYLON_CONFIG=$(cat {config_file} | jq '@json')\" >> $GITHUB_ENV"
     }, *data["jobs"]["build_and_deploy_job"]["steps"][1:]]
     with open(output_file, "w") as _f:
         yaml_loader.dump(data, _f)
