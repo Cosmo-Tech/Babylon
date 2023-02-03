@@ -19,6 +19,7 @@ CONFIG_DATA_QUERIES = {
     "ENABLE_APPLICATION_INSIGHTS": "%deploy%webapp_enable_insights"
 }
 
+
 @command()
 @option("-o",
         "--output",
@@ -30,8 +31,7 @@ CONFIG_DATA_QUERIES = {
         "use_working_dir_file",
         is_flag=True,
         help="Should the output file path be relative to Babylon working directory ?")
-def export_environment(output_file: str,
-                       use_working_dir_file: bool = False) -> CommandResponse:
+def export_environment(output_file: str, use_working_dir_file: bool = False) -> CommandResponse:
     """Export webapp configuration in a json file"""
     env = Environment()
     config_data = {k: env.convert_data_query(query) for k, query in CONFIG_DATA_QUERIES.items()}
