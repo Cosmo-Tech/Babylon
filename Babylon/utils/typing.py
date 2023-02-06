@@ -16,7 +16,7 @@ env = Environment()
 
 
 class QueryType(ParamType):
-    name = "filetype"
+    name = "QueryString"
 
     def shell_complete(self, ctx: "Context", param: "Parameter", incomplete: str) -> List["CompletionItem"]:
         """
