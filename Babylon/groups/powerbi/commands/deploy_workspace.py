@@ -21,8 +21,14 @@ logger = logging.getLogger("Babylon")
         "-f",
         "report_folder",
         type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=pathlib.Path),
-        default="./powerbi-reports")
-@option("--report-parameter", "-p", "report_parameters", type=(QueryType(), QueryType()), multiple=True)
+        default="./powerbi-reports",
+        help="Override folder containing your .pbix files")
+@option("--report-parameter",
+        "-p",
+        "report_parameters",
+        type=(QueryType(), QueryType()),
+        multiple=True,
+        help="Add a combination <Key Value> that will be sent as parameter to all your datasets")
 def deploy_workspace(workspace_name: str, report_folder: pathlib.Path, report_parameters: Iterable[Tuple[str, str]]):
     """Macro command allowing full deployment of a power bi workspace
 
