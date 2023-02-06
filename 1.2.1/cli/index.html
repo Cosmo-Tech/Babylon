@@ -15,7 +15,7 @@
         <link rel="next" href="../Utils/config/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.9">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.11">
     
     
       
@@ -1524,6 +1524,13 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-powerbi-deploy-workspace" class="md-nav__link">
+    deploy-workspace
+  </a>
   
 </li>
         
@@ -3122,6 +3129,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#babylon-powerbi-deploy-workspace" class="md-nav__link">
+    deploy-workspace
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#babylon-powerbi-report" class="md-nav__link">
     report
   </a>
@@ -3844,7 +3858,7 @@
 <tbody>
 <tr>
 <td><code>-c</code>, <code>--connector-id</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>N/A</td>
 <td>None</td>
 </tr>
@@ -4066,7 +4080,7 @@
 <tbody>
 <tr>
 <td><code>-c</code>, <code>--connector-id</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>N/A</td>
 <td>None</td>
 </tr>
@@ -5217,7 +5231,7 @@
 <tbody>
 <tr>
 <td><code>-r</code>, <code>--registry</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Container Registry name to scan, example: myregistry.azurecr.io</td>
 <td>None</td>
 </tr>
@@ -5258,13 +5272,13 @@
 <tbody>
 <tr>
 <td><code>-r</code>, <code>--registry</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Container Registry name to pull from, ex: myregistry.azurecr.io</td>
 <td>None</td>
 </tr>
 <tr>
 <td><code>-i</code>, <code>--image</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Remote docker image to pull, example hello-world:latest</td>
 <td>None</td>
 </tr>
@@ -5297,13 +5311,13 @@
 <tbody>
 <tr>
 <td><code>-i</code>, <code>--image</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Local docker image to push</td>
 <td>None</td>
 </tr>
 <tr>
 <td><code>-r</code>, <code>--registry</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Container Registry name to push to, example: myregistry.azurecr.io</td>
 <td>None</td>
 </tr>
@@ -7369,6 +7383,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#babylon-powerbi-dataset">dataset</a></em>: Command group handling PowerBI datasets</li>
+<li><em><a href="#babylon-powerbi-deploy-workspace">deploy-workspace</a></em>: Macro command allowing full deployment of a power bi workspace</li>
 <li><em><a href="#babylon-powerbi-report">report</a></em>: Command group handling PowerBI reports</li>
 <li><em><a href="#babylon-powerbi-workspace">workspace</a></em>: Command group handling PowerBI workspaces</li>
 </ul>
@@ -7596,7 +7611,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <tbody>
 <tr>
 <td><code>-p</code>, <code>--parameter</code></td>
-<td><text filetype></td>
+<td><text QueryString></td>
 <td>N/A</td>
 <td>_required</td>
 </tr>
@@ -7664,6 +7679,43 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>text</td>
 <td>PowerBI workspace ID</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="babylon-powerbi-deploy-workspace">babylon powerbi deploy-workspace</h4>
+<p>Macro command allowing full deployment of a power bi workspace</p>
+<p>Require a local folder named <code>powerbi-reports</code> and will initialize a full workspace with the given reports</p>
+<p><strong>Usage:</strong></p>
+<pre><code>babylon powerbi deploy-workspace [OPTIONS] WORKSPACE_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--report-folder</code>, <code>-f</code></td>
+<td>directory</td>
+<td>Override folder containing your .pbix files</td>
+<td><code>./powerbi-reports</code></td>
+</tr>
+<tr>
+<td><code>--report-parameter</code>, <code>-p</code></td>
+<td><QueryString QueryString></td>
+<td>Add a combination <Key Value> that will be sent as parameter to all your datasets</td>
 <td>None</td>
 </tr>
 <tr>
@@ -7997,7 +8049,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>PowerBI workspace ID</td>
 <td>None</td>
 </tr>
@@ -8132,7 +8184,7 @@ GROUP USER ACCESS RIGHT :
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>N/A</td>
 <td>None</td>
 </tr>
@@ -8162,7 +8214,7 @@ GROUP USER ACCESS RIGHT :
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>N/A</td>
 <td>None</td>
 </tr>
@@ -8198,7 +8250,7 @@ GROUP USER ACCESS RIGHT :
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>N/A</td>
 <td>None</td>
 </tr>
@@ -8248,7 +8300,7 @@ GROUP USER ACCESS RIGHT :
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>N/A</td>
 <td>None</td>
 </tr>
@@ -8662,7 +8714,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Id of the workspace to use</td>
 <td>None</td>
 </tr>
@@ -8705,7 +8757,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Id of the workspace to use</td>
 <td>None</td>
 </tr>
@@ -8748,7 +8800,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </tr>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Id of the workspace to use</td>
 <td>None</td>
 </tr>
@@ -8785,7 +8837,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </tr>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Id of the workspace to use</td>
 <td>None</td>
 </tr>
@@ -8818,19 +8870,19 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <tbody>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>Id of the workspace to use</td>
 <td>None</td>
 </tr>
 <tr>
 <td><code>--value</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>A new value to apply to the variable</td>
 <td>None</td>
 </tr>
 <tr>
 <td><code>--description</code></td>
-<td>filetype</td>
+<td>QueryString</td>
 <td>A new description to apply to the variable</td>
 <td>None</td>
 </tr>
@@ -9043,7 +9095,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.top"], "search": "../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a00a7c5e.min.js"></script>
+      <script src="../assets/javascripts/bundle.6df46069.min.js"></script>
       
     
   </body>
