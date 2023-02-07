@@ -20,6 +20,7 @@ cosmotech-api>=2.0.1
 Cosmotech-Acceleration-Library>=0.2.2
 
 # Other requirements
+cryptography >= 38.0.3
 pyyaml>=6.0
 docker>=6.0.0
 jmespath>=1.0.1

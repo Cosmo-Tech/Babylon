@@ -1,13 +1,15 @@
+import io
 import json
+import logging
 import os
 import pathlib
 import shutil
 import zipfile
-import logging
 from typing import Any
 from typing import Optional
 
 import yaml
+from cryptography.fernet import Fernet
 
 from . import TEMPLATE_FOLDER_PATH
 from .yaml_utils import compare_yaml_keys
@@ -35,6 +37,7 @@ class WorkingDir:
             self.zip_file = zipfile.ZipFile(self.path)
             self.path = zipfile.Path(self.zip_file)
         self.template_path = TEMPLATE_FOLDER_PATH / "working_dir_template"
+        self.encoding_key = None
 
     def copy_template(self):
         """
@@ -152,6 +155,8 @@ class WorkingDir:
                 return json.load(_f)
             elif _p.suffix == ".yaml":
                 return yaml.safe_load(_f)
+            elif _p.suffix == ".encrypt":
+                return self.decrypt_file(pathlib.Path(file_path))
             return list(_l for _l in _f)
 
     def __str__(self):
@@ -200,3 +205,76 @@ class WorkingDir:
                     for _f in files:
                         _z_file.write(os.path.join(root, _f), os.path.relpath(os.path.join(root, _f), str(self.path)))
         return str(_p)
+
+    def load_secret_key(self):
+        try:
+            secret_file_path = self.get_file("secret.key")
+            with open(secret_file_path, "rb") as f:
+                self.encoding_key = f.read()
+        except:
+            raise ValueError("secret.key file could not be opened")
+
+    def generate_secret_key(self, override: bool = False) -> pathlib.Path:
+        secret_file_path = self.get_file("secret.key")
+        if secret_file_path.exists() and not override:
+            return secret_file_path
+        generated_key = Fernet.generate_key()
+        self.encoding_key = generated_key
+        with open(secret_file_path, "wb") as f:
+            f.write(generated_key)
+        return secret_file_path
+
+    @staticmethod
+    def encrypt_content(encoding_key: bytes, content: bytes) -> bytes:
+        encoder = Fernet(encoding_key)
+        return encoder.encrypt(content)
+
+    @staticmethod
+    def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
+        decoder = Fernet(encoding_key)
+        return decoder.decrypt(content)
+
+    def decrypt_file(self, file_name: pathlib.Path) -> Any:
+        """
+        Use the secret key to decrypt a file
+        :param file_name: the file to decrypt
+        :return: the decrypted content
+        """
+        if not self.encoding_key:
+            try:
+                self.load_secret_key()
+            except ValueError:
+                logger.error("Can't decrypt a file without the key.")
+                return None
+        if not self.get_file(str(file_name)).exists():
+            logger.error("File does not exists")
+            return None
+        with open(self.get_file(str(file_name)), "rb") as f:
+            content = f.read()
+            decrypted_content = self.decrypt_content(self.encoding_key, content)
+        usable_content = json.load(io.BytesIO(decrypted_content))
+        return usable_content
+
+    def encrypt_file(self, file_name: pathlib.Path, content: Any, override: bool = False) -> pathlib.Path:
+        """
+        Use the secret key to encrypt the content to a file.
+        :param file_name: the target file name after encryption
+        :param content: the content to be encrypted
+        :param override: Should an existing file be replaced ?
+        :return: The effective path of the encrypted file
+        """
+        if self.get_file(str(file_name)).exists() and not override:
+            raise ValueError("File already exists")
+
+        if not self.encoding_key:
+            try:
+                self.load_secret_key()
+            except:
+                self.generate_secret_key()
+
+        encoded_content = self.encrypt_content(self.encoding_key, json.dumps(content).encode("utf-8"))
+
+        with open(self.get_file(str(file_name)), "wb") as f:
+            f.write(encoded_content)
+
+        return self.get_file(str(file_name))
