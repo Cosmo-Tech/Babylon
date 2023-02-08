@@ -222,6 +222,7 @@ class WorkingDir:
         self.encoding_key = generated_key
         with open(secret_file_path, "wb") as f:
             f.write(generated_key)
+        logger.warning(f"Generated new secret key `{secret_file_path}` make sure to keep it safe.")
         return secret_file_path
 
     @staticmethod
