@@ -211,7 +211,7 @@ class WorkingDir:
             secret_file_path = self.get_file("secret.key")
             with open(secret_file_path, "rb") as f:
                 self.encoding_key = f.read()
-        except:
+        except OSError:
             raise ValueError("secret.key file could not be opened")
 
     def generate_secret_key(self, override: bool = False) -> pathlib.Path:
@@ -270,7 +270,7 @@ class WorkingDir:
         if not self.encoding_key:
             try:
                 self.load_secret_key()
-            except:
+            except ValueError:
                 self.generate_secret_key()
 
         encoded_content = self.encrypt_content(self.encoding_key, json.dumps(content).encode("utf-8"))
