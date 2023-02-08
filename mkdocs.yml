@@ -26,6 +26,7 @@ nav:
         - Environments: 'environment.md'
         - Plugins: 'plugins.md'
         - Macro commands: 'macro.md'
+        - Secrets management: 'Utils/secret_management.md'
     - References:
         - babylon: 'cli.md'
         - classes:
@@ -40,10 +41,21 @@ nav:
             - Dev-tools: 'plugins/devtools.md'
 
 markdown_extensions:
-    - attr_list
-    - tables
     - mkdocs-click
+    - admonition
+    - attr_list
+    - footnotes
+    - md_in_html
+    - tables
+    - def_list
+    - pymdownx.details
     - pymdownx.snippets
+    - pymdownx.superfences
+    - pymdownx.tabbed:
+        alternate_style: true
+    - pymdownx.emoji:
+        emoji_index: !!python/name:materialx.emoji.twemoji
+        emoji_generator: !!python/name:materialx.emoji.to_svg
 plugins:
     - search
     - mkdocstrings
