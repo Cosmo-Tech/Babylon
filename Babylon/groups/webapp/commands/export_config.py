@@ -31,10 +31,13 @@ CONFIG_DATA_QUERIES = {
         "use_working_dir_file",
         is_flag=True,
         help="Should the output file path be relative to Babylon working directory ?")
-def export_environment(output_file: str, use_working_dir_file: bool = False) -> CommandResponse:
+def export_config(output_file: str, use_working_dir_file: bool = False) -> CommandResponse:
     """Export webapp configuration in a json file"""
     env = Environment()
     config_data = {k: env.convert_data_query(query) for k, query in CONFIG_DATA_QUERIES.items()}
+    for k, config in config_data.items():
+        if not config:
+            logger.warning(f"Configuration variable \"{CONFIG_DATA_QUERIES[k]}\" is empty")
     if use_working_dir_file:
         output_file = env.working_dir.get_file(output_file)
     with open(output_file, "w") as _f:
