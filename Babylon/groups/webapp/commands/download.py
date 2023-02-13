@@ -35,7 +35,7 @@ def download(webapp_repository: str,
         logger.error(f"Local folder {destination_folder} already exists")
         return CommandResponse.fail()
     # Will log using the given personal access token
-    repo_suffix = "/".join(webapp_repository.split("/")[-2:])
+    repo_suffix = webapp_repository.split("github.com/")[1]
     repo_w_token = f"https://oauth2:{webapp_repository_token}@github.com/{repo_suffix}.git"
     git.Repo.clone_from(repo_w_token, destination_folder, branch=webapp_repository_branch)
     logger.info(f"Successfully cloned repository {webapp_repository} in folder {destination_folder}")
