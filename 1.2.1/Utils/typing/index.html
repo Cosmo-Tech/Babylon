@@ -424,6 +424,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../secret_management/" class="md-nav__link">
+        Secrets management
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -889,16 +903,16 @@
 <h2 id="querytype">QueryType</h2>
 <p>This type adds a capacity to easliy use file content as parameter to function.</p>
 <h3 id="example-in-a-command">Example in a command</h3>
-<p>The following code is an example of use of the type:</p>
-<pre><code class="language-python">from Babylon.utils.typing import QueryType
-import click
+<p>The following code is an example of use of the type:
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">Babylon.utils.typing</span> <span class="kn">import</span> <span class="n">QueryType</span>
+<span class="kn">import</span> <span class="nn">click</span>
 
-@click.command()
-@click.argument(&quot;my_arg&quot;, type=QueryType())
-def my_call(my_arg):
-    print(&quot;The value of my arg is :&quot;)
-    print(my_arg)
-</code></pre>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;my_arg&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">QueryType</span><span class="p">())</span>
+<span class="k">def</span> <span class="nf">my_call</span><span class="p">(</span><span class="n">my_arg</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The value of my arg is :&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">my_arg</span><span class="p">)</span>
+</code></pre></div></p>
 <h3 id="usage">Usage</h3>
 <p>The <code>QueryType</code> accepts the following syntaxes :</p>
 <ul>
@@ -907,21 +921,21 @@ def my_call(my_arg):
 <li><code>%workdir[File/Path]%&lt;JMESPath Query&gt;</code> : This syntax will apply the JMESPath query to the give file in the working directory</li>
 </ul>
 <h3 id="example-use">Example use</h3>
-<p>Using the previously defined command and the following example config files</p>
-<pre><code class="language-yaml"># Deploy
-solution_id: &quot;MySolution&quot;
-</code></pre>
-<pre><code class="language-yaml"># Platform
-organization_id: &quot;MyOrganization&quot;
-</code></pre>
-<p>We can except the following results :</p>
-<pre><code class="language-bash">my_call %deploy%solution_id
-# The value of my arg is :
-# MySolution
-my_call %platform%*
-# The value of my arg is :
-# ['MyOrganization']
-</code></pre>
+<p>Using the previously defined command and the following example config files
+<div class="highlight"><pre><span></span><code><span class="c1"># Deploy</span>
+<span class="nt">solution_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MySolution&quot;</span>
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Platform</span>
+<span class="nt">organization_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MyOrganization&quot;</span>
+</code></pre></div>
+<p>We can except the following results :
+<div class="highlight"><pre><span></span><code>my_call<span class="w"> </span>%deploy%solution_id
+<span class="c1"># The value of my arg is :</span>
+<span class="c1"># MySolution</span>
+my_call<span class="w"> </span>%platform%*
+<span class="c1"># The value of my arg is :</span>
+<span class="c1"># [&#39;MyOrganization&#39;]</span>
+</code></pre></div></p>
 <p>For more information on the JMESPath syntax I invite you to check the following website : <a href="https://jmespath.org">JMESPath.org</a></p>
 
 

@@ -607,6 +607,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Utils/secret_management/" class="md-nav__link">
+        Secrets management
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -1076,17 +1090,17 @@ new set of commands you will want to make sure to group them in a logical struct
 <p>The plugin <code>babylon dev-tools</code> is available, once you added it you can do <code>babylon dev-tools --help</code> to check the existing commands</p>
 <h3 id="adding-the-plugin">Adding the plugin</h3>
 <p>In the folder you cloned Babylon you can do the following command to activate the plugin</p>
-<pre><code class="language-bash">babylon config plugin add plugins/dev_tools
-</code></pre>
+<div class="highlight"><pre><span></span><code>babylon<span class="w"> </span>config<span class="w"> </span>plugin<span class="w"> </span>add<span class="w"> </span>plugins/dev_tools
+</code></pre></div>
 <p>After running this command you will have access to the plugin in you babylon</p>
 <h3 id="use-babylon-dev-tools-to-initialize-elements">Use <code>babylon dev-tools</code> to initialize elements</h3>
 <p>You can use <code>babylon dev-tools initialize-group</code> to initialize all the files for a new group (works with subgroups too)</p>
-<pre><code class="language-bash">babylon self initialize-group mynewgroup mynewsubgroup
-# This command will try to create the group mynewsubgroup in mynewgroup
-# if mynewgroup does not exist it will create it first
-</code></pre>
+<div class="highlight"><pre><span></span><code>babylon<span class="w"> </span>self<span class="w"> </span>initialize-group<span class="w"> </span>mynewgroup<span class="w"> </span>mynewsubgroup
+<span class="c1"># This command will try to create the group mynewsubgroup in mynewgroup</span>
+<span class="c1"># if mynewgroup does not exist it will create it first</span>
+</code></pre></div>
 <p>After running the previous command you will have this new structure added to the project</p>
-<pre><code class="language-text">Babylon
+<div class="highlight"><pre><span></span><code>Babylon
 ├── groups/
 │   ├── __init__.py            &lt; This file is modified to add the new command to the cli
 │   ├── ...
@@ -1098,15 +1112,15 @@ new set of commands you will want to make sure to group them in a logical struct
 │           ├── __init__.py    &lt; This file is initialized and then modified to add the new subcommand to the cli
 │           └── mynewsubgroup/ &lt; This folder is created (with the same hierarchy as mynewgroup inside)
 └── ...
-</code></pre>
+</code></pre></div>
 <p>You can use <code>babylon dev-tools initialize-command</code> to initialize a new command (will initialize the required groups if non
 existent). You can add as many groups as you want (starting from 0 groups)</p>
-<pre><code class="language-bash">babylon dev-tools initialize-command mynewgroup mynewcommand
-# This command will try to create the command mynewcommand in mynewgroup
-# if mynewgroup does not exist it will create it first
-</code></pre>
+<div class="highlight"><pre><span></span><code>babylon<span class="w"> </span>dev-tools<span class="w"> </span>initialize-command<span class="w"> </span>mynewgroup<span class="w"> </span>mynewcommand
+<span class="c1"># This command will try to create the command mynewcommand in mynewgroup</span>
+<span class="c1"># if mynewgroup does not exist it will create it first</span>
+</code></pre></div>
 <p>After running the previous command you will have the following change to the structure</p>
-<pre><code class="language-text">Babylon
+<div class="highlight"><pre><span></span><code>Babylon
 ├── groups/
 │   ├── ...
 │   └── mynewgroup/
@@ -1115,7 +1129,7 @@ existent). You can add as many groups as you want (starting from 0 groups)</p>
 │       |   └── __init__.py     &lt; This file is modified to add the new command to the cli
 │       └── ...
 └── ...
-</code></pre>
+</code></pre></div>
 <p>If you want to do it by hand you can check the following sections for a manual approach to creating a group / subgroup /
 command</p>
 <h2 id="create-files-by-hand">Create files by hand</h2>
@@ -1124,61 +1138,59 @@ command</p>
 <h4 id="create-a-new-package-inside-babylongroups">Create a new package inside <code>Babylon.groups</code></h4>
 <p>This new package comes with a package called <code>commands</code> and a package named <code>groups</code> and you can use the following
 template for the <code>new_group.__init__.py</code></p>
-<pre><code class="language-python">from click import group
-from click import pass_context
-from click.core import Context
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">click</span> <span class="kn">import</span> <span class="n">group</span>
+<span class="kn">from</span> <span class="nn">click</span> <span class="kn">import</span> <span class="n">pass_context</span>
+<span class="kn">from</span> <span class="nn">click.core</span> <span class="kn">import</span> <span class="n">Context</span>
 
-from .commands import list_commands
-from .groups import list_groups
-
-
-@group()
-@pass_context
-def group_template(ctx: Context):
-    &quot;&quot;&quot;Group initialized from a template&quot;&quot;&quot;
-    pass
+<span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">list_commands</span>
+<span class="kn">from</span> <span class="nn">.groups</span> <span class="kn">import</span> <span class="n">list_groups</span>
 
 
-for _command in list_commands:
-    group_template.add_command(_command)
+<span class="nd">@group</span><span class="p">()</span>
+<span class="nd">@pass_context</span>
+<span class="k">def</span> <span class="nf">group_template</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Group initialized from a template&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
 
-for _group in list_groups:
-    group_template.add_command(_group)
-</code></pre>
+
+<span class="k">for</span> <span class="n">_command</span> <span class="ow">in</span> <span class="n">list_commands</span><span class="p">:</span>
+    <span class="n">group_template</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">_command</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">_group</span> <span class="ow">in</span> <span class="n">list_groups</span><span class="p">:</span>
+    <span class="n">group_template</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">_group</span><span class="p">)</span>
+</code></pre></div>
 <h4 id="initialize-the-commands__init__py">Initialize the <code>commands.__init__.py</code></h4>
 <p>You can use the following template to initialize the <code>new_group.commands.__init__.py</code></p>
-<pre><code class="language-python">
-list_commands = [
-]
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">list_commands</span> <span class="o">=</span> <span class="p">[</span>
+<span class="p">]</span>
+</code></pre></div>
 <h4 id="initialize-the-groups__init__py">Initialize the <code>groups.__init__.py</code></h4>
 <p>You can use the following template to initialize the <code>new_group.groups.__init__.py</code></p>
-<pre><code class="language-python">
-list_groups = [
-]
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">list_groups</span> <span class="o">=</span> <span class="p">[</span>
+<span class="p">]</span>
+</code></pre></div>
 <h4 id="add-your-group-to-the-groups-callable-by-the-cli">Add your group to the groups callable by the cli</h4>
 <p>You have to add an import for your group in the <code>Babylon.groups.__init__.py</code></p>
-<pre><code class="language-python">from .api import api
-from .new_group import new_group  # Add your import here
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">api</span>
+<span class="kn">from</span> <span class="nn">.new_group</span> <span class="kn">import</span> <span class="n">new_group</span>  <span class="c1"># Add your import here</span>
 
-command_groups = [
-    api,
-    new_group,  # Add your group command to the list of existing commands
-]
-</code></pre>
+<span class="n">command_groups</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">api</span><span class="p">,</span>
+    <span class="n">new_group</span><span class="p">,</span>  <span class="c1"># Add your group command to the list of existing commands</span>
+<span class="p">]</span>
+</code></pre></div>
 <p>And your new group is then ready to be called</p>
-<pre><code class="language-bash">babylon new-group
-#Usage: babylon new-group [OPTIONS] COMMAND [ARGS]...
-#
-#  New group of commands
-#
-#Options:
-#  --help  Show this message and exit.
-#
-#Commands:
-#  my_command  Doc-string for my new command
-</code></pre>
+<div class="highlight"><pre><span></span><code>babylon<span class="w"> </span>new-group
+<span class="c1">#Usage: babylon new-group [OPTIONS] COMMAND [ARGS]...</span>
+<span class="c1">#</span>
+<span class="c1">#  New group of commands</span>
+<span class="c1">#</span>
+<span class="c1">#Options:</span>
+<span class="c1">#  --help  Show this message and exit.</span>
+<span class="c1">#</span>
+<span class="c1">#Commands:</span>
+<span class="c1">#  my_command  Doc-string for my new command</span>
+</code></pre></div>
 <h3 id="adding-a-sub-group-in-an-existing-group">Adding a sub-group in an existing group</h3>
 <p>You follow the same instruction as adding a group in <code>Babylon.groups</code> but in a sub-package.</p>
 <ul>
@@ -1192,28 +1204,28 @@ command_groups = [
 <h3 id="adding-a-new-command-to-an-existing-group">Adding a new command to an existing group</h3>
 <h4 id="template">Template</h4>
 <p>This template can be copied in the <code>commands</code> package for the group we want to add the command to.</p>
-<pre><code class="language-python">import logging
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
 
-from click import command
+<span class="kn">from</span> <span class="nn">click</span> <span class="kn">import</span> <span class="n">command</span>
 
-logger = logging.getLogger(&quot;Babylon&quot;)
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;Babylon&quot;</span><span class="p">)</span>
 
 
-@command()
-def command_template():
-    &quot;&quot;&quot;Command created from a template&quot;&quot;&quot;
-    logger.warning(&quot;This command was initialized from a template and is empty&quot;)
-</code></pre>
+<span class="nd">@command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">command_template</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command created from a template&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This command was initialized from a template and is empty&quot;</span><span class="p">)</span>
+</code></pre></div>
 <h4 id="add-to-commands__init__py">Add to <code>commands.__init__.py</code></h4>
 <p>Once the command is created you can make a link to it in the <code>commands.__init__.py</code> file</p>
-<pre><code class="language-python">from .older_command import older_command
-from .my_command import my_command  # You import your new command here
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">.older_command</span> <span class="kn">import</span> <span class="n">older_command</span>
+<span class="kn">from</span> <span class="nn">.my_command</span> <span class="kn">import</span> <span class="n">my_command</span>  <span class="c1"># You import your new command here</span>
 
-list_commands = [
-    older_command,
-    my_command,  # And you add it to the list of existing commands here
-]
-</code></pre>
+<span class="n">list_commands</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">older_command</span><span class="p">,</span>
+    <span class="n">my_command</span><span class="p">,</span>  <span class="c1"># And you add it to the list of existing commands here</span>
+<span class="p">]</span>
+</code></pre></div>
 <p>And that's all folks, you added your command to an existing group of commands</p>
 
 

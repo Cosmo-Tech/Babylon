@@ -538,6 +538,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Utils/secret_management/" class="md-nav__link">
+        Secrets management
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -932,11 +946,11 @@
 <p>Simple access to the full environment can be made by using the singleton <code>Babylon.utils.environment.Environment</code></p>
 <h2 id="working-directory">Working Directory</h2>
 <p>A working directory is the ensemble of files you will need to have a running simulator on the cloud.</p>
-<pre><code class="language-text">Solution
+<div class="highlight"><pre><span></span><code>Solution
 ├── ...
 └── API
     └── API_FILES_HERE
-</code></pre>
+</code></pre></div>
 <p>More folders and file can be required and will be added in future version, don't hesitate to
 use <code>babylon working-dir complete</code> to add missing elements of the working directory.</p>
 <h3 id="api">API</h3>
@@ -954,72 +968,72 @@ use <code>babylon working-dir complete</code> to add missing elements of the wor
 solution on a platform</p>
 <h4 id="deployyaml">deploy.yaml</h4>
 <p>This is a yaml file containing a list of key-values used to identify the deployment of a solution in the platform</p>
-<pre><code class="language-yaml"># organization_id : the id of the organization on the API
-organization_id: &quot;&quot;
-# solution_id : the id of the solution on the API
-solution_id: &quot;&quot;
-# workspace_id : the id of the workspace on the API
-workspace_id: &quot;&quot;
-# workspace_key : the key of the workspace on the API shared with Terraform configuration
-workspace_key: &quot;&quot;
-# api_url : the url of the API (used for validation)
-api_url: &quot;&quot;
-# resource_group_name: The name fo the resource group used for users deployment (function apps, webapp)
-resource_group_name: &quot;&quot;
-# resources_location: azure resource location for users deployment ex: westeurope
-resources_location: &quot;&quot;
-# adx_database_name : the name of the database used in Azure Data Explorer
-adx_database_name: &quot;&quot;
-# digital_twin_url : URL of the digital twin to use
-digital_twin_url: &quot;&quot;
-# csm_simulator_repository: the solution simulator source repository
-csm_simulator_repository: &quot;&quot;
-# simulator_repository: the solution simulator repository destination (repository value in Solution.yaml)
-simulator_repository: &quot;&quot;
-# simulator_version: the solution simulator version (version value in Solution.yaml)
-simulator_version: &quot;&quot;
-# send_scenario_metadata_to_event_hub: Set this property to false to not send scenario metada to Azure Event Hub Namespace for this Workspace.
-# The Event Hub Namespace must be named \'&lt;organization_id\&gt;-&lt;workspace_id\&gt;\' (in lower case).
-# This Namespace must also contain two Event Hubs named \'probesmeasures\' and \'scenariorun\'.
-send_scenario_metadata_to_event_hub: true
-# use_dedicated_event_hub_namespace: Set this property to false to not to use a dedicated Azure Event Hub Namespace for this Workspace.
-# The Event Hub Namespace must be named \'&lt;organization_id\&gt;-&lt;workspace_id\&gt;\' (in lower case).
-# This Namespace must also contain two Event Hubs named \'scenariometadata\' and \'scenariorunmetadata\'.
-use_dedicated_event_hub_namespace: true
-# PowerBI workspace id
-powerbi_workspace_id: &quot;&quot;
-# WebApp azure location
-webapp_location: &quot;&quot;
-# WebApp Github Repository
-webapp_repository: &quot;&quot;
-# WebApp Github Repository branch
-webapp_repository_branch: &quot;&quot;
-# WebApp Github Repository Token (will be moved in secrets)
-webapp_repository_token: &quot;&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="c1"># organization_id : the id of the organization on the API</span>
+<span class="nt">organization_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># solution_id : the id of the solution on the API</span>
+<span class="nt">solution_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># workspace_id : the id of the workspace on the API</span>
+<span class="nt">workspace_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># workspace_key : the key of the workspace on the API shared with Terraform configuration</span>
+<span class="nt">workspace_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># api_url : the url of the API (used for validation)</span>
+<span class="nt">api_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># resource_group_name: The name fo the resource group used for users deployment (function apps, webapp)</span>
+<span class="nt">resource_group_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># resources_location: azure resource location for users deployment ex: westeurope</span>
+<span class="nt">resources_location</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># adx_database_name : the name of the database used in Azure Data Explorer</span>
+<span class="nt">adx_database_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># digital_twin_url : URL of the digital twin to use</span>
+<span class="nt">digital_twin_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># csm_simulator_repository: the solution simulator source repository</span>
+<span class="nt">csm_simulator_repository</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># simulator_repository: the solution simulator repository destination (repository value in Solution.yaml)</span>
+<span class="nt">simulator_repository</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># simulator_version: the solution simulator version (version value in Solution.yaml)</span>
+<span class="nt">simulator_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># send_scenario_metadata_to_event_hub: Set this property to false to not send scenario metada to Azure Event Hub Namespace for this Workspace.</span>
+<span class="c1"># The Event Hub Namespace must be named \&#39;&lt;organization_id\&gt;-&lt;workspace_id\&gt;\&#39; (in lower case).</span>
+<span class="c1"># This Namespace must also contain two Event Hubs named \&#39;probesmeasures\&#39; and \&#39;scenariorun\&#39;.</span>
+<span class="nt">send_scenario_metadata_to_event_hub</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="c1"># use_dedicated_event_hub_namespace: Set this property to false to not to use a dedicated Azure Event Hub Namespace for this Workspace.</span>
+<span class="c1"># The Event Hub Namespace must be named \&#39;&lt;organization_id\&gt;-&lt;workspace_id\&gt;\&#39; (in lower case).</span>
+<span class="c1"># This Namespace must also contain two Event Hubs named \&#39;scenariometadata\&#39; and \&#39;scenariorunmetadata\&#39;.</span>
+<span class="nt">use_dedicated_event_hub_namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="c1"># PowerBI workspace id</span>
+<span class="nt">powerbi_workspace_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># WebApp azure location</span>
+<span class="nt">webapp_location</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># WebApp Github Repository</span>
+<span class="nt">webapp_repository</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># WebApp Github Repository branch</span>
+<span class="nt">webapp_repository_branch</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># WebApp Github Repository Token (will be moved in secrets)</span>
+<span class="nt">webapp_repository_token</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+</code></pre></div>
 <h3 id="platform">Platform</h3>
 <p>A platform is a cloud where you deployed an API, you set the information required to access given platform</p>
 <h4 id="platformyaml">platform.yaml</h4>
 <p>This is a yaml file containing a list of key values used to identify the platform to connect</p>
-<pre><code class="language-yaml"># api_url : the url of the API
-api_url: &quot;&quot;
-# api_scope : the default scope used by the API
-api_scope: &quot;&quot;
-# azure_subscription : The azure subscription used to contain the platform
-azure_subscription: &quot;&quot;
-# adx_cluster_name: The name of the Azure Data Explorer Cluster
-adx_cluster_name: &quot;&quot;
-# resource_group_name: The name fo the resource group used on the platform
-resource_group_name: &quot;&quot;
-# ACR source registry name source_registry.azurecr.io
-csm_acr_registry_name: &quot;&quot;
-# ACR destination registry name dest_registry.azurecr.io
-acr_registry_name: &quot;&quot;
-# resources_location: azure resource location used on the platform ex: westeurope
-resources_location: &quot;&quot;
-# Storage account name
-storage_account_name: &quot;&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="c1"># api_url : the url of the API</span>
+<span class="nt">api_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># api_scope : the default scope used by the API</span>
+<span class="nt">api_scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># azure_subscription : The azure subscription used to contain the platform</span>
+<span class="nt">azure_subscription</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># adx_cluster_name: The name of the Azure Data Explorer Cluster</span>
+<span class="nt">adx_cluster_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># resource_group_name: The name fo the resource group used on the platform</span>
+<span class="nt">resource_group_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># ACR source registry name source_registry.azurecr.io</span>
+<span class="nt">csm_acr_registry_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># ACR destination registry name dest_registry.azurecr.io</span>
+<span class="nt">acr_registry_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># resources_location: azure resource location used on the platform ex: westeurope</span>
+<span class="nt">resources_location</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># Storage account name</span>
+<span class="nt">storage_account_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+</code></pre></div>
 <h2 id="environment-variables-override">Environment variables override</h2>
 <p>The following environment variables are available to override the default values used by babylon (for example while
 making a bash script chaining commands)</p>
