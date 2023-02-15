@@ -40,3 +40,9 @@ webapp_repository: ""
 webapp_repository_branch: ""
 # WebApp Github Repository Token (will be moved in secrets)
 webapp_repository_token: ""
+# webapp_registration_id: Active Directory App registration ID
+webapp_registration_id: ""
+# webapp_insights_instrumentation_key: Azure Application Insights instrumention key
+webapp_insights_instrumentation_key: ""
+# webapp_enable_insights: Azure Application Insights is enabled
+webapp_enable_insights: "False"
