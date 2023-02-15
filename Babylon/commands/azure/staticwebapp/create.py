@@ -42,8 +42,8 @@ def create(azure_token: str,
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
     env = Environment()
-    create_file = create_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
-    details = env.fill_template(create_file, use_working_dir_file=use_working_dir_file)
+    create_file = create_file or DEFAULT_PAYLOAD_TEMPLATE
+    details = env.fill_template(create_file)
     route = (f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
              f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
     response = oauth_request(route, azure_token, type="PUT", data=details)

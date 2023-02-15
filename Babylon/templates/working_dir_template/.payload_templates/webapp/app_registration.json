@@ -1,18 +1,17 @@
 {
-    "displayName": "Azure${%deploy%deployment_name}WebApp",
+    "displayName": "Azure${%deployment%customer_name}WebApp",
     "signInAudience": "AzureADMyOrg",
     "spa": {
         "redirectUris": [
-            "http://localhost:3000/scenario",
-            "${%deploy%webapp_domain}/scenario"
+            "https://${%deployment%webapp_domain}/scenario"
         ]
     },
     "requiredResourceAccess": [
         {
-            "resourceAppId": "${%platform%csm_platform_app_id}",
+            "resourceAppId": "${%platform%resource_group_id}",
             "resourceAccess": [
                 {
-                    "id": "${%platform%csm_platform_scope_id}",
+                    "id": "${%platform%csm_platform_id}",
                     "type": "Scope"
                 }
             ]

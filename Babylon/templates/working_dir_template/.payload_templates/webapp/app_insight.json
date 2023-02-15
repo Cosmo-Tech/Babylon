@@ -1,6 +1,6 @@
 {
   "kind": "web",
-  "location": "${%deploy%webapp_location}",
+  "location": "${%deployment%webapp_location}",
   "properties": {
     "Application_Type": "web",
     "DisableIpMasking": false,

@@ -1,6 +1,5 @@
 import logging
 import pathlib
-from string import Template
 
 from click import command
 from click import option
@@ -31,7 +30,7 @@ logger = logging.getLogger("Babylon")
         help="Should the parameter file path be relative to Babylon working directory ?")
 def update(azure_token: str,
            registration_id: str,
-           registration_file: str,
+           registration_file: pathlib.Path,
            use_working_dir_file: bool = False) -> CommandResponse:
     """
     Update an app registration in active directory
@@ -39,17 +38,7 @@ def update(azure_token: str,
     """
     route = f"https://graph.microsoft.com/v1.0/applications/{registration_id}"
     env = Environment()
-    if use_working_dir_file:
-        registration_file = env.working_dir.get_file(str(registration_file))
-    details = ""
-    with open(registration_file, "r") as _file:
-        template = _file.read()
-        data = {**env.configuration.get_deploy(), **env.configuration.get_platform()}
-        try:
-            details = Template(template).substitute(data)
-        except Exception as e:
-            logger.error(f"Could not fill parameters template: {e}")
-            return CommandResponse.fail()
+    details = env.fill_template(registration_file, use_working_dir=use_working_dir_file)
     response = oauth_request(route, azure_token, type="PATCH", data=details)
     if response is None:
         return CommandResponse.fail()

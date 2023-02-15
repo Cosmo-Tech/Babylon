@@ -179,10 +179,7 @@ class Environment(metaclass=SingletonMeta):
 
         return _type, _file, _query
 
-    def fill_template(self,
-                      template_file: pathlib.Path,
-                      data: dict[str, Any] = {},
-                      use_working_dir_file: bool = False) -> str:
+    def fill_template(self, template_file: pathlib.Path, data: dict[str, Any] = {}, use_working_dir: bool = False) -> str:
         """
         Fills a template with environment data using queries
         :param template_file: Input template file path
@@ -199,8 +196,6 @@ class Environment(metaclass=SingletonMeta):
                 return REMOVE_MARKER
             return value
 
-        if use_working_dir_file:
-            template_file = self.working_dir.get_file(str(template_file))
         with open(template_file, "r") as _file:
             template_content = _file.read()
         filled = re.sub(r"\$\{(.+)\}", lookup_value, template_content)
