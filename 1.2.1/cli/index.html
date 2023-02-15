@@ -1951,6 +1951,47 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#webapp" class="md-nav__link">
+    webapp
+  </a>
+  
+    <nav class="md-nav" aria-label="webapp">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#download_2" class="md-nav__link">
+    download
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-config" class="md-nav__link">
+    export-config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-workflow" class="md-nav__link">
+    update-workflow
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-file" class="md-nav__link">
+    upload-file
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#working-dir" class="md-nav__link">
     working-dir
   </a>
@@ -3696,6 +3737,47 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#webapp" class="md-nav__link">
+    webapp
+  </a>
+  
+    <nav class="md-nav" aria-label="webapp">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#download_2" class="md-nav__link">
+    download
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-config" class="md-nav__link">
+    export-config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-workflow" class="md-nav__link">
+    update-workflow
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-file" class="md-nav__link">
+    upload-file
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#working-dir" class="md-nav__link">
     working-dir
   </a>
@@ -3834,6 +3916,7 @@
 <li><em>debug</em>: Add debug capacities of runs</li>
 <li><em>powerbi</em>: Group handling communication with PowerBI API</li>
 <li><em>terraform-cloud</em>: Group allowing interactions with the Terraform Cloud API</li>
+<li><em>webapp</em>: Group handling Cosmo Sample WebApp configuration</li>
 <li><em>working-dir</em>: Command group handling working directory information</li>
 </ul>
 <h3 id="api">api</h3>
@@ -9728,6 +9811,172 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td>QueryString</td>
 <td>A new description to apply to the variable</td>
 <td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="webapp">webapp</h3>
+<p>Group handling Cosmo Sample WebApp configuration</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon webapp [OPTIONS] COMMAND [ARGS]...
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em>download</em>: Download the github repository locally</li>
+<li><em>export-config</em>: Export webapp configuration in a json file</li>
+<li><em>update-workflow</em>: Update a github workflow file to read environment from a config.json file during deployment</li>
+<li><em>upload-file</em>: Upload a file to the webapp github repository</li>
+</ul>
+<h4 id="download_2">download</h4>
+<p>Download the github repository locally</p>
+<p>Requires <code>webapp_repository_token</code> in deploy config file.</p>
+<p>Requires <code>webapp_repository_branch</code> in deploy config file.</p>
+<p>Requires <code>webapp_repository</code> in deploy config file.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon webapp download [OPTIONS] DESTINATION_FOLDER
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the destination folder path be relative to Babylon working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="export-config">export-config</h4>
+<p>Export webapp configuration in a json file</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon webapp export-config [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td><code>config.json</code></td>
+</tr>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the output file path be relative to Babylon working directory ?</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="update-workflow">update-workflow</h4>
+<p>Update a github workflow file to read environment from a config.json file during deployment</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon webapp update-workflow [OPTIONS] WORKFLOW_FILE
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-c</code>, <code>--config_file</code></td>
+<td>text</td>
+<td>Configuration file name</td>
+<td><code>config.json</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output_file</code></td>
+<td>path</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="upload-file">upload-file</h4>
+<p>Upload a file to the webapp github repository</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon webapp upload-file [OPTIONS] FILE
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--use-working-dir-file</code></td>
+<td>boolean</td>
+<td>Should the file path be relative to Babylon working directory ?</td>
+<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
