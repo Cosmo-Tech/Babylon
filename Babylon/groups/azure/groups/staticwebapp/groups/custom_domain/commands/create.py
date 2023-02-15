@@ -3,10 +3,7 @@ import pathlib
 from string import Template
 from typing import Optional
 
-from azure.core.credentials import AccessToken
 from click import command
-from click import pass_context
-from click import Context
 from click import argument
 from click import Path
 from click import option
@@ -16,12 +13,12 @@ from ........utils.environment import Environment
 from ........utils.request import oauth_request
 from ........utils.decorators import require_platform_key
 from ........utils.response import CommandResponse
+from ........utils.credentials import get_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_context
 @require_platform_key("azure_subscription")
 @require_platform_key("resource_group_name")
 @argument("webapp_name")
@@ -32,8 +29,7 @@ logger = logging.getLogger("Babylon")
         "use_working_dir_file",
         is_flag=True,
         help="Should the parameter file path be relative to Babylon working directory ?")
-def create(ctx: Context,
-           azure_subscription: str,
+def create(azure_subscription: str,
            resource_group_name: str,
            webapp_name: str,
            domain_name: str,
@@ -43,7 +39,6 @@ def create(ctx: Context,
     Create a static webapp custom domain in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-custom-domain
     """
-    access_token = ctx.find_object(AccessToken).token
     env = Environment()
     create_route = (
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
@@ -60,7 +55,7 @@ def create(ctx: Context,
             except Exception as e:
                 logger.error(f"Could not fill parameters template: {e}")
                 return CommandResponse.fail()
-    response = oauth_request(create_route, access_token, type="PUT", data=details)
+    response = oauth_request(create_route, get_azure_token(), type="PUT", data=details)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()

@@ -3,17 +3,17 @@ import logging
 import subprocess
 
 from azure.containerregistry import ContainerRegistryClient
-from azure.identity import DefaultAzureCredential
 import docker
+
+from .....utils.credentials import get_azure_credentials
 
 logger = logging.getLogger("Babylon")
 
 
-def registry_connect(registry: str,
-                     credentials: DefaultAzureCredential) -> tuple[ContainerRegistryClient, docker.DockerClient]:
+def registry_connect(registry: str) -> tuple[ContainerRegistryClient, docker.DockerClient]:
     # Login to registry
     registry_client = ContainerRegistryClient(f"https://{registry}",
-                                              credentials,
+                                              get_azure_credentials(),
                                               audience="https://management.azure.com")
     registry_part = registry.split(".")[0]
     response = subprocess.run(["az", "acr", "login", "--name", registry_part, "--expose"],

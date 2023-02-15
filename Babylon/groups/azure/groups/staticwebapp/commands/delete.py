@@ -1,9 +1,6 @@
 import logging
 
-from azure.core.credentials import AccessToken
 from click import command
-from click import pass_context
-from click import Context
 from click import argument
 from click import option
 
@@ -11,12 +8,12 @@ from ......utils.request import oauth_request
 from ......utils.decorators import require_platform_key
 from ......utils.response import CommandResponse
 from ......utils.interactive import confirm_deletion
+from ......utils.credentials import get_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_context
 @require_platform_key("azure_subscription", "azure_subscription")
 @require_platform_key("resource_group_name", "resource_group_name")
 @option(
@@ -27,8 +24,7 @@ logger = logging.getLogger("Babylon")
     help="Don't ask for validation before delete",
 )
 @argument("name")
-def delete(ctx: Context,
-           azure_subscription: str,
+def delete(azure_subscription: str,
            resource_group_name: str,
            name: str,
            force_validation: bool = False) -> CommandResponse:
@@ -39,10 +35,9 @@ def delete(ctx: Context,
     if not force_validation and not confirm_deletion("webapp", name):
         return CommandResponse.fail()
     logger.info(f"Deleting static webapp {name} from resource group {resource_group_name}")
-    access_token = ctx.find_object(AccessToken).token
     route = (f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
              f"providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01")
-    response = oauth_request(route, access_token, type="DELETE")
+    response = oauth_request(route, get_azure_token(), type="DELETE")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully launched deletion of static webapp {name} from resource group {resource_group_name}")

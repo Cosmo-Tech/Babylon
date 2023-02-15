@@ -3,14 +3,13 @@ import pathlib
 from rich.pretty import pretty_repr
 from typing import Optional
 
-from azure.core.credentials import AccessToken
 from click import command, argument, option, Path
-from click import Context, pass_context
 
 from ......utils.environment import Environment
 from ......utils.response import CommandResponse
 from ......utils.request import oauth_request
 from ......utils.decorators import require_platform_key
+from ......utils.credentials import get_azure_token
 
 logger = logging.getLogger('Babylon')
 
@@ -18,7 +17,6 @@ DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/app_insight.json"
 
 
 @command()
-@pass_context
 @require_platform_key('azure_subscription')
 @require_platform_key('resource_group_name')
 @argument('appinsight_name')
@@ -28,8 +26,7 @@ DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/app_insight.json"
         "use_working_dir_file",
         is_flag=True,
         help="Should the parameter file path be relative to Babylon working directory ?")
-def create(ctx: Context,
-           azure_subscription: str,
+def create(azure_subscription: str,
            resource_group_name: str,
            appinsight_name: str,
            create_file: Optional[pathlib.Path] = None,
@@ -39,14 +36,13 @@ def create(ctx: Context,
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/create-or-update
     """
 
-    access_token = ctx.find_object(AccessToken).token
     env = Environment()
     create_file = create_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
     details = env.fill_template(create_file, use_working_dir_file=use_working_dir_file)
     route = (f'https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/'
              f'providers/Microsoft.Insights/components/{appinsight_name}?api-version=2015-05-01')
 
-    response = oauth_request(route, access_token, type="PUT", data=details)
+    response = oauth_request(route, get_azure_token(), type="PUT", data=details)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()

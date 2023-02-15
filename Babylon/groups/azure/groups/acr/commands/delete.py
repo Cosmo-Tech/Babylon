@@ -3,10 +3,8 @@ import typing
 
 from azure.core.exceptions import HttpResponseError
 from azure.core.exceptions import ResourceNotFoundError
-from azure.identity import DefaultAzureCredential
 from click import Choice
 from click import command
-from click import make_pass_decorator
 from click import option
 
 from ..registry_connect import registry_connect
@@ -18,11 +16,8 @@ from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
-pass_credentials = make_pass_decorator(DefaultAzureCredential)
-
 
 @command()
-@pass_credentials
 @require_platform_key("csm_acr_registry_name", "csm_acr_registry_name")
 @require_platform_key("acr_registry_name", "acr_registry_name")
 @require_deployment_key("simulator_repository", "simulator_repository")
@@ -38,8 +33,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
     help="Don't ask for validation before delete",
 )
 @timing_decorator
-def delete(credentials: DefaultAzureCredential,
-           csm_acr_registry_name: str,
+def delete(csm_acr_registry_name: str,
            acr_registry_name: str,
            simulator_repository: str,
            simulator_version: str,
@@ -52,7 +46,7 @@ def delete(credentials: DefaultAzureCredential,
     if not registry:
         logger.error("Please specify a registry to delete from with --direction or --registry")
         return CommandResponse.fail()
-    cr_client, _ = registry_connect(registry, credentials)
+    cr_client, _ = registry_connect(registry)
     image = image or f"{simulator_repository}:{simulator_version}"
     image = f"{image}:latest" if ":" not in image else image
     try:
