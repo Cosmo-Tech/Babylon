@@ -1,0 +1,7 @@
+## babylon webapp upload-file
+
+### Commands
+```bash
+babylon webapp upload-file [webapp/config.json]
+```
+Should add, commit and push a file contained in a github local repo.

@@ -1,0 +1,14 @@
+## babylon webapp download
+Add the following keys in your `config/platform/platform.yaml` file 
+```yaml
+webapp_repository: "https://github.com/..."
+webapp_repository_branch: "..."
+webapp_repository_token: "..."
+```
+Repository token must be created in [github developer settings](https://github.com/settings/tokens?type=beta).
+
+### Commands
+```bash
+babylon webapp download [destination-folder]
+```
+Should clone the webapp into a local folder
