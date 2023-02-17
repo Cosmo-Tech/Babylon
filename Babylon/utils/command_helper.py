@@ -1,12 +1,13 @@
 import logging
-from typing import Any
 
 import click
+
+from .response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
 
-def run_command(command_line: list[str], log_level=logging.WARNING) -> Any:
+def run_command(command_line: list[str], log_level=logging.WARNING, raise_error: bool = True) -> CommandResponse:
     """
     Helper used to run a command
     :param command_line: command line of the command to run
@@ -22,5 +23,7 @@ def run_command(command_line: list[str], log_level=logging.WARNING) -> Any:
     name, cmd, args = babylon.resolve_command(ctx, command_line)
     cmd.parse_args(ctx, args)
     ret = cmd.invoke(ctx)
+    if raise_error:
+        ret.assert_error()
     logger.setLevel(old_log_level)
     return ret
