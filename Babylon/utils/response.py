@@ -46,8 +46,8 @@ class CommandResponse():
         """Raise if command failed"""
         if self.status_code != self.STATUS_ERROR:
             return
-        logger.error(f"Command {self.command} failed")
-        raise Exception(f"Command {self.command} failed")
+        logger.error(f"Command {' '.join(self.command)} failed")
+        raise Exception(f"Command {' '.join(self.command)} failed")
 
     @classmethod
     def fail(cls) -> Any:
