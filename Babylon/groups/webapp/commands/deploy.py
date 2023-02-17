@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @require_deployment_key("deployment_name")
 @require_deployment_key("webapp_domain", required=False)
-@option("--enable_insight"
+@option("--enable_insight",
         "enable_insight", is_flag=True, help="Should the webapp have an app insight ?")
 def deploy(deployment_name: str, webapp_domain: str, enable_insight: bool = False) -> CommandResponse:
     """Macro command that deploys a new webapp"""
