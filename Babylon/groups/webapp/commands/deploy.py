@@ -54,7 +54,7 @@ def deploy(deployment_name: str, webapp_domain: str, enable_insight: bool = Fals
     run_command(["webapp", "upload_file", workflow_file])
 
     # Step 8: Create an App Registration secret for powerbi
-    r_pbi = run_command(["ad", "app", "password", "create", app_registration_id, "-n", "powerbi"])
+    run_command(["ad", "app", "password", "create", app_registration_id, "-n", "powerbi"])
 
     # Step 9: Add App Registration as member of powerbi workspace
     run_command(["powerbi", "workspace", "user", "add", app_registration_id, "App", "Member"])
