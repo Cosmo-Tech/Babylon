@@ -1,4 +1,4 @@
-# deployment_name: deployment name
+# deployment_name : used to identify this deployment
 deployment_name: ""
 # organization_id : the id of the organization on the API
 organization_id: ""
@@ -34,7 +34,11 @@ send_scenario_metadata_to_event_hub: true
 use_dedicated_event_hub_namespace: true
 # PowerBI workspace id
 powerbi_workspace_id: ""
-# Webapp url domain ex: mycustomer.app.cosmotech.com
+# PowerBI client id
+powerbi_client_id: ""
+# PowerBI tenant id
+powerbi_tenant_id: ""
+# WebApp azure domain
 webapp_domain: ""
 # WebApp azure location
 webapp_location: ""

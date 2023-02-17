@@ -47,14 +47,13 @@ def create(tfc_client: TFC, workspace_name: str, working_directory: str, vcs_ide
            vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], select: bool) -> CommandResponse:
     """Use given parameters to create a workspace in the organization"""
     env = Environment()
-    workspace_payload_template = TEMPLATE_FOLDER_PATH / "terraform_cloud/workspace_payload_with_github.json"
-    with open(workspace_payload_template) as _f:
-        workspace_payload = json.load(_f)
-    workspace_payload['data']['attributes']['name'] = workspace_name
-    workspace_payload['data']['attributes']['working-directory'] = working_directory
-    workspace_payload['data']['attributes']['vcs-repo']['branch'] = vcs_branch
-    workspace_payload['data']['attributes']['vcs-repo']['identifier'] = vcs_identifier
-    workspace_payload['data']['attributes']['vcs-repo']['oauth-token-id'] = vcs_oauth_token_id
+    workspace_payload = env.fill_template(".payload_templates/tfc/workspace_payload_with_github.json", {
+        "workspace_name": workspace_name,
+        "working_directory": working_directory,
+        "vcs_branch": vcs_branch,
+        "vcs_identifier": vcs_identifier,
+        "vcs_oauth_token_id": vcs_oauth_token_id
+    }, use_working_dir=True)
 
     logger.info("Sending payload to terraform")
     try:
@@ -66,9 +65,8 @@ def create(tfc_client: TFC, workspace_name: str, working_directory: str, vcs_ide
     logger.info(pprint.pformat(ws['data']))
 
     if select:
-        ws_id = ws['data']['id']
-        env.working_dir.set_yaml_key("terraform_workspace.yaml", "workspace_id", ws_id)
-        env.working_dir.set_yaml_key("terraform_workspace.yaml", "workspace_name", workspace_name)
+        env.store_data(["terraform", "workspace_id"], ws['data']['id'])
+        env.store_data(["terraform", "workspace_name"], workspace_name)
 
     if output_file:
         with open(output_file, "w") as _file:

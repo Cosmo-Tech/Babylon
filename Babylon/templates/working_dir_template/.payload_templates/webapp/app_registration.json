@@ -1,5 +1,5 @@
 {
-    "displayName": "Azure${%deployment%customer_name}WebApp",
+    "displayName": "Azure${%deployment%deployment_name}WebApp",
     "signInAudience": "AzureADMyOrg",
     "spa": {
         "redirectUris": [

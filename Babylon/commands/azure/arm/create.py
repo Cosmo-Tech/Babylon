@@ -4,13 +4,12 @@ from typing import Optional
 from click import argument
 from click import command
 from click import option
-from ruamel.yaml import YAML
 
-from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
 from ....utils.typing import QueryType
+from ....utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 
@@ -25,18 +24,16 @@ def create(
     template_uri: Optional[str] = "",
 ) -> CommandResponse:
     """Create a resource deployment config."""
+    env = Environment()
 
-    _azure_deployment_template = TEMPLATE_FOLDER_PATH / "azure_resource_manager/azure_deployment.yaml"
-    _commented_yaml_loader = YAML()
+    _azure_deployment_template = env.working_dir.get_file(".payload_templates/arm/azure_deployment.yaml")
 
-    with open(_azure_deployment_template, mode='r') as file:
-        arm_deployment = _commented_yaml_loader.load(file)
-
-    arm_deployment["deployment_name"] = deployment_name
-    arm_deployment["template_uri"] = template_uri
-
+    arm_deployment = env.fill_template(_azure_deployment_template, {
+        "deployment_name": deployment_name,
+        "template_uri": template_uri
+    })
     with open(deployment_name + ".yaml", "w") as _f:
-        _commented_yaml_loader.dump(arm_deployment, _f)
+        _f.write(arm_deployment)
 
     logger.info(f"Resource deployment config created, content was dumped in {deployment_name}.yaml")
     return CommandResponse.success({"deployment_name": deployment_name})

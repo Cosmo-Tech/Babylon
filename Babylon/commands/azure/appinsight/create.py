@@ -40,8 +40,8 @@ def create(azure_token: str,
     """
 
     env = Environment()
-    create_file = create_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
-    details = env.fill_template(create_file, use_working_dir_file=use_working_dir_file)
+    create_file = create_file or DEFAULT_PAYLOAD_TEMPLATE
+    details = env.fill_template(create_file)
     route = (f'https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/'
              f'providers/Microsoft.Insights/components/{appinsight_name}?api-version=2015-05-01')
 

@@ -16,3 +16,4 @@ pyproject.toml
 
 # Added rule to ignore folders called personal allowing to put WIP and other test files inside of those
 **/personal/
+!Babylon/templates/**

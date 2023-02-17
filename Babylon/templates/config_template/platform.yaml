@@ -14,6 +14,10 @@ azure_tenant_id: ""
 adx_cluster_name: ""
 # resource_group_name: The name fo the resource group used on the platform
 resource_group_name: ""
+# resource_group_id: The id fo the resource group used on the platform
+resource_group_id: ""
+# csm_platform_id: The id for the cosmotech app registration
+csm_platform_id: ""
 # ACR source registry name source_registry.azurecr.io
 csm_acr_registry_name: ""
 # ACR destination registry name dest_registry.azurecr.io

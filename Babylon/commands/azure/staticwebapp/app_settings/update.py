@@ -41,8 +41,8 @@ def update(azure_token: str,
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
     env = Environment()
-    settings_file = settings_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
-    details = env.fill_template(settings_file, use_working_dir_file=use_working_dir_file)
+    settings_file = settings_file or DEFAULT_PAYLOAD_TEMPLATE
+    details = env.fill_template(settings_file)
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
         f"providers/Microsoft.Web/staticSites/{webapp_name}/config/appsettings?api-version=2022-03-01",
