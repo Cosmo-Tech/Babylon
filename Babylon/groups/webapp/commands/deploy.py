@@ -1,7 +1,6 @@
 import logging
 
 from click import command
-from click import option
 
 from ....utils.command_helper import run_command
 from ....utils.response import CommandResponse
