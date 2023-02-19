@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from unittest.mock import patch, mock_open
 from Babylon.utils.configuration import Configuration
@@ -147,6 +148,86 @@ def test_set_platform_ok():
     assert config.set_platform(Path("tests/environments/Default/platforms/platform.yaml"))
 
 
+@patch('click.edit')
+def test_create_deploy_ok(click_edit):
+    """Test creating deployement file"""
+    config = Configuration(Path("tests/environments/Default"))
+    config.create_deploy('test')
+
+    click_edit.assert_called_once()
+    test_file_path = config.config_dir.joinpath('deployments/test.yaml')
+    assert test_file_path.exists()
+    os.remove(test_file_path)
+
+
+@patch('click.edit')
+def test_create_deploy_exist(click_edit):
+    """Test creating on existing deployement file"""
+    config = Configuration(Path("tests/environments/Default"))
+    config.create_deploy('deploy')
+
+    click_edit.assert_not_called()
+    test_file_path = config.config_dir.joinpath('deployments/deploy.yaml')
+    assert test_file_path.exists()
+
+
+@patch('click.edit')
+def test_create_platform_ok(click_edit):
+    """Test creating platform file"""
+    config = Configuration(Path("tests/environments/Default"))
+    config.create_platform('test')
+
+    click_edit.assert_called_once()
+    test_file_path = config.config_dir.joinpath('platforms/test.yaml')
+    assert test_file_path.exists()
+    os.remove(test_file_path)
+
+
+@patch('click.edit')
+def test_create_platform_exist(click_edit):
+    """Test creating on existing platform file"""
+    config = Configuration(Path("tests/environments/Default"))
+    config.create_platform('platform')
+
+    click_edit.assert_not_called()
+    test_file_path = config.config_dir.joinpath('platforms/platform.yaml')
+    assert test_file_path.exists()
+
+
+@patch('click.edit')
+def test_edit_deploy_ok(click_edit):
+    """Test edit deployment file"""
+    config = Configuration(Path("tests/environments/Default"))
+    # config.edit_deploy('deploy.yaml') should work like this of config.edit_deploy()
+    config.edit_deploy(config.config_dir.joinpath(config.deploy))
+    click_edit.assert_called_once()
+
+
+@patch('click.edit')
+def test_edit_deploy_not_exist(click_edit):
+    """Test edit no existing deployment file"""
+    config = Configuration(Path("tests/environments/Default"))
+    # config.edit_deploy('deploy.yaml') should work like this of config.edit_deploy()
+    config.edit_deploy(Path('not_existing'))
+    click_edit.assert_not_called()
+
+
+@patch('click.edit')
+def test_edit_platform_ok(click_edit):
+    """Test edit iplatform file"""
+    config = Configuration(Path("tests/environments/Default"))
+    config.edit_platform(config.config_dir.joinpath(config.platform))
+    click_edit.assert_called_once()
+
+
+@patch('click.edit')
+def test_edit_platform_not_exist(click_edit):
+    """Test edit no existing platform file"""
+    config = Configuration(Path("tests/environments/Default"))
+    config.edit_platform(Path('not_existing'))
+    click_edit.assert_not_called()
+
+
 def test_save_config():
     """Testing configuration"""
     config = Configuration(Path("tests/environments/Default"))
@@ -160,3 +241,9 @@ def test_check_api_ok():
     """Testing configuration"""
     config = Configuration(Path("tests/environments/Default"))
     assert config.check_api()
+
+
+def test_to_string():
+    """Testing __str__ function"""
+    config = Configuration(Path("tests/environments/Default"))
+    config.__str__()

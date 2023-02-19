@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from Babylon.utils.interactive import ask_for_group, element_to_str, select_from_list
+from Babylon.utils.interactive import ask_for_group, element_to_str, select_from_list, confirm_deletion
 
 
 @patch("click.prompt", lambda x, type: "test")
@@ -55,3 +55,23 @@ def test_select_from_list_good():
 def test_select_from_list_none():
     """Testing interactive"""
     assert not select_from_list(None)
+
+
+@patch("click.confirm", lambda x: True)
+@patch("click.prompt", lambda x: 1)
+def test_confirm_deletion_ok():
+    """Testing confirmation deletion for happy path"""
+    assert confirm_deletion('test_entity', 1)
+
+
+@patch("click.confirm", lambda x: False)
+def test_confirm_deletion_no_confirm():
+    """Testing confirmation deletion when canceling"""
+    assert not confirm_deletion('test_entity', 1)
+
+
+@patch("click.confirm", lambda x: True)
+@patch("click.prompt", lambda x: 'nope')
+def test_confirm_deletion_wrong_name():
+    """Testing confirmation deletion when entering wrong name loop"""
+    assert not confirm_deletion('test_entity', 1)
