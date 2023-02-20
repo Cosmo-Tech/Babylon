@@ -20,7 +20,7 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
     logger.info(f"1 - Creating static webapp resource Azure{deployment_name}WebApp...")
     r_swa = run_command([
         "azure", "staticwebapp", "create", f"Azure{deployment_name}WebApp", "--use-working-dir-file", "-f",
-        "webapp_details.json"
+        "webapp_details.json", "--wait"
     ])
 
     if webapp_domain:
@@ -32,7 +32,6 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
     r_ar = run_command(["azure", "ad", "app", "create", "--use-working-dir-file", "-f", "app_registration.json"])
     app_registration_id = r_ar.data["id"]
 
-    # TODO: Wait for static webapp to be created ?
     logger.info("3 - Downloading WebApp source code...")
     run_command(["webapp", "download", "--use-working-dir-file", "webapp_src"])
 
@@ -53,12 +52,14 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
     run_command(["azure", "ad", "app", "password", "create", app_registration_id, "-n", "powerbi"])
 
     logger.info("8 - Adding App user to powerBI workspace ID...")
-    run_command(["powerbi", "workspace", "user", "add", app_registration_id, "App", "Member"])
+    run_command(["powerbi", "workspace", "user", "add", r_ar.data["appId"], "App", "Member"])
 
     logger.info("9 - Adding powerbi credentials in Static WebApp settings...")
-    run_command(["azure", "staticwebapp", "app_settings", "update", "--use-working-dir-file", "webapp_settings.json"])
+    run_command([
+        "azure", "staticwebapp", "app-settings", "update", "--use-working-dir-file", "-f", "webapp_settings.json",
+        f"Azure{deployment_name}WebApp"
+    ])
 
-    # Create Application insight
     if webapp_enable_insights:
         logger.info("9b - Creating Application insights for Static Web App...")
         run_command([

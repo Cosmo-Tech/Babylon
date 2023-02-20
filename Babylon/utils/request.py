@@ -14,8 +14,9 @@ def poll_request(retries: int = 5, check_for_failure: bool = False, **kwargs: di
         response = oauth_request(**kwargs)
         if check_for_failure and response is None:
             return
-        if not check_for_failure and response is not None:
-            return
+        if response and response.status_code <= 300:
+            logger.info("Request polling succeeded")
+            return response
         sleep(1)
     raise ValueError("Request polling failed")
 

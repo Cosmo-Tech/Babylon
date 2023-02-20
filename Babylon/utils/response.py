@@ -42,12 +42,11 @@ class CommandResponse():
             _f.write(self.toJSON())
         logger.info(f"The JSON response was dumped in file: {output_file}")
 
-    def assert_error(self):
+    def has_failed(self) -> bool:
         """Raise if command failed"""
         if self.status_code != self.STATUS_ERROR:
-            return
-        logger.error(f"Command {' '.join(self.command)} failed")
-        raise Exception(f"Command {' '.join(self.command)} failed")
+            return False
+        return True
 
     @classmethod
     def fail(cls) -> Any:

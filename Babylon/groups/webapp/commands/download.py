@@ -32,8 +32,10 @@ def download(webapp_repository: str,
     if use_working_dir_file:
         destination_folder = env.working_dir.path / destination_folder
     if destination_folder.exists():
-        logger.error(f"Local folder {destination_folder} already exists")
-        return CommandResponse.fail()
+        logger.warning(f"Local folder {destination_folder} already exists, pulling...")
+        repo = git.Repo(destination_folder)
+        repo.remotes.origin.pull()
+        return CommandResponse.success()
     # Will log using the given personal access token
     repo_suffix = webapp_repository.split("github.com/")[1]
     repo_w_token = f"https://oauth2:{webapp_repository_token}@github.com/{repo_suffix}.git"

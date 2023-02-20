@@ -23,7 +23,7 @@ def run_command(command_line: list[str], log_level=logging.WARNING, raise_error:
     name, cmd, args = babylon.resolve_command(ctx, command_line)
     cmd.parse_args(ctx, args)
     ret = cmd.invoke(ctx)
-    if raise_error:
-        ret.assert_error()
+    if ret.has_failed():
+        logger.error(f"Command {name} has failed")
     logger.setLevel(old_log_level)
     return ret
