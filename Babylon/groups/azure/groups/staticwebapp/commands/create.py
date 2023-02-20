@@ -75,7 +75,8 @@ def create(ctx: Context,
     hostname = output_data["properties"]["defaultHostname"].split(".")[0]
     response = poll_request(20,
                             True,
-                            url=f"{webapp_repository}/blob/{webapp_repository_branch}/.github/workflows/azure-static-web-apps-{hostname}.yml",
+                            url=(f"{webapp_repository}/blob/{webapp_repository_branch}/"
+                                 f".github/workflows/azure-static-web-apps-{hostname}.yml"),
                             access_token="")
     if response is None:
         return CommandResponse.fail()
