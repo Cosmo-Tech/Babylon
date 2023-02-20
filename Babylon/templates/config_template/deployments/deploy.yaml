@@ -1,3 +1,5 @@
+# deployment_name: deployment name
+deployment_name: ""
 # organization_id : the id of the organization on the API
 organization_id: ""
 # solution_id : the id of the solution on the API
@@ -32,6 +34,8 @@ send_scenario_metadata_to_event_hub: true
 use_dedicated_event_hub_namespace: true
 # PowerBI workspace id
 powerbi_workspace_id: ""
+# Webapp url domain ex: mycustomer.app.cosmotech.com
+webapp_domain: ""
 # WebApp azure location
 webapp_location: ""
 # WebApp Github Repository
@@ -45,4 +49,4 @@ webapp_registration_id: ""
 # webapp_insights_instrumentation_key: Azure Application Insights instrumention key
 webapp_insights_instrumentation_key: ""
 # webapp_enable_insights: Azure Application Insights is enabled
-webapp_enable_insights: "False"
+webapp_enable_insights: False

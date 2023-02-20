@@ -17,53 +17,52 @@ logger = logging.getLogger("Babylon")
 def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: bool = False) -> CommandResponse:
     """Macro command that deploys a new webapp"""
     env = Environment()
-    logger.setLevel(logging.DEBUG)
-    # Step 1: Create static webapp resource
+    logger.info(f"1 - Creating static webapp resource Azure{deployment_name}WebApp...")
     r_swa = run_command([
         "azure", "staticwebapp", "create", f"Azure{deployment_name}WebApp", "--use-working-dir-file", "-f",
         "webapp_details.json"
     ])
 
-    # Step 2: Add Custom Domain to swa
     if webapp_domain:
+        logger.info(f"1b - Adding custom domain: {webapp_domain}...")
         run_command(
             ["azure", "staticwebapp", "custom-domain", "create", f"Azure{deployment_name}WebApp", webapp_domain])
 
-    # Step 3: Create app registration
+    logger.info("2 - Creating App Registration...")
     r_ar = run_command(["azure", "ad", "app", "create", "--use-working-dir-file", "-f", "app_registration.json"])
     app_registration_id = r_ar.data["id"]
 
-    # Step 4: Download webapp source code
-    run_command(["webapp", "download", "webapp_src", "--use-working-dir-file"])
+    # TODO: Wait for static webapp to be created ?
+    logger.info("3 - Downloading WebApp source code...")
+    run_command(["webapp", "download", "--use-working-dir-file", "webapp_src"])
 
-    # Step 5: Change webapp remote repository...
-    # TODO: Add webapp command to change remote of a webapp repository
-
-    # Step 6: Export webapp configuration
+    logger.info("4 - Exporting WebApp configuration...")
     run_command(["webapp", "export-config", "--use-working-dir-file", "-o", "webapp_src/config.json"])
 
-    # Step 7: Update webapp workflow
+    logger.info("5 - Updating WebApp workflow to read config file...")
     hostname = r_swa.data["properties"]["defaultHostname"].split(".")[0]
     workflow_file = env.working_dir.get_file(f"webapp_src/.github/workflows/azure-static-web-apps-{hostname}.yml")
     run_command(["webapp", "update-workflow", str(workflow_file)])
 
-    # Step 7: Upload updated config and workflow
+    logger.info("6 - Uploading WebApp configuration and workflow files...")
     config_file = env.working_dir.get_file("webapp_src/config.json")
     run_command(["webapp", "upload-file", str(config_file)])
     run_command(["webapp", "upload-file", str(workflow_file)])
 
-    # Step 8: Create an App Registration secret for powerbi
+    logger.info("7 - Creating app registration identifiers for powerBI...")
     run_command(["azure", "ad", "app", "password", "create", app_registration_id, "-n", "powerbi"])
 
-    # Step 9: Add App Registration as member of powerbi workspace
+    logger.info("8 - Adding App user to powerBI workspace ID...")
     run_command(["powerbi", "workspace", "user", "add", app_registration_id, "App", "Member"])
 
-    # Step 10: Update static webapp settings with powerbi credentials
+    logger.info("9 - Adding powerbi credentials in Static WebApp settings...")
     run_command(["azure", "staticwebapp", "app_settings", "update", "--use-working-dir-file", "webapp_settings.json"])
 
     # Create Application insight
     if webapp_enable_insights:
+        logger.info("9b - Creating Application insights for Static Web App...")
         run_command([
             "azure", "appinsight", "create", f"Insight{deployment_name}WebApp", "--use-working-dir-file", "-f",
             "app_insight.json"
         ])
+    return CommandResponse.success()
