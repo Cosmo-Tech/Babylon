@@ -1,4 +1,6 @@
 import pytest
+import pathlib
+from unittest.mock import patch, mock_open
 
 from Babylon.utils.environment import Environment
 
@@ -101,3 +103,37 @@ def test_get_with_no_path_from_storage():
 
     with pytest.raises(KeyError):
         env.get_data(path)
+
+
+def test_fill_template_raw_ok():
+    """Test filling a template"""
+    env = Environment()
+    with patch("builtins.open", mock_open(read_data="abc_${my_data}_def")):
+        result = env.fill_template(pathlib.Path("test"), {"my_data": "plop"})
+    assert result == "abc_plop_def"
+
+
+def test_fill_template_raw_empty():
+    """Test filling a template"""
+    env = Environment()
+    with patch("builtins.open", mock_open(read_data="abc_${my_data}_def")):
+        result = env.fill_template(pathlib.Path("test"), {"oups": "plop"})
+    assert result == "abc__def"
+
+
+def test_fill_template_config_ok():
+    """Test filling a template"""
+    env = Environment()
+    env.set_configuration(pathlib.Path("tests/environments/Default"))
+    with patch("builtins.open", mock_open(read_data="abc_${%deploy%api_url}_def")):
+        result = env.fill_template(pathlib.Path("test"))
+    assert result == "abc_azerty.com_def"
+
+
+def test_fill_template_config_empty():
+    """Test filling a template"""
+    env = Environment()
+    env.set_configuration(pathlib.Path("tests/environments/Default"))
+    with patch("builtins.open", mock_open(read_data="abc_${%deploy%oups}_def")):
+        result = env.fill_template(pathlib.Path("test"))
+    assert result == "abc__def"
