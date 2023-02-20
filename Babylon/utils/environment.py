@@ -44,15 +44,14 @@ class SingletonMeta(type):
 
 
 class Environment(metaclass=SingletonMeta):
-    configuration: Optional[Configuration] = None
-    working_dir: Optional[WorkingDir] = None
 
     def __init__(self):
         self.dry_run = False
-
-        self.set_configuration(pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon"))))
-        self.set_working_dir(pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', ".")))
-        self.data_store: defaultdict = defaultdict()
+        workingdir_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
+        self.working_dir = WorkingDir(workingdir_path)
+        config_path = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
+        self.configuration = Configuration(config_path)
+        self.data_store: defaultdict[str, Any] = defaultdict()
         self.reset_data_store()
 
     def set_configuration(self, configuration_path: pathlib.Path):
@@ -179,3 +178,25 @@ class Environment(metaclass=SingletonMeta):
         _type, _file, _query = match_content.groups()
 
         return _type, _file, _query
+
+    def fill_template(self,
+                      template_file: pathlib.Path,
+                      data: dict[str, Any] = {},
+                      use_working_dir_file: bool = False) -> str:
+        """
+        Fills a template with environment data using queries
+        :param template_file: Input template file path
+        :type template_file: str
+        :return: filled template
+        """
+
+        def lookup_value(match: re.Match[str]) -> str:
+            key = str(match.group(1))
+            return data.get(key) or self.convert_data_query(key)
+
+        if use_working_dir_file:
+            template_file = self.working_dir.get_file(str(template_file))
+        with open(template_file, "r") as _file:
+            template_content = _file.read()
+        filled = re.sub(r"\$\{(.+)\}", lookup_value, template_content)
+        return filled
