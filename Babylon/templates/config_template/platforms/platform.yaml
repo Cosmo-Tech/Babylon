@@ -2,6 +2,10 @@
 api_url: ""
 # api_scope : the default scope used by the API
 api_scope: ""
+# csm_platform_app_id: app registration id of cosmotech platform
+csm_platform_app_id: ""
+# csm_platform_scope_id: enterprise application scope of cosmotech platform
+csm_platform_scope_id: ""
 # azure_subscription : The azure subscription used to contain the platform
 azure_subscription: ""
 # azure_tenant_id: The azure tenant id used to contain the platform

@@ -192,12 +192,10 @@ class Environment(metaclass=SingletonMeta):
 
         def lookup_value(match: re.Match[str]) -> str:
             key = str(match.group(1))
-            if data.get(key):
-                return data[key]
-            try:
-                return self.convert_data_query(key)
-            except KeyError:
-                return ""
+            value = data.get(key) or self.convert_data_query(key)
+            if not value:
+                raise KeyError(f"Missing key {key} in template data")
+            return value
 
         if use_working_dir_file:
             template_file = self.working_dir.get_file(str(template_file))

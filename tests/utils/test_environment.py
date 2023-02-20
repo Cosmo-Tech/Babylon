@@ -117,8 +117,8 @@ def test_fill_template_raw_empty():
     """Test filling a template"""
     env = Environment()
     with patch("builtins.open", mock_open(read_data="abc_${my_data}_def")):
-        result = env.fill_template(pathlib.Path("test"), {"oups": "plop"})
-    assert result == "abc__def"
+        with pytest.raises(KeyError):
+            env.fill_template(pathlib.Path("test"), {"oups": "plop"})
 
 
 def test_fill_template_config_ok():
@@ -135,5 +135,5 @@ def test_fill_template_config_empty():
     env = Environment()
     env.set_configuration(pathlib.Path("tests/environments/Default"))
     with patch("builtins.open", mock_open(read_data="abc_${%deploy%oups}_def")):
-        result = env.fill_template(pathlib.Path("test"))
-    assert result == "abc__def"
+        with pytest.raises(KeyError):
+            env.fill_template(pathlib.Path("test"))
