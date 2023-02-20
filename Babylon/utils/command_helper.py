@@ -7,7 +7,7 @@ from .response import CommandResponse
 logger = logging.getLogger("Babylon")
 
 
-def run_command(command_line: list[str], log_level=logging.WARNING, raise_error: bool = True) -> CommandResponse:
+def run_command(command_line: list[str], log_level: int = logging.WARNING) -> CommandResponse:
     """
     Helper used to run a command
     :param command_line: command line of the command to run
