@@ -43,7 +43,7 @@ class CommandResponse():
         logger.info(f"The JSON response was dumped in file: {output_file}")
 
     def has_failed(self) -> bool:
-        """Raise if command failed"""
+        """Checks if command has failed"""
         if self.status_code != self.STATUS_ERROR:
             return False
         return True
