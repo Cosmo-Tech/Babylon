@@ -204,4 +204,6 @@ class Environment(metaclass=SingletonMeta):
         with open(template_file, "r") as _file:
             template_content = _file.read()
         filled = re.sub(r"\$\{(.+)\}", lookup_value, template_content)
-        return "\n".join([line for line in filled.split("\n") if REMOVE_MARKER not in line])
+        filtered = "\n".join([line for line in filled.split("\n") if REMOVE_MARKER not in line])
+        # Removing last commas for json files
+        return re.sub(r'''(?<=[}\]"']),(?!\s*[{["'])''', "", filtered)
