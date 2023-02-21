@@ -1,4 +1,5 @@
 import logging
+import time
 
 from click import command
 
@@ -18,7 +19,7 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
     """Macro command that deploys a new webapp"""
     env = Environment()
     logger.info(f"1 - Creating static webapp resource Azure{deployment_name}WebApp...")
-    r_swa = run_command(["azure", "staticwebapp", "create", f"Azure{deployment_name}WebApp", "--wait"])
+    r_swa = run_command(["azure", "staticwebapp", "create", f"Azure{deployment_name}WebApp"])
     if r_swa.has_failed():
         return CommandResponse.fail()
 
@@ -40,22 +41,29 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
         r_ins = run_command(["azure", "appinsight", "create", f"Insight{deployment_name}WebApp"])
         if r_ins.has_failed():
             return CommandResponse.fail()
-        
+
     logger.info("3 - Downloading WebApp source code...")
-    r_wadl = run_command(["webapp", "download", "webapp_src"])
+    r_wadl = run_command(["webapp", "download", "-e", "webapp_src"])
     if r_wadl.has_failed():
         return CommandResponse.fail()
 
-    logger.info("4 - Exporting WebApp configuration...")
-    r_exp = run_command(["webapp", "export-config", "--use-working-dir-file", "-o", "webapp_src/config.json"])
-    if r_exp.has_failed():
-        return CommandResponse.fail()
-
-    logger.info("5 - Updating WebApp workflow to read config file...")
+    logger.info("4 - Updating WebApp workflow to read config file...")
     hostname = r_swa.data["properties"]["defaultHostname"].split(".")[0]
-    workflow_file = env.working_dir.get_file(f"webapp_src/.github/workflows/azure-static-web-apps-{hostname}.yml")
+    workflow_path = f"webapp_src/.github/workflows/azure-static-web-apps-{hostname}.yml"
+    workflow_file = env.working_dir.get_file(workflow_path)
+    download_timeout = 60
+    while not workflow_file.exists() and download_timeout != 0:
+        logger.info(f"4b - Waiting for workflow file {workflow_path} to be added...")
+        time.sleep(2)
+        run_command(["webapp", "download", "-e", "webapp_src"])
+        download_timeout -= 2
     r_uwf = run_command(["webapp", "update-workflow", str(workflow_file)])
     if r_uwf.has_failed():
+        return CommandResponse.fail()
+
+    logger.info("5 - Exporting WebApp configuration...")
+    r_exp = run_command(["webapp", "export-config", "--use-working-dir-file", "-o", "webapp_src/config.json"])
+    if r_exp.has_failed():
         return CommandResponse.fail()
 
     logger.info("6 - Uploading WebApp configuration and workflow files...")

@@ -190,6 +190,7 @@ class Environment(metaclass=SingletonMeta):
         :return: filled template
         """
         REMOVE_MARKER = "\\REMOVE_LINE\\"
+
         def lookup_value(match: re.Match[str]) -> str:
             key = str(match.group(1))
             value = data.get(key) or self.convert_data_query(key)
