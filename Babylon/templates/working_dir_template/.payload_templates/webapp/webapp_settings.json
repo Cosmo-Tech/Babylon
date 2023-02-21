@@ -3,8 +3,8 @@
         "POWER_BI_SCOPE": "${%deploy%powerbi_api_scope}",
         "POWER_BI_AUTHORITY_URI": "https://login.microsoftonline.com/common/v2.0",
         "POWER_BI_WORKSPACE_ID": "${%deploy%powerbi_workspace_id}",
-        "POWER_BI_CLIENT_ID": "${%workdir[.secrets.yaml]%powerbi_client_id}",
-        "POWER_BI_CLIENT_SECRET": "${%workdir[.secrets.yaml]%powerbi_client_secret}",
+        "POWER_BI_CLIENT_ID": "${%workdir[.secrets.yaml]%powerbi.client_id}",
+        "POWER_BI_CLIENT_SECRET": "${%workdir[.secrets.yaml]%powerbi.client_secret}",
         "POWER_BI_TENANT_ID": "${%platform%azure_tenant_id}"
     }
 }

@@ -21,6 +21,7 @@ logger = logging.getLogger("Babylon")
 
 DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/webapp_details.json"
 
+
 @command()
 @pass_context
 @require_platform_key("azure_subscription")
