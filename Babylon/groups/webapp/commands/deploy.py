@@ -28,19 +28,22 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
         r_swad = run_command(
             ["azure", "staticwebapp", "custom-domain", "create", f"Azure{deployment_name}WebApp", webapp_domain])
         if r_swad.has_failed():
-            return CommandResponse.fail()
+            logger.warning(f"1b - Failed to create custom domain {webapp_domain}")
 
     logger.info("2 - Creating App Registration...")
     r_ar = run_command(["azure", "ad", "app", "create"])
     if r_ar.has_failed():
         return CommandResponse.fail()
     app_registration_id = r_ar.data["id"]
+    env.configuration.set_deploy_var("webapp_registration_id", app_registration_id)
 
-    if webapp_enable_insights:
+    if webapp_enable_insights is True:
         logger.info("2b - Creating Application insights for Static Web App...")
         r_ins = run_command(["azure", "appinsight", "create", f"Insight{deployment_name}WebApp"])
+        env.configuration.set_deploy_var("webapp_insights_instrumentation_key",
+                                         r_ins.data.get("properties", {}).get("InstrumentationKey", ""))
         if r_ins.has_failed():
-            return CommandResponse.fail()
+            logger.info(f"2b - Failed to create Application Insights")
 
     logger.info("3 - Downloading WebApp source code...")
     r_wadl = run_command(["webapp", "download", "-e", "webapp_src"])
@@ -76,17 +79,18 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
     logger.info("7 - Creating app registration identifiers for powerBI...")
     r_pbipwd = run_command(["azure", "ad", "app", "password", "create", app_registration_id, "-n", "powerbi"])
     if r_pbipwd.has_failed():
-        return CommandResponse.fail()
+        logger.warning("7 - Failed to add app registration identifiers for powerBI")
 
     logger.info("8 - Adding App user to powerBI workspace ID...")
     r_pbiws = run_command(["powerbi", "workspace", "user", "add", r_ar.data["appId"], "App", "Member"])
     if r_pbiws.has_failed():
-        return CommandResponse.fail()
+        logger.warning((f"8 - `babylon powerbi workspace user add {r_ar.data['appId']} App Member`",
+                        " failed, make sure you have sufficient rights and retype the command"))
 
     logger.info("9 - Adding powerbi credentials in Static WebApp settings...")
     r_swa_stgs = run_command(["azure", "staticwebapp", "app-settings", "update", f"Azure{deployment_name}WebApp"])
     if r_swa_stgs.has_failed():
-        return CommandResponse.fail()
+        logger.warning("Failed to update static webapp settings")
     logger.info("WebApp deployment was successfull, please wait for workflow to finish")
-    logger.info(f"WebApp data is {r_swa.data}")
+    logger.info(f'WebApp url: https://{r_swa.data.get("properties", {}).get("defaultHostname", "")}')
     return CommandResponse.success()
