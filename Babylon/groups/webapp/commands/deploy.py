@@ -43,7 +43,7 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
         env.configuration.set_deploy_var("webapp_insights_instrumentation_key",
                                          r_ins.data.get("properties", {}).get("InstrumentationKey", ""))
         if r_ins.has_failed():
-            logger.info(f"2b - Failed to create Application Insights")
+            logger.info("2b - Failed to create Application Insights")
 
     logger.info("3 - Downloading WebApp source code...")
     r_wadl = run_command(["webapp", "download", "-e", "webapp_src"])
