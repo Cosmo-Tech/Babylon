@@ -34,6 +34,10 @@ def update_workflow(workflow_file: pathlib.Path, output_file: Optional[pathlib.P
     with open(workflow_file, "r") as _f:
         data = yaml_loader.load(_f)
     logger.info(f"Updating github workflow {workflow_file}...")
+    find = [step for step in data["jobs"]["build_and_deploy_job"]["steps"] if step.get("id") == "import-env"]
+    if find:
+        logger.warning(f"Workflow {workflow_file} already has the import-env step")
+        return CommandResponse.success()
     data["jobs"]["build_and_deploy_job"]["steps"].insert(1, READ_JSON_WORKFLOW)
     with open(output_file, "w") as _f:
         yaml_loader.dump(data, _f)
