@@ -27,6 +27,6 @@ DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/webapp_config.json"
 def export_config(template_file: Optional[pathlib.Path] = None, use_working_dir_file: bool = False) -> CommandResponse:
     """Export webapp configuration in a json file"""
     env = Environment()
-    template_file = template_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
+    template_file = template_file or pathlib.Path(DEFAULT_PAYLOAD_TEMPLATE)
     config_data = env.fill_template(template_file, use_working_dir_file=use_working_dir_file)
     return CommandResponse.success(json.loads(config_data))

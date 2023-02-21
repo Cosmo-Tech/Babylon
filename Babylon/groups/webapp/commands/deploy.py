@@ -65,7 +65,8 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
         return CommandResponse.fail()
 
     logger.info("5 - Exporting WebApp configuration...")
-    r_exp = run_command(["webapp", "export-config", "--use-working-dir-file", "-o", "webapp_src/config.json"])
+    config_file = env.working_dir.get_file("webapp_src/config.json")
+    r_exp = run_command(["webapp", "export-config", "--use-working-dir-file", "-o", str(config_file)])
     if r_exp.has_failed():
         return CommandResponse.fail()
 

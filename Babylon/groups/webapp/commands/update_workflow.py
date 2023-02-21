@@ -16,7 +16,7 @@ READ_JSON_WORKFLOW = {
     "name": "Import environment variables from a file",
     "id": "import-env",
     "shell": "bash",
-    "run": r"jq -r 'keys[] as $k | \"\($k)=\(.[$k])\"' config.json >> $GITHUB_ENV"
+    "run": r"""jq -r 'keys[] as $k | "\($k)=\(.[$k])"' config.json >> $GITHUB_ENV"""
 }
 
 
