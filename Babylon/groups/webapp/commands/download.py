@@ -1,8 +1,10 @@
 import logging
+import pathlib
 
 from click import command
 from click import argument
 from click import option
+from click import Path
 import git
 
 from ....utils.decorators import require_deployment_key
@@ -16,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @require_deployment_key("webapp_repository")
 @require_deployment_key("webapp_repository_branch")
 @require_deployment_key("webapp_repository_token")
-@argument("destination_folder")
+@argument("destination_folder", type=Path(path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",

@@ -189,12 +189,13 @@ class Environment(metaclass=SingletonMeta):
         :type template_file: str
         :return: filled template
         """
-
+        REMOVE_MARKER = "\\REMOVE_LINE\\"
         def lookup_value(match: re.Match[str]) -> str:
             key = str(match.group(1))
             value = data.get(key) or self.convert_data_query(key)
             if not value:
-                raise KeyError(f"Missing key {key} in template data")
+                logger.warning(f"Missing key {key} in template data, removing line...")
+                return REMOVE_MARKER
             return value
 
         if use_working_dir_file:
@@ -202,4 +203,4 @@ class Environment(metaclass=SingletonMeta):
         with open(template_file, "r") as _file:
             template_content = _file.read()
         filled = re.sub(r"\$\{(.+)\}", lookup_value, template_content)
-        return filled
+        return "\n".join([line for line in filled.split("\n") if REMOVE_MARKER not in line])

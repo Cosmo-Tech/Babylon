@@ -9,6 +9,7 @@ from click import argument
 from click import Path
 from click import option
 from rich.pretty import pretty_repr
+import git
 
 from ......utils.environment import Environment
 from ......utils.request import oauth_request
@@ -28,8 +29,9 @@ DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/webapp_details.json"
 @require_platform_key("resource_group_name")
 @require_deployment_key("webapp_repository")
 @require_deployment_key("webapp_repository_branch")
+@require_deployment_key("webapp_repository_token")
 @argument("webapp_name")
-@option("-f", "--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
+@option("-f", "--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",
@@ -41,6 +43,7 @@ def create(ctx: Context,
            resource_group_name: str,
            webapp_repository: str,
            webapp_repository_branch: str,
+           webapp_repository_token: str,
            webapp_name: str,
            create_file: str,
            use_working_dir_file: bool = False,
@@ -65,11 +68,11 @@ def create(ctx: Context,
         return CommandResponse.success(output_data)
     # Waiting for github action to be created
     hostname = output_data["properties"]["defaultHostname"].split(".")[0]
-    response = poll_request(20,
-                            True,
-                            url=(f"{webapp_repository}/blob/{webapp_repository_branch}/"
-                                 f".github/workflows/azure-static-web-apps-{hostname}.yml"),
-                            access_token="")
-    if response is None:
-        return CommandResponse.fail()
+
+    repo_suffix = webapp_repository.split("github.com/")[1]
+    repo_w_token = f"https://oauth2:{webapp_repository_token}@github.com/{repo_suffix}.git"
+    print(repo_w_token)
+    repo = git.Repo(repo_w_token)
+    workflow_file = repo.get_contents(f".github/workflows/azure-static-web-apps-{hostname}.yml")
+    print(workflow_file)
     return CommandResponse.success(output_data)

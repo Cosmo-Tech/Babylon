@@ -24,8 +24,7 @@ DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/app_registration.json"
 @option("-f",
         "--file",
         "registration_file",
-        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
-        required=True)
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",

@@ -18,10 +18,7 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
     """Macro command that deploys a new webapp"""
     env = Environment()
     logger.info(f"1 - Creating static webapp resource Azure{deployment_name}WebApp...")
-    r_swa = run_command([
-        "azure", "staticwebapp", "create", f"Azure{deployment_name}WebApp", "--use-working-dir-file", "-f",
-        "webapp_details.json", "--wait"
-    ])
+    r_swa = run_command(["azure", "staticwebapp", "create", f"Azure{deployment_name}WebApp", "--wait"])
     if r_swa.has_failed():
         return CommandResponse.fail()
 
@@ -33,13 +30,19 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
             return CommandResponse.fail()
 
     logger.info("2 - Creating App Registration...")
-    r_ar = run_command(["azure", "ad", "app", "create", "--use-working-dir-file", "-f", "app_registration.json"])
+    r_ar = run_command(["azure", "ad", "app", "create"])
     if r_ar.has_failed():
         return CommandResponse.fail()
     app_registration_id = r_ar.data["id"]
 
+    if webapp_enable_insights:
+        logger.info("2b - Creating Application insights for Static Web App...")
+        r_ins = run_command(["azure", "appinsight", "create", f"Insight{deployment_name}WebApp"])
+        if r_ins.has_failed():
+            return CommandResponse.fail()
+        
     logger.info("3 - Downloading WebApp source code...")
-    r_wadl = run_command(["webapp", "download", "--use-working-dir-file", "webapp_src"])
+    r_wadl = run_command(["webapp", "download", "webapp_src"])
     if r_wadl.has_failed():
         return CommandResponse.fail()
 
@@ -73,20 +76,9 @@ def deploy(deployment_name: str, webapp_domain: str, webapp_enable_insights: boo
         return CommandResponse.fail()
 
     logger.info("9 - Adding powerbi credentials in Static WebApp settings...")
-    r_swa_stgs = run_command([
-        "azure", "staticwebapp", "app-settings", "update", "--use-working-dir-file", "-f", "webapp_settings.json",
-        f"Azure{deployment_name}WebApp"
-    ])
+    r_swa_stgs = run_command(["azure", "staticwebapp", "app-settings", "update", f"Azure{deployment_name}WebApp"])
     if r_swa_stgs.has_failed():
         return CommandResponse.fail()
-
-    if webapp_enable_insights:
-        logger.info("9b - Creating Application insights for Static Web App...")
-        r_ins = run_command([
-            "azure", "appinsight", "create", f"Insight{deployment_name}WebApp", "--use-working-dir-file", "-f",
-            "app_insight.json"
-        ])
-        if r_ins.has_failed():
-            return CommandResponse.fail()
-
+    logger.info("WebApp deployment was successfull, please wait for workflow to finish")
+    logger.info(f"WebApp data is {r_swa.data}")
     return CommandResponse.success()
