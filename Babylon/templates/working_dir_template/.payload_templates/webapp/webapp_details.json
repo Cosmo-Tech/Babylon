@@ -3,7 +3,7 @@
     "properties": {
         "repositoryUrl": "${%deploy%webapp_repository}",
         "branch": "${%deploy%webapp_repository_branch}",
-        "repositoryToken": "${%deploy%webapp_repository_token}",
+        "repositoryToken": "${%workdir[.secrets.yaml]%github.token}",
         "buildProperties": {
             "appLocation": "/",
             "apiLocation": "api",
