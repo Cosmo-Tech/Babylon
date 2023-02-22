@@ -5,3 +5,5 @@ omit =
     Babylon/utils/help.py
     Babylon/utils/logging.py
     Babylon/utils/typing.py
+
+source = Babylon/utils
