@@ -56,7 +56,7 @@ def run(
     logger.info(f"Starting {deployment_name} deployment")
 
     try:
-        poller = arm_client.deployments.begin_create_or_update(
+        arm_client.deployments.begin_create_or_update(
             resource_group_name=resource_group_name,
             deployment_name=deployment_name,
             parameters=deployment_properties,
@@ -65,8 +65,6 @@ def run(
         logger.error(f"An error occurred : {_e.message}")
         return CommandResponse.fail()
 
-    logger.debug(poller.result())
-    logger.info(f"Deployment finished with status : {poller.status()}. \
-                 \nMore details at : {poller.result()['id']}")
+    logger.info(f"Deployment created")
 
-    return CommandResponse.success({"status": poller.status()})
+    return CommandResponse.success()
