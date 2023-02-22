@@ -107,3 +107,24 @@ def test_decrypt_content():
     encoded_data = b"gAAAAABj42B0aQKz0izKkBaCYBJiCrMufDAuE5Hy85i70m1stpi0iO4hHttvBsToUj_hLqe81bosRwNhyAV82pbbrp-b3OAEYGp_JDieGtf60p00uZ-uuJZ2gTDT27iqsPclVdhp46_ZG6oQFX3JXtBLSGcqEr0h2A=="
     decoded_data = WorkingDir.decrypt_content(encoding_key, encoded_data)
     assert original_data == decoded_data
+
+
+def test_working_dir_get_py_file():
+    """Testing get file content from a working dir"""
+    workdir = WorkingDir(Path('tests/resources/workingdir'))
+    file_content = workdir.get_file_content('simple.py')
+    assert file_content
+
+
+def test_working_dir_get_json_file():
+    """Testing get file content from a working dir"""
+    workdir = WorkingDir(Path('tests/resources/workingdir'))
+    file_content = workdir.get_file_content('API/workingdir.json')
+    assert file_content
+
+
+def test_working_dir_get_yaml_file():
+    """Testing get file content from a working dir"""
+    workdir = WorkingDir(Path('tests/resources/workingdir'))
+    file_content = workdir.get_file_content('API/workingdir.yaml')
+    assert file_content

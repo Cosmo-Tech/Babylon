@@ -1,0 +1,9 @@
+[run]
+omit = 
+    Babylon/utils/command_helper.py
+    Babylon/utils/dry_run.py
+    Babylon/utils/help.py
+    Babylon/utils/logging.py
+    Babylon/utils/typing.py
+
+source = Babylon/utils
