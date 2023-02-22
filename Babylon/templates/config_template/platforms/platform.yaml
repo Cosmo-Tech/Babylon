@@ -22,3 +22,5 @@ acr_registry_name: ""
 resources_location: ""
 # Storage account name
 storage_account_name: ""
+# Azure AD PowerBI group
+azure_powerbi_group_id: ""
