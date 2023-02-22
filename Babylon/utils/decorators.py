@@ -42,10 +42,10 @@ def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
 def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
     """Add output to file option to a command"""
 
-    @wraps(func)
     @click.option("-o", "--output", "output_file", help="File to which content should be outputted (json-formatted)")
+    @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        output_file = kwargs.pop("output_file")
+        output_file = kwargs.pop("output_file", None)
         response = func(*args, **kwargs)
         if output_file:
             response.dump(output_file)
