@@ -6,10 +6,10 @@ from typing import Optional
 from click import Path
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
@@ -20,16 +20,15 @@ from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
 @describe_dry_run("Would call **organization_api.create_organization** to register a new Organization")
 @timing_decorator
-@pass_organization_api
+@pass_api_client
 @option("-i", "--organization-file", "organization_file", help="Your custom Organization description file path")
 @option("-s",
         "--select",
@@ -49,7 +48,7 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
         help="Should the Organization file path be relative to Babylon working directory ?")
 @argument("organization-name", type=QueryType())
 def create(
-    organization_api: OrganizationApi,
+    api_client: ApiClient,
     select: bool,
     organization_name: str,
     output_file: Optional[str] = None,
@@ -58,6 +57,7 @@ def create(
 ) -> CommandResponse:
     """Register new organization by sending a JSON or YAML file"""
     env = Environment()
+    organization_api = OrganizationApi(api_client)
     converted_organization_content = get_api_file(
         api_file_path=organization_file or f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Organization.yaml",
         use_working_dir_file=use_working_dir_file if organization_file else False)

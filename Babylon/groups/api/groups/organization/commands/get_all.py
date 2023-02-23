@@ -5,10 +5,10 @@ from typing import Optional
 
 from click import Path
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
@@ -16,16 +16,15 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
 @describe_dry_run("Would call **organization_api.find_all_organizations**")
 @timing_decorator
-@pass_organization_api
+@pass_api_client
 @option("-o",
         "--output-file",
         "output_file",
@@ -38,15 +37,15 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
     help="Fields witch will be keep in response data, by default all",
 )
 def get_all(
-    organization_api: OrganizationApi,
+    api_client: ApiClient,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
 ) -> CommandResponse:
     """Get all registered organization."""
-
+    organization_api = OrganizationApi(api_client)
     try:
         retrieved_organizations = organization_api.find_all_organizations()
-    except UnauthorizedException as e:
+    except UnauthorizedException:
         logger.error("Unauthorized access to the cosmotech api")
         logger.error(e)
         return CommandResponse.fail()

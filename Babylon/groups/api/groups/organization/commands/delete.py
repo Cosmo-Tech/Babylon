@@ -3,12 +3,12 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
@@ -16,16 +16,15 @@ from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
 @describe_dry_run("Would call **organization_api.unregister_organization**")
 @timing_decorator
-@pass_organization_api
+@pass_api_client
 @argument(
     "organization_id",
     required=False,
@@ -52,13 +51,14 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
     help="Should the path be relative to the working directory ?",
 )
 def delete(
-    organization_api: OrganizationApi,
+    api_client: ApiClient,
     organization_id: str,
     organization_file: Optional[str] = None,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Delete organization via Cosmotech APi."""
+    organization_api = OrganizationApi(api_client)
 
     if not organization_id:
         if not organization_file:

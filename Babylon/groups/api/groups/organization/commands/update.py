@@ -3,28 +3,27 @@ from pprint import pformat
 from typing import Optional
 
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.organization_api import OrganizationApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_organization_api = make_pass_decorator(OrganizationApi)
 
 
 @command()
 @describe_dry_run("Would call **organization_api.update_organization**")
 @timing_decorator
-@pass_organization_api
+@pass_api_client
 @require_deployment_key("organization_id", "organization_id")
 @option("-i",
         "--organization-file",
@@ -39,12 +38,13 @@ pass_organization_api = make_pass_decorator(OrganizationApi)
     help="Should the path be relative to the working directory ?",
 )
 def update(
-    organization_api: OrganizationApi,
+    api_client: ApiClient,
     organization_file: str,
     organization_id: str,
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Update an Organization by sending a JSON or YAML file to Cosmotech Api."""
+    organization_api = OrganizationApi(api_client)
 
     converted_organization_content = get_api_file(
         api_file_path=organization_file,
