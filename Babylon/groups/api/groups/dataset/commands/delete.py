@@ -3,13 +3,13 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
@@ -18,16 +18,16 @@ from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
+
 
 logger = getLogger("Babylon")
-
-pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
 @describe_dry_run("Would call **dataset_api.delete_dataset**")
-@pass_dataset_api
 @timing_decorator
+@pass_api_client
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-f",
@@ -53,7 +53,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
 )
 @argument("dataset_id", type=QueryType(), required=False)
 def delete(
-    dataset_api: DatasetApi,
+    api_client: ApiClient,
     organization_id: str,
     dataset_file: Optional[str] = None,
     dataset_id: Optional[str] = None,
@@ -61,7 +61,7 @@ def delete(
     force_validation: Optional[bool] = False,
 ) -> CommandResponse:
     """Unregister a dataset via Cosmotech API."""
-
+    dataset_api = DatasetApi(api_client)
     if not dataset_id:
         if not dataset_file:
             logger.error("No id passed as argument or option use -d option"

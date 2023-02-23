@@ -6,12 +6,12 @@ from typing import Optional
 from click import Path
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
@@ -22,15 +22,14 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
 @describe_dry_run("Would call **dataset_api.find_dataset_by_id**")
-@pass_dataset_api
+@pass_api_client
 @timing_decorator
 @argument("dataset_id", type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
@@ -62,7 +61,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     help="In case the dataset id is retrieved from a file",
 )
 def get(
-    dataset_api: DatasetApi,
+    api_client: ApiClient,
     dataset_id: str,
     organization_id: str,
     output_file: Optional[str] = None,
@@ -71,7 +70,7 @@ def get(
     fields: str = None,
 ) -> CommandResponse:
     """Get the state of the dataset in the API."""
-
+    dataset_api = DatasetApi(api_client)
     if from_file:
         dataset_file = dataset_id
         converted_dataset_content = get_api_file(api_file_path=dataset_file, use_working_dir_file=use_working_dir_file)

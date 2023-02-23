@@ -5,12 +5,12 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.dataset_api import DatasetApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
@@ -19,16 +19,15 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run, require_deployment_key, timing_decorator
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_dataset_api = make_pass_decorator(DatasetApi)
 
 
 @command()
 @describe_dry_run("Would call **dataset_api.search_datasets**")
-@pass_dataset_api
 @timing_decorator
+@pass_api_client
 @argument("search_parameters", type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
@@ -54,7 +53,7 @@ pass_dataset_api = make_pass_decorator(DatasetApi)
     help="Should the path be relative to the working directory ?",
 )
 def search(
-    dataset_api: DatasetApi,
+    api_client: ApiClient,
     organization_id: str,
     search_parameters: str,
     output_file: Optional[str] = None,
@@ -62,7 +61,7 @@ def search(
     fields: str = None,
 ) -> CommandResponse:
     """Get all dataset having corresponding tag."""
-
+    dataset_api = DatasetApi(api_client)
     converted_search_parameters_content = get_api_file(api_file_path=search_parameters,
                                                        use_working_dir_file=use_working_dir_file)
     if converted_search_parameters_content is None:
