@@ -104,14 +104,14 @@ def pass_adt_client(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-def pass_resource_management_client(func: Callable[..., Any]) -> Callable[..., Any]:
+def pass_arm_client(func: Callable[..., Any]) -> Callable[..., Any]:
     """Grab api configuration"""
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         azure_subscription = Environment().configuration.get_platform_var("azure_subscription")
         azure_credential = get_azure_credentials()
-        kwargs["resource_management_client"] = ResourceManagementClient(azure_credential, azure_subscription)
+        kwargs["arm_client"] = ResourceManagementClient(azure_credential, azure_subscription)
         return func(*args, **kwargs)
 
     return wrapper
