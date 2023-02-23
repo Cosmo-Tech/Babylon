@@ -967,7 +967,9 @@ use <code>babylon working-dir complete</code> to add missing elements of the wor
 solution on a platform</p>
 <h4 id="deployyaml">deploy.yaml</h4>
 <p>This is a yaml file containing a list of key-values used to identify the deployment of a solution in the platform</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># organization_id : the id of the organization on the API</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># deployment_name: deployment name</span>
+<span class="nt">deployment_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># organization_id : the id of the organization on the API</span>
 <span class="nt">organization_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># solution_id : the id of the solution on the API</span>
 <span class="nt">solution_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
@@ -1001,20 +1003,20 @@ solution on a platform</p>
 <span class="nt">use_dedicated_event_hub_namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="c1"># PowerBI workspace id</span>
 <span class="nt">powerbi_workspace_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># Webapp url domain ex: mycustomer.app.cosmotech.com</span>
+<span class="nt">webapp_domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># WebApp azure location</span>
 <span class="nt">webapp_location</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># WebApp Github Repository</span>
 <span class="nt">webapp_repository</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># WebApp Github Repository branch</span>
 <span class="nt">webapp_repository_branch</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
-<span class="c1"># WebApp Github Repository Token (will be moved in secrets)</span>
-<span class="nt">webapp_repository_token</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># webapp_registration_id: Active Directory App registration ID</span>
 <span class="nt">webapp_registration_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># webapp_insights_instrumentation_key: Azure Application Insights instrumention key</span>
 <span class="nt">webapp_insights_instrumentation_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># webapp_enable_insights: Azure Application Insights is enabled</span>
-<span class="nt">webapp_enable_insights</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;False&quot;</span>
+<span class="nt">webapp_enable_insights</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
 </code></pre></div>
 <h3 id="platform">Platform</h3>
 <p>A platform is a cloud where you deployed an API, you set the information required to access given platform</p>
@@ -1024,6 +1026,10 @@ solution on a platform</p>
 <span class="nt">api_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># api_scope : the default scope used by the API</span>
 <span class="nt">api_scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># csm_platform_app_id: app registration id of cosmotech platform</span>
+<span class="nt">csm_platform_app_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># csm_platform_scope_id: enterprise application scope of cosmotech platform</span>
+<span class="nt">csm_platform_scope_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># azure_subscription : The azure subscription used to contain the platform</span>
 <span class="nt">azure_subscription</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># azure_tenant_id: The azure tenant id used to contain the platform</span>
@@ -1040,6 +1046,10 @@ solution on a platform</p>
 <span class="nt">resources_location</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="c1"># Storage account name</span>
 <span class="nt">storage_account_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="c1"># Api scope to identify to Power BI</span>
+<span class="nt">powerbi_api_scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://analysis.windows.net/powerbi/api/.default</span>
+<span class="c1"># Azure AD PowerBI group</span>
+<span class="nt">azure_powerbi_group_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 </code></pre></div>
 <h2 id="environment-variables-override">Environment variables override</h2>
 <p>The following environment variables are available to override the default values used by babylon (for example while

@@ -1959,6 +1959,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#deploy" class="md-nav__link">
+    deploy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#download_2" class="md-nav__link">
     download
   </a>
@@ -3743,6 +3750,13 @@
   
     <nav class="md-nav" aria-label="webapp">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy" class="md-nav__link">
+    deploy
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#download_2" class="md-nav__link">
@@ -5798,7 +5812,7 @@ https://learn.microsoft.com/en-us/graph/api/application-post-applications</p>
 <td><code>-f</code>, <code>--file</code></td>
 <td>file</td>
 <td>N/A</td>
-<td>_required</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
@@ -5995,6 +6009,12 @@ https://learn.microsoft.com/en-us/graph/api/application-addpassword</p>
 <td>text</td>
 <td>Password display name</td>
 <td>None</td>
+</tr>
+<tr>
+<td><code>-s</code>, <code>--select</code></td>
+<td>boolean</td>
+<td>Save secret in .secrets.yaml working dir file</td>
+<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -6857,7 +6877,7 @@ https://learn.microsoft.com/en-us/rest/api/application-insights/components/creat
 <td><code>-f</code>, <code>--file</code></td>
 <td>file</td>
 <td>N/A</td>
-<td>_required</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
@@ -7221,7 +7241,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td><code>-f</code>, <code>--file</code></td>
 <td>file</td>
 <td>N/A</td>
-<td>_required</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
@@ -7261,7 +7281,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td><code>-f</code>, <code>--file</code></td>
 <td>file</td>
 <td>N/A</td>
-<td>_required</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
@@ -9845,14 +9865,42 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
+<li><em>deploy</em>: Macro command that deploys a new webapp</li>
 <li><em>download</em>: Download the github repository locally</li>
 <li><em>export-config</em>: Export webapp configuration in a json file</li>
 <li><em>update-workflow</em>: Update a github workflow file to read environment from a config.json file during deployment</li>
 <li><em>upload-file</em>: Upload a file to the webapp github repository</li>
 </ul>
+<h4 id="deploy">deploy</h4>
+<p>Macro command that deploys a new webapp</p>
+<p>Requires <code>webapp_enable_insights</code> in deploy config file.</p>
+<p>Requires <code>azure_powerbi_group_id</code> in platform config file.</p>
+<p>Requires <code>deployment_name</code> in deploy config file.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon webapp deploy [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="download_2">download</h4>
 <p>Download the github repository locally</p>
-<p>Requires <code>webapp_repository_token</code> in deploy config file.</p>
+<p>Requires key <code>github.token</code> in <code>.secrets.yaml</code> in the working_dir.</p>
 <p>Requires <code>webapp_repository_branch</code> in deploy config file.</p>
 <p>Requires <code>webapp_repository</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
@@ -9900,16 +9948,22 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted (json-formatted)</td>
-<td><code>config.json</code></td>
+<td><code>-f</code>, <code>--file</code></td>
+<td>file</td>
+<td>N/A</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-e</code>, <code>--use-working-dir-file</code></td>
 <td>boolean</td>
 <td>Should the output file path be relative to Babylon working directory ?</td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -9935,12 +9989,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>-c</code>, <code>--config_file</code></td>
-<td>text</td>
-<td>Configuration file name</td>
-<td><code>config.json</code></td>
-</tr>
 <tr>
 <td><code>-o</code>, <code>--output_file</code></td>
 <td>path</td>
