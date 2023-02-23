@@ -15,14 +15,13 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 
-pass_tfc = click.make_pass_decorator(TFC)
-
 
 @command()
-@pass_tfc
+@pass_tfc_client
 @option(
     "-o",
     "--output",
@@ -38,7 +37,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 Then create a run for it sending a creation payload""")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
-def run(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], run_message: str, allow_empty_apply: bool,
+def run(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str], run_message: str, allow_empty_apply: bool,
         output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Start the run of a workspace
 
@@ -46,7 +45,7 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
     workspace_id = workspace_id or workspace_id_wd
 
     try:
-        api.workspaces.show(workspace_id=workspace_id)
+        tfc_client.workspaces.show(workspace_id=workspace_id)
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
         return CommandResponse.fail()
@@ -59,7 +58,7 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
     run_payload['data']['relationships']['workspace']['data']['id'] = workspace_id
 
     logger.info("Sending payload to API")
-    r = api.runs.create(run_payload)
+    r = tfc_client.runs.create(run_payload)
     logger.info("Run successfully created")
     logger.info(pprint.pformat(r))
     if output_file:

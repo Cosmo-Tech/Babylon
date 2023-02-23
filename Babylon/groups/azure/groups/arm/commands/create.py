@@ -1,10 +1,8 @@
 import logging
 from typing import Optional
 
-from azure.mgmt.resource import ResourceManagementClient
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from ruamel.yaml import YAML
 
@@ -14,8 +12,6 @@ from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
-
-pass_arm_client = make_pass_decorator(ResourceManagementClient)
 
 
 @command()

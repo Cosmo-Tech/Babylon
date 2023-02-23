@@ -14,14 +14,13 @@ from ........utils.decorators import timing_decorator
 from ........utils.decorators import working_dir_requires_yaml_key
 from ........utils.typing import QueryType
 from ........utils.response import CommandResponse
+from ........utils.credentials import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 
-pass_tfc = click.make_pass_decorator(TFC)
-
 
 @command()
-@pass_tfc
+@pass_tfc_client
 @option(
     "-o",
     "--output",
@@ -32,11 +31,11 @@ pass_tfc = click.make_pass_decorator(TFC)
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
-def get_all(api: TFC, workspace_id_wd: str, workspace_id: Optional[str],
+def get_all(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str],
             output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Get all available variables in the workspace"""
     workspace_id = workspace_id or workspace_id_wd
-    r = list_all_vars(api, workspace_id)
+    r = list_all_vars(tfc_client, workspace_id)
     if not r:
         logger.warning(f"No vars are set for workspace {workspace_id}")
     for ws_var in r:

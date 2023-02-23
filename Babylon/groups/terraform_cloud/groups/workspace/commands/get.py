@@ -13,14 +13,13 @@ from terrasnek.exceptions import TFCHTTPNotFound
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 
-pass_tfc = click.make_pass_decorator(TFC)
-
 
 @command()
-@pass_tfc
+@pass_tfc_client
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
 @option(
@@ -31,12 +30,12 @@ pass_tfc = click.make_pass_decorator(TFC)
     help="File to which content should be outputted (json-formatted)",
 )
 @timing_decorator
-def get(api: TFC, workspace_id_wd: str, workspace_id: Optional[str],
+def get(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str],
         output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Get a workspace in the organization"""
     workspace_id = workspace_id or workspace_id_wd
     try:
-        ws = api.workspaces.show(workspace_id=workspace_id)
+        ws = tfc_client.workspaces.show(workspace_id=workspace_id)
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
         return CommandResponse.fail()
