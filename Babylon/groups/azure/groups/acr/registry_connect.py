@@ -6,7 +6,7 @@ from azure.identity import DefaultAzureCredential
 from azure.containerregistry import ContainerRegistryClient
 import docker
 
-from .....utils.decorators import pass_azure_credentials
+from .....utils.credentials import pass_azure_credentials
 
 logger = logging.getLogger("Babylon")
 

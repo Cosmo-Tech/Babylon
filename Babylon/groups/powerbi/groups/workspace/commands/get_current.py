@@ -6,7 +6,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.logging import table_repr
 from ......utils.response import CommandResponse
 from ......utils.request import oauth_request
-from ......utils.decorators import pass_azure_token
+from ......utils.credentials import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 

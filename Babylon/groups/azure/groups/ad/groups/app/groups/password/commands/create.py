@@ -10,7 +10,7 @@ from ..........utils.request import oauth_request
 from ..........utils.response import CommandResponse
 from ..........utils.environment import Environment
 from ..........utils.typing import QueryType
-from ..........utils.decorators import pass_azure_token
+from ..........utils.credentials import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
