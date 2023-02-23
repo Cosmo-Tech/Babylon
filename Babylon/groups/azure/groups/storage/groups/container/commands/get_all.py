@@ -5,7 +5,7 @@ from azure.storage.blob import BlobServiceClient
 from click import command
 
 from ........utils.decorators import timing_decorator
-from ........utils.credentials import pass_blob_client
+from ........utils.clients import pass_blob_client
 
 logger = logging.getLogger("Babylon")
 

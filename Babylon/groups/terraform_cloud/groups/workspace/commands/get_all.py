@@ -11,7 +11,7 @@ from terrasnek.api import TFC
 
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
-from ......utils.credentials import pass_tfc_client
+from ......utils.clients import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 

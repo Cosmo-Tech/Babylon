@@ -15,7 +15,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
-from ......utils.credentials import pass_api_client
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
 

@@ -11,7 +11,7 @@ from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
 from ........utils.interactive import confirm_deletion
 from ........utils.response import CommandResponse
-from ........utils.credentials import pass_kusto_client
+from ........utils.clients import pass_kusto_client
 
 logger = logging.getLogger("Babylon")
 

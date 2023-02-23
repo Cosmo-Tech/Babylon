@@ -9,7 +9,7 @@ from click import option
 from ........utils.decorators import timing_decorator
 from ........utils.interactive import confirm_deletion
 from ........utils.typing import QueryType
-from ........utils.credentials import pass_blob_client
+from ........utils.clients import pass_blob_client
 
 logger = logging.getLogger("Babylon")
 

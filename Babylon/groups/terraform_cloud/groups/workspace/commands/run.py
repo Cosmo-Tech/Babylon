@@ -15,7 +15,7 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.response import CommandResponse
-from ......utils.credentials import pass_tfc_client
+from ......utils.clients import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 

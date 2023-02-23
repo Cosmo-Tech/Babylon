@@ -12,7 +12,7 @@ from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.environment import Environment
 from ......utils.interactive import confirm_deletion
 from ......utils.response import CommandResponse
-from ......utils.credentials import pass_tfc_client
+from ......utils.clients import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 

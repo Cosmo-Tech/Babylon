@@ -11,7 +11,7 @@ from click import option
 
 from ........utils.decorators import timing_decorator
 from ........utils.response import CommandResponse
-from ........utils.credentials import pass_adt_client
+from ........utils.clients import pass_adt_client
 
 logger = logging.getLogger("Babylon")
 

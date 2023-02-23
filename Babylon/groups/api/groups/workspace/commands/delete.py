@@ -19,7 +19,7 @@ from ......utils.environment import Environment
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
-from ......utils.credentials import pass_api_client
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
 

@@ -7,7 +7,7 @@ from click import command
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
-from ......utils.credentials import pass_arm_client
+from ......utils.clients import pass_arm_client
 
 logger = logging.getLogger("Babylon")
 
