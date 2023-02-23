@@ -6,12 +6,12 @@ from typing import Optional
 from click import Path
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
 from cosmotech_api.exceptions import ServiceException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
@@ -22,16 +22,15 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_workspace_api = make_pass_decorator(WorkspaceApi)
 
 
 @command()
 @describe_dry_run("Would call **workspace_api.find_workspace_by_id**")
-@pass_workspace_api
 @timing_decorator
+@pass_api_client
 @argument("workspace-id", required=False, type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
@@ -61,7 +60,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     help="In case the workspace id is retrieved from a file",
 )
 def get(
-    workspace_api: WorkspaceApi,
+    api_client: ApiClient,
     organization_id: str,
     fields: Optional[str] = None,
     output_file: Optional[str] = None,
@@ -70,6 +69,7 @@ def get(
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Get the state of the workspace in the API."""
+    workspace_api = WorkspaceApi(api_client)
 
     if not workspace_id:
         if not workspace_file:

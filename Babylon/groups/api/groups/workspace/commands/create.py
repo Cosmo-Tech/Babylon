@@ -6,12 +6,12 @@ from typing import Optional
 from click import Path
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.workspace_api import WorkspaceApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
@@ -23,16 +23,15 @@ from ......utils.decorators import timing_decorator
 from ......utils.environment import Environment
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_workspace_api = make_pass_decorator(WorkspaceApi)
 
 
 @command()
 @describe_dry_run("Would call **workspace_api.create_workspace** to register a new Workspace")
 @timing_decorator
-@pass_workspace_api
+@pass_api_client
 @argument("workspace-name", type=QueryType())
 @require_deployment_key("send_scenario_metadata_to_event_hub", "send_scenario_metadata_to_event_hub")
 @require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
@@ -73,7 +72,7 @@ pass_workspace_api = make_pass_decorator(WorkspaceApi)
     default=True,
 )
 def create(
-    workspace_api: WorkspaceApi,
+    api_client: ApiClient,
     select: bool,
     solution_id: str,
     organization_id: str,
@@ -86,6 +85,7 @@ def create(
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Send a JSON or YAML file to the API to create a workspace."""
+    workspace_api = WorkspaceApi(api_client)
     env = Environment()
     converted_workspace_content = get_api_file(api_file_path=workspace_file if workspace_file else
                                                f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml",
