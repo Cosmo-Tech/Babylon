@@ -20,7 +20,6 @@ from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
 from ......utils.credentials import pass_api_client
 
-
 logger = getLogger("Babylon")
 
 

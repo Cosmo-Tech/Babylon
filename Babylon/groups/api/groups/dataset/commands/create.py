@@ -26,8 +26,6 @@ from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
 
-pass_dataset_api = make_pass_decorator(DatasetApi)
-
 
 @command()
 @describe_dry_run("Would call **dataset_api.create_dataset**")
