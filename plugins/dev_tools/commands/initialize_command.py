@@ -6,6 +6,7 @@ from click import argument
 from click import command
 from click import pass_context
 from click import make_pass_decorator
+from click import Context
 
 from .initialize_group import initialize_group
 from Babylon.utils import TEMPLATE_FOLDER_PATH
@@ -22,7 +23,7 @@ pass_base_path = make_pass_decorator(pathlib.Path)
 @pass_base_path
 @pass_context
 @timing_decorator
-def initialize_command(ctx, base_path: pathlib.Path, group_name: list[str], command_name: str):
+def initialize_command(ctx: Context, base_path: pathlib.Path, group_name: list[str], command_name: str):
     """Will initialize code for COMMAND_NAME and make it available in GROUP_NAME
 
 COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -"""

@@ -1,14 +1,11 @@
 from click import group
-from click import pass_context
-from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
 
 
 @group()
-@pass_context
-def platform(ctx: Context):
+def platform():
     """Sub-group for platform"""
     pass
 

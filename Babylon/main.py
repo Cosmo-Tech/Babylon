@@ -53,7 +53,6 @@ def print_version(ctx, param, value):
               expose_value=False,
               is_eager=True,
               help="Will run commands in dry-run mode.")
-@click.pass_context
 @click.option('--version',
               is_flag=True,
               callback=print_version,
@@ -66,7 +65,7 @@ def print_version(ctx, param, value):
               hidden=True,
               help="Start an interactive session after command run.")
 @prepend_doc_with_ascii
-def main(ctx, tests_mode, interactive):
+def main(tests_mode, interactive):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
 The following environment variables are available to override the working directory or the configuration:
@@ -86,7 +85,6 @@ The following environment variables are available to override the working direct
         logger.addHandler(test_handler)
     else:
         install(width=os.get_terminal_size().columns)
-    ctx.obj = env
 
 
 main.result_callback()(interactive_run)

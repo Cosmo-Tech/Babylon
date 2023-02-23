@@ -1,14 +1,11 @@
 from click import group
-from click import pass_context
-from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
 
 
 @group()
-@pass_context
-def permission(ctx: Context):
+def permission():
     """Group interacting with ADX permissions"""
     pass
 
