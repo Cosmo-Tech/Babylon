@@ -10,6 +10,8 @@ import click
 import cosmotech_api
 
 from .environment import Environment
+from .credentials import get_azure_credentials
+from .credentials import get_azure_token
 from ..version import get_version
 
 logger = logging.getLogger("Babylon")
@@ -37,6 +39,30 @@ def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
     doc = wrapper.__doc__ or ""
     wrapper.__doc__ = "\n".join(babylon_ascii) + doc
     return wrapper
+
+
+def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Grab Azure credentials and pass credentials"""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        kwargs["azure_credentials"] = get_azure_credentials()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def pass_azure_token(scope: str) -> Callable[..., Any]:
+    """Logs to Azure and pass token"""
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            kwargs["azure_access_token"] = get_azure_token(scope)
+            return func(*args, **kwargs)
+        return wrapper
+
+    return wrap_function
 
 
 def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
