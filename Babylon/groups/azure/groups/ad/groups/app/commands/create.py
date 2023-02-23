@@ -1,6 +1,5 @@
 import logging
 import pathlib
-from string import Template
 
 from azure.core.credentials import AccessToken
 from click import command
@@ -17,21 +16,19 @@ from ........utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
+DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/app_registration.json"
+
 
 @command()
 @pass_context
-@option("-f",
-        "--file",
-        "registration_file",
-        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
-        required=True)
+@option("-f", "--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",
         is_flag=True,
         help="Should the parameter file path be relative to Babylon working directory ?")
 @output_to_file
-def create(ctx: Context, registration_file: str, use_working_dir_file: bool = False) -> CommandResponse:
+def create(ctx: Context, registration_file: pathlib.Path, use_working_dir_file: bool = False) -> CommandResponse:
     """
     Register an app in active directory
     https://learn.microsoft.com/en-us/graph/api/application-post-applications
@@ -39,17 +36,8 @@ def create(ctx: Context, registration_file: str, use_working_dir_file: bool = Fa
     access_token = ctx.find_object(AccessToken).token
     route = "https://graph.microsoft.com/v1.0/applications"
     env = Environment()
-    if use_working_dir_file:
-        registration_file = env.working_dir.get_file(str(registration_file))
-    details = ""
-    with open(registration_file, "r") as _file:
-        template = _file.read()
-        data = {**env.configuration.get_deploy(), **env.configuration.get_platform()}
-        try:
-            details = Template(template).substitute(data)
-        except Exception as e:
-            logger.error(f"Could not fill parameters template: {e}")
-            return CommandResponse.fail()
+    registration_file = registration_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
+    details = env.fill_template(registration_file, use_working_dir_file=use_working_dir_file)
     response = oauth_request(route, access_token, type="POST", data=details)
     if response is None:
         return CommandResponse.fail()

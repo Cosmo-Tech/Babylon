@@ -14,13 +14,14 @@ def poll_request(retries: int = 5, check_for_failure: bool = False, **kwargs: di
         response = oauth_request(**kwargs)
         if check_for_failure and response is None:
             return
-        if not check_for_failure and response is not None:
-            return
+        if response and response.status_code <= 300:
+            logger.info("Request polling succeeded")
+            return response
         sleep(1)
     raise ValueError("Request polling failed")
 
 
-def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: dict[str, Any]) -> Optional[Any]:
+def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: Any) -> Optional[Any]:
     """Requests an API using OAuth authentication
 
     :param url: request url

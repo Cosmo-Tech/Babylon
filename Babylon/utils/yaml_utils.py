@@ -31,8 +31,9 @@ def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
     _commented_yaml_loader = YAML()
     try:
         with yaml_file.open(mode='r') as file:
-            _y = _commented_yaml_loader.load(file)
+            _y = _commented_yaml_loader.load(file) or {}
             _y[key] = value
+        with yaml_file.open(mode='w') as file:
             _commented_yaml_loader.dump(_y, yaml_file)
     except OSError:
         return

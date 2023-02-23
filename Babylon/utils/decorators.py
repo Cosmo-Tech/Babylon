@@ -42,10 +42,10 @@ def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
 def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
     """Add output to file option to a command"""
 
-    @wraps(func)
     @click.option("-o", "--output", "output_file", help="File to which content should be outputted (json-formatted)")
+    @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        output_file = kwargs.pop("output_file")
+        output_file = kwargs.pop("output_file", None)
         response = func(*args, **kwargs)
         if output_file:
             response.dump(output_file)
@@ -103,16 +103,11 @@ def working_dir_requires_yaml_key(yaml_path: str, yaml_key: str, arg_name: Optio
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             env = Environment()
-            working_dir = env.working_dir
-            if working_dir.requires_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key):
-                if arg_name:
-                    kwargs[arg_name] = working_dir.get_yaml_key(yaml_path=yaml_path, yaml_key=yaml_key)
-                    logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
+            data = env.convert_data_query(f"%workdir[{yaml_path}]%{yaml_key}")
+            if arg_name:
+                kwargs[arg_name] = data
+                logger.debug(f"Adding parameter {arg_name} = {kwargs[arg_name]} to {func.__name__}")
                 return func(*args, **kwargs)
-
-            logger.error(f"Key {yaml_key} can not be found in {yaml_path}")
-            logger.error(f"{click.get_current_context().command.name} won't run without it.")
-            raise KeyError(f"Key {yaml_key} can not be found in {yaml_path}")
 
         wrapper.__doc__ = "\n\n".join(
             [wrapper.__doc__ or "", f"Requires key `{yaml_key}` in `{yaml_path}` in the working_dir."])
@@ -216,12 +211,12 @@ def insert_argument(getter: Callable[[str], Any]) -> Callable[..., Any]:
 
 def get_from_deploy_config(yaml_key: str) -> Optional[Any]:
     """deploy config file"""
-    return Environment().configuration.get_deploy_var(yaml_key)
+    return Environment().convert_data_query(f"%deploy%{yaml_key}")
 
 
 def get_from_platform_config(yaml_key: str) -> Optional[Any]:
     """platform config file"""
-    return Environment().configuration.get_platform_var(yaml_key)
+    return Environment().convert_data_query(f"%platform%{yaml_key}")
 
 
 require_deployment_key = insert_argument(get_from_deploy_config)

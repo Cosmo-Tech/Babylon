@@ -17,7 +17,7 @@ class CommandResponse():
 
     def __init__(self, status_code: int = 0, data: Optional[dict[str, Any]] = None) -> None:
         self.status_code = status_code
-        self.data = data
+        self.data: dict[str, Any] = data or {}
         ctx = get_current_context()
         self.command = ctx.command_path.split(" ")
         self.params = ctx.params
@@ -41,6 +41,12 @@ class CommandResponse():
         with open(output_file, "w") as _f:
             _f.write(self.toJSON())
         logger.info(f"The JSON response was dumped in file: {output_file}")
+
+    def has_failed(self) -> bool:
+        """Checks if command has failed"""
+        if self.status_code != self.STATUS_ERROR:
+            return False
+        return True
 
     @classmethod
     def fail(cls) -> Any:

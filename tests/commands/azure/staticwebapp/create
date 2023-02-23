@@ -9,9 +9,13 @@ webapp_location: ""
 webapp_repository: ""
 # WebApp Github Repository branch
 webapp_repository_branch: "main"
-# WebApp Github Repository Token (will be moved in secrets)
-webapp_repository_token: ""
 ```
+- Add or edit the following lines in `workdir/.secrets.yaml`
+```yaml
+github:
+  token: ""
+```
+Repository token must be created in [github developer settings](https://github.com/settings/tokens?type=beta).
 
 ### Commands
 

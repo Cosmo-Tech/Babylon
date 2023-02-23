@@ -1,6 +1,6 @@
 {
   "kind": "web",
-  "location": "West Europe",
+  "location": "${%deploy%webapp_location}",
   "properties": {
     "Application_Type": "web",
     "DisableIpMasking": false,

@@ -1,9 +1,9 @@
 {
-    "location": "${webapp_location}",
+    "location": "${%deploy%webapp_location}",
     "properties": {
-        "repositoryUrl": "${webapp_repository}",
-        "branch": "${webapp_repository_branch}",
-        "repositoryToken": "${webapp_repository_token}",
+        "repositoryUrl": "${%deploy%webapp_repository}",
+        "branch": "${%deploy%webapp_repository_branch}",
+        "repositoryToken": "${%workdir[.secrets.yaml]%github.token}",
         "buildProperties": {
             "appLocation": "/",
             "apiLocation": "api",

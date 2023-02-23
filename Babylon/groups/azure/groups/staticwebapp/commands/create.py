@@ -1,6 +1,6 @@
 import logging
 import pathlib
-from string import Template
+from typing import Optional
 
 from azure.core.credentials import AccessToken
 from click import command
@@ -18,13 +18,15 @@ from ......utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
+DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/webapp_details.json"
+
 
 @command()
 @pass_context
 @require_platform_key("azure_subscription")
 @require_platform_key("resource_group_name")
 @argument("webapp_name")
-@option("-f", "--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
+@option("-f", "--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",
@@ -34,7 +36,7 @@ def create(ctx: Context,
            azure_subscription: str,
            resource_group_name: str,
            webapp_name: str,
-           create_file: str,
+           create_file: Optional[Path] = None,
            use_working_dir_file: bool = False) -> CommandResponse:
     """
     Create a static webapp data in the given resource group
@@ -42,17 +44,8 @@ def create(ctx: Context,
     """
     access_token = ctx.find_object(AccessToken).token
     env = Environment()
-    if use_working_dir_file:
-        create_file = env.working_dir.get_file(str(create_file))
-    details = ""
-    with open(create_file, "r") as _file:
-        template = _file.read()
-        data = {**env.configuration.get_deploy(), **env.configuration.get_platform()}
-        try:
-            details = Template(template).substitute(data)
-        except Exception as e:
-            logger.error(f"Could not fill parameters template: {e}")
-            return CommandResponse.fail()
+    create_file = create_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
+    details = env.fill_template(create_file, use_working_dir_file=use_working_dir_file)
     route = (f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
              f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
     response = oauth_request(route, access_token, type="PUT", data=details)
