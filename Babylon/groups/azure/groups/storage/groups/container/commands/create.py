@@ -5,25 +5,23 @@ from azure.core.exceptions import HttpResponseError
 from azure.storage.blob import BlobServiceClient
 from click import argument
 from click import command
-from click import make_pass_decorator
 
 from ........utils.decorators import timing_decorator
 from ........utils.typing import QueryType
+from ........utils.credentials import pass_blob_client
 
 logger = logging.getLogger("Babylon")
 
-pass_blobclient = make_pass_decorator(BlobServiceClient)
-
 
 @command()
-@pass_blobclient
+@pass_blob_client
 @timing_decorator
 @argument("container_name", type=QueryType())
-def create(blobclient: BlobServiceClient, container_name: str) -> Optional[str]:
+def create(blob_client: BlobServiceClient, container_name: str) -> Optional[str]:
     """Creates a new storageblob container with the given name"""
-    logger.info(f"Creating container {container_name} in storage account {blobclient.account_name}")
+    logger.info(f"Creating container {container_name} in storage account {blob_client.account_name}")
     try:
-        container = blobclient.create_container(container_name)
+        container = blob_client.create_container(container_name)
     except HttpResponseError as e:
         error_message = e.message.split("\n")
         logging.error(f"Failed to create container '{container_name}': {error_message[0]}")
