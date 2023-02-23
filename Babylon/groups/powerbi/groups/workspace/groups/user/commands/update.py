@@ -10,20 +10,21 @@ from ........utils.decorators import require_deployment_key
 from ........utils.typing import QueryType
 from ........utils.response import CommandResponse
 from ........utils.request import oauth_request
-from ........utils.credentials import get_azure_token
+from ........utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("powerbi")
 @option("-w", "--workspace", "override_workspace_id", type=QueryType())
 @argument("identifier", type=QueryType())
 @argument("principal_type", type=Choice(["App", "Group", "User", "None"], case_sensitive=False))
 @argument("group_user_access_right",
           type=Choice(["Admin", "Contributor", "Member", "Viewer", "None"], case_sensitive=False))
 @require_deployment_key("powerbi_workspace_id", required=False)
-def update(powerbi_workspace_id: str, override_workspace_id: Optional[str], identifier: str, principal_type: str,
-           group_user_access_right: str) -> CommandResponse:
+def update(azure_token: str, powerbi_workspace_id: str, override_workspace_id: Optional[str], identifier: str,
+           principal_type: str, group_user_access_right: str) -> CommandResponse:
     """Updates an existing user in the power bi workspace using the following information:
 
 \b
@@ -51,7 +52,7 @@ GROUP USER ACCESS RIGHT :
         "groupUserAccessRight": group_user_access_right,
         "principalType": principal_type,
     }
-    response = oauth_request(url_users, get_azure_token("powerbi"), json=body, type="PUT")
+    response = oauth_request(url_users, azure_token, json=body, type="PUT")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"{identifier} was successfully updated as a '{group_user_access_right}' to workspace {workspace_id}")

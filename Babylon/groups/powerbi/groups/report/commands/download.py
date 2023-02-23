@@ -10,12 +10,13 @@ from click import Path
 from ......utils.decorators import require_deployment_key
 from ......utils.response import CommandResponse
 from ......utils.request import oauth_request
-from ......utils.credentials import get_azure_token
+from ......utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("powerbi")
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("report_id")
 @option("-o",
@@ -25,7 +26,8 @@ logger = logging.getLogger("Babylon")
         required=True,
         help="output filename (.pbix)")
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
-def download(powerbi_workspace_id: str,
+def download(azure_token: str,
+             powerbi_workspace_id: str,
              report_id: str,
              output_file: str,
              workspace_id: Optional[str] = None) -> CommandResponse:
@@ -37,7 +39,7 @@ def download(powerbi_workspace_id: str,
     output_file = output_file if output_file.suffix == ".pbix" else f"{output_file}.pbix"
     url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
     logger.info(f"Downloading report {report_id} in file {output_file}...")
-    response = oauth_request(url_report, get_azure_token("powerbi"))
+    response = oauth_request(url_report, azure_token)
     if response is None:
         return CommandResponse.fail()
     with open(output_file, "wb") as file:

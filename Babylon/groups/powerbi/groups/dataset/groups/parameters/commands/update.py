@@ -9,17 +9,19 @@ from ........utils.decorators import require_deployment_key
 from ........utils.request import oauth_request
 from ........utils.response import CommandResponse
 from ........utils.typing import QueryType
-from ........utils.credentials import get_azure_token
+from ........utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("powerbi")
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("dataset_id", type=QueryType())
 @option("-p", "--parameter", "params", type=(str, QueryType()), multiple=True, required=True)
 @option("-w", "--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
-def update(powerbi_workspace_id: str,
+def update(azure_token: str,
+           powerbi_workspace_id: str,
            dataset_id: str,
            params: list[tuple[str, str]],
            workspace_id: Optional[str] = None) -> CommandResponse:
@@ -32,7 +34,7 @@ def update(powerbi_workspace_id: str,
     details = {"updateDetails": [{"name": param[0], "newValue": param[1]} for param in params]}
     update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
                   f"/datasets/{dataset_id}/Default.UpdateParameters")
-    response = oauth_request(update_url, get_azure_token("powerbi"), json=details, type="POST")
+    response = oauth_request(update_url, azure_token, json=details, type="POST")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully updated dataset {dataset_id} parameters")

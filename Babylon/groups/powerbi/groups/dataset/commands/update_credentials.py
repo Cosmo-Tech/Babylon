@@ -8,16 +8,18 @@ from ......utils.response import CommandResponse
 from ......utils.typing import QueryType
 from ......utils.request import oauth_request
 from ......utils.decorators import require_deployment_key
-from ......utils.credentials import get_azure_token
+from ......utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("powerbi")
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("dataset_id", type=QueryType())
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-def update_credentials(powerbi_workspace_id: str, dataset_id: str, workspace_id: str) -> CommandResponse:
+def update_credentials(azure_token: str, powerbi_workspace_id: str, dataset_id: str,
+                       workspace_id: str) -> CommandResponse:
     """Update azure credentials of a given datasource"""
     workspace_id = workspace_id or powerbi_workspace_id
     if not workspace_id:
@@ -26,7 +28,7 @@ def update_credentials(powerbi_workspace_id: str, dataset_id: str, workspace_id:
 
     # First step, get datasources
     get_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/datasources"
-    access_token = get_azure_token("powerbi")
+    access_token = azure_token
     response = oauth_request(get_url, access_token)
     if response is None:
         return CommandResponse.fail()

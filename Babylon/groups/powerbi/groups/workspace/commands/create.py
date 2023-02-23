@@ -10,12 +10,13 @@ from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
 from ......utils.request import oauth_request
 from ......utils.environment import Environment
-from ......utils.credentials import get_azure_token
+from ......utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("powerbi")
 @argument("workspace_name", type=QueryType())
 @option("-s",
         "--select",
@@ -24,14 +25,11 @@ logger = logging.getLogger("Babylon")
         help="Select this new Organization as one of babylon context Organizations ?",
         default=False)
 @output_to_file
-def create(workspace_name: str, select: bool) -> CommandResponse:
+def create(azure_token: str, workspace_name: str, select: bool) -> CommandResponse:
     """Create workspace named WORKSPACE_NAME into Power Bi App"""
     env = Environment()
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups?$workspaceV2=True'
-    response = oauth_request(url=url_groups,
-                             access_token=get_azure_token("powerbi"),
-                             json={"name": workspace_name},
-                             type="POST")
+    response = oauth_request(url=url_groups, access_token=azure_token, json={"name": workspace_name}, type="POST")
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()

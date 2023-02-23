@@ -52,13 +52,13 @@ def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-def pass_azure_token(scope: str) -> Callable[..., Any]:
+def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
     """Logs to Azure and pass token"""
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
-            kwargs["azure_access_token"] = get_azure_token(scope)
+            kwargs["azure_token"] = get_azure_token(scope)
             return func(*args, **kwargs)
         return wrapper
 

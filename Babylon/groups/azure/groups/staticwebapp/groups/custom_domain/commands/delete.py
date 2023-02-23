@@ -8,12 +8,13 @@ from ........utils.request import oauth_request
 from ........utils.decorators import require_platform_key
 from ........utils.response import CommandResponse
 from ........utils.interactive import confirm_deletion
-from ........utils.credentials import get_azure_token
+from ........utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("powerbi")
 @require_platform_key("azure_subscription", "azure_subscription")
 @require_platform_key("resource_group_name", "resource_group_name")
 @option(
@@ -25,7 +26,8 @@ logger = logging.getLogger("Babylon")
 )
 @argument("webapp_name")
 @argument("domain_name")
-def delete(azure_subscription: str,
+def delete(azure_token: str,
+           azure_subscription: str,
            resource_group_name: str,
            webapp_name: str,
            domain_name: str,
@@ -40,7 +42,7 @@ def delete(azure_subscription: str,
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
         f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01",
-        get_azure_token(),
+        azure_token,
         type="DELETE")
     if response is None:
         return CommandResponse.fail()

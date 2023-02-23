@@ -10,12 +10,13 @@ from click import Path
 from ........utils.request import oauth_request
 from ........utils.response import CommandResponse
 from ........utils.environment import Environment
-from ........utils.credentials import get_azure_token
+from ........utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("graph")
 @argument("registration_id")
 @option("-f",
         "--file",
@@ -27,7 +28,7 @@ logger = logging.getLogger("Babylon")
         "use_working_dir_file",
         is_flag=True,
         help="Should the parameter file path be relative to Babylon working directory ?")
-def update(registration_id: str, registration_file: str, use_working_dir_file: bool = False) -> CommandResponse:
+def update(azure_token: str, registration_id: str, registration_file: str, use_working_dir_file: bool = False) -> CommandResponse:
     """
     Update an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-update
@@ -45,7 +46,7 @@ def update(registration_id: str, registration_file: str, use_working_dir_file: b
         except Exception as e:
             logger.error(f"Could not fill parameters template: {e}")
             return CommandResponse.fail()
-    response = oauth_request(route, get_azure_token("graph"), type="PATCH", data=details)
+    response = oauth_request(route, azure_token, type="PATCH", data=details)
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully updated registration {registration_id}")

@@ -10,12 +10,13 @@ from ........utils.interactive import confirm_deletion
 from ........utils.typing import QueryType
 from ........utils.response import CommandResponse
 from ........utils.request import oauth_request
-from ........utils.credentials import get_azure_token
+from ........utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@pass_azure_token("powerbi")
 @option("-w", "--workspace", "override_workspace_id", type=QueryType())
 @argument("identifier", type=QueryType())
 @option(
@@ -27,6 +28,7 @@ logger = logging.getLogger("Babylon")
 )
 @require_deployment_key("powerbi_workspace_id", required=False)
 def delete(
+    azure_token: str,
     powerbi_workspace_id: str,
     override_workspace_id: Optional[str],
     identifier: str,
@@ -40,7 +42,7 @@ def delete(
     url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{identifier}'
     if not force_validation and not confirm_deletion("user", identifier):
         return CommandResponse.fail()
-    response = oauth_request(url_users, get_azure_token("powerbi"), type="DELETE")
+    response = oauth_request(url_users, azure_token, type="DELETE")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"{identifier} was successfully removed from workspace {workspace_id}")

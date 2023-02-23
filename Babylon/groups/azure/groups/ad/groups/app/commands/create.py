@@ -10,7 +10,7 @@ from ........utils.request import oauth_request
 from ........utils.response import CommandResponse
 from ........utils.environment import Environment
 from ........utils.decorators import output_to_file
-from ........utils.credentials import get_azure_token
+from ........utils.decorators import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
@@ -18,17 +18,15 @@ DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/app_registration.json"
 
 
 @command()
-@option("-f",
-        "--file",
-        "registration_file",
-        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@pass_azure_token("graph")
+@option("-f", "--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",
         is_flag=True,
         help="Should the parameter file path be relative to Babylon working directory ?")
 @output_to_file
-def create(registration_file: pathlib.Path, use_working_dir_file: bool = False) -> CommandResponse:
+def create(azure_token: str, registration_file: pathlib.Path, use_working_dir_file: bool = False) -> CommandResponse:
     """
     Register an app in active directory
     https://learn.microsoft.com/en-us/graph/api/application-post-applications
@@ -37,7 +35,7 @@ def create(registration_file: pathlib.Path, use_working_dir_file: bool = False) 
     env = Environment()
     registration_file = registration_file or env.working_dir.get_file(DEFAULT_PAYLOAD_TEMPLATE)
     details = env.fill_template(registration_file, use_working_dir_file=use_working_dir_file)
-    response = oauth_request(route, get_azure_token("graph"), type="POST", data=details)
+    response = oauth_request(route, azure_token, type="POST", data=details)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
