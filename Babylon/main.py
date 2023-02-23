@@ -16,7 +16,6 @@ from .utils.decorators import prepend_doc_with_ascii
 from .utils.dry_run import display_dry_run
 from .utils.environment import Environment
 from .utils.help import HELP_CONTEXT_OVERRIDE
-from .utils.help import print_cmd_help
 from .utils.interactive import INTERACTIVE_ARG_VALUE
 from .utils.interactive import interactive_run
 from .utils.logging import MultiLineHandler
@@ -55,13 +54,6 @@ def print_version(ctx, param, value):
               is_eager=True,
               help="Will run commands in dry-run mode.")
 @click.pass_context
-@click.option("-h",
-              "--help",
-              is_flag=True,
-              callback=print_cmd_help,
-              expose_value=False,
-              is_eager=True,
-              help="Show this message and exit.")
 @click.option('--version',
               is_flag=True,
               callback=print_version,

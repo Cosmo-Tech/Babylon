@@ -19,9 +19,7 @@ def run_command(command_line: list[str], log_level: int = logging.WARNING) -> Co
         logger.setLevel(log_level)
     root = click.get_current_context().find_root()
     babylon = root.command
-    ctx = click.Context(babylon, parent=root)
-    name, cmd, args = babylon.resolve_command(ctx, command_line)
-    cmd.parse_args(ctx, args)
-    ret = cmd.invoke(ctx)
+    ctx = babylon.make_context("babylon", command_line)
+    ret: CommandResponse = babylon.invoke(ctx)
     logger.setLevel(old_log_level)
     return ret
