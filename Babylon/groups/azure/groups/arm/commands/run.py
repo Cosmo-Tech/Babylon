@@ -65,6 +65,6 @@ def run(
         logger.error(f"An error occurred : {_e.message}")
         return CommandResponse.fail()
 
-    logger.info(f"Deployment created")
+    logger.info("Deployment created")
 
     return CommandResponse.success()
