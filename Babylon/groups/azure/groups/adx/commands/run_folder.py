@@ -4,22 +4,21 @@ import pathlib
 
 import click
 from azure.mgmt.kusto import KustoManagementClient
-from click import make_pass_decorator
 
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import require_platform_key
 from ......utils.decorators import timing_decorator
+from ......utils.credentials import pass_kusto_client
 from ......utils.response import CommandResponse
 from .run_script import run_script
-
-pass_kmc = make_pass_decorator(KustoManagementClient)
 
 logger = logging.getLogger("Babylon")
 
 
 @click.command()
 @click.pass_context
+@pass_kusto_client
 @require_platform_key("adx_cluster_name", "adx_cluster_name")
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_deployment_key("adx_database_name", "adx_database_name")
@@ -28,7 +27,8 @@ logger = logging.getLogger("Babylon")
 @describe_dry_run("Would go through the folder and run all files found")
 @timing_decorator
 def run_folder(
-    ctx,
+    ctx: click.Context,
+    kusto_client: KustoManagementClient,
     adx_cluster_name: str,
     resource_group_name: str,
     adx_database_name: str,

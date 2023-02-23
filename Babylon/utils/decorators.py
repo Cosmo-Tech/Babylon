@@ -7,11 +7,8 @@ from typing import Callable
 from typing import Optional
 
 import click
-import cosmotech_api
 
 from .environment import Environment
-from .credentials import get_azure_credentials
-from .credentials import get_azure_token
 from ..version import get_version
 
 logger = logging.getLogger("Babylon")
@@ -39,30 +36,6 @@ def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
     doc = wrapper.__doc__ or ""
     wrapper.__doc__ = "\n".join(babylon_ascii) + doc
     return wrapper
-
-
-def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab Azure credentials and pass credentials"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        kwargs["azure_credentials"] = get_azure_credentials()
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
-    """Logs to Azure and pass token"""
-    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            kwargs["azure_token"] = get_azure_token(scope)
-            return func(*args, **kwargs)
-        return wrapper
-
-    return wrap_function
 
 
 def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -247,5 +220,3 @@ def get_from_platform_config(yaml_key: str) -> Optional[Any]:
 
 require_deployment_key = insert_argument(get_from_deploy_config)
 require_platform_key = insert_argument(get_from_platform_config)
-
-pass_api_configuration = click.make_pass_decorator(cosmotech_api.Configuration)

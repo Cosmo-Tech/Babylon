@@ -15,7 +15,6 @@ from .groups import list_groups
 from .utils.decorators import prepend_doc_with_ascii
 from .utils.dry_run import display_dry_run
 from .utils.environment import Environment
-from .utils.help import HELP_CONTEXT_OVERRIDE
 from .utils.interactive import INTERACTIVE_ARG_VALUE
 from .utils.interactive import interactive_run
 from .utils.logging import MultiLineHandler
@@ -37,7 +36,7 @@ def print_version(ctx, param, value):
     ctx.exit()
 
 
-@click.group(name='babylon', invoke_without_command=False, context_settings=HELP_CONTEXT_OVERRIDE)
+@click.group(name='babylon', invoke_without_command=False)
 @click_log.simple_verbosity_option(logger)
 @click.option("--bare",
               "--raw",

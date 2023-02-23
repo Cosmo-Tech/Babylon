@@ -28,7 +28,10 @@ logger = logging.getLogger("Babylon")
         "use_working_dir_file",
         is_flag=True,
         help="Should the parameter file path be relative to Babylon working directory ?")
-def update(azure_token: str, registration_id: str, registration_file: str, use_working_dir_file: bool = False) -> CommandResponse:
+def update(azure_token: str,
+           registration_id: str,
+           registration_file: str,
+           use_working_dir_file: bool = False) -> CommandResponse:
     """
     Update an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-update

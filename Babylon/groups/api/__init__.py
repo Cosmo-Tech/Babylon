@@ -1,21 +1,13 @@
-import cosmotech_api
 from click import group
 
 from .commands import list_commands
 from .groups import list_groups
-from ...utils.decorators import require_platform_key
-from ...utils.decorators import pass_azure_token
 
 
 @group()
-@require_platform_key("api_url")
-@pass_azure_token("csm_api")
-def api(api_url: str, azure_token):
+def api():
     """Group handling communication with the cosmotech API"""
-    configuration = cosmotech_api.Configuration(host=api_url,
-                                                discard_unknown_keys=True,
-                                                access_token=azure_token)
-    ctx.obj = configuration
+    pass
 
 
 for _command in list_commands:

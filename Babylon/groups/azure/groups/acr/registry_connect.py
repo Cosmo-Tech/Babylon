@@ -12,7 +12,8 @@ logger = logging.getLogger("Babylon")
 
 
 @pass_azure_credentials
-def registry_connect(azure_credentials: DefaultAzureCredential, registry: str) -> tuple[ContainerRegistryClient, docker.DockerClient]:
+def registry_connect(azure_credentials: DefaultAzureCredential,
+                     registry: str) -> tuple[ContainerRegistryClient, docker.DockerClient]:
     # Login to registry
     registry_client = ContainerRegistryClient(f"https://{registry}",
                                               azure_credentials,
