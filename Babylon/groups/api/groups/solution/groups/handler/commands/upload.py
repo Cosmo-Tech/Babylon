@@ -5,27 +5,26 @@ from click import Choice
 from click import Path
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ApiException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import timing_decorator
 from ........utils.response import CommandResponse
+from ........utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
 @timing_decorator
-@pass_solution_api
+@pass_api_client
 @argument("handler-path", type=Path())
 @option("-o", "--override", "override", is_flag=True)
 @option(
@@ -57,7 +56,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @require_deployment_key("solution_id", "solution_id")
 @describe_dry_run("Would call **solution_api.upload_run_template_handler** to upload a solution handler zip")
 def upload(
-    solution_api: SolutionApi,
+    api_client: ApiClient,
     organization_id: str,
     solution_id: str,
     handler_path: str,
@@ -66,6 +65,7 @@ def upload(
     override: Optional[bool] = False,
 ) -> CommandResponse:
     """Upload a solution handler zip."""
+    solution_api = SolutionApi(api_client)
 
     if not handler_path.endswith(".zip"):
         logger.error(f"{handler_path} is not a zip archive")

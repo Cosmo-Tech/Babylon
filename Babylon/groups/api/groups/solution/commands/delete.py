@@ -3,13 +3,13 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
@@ -18,16 +18,15 @@ from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
 @describe_dry_run("Would call **solution_api.delete_solution** to delete an solution")
-@pass_solution_api
 @timing_decorator
+@pass_api_client
 @require_deployment_key("organization_id", "organization_id")
 @option(
     "-f",
@@ -51,7 +50,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 )
 @argument("solution-id", required=False, type=QueryType())
 def delete(
-    solution_api: SolutionApi,
+    api_client: ApiClient,
     organization_id: str,
     solution_id: Optional[str] = None,
     solution_file: Optional[str] = None,
@@ -59,6 +58,7 @@ def delete(
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Unregister a solution via Cosmotech APi."""
+    solution_api = SolutionApi(api_client)
 
     if not solution_id:
         if not solution_file:

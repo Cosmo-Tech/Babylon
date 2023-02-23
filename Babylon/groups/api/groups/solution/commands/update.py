@@ -4,13 +4,13 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import get_api_file
 from ......utils.decorators import describe_dry_run
@@ -18,16 +18,15 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
 @describe_dry_run("Would call **solution_api.create_solution** to update an solution")
 @timing_decorator
-@pass_solution_api
+@pass_api_client
 @argument("solution-id", required=False, type=QueryType())
 @require_deployment_key("simulator_version", "simulator_version")
 @require_deployment_key("simulator_repository", "simulator_repository")
@@ -47,7 +46,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     help="Your custom Solution description file path",
 )
 def update(
-    solution_api: SolutionApi,
+    api_client: ApiClient,
     organization_id: str,
     solution_id: str,
     simulator_version: str,
@@ -56,6 +55,7 @@ def update(
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Send a JSON or YAML file to the API to update a solution."""
+    solution_api = SolutionApi(api_client)
 
     converted_solution_content = dict()
 

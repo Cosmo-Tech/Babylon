@@ -2,26 +2,25 @@ from logging import getLogger
 
 from click import Choice
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ........utils.decorators import describe_dry_run
 from ........utils.decorators import require_deployment_key
 from ........utils.decorators import timing_decorator
 from ........utils.response import CommandResponse
+from ........utils.credentials import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
 @timing_decorator
-@pass_solution_api
+@pass_api_client
 @option(
     "-r",
     "--run-template",
@@ -51,13 +50,14 @@ pass_solution_api = make_pass_decorator(SolutionApi)
 @require_deployment_key("solution_id", "solution_id")
 @describe_dry_run("Would call **solution_api.download_run_template_handler** to download a solution handler zip")
 def download(
-    solution_api: SolutionApi,
+    api_client: ApiClient,
     organization_id: str,
     solution_id: str,
     handler_id: str,
     run_template_id: str,
 ) -> CommandResponse:
     """Download a solution handler zip."""
+    solution_api = SolutionApi(api_client)
 
     logger.info(f"Downloading {handler_id} handler from solution {solution_id}")
     try:
