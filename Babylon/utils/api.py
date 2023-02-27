@@ -50,7 +50,7 @@ def convert_keys_case(element: Any, convert_function) -> Any:
         for k, v in element.items():
             if k in ["parametersValues", "parameters_values"]:
                 new_element[convert_function(k)] = dict() if not v else v.copy()
-            elif v:
+            elif v is not None:
                 new_element[convert_function(k)] = convert_keys_case(v, convert_function)
         return new_element
     if isinstance(element, list):
@@ -106,6 +106,7 @@ def get_api_file(api_file_path: str, use_working_dir_file: bool):
         if ext == ".json":
             logger.debug("Reading a json file")
             solution_content = json.load(_file)
+            print(solution_content)
         elif ext == ".yaml":
             logger.debug("Reading a yaml file")
             solution_content = yaml.safe_load(_file)
