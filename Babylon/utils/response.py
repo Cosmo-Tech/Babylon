@@ -55,3 +55,19 @@ class CommandResponse():
     @classmethod
     def success(cls, data: Optional[dict[str, Any]] = None) -> Any:
         return cls(status_code=CommandResponse.STATUS_OK, data=data)
+
+class MacroReport():
+    """Contains commands, statuses and data output from macros
+    """
+    def __init__(self):
+        self._commands: dict[str, CommandResponse] = {}
+
+    def addCommand(self, name: str, cmd: CommandResponse):
+        self._commands[name] = cmd
+
+    def dump(self, output_file: str):
+        """Dump command responses data in a json file"""
+        compiled = {k: response.data for k, response in self._commands.items()}
+        with open(output_file, "w") as _f:
+            json.dump(compiled, _f, indent=4)
+        logger.info(f"Macro report was dumped in file: {output_file}")
