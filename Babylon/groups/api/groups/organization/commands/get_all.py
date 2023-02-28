@@ -46,8 +46,9 @@ def get_all(
 
     try:
         retrieved_organizations = organization_api.find_all_organizations()
-    except UnauthorizedException:
+    except UnauthorizedException as e:
         logger.error("Unauthorized access to the cosmotech api")
+        logger.error(e)
         return CommandResponse.fail()
 
     logger.info(f"Found {len(retrieved_organizations)} organizations")
