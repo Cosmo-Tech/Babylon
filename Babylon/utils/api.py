@@ -106,7 +106,6 @@ def get_api_file(api_file_path: str, use_working_dir_file: bool):
         if ext == ".json":
             logger.debug("Reading a json file")
             solution_content = json.load(_file)
-            print(solution_content)
         elif ext == ".yaml":
             logger.debug("Reading a yaml file")
             solution_content = yaml.safe_load(_file)
