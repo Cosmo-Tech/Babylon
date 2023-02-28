@@ -1,18 +1,37 @@
 site_name: babylon
+repo_url: https://github.com/Cosmo-Tech/Babylon
+repo_name: Cosmo-Tech/Babylon
+
 theme:
   name: material
   font:
     code: Fira Mono
   logo: img/logo.png
   palette:
-    scheme: slate
-    primary: orange
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
   features:
+    - content.code.copy
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.expand
     - navigation.top
+    - navigation.indexes
+    - navigation.instant
+    - navigation.footer
   custom_dir: overrides
+  icon:
+    repo: fontawesome/brands/github
 extra:
   version:
     provider: mike
@@ -51,6 +70,11 @@ markdown_extensions:
     - pymdownx.details
     - pymdownx.snippets
     - pymdownx.superfences
+    - pymdownx.critic
+    - pymdownx.caret
+    - pymdownx.keys
+    - pymdownx.mark
+    - pymdownx.tilde
     - pymdownx.tabbed:
         alternate_style: true
     - pymdownx.emoji:
