@@ -2,6 +2,7 @@ from typing import Any
 from typing import Optional
 import json
 import logging
+from pathlib import Path
 
 from click import get_current_context
 
@@ -56,6 +57,7 @@ class CommandResponse():
     def success(cls, data: Optional[dict[str, Any]] = None) -> Any:
         return cls(status_code=CommandResponse.STATUS_OK, data=data)
 
+
 class MacroReport():
     """Contains commands, statuses and data output from macros
     """
@@ -68,6 +70,12 @@ class MacroReport():
     def dump(self, output_file: str):
         """Dump command responses data in a json file"""
         compiled = {k: response.data for k, response in self._commands.items()}
-        with open(output_file, "w") as _f:
+        path = Path(output_file)
+        output_path = path
+        for idx in range(1, 10000):
+            if not output_path.exists():
+                break
+            output_path = path.with_stem(f"{path.stem}_{idx}")
+        with open(output_path, "w") as _f:
             json.dump(compiled, _f, indent=4)
-        logger.info(f"Macro report was dumped in file: {output_file}")
+        logger.info(f"Macro report was dumped in file: {output_path}")
