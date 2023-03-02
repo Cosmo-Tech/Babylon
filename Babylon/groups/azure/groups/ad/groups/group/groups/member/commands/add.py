@@ -8,14 +8,15 @@ from click import argument
 
 from ..........utils.request import oauth_request
 from ..........utils.response import CommandResponse
+from ..........utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_context
-@argument("group_id")
-@argument("service_principal_id")
+@argument("group_id", type=QueryType())
+@argument("service_principal_id", type=QueryType())
 def add(ctx: Context, group_id: str, service_principal_id: str) -> CommandResponse:
     """
     Add a member in a group in active directory

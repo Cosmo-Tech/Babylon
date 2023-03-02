@@ -2,7 +2,6 @@ from typing import Any
 from typing import Optional
 import json
 import logging
-from pathlib import Path
 
 from click import get_current_context
 
@@ -21,7 +20,7 @@ class CommandResponse():
         self.data: dict[str, Any] = data or {}
         ctx = get_current_context()
         self.command = ctx.command_path.split(" ")
-        self.params = ctx.params
+        self.params = {k: str(v) for k, v in ctx.params.items()}
 
     def to_dict(self) -> dict[str, Any]:
         return {"command": self.command, "params": self.params, "status_code": self.status_code, "data": self.data}
@@ -56,26 +55,3 @@ class CommandResponse():
     @classmethod
     def success(cls, data: Optional[dict[str, Any]] = None) -> Any:
         return cls(status_code=CommandResponse.STATUS_OK, data=data)
-
-
-class MacroReport():
-    """Contains commands, statuses and data output from macros
-    """
-    def __init__(self):
-        self._commands: dict[str, CommandResponse] = {}
-
-    def addCommand(self, name: str, cmd: CommandResponse):
-        self._commands[name] = cmd
-
-    def dump(self, output_file: str):
-        """Dump command responses data in a json file"""
-        compiled = {k: response.data for k, response in self._commands.items()}
-        path = Path(output_file)
-        output_path = path
-        for idx in range(1, 10000):
-            if not output_path.exists():
-                break
-            output_path = path.with_stem(f"{path.stem}_{idx}")
-        with open(output_path, "w") as _f:
-            json.dump(compiled, _f, indent=4)
-        logger.info(f"Macro report was dumped in file: {output_path}")
