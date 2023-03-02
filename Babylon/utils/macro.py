@@ -48,6 +48,18 @@ class Macro():
             self._env.store_data(store_at.split("."), self._responses[-1].to_dict())
         return self
 
+    def iterate(self, command_line: list[str], iterate_on: str, optional: bool = False):
+        """Iterates a command over a query"""
+        query: list[str] = self._env.convert_data_query(iterate_on)
+        if not isinstance(query, list):
+            logger.warning(f"Could not iterate on {iterate_on}")
+            if not optional:
+                self._status = self.STATUS_ERROR
+            return self
+        for item in query:
+            self.step([*command_line, item], optional)
+        return self
+
     def wait(self, delay: int):
         """Wait"""
         if self._status == self.STATUS_ERROR:
