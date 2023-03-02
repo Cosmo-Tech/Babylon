@@ -33,6 +33,8 @@ def deploy(deployment_name: str,
         .step(
             ["azure", "appinsight", "create", f"Insight{deployment_name}WebApp"],
             store_at="insights", run_if=webapp_enable_insights) \
+        .step(["config", "deployment", "set-variable", "webapp_insights_instrumentation_key",
+               "%datastore%insights.properties.InstrumentationKey"], run_if=webapp_enable_insights) \
         .wait(5) \
         .step(
             ["azure", "ad", "group", "member", "add", azure_powerbi_group_id, "%datastore%app.data.id"],
