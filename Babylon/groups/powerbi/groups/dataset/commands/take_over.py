@@ -11,6 +11,7 @@ from click import option
 from ......utils.decorators import require_deployment_key
 from ......utils.response import CommandResponse
 from ......utils.request import oauth_request
+from ......utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -19,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @pass_context
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("dataset_id")
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-w", "--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 def take_over(ctx: Context,
               powerbi_workspace_id: str,
               dataset_id: str,

@@ -2,6 +2,7 @@ import logging
 import pathlib
 from typing import Iterable
 from typing import Tuple
+from typing import Optional
 
 from click import Path
 from click import argument
@@ -28,40 +29,22 @@ logger = logging.getLogger("Babylon")
         type=(QueryType(), QueryType()),
         multiple=True,
         help="Add a combination <Key Value> that will be sent as parameter to all your datasets")
-def deploy_workspace(workspace_name: str, report_folder: pathlib.Path, report_parameters: Iterable[Tuple[str, str]]):
-    """Macro command allowing full deployment of a power bi workspace
+def deploy_workspace(workspace_name: str,
+                     report_folder: pathlib.Path,
+                     report_parameters: Optional[Iterable[Tuple[str, str]]] = None):
+    """Macro command allowing full deployment of a power bi workspac
 
     Require a local folder named `powerbi-reports` and will initialize a full workspace with the given reports"""
-    report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters])
-    Macro("powerbi workspace deploy") \
-        .step(["powerbi", "workspace", "create", "-s", workspace_name], store_at="workspace") \
-        .step(
-            ["powerbi", "report", "upload", "-w", "%datastore%workspace.data.id", report_folder], store_at="reports") \
-        .iterate(["powerbi", "dataset", "parameters", "update", "-w", "%datastore%workspace.data.id", report_params],
-                 iterate_on="%datastore%reports.data.datasets") \
-        .dump("powerbi_deploy_workspace.json")
+    report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
 
-    # for report_path in report_folder.glob("*.pbix"):
-    #     reports = r_upload_report.data.get('reports', [])
-    #     for report in reports:
-    #         logger.info(f"Uploaded report \"{report.get('name')}\" ({report.get('id')})")
-    #     datasets = r_upload_report.data.get('datasets', [])
-    #     for dataset in datasets:
-    #         dataset_id = dataset.get('id')
-    #         if report_parameters:
-    #             logger.info(f"Applying parameters to dataset \"{dataset.get('name')}\" ({dataset_id})")
-    #             for k, v in report_parameters:
-    #                 r_update_parameter: CommandResponse = run_command(
-    #                     f"powerbi dataset parameters update {dataset_id} -w {workspace_id} -p {k} {v}".split())
-    #                 if r_update_parameter.status_code == r_create_ws.STATUS_ERROR:
-    #                     logger.error(f"Error while setting the parameter {k}")
-    #                     continue
-    #         else:
-    #             logger.warning("No parameter to apply")
-    #         logger.info(f"Updating credentials for dataset \"{dataset.get('name')}\" ({dataset_id})")
-    #         r_update_credentials: CommandResponse = run_command(
-    #             f"powerbi dataset update-credentials {dataset_id} -w {workspace_id}".split())
-    #         if r_update_credentials.status_code == r_create_ws.STATUS_ERROR:
-    #             logger.error(f"Error while updating credentials for dataset  \"{dataset.get('name')}\" ({dataset_id})")
-    #             continue
-    # logger.info(f"DONE - Workspace deployment of \"{workspace_name}\" ({workspace_id})")
+    macro: Macro = Macro("powerbi workspace deploy") \
+        .step(["powerbi", "workspace", "create", workspace_name], store_at="workspace")
+    for report_path in report_folder.glob("*.pbix"):
+        macro.step(["powerbi", "report", "upload", "-w", "%datastore%workspace.data.id",
+                    str(report_path)],
+                   store_at="report")
+        for dataset in macro.env.convert_data_query("%datastore%report.data.datasets"):
+            macro.step(["powerbi", "dataset", "parameters", "update", "-w", "%datastore%workspace.data.id",
+                       dataset["id"], *report_params.split(" ")], run_if=report_params != "") \
+                .step(["powerbi", "dataset", "update-credentials", "-w", "%datastore%workspace.data.id", dataset["id"]])
+    macro.dump("powerbi_workspace_deploy.json")

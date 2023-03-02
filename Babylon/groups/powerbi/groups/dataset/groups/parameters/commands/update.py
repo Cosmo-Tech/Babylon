@@ -19,9 +19,9 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_context
 @require_deployment_key("powerbi_workspace_id", required=False)
-@argument("dataset_id")
+@argument("dataset_id", type=QueryType())
 @option("-p", "--parameter", "params", type=(str, QueryType()), multiple=True, required=True)
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-w", "--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 def update(ctx: Context,
            powerbi_workspace_id: str,
            dataset_id: str,

@@ -21,7 +21,7 @@ class Macro():
     def __init__(self, name: str):
         self.name = name
         self._responses: list[CommandResponse] = []
-        self._env = Environment()
+        self.env = Environment()
         self._status = self.STATUS_OK
 
     def step(self,
@@ -45,19 +45,7 @@ class Macro():
             self._status = self.STATUS_ERROR
             return self
         if store_at:
-            self._env.store_data(store_at.split("."), self._responses[-1].to_dict())
-        return self
-
-    def iterate(self, command_line: list[str], iterate_on: str, optional: bool = False):
-        """Iterates a command over a query"""
-        query: list[str] = self._env.convert_data_query(iterate_on)
-        if not isinstance(query, list):
-            logger.warning(f"Could not iterate on {iterate_on}")
-            if not optional:
-                self._status = self.STATUS_ERROR
-            return self
-        for item in query:
-            self.step([*command_line, item], optional)
+            self.env.store_data(store_at.split("."), self._responses[-1].to_dict())
         return self
 
     def wait(self, delay: int):
