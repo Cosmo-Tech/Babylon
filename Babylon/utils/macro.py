@@ -27,22 +27,31 @@ class Macro():
 
     def step(self,
              command_line: list[str],
-             optional: bool = False,
              store_at: Optional[str] = None,
+             is_required: bool = True,
              run_if: bool = True) -> "Macro":
         """
         Run a command while allowing method chaining
         Macro()
-            .step(["api", "organization", "get-all"])
+            .step(["api", "organization", "get-all"], store_at="orgs")
             .step(["azure", "acr", "list", "-d", "src"])
             .dump("report.json")
+
+        Args:
+            command_line (list[str]): command line arguments
+            store_at (Optional[str], optional): Key at which the data will be stored. Defaults to None.
+            is_required (bool, optional): will the Macro go into ERROR if it fails. Defaults to True.
+            run_if (bool, optional): run this step only if this argument is True. Defaults to True.
+
+        Returns:
+            Macro: Used to to method chaining
         """
         if self._status != self.STATUS_OK or not run_if:
             logger.warning(f"Skipping command {' '.join(command_line)}...")
             return self
         logger.info(f"Running command {' '.join(command_line)}")
         self._responses.append(run_command(command_line))
-        if not optional and self._responses[-1].has_failed():
+        if is_required and self._responses[-1].has_failed():
             self._status = self.STATUS_ERROR
             return self
         if store_at:
@@ -50,7 +59,7 @@ class Macro():
         return self
 
     def then(self, func: Callable[["Macro"], Any], store_at: Optional[str] = None, run_if: bool = True) -> "Macro":
-        """Call a function within the context of the macro"""
+        """Calls a function within the context of the macro"""
         if self._status != self.STATUS_OK or not run_if:
             logger.warning("Skipping function")
             return self
@@ -64,7 +73,6 @@ class Macro():
         data = self.env.convert_data_query(datastore_key)
         for item in data:
             self.env.store_data(["item"], item)
-            print(item)
             self.step(command_line)
         return self
 
@@ -82,9 +90,12 @@ class Macro():
         compiled.extend([response.to_dict() for response in self._responses])
         path = Path(output_file)
         output_path = path
-        for idx in range(1, 10000):
+        # Get an available filename of the form output_file_xxxx.json
+        idx = 0
+        while True:
             if not output_path.exists():
                 break
+            idx += 1
             output_path = path.with_stem(f"{path.stem}_{idx}")
         with open(output_path, "w") as _f:
             json.dump(compiled, _f, indent=4)
