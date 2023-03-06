@@ -36,8 +36,7 @@ def get_azure_credentials() -> DefaultAzureCredential:
     """Logs to Azure and saves the token as a config variable"""
     env = Environment()
     azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
-    return DefaultAzureCredential(shared_cache_tenant_id=azure_tenant_id,
-                                  visual_studio_code_tenant_id=azure_tenant_id)
+    return DefaultAzureCredential(shared_cache_tenant_id=azure_tenant_id, visual_studio_code_tenant_id=azure_tenant_id)
 
 
 def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
