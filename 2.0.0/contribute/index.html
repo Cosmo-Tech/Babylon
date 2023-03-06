@@ -1237,16 +1237,13 @@ command</p>
 <p>This new package comes with a package called <code>commands</code> and a package named <code>groups</code> and you can use the following
 template for the <code>new_group.__init__.py</code></p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">click</span> <span class="kn">import</span> <span class="n">group</span>
-<span class="kn">from</span> <span class="nn">click</span> <span class="kn">import</span> <span class="n">pass_context</span>
-<span class="kn">from</span> <span class="nn">click.core</span> <span class="kn">import</span> <span class="n">Context</span>
 
 <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">list_commands</span>
 <span class="kn">from</span> <span class="nn">.groups</span> <span class="kn">import</span> <span class="n">list_groups</span>
 
 
 <span class="nd">@group</span><span class="p">()</span>
-<span class="nd">@pass_context</span>
-<span class="k">def</span> <span class="nf">group_template</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">group_template</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Group initialized from a template&quot;&quot;&quot;</span>
     <span class="k">pass</span>
 

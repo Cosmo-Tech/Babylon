@@ -4007,15 +4007,15 @@
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>-h</code>, <code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-<tr>
 <td><code>--version</code></td>
 <td>boolean</td>
 <td>Print version number and return.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
 <td><code>False</code></td>
 </tr>
 </tbody>
@@ -4033,8 +4033,6 @@
 </ul>
 <h3 id="api">api</h3>
 <p>Group handling communication with the cosmotech API</p>
-<p>Requires <code>api_url</code> in platform config file.</p>
-<p>Requires <code>api_scope</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -5591,7 +5589,6 @@
 </table>
 <h3 id="azure">azure</h3>
 <p>Group allowing communication with Microsoft Azure Cloud</p>
-<p>Requires the program <code>az</code> to run.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon azure [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -6404,7 +6401,6 @@ https://learn.microsoft.com/en-us/graph/api/group-post-members</p>
 </ul>
 <h5 id="instance">instance</h5>
 <p>Subgroup dedicate to Azure digital twins instance management</p>
-<p>Requires <code>azure_subscription</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon azure adt instance [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -6561,7 +6557,6 @@ https://learn.microsoft.com/en-us/graph/api/group-post-members</p>
 </table>
 <h5 id="model">model</h5>
 <p>Subgroup dedicate to Azure digital twins models management</p>
-<p>Requires <code>digital_twin_url</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon azure adt model [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -6652,7 +6647,6 @@ https://learn.microsoft.com/en-us/graph/api/group-post-members</p>
 </table>
 <h4 id="adx">adx</h4>
 <p>Group interacting with Azure Data Explorer</p>
-<p>Requires <code>azure_subscription</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon azure adx [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -7078,7 +7072,6 @@ https://learn.microsoft.com/en-us/rest/api/application-insights/components/list-
 </table>
 <h4 id="arm">arm</h4>
 <p>Group interacting with Azure Resources Manager</p>
-<p>Requires <code>azure_subscription</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon azure arm [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -7733,7 +7726,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </table>
 <h4 id="storage">storage</h4>
 <p>Group interacting with Azure Storage Blob</p>
-<p>Requires <code>storage_account_name</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon azure storage [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -7748,18 +7740,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>-a</code>, <code>--account</code></td>
-<td>text</td>
-<td>Storage account name</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>-u</code>, <code>--url</code></td>
-<td>text</td>
-<td>Storage account url</td>
-<td>None</td>
-</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -8346,8 +8326,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </table>
 <h3 id="debug">debug</h3>
 <p>Add debug capacities of runs</p>
-<p>Requires <code>k8s_namespace</code> in platform config file.</p>
-<p>Requires <code>k8s_context</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon debug [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -8376,6 +8354,8 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </ul>
 <h4 id="get-workflow-pods">get-workflow-pods</h4>
 <p>Get pods information for the given WORKFLOW</p>
+<p>Requires <code>k8s_namespace</code> in platform config file.</p>
+<p>Requires <code>k8s_context</code> in platform config file.</p>
 <p>Requires the program <code>kubectl</code> to run.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon debug get-workflow-pods [OPTIONS] WORKFLOW
@@ -8401,7 +8381,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </table>
 <h3 id="powerbi">powerbi</h3>
 <p>Group handling communication with PowerBI API</p>
-<p>Requires <code>powerbi_api_scope</code> in platform config file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon powerbi [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
@@ -9358,9 +9337,6 @@ GROUP USER ACCESS RIGHT :
 </table>
 <h3 id="terraform-cloud">terraform-cloud</h3>
 <p>Group allowing interactions with the Terraform Cloud API</p>
-<p>Requires key <code>organization</code> in <code>terraform_cloud.yaml</code> in the working_dir.</p>
-<p>Requires key <code>url</code> in <code>terraform_cloud.yaml</code> in the working_dir.</p>
-<p>Requires key <code>token</code> in <code>terraform_cloud.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon terraform-cloud [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
