@@ -3,6 +3,7 @@
 import importlib.util
 import logging
 import os
+import shutil
 import sys
 
 import click
@@ -83,7 +84,7 @@ The following environment variables are available to override the working direct
                                         show_level=False)
         logger.addHandler(test_handler)
     else:
-        install(width=os.get_terminal_size().columns)
+        install(width=shutil.get_terminal_size().columns)
 
 
 main.result_callback()(interactive_run)
