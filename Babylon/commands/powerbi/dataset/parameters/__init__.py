@@ -17,4 +17,3 @@ def parameters():
 
 for _command in list_commands:
     parameters.add_command(_command)
-
