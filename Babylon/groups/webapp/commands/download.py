@@ -28,7 +28,7 @@ logger = logging.getLogger("Babylon")
 def download(webapp_repository: str,
              webapp_repository_branch: str,
              github_token: str,
-             destination_folder: str,
+             destination_folder: pathlib.Path,
              use_working_dir_file: bool = False) -> CommandResponse:
     """Download the github repository locally"""
     env = Environment()
