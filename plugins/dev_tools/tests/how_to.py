@@ -11,7 +11,7 @@ logger = logging.getLogger("Babylon")
 
 @click.command()
 @click.argument("command", nargs=-1)
-def how_to_test_command(command: list[str]):
+def how_to(command: list[str]):
     """Will go through the test organization to display the tests of the given COMMAND"""
     p = BABYLON_PATH.parent / ("tests/commands/" + "/".join(command))
     _c = rich.get_console()

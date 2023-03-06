@@ -1,7 +1,10 @@
 from click import group
 
-from .commands import list_commands
-from .groups import list_groups
+from .how_to import how_to
+
+list_commands = [
+    how_to
+]
 
 
 @group()
@@ -12,6 +15,3 @@ def tests():
 
 for _command in list_commands:
     tests.add_command(_command)
-
-for _group in list_groups:
-    tests.add_command(_group)

@@ -10,8 +10,19 @@ from click import Context
 
 from Babylon.utils import BABYLON_PATH
 from Babylon.utils.environment import Environment
-from .commands import list_commands
-from .groups import list_groups
+from .parameter_value import parameter_value
+from .initialize_plugin import initialize_plugin
+from .tests import tests
+
+list_commands = [
+    parameter_value,
+    initialize_plugin
+]
+
+list_groups = [
+    tests,
+]
+
 
 logger = logging.getLogger("Babylon")
 

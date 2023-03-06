@@ -1,0 +1,2 @@
+deploy: ./deploy.yaml
+platform: ./platform.yaml
