@@ -91,12 +91,10 @@ class Macro():
         path = Path(output_file)
         output_path = path
         # Get an available filename of the form output_file_xxxx.json
-        idx = 0
-        while True:
-            if not output_path.exists():
-                break
-            idx += 1
+        idx = 1
+        while output_path.exists():
             output_path = path.with_stem(f"{path.stem}_{idx}")
+            idx += 1
         with open(output_path, "w") as _f:
             json.dump(compiled, _f, indent=4)
         logger.info(f"Macro report was dumped in file: {output_path}")
