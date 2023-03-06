@@ -1,4 +1,4 @@
-deploy: deployments/deploy.yaml
-platform: platforms/platform.yaml
+deploy: deploy.yaml
+platform: platform.yaml
 locked: true
 plugins: []
