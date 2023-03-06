@@ -42,9 +42,8 @@ def deploy(deployment_name: str,
             is_required=False, run_if=enable_powerbi)
 
     # Wait for workflow file to be created by static webapp
-    workflow_file = (
-        "webapp_src/.github/workflows/azure-static-web-apps-"
-        f"{m.env.convert_data_query('%datastore%hostname')}.yml")
+    workflow_file = ("webapp_src/.github/workflows/azure-static-web-apps-"
+                     f"{m.env.convert_data_query('%datastore%hostname')}.yml")
     while not Path(workflow_file).exists():
         m.step(["webapp", "download", "webapp_src"])
 
