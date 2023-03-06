@@ -812,20 +812,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#initialize-command" class="md-nav__link">
-    initialize-command
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#initialize-group" class="md-nav__link">
-    initialize-group
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#initialize-plugin" class="md-nav__link">
     initialize-plugin
   </a>
@@ -833,29 +819,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#list-required-keys" class="md-nav__link">
-    list-required-keys
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#move-group" class="md-nav__link">
-    move-group
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#parameter-value" class="md-nav__link">
     parameter-value
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rename-command" class="md-nav__link">
-    rename-command
   </a>
   
 </li>
@@ -869,22 +834,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#commands-to-test" class="md-nav__link">
-    commands-to-test
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-to-test-command" class="md-nav__link">
-    how-to-test-command
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#initialize-test-organization" class="md-nav__link">
-    initialize-test-organization
+  <a href="#how-to" class="md-nav__link">
+    how-to
   </a>
   
 </li>
@@ -954,20 +905,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#initialize-command" class="md-nav__link">
-    initialize-command
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#initialize-group" class="md-nav__link">
-    initialize-group
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#initialize-plugin" class="md-nav__link">
     initialize-plugin
   </a>
@@ -975,29 +912,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#list-required-keys" class="md-nav__link">
-    list-required-keys
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#move-group" class="md-nav__link">
-    move-group
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#parameter-value" class="md-nav__link">
     parameter-value
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rename-command" class="md-nav__link">
-    rename-command
   </a>
   
 </li>
@@ -1011,22 +927,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#commands-to-test" class="md-nav__link">
-    commands-to-test
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-to-test-command" class="md-nav__link">
-    how-to-test-command
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#initialize-test-organization" class="md-nav__link">
-    initialize-test-organization
+  <a href="#how-to" class="md-nav__link">
+    how-to
   </a>
   
 </li>
@@ -1094,65 +996,10 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em>initialize-command</em>: Will initialize code for COMMAND_NAME and make it available in GROUP_NAME</li>
-<li><em>initialize-group</em>: Will initialize code for GROUP_NAME and make it available</li>
 <li><em>initialize-plugin</em>: Will initialize PLUGIN_NAME in PLUGIN_FOLDER</li>
-<li><em>list-required-keys</em>: Check code base to list platform and deployment keys</li>
-<li><em>move-group</em>: Command made to move groups</li>
 <li><em>parameter-value</em>: Will display the value of the given QueryType argument</li>
-<li><em>rename-command</em>: Will rename OLD_COMMAND_NAME to NEW_COMMAND_NAME in GROUP_NAME</li>
 <li><em>tests</em>: Sub group for test commands</li>
 </ul>
-<h3 id="initialize-command">initialize-command</h3>
-<p>Will initialize code for COMMAND_NAME and make it available in GROUP_NAME</p>
-<p>COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools initialize-command [OPTIONS] [GROUP_NAME]... COMMAND_NAME
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="initialize-group">initialize-group</h3>
-<p>Will initialize code for GROUP_NAME and make it available</p>
-<p>GROUP_NAME must only contain alphanumeric characters or -</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools initialize-group [OPTIONS] [GROUP_NAME]...
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
 <h3 id="initialize-plugin">initialize-plugin</h3>
 <p>Will initialize PLUGIN_NAME in PLUGIN_FOLDER</p>
 <p><strong>Usage:</strong></p>
@@ -1183,85 +1030,10 @@
 </tr>
 </tbody>
 </table>
-<h3 id="list-required-keys">list-required-keys</h3>
-<p>Check code base to list platform and deployment keys
-if GROUP_NAME is defined will limit the check to the given group</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools list-required-keys [OPTIONS] [GROUP_NAME]...
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="move-group">move-group</h3>
-<p>Command made to move groups</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools move-group [OPTIONS]
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
 <h3 id="parameter-value">parameter-value</h3>
 <p>Will display the value of the given QueryType argument</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>dev-tools parameter-value [OPTIONS] ARG
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="rename-command">rename-command</h3>
-<p>Will rename OLD_COMMAND_NAME to NEW_COMMAND_NAME in GROUP_NAME</p>
-<p>COMMAND_NAME and GROUP_NAME must only contain alphanumeric characters or -</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools rename-command [OPTIONS] [GROUP_NAME]... OLD_COMMAND_NAME
-                         NEW_COMMAND_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -1308,68 +1080,12 @@ if GROUP_NAME is defined will limit the check to the given group</p>
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em>commands-to-test</em>: List commands that require testing since GIT_REF</li>
-<li><em>how-to-test-command</em>: Will go through the test organization to display the tests of the given COMMAND</li>
-<li><em>initialize-test-organization</em>: Will update the test folder with missing files for new commands</li>
+<li><em>how-to</em>: Will go through the test organization to display the tests of the given COMMAND</li>
 </ul>
-<h4 id="commands-to-test">commands-to-test</h4>
-<p>List commands that require testing since GIT_REF</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools tests commands-to-test [OPTIONS] GIT_REF
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>Target file to write list of commands to be tested</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h4 id="how-to-test-command">how-to-test-command</h4>
+<h4 id="how-to">how-to</h4>
 <p>Will go through the test organization to display the tests of the given COMMAND</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools tests how-to-test-command [OPTIONS] [COMMAND]...
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h4 id="initialize-test-organization">initialize-test-organization</h4>
-<p>Will update the test folder with missing files for new commands</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>dev-tools tests initialize-test-organization [OPTIONS]
+<div class="highlight"><pre><span></span><code>dev-tools tests how-to [OPTIONS] [COMMAND]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
