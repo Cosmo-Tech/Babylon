@@ -11,8 +11,7 @@ import click_log
 from rich.highlighter import NullHighlighter
 from rich.traceback import install
 
-from .commands import list_commands
-from .groups import list_groups
+from .commands import list_groups
 from .utils.decorators import prepend_doc_with_ascii
 from .utils.dry_run import display_dry_run
 from .utils.environment import Environment
@@ -102,9 +101,6 @@ for plugin_name, _plugin_path in env.configuration.get_active_plugins():
 
 for _group in list_groups:
     main.add_command(_group)
-
-for _command in list_commands:
-    main.add_command(_command)
 
 if __name__ == "__main__":
     main()
