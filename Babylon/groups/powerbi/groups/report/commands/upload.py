@@ -18,6 +18,7 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
 from ......utils.request import oauth_request
+from ......utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -28,7 +29,7 @@ RETRY_WAIT_TIME = 0.5
 @pass_context
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("pbix_filename", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-w", "--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @timing_decorator
 def upload(ctx: Context,
            powerbi_workspace_id: str,

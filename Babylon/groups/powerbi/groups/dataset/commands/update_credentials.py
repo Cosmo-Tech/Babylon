@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @pass_context
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("dataset_id", type=QueryType())
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 def update_credentials(ctx: Context, powerbi_workspace_id: str, dataset_id: str, workspace_id: str) -> CommandResponse:
     """Update azure credentials of a given datasource"""
     workspace_id = workspace_id or powerbi_workspace_id

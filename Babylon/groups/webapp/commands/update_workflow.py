@@ -1,11 +1,9 @@
 import logging
-from typing import Optional
 import pathlib
 
 from click import command
 from click import argument
 from click import Path
-from click import option
 from ruamel.yaml import YAML
 
 from ....utils.response import CommandResponse
@@ -20,16 +18,7 @@ READ_JSON_WORKFLOW = {
 }
 
 
-@command()
-@argument("workflow_file", type=Path(path_type=pathlib.Path))
-@option("-o",
-        "--output_file",
-        "output_file",
-        help="File to which content should be outputted (json-formatted)",
-        type=Path(path_type=pathlib.Path))
-def update_workflow(workflow_file: pathlib.Path, output_file: Optional[pathlib.Path] = None) -> CommandResponse:
-    """Update a github workflow file to read environment from a config.json file during deployment"""
-    output_file = output_file or workflow_file
+def update_file(workflow_file: pathlib.Path):
     yaml_loader = YAML()
     with open(workflow_file, "r") as _f:
         data = yaml_loader.load(_f)
@@ -37,9 +26,26 @@ def update_workflow(workflow_file: pathlib.Path, output_file: Optional[pathlib.P
     find = [step for step in data["jobs"]["build_and_deploy_job"]["steps"] if step.get("id") == "import-env"]
     if find:
         logger.warning(f"Workflow {workflow_file} already has the import-env step")
-        return CommandResponse.success()
+        return
     data["jobs"]["build_and_deploy_job"]["steps"].insert(1, READ_JSON_WORKFLOW)
-    with open(output_file, "w") as _f:
+    with open(workflow_file, "w") as _f:
         yaml_loader.dump(data, _f)
-    logger.info(f"Successfully saved updated workflow file {output_file}")
+    logger.info(f"Successfully updated workflow file {workflow_file}")
+
+
+@command()
+@argument("workflow_file", type=Path(path_type=pathlib.Path))
+def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
+    """Update a github workflow file to read environment from a config.json file during deployment"""
+    if not workflow_file.is_dir():
+        try:
+            update_file(workflow_file)
+        except Exception:
+            return CommandResponse.fail()
+        return CommandResponse.success()
+    for file in workflow_file.glob("azure-static-web-apps-*.yml"):
+        try:
+            update_file(file)
+        except Exception:
+            return CommandResponse.fail()
     return CommandResponse.success()

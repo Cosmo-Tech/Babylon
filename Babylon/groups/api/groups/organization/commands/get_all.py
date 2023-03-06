@@ -55,15 +55,16 @@ def get_all(
     logger.debug(pformat(retrieved_organizations))
     if fields:
         retrieved_organizations = filter_api_response(retrieved_organizations, fields.replace(" ", "").split(","))
+    _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]
+    data = [_ele.to_dict() for _ele in _organizations_to_dump]
     if not output_file:
         logger.info(pformat(retrieved_organizations))
-        return CommandResponse.success({"organizations": retrieved_organizations})
+        return CommandResponse.success({"organizations": data})
 
-    _organizations_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_organizations]
     with open(output_file, "w") as _file:
         try:
-            json.dump([_ele.to_dict() for _ele in _organizations_to_dump], _file, ensure_ascii=False)
+            json.dump(data, _file, ensure_ascii=False)
         except AttributeError:
             json.dump(_organizations_to_dump, _file, ensure_ascii=False)
     logger.info(f"Full content was dumped on {output_file}")
-    return CommandResponse.success({"organizations": retrieved_organizations})
+    return CommandResponse.success({"organizations": data})

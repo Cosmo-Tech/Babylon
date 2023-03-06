@@ -20,7 +20,7 @@ class CommandResponse():
         self.data: dict[str, Any] = data or {}
         ctx = get_current_context()
         self.command = ctx.command_path.split(" ")
-        self.params = ctx.params
+        self.params = {k: str(v) for k, v in ctx.params.items()}
 
     def to_dict(self) -> dict[str, Any]:
         return {"command": self.command, "params": self.params, "status_code": self.status_code, "data": self.data}
