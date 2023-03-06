@@ -44,15 +44,6 @@ to make it an available command.
 If you want an easier time creating a plugin, you can use the command `babylon dev-tools initialize-plugin` of the
 plugin `dev-tools` to create a bare plugin ready for you to develop.
 
-## Use of plugin `babylon dev-tools` to add groups and commands
-
-The plugin `babylon dev-tools` has an optional parameter `--plugin` which allows you to apply its command directly to an
-installed plugin. Every of those commands will then be available to you if you want to follow the babylon infrastructure
-for your plugin.
-
-Those commands suppose you initialized your plugin using `babylon dev-tools initialize-plugin` to have the basic
-architecture based on the babylon one.
-
 ## Interact with a plugin
 
 You can make use of the group of commands `babylon config plugin` to add/remove or activate/deactivate a plugin.
