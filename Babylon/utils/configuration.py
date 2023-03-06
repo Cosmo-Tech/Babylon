@@ -127,20 +127,6 @@ class Configuration:
                 _file_name = pathlib.Path(root) / pathlib.Path(_f)
                 yield _file_name.absolute()
 
-    def list_deploys(self) -> list[pathlib.Path]:
-        """
-        List existing deployment configurations
-        :return: a list of available deployments names
-        """
-        return self.__list_config_folder_files("deployments")
-
-    def list_platforms(self) -> list[pathlib.Path]:
-        """
-        List existing platform configurations
-        :return: a list of available platforms names
-        """
-        return self.__list_config_folder_files("platforms")
-
     def set_deploy(self, deploy_path: pathlib.Path) -> bool:
         """
         Change configured deployment to the one given
@@ -172,11 +158,11 @@ class Configuration:
         Create a new deployment file from the template and open it with the default text editor
         :param deploy_name: the name of the new deploy
         """
-        _target = self.config_dir / "deployments" / f"{deploy_name}.yaml"
+        _target = self.config_dir / f"{deploy_name}.yaml"
         if _target.exists():
             logger.error(f"Deployment {deploy_name} already exists")
             return
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/deployments/deploy.yaml", _target)
+        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/deploy.yaml", _target)
         click.edit(filename=str(_t))
 
     def create_platform(self, platform_name: str):
@@ -184,11 +170,11 @@ class Configuration:
         Create a new platform file from the template and open it with the default text editor
         :param platform_name: the name of the new platform
         """
-        _target = self.config_dir / "platforms" / f"{platform_name}.yaml"
+        _target = self.config_dir / f"{platform_name}.yaml"
         if _target.exists():
             logger.error(f"Platform {platform_name} already exists")
             return
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/platforms/platform.yaml", _target)
+        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/platform.yaml", _target)
         click.edit(filename=str(_t))
 
     def edit_deploy(self, deploy_path: pathlib.Path):

@@ -112,18 +112,6 @@ def test_config_plugins_activate_fail():
     assert not response
 
 
-def test_list_deploys():
-    """Testing configuration"""
-    config = Configuration(Path("tests/environments/Default"))
-    assert any("deploy.yaml" in str(path) for path in config.list_deploys())
-
-
-def test_list_platforms():
-    """Testing configuration"""
-    config = Configuration(Path("tests/environments/Default"))
-    assert any("platform.yaml" in str(path) for path in config.list_platforms())
-
-
 def test_set_deploy_fail():
     """Testing configuration"""
     config = Configuration(Path("tests/environments/Default"))
@@ -133,7 +121,7 @@ def test_set_deploy_fail():
 def test_set_deploy_ok():
     """Testing configuration"""
     config = Configuration(Path("tests/environments/Default"))
-    assert config.set_deploy(Path("tests/environments/Default/deployments/deploy.yaml"))
+    assert config.set_deploy(Path("tests/environments/Default/deploy.yaml"))
 
 
 def test_set_platform_fail():
@@ -145,7 +133,7 @@ def test_set_platform_fail():
 def test_set_platform_ok():
     """Testing configuration"""
     config = Configuration(Path("tests/environments/Default"))
-    assert config.set_platform(Path("tests/environments/Default/platforms/platform.yaml"))
+    assert config.set_platform(Path("tests/environments/Default/platform.yaml"))
 
 
 @patch('click.edit')
@@ -155,7 +143,7 @@ def test_create_deploy_ok(click_edit):
     config.create_deploy('test')
 
     click_edit.assert_called_once()
-    test_file_path = config.config_dir.joinpath('deployments/test.yaml')
+    test_file_path = config.config_dir.joinpath('test.yaml')
     assert test_file_path.exists()
     os.remove(test_file_path)
 
@@ -167,7 +155,7 @@ def test_create_deploy_exist(click_edit):
     config.create_deploy('deploy')
 
     click_edit.assert_not_called()
-    test_file_path = config.config_dir.joinpath('deployments/deploy.yaml')
+    test_file_path = config.config_dir.joinpath('deploy.yaml')
     assert test_file_path.exists()
 
 
@@ -178,7 +166,7 @@ def test_create_platform_ok(click_edit):
     config.create_platform('test')
 
     click_edit.assert_called_once()
-    test_file_path = config.config_dir.joinpath('platforms/test.yaml')
+    test_file_path = config.config_dir.joinpath('test.yaml')
     assert test_file_path.exists()
     os.remove(test_file_path)
 
@@ -190,7 +178,7 @@ def test_create_platform_exist(click_edit):
     config.create_platform('platform')
 
     click_edit.assert_not_called()
-    test_file_path = config.config_dir.joinpath('platforms/platform.yaml')
+    test_file_path = config.config_dir.joinpath('platform.yaml')
     assert test_file_path.exists()
 
 

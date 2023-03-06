@@ -1,7 +1,9 @@
 from click import group
+from click import Command
+from click import Group
 
-from .commands import list_commands
-from .groups import list_groups
+list_commands: list[Command] = []
+list_groups: list[Group] = []
 
 
 @group()
