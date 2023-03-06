@@ -7,10 +7,10 @@ from click import Choice
 from click import Path
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils import TEMPLATE_FOLDER_PATH
 from ......utils.api import convert_keys_case
@@ -20,16 +20,15 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
 @describe_dry_run("Would call **connector_api.create_connector** to register a new Connector")
 @timing_decorator
-@pass_connector_api
+@pass_api_client
 @option("-i", "--connector-file", "connector_file", type=str, help="Your custom Connector description file path")
 @option("-t",
         "--type",
@@ -50,7 +49,7 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @argument("connector-name", type=QueryType())
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
 def create(
-    connector_api: ConnectorApi,
+    api_client: ApiClient,
     connector_type: str,
     connector_name: str,
     connector_version: str,
@@ -59,7 +58,7 @@ def create(
     use_working_dir_file: bool = False,
 ) -> CommandResponse:
     """Register a new Connector by sending a JSON or YAML file to the API."""
-
+    connector_api = ConnectorApi(api_client)
     connector_type = connector_type.upper()
     converted_connector_content = get_api_file(
         api_file_path=connector_file

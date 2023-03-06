@@ -5,7 +5,6 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.resource.resources.models import DeploymentMode
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 
 from ......utils.api import convert_keys_case
@@ -14,10 +13,9 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_arm_client
 
 logger = logging.getLogger("Babylon")
-
-pass_arm_client = make_pass_decorator(ResourceManagementClient)
 
 
 @command()

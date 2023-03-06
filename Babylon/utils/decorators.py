@@ -7,7 +7,6 @@ from typing import Callable
 from typing import Optional
 
 import click
-import cosmotech_api
 
 from .environment import Environment
 from ..version import get_version
@@ -221,5 +220,3 @@ def get_from_platform_config(yaml_key: str) -> Optional[Any]:
 
 require_deployment_key = insert_argument(get_from_deploy_config)
 require_platform_key = insert_argument(get_from_platform_config)
-
-pass_api_configuration = click.make_pass_decorator(cosmotech_api.Configuration)

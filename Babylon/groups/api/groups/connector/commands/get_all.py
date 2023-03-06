@@ -5,10 +5,10 @@ from typing import Optional
 
 from click import Path
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
@@ -16,16 +16,15 @@ from ......utils.api import underscore_to_camel
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
 @describe_dry_run("Would call **connector_api.find_all_connectors** and retrieve all registered Connectors")
 @timing_decorator
-@pass_connector_api
+@pass_api_client
 @option("-o",
         "--output_file",
         "output_file",
@@ -33,12 +32,12 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
         type=Path())
 @option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
 def get_all(
-    connector_api: ConnectorApi,
+    api_client: ApiClient,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
 ) -> CommandResponse:
     """Get all registered connectors."""
-
+    connector_api = ConnectorApi(api_client)
     try:
         retrieved_connectors = connector_api.find_all_connectors()
     except UnauthorizedException:

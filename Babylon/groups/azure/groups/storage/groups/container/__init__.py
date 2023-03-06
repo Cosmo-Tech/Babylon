@@ -1,14 +1,11 @@
 from click import group
-from click import pass_context
-from click.core import Context
 
 from .commands import list_commands
 from .groups import list_groups
 
 
 @group()
-@pass_context
-def container(ctx: Context):
+def container():
     """Group interacting with Azure Storage Blob containers"""
     pass
 

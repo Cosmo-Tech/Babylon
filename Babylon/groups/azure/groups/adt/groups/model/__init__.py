@@ -1,19 +1,13 @@
-from azure.digitaltwins.core import DigitalTwinsClient
 from click import group
-from click import pass_context
-from click.core import Context
 
-from .......utils.decorators import require_deployment_key
 from .commands import list_commands
 from .groups import list_groups
 
 
 @group()
-@pass_context
-@require_deployment_key("digital_twin_url", "digital_twin_url")
-def model(ctx: Context, digital_twin_url: str):
+def model():
     """Subgroup dedicate to Azure digital twins models management"""
-    ctx.obj = DigitalTwinsClient(credential=ctx.parent.obj, endpoint=digital_twin_url)
+    pass
 
 
 for _command in list_commands:

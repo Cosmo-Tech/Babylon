@@ -17,14 +17,13 @@ from ......utils.decorators import timing_decorator
 from ......utils.decorators import working_dir_requires_yaml_key
 from ......utils.environment import Environment
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 
-pass_tfc = click.make_pass_decorator(TFC)
-
 
 @command()
-@pass_tfc
+@pass_tfc_client
 @describe_dry_run("Would send a workspace creation payload to terraform")
 @option(
     "-o",
@@ -44,7 +43,7 @@ pass_tfc = click.make_pass_decorator(TFC)
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_branch", "vcs_branch")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "vcs_oauth_token_id", "vcs_oauth_token_id")
 @timing_decorator
-def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier: str, vcs_branch: str,
+def create(tfc_client: TFC, workspace_name: str, working_directory: str, vcs_identifier: str, vcs_branch: str,
            vcs_oauth_token_id: str, output_file: Optional[pathlib.Path], select: bool) -> CommandResponse:
     """Use given parameters to create a workspace in the organization"""
     env = Environment()
@@ -59,7 +58,7 @@ def create(api: TFC, workspace_name: str, working_directory: str, vcs_identifier
 
     logger.info("Sending payload to terraform")
     try:
-        ws = api.workspaces.create(payload=workspace_payload)
+        ws = tfc_client.workspaces.create(payload=workspace_payload)
     except TFCHTTPUnprocessableEntity as _error:
         logger.error(f"An issue appeared while processing workspace {workspace_name}:")
         logger.error(pprint.pformat(_error.args))

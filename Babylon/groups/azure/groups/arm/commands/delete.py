@@ -5,17 +5,15 @@ from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.interactive import confirm_deletion
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_arm_client
 
 logger = logging.getLogger("Babylon")
-
-pass_arm_client = make_pass_decorator(ResourceManagementClient)
 
 
 @command()

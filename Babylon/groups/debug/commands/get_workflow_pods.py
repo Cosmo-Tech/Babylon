@@ -5,23 +5,23 @@ import subprocess
 
 from click import argument
 from click import command
-from click import pass_context
 
 from ....utils.decorators import requires_external_program
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
+from ....utils.decorators import require_platform_key
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_context
-@argument("workflow")
 @requires_external_program('kubectl')
+@argument("workflow")
+@require_platform_key("k8s_context")
+@require_platform_key("k8s_namespace")
 @timing_decorator
-def get_workflow_pods(ctx, workflow) -> CommandResponse:
+def get_workflow_pods(workflow: str, k8s_context: str, k8s_namespace: str) -> CommandResponse:
     """Get pods information for the given WORKFLOW"""
-    k8s_context, k8s_namespace = ctx.obj
     subprocess.check_output(['kubectl', 'config', 'use-context', k8s_context])
     r = json.loads(
         subprocess.check_output([

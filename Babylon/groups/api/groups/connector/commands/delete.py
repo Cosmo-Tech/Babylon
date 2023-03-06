@@ -3,12 +3,12 @@ from typing import Optional
 
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import ForbiddenException
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.typing import QueryType
 from ......utils.api import get_api_file
@@ -16,16 +16,15 @@ from ......utils.interactive import confirm_deletion
 from ......utils.decorators import describe_dry_run
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
 @describe_dry_run("Would call **connector_api.unregister_connector** and unregister a Connector")
 @timing_decorator
-@pass_connector_api
+@pass_api_client
 @argument(
     "connector_id",
     required=False,
@@ -52,14 +51,14 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
     help="Should the path be relative to the working directory ?",
 )
 def delete(
-    connector_api: ConnectorApi,
+    api_client: ApiClient,
     connector_id: str,
     connector_file: Optional[str] = None,
     force_validation: Optional[bool] = False,
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Unregister a Connector via Cosmotech API."""
-
+    connector_api = ConnectorApi(api_client)
     if not connector_id:
         if not connector_file:
             logger.error("No id passed as argument or option use -i option"

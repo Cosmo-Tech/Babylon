@@ -11,14 +11,13 @@ from terrasnek.api import TFC
 
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 
-pass_tfc = click.make_pass_decorator(TFC)
-
 
 @command()
-@pass_tfc
+@pass_tfc_client
 @option(
     "-o",
     "--output",
@@ -27,9 +26,9 @@ pass_tfc = click.make_pass_decorator(TFC)
     help="File to which content should be outputted (json-formatted)",
 )
 @timing_decorator
-def get_all(api: TFC, output_file: Optional[pathlib.Path]) -> CommandResponse:
+def get_all(tfc_client: TFC, output_file: Optional[pathlib.Path]) -> CommandResponse:
     """Get all available workspaces in the organization"""
-    ws = api.workspaces.list()
+    ws = tfc_client.workspaces.list()
     r = []
 
     def get_last_changed(_r):

@@ -6,12 +6,12 @@ from typing import Optional
 from click import Path
 from click import argument
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
@@ -22,16 +22,15 @@ from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.typing import QueryType
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
 @describe_dry_run("Would call **solution_api.find_solution_by_id** to get an solution details")
-@pass_solution_api
 @timing_decorator
+@pass_api_client
 @argument("solution-id", required=False, type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
@@ -61,7 +60,7 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     help="Should the path be relative to the working directory ?",
 )
 def get(
-    solution_api: SolutionApi,
+    api_client: ApiClient,
     organization_id: str,
     solution_id: Optional[str] = None,
     fields: Optional[str] = None,
@@ -70,6 +69,7 @@ def get(
     use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
     """Get the state of the solution in the API."""
+    solution_api = SolutionApi(api_client)
 
     if not solution_id:
         if not solution_file:

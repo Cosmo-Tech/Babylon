@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
 
-import click
 from click import argument
 from click import command
 from click import option
@@ -14,14 +13,13 @@ from ........utils.decorators import working_dir_requires_yaml_key
 from ........utils.interactive import confirm_deletion
 from ........utils.typing import QueryType
 from ........utils.response import CommandResponse
+from ........utils.clients import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 
-pass_tfc = click.make_pass_decorator(TFC)
-
 
 @command()
-@pass_tfc
+@pass_tfc_client
 @describe_dry_run("""Would look up id for VAR_KEY in WORKSPACE_ID
 
 Then would send delete query to the API for it""")
@@ -30,7 +28,7 @@ Then would send delete query to the API for it""")
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @argument("var_key", type=QueryType())
 @timing_decorator
-def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str,
+def delete(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str,
            force_validation: bool) -> CommandResponse:
     """Delete VAR_KEY variable in a workspace"""
     workspace_id = workspace_id or workspace_id_wd
@@ -38,7 +36,8 @@ def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key:
     if not force_validation and not confirm_deletion("variable", var_key):
         return CommandResponse.fail()
 
-    r = list(v for v in list_all_vars(api, workspace_id, lookup_var_sets=False) if v['attributes']['key'] == var_key)
+    r = list(
+        v for v in list_all_vars(tfc_client, workspace_id, lookup_var_sets=False) if v['attributes']['key'] == var_key)
 
     if not r:
         logger.error(f"Var {var_key} is not set for workspace {workspace_id}")
@@ -49,5 +48,5 @@ def delete(api: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key:
 
     logger.info(f"Deleting {var_key} from workspace {workspace_id}")
 
-    r = api.workspace_vars.destroy(workspace_id=workspace_id, variable_id=var_id)
+    r = tfc_client.workspace_vars.destroy(workspace_id=workspace_id, variable_id=var_id)
     return CommandResponse.success()

@@ -2,9 +2,7 @@ import logging
 import typing
 
 import docker
-from azure.identity import DefaultAzureCredential
 from click import command
-from click import make_pass_decorator
 from click import option
 
 from ......utils.decorators import require_deployment_key
@@ -15,11 +13,9 @@ from ......utils.response import CommandResponse
 from ..registry_connect import registry_connect
 
 logger = logging.getLogger("Babylon")
-pass_credentials = make_pass_decorator(DefaultAzureCredential)
 
 
 @command()
-@pass_credentials
 @require_platform_key("csm_acr_registry_name", "csm_acr_registry_name")
 @require_deployment_key("csm_simulator_repository", "csm_simulator_repository")
 @require_deployment_key("simulator_version", "simulator_version")
@@ -27,8 +23,7 @@ pass_credentials = make_pass_decorator(DefaultAzureCredential)
 @option("-r", "--registry", type=QueryType(), help="Container Registry name to pull from, ex: myregistry.azurecr.io")
 @option("-i", "--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
 @timing_decorator
-def pull(credentials: DefaultAzureCredential,
-         csm_acr_registry_name: str,
+def pull(csm_acr_registry_name: str,
          csm_simulator_repository: str,
          simulator_repository: str,
          simulator_version: str,
@@ -39,7 +34,7 @@ def pull(credentials: DefaultAzureCredential,
     """
     image = image or f"{csm_simulator_repository}:{simulator_version}"
     registry = registry or csm_acr_registry_name
-    _, client = registry_connect(registry, credentials)
+    _, client = registry_connect(registry)
     repo = f"{registry}/{image}"
     logger.info(f"Pulling remote image {image} from registry {registry}")
     try:

@@ -5,11 +5,11 @@ from typing import Optional
 
 from click import Path
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response
@@ -18,16 +18,15 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_connector_api = make_pass_decorator(ConnectorApi)
 
 
 @command()
 @describe_dry_run("Would call **connector_api.find_connector_by_id**")
 @timing_decorator
-@pass_connector_api
+@pass_api_client
 @option("-o",
         "--output_file",
         "output_file",
@@ -37,14 +36,14 @@ pass_connector_api = make_pass_decorator(ConnectorApi)
 @require_deployment_key("adt_connector_id", "adt_connector_id")
 @require_deployment_key("storage_connector_id", "storage_connector_id")
 def get_currents(
-    connector_api: ConnectorApi,
+    api_client: ApiClient,
     adt_connector_id: str,
     storage_connector_id: str,
     output_file: Optional[str] = None,
     fields: Optional[str] = None,
 ) -> CommandResponse:
     """Get a registered connector details."""
-
+    connector_api = ConnectorApi(api_client)
     try:
         retrieved_adt_connector = connector_api.find_connector_by_id(adt_connector_id)
     except UnauthorizedException:

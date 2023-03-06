@@ -7,19 +7,17 @@ import click
 from azure.digitaltwins.core import DigitalTwinsClient
 from azure.digitaltwins.core import DigitalTwinsModelData
 from click import command
-from click import make_pass_decorator
 from click import option
 
 from ........utils.decorators import timing_decorator
 from ........utils.response import CommandResponse
+from ........utils.clients import pass_adt_client
 
 logger = logging.getLogger("Babylon")
 
-pass_dt_client = make_pass_decorator(DigitalTwinsClient)
-
 
 @command()
-@pass_dt_client
+@pass_adt_client
 @option(
     "-o",
     "--output-file",
@@ -28,13 +26,13 @@ pass_dt_client = make_pass_decorator(DigitalTwinsClient)
     help="Write full output of the adt api in target file",
 )
 @timing_decorator
-def list(dt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None) -> CommandResponse:
+def list(adt_client: DigitalTwinsClient, output_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """List all models id from ADT"""
     if output_file and output_file.suffix != ".json":
         logger.error(f"{output_file} is not a json file")
         return CommandResponse.fail()
 
-    data = dt_client.list_models(include_model_definition=True)
+    data = adt_client.list_models(include_model_definition=True)
 
     logger.info("Listing all model ids :")
 

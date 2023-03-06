@@ -101,7 +101,7 @@ def confirm_deletion(entity_type: str, entity_id: str) -> bool:
 
 def interactive_run(command_return, interactive: bool = False, **kwargs):
     if not interactive:
-        return
+        return command_return
     from .command_helper import run_command
     import code
     _locals = dict(globals(), **{"command_return": command_return, "run_command": run_command})

@@ -4,32 +4,30 @@ from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument
 from click import command
-from click import make_pass_decorator
 
 from ........utils.decorators import require_platform_key
 from ........utils.decorators import timing_decorator
 from ........utils.response import CommandResponse
+from ........utils.clients import pass_adt_management_client
 
 logger = logging.getLogger("Babylon")
 
-pass_digital_twins_client = make_pass_decorator(AzureDigitalTwinsManagementClient)
-
 
 @command()
-@pass_digital_twins_client
+@pass_adt_management_client
 @argument("adt_instance_name")
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_platform_key("resources_location", "resources_location")
 @timing_decorator
 def create(
-    digital_twins_client: AzureDigitalTwinsManagementClient,
+    adt_management_client: AzureDigitalTwinsManagementClient,
     resource_group_name: str,
     resources_location: str,
     adt_instance_name: str,
 ) -> CommandResponse:
     """Create a new ADT instance in current platform resource group"""
 
-    availability_result = digital_twins_client.digital_twins.check_name_availability(
+    availability_result = adt_management_client.digital_twins.check_name_availability(
         digital_twins_instance_check_name={
             "name": adt_instance_name,
             "type": "Microsoft.DigitalTwins/digitalTwinsInstances"
@@ -42,7 +40,7 @@ def create(
         return CommandResponse.fail()
 
     try:
-        poller = digital_twins_client.digital_twins.begin_create_or_update(
+        poller = adt_management_client.digital_twins.begin_create_or_update(
             resource_group_name,
             adt_instance_name,
             {

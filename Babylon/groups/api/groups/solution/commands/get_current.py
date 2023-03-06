@@ -5,12 +5,12 @@ from typing import Optional
 
 from click import Path
 from click import command
-from click import make_pass_decorator
 from click import option
 from cosmotech_api.api.solution_api import SolutionApi
 from cosmotech_api.exceptions import NotFoundException
 from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
+from cosmotech_api.api_client import ApiClient
 
 from ......utils.api import convert_keys_case
 from ......utils.api import filter_api_response_item
@@ -19,15 +19,14 @@ from ......utils.decorators import describe_dry_run
 from ......utils.decorators import require_deployment_key
 from ......utils.decorators import timing_decorator
 from ......utils.response import CommandResponse
+from ......utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
-
-pass_solution_api = make_pass_decorator(SolutionApi)
 
 
 @command()
 @describe_dry_run("Would call **solution_api.find_solution_by_id** get the current solution details")
-@pass_solution_api
+@pass_api_client
 @timing_decorator
 @require_deployment_key("solution_id", "solution_id")
 @require_deployment_key("organization_id", "organization_id")
@@ -45,13 +44,14 @@ pass_solution_api = make_pass_decorator(SolutionApi)
     help="Fields witch will be keep in response data, by default all",
 )
 def get_current(
-    solution_api: SolutionApi,
+    api_client: ApiClient,
     solution_id: str,
     organization_id: str,
     fields: Optional[str] = None,
     output_file: Optional[str] = None,
 ) -> CommandResponse:
     """Get the state of the solution in the API."""
+    solution_api = SolutionApi(api_client)
     try:
         retrieved_solution = solution_api.find_solution_by_id(solution_id=solution_id, organization_id=organization_id)
     except NotFoundException:
