@@ -7,7 +7,6 @@ import shutil
 import zipfile
 from typing import Any
 from typing import Optional
-
 import yaml
 from cryptography.fernet import Fernet
 
@@ -134,6 +133,20 @@ class WorkingDir:
             return
         write_yaml_value(_path, yaml_key, var_value)
 
+    def set_encrypted_yaml_key(self, yaml_path: str, yaml_key: str, var_value) -> None:
+        """
+        Set key value in an encrypted file
+        :param yaml_path: path to the yaml file in the working_dir
+        :param yaml_key: key to get in the yaml
+        :param var_value: the value to assign
+        """
+        content = self.get_file_content(yaml_path)
+        content[yaml_key] = var_value
+        stream = io.StringIO()
+        yaml.dump(content, stream)
+        raw_content = stream.getvalue().encode("utf-8")
+        self.encrypt_file(pathlib.Path(yaml_path), raw_content, override=True)
+
     def get_file(self, file_path: str) -> pathlib.Path:
         """
         Will return the effective path of a file in the working_dir
@@ -149,14 +162,20 @@ class WorkingDir:
         :param file_path: the path to the file inside the working dir
         :return: a dump of the file content in python object
         """
-        _p = self.get_file(file_path)
-        with open(_p) as _f:
-            if _p.suffix == ".json":
-                return json.load(_f)
-            elif _p.suffix == ".yaml":
-                return yaml.safe_load(_f)
-            elif _p.suffix == ".encrypt":
-                return self.decrypt_file(pathlib.Path(file_path))
+        readers = {".json": json.load, ".yaml": yaml.safe_load}
+        _path = self.get_file(file_path)
+        reader = readers.get(_path.suffix, None)
+        with open(_path) as _f:
+            if reader:
+                return reader(_f)
+            if _path.suffix == ".encrypt":
+                content = self.decrypt_file(pathlib.Path(file_path))
+                ext = os.path.splitext(os.path.splitext(file_path)[0])[1]
+                reader = readers.get(ext)
+                if not reader:
+                    logger.error(f"Could not read encrypted file of extension {ext}")
+                    return
+                return readers.get(ext)(content)
             return list(_l for _l in _f)
 
     def __str__(self):
@@ -208,14 +227,14 @@ class WorkingDir:
 
     def load_secret_key(self):
         try:
-            secret_file_path = self.get_file("secret.key")
+            secret_file_path = self.get_file(".secret.key")
             with open(secret_file_path, "rb") as f:
                 self.encoding_key = f.read()
         except OSError:
-            raise ValueError("secret.key file could not be opened")
+            raise ValueError(".secret.key file could not be opened")
 
     def generate_secret_key(self, override: bool = False) -> pathlib.Path:
-        secret_file_path = self.get_file("secret.key")
+        secret_file_path = self.get_file(".secret.key")
         if secret_file_path.exists() and not override:
             return secret_file_path
         generated_key = Fernet.generate_key()
@@ -253,10 +272,9 @@ class WorkingDir:
         with open(self.get_file(str(file_name)), "rb") as f:
             content = f.read()
             decrypted_content = self.decrypt_content(self.encoding_key, content)
-        usable_content = json.load(io.BytesIO(decrypted_content))
-        return usable_content
+        return decrypted_content
 
-    def encrypt_file(self, file_name: pathlib.Path, content: Any, override: bool = False) -> pathlib.Path:
+    def encrypt_file(self, file_name: pathlib.Path, content: bytes, override: bool = False) -> pathlib.Path:
         """
         Use the secret key to encrypt the content to a file.
         :param file_name: the target file name after encryption
@@ -273,7 +291,7 @@ class WorkingDir:
             except ValueError:
                 self.generate_secret_key()
 
-        encoded_content = self.encrypt_content(self.encoding_key, json.dumps(content).encode("utf-8"))
+        encoded_content = self.encrypt_content(self.encoding_key, content)
 
         with open(self.get_file(str(file_name)), "wb") as f:
             f.write(encoded_content)

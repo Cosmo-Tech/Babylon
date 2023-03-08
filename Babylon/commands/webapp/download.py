@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @require_deployment_key("webapp_repository")
 @require_deployment_key("webapp_repository_branch")
-@working_dir_requires_yaml_key(".secrets.yaml", "github.token", "github_token")
+@working_dir_requires_yaml_key(".secrets.yaml.encrypt", "github.token", "github_token")
 @argument("destination_folder", type=Path(path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",

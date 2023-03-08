@@ -18,7 +18,8 @@ logger = logging.getLogger("Babylon")
 def encrypt_file(source_file: pathlib.Path, override: bool):
     """Encrypt given SOURCE_FILE"""
     wd = Environment().working_dir
-    content = wd.get_file_content(str(source_file))
+    with open(source_file, "rb") as _f:
+        content = _f.read()
     target_file = source_file.parent / (source_file.name + ".encrypt")
     encrypted_file = wd.encrypt_file(target_file, content, override)
     logger.info(f"File was encrypted as {encrypted_file}")

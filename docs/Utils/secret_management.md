@@ -7,8 +7,8 @@ To start with encryption you can use th command `babylon working-dir encrypt-fil
 ## Commands 
 
 === "`babylon working-dir encrypt-file`"
-    Using this command you can encrypt a file, if it is your first encryption a file `secret.key` will be generated at the same time  
-    !!! warning "`secret.key`"
+    Using this command you can encrypt a file, if it is your first encryption a file `.secret.key` will be generated at the same time  
+    !!! warning "`.secret.key`"
         Be careful and keep that secret securely !  
         Without it, you won't be able to decrypt your files in the future !
 
@@ -18,8 +18,8 @@ To start with encryption you can use th command `babylon working-dir encrypt-fil
 
 ## Secret Management
 
-To manage secrets, you need to ensure that secrets values are inside a `.encrypt` file with the associated `secret.key`
+To manage secrets, you need to ensure that secrets values are inside a `.encrypt` file with the associated `.secret.key`
 
 Combining those allow to ensure that secret files could be exchanged between users, or even stored securely inside a VCS or a cloud storage.
 
-But the responsibility of securing the `secret.key` will still be on the user side. If they loose it the encrypted files will become unreadable, and if it is made public, anyone could decrypt the files.
+But the responsibility of securing the `.secret.key` will still be on the user side. If they loose it the encrypted files will become unreadable, and if it is made public, anyone could decrypt the files.

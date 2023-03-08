@@ -38,7 +38,7 @@ def get_azure_credentials() -> Any:
     env = Environment()
     azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
     try:
-        cached_credentials = env.convert_data_query("%workdir[.secrets.yaml]%azure")
+        cached_credentials = env.convert_data_query("%secrets%azure")
         return ClientSecretCredential(cached_credentials["tenant_id"], cached_credentials["client_id"],
                                       cached_credentials["client_secret"])
     except KeyError:

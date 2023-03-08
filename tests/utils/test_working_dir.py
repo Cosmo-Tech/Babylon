@@ -110,6 +110,19 @@ def test_decrypt_content():
     assert original_data == decoded_data
 
 
+def test_get_secrets_content():
+    """Testing that we can get file content of an encrypted file"""
+    workdir = WorkingDir(Path('tests/resources/workingdir'))
+    file_content = workdir.get_file_content(".secrets.yaml.encrypt")
+    assert file_content.get("my_secret")
+
+
+def test_set_encrypted_yaml_key():
+    """Testing that we can get file content of an encrypted file"""
+    workdir = WorkingDir(Path('tests/resources/workingdir'))
+    workdir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "Test", "coucou")
+
+
 def test_working_dir_get_py_file():
     """Testing get file content from a working dir"""
     workdir = WorkingDir(Path('tests/resources/workingdir'))
