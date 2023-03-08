@@ -22,7 +22,7 @@ def login(client_id: str, client_secret: str, tenant_id: str) -> CommandResponse
     if not tenant_id:
         tenant_id = prompt("Tenant ID:")
 
-    env.working_dir.set_yaml_key(".secrets.yaml.encrypt", "azure", {
+    env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "azure", {
         "client_secret": client_secret,
         "client_id": client_id,
         "tenant_id": tenant_id
