@@ -2,12 +2,26 @@ import click
 
 from Babylon.main import main
 from Babylon.utils.macro import Macro
+import os
 
 
 def test_macro_init():
     """Testing macro"""
     with click.Context(main):
-        Macro("test").step(["--tests", "config", "display"])
+        m = Macro("test").step(["--tests", "config", "display"])
+    assert m._status == m.STATUS_OK
+
+
+def test_macro_basic():
+    """Testing macro"""
+    with click.Context(main):
+        m = Macro("test") \
+            .step(["--tests", "config", "deployment", "set-variable", "hello", "world"]) \
+            .step(["--tests", "config", "display"])
+    world = m.env.configuration.get_deploy().get("hello")
+    m.env.configuration.set_deploy_var("hello", None)
+    assert world == "world"
+    assert m._status == m.STATUS_OK
 
 
 def test_macro_then():
@@ -19,6 +33,7 @@ def test_macro_then():
 
 def test_macro_iterate():
     """Testing macro"""
+    os.environ["BABYLON_CONFIG_DIRECTORY"] = "tests/environments/Default"
     with click.Context(main):
         m = Macro("test")
         m.env.store_data(["list"], ["hello", "world"])

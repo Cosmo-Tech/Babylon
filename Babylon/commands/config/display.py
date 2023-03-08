@@ -11,5 +11,6 @@ logger = logging.getLogger("Babylon")
 @command()
 def display() -> CommandResponse:
     """Display current config"""
-    logger.info(str(Environment().configuration))
-    return CommandResponse.success()
+    config = Environment().configuration
+    logger.info(str(config))
+    return CommandResponse.success({"deployment": config.get_deploy(), "platform": config.get_platform()})
