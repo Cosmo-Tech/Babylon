@@ -10,7 +10,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
-from .registry_connect import registry_connect
+from ....utils.clients import get_docker_client
 
 logger = logging.getLogger("Babylon")
 
@@ -27,7 +27,9 @@ def push(acr_registry_name: str, simulator_repository: str, simulator_version: s
     """Push a docker image to the ACR registry given in platform configuration"""
     registry: str = registry or acr_registry_name
     image: str = image or f"{simulator_repository}:{simulator_version}"
-    _, client = registry_connect(registry)
+    client = get_docker_client(registry)
+    if not client:
+        return CommandResponse.fail()
     try:
         image_obj = client.images.get(image)
     except docker.errors.ImageNotFound:

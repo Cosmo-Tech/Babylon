@@ -9,10 +9,21 @@ from .adt import adt
 from .adx import adx
 from .storage import storage
 from .appinsight import appinsight
+from .login import login
 
 logger = logging.getLogger("Babylon")
 
-list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight]
+list_commands = [login]
+list_groups = [
+    ad,
+    staticwebapp,
+    arm,
+    storage,
+    acr,
+    adt,
+    adx,
+    appinsight
+]
 
 
 @c_group()
@@ -22,3 +33,6 @@ def azure():
 
 for _group in list_groups:
     azure.add_command(_group)
+
+for _command in list_commands:
+    azure.add_command(_command)
