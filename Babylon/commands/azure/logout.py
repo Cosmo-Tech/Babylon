@@ -25,5 +25,5 @@ def logout(force_validation: bool = False) -> CommandResponse:
         return CommandResponse.fail()
     env = Environment()
     env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "azure", {})
-    logger.info("Successfully updated azure credentials")
+    logger.info("Successfully deleted azure credentials")
     return CommandResponse.success()
