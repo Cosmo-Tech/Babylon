@@ -38,8 +38,8 @@ def create_from_file(tfc_client: TFC, workspace_id_wd: str, workspace_id: Option
         "value": "",
         "description": "",
         "category": "",
-        "hcl": False,
-        "sensitive": False
+        "hcl": false,
+        "sensitive": false
     }]
 More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body"""
