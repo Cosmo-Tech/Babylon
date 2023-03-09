@@ -4,13 +4,12 @@ from pprint import pformat
 from azure.mgmt.kusto import KustoManagementClient
 from click import argument
 from click import command
-
-from ......utils.decorators import require_deployment_key
-from ......utils.decorators import require_platform_key
-from ......utils.decorators import timing_decorator
-from ......utils.response import CommandResponse
-from ......utils.clients import pass_kusto_client
-from ......utils.typing import QueryType
+from .....utils.decorators import require_deployment_key
+from .....utils.decorators import require_platform_key
+from .....utils.decorators import timing_decorator
+from .....utils.response import CommandResponse
+from .....utils.clients import pass_kusto_client
+from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
