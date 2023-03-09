@@ -37,7 +37,7 @@ def create_from_file(tfc_client: TFC, workspace_id_wd: str, workspace_id: Option
         "key": "",
         "value": "",
         "description": "",
-        "category": "",
+        "category": "", [defaults to terraform]
         "hcl": false,
         "sensitive": false
     }]
@@ -50,6 +50,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     env = Environment()
     variables = json.loads(env.fill_template(variable_file))
     for variable in variables:
+        variable.setdefault("category", "terraform")
         if not set(variable.keys()) <= var_payload.keys():
             logger.error(f"TFC variable is missing required fields {list(var_payload.keys())}")
             continue
