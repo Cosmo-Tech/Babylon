@@ -46,25 +46,13 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 
     workspace_id = workspace_id_wd or workspace_id
 
-    var_payload = {
-        "data": {
-            "type": "vars",
-            "attributes": {
-                "key": None,
-                "value": None,
-                "description": None,
-                "category": None,
-                "hcl": False,
-                "sensitive": False
-            }
-        }
-    }
+    var_payload = {"key": None, "value": None, "description": None, "category": None, "hcl": False, "sensitive": False}
     env = Environment()
     variables = json.loads(env.fill_template(variable_file))
     for variable in variables:
-        if set(var_payload["data"]["attributes"].keys()) <= set(variable.keys()):
-            logger.error(f"TFC variable is missing required fields {list(var_payload['data']['attributes'].keys())}")
-            return CommandResponse.fail()
+        if not set(variable.keys()) <= var_payload.keys():
+            logger.error(f"TFC variable is missing required fields {list(var_payload.keys())}")
+            continue
         payload = {"data": {"type": "vars", "attributes": variable}}
         try:
             tfc_client.workspace_vars.create(workspace_id=workspace_id, payload=payload)
@@ -72,6 +60,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
             logger.error(
                 f"An issue appeared while processing variable {variable.get('key')} for workspace {workspace_id}:")
             logger.error(pprint.pformat(_error.args))
-            return CommandResponse.fail()
+            continue
         logger.info(f"Variable {variable.get('key')} was correctly set for workspace {workspace_id}")
     return CommandResponse.success(variables)
