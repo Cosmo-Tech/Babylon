@@ -17,6 +17,7 @@ from .....utils.decorators import working_dir_requires_yaml_key
 from .....utils.typing import QueryType
 from .....utils.response import CommandResponse
 from .....utils.clients import pass_tfc_client
+from .....utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 
@@ -50,8 +51,8 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
             }
         }
     }
-    with open(variable_file, "r", encoding="utf-8") as _f:
-        variables = json.load(_f)
+    env = Environment()
+    variables = json.loads(env.fill_template(variable_file))
     for variable in variables:
         if set(var_payload["data"]["attributes"].keys()) <= set(variable.keys()):
             logger.error(f"TFC variable is missing required fields {list(var_payload['data']['attributes'].keys())}")
