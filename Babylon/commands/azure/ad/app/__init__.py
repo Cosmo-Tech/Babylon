@@ -8,14 +8,7 @@ from .get_principal import get_principal
 from .get import get
 from .update import update
 
-list_commands = [
-    create,
-    delete,
-    get_all,
-    get_principal,
-    get,
-    update
-]
+list_commands = [create, delete, get_all, get_principal, get, update]
 
 list_groups = [password]
 
