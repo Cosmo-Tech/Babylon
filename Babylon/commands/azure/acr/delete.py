@@ -13,6 +13,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.decorators import timing_decorator
 from ....utils.interactive import confirm_deletion
 from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -22,9 +23,12 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("acr_registry_name", "acr_registry_name")
 @require_deployment_key("simulator_repository", "simulator_repository")
 @require_deployment_key("simulator_version", "simulator_version")
-@option("-r", "--registry", help="Container Registry name to delete from, example: myregistry.azurecr.io")
+@option("-r",
+        "--registry",
+        help="Container Registry name to delete from, example: myregistry.azurecr.io",
+        type=QueryType())
 @option("-d", "--direction", type=Choice(["src", "dest"]), help="Container Registry to delete from")
-@option("-i", "--image", help="Remote docker image to pull, example hello-world:latest")
+@option("-i", "--image", help="Remote docker image to pull, example hello-world:latest", type=QueryType())
 @option(
     "-f",
     "--force",

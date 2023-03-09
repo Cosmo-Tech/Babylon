@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_azure_token("powerbi")
 @require_deployment_key("powerbi_workspace_id", required=False)
-@argument("dataset_id")
+@argument("dataset_id", type=QueryType())
 @option("-w", "--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 def take_over(azure_token: str,
               powerbi_workspace_id: str,

@@ -13,6 +13,7 @@ from ....utils.environment import Environment
 from ....utils.interactive import confirm_deletion
 from ....utils.response import CommandResponse
 from ....utils.clients import pass_tfc_client
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -21,7 +22,7 @@ logger = logging.getLogger("Babylon")
 @pass_tfc_client
 @describe_dry_run("Would send query to delete WORKSPACE_ID to terraform")
 @option("-f", "--force", "force_validation", is_flag=True, help="Should validation be skipped ?")
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
 def delete(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str],

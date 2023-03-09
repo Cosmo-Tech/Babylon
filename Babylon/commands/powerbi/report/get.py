@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @pass_azure_token("powerbi")
 @require_deployment_key("powerbi_workspace_id", required=False)
 @argument("report_id", type=QueryType())
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @output_to_file
 def get(azure_token: str,
         powerbi_workspace_id: str,

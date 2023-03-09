@@ -8,14 +8,15 @@ from ......utils.interactive import confirm_deletion
 from ......utils.request import oauth_request
 from ......utils.response import CommandResponse
 from ......utils.credentials import pass_azure_token
+from ......utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_azure_token("graph")
-@argument("app_id")
-@option("-k", "--key", "key_id", help="Password Key ID", required=True)
+@argument("app_id", type=QueryType())
+@option("-k", "--key", "key_id", help="Password Key ID", required=True, type=QueryType())
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 def delete(azure_token: str, app_id: str, key_id: str, force_validation: bool = False) -> CommandResponse:
     """

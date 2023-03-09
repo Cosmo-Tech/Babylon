@@ -4,12 +4,12 @@ from pprint import pformat
 from azure.mgmt.kusto import KustoManagementClient
 from click import argument
 from click import command
-
-from ......utils.decorators import require_deployment_key
-from ......utils.decorators import require_platform_key
-from ......utils.decorators import timing_decorator
-from ......utils.response import CommandResponse
-from ......utils.clients import pass_kusto_client
+from .....utils.decorators import require_deployment_key
+from .....utils.decorators import require_platform_key
+from .....utils.decorators import timing_decorator
+from .....utils.response import CommandResponse
+from .....utils.clients import pass_kusto_client
+from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_platform_key("adx_cluster_name", "adx_cluster_name")
 @require_deployment_key("adx_database_name", "adx_database_name")
-@argument("principal_id", type=str)
+@argument("principal_id", type=QueryType())
 @timing_decorator
 def get(kusto_client: KustoManagementClient, resource_group_name: str, adx_cluster_name: str, adx_database_name: str,
         principal_id: str) -> CommandResponse:

@@ -48,12 +48,7 @@ logger = getLogger("Babylon")
     "solution_file",
     help="Your custom Solution description file path",
 )
-@option(
-    "-d",
-    "--description",
-    "solution_description",
-    help="New solution description",
-)
+@option("-d", "--description", "solution_description", help="New solution description", type=QueryType())
 @option(
     "-o",
     "--output-file",

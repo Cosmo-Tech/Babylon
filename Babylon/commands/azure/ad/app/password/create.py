@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_azure_token("graph")
 @argument("app_id", type=QueryType())
-@option("-n", "--name", "password_name", help="Password display name")
+@option("-n", "--name", "password_name", help="Password display name", type=QueryType())
 @option("-s", "--select", "select", is_flag=True, help="Save secret in .secrets.yaml working dir file")
 def create(azure_token: str, app_id: str, password_name: Optional[str] = None, select: bool = False) -> CommandResponse:
     """

@@ -15,6 +15,7 @@ from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
 from ....utils.decorators import working_dir_requires_yaml_key
 from ....utils.clients import pass_tfc_client
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -28,7 +29,7 @@ logger = logging.getLogger("Babylon")
     type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="File to which content should be outputted (json-formatted)",
 )
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @option("-s",
         "--states",
         "states_webpage_open",

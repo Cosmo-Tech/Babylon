@@ -10,13 +10,14 @@ from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@argument("deployment_name")
-@option("-t", "--template-uri", "template_uri")
+@argument("deployment_name", type=QueryType())
+@option("-t", "--template-uri", "template_uri", type=QueryType())
 @describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
 @timing_decorator
 def create(

@@ -10,6 +10,7 @@ from ....utils.decorators import output_to_file
 from ....utils.request import oauth_request
 from ....utils.response import CommandResponse
 from ....utils.credentials import pass_azure_token
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -17,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_azure_token("powerbi")
 @require_deployment_key("powerbi_workspace_id", required=False)
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @output_to_file
 def get_all(azure_token: str, powerbi_workspace_id: str, workspace_id: Optional[str] = None) -> CommandResponse:
     """Get info from every powerbi reports of a workspace"""

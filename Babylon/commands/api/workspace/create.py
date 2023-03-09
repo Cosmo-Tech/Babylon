@@ -50,12 +50,7 @@ logger = getLogger("Babylon")
     "workspace_file",
     help="Your custom workspace definition file path",
 )
-@option(
-    "-d",
-    "--description",
-    "workspace_description",
-    help="Workspace description",
-)
+@option("-d", "--description", "workspace_description", help="Workspace description", type=QueryType())
 @option(
     "-o",
     "--output-file",

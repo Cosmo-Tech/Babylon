@@ -11,6 +11,7 @@ from ....utils.decorators import require_deployment_key
 from ....utils.response import CommandResponse
 from ....utils.request import oauth_request
 from ....utils.credentials import pass_azure_token
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -18,14 +19,14 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_azure_token("powerbi")
 @require_deployment_key("powerbi_workspace_id", required=False)
-@argument("report_id")
+@argument("report_id", type=QueryType())
 @option("-o",
         "--output_file",
         "output_file",
         type=Path(writable=True, dir_okay=False, path_type=pathlib.Path),
         required=True,
         help="output filename (.pbix)")
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID")
+@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 def download(azure_token: str,
              powerbi_workspace_id: str,
              report_id: str,

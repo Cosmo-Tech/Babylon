@@ -9,13 +9,14 @@ from .....utils.decorators import require_platform_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
 from .....utils.clients import pass_adt_management_client
+from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_adt_management_client
-@argument("adt_instance_name")
+@argument("adt_instance_name", type=QueryType())
 @require_platform_key("resource_group_name", "resource_group_name")
 @require_platform_key("resources_location", "resources_location")
 @timing_decorator

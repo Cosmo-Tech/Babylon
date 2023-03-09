@@ -12,6 +12,7 @@ from .....utils.decorators import timing_decorator
 from .....utils.interactive import confirm_deletion
 from .....utils.response import CommandResponse
 from .....utils.clients import pass_adt_management_client
+from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -19,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @timing_decorator
 @pass_adt_management_client
-@argument("adt_instance_name")
+@argument("adt_instance_name", type=QueryType())
 @require_platform_key("resource_group_name", "resource_group_name")
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 def delete(adt_management_client: AzureDigitalTwinsManagementClient,
