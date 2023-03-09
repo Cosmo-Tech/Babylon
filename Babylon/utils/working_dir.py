@@ -14,6 +14,7 @@ from . import TEMPLATE_FOLDER_PATH
 from .yaml_utils import compare_yaml_keys
 from .yaml_utils import complete_yaml
 from .yaml_utils import write_yaml_value
+from .yaml_utils import set_nested_key
 
 logger = logging.getLogger("Babylon")
 
@@ -133,7 +134,7 @@ class WorkingDir:
             return
         write_yaml_value(_path, yaml_key, var_value)
 
-    def set_encrypted_yaml_key(self, yaml_path: str, yaml_key: str, var_value: Any) -> None:
+    def set_encrypted_yaml_key(self, yaml_path: str, yaml_key: list[str] or str, var_value: Any) -> None:
         """
         Set key value in an encrypted file
         :param yaml_path: path to the yaml file in the working_dir
@@ -141,7 +142,7 @@ class WorkingDir:
         :param var_value: the value to assign
         """
         content = self.get_file_content(yaml_path)
-        content[yaml_key] = var_value
+        content = set_nested_key(content, yaml_key, var_value)
         stream = io.StringIO()
         yaml.dump(content, stream)
         raw_content = stream.getvalue().encode("utf-8")

@@ -1,6 +1,6 @@
 from pathlib import Path
 from unittest.mock import patch, mock_open
-from Babylon.utils.yaml_utils import read_yaml_key, compare_yaml_keys, complete_yaml
+from Babylon.utils.yaml_utils import read_yaml_key, compare_yaml_keys, complete_yaml, set_nested_key
 
 
 def multi_mock_open(*file_contents):
@@ -58,3 +58,8 @@ def test_complete_yaml():
         file.assert_called()
         args, _ = file.call_args_list[0]
         assert args[0] == {"a": 1, "b": 1}
+
+
+def test_set_nested():
+    """Testing yaml utils"""
+    assert set_nested_key({}, ["hey", "you"], "there") == {"hey": {"you": "there"}}

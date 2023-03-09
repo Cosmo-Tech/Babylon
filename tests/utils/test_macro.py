@@ -37,5 +37,5 @@ def test_macro_iterate():
     with click.Context(main):
         m = Macro("test")
         m.env.store_data(["list"], ["hello", "world"])
-        m.iterate("%datastore%list", ["--tests", "config", "deployment", "set-variable", "test", "%datastore%item"])
+        m.iterate("%datastore%list", ["--tests", "config", "set-variable", "deploy", "test", "%datastore%item"])
     assert m.env.convert_data_query("%deploy%test") == "world"
