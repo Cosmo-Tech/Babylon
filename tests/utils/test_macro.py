@@ -16,7 +16,7 @@ def test_macro_basic():
     """Testing macro"""
     with click.Context(main):
         m = Macro("test") \
-            .step(["--tests", "config", "deployment", "set-variable", "hello", "world"]) \
+            .step(["--tests", "config", "set-variable", "deploy", "hello", "world"]) \
             .step(["--tests", "config", "display"])
     world = m.env.configuration.get_deploy().get("hello")
     m.env.configuration.set_deploy_var("hello", None)
