@@ -1979,6 +1979,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#create-from-file" class="md-nav__link">
+    create-from-file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#delete_20" class="md-nav__link">
     delete
   </a>
@@ -3778,6 +3785,13 @@
           <li class="md-nav__item">
   <a href="#create_17" class="md-nav__link">
     create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-from-file" class="md-nav__link">
+    create-from-file
   </a>
   
 </li>
@@ -9660,6 +9674,7 @@ GROUP USER ACCESS RIGHT :
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em>create</em>: Set VAR_KEY variable to VAR_VALUE in a workspace</li>
+<li><em>create-from-file</em>: Set multiple variables in a workspace</li>
 <li><em>delete</em>: Delete VAR_KEY variable in a workspace</li>
 <li><em>get</em>: Get VAR_KEY variable in a workspace</li>
 <li><em>get-all</em>: Get all available variables in the workspace</li>
@@ -9703,6 +9718,49 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td>boolean</td>
 <td>Is the var sensitive</td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h6 id="create-from-file">create-from-file</h6>
+<p>Set multiple variables in a workspace
+    Variable file must be a json file containing an array of the following json objects
+    [{
+        "key": "",
+        "value": "",
+        "description": "",
+        "category": "", [defaults to terraform]
+        "hcl": false,
+        "sensitive": false
+    }]
+More information on the arguments can be found at :
+https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body</p>
+<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace vars create-from-file [OPTIONS]
+                                                        VARIABLE_FILE
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-w</code>, <code>--workspace</code></td>
+<td>QueryString</td>
+<td>Id of the workspace to use</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
