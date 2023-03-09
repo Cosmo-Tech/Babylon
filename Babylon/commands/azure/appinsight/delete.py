@@ -6,6 +6,7 @@ from ....utils.response import CommandResponse
 from ....utils.request import oauth_request
 from ....utils.decorators import require_platform_key
 from ....utils.credentials import pass_azure_token
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -14,7 +15,7 @@ logger = logging.getLogger("Babylon")
 @pass_azure_token()
 @require_platform_key("azure_subscription", "azure_subscription")
 @require_platform_key("resource_group_name", "resource_group_name")
-@argument("name")
+@argument("name", type=QueryType())
 def delete(azure_token: str, azure_subscription: str, resource_group_name: str, name: str) -> CommandResponse:
     """
     Delete app insight data from a name

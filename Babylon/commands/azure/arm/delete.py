@@ -12,13 +12,14 @@ from ....utils.decorators import timing_decorator
 from ....utils.interactive import confirm_deletion
 from ....utils.response import CommandResponse
 from ....utils.clients import pass_arm_client
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_arm_client
-@argument("deployment_name")
+@argument("deployment_name", type=QueryType())
 @require_deployment_key("resource_group_name", "resource_group_name")
 @option(
     "-f",

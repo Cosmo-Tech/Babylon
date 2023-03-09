@@ -14,6 +14,7 @@ from ....utils.decorators import timing_decorator
 from ....utils.decorators import working_dir_requires_yaml_key
 from ....utils.response import CommandResponse
 from ....utils.clients import pass_tfc_client
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -27,7 +28,7 @@ logger = logging.getLogger("Babylon")
     type=click.Path(file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
     help="File to which content should be outputted (json-formatted)",
 )
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @timing_decorator
 def last_run(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str],

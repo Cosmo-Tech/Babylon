@@ -16,7 +16,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_azure_token("powerbi")
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@option("-n", "--name", "name", help="PowerBI workspace name")
+@option("-n", "--name", "name", help="PowerBI workspace name", type=QueryType())
 def get(azure_token: str, workspace_id: Optional[str] = None, name: Optional[str] = None) -> CommandResponse:
     """Get a specific workspace information"""
     if not workspace_id and not name:

@@ -53,6 +53,7 @@ logger = getLogger("Babylon")
     "--description",
     "solution_description",
     help="New solution description",
+    type=QueryType()
 )
 @option(
     "-o",

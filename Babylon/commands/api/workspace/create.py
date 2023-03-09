@@ -55,6 +55,7 @@ logger = getLogger("Babylon")
     "--description",
     "workspace_description",
     help="Workspace description",
+    type=QueryType()
 )
 @option(
     "-o",

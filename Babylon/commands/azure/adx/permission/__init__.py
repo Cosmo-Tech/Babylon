@@ -1,7 +1,16 @@
 from click import group
 
-from .commands import list_commands
-from .groups import list_groups
+from .delete import delete
+from .get import get
+from .get_all import get_all
+from .set import set
+
+list_commands = [
+    delete,
+    set,
+    get_all,
+    get,
+]
 
 
 @group()
@@ -12,6 +21,3 @@ def permission():
 
 for _command in list_commands:
     permission.add_command(_command)
-
-for _group in list_groups:
-    permission.add_command(_group)

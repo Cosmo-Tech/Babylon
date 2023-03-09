@@ -17,6 +17,7 @@ from .....utils.decorators import require_platform_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
 from .....utils.clients import pass_adt_management_client
+from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -32,7 +33,7 @@ logger = logging.getLogger("Babylon")
     type=click.Path(),
     help="The path to the file where the retrieved ADT instance details should be outputted (json-formatted)",
 )
-@argument("adt_instance_name")
+@argument("adt_instance_name", type=QueryType())
 def get(
     adt_management_client: AzureDigitalTwinsManagementClient,
     resource_group_name: str,

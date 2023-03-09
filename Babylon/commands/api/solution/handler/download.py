@@ -14,6 +14,7 @@ from .....utils.decorators import require_deployment_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
 from .....utils.clients import pass_api_client
+from .....utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -27,6 +28,7 @@ logger = getLogger("Babylon")
     "run_template_id",
     help="The run Template identifier",
     required=True,
+    type=QueryType()
 )
 @option(
     "-t",

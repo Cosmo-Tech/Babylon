@@ -8,14 +8,15 @@ from ......utils.request import oauth_request
 from ......utils.response import CommandResponse
 from ......utils.interactive import confirm_deletion
 from ......utils.credentials import pass_azure_token
+from ......utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @pass_azure_token("graph")
-@argument("group_id")
-@argument("service_principal_id")
+@argument("group_id", type=QueryType())
+@argument("service_principal_id", type=QueryType())
 @option(
     "-f",
     "--force",

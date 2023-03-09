@@ -10,6 +10,7 @@ from ....utils.response import CommandResponse
 from ....utils.request import oauth_request
 from ....utils.decorators import require_platform_key
 from ....utils.credentials import pass_azure_token
+from ....utils.typing import QueryType
 
 logger = logging.getLogger('Babylon')
 
@@ -20,7 +21,7 @@ DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/webapp/app_insight.json"
 @pass_azure_token()
 @require_platform_key('azure_subscription')
 @require_platform_key('resource_group_name')
-@argument('appinsight_name')
+@argument('appinsight_name', type=QueryType())
 @option("-f", "--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @option("-e",
         "--use-working-dir-file",
