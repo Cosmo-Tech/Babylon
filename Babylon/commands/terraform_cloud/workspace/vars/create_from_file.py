@@ -32,7 +32,15 @@ logger = logging.getLogger("Babylon")
 def create_from_file(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str],
                      variable_file: pathlib.Path) -> CommandResponse:
     """Set multiple variables in a workspace
-
+    Variable file must be a json file containing an array of the following json objects
+    [{
+        "key": "",
+        "value": "",
+        "description": "",
+        "category": "",
+        "hcl": False,
+        "sensitive": False
+    }]
 More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body"""
 
