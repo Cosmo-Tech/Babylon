@@ -7,10 +7,7 @@ from .get_all import get_all
 from .update_credentials import update_credentials
 from .parameters import parameters
 
-list_groups = [
-    parameters
-]
-
+list_groups = [parameters]
 
 list_commands = [
     update_credentials,

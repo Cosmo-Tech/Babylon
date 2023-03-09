@@ -13,13 +13,7 @@ def api():
     pass
 
 
-list_groups = [
-    workspace,
-    dataset,
-    connector,
-    organization,
-    solution
-]
+list_groups = [workspace, dataset, connector, organization, solution]
 
 for _group in list_groups:
     api.add_command(_group)

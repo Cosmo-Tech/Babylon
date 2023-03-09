@@ -12,16 +12,7 @@ from .appinsight import appinsight
 
 logger = logging.getLogger("Babylon")
 
-list_groups = [
-    ad,
-    staticwebapp,
-    arm,
-    storage,
-    acr,
-    adt,
-    adx,
-    appinsight
-]
+list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight]
 
 
 @c_group()
