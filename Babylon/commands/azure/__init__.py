@@ -15,16 +15,7 @@ from .logout import logout
 logger = logging.getLogger("Babylon")
 
 list_commands = [login, logout]
-list_groups = [
-    ad,
-    staticwebapp,
-    arm,
-    storage,
-    acr,
-    adt,
-    adx,
-    appinsight
-]
+list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight]
 
 
 @c_group()

@@ -3,10 +3,7 @@ from click import group
 from .create import create
 from .edit import edit
 
-list_commands = [
-    create,
-    edit
-]
+list_commands = [create, edit]
 
 
 @group()

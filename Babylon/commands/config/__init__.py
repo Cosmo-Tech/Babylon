@@ -7,11 +7,7 @@ from .platform import platform
 from .plugin import plugin
 from .set_variable import set_variable
 
-list_commands = [
-    validate,
-    display,
-    set_variable
-]
+list_commands = [validate, display, set_variable]
 
 list_groups = [
     plugin,
