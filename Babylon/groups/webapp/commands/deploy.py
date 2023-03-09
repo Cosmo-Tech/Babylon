@@ -43,7 +43,7 @@ def deploy(deployment_name: str,
     env.configuration.set_deploy_var("webapp_registration_id", app_registration_id)
 
     logger.info("3 - Add App Registration to PowerBI group")
-    r_pbigrp = run_command(["azure", "ad", "group", "member", azure_powerbi_group_id, app_registration_id])
+    r_pbigrp = run_command(["azure", "ad", "group", "member", "add", azure_powerbi_group_id, app_registration_id])
     if r_pbigrp.has_failed():
         logger.warning(f"3 - Failed to add app registration {app_registration_id} to AD group PowerBi")
 
