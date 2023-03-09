@@ -122,7 +122,7 @@ class WorkingDir:
         except (IOError, KeyError):
             return None
 
-    def set_yaml_key(self, yaml_path: str, yaml_key: str, var_value) -> None:
+    def set_yaml_key(self, yaml_path: str, yaml_key: str, var_value: Any) -> None:
         """
         Set key value in current deployment configuration file
         :param yaml_path: path to the yaml file in the working_dir
@@ -133,7 +133,7 @@ class WorkingDir:
             return
         write_yaml_value(_path, yaml_key, var_value)
 
-    def set_encrypted_yaml_key(self, yaml_path: str, yaml_key: str, var_value) -> None:
+    def set_encrypted_yaml_key(self, yaml_path: str, yaml_key: str, var_value: Any) -> None:
         """
         Set key value in an encrypted file
         :param yaml_path: path to the yaml file in the working_dir

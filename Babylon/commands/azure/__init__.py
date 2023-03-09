@@ -10,10 +10,11 @@ from .adx import adx
 from .storage import storage
 from .appinsight import appinsight
 from .login import login
+from .logout import logout
 
 logger = logging.getLogger("Babylon")
 
-list_commands = [login]
+list_commands = [login, logout]
 list_groups = [
     ad,
     staticwebapp,
