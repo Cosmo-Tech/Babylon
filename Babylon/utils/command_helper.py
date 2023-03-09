@@ -23,7 +23,7 @@ def run_command(command_line: list[str], log_level: int = logging.WARNING) -> Co
     else:
         root = context.find_root()
     babylon = root.command
-    ctx = babylon.make_context("babylon", command_line)
+    ctx = babylon.make_context("babylon", command_line, ignore_unknown_options=True)
     ret: CommandResponse = babylon.invoke(ctx)
     logger.setLevel(old_log_level)
     return ret
