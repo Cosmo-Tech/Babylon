@@ -22,14 +22,7 @@ logger = getLogger("Babylon")
 @command()
 @timing_decorator
 @pass_api_client
-@option(
-    "-r",
-    "--run-template",
-    "run_template_id",
-    help="The run Template identifier",
-    required=True,
-    type=QueryType()
-)
+@option("-r", "--run-template", "run_template_id", help="The run Template identifier", required=True, type=QueryType())
 @option(
     "-t",
     "--handler-type",
