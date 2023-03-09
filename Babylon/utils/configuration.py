@@ -1,13 +1,11 @@
-import os
 import pathlib
+import logging
 import pprint
 from typing import Any
-from typing import Generator
+from typing import Optional
 import shutil
 import subprocess
 import sys
-import logging
-from typing import Optional
 
 import click
 import yaml
@@ -33,10 +31,10 @@ class Configuration:
             self.platform = self.config_dir.absolute() / "platforms/platform.yaml"
             self.plugins: list[dict[str, Any]] = list()
             self.save_config()
-        else:
-            self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
-            self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
-            self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
+            return
+        self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
+        self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
+        self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
 
     def get_active_plugins(self) -> list[(str, pathlib.Path)]:
         """
@@ -120,12 +118,6 @@ class Configuration:
         self.plugins.append(plugin_entry)
         self.save_config()
         return str(plugin_name)
-
-    def __list_config_folder_files(self, folder_name: str) -> Generator[pathlib.Path, None, None]:
-        for root, _, files in os.walk(self.config_dir / folder_name):
-            for _f in files:
-                _file_name = pathlib.Path(root) / pathlib.Path(_f)
-                yield _file_name.absolute()
 
     def set_deploy(self, deploy_path: pathlib.Path) -> bool:
         """
@@ -236,7 +228,7 @@ class Configuration:
                 return self.config_dir / self.platform
         return None
 
-    def get_deploy_var(self, var_name) -> Optional[object]:
+    def get_deploy_var(self, var_name: str) -> Optional[object]:
         """
         Read a key value from the current deployment file
         :param var_name: the key to read
@@ -246,7 +238,7 @@ class Configuration:
             return None
         return read_yaml_key(_path, var_name)
 
-    def get_platform_var(self, var_name) -> Optional[object]:
+    def get_platform_var(self, var_name: str) -> Optional[object]:
         """
         Read a key value from the current platform file
         :param var_name: the key to read
@@ -256,7 +248,7 @@ class Configuration:
             return None
         return read_yaml_key(_path, var_name)
 
-    def set_deploy_var(self, var_name, var_value) -> None:
+    def set_deploy_var(self, var_name: str, var_value: Any) -> None:
         """
         Set key value in current deployment configuration file
         :param var_name: the key to set
