@@ -1,9 +1,7 @@
-import json
 from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
-from click import Path
 from click import command
 from click import option
 from cosmotech_api.api.connector_api import ConnectorApi
@@ -16,6 +14,7 @@ from ....utils.api import underscore_to_camel
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
+from ....utils.decorators import output_to_file
 from ....utils.clients import pass_api_client
 
 logger = getLogger("Babylon")
@@ -25,17 +24,9 @@ logger = getLogger("Babylon")
 @describe_dry_run("Would call **connector_api.find_all_connectors** and retrieve all registered Connectors")
 @timing_decorator
 @pass_api_client
-@option("-o",
-        "--output_file",
-        "output_file",
-        help="The path to the file where Connectors should be outputted (json-formatted)",
-        type=Path())
 @option("-f", "--fields", "fields", help="Fields witch will be keep in response data, by default all")
-def get_all(
-    api_client: ApiClient,
-    output_file: Optional[str] = None,
-    fields: Optional[str] = None,
-) -> CommandResponse:
+@output_to_file
+def get_all(api_client: ApiClient, fields: Optional[str] = None) -> CommandResponse:
     """Get all registered connectors."""
     connector_api = ConnectorApi(api_client)
     try:
@@ -48,15 +39,10 @@ def get_all(
         retrieved_connectors = filter_api_response(retrieved_connectors, fields.replace(" ", "").split(","))
     logger.info(f"Found {len(retrieved_connectors)} connectors")
     logger.debug(pformat(retrieved_connectors))
-    if not output_file:
-        logger.info(pformat(retrieved_connectors))
-        return CommandResponse.success({"connectors": retrieved_connectors})
 
     _connectors_to_dump = [convert_keys_case(_ele, underscore_to_camel) for _ele in retrieved_connectors]
-    with open(output_file, "w") as _file:
-        try:
-            json.dump([_ele.to_dict() for _ele in _connectors_to_dump], _file, ensure_ascii=False)
-        except AttributeError:
-            json.dump(_connectors_to_dump, _file, ensure_ascii=False)
-    logger.info(f"Full content was dumped on {output_file}")
-    return CommandResponse.success({"connectors": retrieved_connectors})
+    try:
+        data = [_ele.to_dict() for _ele in _connectors_to_dump]
+    except AttributeError:
+        data = _connectors_to_dump
+    return CommandResponse.success({"connectors": data})

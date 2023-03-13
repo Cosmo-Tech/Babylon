@@ -12,9 +12,7 @@ from cosmotech_api.api.connector_api import ConnectorApi
 from cosmotech_api.exceptions import UnauthorizedException
 from cosmotech_api.api_client import ApiClient
 
-from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.api import convert_keys_case
-from ....utils.api import get_api_file
 from ....utils.api import underscore_to_camel
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import timing_decorator
@@ -47,25 +45,25 @@ DEFAULT_PAYLOAD_TEMPLATES = {
 @argument("connector-name", type=QueryType())
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
 @output_to_file
-def create(
-    api_client: ApiClient,
-    connector_type: str,
-    connector_name: str,
-    connector_version: str,
-    output_file: Optional[str] = None,
-    connector_file: Optional[pathlib.Path] = None
-) -> CommandResponse:
+def create(api_client: ApiClient,
+           connector_type: str,
+           connector_name: str,
+           connector_version: str,
+           output_file: Optional[str] = None,
+           connector_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """Register a new Connector by sending a JSON or YAML file to the API."""
     connector_api = ConnectorApi(api_client)
     connector_type = connector_type.upper()
     connector_content = connector_file or DEFAULT_PAYLOAD_TEMPLATES[connector_type]
     env = Environment()
-    converted_connector_content = convert_keys_case(env.fill_template(connector_content, data={
-        "connector_name": connector_name,
-        "connector_version": connector_version,
-        "connector_key": connector_name.replace(" ", ""),
-        "connector_description": connector_name
-    }), camel_to_underscore)
+    converted_connector_content = convert_keys_case(
+        env.fill_template(connector_content,
+                          data={
+                              "connector_name": connector_name,
+                              "connector_version": connector_version,
+                              "connector_key": connector_name.replace(" ", ""),
+                              "connector_description": connector_name
+                          }), camel_to_underscore)
 
     try:
         retrieved_connector = connector_api.register_connector(connector=converted_connector_content)

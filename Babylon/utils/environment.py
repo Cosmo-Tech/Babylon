@@ -7,6 +7,7 @@ from collections import defaultdict
 from typing import Any
 from typing import List
 from typing import Optional
+import jinja2
 
 import click
 import jmespath
@@ -53,6 +54,9 @@ class Environment(metaclass=SingletonMeta):
         self.configuration = Configuration(config_path)
         self.data_store: defaultdict[str, Any] = defaultdict()
         self.reset_data_store()
+        template_loader = jinja2.FileSystemLoader(searchpath="./")
+        self.template_environment = jinja2.Environment(loader=template_loader)
+        self.template_environment.filters["query"] = self.convert_data_query
 
     def set_configuration(self, configuration_path: pathlib.Path):
         self.configuration = Configuration(config_directory=configuration_path)
@@ -179,26 +183,12 @@ class Environment(metaclass=SingletonMeta):
 
         return _type, _file, _query
 
-    def fill_template(self, template_file: pathlib.Path, data: dict[str, Any] = {}, use_working_dir: bool = False) -> str:
+    def fill_template(self, template_file: pathlib.Path, data: dict[str, Any] = {}) -> str:
         """
         Fills a template with environment data using queries
         :param template_file: Input template file path
         :type template_file: str
         :return: filled template
         """
-        REMOVE_MARKER = "\\REMOVE_LINE\\"
-
-        def lookup_value(match: re.Match[str]) -> str:
-            key = str(match.group(1))
-            value = data.get(key) or self.convert_data_query(key)
-            if not value:
-                logger.warning(f"Missing key {key} in template data, removing line...")
-                return REMOVE_MARKER
-            return value
-
-        with open(template_file, "r") as _file:
-            template_content = _file.read()
-        filled = re.sub(r"\$\{(.+)\}", lookup_value, template_content)
-        filtered = "\n".join([line for line in filled.split("\n") if REMOVE_MARKER not in line])
-        # Removing last commas for json files
-        return re.sub(r'''(?<=[}\]"']),(?!\s*[{["'])''', "", filtered)
+        template = self.template_environment.get_template(str(template_file))
+        return template.render(data)

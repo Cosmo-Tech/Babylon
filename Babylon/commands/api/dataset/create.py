@@ -20,6 +20,7 @@ from ....utils.api import underscore_to_camel
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
+from ....utils.decorators import output_to_file
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
 from ....utils.clients import pass_api_client
@@ -35,14 +36,6 @@ logger = getLogger("Babylon")
 @option("-c", "--connector-id", "connector_id", type=QueryType())
 @require_deployment_key("organization_id", "organization_id")
 @option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the path be relative to the working directory ?",
-    type=bool,
-)
-@option(
     "-i",
     "--dataset-file",
     "dataset_file",
@@ -56,22 +49,14 @@ logger = getLogger("Babylon")
     type=str,
     help="New dataset description",
 )
-@option(
-    "-o",
-    "--output-file",
-    "output_file",
-    help="File to which content should be outputted (json-formatted)",
-    type=Path(),
-)
+@output_to_file
 def create(
     api_client: ApiClient,
     organization_id: str,
     dataset_name: str,
     connector_id: Optional[str] = None,
-    output_file: Optional[str] = None,
     dataset_file: Optional[str] = None,
-    dataset_description: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
+    dataset_description: Optional[str] = None
 ) -> CommandResponse:
     """Register new dataset by sending description file to the API."""
     dataset_api = DatasetApi(api_client)
@@ -104,14 +89,8 @@ def create(
 
     logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
     logger.debug(pformat(retrieved_dataset))
-
-    if output_file:
-        converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
-        with open(output_file, "w") as _f:
-            try:
-                json.dump(converted_content, _f, ensure_ascii=False)
-            except TypeError:
-                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Content was dumped on {output_file}")
-
-    return CommandResponse.success(retrieved_dataset)
+    try:
+        data = retrieved_dataset.to_dict()
+    except AttributeError:
+        data = retrieved_dataset
+    return CommandResponse.success(data)

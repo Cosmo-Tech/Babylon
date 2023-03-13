@@ -1,6 +1,5 @@
 import logging
 import pathlib
-from string import Template
 from typing import Optional
 
 from click import command

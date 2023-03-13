@@ -11,7 +11,6 @@ from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
-from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import timing_decorator
 from ....utils.decorators import working_dir_requires_yaml_key
@@ -53,7 +52,8 @@ def create(tfc_client: TFC, workspace_name: str, working_directory: str, vcs_ide
         "vcs_branch": vcs_branch,
         "vcs_identifier": vcs_identifier,
         "vcs_oauth_token_id": vcs_oauth_token_id
-    }, use_working_dir=True)
+    },
+                                          use_working_dir=True)
 
     logger.info("Sending payload to terraform")
     try:

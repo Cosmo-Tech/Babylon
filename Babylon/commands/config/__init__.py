@@ -5,10 +5,12 @@ from .validate import validate
 from .deployment import deployment
 from .platform import platform
 from .plugin import plugin
+from .fill_template import fill_template
 
 list_commands = [
     validate,
     display,
+    fill_template
 ]
 
 list_groups = [

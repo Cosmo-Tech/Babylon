@@ -1,13 +1,7 @@
-import json
-import pathlib
 import re
 import logging
 from typing import Any
 from typing import Iterable
-
-import yaml
-
-from .environment import Environment
 
 camel_pat = re.compile(r'([A-Z])')
 logger = logging.getLogger("Babylon")
@@ -82,33 +76,5 @@ def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> A
     return [filter_api_response_item(ele, fields) for ele in api_response_body]
 
 
-def get_api_file(api_file_path: str):
-    """
-    This function will try to find the correct file, and return its content
-        in a format ready to be used with the cosmotech api
-    Accepts yaml and json files
-    :param api_file_path: The path to the file to be loaded
-    :param use_working_dir_file: Should the path be relative to the working directory ?
-    :return: None if the file was not found, else the content of the loaded file
-    """
-    _file_path = pathlib.Path(api_file_path)
-    if not _file_path.exists():
-        logger.error(f"{_file_path} does not exists.")
-        return None
-
-    ext = _file_path.suffix
-
-    with open(_file_path) as _file:
-        if ext == ".json":
-            logger.debug("Reading a json file")
-            solution_content = json.load(_file)
-        elif ext == ".yaml":
-            logger.debug("Reading a yaml file")
-            solution_content = yaml.safe_load(_file)
-        else:
-            logger.error(f"Unknown file format for {_file_path}, only accepted format are json and yaml")
-            return None
-
-    # Ensure correct case for the python API (python api use snake_case, while other versions use camelCase)
-    converted_solution_content = convert_keys_case(solution_content, camel_to_underscore)
-    return converted_solution_content
+def get_api_file(plop, caca=None):
+    return None

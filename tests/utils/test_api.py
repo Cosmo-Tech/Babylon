@@ -1,4 +1,3 @@
-from unittest.mock import patch, mock_open
 from Babylon.utils import api
 
 
@@ -50,23 +49,3 @@ def test_convert_keys_case_ok_3():
     # Should ignore key case if inside a parametersValues
     converted = api.convert_keys_case(params, lambda x: x.upper())
     assert converted["parametersValues".upper()] == params["parametersValues"]
-
-
-def test_get_api_file_missing_1():
-    """Get Api File test"""
-    file = api.get_api_file("myfile", False)
-    assert not file
-
-
-def test_get_api_file_yaml():
-    """Get Api File test"""
-    with patch("builtins.open", mock_open(read_data="test: 10\n")), patch("pathlib.Path.exists", lambda x: True):
-        data = api.get_api_file("test.yaml", False)
-        assert data == {"test": 10}
-
-
-def test_get_api_file_json():
-    """Get Api File test"""
-    with patch("builtins.open", mock_open(read_data="{\"test\": 10}")), patch("pathlib.Path.exists", lambda x: True):
-        data = api.get_api_file("test.json", False)
-        assert data == {"test": 10}
