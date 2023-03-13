@@ -46,17 +46,15 @@ def convert_keys_case(element: Any, convert_function) -> Any:
     :return: an object of the same type as the original one where all dict keys had the convert_function applied
     """
     if isinstance(element, dict):
-        new_element = dict()
+        new_element = {}
         for k, v in element.items():
             if k in ["parametersValues", "parameters_values"]:
-                new_element[convert_function(k)] = dict() if not v else v.copy()
+                new_element[convert_function(k)] = {} if not v else v.copy()
             elif v is not None:
                 new_element[convert_function(k)] = convert_keys_case(v, convert_function)
         return new_element
     if isinstance(element, list):
-        new_element = list()
-        for e in element:
-            new_element.append(convert_keys_case(e, convert_function))
+        new_element = [convert_keys_case(elt, convert_function) for elt in element]
         return new_element
     return element
 
@@ -84,7 +82,7 @@ def filter_api_response(api_response_body: Iterable, fields: Iterable[str]) -> A
     return [filter_api_response_item(ele, fields) for ele in api_response_body]
 
 
-def get_api_file(api_file_path: str, use_working_dir_file: bool):
+def get_api_file(api_file_path: str):
     """
     This function will try to find the correct file, and return its content
         in a format ready to be used with the cosmotech api
@@ -94,8 +92,6 @@ def get_api_file(api_file_path: str, use_working_dir_file: bool):
     :return: None if the file was not found, else the content of the loaded file
     """
     _file_path = pathlib.Path(api_file_path)
-    if use_working_dir_file:
-        _file_path = Environment().working_dir.get_file(api_file_path)
     if not _file_path.exists():
         logger.error(f"{_file_path} does not exists.")
         return None

@@ -21,6 +21,7 @@ from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
 from ....utils.clients import pass_api_client
+from ....utils.decorators import output_to_file
 
 logger = getLogger("Babylon")
 
@@ -36,16 +37,6 @@ logger = getLogger("Babylon")
         required=True,
         type=Choice(["ADT", "STORAGE"], case_sensitive=False),
         help="Connector type, allowed values : [ADT, STORAGE]")
-@option("-o",
-        "--output-file",
-        "output_file",
-        help="The path to the file where the new Connector content should be outputted (json-formatted)",
-        type=Path())
-@option("-e",
-        "--use-working-dir-file",
-        "use_working_dir_file",
-        is_flag=True,
-        help="Should the Connector file path be relative to Babylon working directory ?")
 @argument("connector-name", type=QueryType())
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
 def create(
@@ -54,16 +45,14 @@ def create(
     connector_name: str,
     connector_version: str,
     output_file: Optional[str] = None,
-    connector_file: Optional[str] = None,
-    use_working_dir_file: bool = False,
+    connector_file: Optional[str] = None
 ) -> CommandResponse:
     """Register a new Connector by sending a JSON or YAML file to the API."""
     connector_api = ConnectorApi(api_client)
     connector_type = connector_type.upper()
     converted_connector_content = get_api_file(
         api_file_path=connector_file
-        if connector_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Connector.{connector_type}.yaml",
-        use_working_dir_file=use_working_dir_file if connector_file else False)
+        if connector_file else f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Connector.{connector_type}.yaml")
     if not converted_connector_content:
         logger.error("Error : can not get correct Connector definition, please check your Connector.YAML file")
         return CommandResponse.fail()
@@ -84,13 +73,6 @@ def create(
     logger.debug(pformat(retrieved_connector))
     logger.info("Created new %s Connector with id: %s", connector_type, retrieved_connector['id'])
 
-    if output_file:
-        converted_connector_content = convert_keys_case(retrieved_connector, underscore_to_camel)
-        with open(output_file, "w") as _f:
-            try:
-                json.dump(converted_connector_content, _f, ensure_ascii=False)
-            except TypeError:
-                json.dump(converted_connector_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Content was dumped on {output_file}")
+    converted_connector_content = convert_keys_case(retrieved_connector, underscore_to_camel)
 
-    return CommandResponse.success(retrieved_connector)
+    return CommandResponse.success(converted_connector_content)
