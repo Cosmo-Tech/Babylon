@@ -1,9 +1,9 @@
 # id: [connector id]
-key:
-name:
-description:
+key: ${connector_key}
+name: ${connector_name}
+description: ${connector_description}
 repository: cosmo-tech/azure-digital-twins-simulator-connector
-version:
+version: ${connector_version}
 tags:
   - ADT
   - Babylon
