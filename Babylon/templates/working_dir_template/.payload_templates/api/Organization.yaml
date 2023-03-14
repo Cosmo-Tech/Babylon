@@ -1,2 +1,2 @@
 # id: [organization id]
-name: ###
+name: ${organization_name}

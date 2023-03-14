@@ -1,9 +1,9 @@
-# id: [soution_id]
-key: ###
-name: ###
-description: ###
-repository: ###
-version: ###
+# id: [solution_id]
+key: ${solution_key}
+name: ${solution_name}
+description: ${solution_description}
+repository: ${solution_repository}
+version: ${solution_version}
 tags:
   # - ###
   # - ###

@@ -3,7 +3,6 @@ from logging import getLogger
 from pprint import pformat
 from typing import Optional
 
-from click import Path
 from click import argument
 from click import command
 from click import option
@@ -13,35 +12,29 @@ from cosmotech_api.exceptions import ServiceException
 from cosmotech_api.exceptions import UnauthorizedException
 from cosmotech_api.api_client import ApiClient
 
-from ....utils import TEMPLATE_FOLDER_PATH
-from ....utils.api import convert_keys_case
-from ....utils.api import get_api_file
-from ....utils.api import underscore_to_camel
 from ....utils.decorators import describe_dry_run
+from ....utils.api import underscore_to_camel
 from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
 from ....utils.decorators import output_to_file
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
+from ....utils.api import camel_to_underscore
 from ....utils.clients import pass_api_client
+from ....utils.environment import Environment
+from ....utils.api import convert_keys_case
 
 logger = getLogger("Babylon")
 
+DEFAULT_PAYLOAD_TEMPLATE = ".payload_templates/api/Dataset.yaml"
 
 @command()
 @describe_dry_run("Would call **dataset_api.create_dataset**")
 @timing_decorator
 @pass_api_client
+@require_deployment_key("organization_id", "organization_id")
 @argument("dataset-name", required=False, type=QueryType())
 @option("-c", "--connector-id", "connector_id", type=QueryType())
-@require_deployment_key("organization_id", "organization_id")
-@option(
-    "-i",
-    "--dataset-file",
-    "dataset_file",
-    type=str,
-    help="Your custom dataset description file",
-)
 @option(
     "-d",
     "--description",
@@ -49,30 +42,31 @@ logger = getLogger("Babylon")
     type=str,
     help="New dataset description",
 )
+@option(
+    "-i",
+    "--dataset-file",
+    "dataset_file",
+    type=str,
+    help="Your custom dataset description file",
+)
 @output_to_file
-def create(
-    api_client: ApiClient,
-    organization_id: str,
-    dataset_name: str,
-    connector_id: Optional[str] = None,
-    dataset_file: Optional[str] = None,
-    dataset_description: Optional[str] = None
-) -> CommandResponse:
+def create(api_client: ApiClient,
+           organization_id: str,
+           dataset_name: str,
+           connector_id: Optional[str] = None,
+           dataset_description: Optional[str] = None,
+           dataset_file: Optional[str] = None) -> CommandResponse:
     """Register new dataset by sending description file to the API."""
     dataset_api = DatasetApi(api_client)
-    converted_dataset_content = get_api_file(api_file_path=dataset_file or
-                                             f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Dataset.yaml",
-                                             use_working_dir_file=use_working_dir_file if dataset_file else False)
-
-    if not converted_dataset_content:
-        logger.error("Error : can not get Dataset definition, please check your Dataset.YAML file")
-        return CommandResponse.fail()
-
-    if not dataset_description and "dataset_description" not in converted_dataset_content:
-        converted_dataset_content["description"] = dataset_name
-
-    converted_dataset_content["name"] = dataset_name
-    converted_dataset_content["connector"]["id"] = connector_id
+    dataset_template = dataset_file or DEFAULT_PAYLOAD_TEMPLATE
+    env = Environment()
+    converted_dataset_content = convert_keys_case(
+        env.fill_template(dataset_template,
+                          data={
+                              "dataset_name": dataset_name,
+                              "connector_id": connector_id,
+                              "dataset_description": dataset_description or dataset_name
+                          }), camel_to_underscore)
 
     try:
         retrieved_dataset = dataset_api.create_dataset(organization_id=organization_id,
@@ -87,10 +81,10 @@ def create(
         logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
         return CommandResponse.fail()
 
-    logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
-    logger.debug(pformat(retrieved_dataset))
     try:
-        data = retrieved_dataset.to_dict()
+        data = convert_keys_case(retrieved_dataset.to_dict(), underscore_to_camel)
     except AttributeError:
-        data = retrieved_dataset
+        data = convert_keys_case(retrieved_dataset, underscore_to_camel)
+    logger.debug(pformat(data))
+    logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
     return CommandResponse.success(data)

@@ -189,4 +189,8 @@ class Environment(metaclass=SingletonMeta):
         :return: filled template
         """
         template = Template(filename=str(template_file))
-        return template.render(data=data, platform=self.configuration.get_platform(), deploy=self.configuration.get_deploy(), datastore=self.data_store)
+        return template.render(**data,
+                               platform=self.configuration.get_platform(),
+                               deploy=self.configuration.get_deploy(),
+                               datastore=self.data_store,
+                               secrets={})

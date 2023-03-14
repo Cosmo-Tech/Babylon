@@ -35,21 +35,20 @@ DEFAULT_PAYLOAD_TEMPLATES = {
 @describe_dry_run("Would call **connector_api.create_connector** to register a new Connector")
 @timing_decorator
 @pass_api_client
-@option("-i", "--connector-file", "connector_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@argument("connector-name", type=QueryType())
 @option("-t",
         "--type",
         "connector_type",
         required=True,
         type=Choice(["ADT", "STORAGE"], case_sensitive=False),
         help="Connector type, allowed values : [ADT, STORAGE]")
-@argument("connector-name", type=QueryType())
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
+@option("-i", "--connector-file", "connector_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @output_to_file
 def create(api_client: ApiClient,
-           connector_type: str,
            connector_name: str,
+           connector_type: str,
            connector_version: str,
-           output_file: Optional[str] = None,
            connector_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """Register a new Connector by sending a JSON or YAML file to the API."""
     connector_api = ConnectorApi(api_client)

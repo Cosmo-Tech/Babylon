@@ -1,5 +1,5 @@
-name: ###
-description: reference model in ADT
+name: ${dataset_name}
+description: ${dataset_description}
 # id: [dataset id]
 tags:
   - ADT
@@ -7,7 +7,7 @@ tags:
   - Reference
   - dataset
 connector:
-  # id: [connector id]
+  id: ${connector_id}
   parametersValues:
-    AZURE_DIGITAL_TWINS_URL: ###
+    AZURE_DIGITAL_TWINS_URL: ${deploy["digital_twin_url"]}
     CSM_NUMBER_OF_THREAD: 1
