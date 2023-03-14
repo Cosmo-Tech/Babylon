@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @argument("template_file", type=Path(path_type=pathlib.Path, dir_okay=False, exists=True))
 @option("-o", "--output", "output_file", type=Path(path_type=pathlib.Path, dir_okay=False))
 def fill_template(template_file: pathlib.Path, output_file: Optional[pathlib.Path]) -> CommandResponse:
-    """Display current config"""
+    """Fill a mako template with configuration data"""
     data = Environment().fill_template(template_file)
     logger.info(data)
     if not output_file:
