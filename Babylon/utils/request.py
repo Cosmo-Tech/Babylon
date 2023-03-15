@@ -29,7 +29,11 @@ def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: Any)
     :param type: request type [POST, PATCH, PUT, GET]
     :type type: str
     """
-    header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        "Content-Type": "application/json",
+        **kwargs.pop("headers", {})
+    }
     request_funcs = {
         "POST": requests.post,
         "PATCH": requests.patch,
@@ -42,7 +46,7 @@ def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: Any)
         logger.error(f"Could not find request of type {type}")
         return None
     try:
-        response = request_func(url=url, headers=header, **kwargs)
+        response = request_func(url=url, headers=headers, **kwargs)
     except Exception as e:
         logger.error(f"Request failed: {e}")
         return None

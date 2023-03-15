@@ -35,7 +35,7 @@ def create(azure_token: str, app_id: str, password_name: Optional[str] = None, s
     logger.info(pretty_repr(output_data))
     env = Environment()
     if select:
-        env.working_dir.set_yaml_key(".secrets.yaml", password_name, {
+        env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", password_name, {
             "client_id": output_data["keyId"],
             "client_secret": output_data["secretText"]
         })

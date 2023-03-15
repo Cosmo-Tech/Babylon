@@ -1,5 +1,6 @@
 import pathlib
 from typing import Optional
+from typing import Any
 
 import yaml
 from ruamel.yaml import YAML  # Allow to load and dump Yaml file with comment
@@ -20,7 +21,29 @@ def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[object]:
         return None
 
 
-def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
+def set_nested_key(dic: dict[str, Any], keys: list[str] or str, value: Any) -> dict[str, Any]:
+    """Sets a nested key in a dict
+
+    :param dic: input dictionaty
+    :type dic: dict[str, Any]
+    :param keys: key or list of keys of nested
+    :type keys: list[str]orstr
+    :param value: value to set
+    :type value: Any
+    :return: new dictionary
+    :rtype: _type_
+    """
+    if isinstance(keys, str):
+        dic[keys] = value
+        return dic
+    nest = dic
+    for key in keys[:-1]:
+        nest = nest.setdefault(key, {})
+    nest[keys[-1]] = value
+    return dic
+
+
+def write_yaml_value(yaml_file: pathlib.Path, keys: list[str] or str, value: str) -> None:
     """
     This function aloow to update a YAML file values
     :param yaml_file: path to the file to open
@@ -28,11 +51,12 @@ def write_yaml_value(yaml_file: pathlib.Path, key: str, value: str) -> None:
     :param value:the new value of the key
     :return : None
     """
+
     _commented_yaml_loader = YAML()
     try:
         with yaml_file.open(mode='r') as file:
             _y = _commented_yaml_loader.load(file) or {}
-            _y[key] = value
+            _y = set_nested_key(_y, keys, value)
         with yaml_file.open(mode='w') as file:
             _commented_yaml_loader.dump(_y, yaml_file)
     except OSError:

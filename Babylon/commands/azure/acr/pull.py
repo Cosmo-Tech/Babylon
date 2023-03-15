@@ -10,7 +10,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
-from .registry_connect import registry_connect
+from ....utils.clients import get_docker_client
 
 logger = logging.getLogger("Babylon")
 
@@ -34,7 +34,9 @@ def pull(csm_acr_registry_name: str,
     """
     image = image or f"{csm_simulator_repository}:{simulator_version}"
     registry = registry or csm_acr_registry_name
-    _, client = registry_connect(registry)
+    client = get_docker_client(registry)
+    if not client:
+        return CommandResponse.fail()
     repo = f"{registry}/{image}"
     logger.info(f"Pulling remote image {image} from registry {registry}")
     try:

@@ -7,13 +7,13 @@ from click import Choice
 from click import command
 from click import option
 
-from .registry_connect import registry_connect
 from ....utils.decorators import require_deployment_key
 from ....utils.decorators import require_platform_key
 from ....utils.decorators import timing_decorator
 from ....utils.interactive import confirm_deletion
 from ....utils.response import CommandResponse
 from ....utils.typing import QueryType
+from ....utils.clients import get_registry_client
 
 logger = logging.getLogger("Babylon")
 
@@ -50,7 +50,7 @@ def delete(csm_acr_registry_name: str,
     if not registry:
         logger.error("Please specify a registry to delete from with --direction or --registry")
         return CommandResponse.fail()
-    cr_client, _ = registry_connect(registry)
+    cr_client = get_registry_client(registry)
     image = image or f"{simulator_repository}:{simulator_version}"
     image = f"{image}:latest" if ":" not in image else image
     try:

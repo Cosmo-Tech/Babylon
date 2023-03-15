@@ -5,7 +5,7 @@
 babylon working-dir encrypt-file <FileName>
 ```
 
-Should create a `secret.key` file containing the encryption key used to encrypt files and create a `<FileName>.encrypt` containing an encrypt version of the original file.
+Should create a `.secret.key` file containing the encryption key used to encrypt files and create a `<FileName>.encrypt` containing an encrypt version of the original file.
 
 Content can be verified with the `dev-tools` plugin using the following command which should display the full content of <FileName>
 ```bash

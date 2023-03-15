@@ -10,7 +10,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
 from ....utils.typing import QueryType
-from .registry_connect import registry_connect
+from ....utils.clients import get_registry_client
 
 logger = logging.getLogger("Babylon")
 
@@ -28,7 +28,7 @@ def list(csm_acr_registry_name: str, acr_registry_name: str, registry: typing.Op
     if not registry:
         logger.error("Please specify a registry to list from with --direction or --registry")
         return CommandResponse.fail()
-    cr_client, _ = registry_connect(registry)
+    cr_client = get_registry_client(registry)
     logger.info("Getting repositories stored in registry %s", registry)
     try:
         repos = [repo for repo in cr_client.list_repository_names()]

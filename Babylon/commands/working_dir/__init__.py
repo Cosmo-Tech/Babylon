@@ -1,6 +1,7 @@
 from click import group
 
 from .encrypt_file import encrypt_file
+from .decrypt_file import decrypt_file
 from .complete import complete
 from .display import display
 from .init import init
@@ -8,6 +9,7 @@ from .validate import validate
 from .zip_env import zip_env
 
 list_commands = [
+    decrypt_file,
     encrypt_file,
     init,
     complete,

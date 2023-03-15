@@ -20,6 +20,7 @@ WORKING_DIR_STRING = "workdir"
 DEPLOY_STRING = "deploy"
 PLATFORM_STRING = "platform"
 STORE_STRING = "datastore"
+SECRETS_STRING = "secrets"
 PATH_SYMBOL = "%"
 
 
@@ -115,7 +116,7 @@ class Environment(metaclass=SingletonMeta):
             return None
 
         _type, _file, _query = extracted_content
-        # Check content of platform / deploy
+        # Check content of platform / deploy / secrets
         possibles = {
             DEPLOY_STRING: (self.configuration.get_deploy(), self.configuration.get_deploy_path()),
             PLATFORM_STRING: (self.configuration.get_platform(), self.configuration.get_platform_path())
@@ -127,6 +128,9 @@ class Environment(metaclass=SingletonMeta):
             r = jmespath.search(_query, _data)
             if r is None:
                 raise KeyError(f"Could not find results for query '{_query}' in {_path}")
+        elif _type == SECRETS_STRING:
+            data = self.working_dir.get_file_content(".secrets.yaml.encrypt")
+            r = jmespath.search(_query, data)
         elif _type == STORE_STRING:
             logger.debug(f"    Detected parameter type '{_type}' with query '{_query}'")
             r = jmespath.search(_query, self.data_store)
@@ -146,7 +150,7 @@ class Environment(metaclass=SingletonMeta):
 
     @staticmethod
     def auto_completion_guide():
-        bases = [WORKING_DIR_STRING + '[]', DEPLOY_STRING, PLATFORM_STRING, STORE_STRING]
+        bases = [WORKING_DIR_STRING + '[]', SECRETS_STRING, DEPLOY_STRING, PLATFORM_STRING, STORE_STRING]
         base_names = [f"{PATH_SYMBOL}{base}{PATH_SYMBOL}" for base in bases]
         return base_names
 
@@ -162,7 +166,8 @@ class Environment(metaclass=SingletonMeta):
             return None
 
         check_regex = re.compile(f"{PATH_SYMBOL}"
-                                 f"({PLATFORM_STRING}|{DEPLOY_STRING}|{WORKING_DIR_STRING}|{STORE_STRING})"
+                                 f"({SECRETS_STRING}|{PLATFORM_STRING}|{DEPLOY_STRING}|"
+                                 f"{WORKING_DIR_STRING}|{STORE_STRING})"
                                  f"(?:(?<={WORKING_DIR_STRING})\\[(.+)])?"
                                  f"{PATH_SYMBOL}"
                                  f"(.+)")
