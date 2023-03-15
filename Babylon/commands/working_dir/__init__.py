@@ -7,6 +7,8 @@ from .display import display
 from .init import init
 from .validate import validate
 from .zip_env import zip_env
+from .generate_secret_key import generate_secret_key
+
 
 list_commands = [
     decrypt_file,
@@ -16,6 +18,7 @@ list_commands = [
     validate,
     display,
     zip_env,
+    generate_secret_key
 ]
 
 

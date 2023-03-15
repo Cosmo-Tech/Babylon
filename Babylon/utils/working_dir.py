@@ -233,6 +233,7 @@ class WorkingDir:
             with open(secret_file_path, "rb") as f:
                 self.encoding_key = f.read()
         except OSError:
+            logger.warning("Could not found .secret.key, generate a new one with 'babylon working-dir generate-secret-key'")
             raise ValueError(".secret.key file could not be opened")
 
     def generate_secret_key(self, override: bool = False) -> pathlib.Path:
