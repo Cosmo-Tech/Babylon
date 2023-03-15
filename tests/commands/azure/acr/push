@@ -2,7 +2,7 @@
 
 To test the new commands proceed as follow:
 - install the new dependencies using `pip install -r requirements.txt`
-- Add or edit the following lines in `config/platforms/platform.yaml`
+- Add or edit the following lines in `config/platform.yaml`
 ```yaml
 api_url: "https://dev.api.cosmotech.com"
 api_scope: "http://dev.api.cosmotech.com/.default"

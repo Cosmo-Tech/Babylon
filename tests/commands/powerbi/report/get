@@ -1,12 +1,12 @@
 ## babylon powerbi report get
 
 To test the new commands proceed as follow:
-- Add or edit the following lines in `config/platforms/platform.yaml`
+- Add or edit the following lines in `config/platform.yaml`
 ```yaml
 # Powerbi api scope
 powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
 ```
-- Add or edit the following lines in `config/deployments/deploy.yaml`²
+- Add or edit the following lines in `config/deploy.yaml`²
 ```yaml
 # Powerbi workspace id
 powerbi_workspace_id: ""
