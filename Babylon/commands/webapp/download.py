@@ -3,13 +3,11 @@ import pathlib
 
 from click import command
 from click import argument
-from click import option
 from click import Path
 import git
 
 from ...utils.decorators import require_deployment_key
 from ...utils.decorators import working_dir_requires_yaml_key
-from ...utils.environment import Environment
 from ...utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -20,9 +18,7 @@ logger = logging.getLogger("Babylon")
 @require_deployment_key("webapp_repository_branch")
 @working_dir_requires_yaml_key(".secrets.yaml.encrypt", "github.token", "github_token")
 @argument("destination_folder", type=Path(path_type=pathlib.Path))
-def download(webapp_repository: str,
-             webapp_repository_branch: str,
-             github_token: str,
+def download(webapp_repository: str, webapp_repository_branch: str, github_token: str,
              destination_folder: pathlib.Path) -> CommandResponse:
     """Download the github repository locally"""
     if destination_folder.exists():

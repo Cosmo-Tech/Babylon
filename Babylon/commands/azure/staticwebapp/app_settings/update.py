@@ -23,10 +23,7 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("resource_group_name")
 @argument("webapp_name", type=QueryType())
 @option("-f", "--file", "settings_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
-def update(azure_token: str,
-           azure_subscription: str,
-           resource_group_name: str,
-           webapp_name: str,
+def update(azure_token: str, azure_subscription: str, resource_group_name: str, webapp_name: str,
            settings_file: pathlib.Path) -> CommandResponse:
     """
     Update static webapp app settings in the given webapp

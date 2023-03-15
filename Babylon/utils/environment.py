@@ -193,9 +193,13 @@ class Environment(metaclass=SingletonMeta):
         :type template_file: str
         :return: filled template
         """
+        try:
+            secrets = self.working_dir.get_file_content(".secrets.yaml.encrypt")
+        except Exception:
+            secrets = {}
         template = Template(filename=str(template_file), strict_undefined=True)
         return template.render(**data,
                                platform=self.configuration.get_platform(),
                                deploy=self.configuration.get_deploy(),
                                datastore=self.data_store,
-                               secrets=self.working_dir.get_file_content(".secrets.yaml.encrypt"))
+                               secrets=secrets)
