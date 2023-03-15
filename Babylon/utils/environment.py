@@ -185,10 +185,7 @@ class Environment(metaclass=SingletonMeta):
 
         return _type, _file, _query
 
-    def fill_template(self,
-                      template_file: pathlib.Path,
-                      data: dict[str, Any] = {}
-                      ) -> str:
+    def fill_template(self, template_file: pathlib.Path, data: dict[str, Any] = {}) -> str:
         """
         Fills a template with environment data using mako template engine
         https://docs.makotemplates.org/en/latest/syntax.html
@@ -196,9 +193,9 @@ class Environment(metaclass=SingletonMeta):
         :type template_file: str
         :return: filled template
         """
-        template = Template(filename=str(template_file))
+        template = Template(filename=str(template_file), strict_undefined=True)
         return template.render(**data,
                                platform=self.configuration.get_platform(),
                                deploy=self.configuration.get_deploy(),
                                datastore=self.data_store,
-                               secrets={})
+                               secrets=self.working_dir.get_file_content(".secrets.yaml.encrypt"))

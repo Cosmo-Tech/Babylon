@@ -37,6 +37,7 @@ class WorkingDir:
             self.zip_file = zipfile.ZipFile(self.path)
             self.path = zipfile.Path(self.zip_file)
         self.template_path = TEMPLATE_FOLDER_PATH / "working_dir_template"
+        self.payload_path = self.path / ".payload_templates"
         self.encoding_key = None
 
     def copy_template(self):
