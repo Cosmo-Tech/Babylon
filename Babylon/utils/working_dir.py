@@ -253,8 +253,13 @@ class WorkingDir:
 
     @staticmethod
     def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
-        decoder = Fernet(encoding_key)
-        return decoder.decrypt(content)
+        try:
+            decoder = Fernet(encoding_key)
+            data = decoder.decrypt(content)
+        except Exception:
+            logger.error("Could not decrypt content, wrong key ?")
+            return b""
+        return data
 
     def decrypt_file(self, file_name: pathlib.Path) -> Any:
         """
