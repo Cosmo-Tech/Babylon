@@ -15,7 +15,7 @@
         <link rel="next" href="../../cli/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.1">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.3">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.402914a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.c4a75a56.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -910,9 +910,9 @@
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><code>babylon working-dir encrypt-file</code></label><label for="__tabbed_1_2">QueryType</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>Using this command you can encrypt a file, if it is your first encryption a file <code>secret.key</code> will be generated at the same time  </p>
+<p>Using this command you can encrypt a file, if it is your first encryption a file <code>.secret.key</code> will be generated at the same time  </p>
 <div class="admonition warning">
-<p class="admonition-title"><code>secret.key</code></p>
+<p class="admonition-title"><code>.secret.key</code></p>
 <p>Be careful and keep that secret securely !<br />
 Without it, you won't be able to decrypt your files in the future !</p>
 </div>
@@ -924,9 +924,9 @@ Those files will be decrypted and made available for your queries.</p>
 </div>
 </div>
 <h2 id="secret-management_1">Secret Management</h2>
-<p>To manage secrets, you need to ensure that secrets values are inside a <code>.encrypt</code> file with the associated <code>secret.key</code></p>
+<p>To manage secrets, you need to ensure that secrets values are inside a <code>.encrypt</code> file with the associated <code>.secret.key</code></p>
 <p>Combining those allow to ensure that secret files could be exchanged between users, or even stored securely inside a VCS or a cloud storage.</p>
-<p>But the responsibility of securing the <code>secret.key</code> will still be on the user side. If they loose it the encrypted files will become unreadable, and if it is made public, anyone could decrypt the files.</p>
+<p>But the responsibility of securing the <code>.secret.key</code> will still be on the user side. If they loose it the encrypted files will become unreadable, and if it is made public, anyone could decrypt the files.</p>
 
 
 
@@ -939,10 +939,10 @@ Those files will be decrypted and made available for your queries.</p>
           
         </div>
         
-          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
             Back to top
-          </a>
+          </button>
         
       </main>
       
@@ -1008,7 +1008,7 @@ Those files will be decrypted and made available for your queries.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.top", "navigation.indexes", "navigation.instant", "navigation.footer"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.b78d2936.min.js"></script>
+      <script src="../../assets/javascripts/bundle.efa0ade1.min.js"></script>
       
     
   </body>

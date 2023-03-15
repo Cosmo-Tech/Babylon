@@ -15,7 +15,7 @@
         <link rel="next" href="../Utils/config/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.1">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.3">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.402914a4.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.c4a75a56.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1322,6 +1322,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#login" class="md-nav__link">
+    login
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logout" class="md-nav__link">
+    logout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#staticwebapp" class="md-nav__link">
     staticwebapp
   </a>
@@ -1526,20 +1540,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#select" class="md-nav__link">
-    select
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-variable" class="md-nav__link">
-    set-variable
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1570,20 +1570,6 @@
           <li class="md-nav__item">
   <a href="#edit_1" class="md-nav__link">
     edit
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#select_1" class="md-nav__link">
-    select
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-variable_1" class="md-nav__link">
-    set-variable
   </a>
   
 </li>
@@ -1631,6 +1617,13 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-variable" class="md-nav__link">
+    set-variable
+  </a>
   
 </li>
         
@@ -2087,6 +2080,13 @@
           <li class="md-nav__item">
   <a href="#complete" class="md-nav__link">
     complete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decrypt-file" class="md-nav__link">
+    decrypt-file
   </a>
   
 </li>
@@ -3133,6 +3133,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#login" class="md-nav__link">
+    login
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logout" class="md-nav__link">
+    logout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#staticwebapp" class="md-nav__link">
     staticwebapp
   </a>
@@ -3337,20 +3351,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#select" class="md-nav__link">
-    select
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-variable" class="md-nav__link">
-    set-variable
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -3381,20 +3381,6 @@
           <li class="md-nav__item">
   <a href="#edit_1" class="md-nav__link">
     edit
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#select_1" class="md-nav__link">
-    select
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-variable_1" class="md-nav__link">
-    set-variable
   </a>
   
 </li>
@@ -3442,6 +3428,13 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-variable" class="md-nav__link">
+    set-variable
+  </a>
   
 </li>
         
@@ -3898,6 +3891,13 @@
           <li class="md-nav__item">
   <a href="#complete" class="md-nav__link">
     complete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decrypt-file" class="md-nav__link">
+    decrypt-file
   </a>
   
 </li>
@@ -5619,6 +5619,8 @@
 <li><em>adx</em>: Group interacting with Azure Data Explorer</li>
 <li><em>appinsight</em>: Group interacting with Azure App Insight</li>
 <li><em>arm</em>: Group interacting with Azure Resources Manager</li>
+<li><em>login</em>: Login to azure using secrets stored in .secrets.yaml</li>
+<li><em>logout</em>: Login to azure using secrets stored in .secrets.yaml</li>
 <li><em>staticwebapp</em>: Group interacting with Azure Static Webapps</li>
 <li><em>storage</em>: Group interacting with Azure Storage Blob</li>
 </ul>
@@ -7186,6 +7188,78 @@ https://learn.microsoft.com/en-us/rest/api/application-insights/components/list-
 </tr>
 </tbody>
 </table>
+<h4 id="login">login</h4>
+<p>Login to azure using secrets stored in .secrets.yaml</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon azure login [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-i</code>, <code>--id</code></td>
+<td>QueryString</td>
+<td>Client ID</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-p</code>, <code>--secret</code></td>
+<td>QueryString</td>
+<td>Client secret</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--tenant</code></td>
+<td>QueryString</td>
+<td>Tenant ID</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="logout">logout</h4>
+<p>Login to azure using secrets stored in .secrets.yaml</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon azure logout [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="staticwebapp">staticwebapp</h4>
 <p>Group interacting with Azure Static Webapps</p>
 <p><strong>Usage:</strong></p>
@@ -7858,6 +7932,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <li><em>display</em>: Display current config</li>
 <li><em>platform</em>: Sub-group for platform</li>
 <li><em>plugin</em>: Sub-group for plugins</li>
+<li><em>set-variable</em>: Set a configuration variable</li>
 <li><em>validate</em>: Validate current config</li>
 </ul>
 <h4 id="deployment">deployment</h4>
@@ -7888,8 +7963,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <ul>
 <li><em>create</em>: Create a new deployment file DEPLOY.yaml and open editor to edit it</li>
 <li><em>edit</em>: Open editor to edit variables in given deployment</li>
-<li><em>select</em>: Change current selected deployment</li>
-<li><em>set-variable</em>: Set a deployment variable with a new value</li>
 </ul>
 <h5 id="create_13">create</h5>
 <p>Create a new deployment file DEPLOY.yaml and open editor to edit it</p>
@@ -7920,55 +7993,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <p>will open default deployment if no argument is passed</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon config deployment edit [OPTIONS] [DEPLOYMENT]
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h5 id="select">select</h5>
-<p>Change current selected deployment</p>
-<p>if not argument is passed will run in interactive mode</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon config deployment select [OPTIONS] [DEPLOYMENT]
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h5 id="set-variable">set-variable</h5>
-<p>Set a deployment variable with a new value</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon config deployment set-variable [OPTIONS] VARIABLE_KEY VARIABLE_VALUE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8041,8 +8065,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <ul>
 <li><em>create</em>: <em>No description was provided with this command.</em></li>
 <li><em>edit</em>: Open editor to edit variables in given platform</li>
-<li><em>select</em>: Change current selected platform</li>
-<li><em>set-variable</em>: Set a platform variable with a new value</li>
 </ul>
 <h5 id="create_14">create</h5>
 <p><strong>Usage:</strong></p>
@@ -8072,55 +8094,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <p>will open default platform if no argument is passed</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon config platform edit [OPTIONS] [PLATFORM]
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h5 id="select_1">select</h5>
-<p>Change current selected platform</p>
-<p>if not argument is passed will run in interactive mode</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon config platform select [OPTIONS] [PLATFORM]
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h5 id="set-variable_1">set-variable</h5>
-<p>Set a platform variable with a new value</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon config platform set-variable [OPTIONS] VARIABLE_KEY VARIABLE_VALUE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8248,6 +8221,30 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <p>Remove PLUGIN</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon config plugin remove [OPTIONS] PLUGIN
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="set-variable">set-variable</h4>
+<p>Set a configuration variable</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon config set-variable [OPTIONS] {deploy|platform|secrets} KEY VALUE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9993,7 +9990,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </table>
 <h4 id="download_2">download</h4>
 <p>Download the github repository locally</p>
-<p>Requires key <code>github.token</code> in <code>.secrets.yaml</code> in the working_dir.</p>
+<p>Requires key <code>github.token</code> in <code>.secrets.yaml.encrypt</code> in the working_dir.</p>
 <p>Requires <code>webapp_repository_branch</code> in deploy config file.</p>
 <p>Requires <code>webapp_repository</code> in deploy config file.</p>
 <p><strong>Usage:</strong></p>
@@ -10141,6 +10138,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em>complete</em>: Complete the current working_dir for missing elements</li>
+<li><em>decrypt-file</em>: Decrypt given SOURCE_FILE</li>
 <li><em>display</em>: <em>No description was provided with this command.</em></li>
 <li><em>encrypt-file</em>: Encrypt given SOURCE_FILE</li>
 <li><em>init</em>: Initialize the current working_dir</li>
@@ -10151,6 +10149,30 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <p>Complete the current working_dir for missing elements</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon working-dir complete [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="decrypt-file">decrypt-file</h4>
+<p>Decrypt given SOURCE_FILE</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon working-dir decrypt-file [OPTIONS] SOURCE_FILE TARGET_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -10315,10 +10337,10 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
           
         </div>
         
-          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
             Back to top
-          </a>
+          </button>
         
       </main>
       
@@ -10384,7 +10406,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.top", "navigation.indexes", "navigation.instant", "navigation.footer"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.b78d2936.min.js"></script>
+      <script src="../assets/javascripts/bundle.efa0ade1.min.js"></script>
       
     
   </body>
