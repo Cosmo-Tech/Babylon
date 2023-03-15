@@ -1,7 +1,7 @@
 ## Babylon azure staticwebapp create
 
 To test the new commands proceed as follow:
-- Add or edit the following lines in `config/platforms/platform.yaml`
+- Add or edit the following lines in `config/platform.yaml`
 ```yaml
 # WebApp azure location
 webapp_location: ""

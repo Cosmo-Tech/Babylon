@@ -27,8 +27,8 @@ class Configuration:
         if not self.config_dir.exists():
             logger.warning("No config folder existing - Creating it.")
             shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
-            self.deploy = self.config_dir.absolute() / "deployments/deploy.yaml"
-            self.platform = self.config_dir.absolute() / "platforms/platform.yaml"
+            self.deploy = self.config_dir.absolute() / "deploy.yaml"
+            self.platform = self.config_dir.absolute() / "platform.yaml"
             self.plugins: list[dict[str, Any]] = list()
             self.save_config()
             return
