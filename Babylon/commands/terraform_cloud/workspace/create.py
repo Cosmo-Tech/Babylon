@@ -24,19 +24,18 @@ logger = logging.getLogger("Babylon")
 @pass_tfc_client
 @describe_dry_run("Would send a workspace creation payload to terraform")
 @argument("workspace_data_file", type=Path(path_type=pathlib.Path, exists=True, dir_okay=False))
-@working_dir_requires_yaml_key(".secrets.yaml.encrypt", "tfc.token_id", "tfc_token_id")
 @timing_decorator
 @output_to_file
-def create(tfc_client: TFC, workspace_data_file: pathlib.Path, tfc_token_id: str) -> CommandResponse:
+def create(tfc_client: TFC, workspace_data_file: pathlib.Path) -> CommandResponse:
     """Use given parameters to create a workspace in the organization"""
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
-    if set(workspace_data.keys()) != {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier"}:
+    if set(workspace_data.keys()) != {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier", "vcs_oauth_token_id"}:
         logger.error("Workspace data file should contain only workspace_name, working_directory and vcs_branch")
         return CommandResponse.fail()
 
     payload_template = env.working_dir.payload_path / "tfc/workspace_payload_with_github.json"
-    payload = env.fill_template(payload_template, {**workspace_data, "tfc_token_id": tfc_token_id})
+    payload = env.fill_template(payload_template, workspace_data)
     payload_data = json.load(payload)
     try:
         ws = tfc_client.workspaces.create(payload_data)
