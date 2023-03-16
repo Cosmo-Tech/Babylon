@@ -1,3 +1,5 @@
+# workspace_name: name of the workspace
+workspace_name: ""
 # workspace_id: id of the workspace to use by default
 workspace_id: ""
 # working_directory: working directory of the workspace
