@@ -1,7 +1,0 @@
-# token : API token to connect to terraform cloud API
-# can be created in this page : https://app.terraform.io/app/settings/tokens
-token: "SECURITY_TOKEN"
-# api : URL of the API for terraform cloud
-url: https://app.terraform.io
-# organization : organization to use on terraform cloud
-organization: "ORGANIZATION"

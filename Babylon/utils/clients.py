@@ -152,9 +152,9 @@ def pass_tfc_client(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         env = Environment()
-        tf_token = env.convert_data_query("%secrets%terraform.token")
-        tf_url = env.working_dir.get_yaml_key("terraform_cloud.yaml", "url")
-        tf_organization = env.working_dir.get_yaml_key("terraform_cloud.yaml", "organization")
+        tf_token = env.convert_data_query("%secrets%tfc.token")
+        tf_url = env.convert_data_query("%secrets%tfc.url")
+        tf_organization = env.convert_data_query("%secrets%tfc.organization")
         api = TFC(tf_token, tf_url)
         api.set_org(tf_organization)
         kwargs["tfc_client"] = api
