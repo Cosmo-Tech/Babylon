@@ -23,8 +23,7 @@ def fill_template(template_path: pathlib.Path, output_file) -> CommandResponse:
     env = Environment()
     filled_tpl = env.fill_template(template_path)
     logger.info(filled_tpl)
-    if not output_file:
-        return CommandResponse.success()
-    with output_file.open("w") as f:
-        f.write(str(filled_tpl))
+    if output_file:
+        with output_file.open("w") as f:
+            f.write(str(filled_tpl))
     return CommandResponse.success()
