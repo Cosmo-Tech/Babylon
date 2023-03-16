@@ -1,15 +1,15 @@
 {
   "data": {
     "attributes": {
-      "message": null,
-      "allow-empty-apply": null
+      "message": "${run_message}",
+      "allow-empty-apply": ${allow_empty_apply}
     },
     "type": "runs",
     "relationships": {
       "workspace": {
         "data": {
           "type": "workspaces",
-          "id": null
+          "id": "${workspace_id}"
         }
       }
     }
