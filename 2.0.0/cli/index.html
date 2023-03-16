@@ -1553,6 +1553,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#fill-template" class="md-nav__link">
+    fill-template
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#platform" class="md-nav__link">
     platform
   </a>
@@ -2101,6 +2108,13 @@
           <li class="md-nav__item">
   <a href="#encrypt-file" class="md-nav__link">
     encrypt-file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-secret-key" class="md-nav__link">
+    generate-secret-key
   </a>
   
 </li>
@@ -3364,6 +3378,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#fill-template" class="md-nav__link">
+    fill-template
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#platform" class="md-nav__link">
     platform
   </a>
@@ -3912,6 +3933,13 @@
           <li class="md-nav__item">
   <a href="#encrypt-file" class="md-nav__link">
     encrypt-file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-secret-key" class="md-nav__link">
+    generate-secret-key
   </a>
   
 </li>
@@ -5893,7 +5921,7 @@
 <p>Register an app in active directory
 https://learn.microsoft.com/en-us/graph/api/application-post-applications</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon azure ad app create [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon azure ad app create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5911,12 +5939,6 @@ https://learn.microsoft.com/en-us/graph/api/application-post-applications</p>
 <td>file</td>
 <td>N/A</td>
 <td>None</td>
-</tr>
-<tr>
-<td><code>-e</code>, <code>--use-working-dir-file</code></td>
-<td>boolean</td>
-<td>Should the parameter file path be relative to Babylon working directory ?</td>
-<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
@@ -6943,12 +6965,6 @@ https://learn.microsoft.com/en-us/rest/api/application-insights/components/creat
 <td>None</td>
 </tr>
 <tr>
-<td><code>-e</code>, <code>--use-working-dir-file</code></td>
-<td>boolean</td>
-<td>Should the parameter file path be relative to Babylon working directory ?</td>
-<td><code>False</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -7378,12 +7394,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td>None</td>
 </tr>
 <tr>
-<td><code>-e</code>, <code>--use-working-dir-file</code></td>
-<td>boolean</td>
-<td>Should the parameter file path be relative to Babylon working directory ?</td>
-<td><code>False</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -7416,12 +7426,6 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td>file</td>
 <td>N/A</td>
 <td>None</td>
-</tr>
-<tr>
-<td><code>-e</code>, <code>--use-working-dir-file</code></td>
-<td>boolean</td>
-<td>Should the parameter file path be relative to Babylon working directory ?</td>
-<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -7930,6 +7934,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <ul>
 <li><em>deployment</em>: Sub-group for deployment</li>
 <li><em>display</em>: Display current config</li>
+<li><em>fill-template</em>: <em>No description was provided with this command.</em></li>
 <li><em>platform</em>: Sub-group for platform</li>
 <li><em>plugin</em>: Sub-group for plugins</li>
 <li><em>set-variable</em>: Set a configuration variable</li>
@@ -8029,6 +8034,35 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="fill-template">fill-template</h4>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon config fill-template [OPTIONS] TEMPLATE_PATH
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>file</td>
+<td>File to which content should be outputted</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -10008,12 +10042,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </thead>
 <tbody>
 <tr>
-<td><code>-e</code>, <code>--use-working-dir-file</code></td>
-<td>boolean</td>
-<td>Should the destination folder path be relative to Babylon working directory ?</td>
-<td><code>False</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -10042,12 +10070,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td>file</td>
 <td>N/A</td>
 <td>None</td>
-</tr>
-<tr>
-<td><code>-e</code>, <code>--use-working-dir-file</code></td>
-<td>boolean</td>
-<td>Should the output file path be relative to Babylon working directory ?</td>
-<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
@@ -10141,6 +10163,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <li><em>decrypt-file</em>: Decrypt given SOURCE_FILE</li>
 <li><em>display</em>: <em>No description was provided with this command.</em></li>
 <li><em>encrypt-file</em>: Encrypt given SOURCE_FILE</li>
+<li><em>generate-secret-key</em>: Generates a new secret key</li>
 <li><em>init</em>: Initialize the current working_dir</li>
 <li><em>validate</em>: Validate the current working_dir</li>
 <li><em>zip-env</em>: Zip a working_dir to given PATH</li>
@@ -10236,6 +10259,36 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td><code>-o</code>, <code>--override</code></td>
 <td>boolean</td>
 <td>Should override already encrypted file</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="generate-secret-key">generate-secret-key</h4>
+<p>Generates a new secret key</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon working-dir generate-secret-key [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code>, <code>--override</code></td>
+<td>boolean</td>
+<td>Should override existing secret key</td>
 <td><code>False</code></td>
 </tr>
 <tr>
