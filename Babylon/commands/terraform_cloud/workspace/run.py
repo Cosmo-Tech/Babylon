@@ -1,15 +1,12 @@
 import json
 import logging
-import pathlib
 import pprint
-from typing import Optional
 
 from click import command
 from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
 
-from ....utils import TEMPLATE_FOLDER_PATH
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
