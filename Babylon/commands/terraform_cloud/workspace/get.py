@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_tfc_client
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=QueryType(), default="%deploy%terraform_cloud_workspace_id")
 @output_to_file
 @timing_decorator
 def get(tfc_client: TFC, workspace_id: str) -> CommandResponse:

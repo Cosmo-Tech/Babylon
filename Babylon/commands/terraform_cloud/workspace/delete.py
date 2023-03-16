@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_tfc_client
 @describe_dry_run("Would send query to delete WORKSPACE_ID to terraform")
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=QueryType(), default="%deploy%terraform_cloud_workspace_id")
 @option("-f", "--force", "force_validation", is_flag=True, help="Should validation be skipped ?")
 @timing_decorator
 def delete(tfc_client: TFC, workspace_id: str, force_validation: bool) -> CommandResponse:

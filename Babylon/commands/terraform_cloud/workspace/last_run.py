@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_tfc_client
 @output_to_file
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=QueryType(), default="%deploy%terraform_cloud_workspace_id")
 @timing_decorator
 def last_run(tfc_client: TFC, workspace_id: str) -> CommandResponse:
     """Get state of the last run of a workspace"""

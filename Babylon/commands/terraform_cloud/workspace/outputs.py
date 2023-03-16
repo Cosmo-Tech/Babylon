@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_tfc_client
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=QueryType(), default="%deploy%terraform_cloud_workspace_id")
 @option("-s",
         "--states",
         "states_webpage_open",

@@ -6,6 +6,7 @@ import pprint
 from click import argument
 from click import command
 from click import Path
+from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
@@ -23,9 +24,10 @@ logger = logging.getLogger("Babylon")
 @pass_tfc_client
 @describe_dry_run("Would send a workspace creation payload to terraform")
 @argument("workspace_data_file", type=Path(path_type=pathlib.Path, exists=True, dir_okay=False))
+@option("--select", "select", is_flag=True, help="Select the created workspace")
 @timing_decorator
 @output_to_file
-def create(tfc_client: TFC, workspace_data_file: pathlib.Path) -> CommandResponse:
+def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool = False) -> CommandResponse:
     """
     Use given parameters to create a workspace in the organization
     Takes a workspace_data_file as input, which should contain the following keys:
@@ -52,4 +54,8 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path) -> CommandRespons
         logger.error(pprint.pformat(_error.args))
         return CommandResponse.fail()
     logger.info(pprint.pformat(ws['data']))
+    if select:
+        env.configuration.set_deploy_var("terraform_cloud_workspace_id", ws['data']['id'])
+        logger.info(
+            f"terraform_cloud_workspace_id: {ws['data']['id']} was successfully set in the deploy configuration")
     return CommandResponse.success(ws.get("data"))
