@@ -9,17 +9,7 @@ from .validate import validate
 from .zip_env import zip_env
 from .generate_secret_key import generate_secret_key
 
-
-list_commands = [
-    decrypt_file,
-    encrypt_file,
-    init,
-    complete,
-    validate,
-    display,
-    zip_env,
-    generate_secret_key
-]
+list_commands = [decrypt_file, encrypt_file, init, complete, validate, display, zip_env, generate_secret_key]
 
 
 @group()

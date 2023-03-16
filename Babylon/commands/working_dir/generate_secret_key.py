@@ -21,6 +21,6 @@ def generate_secret_key(override: bool = False) -> CommandResponse:
     if not override and pathlib.Path(".secret.key").exists():
         logger.error("Secret key already exists. Use -o to override")
         return CommandResponse.fail()
-    secret_path = wd.generate_secret_key(override=override)
-    logger.info(f"Successfully generated secret key in {secret_path}")
+    path = wd.generate_secret_key(override=override)
+    logger.info(f"Successfully generated secret key in {path}")
     return CommandResponse.success()
