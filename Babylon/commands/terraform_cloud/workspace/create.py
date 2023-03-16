@@ -26,7 +26,15 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @output_to_file
 def create(tfc_client: TFC, workspace_data_file: pathlib.Path) -> CommandResponse:
-    """Use given parameters to create a workspace in the organization"""
+    """
+    Use given parameters to create a workspace in the organization
+    Takes a workspace_data_file as input, which should contain the following keys:
+    - workspace_name
+    - working_directory
+    - vcs_branch
+    - vcs_identifier
+    - vcs_oauth_token_id
+    """
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
     if set(workspace_data.keys()) != {
