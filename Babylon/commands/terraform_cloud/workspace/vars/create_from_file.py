@@ -24,13 +24,11 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_tfc_client
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
-@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", required=True, type=QueryType())
 @describe_dry_run("Sending multiple variable creation payloads to terraform")
 @argument("variable_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @timing_decorator
-def create_from_file(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str],
-                     variable_file: pathlib.Path) -> CommandResponse:
+def create_from_file(tfc_client: TFC, workspace_id: str, variable_file: pathlib.Path) -> CommandResponse:
     """Set multiple variables in a workspace
     Variable file must be a json file containing an array of the following json objects
     [{
@@ -44,15 +42,15 @@ def create_from_file(tfc_client: TFC, workspace_id_wd: str, workspace_id: Option
 More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body"""
 
-    workspace_id = workspace_id_wd or workspace_id
-
-    var_payload = {"key": None, "value": None, "description": None, "category": None, "hcl": False, "sensitive": False}
+    var_keys = ["key", "value", "description", "category"]
     env = Environment()
     variables = json.loads(env.fill_template(variable_file))
     for variable in variables:
         variable.setdefault("category", "terraform")
-        if not set(variable.keys()) <= var_payload.keys():
-            logger.error(f"TFC variable is missing required fields {list(var_payload.keys())}")
+        variable.setdefault("hcl", False)
+        variable.setdefault("sensitive", False)
+        if not set(variable.keys()) <= var_keys:
+            logger.error(f"TFC variable is missing required fields {var_keys}")
             continue
         payload = {"data": {"type": "vars", "attributes": variable}}
         try:
