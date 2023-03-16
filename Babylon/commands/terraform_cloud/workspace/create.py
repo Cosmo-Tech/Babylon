@@ -11,7 +11,6 @@ from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
 from ....utils.decorators import describe_dry_run
 from ....utils.decorators import timing_decorator
-from ....utils.decorators import working_dir_requires_yaml_key
 from ....utils.environment import Environment
 from ....utils.response import CommandResponse
 from ....utils.clients import pass_tfc_client
@@ -30,7 +29,9 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path) -> CommandRespons
     """Use given parameters to create a workspace in the organization"""
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
-    if set(workspace_data.keys()) != {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier", "vcs_oauth_token_id"}:
+    if set(workspace_data.keys()) != {
+            "workspace_name", "working_directory", "vcs_branch", "vcs_identifier", "vcs_oauth_token_id"
+    }:
         logger.error("Workspace data file should contain only workspace_name, working_directory and vcs_branch")
         return CommandResponse.fail()
 
