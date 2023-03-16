@@ -43,7 +43,7 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
         return CommandResponse.fail()
     env = Environment()
-    run_payload_template = env.working_dir.payload_path / "tfc/run_workspace_payload.json"
+    run_payload_template = env.working_dir.payload_path / "tfc/workspace_run.json"
     payload = env.fill_template(run_payload_template, {"workspace_id": workspace_id, "run_message": run_message})
     data = json.load(payload)
 

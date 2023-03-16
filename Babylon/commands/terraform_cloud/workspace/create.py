@@ -42,7 +42,7 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path) -> CommandRespons
         logger.error(f"Workspace data file should contain only keys: {','.join(workspace_keys)}")
         return CommandResponse.fail()
 
-    payload_template = env.working_dir.payload_path / "tfc/workspace_payload_with_github.json"
+    payload_template = env.working_dir.payload_path / "tfc/workspace_create.json"
     payload = env.fill_template(payload_template, workspace_data)
     payload_data = json.load(payload)
     try:
