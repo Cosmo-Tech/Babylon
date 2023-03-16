@@ -37,10 +37,9 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path) -> CommandRespons
     """
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
-    if set(workspace_data.keys()) != {
-            "workspace_name", "working_directory", "vcs_branch", "vcs_identifier", "vcs_oauth_token_id"
-    }:
-        logger.error("Workspace data file should contain only workspace_name, working_directory and vcs_branch")
+    workspace_keys = {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier", "vcs_oauth_token_id"}
+    if set(workspace_data.keys()) != workspace_keys:
+        logger.error(f"Workspace data file should contain only keys: {','.join(workspace_keys)}")
         return CommandResponse.fail()
 
     payload_template = env.working_dir.payload_path / "tfc/workspace_payload_with_github.json"

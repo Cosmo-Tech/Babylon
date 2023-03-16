@@ -2,12 +2,13 @@ from click import group
 
 from .workspace import workspace
 from .login import login
+from .logout import logout
 
 list_groups = [
     workspace,
 ]
 
-list_commands = [login]
+list_commands = [login, logout]
 
 
 @group()
