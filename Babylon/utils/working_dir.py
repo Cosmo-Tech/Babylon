@@ -37,6 +37,7 @@ class WorkingDir:
             self.zip_file = zipfile.ZipFile(self.path)
             self.path = zipfile.Path(self.zip_file)
         self.template_path = TEMPLATE_FOLDER_PATH / "working_dir_template"
+        self.payload_path = self.path / ".payload_templates"
         self.encoding_key = None
 
     def copy_template(self):
@@ -228,22 +229,24 @@ class WorkingDir:
 
     def load_secret_key(self):
         try:
-            secret_file_path = self.get_file(".secret.key")
-            with open(secret_file_path, "rb") as f:
+            path = self.get_file(".secret.key")
+            with open(path, "rb") as f:
                 self.encoding_key = f.read()
         except OSError:
+            logger.warning(
+                "Could not found .secret.key, generate a new one with 'babylon working-dir generate-secret-key'")
             raise ValueError(".secret.key file could not be opened")
 
     def generate_secret_key(self, override: bool = False) -> pathlib.Path:
-        secret_file_path = self.get_file(".secret.key")
-        if secret_file_path.exists() and not override:
-            return secret_file_path
+        path = self.get_file(".secret.key")
+        if path.exists() and not override:
+            return path
         generated_key = Fernet.generate_key()
         self.encoding_key = generated_key
-        with open(secret_file_path, "wb") as f:
+        with open(path, "wb") as f:
             f.write(generated_key)
-        logger.warning(f"Generated new secret key `{secret_file_path}` make sure to keep it safe.")
-        return secret_file_path
+        logger.warning(f"Generated new secret key `{path}` make sure to keep it safe.")
+        return path
 
     @staticmethod
     def encrypt_content(encoding_key: bytes, content: bytes) -> bytes:
@@ -252,8 +255,13 @@ class WorkingDir:
 
     @staticmethod
     def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
-        decoder = Fernet(encoding_key)
-        return decoder.decrypt(content)
+        try:
+            decoder = Fernet(encoding_key)
+            data = decoder.decrypt(content)
+        except Exception:
+            logger.error("Could not decrypt content, wrong key ?")
+            return b""
+        return data
 
     def decrypt_file(self, file_name: pathlib.Path) -> Any:
         """

@@ -13,7 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@argument("file", type=Path(path_type=pathlib.Path))
+@argument("file", type=Path(path_type=pathlib.Path, exists=True))
 def upload_file(file: pathlib.Path) -> CommandResponse:
     """Upload a file to the webapp github repository"""
     # Get parent git repository of the workflow file

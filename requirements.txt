@@ -27,6 +27,7 @@ jmespath>=1.0.1
 terrasnek>=0.1.10
 rich>=12.6.0
 GitPython>=3.1.30
+Mako==1.2.4
 
 # Testing requirements
 pytest>=7.1.3

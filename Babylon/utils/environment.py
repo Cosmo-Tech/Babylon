@@ -10,6 +10,7 @@ from typing import Optional
 
 import click
 import jmespath
+from mako.template import Template
 
 from .configuration import Configuration
 from .working_dir import WorkingDir
@@ -184,31 +185,18 @@ class Environment(metaclass=SingletonMeta):
 
         return _type, _file, _query
 
-    def fill_template(self,
-                      template_file: pathlib.Path,
-                      data: dict[str, Any] = {},
-                      use_working_dir_file: bool = False) -> str:
+    def fill_template(self, template_file: pathlib.Path, data: dict[str, Any] = {}) -> str:
         """
-        Fills a template with environment data using queries
+        Fills a template with environment data using mako template engine
+        https://docs.makotemplates.org/en/latest/syntax.html
         :param template_file: Input template file path
         :type template_file: str
         :return: filled template
         """
-        REMOVE_MARKER = "\\REMOVE_LINE\\"
-
-        def lookup_value(match: re.Match[str]) -> str:
-            key = str(match.group(1))
-            value = data.get(key) or self.convert_data_query(key)
-            if not value:
-                logger.warning(f"Missing key {key} in template data, removing line...")
-                return REMOVE_MARKER
-            return value
-
-        if use_working_dir_file:
-            template_file = self.working_dir.get_file(str(template_file))
-        with open(template_file, "r") as _file:
-            template_content = _file.read()
-        filled = re.sub(r"\$\{(.+)\}", lookup_value, template_content)
-        filtered = "\n".join([line for line in filled.split("\n") if REMOVE_MARKER not in line])
-        # Removing last commas for json files
-        return re.sub(r'''(?<=[}\]"']),(?!\s*[{["'])''', "", filtered)
+        secrets = self.working_dir.get_file_content(".secrets.yaml.encrypt")
+        template = Template(filename=str(template_file.absolute()), strict_undefined=True)
+        return template.render(**data,
+                               platform=self.configuration.get_platform(),
+                               deploy=self.configuration.get_deploy(),
+                               datastore=self.data_store,
+                               secrets=secrets)
