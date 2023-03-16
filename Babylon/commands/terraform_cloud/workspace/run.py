@@ -4,6 +4,7 @@ import pprint
 
 from click import command
 from click import option
+from click import argument
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
 
@@ -20,7 +21,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_tfc_client
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", required=True, type=QueryType())
+@argument("workspace_id", type=QueryType())
 @option("-m",
         "--message",
         "run_message",
