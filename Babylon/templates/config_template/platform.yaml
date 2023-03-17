@@ -22,7 +22,5 @@ acr_registry_name: ""
 resources_location: ""
 # Storage account name
 storage_account_name: ""
-# Api scope to identify to Power BI
-powerbi_api_scope: https://analysis.windows.net/powerbi/api/.default
 # Azure AD PowerBI group
 azure_powerbi_group_id: ""

@@ -1,6 +1,6 @@
 {
     "properties": {
-        "POWER_BI_SCOPE": "${deploy['powerbi_api_scope']}",
+        "POWER_BI_SCOPE": "https://analysis.windows.net/powerbi/api/.default",
         "POWER_BI_AUTHORITY_URI": "https://login.microsoftonline.com/common/v2.0",
         "POWER_BI_WORKSPACE_ID": "${deploy['powerbi_workspace_id']}",
         "POWER_BI_CLIENT_ID": "${secrets['powerbi']['client_id']}",
