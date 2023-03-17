@@ -35,4 +35,11 @@ def create(azure_token: str, name: str, registration_file: pathlib.Path) -> Comm
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
+    # Service principal creation
+    sp_route = "https://graph.microsoft.com/v1.0/servicePrincipals"
+    sp_response = oauth_request(sp_route, azure_token, type="POST", json={"appId": output_data["appId"]})
+    if sp_response is None:
+        logger.error("Failed to create application service principal")
+        return CommandResponse.fail()
+    output_data["servicePrincipalId"] = sp_response.json()["id"]
     return CommandResponse.success(output_data, verbose=True)
