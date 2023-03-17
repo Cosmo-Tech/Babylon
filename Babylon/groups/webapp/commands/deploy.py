@@ -40,12 +40,13 @@ def deploy(deployment_name: str,
     if r_ar.has_failed():
         return CommandResponse.fail()
     app_registration_id = r_ar.data["id"]
+    service_principal_id = r_ar.data["servicePrincipalId"]
     env.configuration.set_deploy_var("webapp_registration_id", app_registration_id)
 
     logger.info("3 - Add App Registration to PowerBI group")
-    r_pbigrp = run_command(["azure", "ad", "group", "member", "add", azure_powerbi_group_id, app_registration_id])
+    r_pbigrp = run_command(["azure", "ad", "group", "member", "add", azure_powerbi_group_id, service_principal_id])
     if r_pbigrp.has_failed():
-        logger.warning(f"3 - Failed to add app registration {app_registration_id} to AD group PowerBi")
+        logger.warning(f"3 - Failed to add app registration {service_principal_id} to AD group PowerBi")
 
     if webapp_enable_insights is True:
         logger.info("3b - Creating Application insights for Static Web App...")
@@ -93,9 +94,9 @@ def deploy(deployment_name: str,
         logger.warning("7 - Failed to add app registration identifiers for powerBI")
 
     logger.info("9 - Adding App user to powerBI workspace ID...")
-    r_pbiws = run_command(["powerbi", "workspace", "user", "add", r_ar.data["appId"], "App", "Member"])
+    r_pbiws = run_command(["powerbi", "workspace", "user", "add", service_principal_id, "App", "Member"])
     if r_pbiws.has_failed():
-        logger.warning((f"8 - `babylon powerbi workspace user add {r_ar.data['appId']} App Member`",
+        logger.warning((f"8 - `babylon powerbi workspace user add {service_principal_id} App Member`",
                         " failed, make sure you have sufficient rights and retype the command"))
 
     logger.info("10 - Adding powerbi credentials in Static WebApp settings...")
