@@ -4,14 +4,14 @@
     "spa": {
         "redirectUris": [
             "http://localhost:3000/scenario"
-            % if deploy['webapp_domain']: 
+            % if deploy.get('webapp_domain'): 
                 ,
                 "https://${deploy['webapp_domain']}/scenario"
             % endif
         ]
     },
     "requiredResourceAccess": [
-        % if platform['csm_platform_app_id']:
+        % if platform.get('csm_platform_app_id'):
         {
             "resourceAppId": "${platform['csm_platform_app_id']}",
             "resourceAccess": [
