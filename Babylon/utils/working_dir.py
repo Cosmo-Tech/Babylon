@@ -176,8 +176,8 @@ class WorkingDir:
                 reader = readers.get(ext)
                 if not reader:
                     logger.error(f"Could not read encrypted file of extension {ext}")
-                    return
-                return readers.get(ext)(content)
+                    return {}
+                return readers.get(ext)(content) or {}
             return list(_l for _l in _f)
 
     def __str__(self):
@@ -274,10 +274,10 @@ class WorkingDir:
                 self.load_secret_key()
             except ValueError:
                 logger.error("Can't decrypt a file without the key.")
-                return None
+                return ""
         if not self.get_file(str(file_name)).exists():
             logger.error("File does not exists")
-            return None
+            return ""
         with open(self.get_file(str(file_name)), "rb") as f:
             content = f.read()
             decrypted_content = self.decrypt_content(self.encoding_key, content)

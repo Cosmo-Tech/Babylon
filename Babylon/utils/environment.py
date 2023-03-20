@@ -174,7 +174,7 @@ class Environment(metaclass=SingletonMeta):
                                  f"(.+)")
 
         # Regex groups captures :
-        # 1 : Element to query : platform/deploy/workdir
+        # 1 : Element to query : platform/deploy/workdir/secrets
         # 2 : File path to query in case of a working dir
         # 3 : jmespath query to apply
 
