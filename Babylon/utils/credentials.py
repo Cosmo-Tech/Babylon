@@ -37,11 +37,11 @@ def get_azure_credentials() -> Any:
     """Logs to Azure and saves the token as a config variable"""
     env = Environment()
     azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
+    cached_credentials = env.convert_data_query("%secrets%azure")
     try:
-        cached_credentials = env.convert_data_query("%secrets%azure")
         return ClientSecretCredential(cached_credentials["tenant_id"], cached_credentials["client_id"],
                                       cached_credentials["client_secret"])
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     return DefaultAzureCredential(shared_cache_tenant_id=azure_tenant_id, visual_studio_code_tenant_id=azure_tenant_id)
 

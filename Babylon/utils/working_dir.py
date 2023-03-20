@@ -7,6 +7,7 @@ import shutil
 import zipfile
 from typing import Any
 from typing import Optional
+import click
 import yaml
 from cryptography.fernet import Fernet
 
@@ -39,6 +40,9 @@ class WorkingDir:
         self.template_path = TEMPLATE_FOLDER_PATH / "working_dir_template"
         self.payload_path = self.path / ".payload_templates"
         self.encoding_key = None
+        if not self.compare_to_template(False) and click.confirm(
+                f"Working dir is incomplete, add missing files in {working_dir_path.absolute()}?"):
+            self.compare_to_template(True)
 
     def copy_template(self):
         """

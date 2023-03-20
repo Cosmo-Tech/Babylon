@@ -24,17 +24,22 @@ class Configuration:
 
     def __init__(self, config_directory: pathlib.Path):
         self.config_dir = config_directory
-        if not self.config_dir.exists():
-            logger.warning("No config folder existing - Creating it.")
-            shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
-            self.deploy = self.config_dir.absolute() / "deploy.yaml"
-            self.platform = self.config_dir.absolute() / "platform.yaml"
-            self.plugins: list[dict[str, Any]] = list()
-            self.save_config()
-            return
         self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
         self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
         self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
+        self.initialize()
+    
+    def initialize(self):
+        if self.config_dir.exists():
+            logger.info("Configuration folder already exists")
+            return
+        shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
+        self.deploy = self.config_dir.absolute() / "deploy.yaml"
+        self.platform = self.config_dir.absolute() / "platform.yaml"
+        self.plugins: list[dict[str, Any]] = list()
+        self.save_config()
+        logger.info(f"Successfully copied configuration in {self.config_dir}")
+        return
 
     def get_active_plugins(self) -> list[(str, pathlib.Path)]:
         """

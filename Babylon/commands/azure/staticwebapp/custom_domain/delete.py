@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_azure_token("powerbi")
+@pass_azure_token()
 @require_platform_key("azure_subscription", "azure_subscription")
 @require_platform_key("resource_group_name", "resource_group_name")
 @option(
