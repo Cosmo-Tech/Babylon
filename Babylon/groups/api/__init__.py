@@ -19,7 +19,7 @@ from ...utils.decorators import require_platform_key
 def api(ctx: Context, api_scope: str, api_url: str):
     """Group handling communication with the cosmotech API"""
     try:
-        token = DefaultAzureCredential().get_token(api_scope)
+        token = DefaultAzureCredential(exclude_shared_token_cache_credential=True).get_token(api_scope)
     except ClientAuthenticationError:
         # Error message is handled by Azure API
         sys.exit(0)

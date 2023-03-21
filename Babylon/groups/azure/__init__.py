@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @requires_external_program("az")
 def azure(ctx: Context):
     """Group allowing communication with Microsoft Azure Cloud"""
-    ctx.obj = DefaultAzureCredential()
+    ctx.obj = DefaultAzureCredential(exclude_shared_token_cache_credential=True)
 
 
 for _command in list_commands:
