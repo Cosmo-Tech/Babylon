@@ -2,10 +2,10 @@ from click import group
 
 from .delete import delete
 from .get import get
-from .list import list
+from .get_all import get_all
 from .create import create
 
-list_commands = [delete, get, list, create]
+list_commands = [delete, get, get_all, create]
 
 
 @group()

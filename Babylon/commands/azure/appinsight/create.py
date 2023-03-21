@@ -25,8 +25,7 @@ def create(azure_token: str,
            azure_subscription: str,
            resource_group_name: str,
            appinsight_name: str,
-           appinsight_file: Optional[pathlib.Path] = None,
-           use_working_dir_file: bool = False) -> CommandResponse:
+           appinsight_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """
     Create a app insight resource in the given resource group
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/create-or-update

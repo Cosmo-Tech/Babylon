@@ -15,9 +15,9 @@ logger = logging.getLogger("Babylon")
 @pass_azure_token()
 @require_platform_key("azure_subscription", "azure_subscription")
 @require_platform_key("resource_group_name", "resource_group_name")
-def list(azure_token: str, azure_subscription: str, resource_group_name: str) -> CommandResponse:
+def get_all(azure_token: str, azure_subscription: str, resource_group_name: str) -> CommandResponse:
     """
-    list app insight data from a resource group
+    get all app insight data from a resource group
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/list-by-resource-group
     """
 

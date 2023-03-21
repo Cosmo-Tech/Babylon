@@ -27,7 +27,7 @@ def update(azure_token: str, azure_subscription: str, resource_group_name: str, 
            settings_file: pathlib.Path) -> CommandResponse:
     """
     Update static webapp app settings in the given webapp
-    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
+    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-app-settings
     """
     env = Environment()
     settings_file = settings_file or env.working_dir.payload_path / "webapp/webapp_settings.json"
