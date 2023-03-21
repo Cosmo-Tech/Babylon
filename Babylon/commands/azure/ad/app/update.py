@@ -23,9 +23,7 @@ logger = logging.getLogger("Babylon")
         "registration_file",
         type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
         required=True)
-def update(azure_token: str,
-           registration_id: str,
-           registration_file: str) -> CommandResponse:
+def update(azure_token: str, registration_id: str, registration_file: str) -> CommandResponse:
     """
     Update an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-update
