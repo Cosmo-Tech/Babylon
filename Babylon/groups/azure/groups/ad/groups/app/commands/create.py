@@ -42,5 +42,12 @@ def create(ctx: Context, registration_file: pathlib.Path, use_working_dir_file: 
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
+    # Service principal creation
+    sp_route = "https://graph.microsoft.com/v1.0/servicePrincipals"
+    sp_response = oauth_request(sp_route, access_token, type="POST", json={"appId": output_data["appId"]})
+    if sp_response is None:
+        logger.error("Failed to create application service principal")
+        return CommandResponse.fail()
+    output_data["servicePrincipalId"] = sp_response.json()["id"]
     logger.info(pretty_repr(output_data))
     return CommandResponse.success(output_data)
