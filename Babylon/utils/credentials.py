@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 SCOPES = {
     "graph": "https://graph.microsoft.com/.default",
     "default": "https://management.azure.com/.default",
-    "powerbi": "https://analysis.windows.net/powerbi/api/.default",
+    "powerbi": Environment().configuration.get_deploy_var("powerbi_api_scope"),
     "csm_api": Environment().configuration.get_platform_var("api_scope")
 }
 
