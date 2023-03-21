@@ -46,18 +46,9 @@ def convert_keys_case(element: Any, convert_function) -> Any:
     :return: an object of the same type as the original one where all dict keys had the convert_function applied
     """
     if isinstance(element, dict):
-        new_element = dict()
-        for k, v in element.items():
-            if k in ["parametersValues", "parameters_values"]:
-                new_element[convert_function(k)] = dict() if not v else v.copy()
-            elif v is not None:
-                new_element[convert_function(k)] = convert_keys_case(v, convert_function)
-        return new_element
+        return {convert_function(k): v or {} for k, v in element.items()}
     if isinstance(element, list):
-        new_element = list()
-        for e in element:
-            new_element.append(convert_keys_case(e, convert_function))
-        return new_element
+        return [convert_keys_case(e, convert_function) for e in element]
     return element
 
 
