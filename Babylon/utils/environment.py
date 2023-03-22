@@ -51,7 +51,7 @@ class Environment(metaclass=SingletonMeta):
         self.dry_run = False
         workingdir_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
         self.working_dir = WorkingDir(workingdir_path)
-        config_path = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', click.get_app_dir("babylon")))
+        config_path = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', "./config"))
         self.configuration = Configuration(config_path)
         self.data_store: defaultdict[str, Any] = defaultdict()
         self.reset_data_store()
