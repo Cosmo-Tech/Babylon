@@ -33,6 +33,7 @@ def set_nested_key(dic: dict[str, Any], keys: list[str] or str, value: Any) -> d
     :return: new dictionary
     :rtype: _type_
     """
+    dic = dic or {}
     if isinstance(keys, str):
         dic[keys] = value
         return dic

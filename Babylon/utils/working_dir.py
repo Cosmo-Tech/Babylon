@@ -39,6 +39,8 @@ class WorkingDir:
         self.template_path = TEMPLATE_FOLDER_PATH / "working_dir_template"
         self.payload_path = self.path / ".payload_templates"
         self.encoding_key = None
+        if not self.compare_to_template(False):
+            logger.warning("Working-dir files are incomplete, please run `babylon working-dir complete`")
 
     def copy_template(self):
         """
@@ -54,19 +56,16 @@ class WorkingDir:
         :return: Is the working_dir valid ?
         """
         _root = pathlib.Path(self.template_path)
-        error_level = logging.INFO if update_if_error else logging.ERROR
         has_err = False
-        logger.debug(f"Starting check of working_dir found on {self.path}")
         for root, _, files in os.walk(self.template_path):
             rel_path = pathlib.Path(os.path.relpath(root, _root))
             local_dir_path = self.path / rel_path
             template_dir_path = _root / rel_path
-            logger.debug(f"Starting checks for dir {local_dir_path}")
             if not local_dir_path.exists() and not (rel_path == pathlib.Path(".") and self.is_zip):
-                logger.log(error_level, f"MISSING DIR: {local_dir_path}")
                 has_err = True
+                logger.info(f"Working-dir directory `{local_dir_path}` is missing")
                 if update_if_error and not self.is_zip:
-                    logger.log(error_level, "CORRECTION :  Creating it")
+                    logger.warning(f"Creating missing directory {local_dir_path}")
                     shutil.copytree(template_dir_path, str(local_dir_path), dirs_exist_ok=True)
                 continue
             for _f in files:
@@ -74,31 +73,21 @@ class WorkingDir:
                 template_file_path = _root / f_rel_path
                 local_file_path = self.path / f_rel_path
                 if os.path.getsize(_root / f_rel_path) > -1:
-                    logger.debug(f"Starting check for file {local_file_path}")
                     if not local_file_path.exists():
-                        logger.log(error_level, f"MISSING FILE: {local_file_path}")
+                        logger.info(f"Working-dir file `{local_file_path}` is missing")
                         has_err = True
                         if update_if_error and not self.is_zip:
-                            logger.log(error_level, "CORRECTION:   Copying it from template")
+                            logger.warning(f"Copying missing file {local_file_path}")
                             shutil.copy(template_file_path, str(local_file_path))
                     elif local_file_path.name.endswith(".yaml"):
-                        logger.debug(f"{f_rel_path} is a yaml file, checking for missing/superfluous keys")
-                        missing_keys, superfluous_keys = compare_yaml_keys(template_file_path, local_file_path)
+                        logger.debug(f"{f_rel_path} is a yaml file, checking for missing keys")
+                        missing_keys, _ = compare_yaml_keys(template_file_path, local_file_path)
                         if missing_keys:
                             has_err = True
-                            logger.log(error_level, f"YAML: In file {local_file_path}")
-                            logger.log(error_level, "            The following keys are missing :")
-                            for _k in missing_keys:
-                                logger.log(error_level, f"            - {_k}")
+                            logger.info(f"Missing keys `{','.join(missing_keys)}` in file {local_file_path}")
                             if update_if_error and not self.is_zip:
-                                logger.log(error_level, "CORRECTION: Adding them")
+                                logger.warning(f"Adding missing keys to {local_file_path}")
                                 complete_yaml(template_file_path, local_file_path)
-                        if superfluous_keys:
-                            logger.debug(f"YAML ISSUE: In file {local_file_path}")
-                            logger.debug("            The following keys are superfluous :")
-                            for _k in superfluous_keys:
-                                logger.debug(f"            - {_k}")
-        logger.debug(f"Finished check of working_dir found on {self.path}")
         return not has_err
 
     def requires_file(self, file_path: str) -> bool:
