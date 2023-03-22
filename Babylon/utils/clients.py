@@ -153,9 +153,9 @@ def pass_tfc_client(func: Callable[..., Any]) -> Callable[..., Any]:
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         env = Environment()
         secrets = env.working_dir.get_file_content(".secrets.yaml.encrypt")
-        if not secrets.get("tfc"):
+        if not secrets.get("tfc") or any(key not in secrets.get("tfc") for key in ["token", "url", "organization"]):
             logger.error("Missing secrets for TFC, please run terraform-cloud login")
-            raise Exception("Missing secrets for TFC, please run babylon terraform-cloud login")
+            raise KeyError("Missing secrets for TFC, please run babylon terraform-cloud login")
         api = TFC(secrets["tfc"]["token"], secrets["tfc"]["url"])
         api.set_org(secrets["tfc"]["organization"])
         kwargs["tfc_client"] = api
