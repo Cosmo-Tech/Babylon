@@ -12,13 +12,13 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @option("-u", "--url", "url", help="Terraform cloud API url", type=QueryType(), default="https://app.terraform.io")
-@option("-o", "--organization", "organization_id", help="Terraform organization ID", prompt=True, type=QueryType())
+@option("-o", "--organization", "organization_name", help="Terraform organization name", prompt=True, type=QueryType())
 @option("-t", "--token", "token", help="token", type=QueryType(), prompt=True)
-def login(url: str, organization_id: str, token: str) -> CommandResponse:
+def login(url: str, organization_name: str, token: str) -> CommandResponse:
     """Store terraform cloud login using secrets stored in .secrets.yaml.encrypt"""
     env = Environment()
     env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "tfc", {
-        "organization": organization_id,
+        "organization": organization_name,
         "token": token,
         "url": url
     })
