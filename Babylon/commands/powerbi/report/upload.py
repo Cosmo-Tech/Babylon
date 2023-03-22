@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Optional
 import pathlib
 import time
 
@@ -11,7 +10,6 @@ from click import Path
 from click import option
 from rich.pretty import pretty_repr
 
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
 from ....utils.request import oauth_request
@@ -25,22 +23,18 @@ RETRY_WAIT_TIME = 0.5
 
 @command()
 @pass_azure_token("powerbi")
-@require_deployment_key("powerbi_workspace_id", required=False)
 @argument("pbix_filename", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
-@option("-w", "--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
+@option("-w",
+        "--workspace",
+        "workspace_id",
+        help="PowerBI workspace ID",
+        type=QueryType(),
+        default="%deploy%powerbi_workspace_id")
 @timing_decorator
-def upload(azure_token: str,
-           powerbi_workspace_id: str,
-           pbix_filename: str,
-           workspace_id: Optional[str] = None) -> CommandResponse:
+def upload(azure_token: str, pbix_filename: str, workspace_id: str) -> CommandResponse:
     """Publish the given pbxi file to the PowerBI workspace"""
-    workspace_id = workspace_id or powerbi_workspace_id
-    if not workspace_id:
-        logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse.fail()
     name = os.path.splitext(pbix_filename)[0]
-    access_token = azure_token
-    header = {"Content-Type": "multipart/form-data", "Authorization": f"Bearer {access_token}"}
+    header = {"Content-Type": "multipart/form-data", "Authorization": f"Bearer {azure_token}"}
     route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports?datasetDisplayName={name}"
     session = requests.Session()
     with open(pbix_filename, "rb") as _f:
@@ -58,7 +52,7 @@ def upload(azure_token: str,
     output_data = {}
     while True:
         time.sleep(RETRY_WAIT_TIME)
-        response = oauth_request(route, access_token)
+        response = oauth_request(route, azure_token)
         output_data = response.json()
         if output_data.get("importState") != "Publishing":
             break

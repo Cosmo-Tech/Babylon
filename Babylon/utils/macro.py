@@ -5,6 +5,7 @@ from typing import Optional
 from typing import Callable
 from pathlib import Path
 from time import sleep
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from .response import CommandResponse
 from .command_helper import run_command
@@ -44,18 +45,20 @@ class Macro():
             run_if (bool, optional): run this step only if this argument is True. Defaults to True.
 
         Returns:
-            Macro: Used to to method chaining
+            Macro: Used for method chaining
         """
         if self._status != self.STATUS_OK or not run_if:
             logger.warning(f"Skipping command {' '.join(command_line)}...")
             return self
-        logger.info(f"Running command {' '.join(command_line)}")
-        self._responses.append(run_command(command_line))
-        if is_required and self._responses[-1].has_failed():
-            self._status = self.STATUS_ERROR
-            return self
-        if store_at:
-            self.env.store_data(store_at.split("."), self._responses[-1].to_dict())
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
+                      transient=True) as progress:
+            progress.add_task(' '.join(command_line))
+            self._responses.append(run_command(command_line))
+            if is_required and self._responses[-1].has_failed():
+                self._status = self.STATUS_ERROR
+                return self
+            if store_at:
+                self.env.store_data(store_at.split("."), self._responses[-1].to_dict())
         return self
 
     def then(self, func: Callable[["Macro"], Any], store_at: Optional[str] = None, run_if: bool = True) -> "Macro":
@@ -80,8 +83,10 @@ class Macro():
         """Wait"""
         if self._status == self.STATUS_ERROR:
             return self
-        logger.info(f"Waiting {delay}s...")
-        sleep(delay)
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
+                      transient=True) as progress:
+            progress.add_task("Waiting...")
+            sleep(delay)
         return self
 
     def dump(self, output_file: str) -> "Macro":
