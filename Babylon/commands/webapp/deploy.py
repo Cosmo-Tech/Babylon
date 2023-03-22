@@ -44,9 +44,11 @@ def deploy(deployment_name: str,
     # Wait for workflow file to be created by static webapp
     workflow_file = ("webapp_src/.github/workflows/azure-static-web-apps-"
                      f"{m.env.convert_data_query('%datastore%hostname')}.yml")
-    while not Path(workflow_file).exists():
-        m.step(["webapp", "download", "webapp_src"])
-
+    timeout = 0
+    while not Path(workflow_file).exists() and timeout < 20:
+        m.wait(2) \
+            .step(["webapp", "download", "webapp_src"])
+        timeout += 2
     m.step(["webapp", "export-config", "-o", "webapp_src/config.json"]) \
         .step(["webapp", "update-workflow", workflow_file]) \
         .step(["webapp", "upload-file", "webapp_src/config.json"]) \

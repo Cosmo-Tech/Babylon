@@ -5,6 +5,7 @@ from .get import get
 from .get_all import get_all
 from .download import download
 from .upload import upload
+from .download_all import download_all
 
 list_commands = [
     delete,
@@ -12,6 +13,7 @@ list_commands = [
     download,
     upload,
     get_all,
+    download_all
 ]
 
 
