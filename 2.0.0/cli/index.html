@@ -1786,6 +1786,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#download-all" class="md-nav__link">
+    download-all
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#get_14" class="md-nav__link">
     get
   </a>
@@ -3627,6 +3634,13 @@
           <li class="md-nav__item">
   <a href="#download_1" class="md-nav__link">
     download
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-all" class="md-nav__link">
+    download-all
   </a>
   
 </li>
@@ -8849,6 +8863,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <ul>
 <li><em>delete</em>: Delete a powerbi report in the current workspace</li>
 <li><em>download</em>: Download a report in the current workspace</li>
+<li><em>download-all</em>: Download all reports from a workspace</li>
 <li><em>get</em>: Get info from a powerbi report of a workspace</li>
 <li><em>get-all</em>: Get info from every powerbi reports of a workspace</li>
 <li><em>upload</em>: Publish the given pbxi file to the PowerBI workspace</li>
@@ -8873,7 +8888,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>PowerBI workspace ID</td>
-<td>None</td>
+<td><code>%deploy%powerbi_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>-f</code>, <code>--force</code></td>
@@ -8906,16 +8921,52 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output_file</code></td>
-<td>file</td>
-<td>output filename (.pbix)</td>
-<td>_required</td>
+<td><code>-o</code>, <code>--output</code></td>
+<td>path</td>
+<td>Output folder</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>PowerBI workspace ID</td>
-<td>None</td>
+<td><code>%deploy%powerbi_workspace_id</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="download-all">download-all</h5>
+<p>Download all reports from a workspace</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon powerbi report download-all [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-w</code>, <code>--workspace</code></td>
+<td>QueryString</td>
+<td>PowerBI workspace ID</td>
+<td><code>%deploy%powerbi_workspace_id</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>path</td>
+<td>Output folder</td>
+<td><code>reports</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -8945,7 +8996,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>PowerBI workspace ID</td>
-<td>None</td>
+<td><code>%deploy%powerbi_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
@@ -8981,7 +9032,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>PowerBI workspace ID</td>
-<td>None</td>
+<td><code>%deploy%powerbi_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
@@ -9017,7 +9068,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>PowerBI workspace ID</td>
-<td>None</td>
+<td><code>%deploy%powerbi_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
