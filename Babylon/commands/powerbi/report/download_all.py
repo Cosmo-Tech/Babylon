@@ -28,8 +28,8 @@ def download_all(workspace_id: str, output_folder: pathlib.Path) -> CommandRespo
     m = Macro("PowerBI download all") \
         .step(["powerbi", "report", "get-all", "-w", workspace_id], store_at="reports") \
         .iterate("%datastore%reports.data",
-                 ["powerbi", "report", "download", "-w", workspace_id, "%datastore%item.id", "-o", str(output_folder) ])
+                 ["powerbi", "report", "download", "-w", workspace_id, "%datastore%item.id", "-o", str(output_folder)])
     reports = m.env.get_data(["reports", "data"])
-    logger.info(f"Successfully saved the following reports:")
+    logger.info("Successfully saved the following reports:")
     logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))
     return CommandResponse.success(m.env.get_data(["reports", "data"]))

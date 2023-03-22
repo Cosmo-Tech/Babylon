@@ -5,7 +5,6 @@ from click import command
 from click import option
 from rich.pretty import pretty_repr
 
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import output_to_file
 from ....utils.request import oauth_request
 from ....utils.response import CommandResponse

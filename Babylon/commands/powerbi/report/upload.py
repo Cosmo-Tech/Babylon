@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Optional
 import pathlib
 import time
 
@@ -11,7 +10,6 @@ from click import Path
 from click import option
 from rich.pretty import pretty_repr
 
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
 from ....utils.request import oauth_request

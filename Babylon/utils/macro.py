@@ -25,7 +25,7 @@ class Macro():
         self._responses: list[CommandResponse] = []
         self.env = Environment()
         self._status = self.STATUS_OK
-        
+
     def step(self,
              command_line: list[str],
              store_at: Optional[str] = None,
@@ -50,7 +50,8 @@ class Macro():
         if self._status != self.STATUS_OK or not run_if:
             logger.warning(f"Skipping command {' '.join(command_line)}...")
             return self
-        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), transient=True) as progress:
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
+                      transient=True) as progress:
             progress.add_task(' '.join(command_line))
             self._responses.append(run_command(command_line))
             if is_required and self._responses[-1].has_failed():
@@ -82,8 +83,9 @@ class Macro():
         """Wait"""
         if self._status == self.STATUS_ERROR:
             return self
-        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), transient=True) as progress:
-            progress.add_task(f"Waiting...")
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
+                      transient=True) as progress:
+            progress.add_task("Waiting...")
             sleep(delay)
         return self
 

@@ -1,11 +1,9 @@
 import logging
-from typing import Optional
 
 from click import command
 from click import argument
 from click import option
 
-from ....utils.decorators import require_deployment_key
 from ....utils.request import oauth_request
 from ....utils.response import CommandResponse
 from ....utils.typing import QueryType
