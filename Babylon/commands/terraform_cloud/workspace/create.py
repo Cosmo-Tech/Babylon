@@ -40,8 +40,8 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool = Fa
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
     workspace_keys = {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier", "vcs_oauth_token_id"}
-    if set(workspace_data.keys()) != workspace_keys:
-        logger.error(f"Workspace data file should contain only keys: {','.join(workspace_keys)}")
+    if any(key not in workspace_data.keys() for key in workspace_keys):
+        logger.error(f"Workspace data file should contain keys: {','.join(workspace_keys)}")
         return CommandResponse.fail()
 
     payload_template = env.working_dir.payload_path / "tfc/workspace_create.json"

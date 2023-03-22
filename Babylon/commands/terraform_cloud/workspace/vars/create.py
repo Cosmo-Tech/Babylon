@@ -19,7 +19,12 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_tfc_client
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", required=True, type=QueryType())
+@option("-w",
+        "--workspace",
+        "workspace_id",
+        help="Id of the workspace to use",
+        default="%deploy%terraform_cloud_workspace_id",
+        type=QueryType())
 @describe_dry_run("Sending a variable creation payload to terraform")
 @argument("var_key", type=QueryType())
 @argument("var_value", type=QueryType())

@@ -19,7 +19,12 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_tfc_client
 @describe_dry_run("Would look up id for VAR_KEY in WORKSPACE_ID Then would send delete query to the API for it")
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", required=True, type=QueryType())
+@option("-w",
+        "--workspace",
+        "workspace_id",
+        help="Id of the workspace to use",
+        default="%deploy%terraform_cloud_workspace_id",
+        type=QueryType())
 @option("-f", "--force", "force_validation", is_flag=True, help="Should validation be skipped ?")
 @argument("var_key", type=QueryType())
 @timing_decorator

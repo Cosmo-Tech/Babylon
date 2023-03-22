@@ -22,7 +22,12 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_tfc_client
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", required=True, type=QueryType())
+@option("-w",
+        "--workspace",
+        "workspace_id",
+        help="Id of the workspace to use",
+        default="%deploy%terraform_cloud_workspace_id",
+        type=QueryType())
 @describe_dry_run("Sending multiple variable creation payloads to terraform")
 @argument("variable_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @timing_decorator
@@ -47,7 +52,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
         variable.setdefault("category", "terraform")
         variable.setdefault("hcl", False)
         variable.setdefault("sensitive", False)
-        if not set(variable.keys()) <= var_keys:
+        if any(key not in variable.keys() for key in var_keys):
             logger.error(f"TFC variable is missing required fields {var_keys}")
             continue
         payload = {"data": {"type": "vars", "attributes": variable}}
