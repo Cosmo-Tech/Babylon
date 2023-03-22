@@ -1914,6 +1914,20 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#login_1" class="md-nav__link">
+    login
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logout_1" class="md-nav__link">
+    logout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#workspace_2" class="md-nav__link">
     workspace
   </a>
@@ -3744,6 +3758,20 @@
   
     <nav class="md-nav" aria-label="terraform-cloud">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#login_1" class="md-nav__link">
+    login
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logout_1" class="md-nav__link">
+    logout
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#workspace_2" class="md-nav__link">
@@ -9405,8 +9433,82 @@ GROUP USER ACCESS RIGHT :
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
+<li><em>login</em>: Store terraform cloud login using secrets stored in .secrets.yaml.encrypt</li>
+<li><em>logout</em>: Logout from Terraform Cloud using secrets stored in .secrets.yaml</li>
 <li><em>workspace</em>: Sub-group allowing interaction with the organization of the Terraform Cloud API</li>
 </ul>
+<h4 id="login_1">login</h4>
+<p>Store terraform cloud login using secrets stored in .secrets.yaml.encrypt</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud login [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-u</code>, <code>--url</code></td>
+<td>QueryString</td>
+<td>Terraform cloud API url</td>
+<td><code>https://app.terraform.io</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--organization</code></td>
+<td>QueryString</td>
+<td>Terraform organization name</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--token</code></td>
+<td>QueryString</td>
+<td>token</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="logout_1">logout</h4>
+<p>Logout from Terraform Cloud using secrets stored in .secrets.yaml</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud logout [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code>, <code>--force</code></td>
+<td>boolean</td>
+<td>Don't ask for validation before delete</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="workspace_2">workspace</h4>
 <p>Sub-group allowing interaction with the organization of the Terraform Cloud API</p>
 <p><strong>Usage:</strong></p>
@@ -9433,7 +9535,7 @@ GROUP USER ACCESS RIGHT :
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em>create</em>: Use given parameters to create a workspace in the organization</li>
+<li><em>create</em>: </li>
 <li><em>delete</em>: Delete a workspace from the organization</li>
 <li><em>get</em>: Get a workspace in the organization</li>
 <li><em>get-all</em>: Get all available workspaces in the organization</li>
@@ -9443,13 +9545,15 @@ GROUP USER ACCESS RIGHT :
 <li><em>vars</em>: Interact with the vars of a workspace</li>
 </ul>
 <h5 id="create_16">create</h5>
-<p>Use given parameters to create a workspace in the organization</p>
-<p>Requires key <code>vcs_oauth_token_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
-<p>Requires key <code>vcs_branch</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
-<p>Requires key <code>vcs_identifier</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
-<p>Requires key <code>working_directory</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
+<p>Use given parameters to create a workspace in the organization
+Takes a workspace_data_file as input, which should contain the following keys:
+- workspace_name
+- working_directory
+- vcs_branch
+- vcs_identifier
+- vcs_oauth_token_id</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace create [OPTIONS] WORKSPACE_NAME
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace create [OPTIONS] WORKSPACE_DATA_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9463,16 +9567,16 @@ GROUP USER ACCESS RIGHT :
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
-<td>File to which content should be outputted (json-formatted)</td>
-<td>None</td>
+<td><code>--select</code></td>
+<td>boolean</td>
+<td>Select the created workspace</td>
+<td><code>False</code></td>
 </tr>
 <tr>
-<td><code>-s</code>, <code>--select</code></td>
-<td>boolean</td>
-<td>Should the id of the created workspace set in the working dir file ?</td>
-<td><code>False</code></td>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -9484,9 +9588,8 @@ GROUP USER ACCESS RIGHT :
 </table>
 <h5 id="delete_19">delete</h5>
 <p>Delete a workspace from the organization</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace delete [OPTIONS] [WORKSPACE_ID]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9506,12 +9609,6 @@ GROUP USER ACCESS RIGHT :
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>-w</code>, <code>--workspace</code></td>
-<td>QueryString</td>
-<td>Id of the workspace to use</td>
-<td>None</td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -9521,9 +9618,8 @@ GROUP USER ACCESS RIGHT :
 </table>
 <h5 id="get_16">get</h5>
 <p>Get a workspace in the organization</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace get [OPTIONS] [WORKSPACE_ID]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9537,14 +9633,8 @@ GROUP USER ACCESS RIGHT :
 </thead>
 <tbody>
 <tr>
-<td><code>-w</code>, <code>--workspace</code></td>
-<td>QueryString</td>
-<td>Id of the workspace to use</td>
-<td>None</td>
-</tr>
-<tr>
 <td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
+<td>text</td>
 <td>File to which content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
@@ -9574,7 +9664,7 @@ GROUP USER ACCESS RIGHT :
 <tbody>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
+<td>text</td>
 <td>File to which content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
@@ -9588,9 +9678,8 @@ GROUP USER ACCESS RIGHT :
 </table>
 <h5 id="last-run">last-run</h5>
 <p>Get state of the last run of a workspace</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace last-run [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace last-run [OPTIONS] [WORKSPACE_ID]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9605,14 +9694,8 @@ GROUP USER ACCESS RIGHT :
 <tbody>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
+<td>text</td>
 <td>File to which content should be outputted (json-formatted)</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>-w</code>, <code>--workspace</code></td>
-<td>QueryString</td>
-<td>Id of the workspace to use</td>
 <td>None</td>
 </tr>
 <tr>
@@ -9626,9 +9709,8 @@ GROUP USER ACCESS RIGHT :
 <h5 id="outputs">outputs</h5>
 <p>List outputs of a workspace.</p>
 <p>Sensitive outputs are not readable, use -s option to access the state in the web application to get those.</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace outputs [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace outputs [OPTIONS] [WORKSPACE_ID]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9641,18 +9723,6 @@ GROUP USER ACCESS RIGHT :
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
-<td>File to which content should be outputted (json-formatted)</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>-w</code>, <code>--workspace</code></td>
-<td>QueryString</td>
-<td>Id of the workspace to use</td>
-<td>None</td>
-</tr>
 <tr>
 <td><code>-s</code>, <code>--states</code></td>
 <td>boolean</td>
@@ -9666,6 +9736,12 @@ GROUP USER ACCESS RIGHT :
 <td></td>
 </tr>
 <tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
+</tr>
+<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -9676,9 +9752,8 @@ GROUP USER ACCESS RIGHT :
 <h5 id="run_1">run</h5>
 <p>Start the run of a workspace</p>
 <p>More info on runs can be found at: https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run#create-a-run</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace run [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace run [OPTIONS] [WORKSPACE_ID]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9692,18 +9767,6 @@ GROUP USER ACCESS RIGHT :
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
-<td>File to which content should be outputted (json-formatted)</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>-w</code>, <code>--workspace</code></td>
-<td>QueryString</td>
-<td>Id of the workspace to use</td>
-<td>None</td>
-</tr>
-<tr>
 <td><code>-m</code>, <code>--message</code></td>
 <td>QueryString</td>
 <td>Message added to the run.</td>
@@ -9714,6 +9777,12 @@ GROUP USER ACCESS RIGHT :
 <td>boolean</td>
 <td>Can this run have an empty apply ?</td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -9760,7 +9829,6 @@ GROUP USER ACCESS RIGHT :
 <p>Set VAR_KEY variable to VAR_VALUE in a workspace</p>
 <p>More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace vars create [OPTIONS] VAR_KEY VAR_VALUE
                                               VAR_DESCRIPTION
@@ -9781,7 +9849,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>Id of the workspace to use</td>
-<td>None</td>
+<td><code>%deploy%terraform_cloud_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>--hcl</code></td>
@@ -9816,7 +9884,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
     }]
 More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace vars create-from-file [OPTIONS]
                                                         VARIABLE_FILE
@@ -9836,7 +9903,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>Id of the workspace to use</td>
-<td>None</td>
+<td><code>%deploy%terraform_cloud_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -9848,7 +9915,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </table>
 <h6 id="delete_20">delete</h6>
 <p>Delete VAR_KEY variable in a workspace</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace vars delete [OPTIONS] VAR_KEY
 </code></pre></div>
@@ -9867,7 +9933,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>Id of the workspace to use</td>
-<td>None</td>
+<td><code>%deploy%terraform_cloud_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>-f</code>, <code>--force</code></td>
@@ -9885,7 +9951,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </table>
 <h6 id="get_17">get</h6>
 <p>Get VAR_KEY variable in a workspace</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace vars get [OPTIONS] VAR_KEY
 </code></pre></div>
@@ -9901,15 +9966,15 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
-<td>File to which content should be outputted (json-formatted)</td>
-<td>None</td>
-</tr>
-<tr>
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>Id of the workspace to use</td>
+<td><code>%deploy%terraform_cloud_workspace_id</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
 <tr>
@@ -9922,7 +9987,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </table>
 <h6 id="get-all_16">get-all</h6>
 <p>Get all available variables in the workspace</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace vars get-all [OPTIONS]
 </code></pre></div>
@@ -9938,15 +10002,15 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </thead>
 <tbody>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>file</td>
-<td>File to which content should be outputted (json-formatted)</td>
-<td>None</td>
-</tr>
-<tr>
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>Id of the workspace to use</td>
+<td><code>%deploy%terraform_cloud_workspace_id</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted (json-formatted)</td>
 <td>None</td>
 </tr>
 <tr>
@@ -9961,7 +10025,6 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <p>Update VAR_KEY variable in a workspace</p>
 <p>More information on the arguments can be found at :
 https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body</p>
-<p>Requires key <code>workspace_id</code> in <code>terraform_workspace.yaml</code> in the working_dir.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon terraform-cloud workspace vars update [OPTIONS] VAR_KEY
 </code></pre></div>
@@ -9980,7 +10043,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 <td><code>-w</code>, <code>--workspace</code></td>
 <td>QueryString</td>
 <td>Id of the workspace to use</td>
-<td>None</td>
+<td><code>%deploy%terraform_cloud_workspace_id</code></td>
 </tr>
 <tr>
 <td><code>--value</code></td>
