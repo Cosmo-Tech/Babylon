@@ -8,7 +8,6 @@ from typing import Any
 from typing import List
 from typing import Optional
 
-import click
 import jmespath
 from mako.template import Template
 

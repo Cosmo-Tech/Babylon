@@ -28,7 +28,7 @@ class Configuration:
         self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
         self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
         self.initialize()
-    
+
     def initialize(self):
         if self.config_dir.exists():
             logger.info("Configuration folder already exists")
