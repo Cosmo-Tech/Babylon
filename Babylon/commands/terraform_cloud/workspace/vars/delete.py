@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from click import argument
 from click import command
@@ -9,7 +8,6 @@ from terrasnek.api import TFC
 from .list_all_vars import list_all_vars
 from .....utils.decorators import describe_dry_run
 from .....utils.decorators import timing_decorator
-from .....utils.decorators import working_dir_requires_yaml_key
 from .....utils.interactive import confirm_deletion
 from .....utils.typing import QueryType
 from .....utils.response import CommandResponse
@@ -20,18 +18,18 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_tfc_client
-@describe_dry_run("""Would look up id for VAR_KEY in WORKSPACE_ID
-
-Then would send delete query to the API for it""")
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
+@describe_dry_run("Would look up id for VAR_KEY in WORKSPACE_ID Then would send delete query to the API for it")
+@option("-w",
+        "--workspace",
+        "workspace_id",
+        help="Id of the workspace to use",
+        default="%deploy%terraform_cloud_workspace_id",
+        type=QueryType())
 @option("-f", "--force", "force_validation", is_flag=True, help="Should validation be skipped ?")
-@working_dir_requires_yaml_key("terraform_workspace.yaml", "workspace_id", "workspace_id_wd")
 @argument("var_key", type=QueryType())
 @timing_decorator
-def delete(tfc_client: TFC, workspace_id_wd: str, workspace_id: Optional[str], var_key: str,
-           force_validation: bool) -> CommandResponse:
+def delete(tfc_client: TFC, workspace_id: str, var_key: str, force_validation: bool) -> CommandResponse:
     """Delete VAR_KEY variable in a workspace"""
-    workspace_id = workspace_id or workspace_id_wd
 
     if not force_validation and not confirm_deletion("variable", var_key):
         return CommandResponse.fail()

@@ -48,3 +48,5 @@ webapp_registration_id: ""
 webapp_insights_instrumentation_key: ""
 # webapp_enable_insights: Azure Application Insights is enabled
 webapp_enable_insights: False
+# terraform_cloud_workspace_id: id of the workspace
+terraform_cloud_workspace_id: ""

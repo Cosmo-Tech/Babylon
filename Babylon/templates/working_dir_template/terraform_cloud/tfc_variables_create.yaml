@@ -1,0 +1,24 @@
+- key: var_key,
+  value: var_value,
+  description: var_description,
+  # category: var_category,
+  # hcl: var_hcl,
+  # sensitive: var_sensitive
+- key: var_key,
+  value: var_value,
+  description: var_description,
+  # category: var_category,
+  # hcl: var_hcl,
+  # sensitive: var_sensitive
+- key: var_key,
+  value: var_value,
+  description: var_description,
+  # category: var_category,
+  # hcl: var_hcl,
+  # sensitive: var_sensitive
+- key: var_key,
+  value: var_value,
+  description: var_description,
+  # category: var_category,
+  # hcl: var_hcl,
+  # sensitive: var_sensitive
