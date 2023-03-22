@@ -2,7 +2,7 @@
   "data": {
     "attributes": {
       "message": "${run_message}",
-      "allow-empty-apply": ${allow_empty_apply}
+      "allow-empty-apply": ${"true" if allow_empty_apply else "false"}
     },
     "type": "runs",
     "relationships": {

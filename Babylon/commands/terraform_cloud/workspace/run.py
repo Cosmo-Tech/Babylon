@@ -44,8 +44,12 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
         return CommandResponse.fail()
     env = Environment()
     run_payload_template = env.working_dir.payload_path / "tfc/workspace_run.json"
-    payload = env.fill_template(run_payload_template, {"workspace_id": workspace_id, "run_message": run_message})
-    data = json.load(payload)
+    payload = env.fill_template(run_payload_template, {
+        "workspace_id": workspace_id,
+        "run_message": run_message,
+        "allow_empty_apply": allow_empty_apply
+    })
+    data = json.loads(payload)
 
     logger.info("Sending payload to API")
     r = tfc_client.runs.create(data)

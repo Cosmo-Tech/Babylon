@@ -30,6 +30,10 @@ def last_run(tfc_client: TFC, workspace_id: str) -> CommandResponse:
 
     ordered_runs = sorted(r, key=lambda run: run['attributes']['created-at'])
 
+    if not ordered_runs:
+        logger.info(f"No runs found in workspace {workspace_id}")
+        return CommandResponse.success()
+
     logger.info(pprint.pformat(ordered_runs[-1]))
 
-    return CommandResponse.success(r.get("data"))
+    return CommandResponse.success(ordered_runs[-1].get("data"))
