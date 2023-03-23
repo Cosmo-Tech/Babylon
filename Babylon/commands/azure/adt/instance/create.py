@@ -17,8 +17,8 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_adt_management_client
 @argument("adt_instance_name", type=QueryType())
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_platform_key("resources_location", "resources_location")
+@require_platform_key("resource_group_name")
+@require_platform_key("resources_location")
 @timing_decorator
 def create(
     adt_management_client: AzureDigitalTwinsManagementClient,
@@ -59,5 +59,5 @@ def create(
     # Long-running operations return a poller object; calling poller.result()
     # waits for completion.
     adt_creation_result = poller.result()
-    logger.info(f"Provisioned digital twins instance {adt_creation_result.name}")
+    logger.info(f"Successfully created digital twins instance {adt_creation_result.name}")
     return CommandResponse.success({"name": adt_creation_result.name})

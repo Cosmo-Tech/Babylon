@@ -5,13 +5,13 @@ import pathlib
 import click
 from azure.mgmt.kusto import KustoManagementClient
 
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import require_deployment_key
-from ....utils.decorators import require_platform_key
-from ....utils.decorators import timing_decorator
-from ....utils.clients import pass_kusto_client
-from ....utils.response import CommandResponse
-from .run_script import run_script
+from .....utils.decorators import describe_dry_run
+from .....utils.decorators import require_deployment_key
+from .....utils.decorators import require_platform_key
+from .....utils.decorators import timing_decorator
+from .....utils.clients import pass_kusto_client
+from .....utils.response import CommandResponse
+from .run import run
 
 logger = logging.getLogger("Babylon")
 
@@ -42,5 +42,5 @@ def run_folder(
     for _file in files[::-1]:
         file_path = pathlib.Path(_file)
         logger.info(f"Found script {file_path} sending it to the database.")
-        ctx.invoke(run_script, script_file=file_path)
+        ctx.invoke(run, script_file=file_path)
     return CommandResponse.success()

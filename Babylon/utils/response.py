@@ -3,7 +3,10 @@ from typing import Optional
 import json
 import logging
 
+from rich.pretty import pprint
 from click import get_current_context
+
+from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 
@@ -15,12 +18,14 @@ class CommandResponse():
     STATUS_OK = 0
     STATUS_ERROR = 1
 
-    def __init__(self, status_code: int = 0, data: Optional[dict[str, Any]] = None) -> None:
+    def __init__(self, status_code: int = 0, data: Optional[dict[str, Any]] = None, verbose: bool = False) -> None:
         self.status_code = status_code
         self.data: dict[str, Any] = data or {}
         ctx = get_current_context()
         self.command = ctx.command_path.split(" ")
         self.params = {k: str(v) for k, v in ctx.params.items()}
+        if verbose and Environment().is_verbose:
+            pprint(self.data, max_length=100)
 
     def to_dict(self) -> dict[str, Any]:
         return {"command": self.command, "params": self.params, "status_code": self.status_code, "data": self.data}
@@ -49,9 +54,9 @@ class CommandResponse():
         return True
 
     @classmethod
-    def fail(cls) -> Any:
-        return cls(status_code=CommandResponse.STATUS_ERROR)
+    def fail(cls, **kwargs) -> Any:
+        return cls(status_code=CommandResponse.STATUS_ERROR, **kwargs)
 
     @classmethod
-    def success(cls, data: Optional[dict[str, Any]] = None) -> Any:
-        return cls(status_code=CommandResponse.STATUS_OK, data=data)
+    def success(cls, data: Optional[dict[str, Any]] = None, **kwargs) -> Any:
+        return cls(status_code=CommandResponse.STATUS_OK, data=data, **kwargs)

@@ -53,6 +53,7 @@ class Environment(metaclass=SingletonMeta):
         config_path = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', "./config"))
         self.configuration = Configuration(config_path)
         self.data_store: defaultdict[str, Any] = defaultdict()
+        self.is_verbose = True
         self.reset_data_store()
 
     def set_configuration(self, configuration_path: pathlib.Path):

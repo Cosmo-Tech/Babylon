@@ -1,5 +1,4 @@
 import logging
-from rich.pretty import pretty_repr
 
 from click import command, argument
 
@@ -28,5 +27,4 @@ def get(azure_token: str, azure_subscription: str, resource_group_name: str, nam
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)

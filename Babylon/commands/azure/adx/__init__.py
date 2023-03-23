@@ -1,18 +1,16 @@
 from click import group
 
-from .list_scripts import list_scripts
-from .run_folder import run_folder
-from .run_script import run_script
+from .script import script
 from .permission import permission
+from .get_all import get_all
 
 list_commands = [
-    list_scripts,
-    run_folder,
-    run_script,
+    get_all
 ]
 
 list_groups = [
     permission,
+    script
 ]
 
 

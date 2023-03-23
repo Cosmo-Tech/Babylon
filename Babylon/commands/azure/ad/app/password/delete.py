@@ -21,7 +21,7 @@ logger = logging.getLogger("Babylon")
 def delete(azure_token: str, app_id: str, key_id: str, force_validation: bool = False) -> CommandResponse:
     """
     Delete a password for an app registration in active directory
-    https://learn.microsoft.com/en-us/graph/api/application-delete
+    https://learn.microsoft.com/en-us/graph/api/application-removepassword
     """
     if not force_validation and not confirm_deletion("secret", key_id):
         return CommandResponse.fail()
