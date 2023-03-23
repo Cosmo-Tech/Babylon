@@ -4,8 +4,8 @@ import pathlib
 from click import command
 from click import option
 from click import argument
+from click import Path
 
-from .....utils.decorators import require_deployment_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
 from .....utils.decorators import require_platform_key
@@ -20,18 +20,40 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@require_deployment_key("organization_id")
-@option("-s", "--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
+@argument("handler_path", type=Path(path_type=pathlib.Path, exists=True))
 @argument("handler_id", type=QueryType())
-@option("-r", "--run-template", "run_template_id", help="The run Template identifier", required=True, type=QueryType())
+@option(
+    "-r",
+    "--run-template",
+    "run_template_id",
+    help="The run Template identifier",
+    type=QueryType(),
+    required=True,
+)
 @option("-o", "--override", "override", is_flag=True)
-def upload(api_url: str, azure_token: str, organization_id: str, solution_id: str, handler_id: str,
-           run_template_id: str) -> CommandResponse:
+def upload(api_url: str,
+           azure_token: str,
+           organization_id: str,
+           solution_id: str,
+           handler_path: pathlib.Path,
+           handler_id: str,
+           run_template_id: str,
+           override: bool = False) -> CommandResponse:
     """Upload a solution handler zip to the solution"""
-    response = oauth_request(
-        f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
-        "/runtemplates/{run_template_id}/handlers/{handler_id}", azure_token)
+    if not handler_path.endswith(".zip"):
+        logger.error("solution handler upload only supports zip files")
+        return CommandResponse.fail()
+    with open(handler_path, "rb") as handler:
+        response = oauth_request(
+            f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
+            f"/runtemplates/{run_template_id}/handlers/{handler_id}",
+            azure_token,
+            data=handler,
+            params={"overwrite": override},
+            headers={"Content-Type": "application/octet-stream"})
     if response is None:
         return CommandResponse.fail()
-    output_path = pathlib.Path(f"{run_template_id}.zip")
-    return CommandResponse.success({"file": str(output_path)})
+    logger.info(f"Successfully sent handler file {handler_path} to solution {solution_id}")
+    return CommandResponse.success()
