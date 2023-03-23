@@ -1,34 +1,26 @@
 from logging import getLogger
-from typing import Optional
 
-from click import argument
 from click import command
+from click import argument
 from click import option
-from cosmotech_api.api.workspace_api import WorkspaceApi
-from cosmotech_api.exceptions import ForbiddenException
-from cosmotech_api.exceptions import NotFoundException
-from cosmotech_api.exceptions import ServiceException
-from cosmotech_api.exceptions import UnauthorizedException
-from cosmotech_api.api_client import ApiClient
 
-from ....utils.api import get_api_file
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import require_deployment_key
-from ....utils.decorators import timing_decorator
-from ....utils.environment import Environment
 from ....utils.interactive import confirm_deletion
-from ....utils.typing import QueryType
+from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
-from ....utils.clients import pass_api_client
+from ....utils.decorators import require_platform_key
+from ....utils.credentials import pass_azure_token
+from ....utils.request import oauth_request
+from ....utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
 
 @command()
-@describe_dry_run("Would call **workspace_api.delete_workspace** to delete a workspace")
 @timing_decorator
-@pass_api_client
-@require_deployment_key("organization_id", "organization_id")
+@require_platform_key("api_url")
+@pass_azure_token("csm_api")
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@argument("workspace_id", type=QueryType())
 @option(
     "-f",
     "--force",
@@ -36,80 +28,18 @@ logger = getLogger("Babylon")
     is_flag=True,
     help="Don't ask for validation before delete",
 )
-@option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the path be relative to the working directory ?",
-)
-@option(
-    "-i",
-    "--workspace-file",
-    "workspace_file",
-    help="In case the workspace id is retrieved from a file",
-)
-@argument("workspace_id", required=False, type=QueryType())
-def delete(
-    api_client: ApiClient,
-    organization_id: str,
-    workspace_id: Optional[str] = None,
-    workspace_file: Optional[str] = None,
-    force_validation: Optional[bool] = False,
-    use_working_dir_file: Optional[bool] = False,
-) -> CommandResponse:
-    """Unregister a workspace via Cosmotech APi."""
-    workspace_api = WorkspaceApi(api_client)
-    env = Environment()
-    if not workspace_id:
-        if not workspace_file:
-            logger.error("No id passed as argument or option use -i option"
-                         " to pass an json or yaml file containing an workspace id.")
-            return CommandResponse.fail()
-
-        converted_workspace_content = get_api_file(api_file_path=workspace_file,
-                                                   use_working_dir_file=use_working_dir_file)
-        if not converted_workspace_content:
-            logger.error("Can not get Workspace definition, please check your file")
-            return CommandResponse.fail()
-
-        workspace_id = converted_workspace_content.get("id") or converted_workspace_content.get("workspace_id")
-        if not workspace_id:
-            logger.error("Can not get solution id, please check your file")
-            return CommandResponse.fail()
-
-    try:
-        workspace_api.find_workspace_by_id(workspace_id=workspace_id, organization_id=organization_id)
-
-    except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
+def delete(api_url: str,
+           azure_token: str,
+           organization_id: str,
+           workspace_id: str,
+           force_validation: bool = False) -> CommandResponse:
+    """Delete a workspace from the organization"""
+    if not force_validation and not confirm_deletion("solution", workspace_id):
         return CommandResponse.fail()
-    except ServiceException:
-        logger.error(f"Organization with id : {organization_id} not found.")
+    response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces/{workspace_id}",
+                             azure_token,
+                             type="DELETE")
+    if response is None:
         return CommandResponse.fail()
-    except NotFoundException:
-        logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
-        return CommandResponse.fail()
-
-    if not force_validation and not confirm_deletion("workspace", workspace_id):
-        return CommandResponse.fail()
-
-    logger.info(f"Deleting workspace {workspace_id}")
-
-    try:
-        workspace_api.delete_workspace(organization_id=organization_id, workspace_id=workspace_id)
-    except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
-        return CommandResponse.fail()
-    except NotFoundException:
-        logger.error(f"Workspace {workspace_id} not found in organization {organization_id}")
-        return CommandResponse.fail()
-    except ForbiddenException:
-        logger.error(f"You are not allowed to delete the workspace : {workspace_id}")
-        return CommandResponse.fail()
-
-    env.configuration.set_deploy_var("workspace_id", '')
-    env.configuration.set_deploy_var("workspace_key", '')
-    logger.info(f"Workspaces {workspace_id} of organization {organization_id} deleted.")
-
-    return CommandResponse.success({"id": workspace_id})
+    logger.info(f"Successfully deleted workspace {workspace_id} from organization {organization_id}")
+    return CommandResponse.success()

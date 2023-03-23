@@ -1,9 +1,9 @@
 {
-  "key": null,
-  "name": null,
-  "description": null,
-  "repository": null,
-  "version": null,
+  "key": "${solution_key}",
+  "name": "${solution_name}",
+  "description": "${solution_description}",
+  "repository": "${simulator_repository}",
+  "version": "${simulator_version}",
   "tags": null,
   "parameters": [
       {

@@ -5,7 +5,6 @@ from click import argument
 from click import option
 
 from ....utils.interactive import confirm_deletion
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
 from ....utils.decorators import require_platform_key
@@ -20,7 +19,7 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@require_deployment_key("organization_id", "organization_id")
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @argument("dataset_id", type=QueryType())
 @option(
     "-f",

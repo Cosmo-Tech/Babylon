@@ -4,7 +4,6 @@ from typing import Optional
 from click import argument
 from click import command
 from click import option
-from rich.pretty import pprint
 
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
@@ -43,6 +42,5 @@ def create(api_url: str,
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
-    pprint(organization)
     logger.info(f"Successfully created organization {organization['id']}")
-    return CommandResponse.success(organization)
+    return CommandResponse.success(organization, verbose=True)

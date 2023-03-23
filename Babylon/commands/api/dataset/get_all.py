@@ -1,15 +1,17 @@
 from logging import getLogger
+from typing import Optional
 
 from click import command
-from rich.pretty import pprint
+from click import option
+import jmespath
 
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
 from ....utils.decorators import output_to_file
 from ....utils.decorators import require_platform_key
 from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -18,13 +20,16 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@require_deployment_key("organization_id", "organization_id")
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--filter", "filter", help="Filter response with a jmespath query")
 @output_to_file
-def get_all(api_url: str, azure_token: str, organization_id: str) -> CommandResponse:
+def get_all(api_url: str, azure_token: str, organization_id: str, filter: Optional[str] = None) -> CommandResponse:
     """Get all datasets from the organization"""
+    logger.info(f"Getting all datasets from organization {organization_id}")
     response = oauth_request(f"{api_url}/organizations/{organization_id}/datasets", azure_token)
     if response is None:
         return CommandResponse.fail()
     datasets = response.json()
-    pprint(datasets)
-    return CommandResponse.success(datasets)
+    if filter:
+        datasets = jmespath.search(filter, datasets)
+    return CommandResponse.success(datasets, verbose=True)

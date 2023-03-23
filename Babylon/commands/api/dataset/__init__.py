@@ -5,12 +5,14 @@ from .delete import delete
 from .get import get
 from .get_all import get_all
 from .update import update
+from .search import search
 
 list_commands = [
     delete,
     update,
     get,
     create,
+    search,
     get_all,
 ]
 
