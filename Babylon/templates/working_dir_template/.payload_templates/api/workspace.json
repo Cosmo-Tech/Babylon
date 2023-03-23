@@ -1,0 +1,10 @@
+{
+  "description": null,
+  "key": null,
+  "name": null,
+  "solution": {
+      "solutionId": null
+  },
+  "useDedicatedEventHubNamespace": null,
+  "sendScenarioMetadataToEventHub": null
+}

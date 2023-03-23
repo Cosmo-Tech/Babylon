@@ -32,6 +32,7 @@ def create(azure_token: str, workspace_name: str, select: bool) -> CommandRespon
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
+    logger.info(output_data)
     if select:
         env.configuration.set_deploy_var(
             "powerbi_workspace_id",

@@ -1,10 +1,10 @@
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
 from click import argument
 from click import command
 from click import option
+from rich.pretty import pprint
 
 from ....utils.api import filter_api_response_item
 from ....utils.decorators import timing_decorator
@@ -38,5 +38,5 @@ def get(
     retrieved_connector = response.json()
     if fields:
         retrieved_connector = filter_api_response_item(retrieved_connector, fields.replace(" ", "").split(","))
-    logger.info(pformat(retrieved_connector))
+    pprint(retrieved_connector)
     return CommandResponse.success(retrieved_connector)

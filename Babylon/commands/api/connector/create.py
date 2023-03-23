@@ -1,5 +1,4 @@
 import logging
-from pprint import pformat
 from typing import Optional
 import pathlib
 
@@ -8,6 +7,7 @@ from click import Choice
 from click import argument
 from click import command
 from click import option
+from rich.pretty import pprint
 
 from ....utils.request import oauth_request
 from ....utils.decorators import describe_dry_run
@@ -44,7 +44,7 @@ def create(api_url: str,
            connector_type: str,
            connector_version: str,
            connector_file: Optional[pathlib.Path] = None) -> CommandResponse:
-    """Register a new Connector by sending a JSON or YAML file to the API."""
+    """Register a new Connector by sending a file to the API."""
     env = Environment()
     if not connector_file and not connector_type:
         logger.error("Please specify a connector_file or choose a connector type to use default templates")
@@ -61,6 +61,6 @@ def create(api_url: str,
     if response is None:
         return CommandResponse.fail()
     connector = response.json()
-    logger.debug(pformat(connector))
-    logger.info("Created new %s Connector with id: %s", connector_type, connector.get('id'))
+    pprint(connector)
+    logger.info(f"Created new connector with id: {connector['id']}")
     return CommandResponse.success(connector)
