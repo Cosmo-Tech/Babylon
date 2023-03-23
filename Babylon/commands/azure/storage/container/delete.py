@@ -8,6 +8,7 @@ from click import option
 
 from .....utils.decorators import timing_decorator
 from .....utils.interactive import confirm_deletion
+from .....utils.response import CommandResponse
 from .....utils.typing import QueryType
 from .....utils.clients import pass_blob_client
 
@@ -19,11 +20,11 @@ logger = logging.getLogger("Babylon")
 @argument("container_name", type=QueryType())
 @timing_decorator
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
-def delete(blob_client: BlobServiceClient, container_name: str, force_validation: bool = False):
+def delete(blob_client: BlobServiceClient, container_name: str, force_validation: bool = False) -> CommandResponse:
     """Deletes a storageblob container with the given name"""
 
     if not force_validation and not confirm_deletion("container", container_name):
-        return
+        return CommandResponse.fail()
 
     try:
         container = blob_client.get_container_client(container_name)
@@ -31,5 +32,6 @@ def delete(blob_client: BlobServiceClient, container_name: str, force_validation
     except HttpResponseError as e:
         error_message = e.message.split("\n")
         logging.error(f"Failed to delete container '{container_name}': {error_message[0]}")
-        return
+        return CommandResponse.fail()
     logger.info(f"Successfully deleted container {container_name}")
+    return CommandResponse.success()

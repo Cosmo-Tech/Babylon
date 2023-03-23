@@ -8,6 +8,7 @@ from click import command
 
 from .....utils.decorators import timing_decorator
 from .....utils.typing import QueryType
+from .....utils.response import CommandResponse
 from .....utils.clients import pass_blob_client
 
 logger = logging.getLogger("Babylon")
@@ -17,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @pass_blob_client
 @timing_decorator
 @argument("container_name", type=QueryType())
-def create(blob_client: BlobServiceClient, container_name: str) -> Optional[str]:
+def create(blob_client: BlobServiceClient, container_name: str) -> CommandResponse:
     """Creates a new storageblob container with the given name"""
     logger.info(f"Creating container {container_name} in storage account {blob_client.account_name}")
     try:
@@ -25,10 +26,10 @@ def create(blob_client: BlobServiceClient, container_name: str) -> Optional[str]
     except HttpResponseError as e:
         error_message = e.message.split("\n")
         logging.error(f"Failed to create container '{container_name}': {error_message[0]}")
-        return
+        return CommandResponse.fail()
     except Exception as e:
         logger.error(e.message)
-        return
+        return CommandResponse.fail()
 
     logger.info(f"Successfully created container {container_name}: {container.url}")
-    return container.url
+    return CommandResponse(container.as_dict())
