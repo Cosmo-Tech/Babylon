@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import Optional
 
 from click import argument
 from click import command

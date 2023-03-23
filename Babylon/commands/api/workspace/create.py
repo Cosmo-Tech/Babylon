@@ -4,7 +4,6 @@ from typing import Optional
 from click import argument
 from click import command
 from click import option
-from rich.pretty import pprint
 
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType

@@ -6,7 +6,6 @@ from click import option
 from click import argument
 from click import Path
 
-from .....utils.decorators import require_deployment_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
 from .....utils.decorators import require_platform_key
@@ -30,8 +29,8 @@ def download(api_url: str, azure_token: str, organization_id: str, solution_id: 
              run_template_id: str, output_folder: pathlib.Path) -> CommandResponse:
     """Download a solution handler zip from the solution"""
     response = oauth_request(
-        f"{api_url}/organizations/{organization_id}/solutions/{solution_id}/runtemplates/{run_template_id}/handlers/{handler_id}",
-        azure_token)
+        f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
+        f"/runtemplates/{run_template_id}/handlers/{handler_id}", azure_token)
     if response is None:
         return CommandResponse.fail()
     output_path = pathlib.Path(f"{run_template_id}.zip")

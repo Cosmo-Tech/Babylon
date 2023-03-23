@@ -1,65 +1,51 @@
-import json
 from logging import getLogger
-from pprint import pformat
-from typing import Optional
 
-from click import Path
+from click import argument
 from click import command
 from click import option
-from cosmotech_api.api.workspace_api import WorkspaceApi
-from cosmotech_api.exceptions import ForbiddenException
-from cosmotech_api.exceptions import NotFoundException
-from cosmotech_api.exceptions import ServiceException
-from cosmotech_api.exceptions import UnauthorizedException
-from cosmotech_api.api_client import ApiClient
 
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
-from ....utils.environment import Environment
+from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
-from ....utils.clients import pass_api_client
+from ....utils.decorators import output_to_file
+from ....utils.decorators import require_platform_key
+from ....utils.environment import Environment
+from ....utils.credentials import pass_azure_token
+from ....utils.request import oauth_request
 
 logger = getLogger("Babylon")
 
 
 @command()
-@describe_dry_run("Would call **workspace_api.create_workspace**")
 @timing_decorator
-@pass_api_client
+@require_platform_key("api_url")
+@pass_azure_token("csm_api")
+@argument("workspace_id", type=QueryType())
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @option(
     "-i",
     "--workspace-file",
     "workspace_file",
-    help="In case the workspace id is retrieved from a file",
+    required=True,
+    help="Your custom workspace description file",
 )
-@option(
-    "-o",
-    "--output-file",
-    "output_file",
-    help="The path to the file where new Workspace details should be outputted (json-formatted)",
-    type=Path(),
-)
-@require_deployment_key("use_dedicated_event_hub_namespace", "send_scenario_metadata_to_event_hub")
-@require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
-@require_deployment_key("organization_id", "organization_id")
-@require_deployment_key("solution_id", "solution_id")
-@option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the path be relative to the working directory ?",
-)
-def update(
-    api_client: ApiClient,
-    solution_id: str,
-    workspace_file: str,
-    organization_id: str,
-    use_dedicated_event_hub_namespace: str,
-    send_scenario_metadata_to_event_hub: str,
-    output_file: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
-) -> CommandResponse:
-    """Send a JSON or YAML file to the API to update a workspace."""
-    return CommandResponse.success()
+@output_to_file
+def update(api_url: str, azure_token: str, workspace_id: str, organization_id: str,
+           workspace_file: str) -> CommandResponse:
+    """
+    Register a workspace by sending a description file to the API.
+    Edit and use the workspace file template located in `API/workspace.json`
+    """
+    env = Environment()
+    workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.json"
+    details = env.fill_template(workspace_file)
+    response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces/{workspace_id}",
+                             azure_token,
+                             type="PATCH",
+                             data=details)
+    if response is None:
+        return CommandResponse.fail()
+    workspace = response.json()
+    logger.info(f"Successfully updated workspace {workspace['id']}")
+    return CommandResponse.success(workspace, verbose=True)

@@ -4,7 +4,6 @@ import pathlib
 from click import command
 from click import option
 from click import argument
-from click import Path
 
 from .....utils.decorators import require_deployment_key
 from .....utils.decorators import timing_decorator
@@ -30,14 +29,9 @@ def upload(api_url: str, azure_token: str, organization_id: str, solution_id: st
            run_template_id: str) -> CommandResponse:
     """Upload a solution handler zip to the solution"""
     response = oauth_request(
-        f"{api_url}/organizations/{organization_id}/solutions/{solution_id}/runtemplates/{run_template_id}/handlers/{handler_id}",
-        azure_token)
+        f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
+        "/runtemplates/{run_template_id}/handlers/{handler_id}", azure_token)
     if response is None:
         return CommandResponse.fail()
     output_path = pathlib.Path(f"{run_template_id}.zip")
-    if output_folder:
-        output_path = output_folder / output_path
-    with open(output_path, "wb") as _f:
-        _f.write(response.read())
-    logger.info(f"Successfully downloaded solution handler to {output_path}")
     return CommandResponse.success({"file": str(output_path)})
