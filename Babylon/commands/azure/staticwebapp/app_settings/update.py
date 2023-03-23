@@ -5,7 +5,6 @@ from click import command
 from click import argument
 from click import Path
 from click import option
-from rich.pretty import pretty_repr
 
 from .....utils.environment import Environment
 from .....utils.request import oauth_request
@@ -41,6 +40,5 @@ def update(azure_token: str, azure_subscription: str, resource_group_name: str, 
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info(pretty_repr(output_data))
     logger.info(f"Successfully launched creation of webapp {webapp_name} settings from file {settings_file}")
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)

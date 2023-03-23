@@ -33,5 +33,4 @@ def get(azure_token: str, azure_subscription: str, resource_group_name: str, web
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success()
+    return CommandResponse.success(output_data, verbose=True)

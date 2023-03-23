@@ -31,5 +31,4 @@ def get_all(azure_token: str, azure_subscription: str, resource_group_name: str,
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success()
+    return CommandResponse.success(output_data, verbose=True)
