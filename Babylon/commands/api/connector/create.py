@@ -33,7 +33,6 @@ TEMPLATES = {"ADT": "api/connector.ADT.json", "STORAGE": "api/connector.STORAGE.
 @option("-t",
         "--type",
         "connector_type",
-        required=True,
         type=Choice(["ADT", "STORAGE"], case_sensitive=False),
         help="Connector type, allowed values : [ADT, STORAGE]")
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
@@ -47,6 +46,9 @@ def create(api_url: str,
            connector_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """Register a new Connector by sending a JSON or YAML file to the API."""
     env = Environment()
+    if not connector_file and not connector_type:
+        logger.error("Please specify a connector_file or choose a connector type to use default templates")
+        return CommandResponse.fail()
     connector_file = connector_file or env.working_dir.payload_path / TEMPLATES[connector_type]
     details = env.fill_template(connector_file,
                                 data={
