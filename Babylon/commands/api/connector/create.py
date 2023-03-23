@@ -1,4 +1,4 @@
-from logging import getLogger
+import logging
 from pprint import pformat
 from typing import Optional
 import pathlib
@@ -19,12 +19,9 @@ from ....utils.decorators import output_to_file
 from ....utils.environment import Environment
 from ....utils.decorators import require_platform_key
 
-logger = getLogger("Babylon")
+logger = logging.getLogger("Babylon")
 
-TEMPLATES = {
-    "ADT": "api/Connector.ADT.yaml",
-    "STORAGE": "api/Connector.STORAGE.yaml"
-}
+TEMPLATES = {"ADT": "api/connector.ADT.json", "STORAGE": "api/connector.STORAGE.json"}
 
 
 @command()
@@ -59,6 +56,8 @@ def create(api_url: str,
                                     "connector_description": connector_name
                                 })
     response = oauth_request(f"{api_url}/connectors", azure_token, type="POST", data=details)
+    if response is None:
+        return CommandResponse.fail()
     connector = response.json()
     logger.debug(pformat(connector))
     logger.info("Created new %s Connector with id: %s", connector_type, connector.get('id'))
