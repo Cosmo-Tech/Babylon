@@ -41,9 +41,8 @@ logger = getLogger("Babylon")
     "-s",
     "--select",
     "select",
-    type=bool,
+    is_flag=True,
     help="Select this new workspace in configuration ?",
-    default=False,
 )
 @output_to_file
 def create(api_url: str,

@@ -29,11 +29,19 @@ logger = getLogger("Babylon")
     type=str,
     help="Your custom organization description file",
 )
+@option(
+    "-s",
+    "--select",
+    "select",
+    is_flag=True,
+    help="Select this new organization in configuration ?",
+)
 @output_to_file
 def create(api_url: str,
            azure_token: str,
            organization_name: str,
-           organization_file: Optional[str] = None) -> CommandResponse:
+           organization_file: Optional[str] = None,
+           select: bool = False) -> CommandResponse:
     """Register new dataset by sending description file to the API."""
     env = Environment()
     organization_file = organization_file or env.working_dir.payload_path / "api/organization.json"
@@ -43,4 +51,7 @@ def create(api_url: str,
         return CommandResponse.fail()
     organization = response.json()
     logger.info(f"Successfully created organization {organization['id']}")
+    if select:
+        logger.info("Updated configuration variables with organization_id")
+        env.configuration.set_deploy_var("organization_id", organization["id"])
     return CommandResponse.success(organization, verbose=True)

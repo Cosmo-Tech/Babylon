@@ -2,7 +2,6 @@ from logging import getLogger
 
 from click import argument
 from click import command
-from rich.pretty import pprint
 
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
@@ -27,5 +26,4 @@ def get(azure_token: str, api_url: str, connector_id: str) -> CommandResponse:
     if response is None:
         return CommandResponse.fail()
     connector = response.json()
-    pprint(connector)
-    return CommandResponse.success(connector)
+    return CommandResponse.success(connector, verbose=True)

@@ -7,7 +7,6 @@ from click import Choice
 from click import argument
 from click import command
 from click import option
-from rich.pretty import pprint
 
 from ....utils.request import oauth_request
 from ....utils.decorators import describe_dry_run
@@ -61,6 +60,5 @@ def create(api_url: str,
     if response is None:
         return CommandResponse.fail()
     connector = response.json()
-    pprint(connector)
     logger.info(f"Created new connector with id: {connector['id']}")
-    return CommandResponse.success(connector)
+    return CommandResponse.success(connector, verbose=True)

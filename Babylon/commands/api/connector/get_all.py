@@ -3,7 +3,6 @@ from typing import Optional
 
 from click import command
 from click import option
-from rich.pretty import pprint
 import jmespath
 
 from ....utils.decorators import timing_decorator
@@ -34,5 +33,4 @@ def get_all(
     connectors = response.json()
     if filter:
         connectors = jmespath.search(filter, connectors)
-    pprint(connectors, max_length=100)
-    return CommandResponse.success(connectors)
+    return CommandResponse.success(connectors, verbose=True)

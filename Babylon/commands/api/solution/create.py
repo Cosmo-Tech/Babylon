@@ -44,9 +44,8 @@ logger = getLogger("Babylon")
     "-s",
     "--select",
     "select",
-    type=bool,
+    is_flag=True,
     help="Select this new solution in configuration ?",
-    default=False,
 )
 @output_to_file
 def create(azure_token: str,
