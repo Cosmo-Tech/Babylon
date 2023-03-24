@@ -31,7 +31,7 @@ def deploy(deployment_name: str,
         .step(
             ["azure", "staticwebapp", "custom-domain", "create", f"Azure{deployment_name}WebApp", webapp_domain],
             is_required=False) \
-        .step(["azure", "ad", "app", "create"], store_at="app") \
+        .step(["azure", "ad", "app", "create", f"Azure{deployment_name}WebApp"], store_at="app") \
         .step(
             ["azure", "appinsight", "create", f"Insight{deployment_name}WebApp"],
             store_at="insights", run_if=webapp_enable_insights) \
