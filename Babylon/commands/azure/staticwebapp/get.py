@@ -2,7 +2,6 @@ import logging
 
 from click import command
 from click import argument
-from rich.pretty import pretty_repr
 
 from ....utils.request import oauth_request
 from ....utils.decorators import require_platform_key

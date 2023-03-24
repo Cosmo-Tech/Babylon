@@ -1,6 +1,5 @@
 import logging
 import pathlib
-from rich.pretty import pretty_repr
 from typing import Optional
 
 from click import command, argument, option, Path

@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from azure.core.exceptions import HttpResponseError
 from azure.storage.blob import BlobServiceClient

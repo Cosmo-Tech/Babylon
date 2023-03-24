@@ -6,7 +6,6 @@ from click import command
 from click import argument
 from click import Path
 from click import option
-from rich.pretty import pretty_repr
 
 from .....utils.environment import Environment
 from .....utils.request import oauth_request

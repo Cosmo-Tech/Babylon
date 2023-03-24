@@ -5,7 +5,6 @@ from click import command
 from click import option
 from click import Path
 from click import argument
-from rich.pretty import pprint
 
 from .....utils.request import oauth_request
 from .....utils.response import CommandResponse

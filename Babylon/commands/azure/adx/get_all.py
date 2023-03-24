@@ -6,7 +6,6 @@ from click import option
 from azure.mgmt.kusto import KustoManagementClient
 import jmespath
 
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import require_platform_key
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse

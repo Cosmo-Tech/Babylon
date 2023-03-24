@@ -25,8 +25,8 @@ logger = logging.getLogger("Babylon")
                 type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @describe_dry_run("Would send the content of the given script to ADX then delete it once run is finished")
 @timing_decorator
-def run(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str,
-               adx_database_name: str, script_file: pathlib.Path) -> CommandResponse:
+def run(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str, adx_database_name: str,
+        script_file: pathlib.Path) -> CommandResponse:
     """Open SCRIPT_FILE and run it on the database
 
 In the script instances of "<database name>" will be replaced by the actual database name"""
