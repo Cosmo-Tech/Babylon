@@ -16,8 +16,10 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token()
-@require_platform_key("azure_subscription", "azure_subscription")
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_platform_key("azure_subscription")
+@require_platform_key("resource_group_name")
+@argument("webapp_name", type=QueryType())
+@argument("domain_name", type=QueryType())
 @option(
     "-f",
     "--force",
@@ -25,8 +27,6 @@ logger = logging.getLogger("Babylon")
     is_flag=True,
     help="Don't ask for validation before delete",
 )
-@argument("webapp_name", type=QueryType())
-@argument("domain_name", type=QueryType())
 def delete(azure_token: str,
            azure_subscription: str,
            resource_group_name: str,

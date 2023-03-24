@@ -16,9 +16,9 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@require_platform_key("acr_registry_name", "acr_registry_name")
-@require_deployment_key("simulator_repository", "simulator_repository")
-@require_deployment_key("simulator_version", "simulator_version")
+@require_platform_key("acr_registry_name")
+@require_deployment_key("simulator_repository")
+@require_deployment_key("simulator_version")
 @option("-i", "--image", type=QueryType(), help="Local docker image to push")
 @option("-r", "--registry", type=QueryType(), help="Container Registry name to push to, example: myregistry.azurecr.io")
 @timing_decorator

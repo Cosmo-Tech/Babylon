@@ -1,11 +1,11 @@
 from click import group
 
-from .list import list
+from .get_all import get_all
 from .upload import upload
 
 list_commands = [
     upload,
-    list,
+    get_all,
 ]
 
 

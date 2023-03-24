@@ -1,5 +1,4 @@
 import logging
-from rich.pretty import pretty_repr
 
 from click import command, argument
 
@@ -14,8 +13,8 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token()
-@require_platform_key("azure_subscription", "azure_subscription")
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_platform_key("azure_subscription")
+@require_platform_key("resource_group_name")
 @argument("name", type=QueryType())
 def get(azure_token: str, azure_subscription: str, resource_group_name: str, name: str) -> CommandResponse:
     """
@@ -24,9 +23,8 @@ def get(azure_token: str, azure_subscription: str, resource_group_name: str, nam
     """
     route = (f'https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/'
              f'providers/Microsoft.Insights/components/{name}?api-version=2015-05-01')
-    response = oauth_request(route, azure_token, type="GET")
+    response = oauth_request(route, azure_token)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)

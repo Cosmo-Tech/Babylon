@@ -6,27 +6,27 @@ import click
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.kusto import KustoManagementClient
 
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import require_deployment_key
-from ....utils.decorators import require_platform_key
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.clients import pass_kusto_client
+from .....utils.decorators import describe_dry_run
+from .....utils.decorators import require_deployment_key
+from .....utils.decorators import require_platform_key
+from .....utils.decorators import timing_decorator
+from .....utils.response import CommandResponse
+from .....utils.clients import pass_kusto_client
 
 logger = logging.getLogger("Babylon")
 
 
 @click.command()
 @pass_kusto_client
-@require_platform_key("adx_cluster_name", "adx_cluster_name")
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_deployment_key("adx_database_name", "adx_database_name")
+@require_platform_key("adx_cluster_name")
+@require_platform_key("resource_group_name")
+@require_deployment_key("adx_database_name")
 @click.argument("script_file",
                 type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @describe_dry_run("Would send the content of the given script to ADX then delete it once run is finished")
 @timing_decorator
-def run_script(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str,
-               adx_database_name: str, script_file: pathlib.Path) -> CommandResponse:
+def run(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str, adx_database_name: str,
+        script_file: pathlib.Path) -> CommandResponse:
     """Open SCRIPT_FILE and run it on the database
 
 In the script instances of "<database name>" will be replaced by the actual database name"""

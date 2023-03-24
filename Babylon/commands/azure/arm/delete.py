@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_arm_client
 @argument("deployment_name", type=QueryType())
-@require_deployment_key("resource_group_name", "resource_group_name")
+@require_deployment_key("resource_group_name")
 @option(
     "-f",
     "--force",

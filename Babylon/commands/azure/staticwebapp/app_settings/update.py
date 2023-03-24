@@ -5,7 +5,6 @@ from click import command
 from click import argument
 from click import Path
 from click import option
-from rich.pretty import pretty_repr
 
 from .....utils.environment import Environment
 from .....utils.request import oauth_request
@@ -27,7 +26,7 @@ def update(azure_token: str, azure_subscription: str, resource_group_name: str, 
            settings_file: pathlib.Path) -> CommandResponse:
     """
     Update static webapp app settings in the given webapp
-    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
+    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-app-settings
     """
     env = Environment()
     settings_file = settings_file or env.working_dir.payload_path / "webapp/webapp_settings.json"
@@ -41,6 +40,5 @@ def update(azure_token: str, azure_subscription: str, resource_group_name: str, 
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info(pretty_repr(output_data))
     logger.info(f"Successfully launched creation of webapp {webapp_name} settings from file {settings_file}")
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)

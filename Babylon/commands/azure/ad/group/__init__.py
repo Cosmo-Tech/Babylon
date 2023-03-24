@@ -15,3 +15,6 @@ def group():
 
 for _group in list_groups:
     group.add_command(_group)
+
+for _cmd in list_commands:
+    group.add_command(_cmd)

@@ -3,12 +3,12 @@ from click import group
 from .create import create
 from .delete import delete
 from .get import get
-from .list import list
+from .get_all import get_all
 
 list_commands = [
     get,
     delete,
-    list,
+    get_all,
     create,
 ]
 

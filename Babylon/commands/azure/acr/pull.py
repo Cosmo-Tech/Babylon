@@ -16,10 +16,10 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@require_platform_key("csm_acr_registry_name", "csm_acr_registry_name")
-@require_deployment_key("csm_simulator_repository", "csm_simulator_repository")
-@require_deployment_key("simulator_version", "simulator_version")
-@require_deployment_key("simulator_repository", "simulator_repository")
+@require_platform_key("csm_acr_registry_name")
+@require_deployment_key("csm_simulator_repository")
+@require_deployment_key("simulator_version")
+@require_deployment_key("simulator_repository")
 @option("-r", "--registry", type=QueryType(), help="Container Registry name to pull from, ex: myregistry.azurecr.io")
 @option("-i", "--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
 @timing_decorator

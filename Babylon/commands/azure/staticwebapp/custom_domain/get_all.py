@@ -2,7 +2,6 @@ import logging
 
 from click import command
 from click import argument
-from rich.pretty import pretty_repr
 
 from .....utils.request import oauth_request
 from .....utils.decorators import require_platform_key
@@ -31,5 +30,4 @@ def get_all(azure_token: str, azure_subscription: str, resource_group_name: str,
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success()
+    return CommandResponse.success(output_data, verbose=True)

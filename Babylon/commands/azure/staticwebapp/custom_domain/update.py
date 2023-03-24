@@ -12,6 +12,7 @@ from click import Path
 from .create import create
 from .....utils.decorators import require_platform_key
 from .....utils.response import CommandResponse
+from .....utils.credentials import pass_azure_token
 from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
@@ -19,6 +20,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_context
+@pass_azure_token()
 @require_platform_key("azure_subscription")
 @require_platform_key("resource_group_name")
 @argument("webapp_name", type=QueryType())

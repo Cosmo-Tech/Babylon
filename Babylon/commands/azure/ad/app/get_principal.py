@@ -2,7 +2,6 @@ import logging
 
 from click import command
 from click import argument
-from rich.pretty import pretty_repr
 
 from .....utils.request import oauth_request
 from .....utils.response import CommandResponse
@@ -32,5 +31,4 @@ def get_principal(azure_token: str, registration_id: str) -> CommandResponse:
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)
