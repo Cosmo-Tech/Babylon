@@ -22,9 +22,9 @@ logger = getLogger("Babylon")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @argument("solution_id", type=QueryType())
 @output_to_file
-def get(api_url: str, azure_token: str, organization_id: str, dataset_id: str) -> CommandResponse:
+def get(api_url: str, azure_token: str, organization_id: str, solution_id: str) -> CommandResponse:
     """Get a solution from the organization"""
-    response = oauth_request(f"{api_url}/organizations/{organization_id}/datasets/{dataset_id}", azure_token)
+    response = oauth_request(f"{api_url}/organizations/{organization_id}/datasets/{solution_id}", azure_token)
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()

@@ -1,9 +1,18 @@
 import pathlib
 from typing import Optional
 from typing import Any
+import json
 
 import yaml
 from ruamel.yaml import YAML  # Allow to load and dump Yaml file with comment
+
+
+def yaml_to_json(yaml_str: str) -> str:
+    """
+    Converts a yaml string to a json string
+    """
+    data = yaml.safe_load(yaml_str)
+    return json.dumps(data, indent=4, default=str)
 
 
 def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[object]:

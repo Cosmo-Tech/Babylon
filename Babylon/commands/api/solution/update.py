@@ -1,9 +1,12 @@
 from logging import getLogger
+import pathlib
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
+from ....utils.yaml_utils import yaml_to_json
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
@@ -26,15 +29,18 @@ logger = getLogger("Babylon")
     "-i",
     "--solution-file",
     "solution_file",
+    type=Path(path_type=pathlib.Path),
     required=True,
-    help="Your custom solution description file",
+    help="Your custom solution description file (yaml or json)",
 )
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, solution_id: str,
-           solution_file: str) -> CommandResponse:
+           solution_file: pathlib.Path) -> CommandResponse:
     """Register a solution by sending description file to the API."""
     env = Environment()
     details = env.fill_template(solution_file)
+    if solution_file.suffix == ".yaml":
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions/{solution_id}",
                              azure_token,
                              type="PATCH",

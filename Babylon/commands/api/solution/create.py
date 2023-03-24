@@ -1,11 +1,12 @@
 from logging import getLogger
-from typing import Optional
+import pathlib
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
-from ....utils.decorators import require_deployment_key
+from ....utils.yaml_utils import yaml_to_json
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
@@ -23,22 +24,14 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @require_platform_key("api_url")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@require_deployment_key("simulator_repository", "simulator_repository")
-@require_deployment_key("simulator_version", "simulator_version")
 @argument("solution-name", type=QueryType())
-@option(
-    "-d",
-    "--description",
-    "solution_description",
-    help="New solution description",
-)
 @option(
     "-i",
     "--solution-file",
     "solution_file",
-    type=str,
+    type=Path(path_type=pathlib.Path),
     required=True,
-    help="Your custom solution description file",
+    help="Your custom solution description file (yaml or json)",
 )
 @option(
     "-s",
@@ -51,11 +44,8 @@ logger = getLogger("Babylon")
 def create(azure_token: str,
            api_url: str,
            organization_id: str,
-           simulator_repository: str,
-           simulator_version: str,
            solution_name: str,
-           solution_description: Optional[str] = None,
-           solution_file: Optional[str] = None,
+           solution_file: pathlib.Path,
            select: bool = False) -> CommandResponse:
     """
     Register new solution by sending description file to the API.
@@ -65,11 +55,10 @@ def create(azure_token: str,
     details = env.fill_template(solution_file,
                                 data={
                                     "solution_key": solution_name.replace(" ", ""),
-                                    "solution_name": solution_name,
-                                    "simulator_version": simulator_version,
-                                    "simulator_repository": simulator_repository,
-                                    "solution_description": solution_description
+                                    "solution_name": solution_name
                                 })
+    if solution_file.suffix == ".yaml":
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions",
                              azure_token,
                              type="POST",
