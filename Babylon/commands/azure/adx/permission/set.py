@@ -21,9 +21,9 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_kusto_client
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_platform_key("adx_cluster_name", "adx_cluster_name")
-@require_deployment_key("adx_database_name", "adx_database_name")
+@require_platform_key("resource_group_name")
+@require_platform_key("adx_cluster_name")
+@require_deployment_key("adx_database_name")
 @argument("principal_id", type=QueryType())
 @option("-r",
         "--role",

@@ -14,13 +14,13 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_arm_client
-@require_deployment_key("resource_group_name", "resource_group_name")
+@require_deployment_key("resource_group_name")
 @timing_decorator
-def list(
+def get_all(
     arm_client: ResourceManagementClient,
     resource_group_name: str,
 ) -> CommandResponse:
-    """List all the deployments for a resource group."""
+    """Get all the deployments for a resource group."""
 
     try:
         deployment_list = arm_client.deployments.list_by_resource_group(resource_group_name)
@@ -33,4 +33,4 @@ def list(
         'provisioning_state': _ele.as_dict()['properties']['provisioning_state'],
     } for _ele in deployment_list]
 
-    return CommandResponse.success(deployments)
+    return CommandResponse.success(deployments, verbose=True)

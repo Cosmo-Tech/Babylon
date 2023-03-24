@@ -15,8 +15,8 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token()
-@require_platform_key("azure_subscription", "azure_subscription")
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_platform_key("azure_subscription")
+@require_platform_key("resource_group_name")
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @output_to_file
 def get_all(azure_token: str,
@@ -30,7 +30,7 @@ def get_all(azure_token: str,
 
     route = (f'https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/'
              f'providers/Microsoft.Insights/components?api-version=2015-05-01')
-    response = oauth_request(route, azure_token, type="GET")
+    response = oauth_request(route, azure_token)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()["value"]

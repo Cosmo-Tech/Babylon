@@ -19,10 +19,10 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@require_platform_key("csm_acr_registry_name", "csm_acr_registry_name")
-@require_platform_key("acr_registry_name", "acr_registry_name")
-@require_deployment_key("simulator_repository", "simulator_repository")
-@require_deployment_key("simulator_version", "simulator_version")
+@require_platform_key("csm_acr_registry_name")
+@require_platform_key("acr_registry_name")
+@require_deployment_key("simulator_repository")
+@require_deployment_key("simulator_version")
 @option("-r",
         "--registry",
         help="Container Registry name to delete from, example: myregistry.azurecr.io",

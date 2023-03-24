@@ -18,9 +18,9 @@ logger = logging.getLogger("Babylon")
 
 @click.command()
 @pass_kusto_client
-@require_platform_key("adx_cluster_name", "adx_cluster_name")
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_deployment_key("adx_database_name", "adx_database_name")
+@require_platform_key("adx_cluster_name")
+@require_platform_key("resource_group_name")
+@require_deployment_key("adx_database_name")
 @click.argument("script_file",
                 type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @describe_dry_run("Would send the content of the given script to ADX then delete it once run is finished")

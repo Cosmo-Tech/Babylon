@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_adt_management_client
 @timing_decorator
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_platform_key("resource_group_name")
 @argument("adt_instance_name", type=QueryType())
 @output_to_file
 def get(adt_management_client: AzureDigitalTwinsManagementClient, resource_group_name: str,

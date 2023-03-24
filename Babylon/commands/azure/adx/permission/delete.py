@@ -19,9 +19,9 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_kusto_client
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_platform_key("adx_cluster_name", "adx_cluster_name")
-@require_deployment_key("adx_database_name", "adx_database_name")
+@require_platform_key("resource_group_name")
+@require_platform_key("adx_cluster_name")
+@require_deployment_key("adx_database_name")
 @argument("principal_id", type=QueryType())
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 @describe_dry_run("Would go through each role of given principal and delete them.")

@@ -16,7 +16,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_kusto_client
-@require_platform_key("resource_group_name", "resource_group_name")
+@require_platform_key("resource_group_name")
 @timing_decorator
 @option("--filter", "filter", help="Filter response with a jmespath query")
 def get_all(kusto_client: KustoManagementClient,
