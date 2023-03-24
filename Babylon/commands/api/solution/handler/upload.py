@@ -50,9 +50,10 @@ def upload(api_url: str,
             f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
             f"/runtemplates/{run_template_id}/handlers/{handler_id}",
             azure_token,
-            data=handler,
+            files={handler_path.name: handler},
             params={"overwrite": override},
-            headers={"Content-Type": "application/octet-stream"})
+            headers={"Content-Type": "application/octet-stream"},
+            type="POST")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully sent handler file {handler_path} to solution {solution_id}")
