@@ -30,7 +30,6 @@ def update(azure_token: str, registration_id: str, registration_file: str) -> Co
     """
     route = f"https://graph.microsoft.com/v1.0/applications/{registration_id}"
     env = Environment()
-    registration_file = registration_file
     details = env.fill_template(registration_file)
     response = oauth_request(route, azure_token, type="PATCH", data=details)
     if response is None:
