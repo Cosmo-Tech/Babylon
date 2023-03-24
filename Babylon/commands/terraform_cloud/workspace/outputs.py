@@ -1,5 +1,4 @@
 import logging
-import pprint
 import webbrowser
 
 from click import argument
@@ -45,8 +44,6 @@ Sensitive outputs are not readable, use -s option to access the state in the web
         logger.error(f"Workspace {workspace_id} has no outputs")
         return CommandResponse.fail()
 
-    logger.info(pprint.pformat(ws.get('data')))
-
     state_url = f"{tfc_client.get_url()}/app/{tfc_client.get_org()}/workspaces/{ws_name}/states"
     if states_webpage_open:
         logger.info(f"Opening states URL : {state_url}")
@@ -54,4 +51,4 @@ Sensitive outputs are not readable, use -s option to access the state in the web
     else:
         logger.info(f"Full state info can be found at : {state_url}")
 
-    return CommandResponse.success(ws.get("data"))
+    return CommandResponse.success(ws.get("data"), verbose=True)

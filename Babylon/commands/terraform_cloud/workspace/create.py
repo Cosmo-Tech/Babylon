@@ -53,9 +53,8 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool = Fa
         logger.error(f"An issue appeared while processing workspace {workspace_data['workspace_name']}:")
         logger.error(pprint.pformat(_error.args))
         return CommandResponse.fail()
-    logger.info(pprint.pformat(ws['data']))
     if select:
         env.configuration.set_deploy_var("terraform_cloud_workspace_id", ws['data']['id'])
         logger.info(
             f"terraform_cloud_workspace_id: {ws['data']['id']} was successfully set in the deploy configuration")
-    return CommandResponse.success(ws.get("data"))
+    return CommandResponse.success(ws.get("data"), verbose=True)

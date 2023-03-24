@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from click import command
 from click import option
@@ -16,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @pass_azure_token("graph")
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @output_to_file
-def get_all(azure_token: str, filter: str) -> CommandResponse:
+def get_all(azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     """
     Get all AD groups from current subscription
     https://learn.microsoft.com/en-us/graph/api/group-list

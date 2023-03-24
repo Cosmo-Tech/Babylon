@@ -4,7 +4,6 @@ from typing import Optional
 from click import command
 from click import option
 
-from ....utils.logging import table_repr
 from ....utils.response import CommandResponse
 from ....utils.typing import QueryType
 from ....utils.request import oauth_request
@@ -31,5 +30,4 @@ def get(azure_token: str, workspace_id: Optional[str] = None, name: Optional[str
     if not workspace_data:
         logger.error(f"{workspace_id} was not found")
         return CommandResponse.fail()
-    logger.info("\n".join(table_repr(workspace_data)))
-    return CommandResponse.success(workspace_data)
+    return CommandResponse.success(workspace_data, verbose=True)

@@ -5,7 +5,6 @@ from click import argument
 from click import option
 
 from ....utils.decorators import output_to_file
-from ....utils.logging import table_repr
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
 from ....utils.request import oauth_request
@@ -33,12 +32,9 @@ def create(azure_token: str, workspace_name: str, select: bool) -> CommandRespon
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info("\n".join(table_repr([
-        output_data,
-    ])))
     if select:
         env.configuration.set_deploy_var(
             "powerbi_workspace_id",
             output_data["id"],
-        )  # May return environnement error
-    return CommandResponse.success(output_data)
+        )
+    return CommandResponse.success(output_data, verbose=True)

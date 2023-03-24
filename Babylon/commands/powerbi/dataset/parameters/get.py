@@ -4,7 +4,6 @@ from typing import Optional
 from click import command
 from click import argument
 from click import option
-from rich.pretty import pretty_repr
 
 from .....utils.decorators import require_deployment_key
 from .....utils.decorators import output_to_file
@@ -36,5 +35,4 @@ def get(azure_token: str,
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)

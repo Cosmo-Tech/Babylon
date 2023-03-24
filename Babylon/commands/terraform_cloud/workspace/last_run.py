@@ -1,5 +1,4 @@
 import logging
-import pprint
 
 from click import command
 from click import argument
@@ -34,6 +33,4 @@ def last_run(tfc_client: TFC, workspace_id: str) -> CommandResponse:
         logger.info(f"No runs found in workspace {workspace_id}")
         return CommandResponse.success()
 
-    logger.info(pprint.pformat(ordered_runs[-1]))
-
-    return CommandResponse.success(ordered_runs[-1].get("data"))
+    return CommandResponse.success(ordered_runs[-1].get("data"), verbose=True)
