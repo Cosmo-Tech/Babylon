@@ -17,4 +17,3 @@ class MultiLineHandler(rich.logging.RichHandler):
         for line in base_msg.split("\n"):
             record.msg = line.rstrip()
             super().emit(record)
-
