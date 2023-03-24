@@ -14,9 +14,9 @@ logger = logging.getLogger("Babylon")
 
 @click.command()
 @pass_kusto_client
-@require_platform_key("adx_cluster_name", "adx_cluster_name")
-@require_platform_key("resource_group_name", "resource_group_name")
-@require_deployment_key("adx_database_name", "adx_database_name")
+@require_platform_key("adx_cluster_name")
+@require_platform_key("resource_group_name")
+@require_deployment_key("adx_database_name")
 @timing_decorator
 def get_all(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str,
             adx_database_name: str) -> CommandResponse:

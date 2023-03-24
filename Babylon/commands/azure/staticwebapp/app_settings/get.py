@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 def get(azure_token: str, azure_subscription: str, resource_group_name: str, webapp_name: str) -> CommandResponse:
     """
     Get static webapp app settings for the given static web app
-    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list-static-site-app-settings?tabs=HTTP
+    https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list-static-site-app-settings
     """
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"

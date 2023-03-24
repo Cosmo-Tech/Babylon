@@ -31,4 +31,4 @@ def create(blob_client: BlobServiceClient, container_name: str) -> CommandRespon
         return CommandResponse.fail()
 
     logger.info(f"Successfully created container {container_name}: {container.url}")
-    return CommandResponse(container.as_dict())
+    return CommandResponse({"name": container_name, "url": container.url})
