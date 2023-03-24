@@ -50,3 +50,5 @@ webapp_insights_instrumentation_key: ""
 webapp_enable_insights: False
 # terraform_cloud_workspace_id: id of the workspace
 terraform_cloud_workspace_id: ""
+# powerbi_api_scope: PowerBI API scope
+powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"

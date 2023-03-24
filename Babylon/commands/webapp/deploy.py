@@ -38,7 +38,7 @@ def deploy(deployment_name: str,
         .step(["config", "set-variable", "deploy", "webapp_insights_instrumentation_key",
                "%datastore%insights.properties.InstrumentationKey"], run_if=webapp_enable_insights) \
         .step(
-            ["azure", "ad", "group", "member", "add", azure_powerbi_group_id, "%datastore%app.data.id"],
+            ["azure", "ad", "group", "member", "add", azure_powerbi_group_id, "%datastore%app.data.servicePrincipalId"],
             is_required=False, run_if=enable_powerbi)
 
     # Wait for workflow file to be created by static webapp
@@ -57,7 +57,7 @@ def deploy(deployment_name: str,
             ["azure", "ad", "app", "password", "create", "%datastore%app.data.id", "-n", "powerbi"],
             run_if=enable_powerbi) \
         .step(
-            ["powerbi", "workspace", "user", "add", "%datastore%app.data.appId", "App", "Member"],
+            ["powerbi", "workspace", "user", "add", "%datastore%app.data.servicePrincipalId", "App", "Member"],
             run_if=enable_powerbi) \
         .step(
             ["azure", "staticwebapp", "app-settings", "update", f"Azure{deployment_name}WebApp"],

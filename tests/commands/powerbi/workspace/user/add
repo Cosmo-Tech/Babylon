@@ -1,7 +1,7 @@
 ## babylon powerbi workspace users add
 
 To test the new commands proceed as follow:
-- Add or edit the following lines in `config/platform.yaml`
+- Add or edit the following lines in `config/deploy.yaml`
 ```yaml
 # Powerbi api scope
 powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
