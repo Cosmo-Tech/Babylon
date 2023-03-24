@@ -1,5 +1,4 @@
 import logging
-import pprint
 
 from click import command
 from terrasnek.api import TFC
@@ -24,5 +23,4 @@ def get_all(tfc_client: TFC) -> CommandResponse:
         return _r.get('attributes', {}).get('latest-change-at', '')
 
     workspaces = [_ws for _ws in sorted(ws.get('data'), key=get_last_changed)]
-    logger.info(pprint.pformat(workspaces))
-    return CommandResponse.success({"workspaces": workspaces})
+    return CommandResponse.success({"workspaces": workspaces}, verbose=True)

@@ -1,6 +1,5 @@
 import json
 import logging
-import pprint
 
 from click import command
 from click import option
@@ -54,5 +53,4 @@ More info on runs can be found at: https://developer.hashicorp.com/terraform/clo
     logger.info("Sending payload to API")
     r = tfc_client.runs.create(data)
     logger.info("Run successfully created")
-    logger.info(pprint.pformat(r))
-    return CommandResponse.success(r.get("data"))
+    return CommandResponse.success(r.get("data"), verbose=True)

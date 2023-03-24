@@ -3,10 +3,9 @@ from typing import Optional
 
 from click import command
 from click import option
+import jmespath
 
-from .....utils.decorators import require_deployment_key
 from .....utils.decorators import output_to_file
-from .....utils.logging import table_repr
 from .....utils.typing import QueryType
 from .....utils.response import CommandResponse
 from .....utils.request import oauth_request
@@ -17,14 +16,11 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token("powerbi")
-@option("-w", "--workspace", "override_workspace_id", type=QueryType())
-@require_deployment_key("powerbi_workspace_id", required=False)
+@option("-w", "--workspace", "workspace_id", type=QueryType(), default="%deploy%powerbi_workspace_id")
+@option("--filter", "filter", help="Filter response with a jmespath query")
 @output_to_file
-def get_all(azure_token: str,
-            powerbi_workspace_id: str,
-            override_workspace_id: Optional[str] = None) -> CommandResponse:
+def get_all(azure_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:
     """List all exisiting users in the power bi workspace"""
-    workspace_id = override_workspace_id or powerbi_workspace_id
     if not workspace_id:
         logger.error("A workspace id is required either in your config or with parameter '-w'")
         return CommandResponse.fail()
@@ -32,6 +28,7 @@ def get_all(azure_token: str,
     response = oauth_request(url_users, azure_token)
     if response is None:
         return CommandResponse.fail()
-    users = response.json().get('value')
-    logger.info("\n".join(table_repr(users)))
-    return CommandResponse.success(users)
+    output_data = response.json().get('value')
+    if filter:
+        output_data = jmespath.search(filter, output_data)
+    return CommandResponse.success(output_data, verbose=True)

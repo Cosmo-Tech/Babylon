@@ -8,7 +8,6 @@ from click import command
 from click import argument
 from click import Path
 from click import option
-from rich.pretty import pretty_repr
 
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
@@ -60,6 +59,5 @@ def upload(azure_token: str, pbix_filename: str, workspace_id: str) -> CommandRe
     if output_data.get("importState") != "Succeeded":
         logger.error(f"Failed to import report file {pbix_filename}")
         return CommandResponse.fail()
-    logger.info(pretty_repr(output_data))
     logger.info(f"Successfully imported report {pbix_filename}")
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)

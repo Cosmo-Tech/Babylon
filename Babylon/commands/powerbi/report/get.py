@@ -3,7 +3,6 @@ import logging
 from click import command
 from click import argument
 from click import option
-from rich.pretty import pretty_repr
 
 from ....utils.decorators import output_to_file
 from ....utils.request import oauth_request
@@ -31,5 +30,4 @@ def get(azure_token: str, report_id: str, workspace_id: str) -> CommandResponse:
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    logger.info(pretty_repr(output_data))
-    return CommandResponse.success(output_data)
+    return CommandResponse.success(output_data, verbose=True)

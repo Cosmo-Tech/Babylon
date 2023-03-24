@@ -1,5 +1,4 @@
 import logging
-import pprint
 
 from click import command
 from click import argument
@@ -27,5 +26,4 @@ def get(tfc_client: TFC, workspace_id: str) -> CommandResponse:
     except TFCHTTPNotFound:
         logger.error(f"Workspace {workspace_id} does not exist in your terraform organization")
         return CommandResponse.fail()
-    logger.info(pprint.pformat(ws['data']))
-    return CommandResponse.success(ws.get("data"))
+    return CommandResponse.success(ws.get("data"), verbose=True)

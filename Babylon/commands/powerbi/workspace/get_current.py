@@ -3,7 +3,6 @@ import logging
 from click import command
 
 from ....utils.decorators import require_deployment_key
-from ....utils.logging import table_repr
 from ....utils.response import CommandResponse
 from ....utils.request import oauth_request
 from ....utils.credentials import pass_azure_token
@@ -25,5 +24,4 @@ def get_current(azure_token: str, powerbi_workspace_id: str) -> CommandResponse:
     if not workspace_data:
         logger.error(f"{powerbi_workspace_id} was not found")
         return CommandResponse.fail()
-    logger.info("\n".join(table_repr(workspace_data)))
-    return CommandResponse(data=workspace_data)
+    return CommandResponse(data=workspace_data, verbose=True)
