@@ -27,7 +27,11 @@ def download(webapp_repository: str, webapp_repository_branch: str, github_token
         repo.remotes.origin.pull()
         return CommandResponse.success()
     # Will log using the given personal access token
-    repo_suffix = webapp_repository.split("github.com/")[1]
+    try:
+        repo_suffix = webapp_repository.split("github.com/")[1]
+    except Exception:
+        logger.error("webapp_repository should be of the form `https://github.com/my_org/my_repo`")
+        return CommandResponse.fail()
     repo_w_token = f"https://oauth2:{github_token}@github.com/{repo_suffix}.git"
     git.Repo.clone_from(repo_w_token, destination_folder, branch=webapp_repository_branch)
     logger.info(f"Successfully cloned repository {webapp_repository} in folder {destination_folder}")
