@@ -244,6 +244,8 @@ class WorkingDir:
 
     @staticmethod
     def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
+        if not content:
+            return b""
         try:
             decoder = Fernet(encoding_key)
             data = decoder.decrypt(content)
