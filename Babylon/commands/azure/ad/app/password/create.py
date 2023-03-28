@@ -19,7 +19,10 @@ logger = logging.getLogger("Babylon")
 @argument("object_id", type=QueryType())
 @option("-n", "--name", "password_name", help="Password display name", type=QueryType())
 @option("-s", "--select", "select", is_flag=True, help="Save secret in .secrets.yaml working dir file")
-def create(azure_token: str, object_id: str, password_name: Optional[str] = None, select: bool = False) -> CommandResponse:
+def create(azure_token: str,
+           object_id: str,
+           password_name: Optional[str] = None,
+           select: bool = False) -> CommandResponse:
     """
     Register a password or secret to an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-addpassword
