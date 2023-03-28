@@ -30,4 +30,4 @@ def get(azure_token: str, workspace_id: Optional[str] = None, name: Optional[str
     if not workspace_data:
         logger.error(f"{workspace_id} was not found")
         return CommandResponse.fail()
-    return CommandResponse.success(workspace_data, verbose=True)
+    return CommandResponse.success(workspace_data[0], verbose=True)

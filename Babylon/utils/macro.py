@@ -53,7 +53,9 @@ class Macro():
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
                       transient=True) as progress:
             progress.add_task(' '.join(command_line))
+            self.env.is_verbose = False
             self._responses.append(run_command(command_line))
+            self.env.is_verbose = True
             if is_required and self._responses[-1].has_failed():
                 self._status = self.STATUS_ERROR
                 return self
