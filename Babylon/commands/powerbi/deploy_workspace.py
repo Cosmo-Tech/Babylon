@@ -35,7 +35,7 @@ def deploy_workspace(workspace_name: str,
     """
     Macro command allowing full deployment of a power bi workspac
     Require a local folder named `powerbi-reports` and will initialize a full workspace with the given reports
-    Won't run powerbi workspace creation if a workspace id is given
+    Won't run powerbi workspace creation if it's already existing
     """
     report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
 
