@@ -27,7 +27,10 @@ class Configuration:
         self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
         self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
         self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
-        self.initialize()
+        if not self.config_dir.exists() or not self.platform or not self.deploy:
+            logger.error(
+                "Configuration folder is empty.\n"
+                "Please run `babylon config initialize` or set the environment variable BABYLON_CONFIG_DIRECTORY")
 
     def initialize(self):
         if self.config_dir.exists():
@@ -214,24 +217,22 @@ class Configuration:
         Get path to the current deployment file
         :return: path to the current deployment file
         """
-        if self.deploy:
-            if self.deploy.is_absolute():
-                return self.deploy
-            else:
-                return self.config_dir / self.deploy
-        return None
+        if not self.deploy:
+            raise ValueError("Deploy path not found")
+        if self.deploy.is_absolute():
+            return self.deploy
+        return self.config_dir / self.deploy
 
     def get_platform_path(self) -> Optional[pathlib.Path]:
         """
         Get path to the current platform file
         :return: path to the current platform file
         """
-        if self.platform:
-            if self.platform.is_absolute():
-                return self.platform
-            else:
-                return self.config_dir / self.platform
-        return None
+        if not self.platform:
+            raise ValueError("Platform file not found")
+        if self.platform.is_absolute():
+            return self.platform
+        return self.config_dir / self.platform
 
     def get_deploy_var(self, var_name: str) -> Optional[object]:
         """
@@ -240,7 +241,8 @@ class Configuration:
         :return: the value of the key in the deployment file if exists else None
         """
         if not (_path := self.get_deploy_path()).exists():
-            return None
+            logger.error(f"Deploy file {_path} does not exists")
+            raise ValueError(f"Deploy file {_path} does not exists")
         return read_yaml_key(_path, var_name)
 
     def get_platform_var(self, var_name: str) -> Optional[object]:
@@ -250,7 +252,8 @@ class Configuration:
         :return: the value of the key in the platform file if exists else None
         """
         if not (_path := self.get_platform_path()).exists():
-            return None
+            logger.error(f"Platform file {_path} does not exists")
+            raise ValueError(f"Platform file {_path} does not exists")
         return read_yaml_key(_path, var_name)
 
     def set_deploy_var(self, var_name: str or list[str], var_value: Any) -> None:

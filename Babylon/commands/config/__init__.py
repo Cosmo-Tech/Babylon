@@ -6,10 +6,11 @@ from .deployment import deployment
 from .platform import platform
 from .plugin import plugin
 from .set_variable import set_variable
+from .get_variable import get_variable
 from .fill_template import fill_template
-from .initialize import initialize
+from .init import init
 
-list_commands = [validate, display, set_variable, fill_template, initialize]
+list_commands = [validate, display, get_variable, set_variable, fill_template, init]
 
 list_groups = [
     plugin,

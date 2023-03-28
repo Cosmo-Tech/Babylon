@@ -11,17 +11,16 @@ from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 
-SCOPES = {
-    "graph": "https://graph.microsoft.com/.default",
-    "default": "https://management.azure.com/.default",
-    "powerbi": Environment().configuration.get_deploy_var("powerbi_api_scope"),
-    "csm_api": Environment().configuration.get_platform_var("api_scope")
-}
-
 
 def get_azure_token(scope: str = "default") -> str:
     """Returns an azure token"""
     # Getting scope url from utils.scope
+    SCOPES = {
+        "graph": "https://graph.microsoft.com/.default",
+        "default": "https://management.azure.com/.default",
+        "powerbi": Environment().configuration.get_deploy_var("powerbi_api_scope"),
+        "csm_api": Environment().configuration.get_platform_var("api_scope")
+    }
     credentials = get_azure_credentials()
     scope_url = SCOPES[scope.lower()]
     logger.debug(f"Getting azure token with scope {scope_url}")
