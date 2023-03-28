@@ -14,14 +14,14 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token("graph")
-@argument("registration_id", type=QueryType())
+@argument("object_id", type=QueryType())
 @output_to_file
-def get(azure_token: str, registration_id: str) -> CommandResponse:
+def get(azure_token: str, object_id: str) -> CommandResponse:
     """
     Get an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-get
     """
-    route = f"https://graph.microsoft.com/v1.0/applications/{registration_id}"
+    route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
     response = oauth_request(route, azure_token)
     if response is None:
         return CommandResponse.fail()

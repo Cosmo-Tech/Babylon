@@ -16,16 +16,19 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token("graph")
-@argument("app_id", type=QueryType())
+@argument("object_id", type=QueryType())
 @option("-n", "--name", "password_name", help="Password display name", type=QueryType())
 @option("-s", "--select", "select", is_flag=True, help="Save secret in .secrets.yaml working dir file")
-def create(azure_token: str, app_id: str, password_name: Optional[str] = None, select: bool = False) -> CommandResponse:
+def create(azure_token: str,
+           object_id: str,
+           password_name: Optional[str] = None,
+           select: bool = False) -> CommandResponse:
     """
     Register a password or secret to an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-addpassword
     """
-    route = f"https://graph.microsoft.com/v1.0/applications/{app_id}/addPassword"
-    password_name = password_name or f"secret_{app_id}"
+    route = f"https://graph.microsoft.com/v1.0/applications/{object_id}/addPassword"
+    password_name = password_name or f"secret_{object_id}"
     details = {"passwordCredential": {"displayName": password_name}}
     response = oauth_request(route, azure_token, type="POST", json=details)
     if response is None:

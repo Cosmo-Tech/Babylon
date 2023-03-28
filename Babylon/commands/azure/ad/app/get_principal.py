@@ -14,14 +14,14 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token("graph")
-@argument("registration_id", type=QueryType())
+@argument("object_id", type=QueryType())
 @output_to_file
-def get_principal(azure_token: str, registration_id: str) -> CommandResponse:
+def get_principal(azure_token: str, object_id: str) -> CommandResponse:
     """
     Get an app registration service principal in active directory
     https://learn.microsoft.com/en-us/graph/api/serviceprincipal-get
     """
-    get_route = f"https://graph.microsoft.com/v1.0/applications/{registration_id}"
+    get_route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
     get_response = oauth_request(get_route, azure_token)
     if get_response is None:
         return CommandResponse.fail()
