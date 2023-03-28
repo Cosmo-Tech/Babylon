@@ -8,13 +8,15 @@ from click import Path
 import git
 
 from ...utils.response import CommandResponse
+from ...utils.decorators import require_deployment_key
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@require_deployment_key("webapp_repository_branch")
 @argument("file", type=Path(path_type=pathlib.Path, exists=True))
-def upload_file(file: pathlib.Path) -> CommandResponse:
+def upload_file(webapp_repository_branch: str, file: pathlib.Path) -> CommandResponse:
     """Upload a file to the webapp github repository"""
     # Get parent git repository of the workflow file
     parent_repo = None
@@ -23,6 +25,9 @@ def upload_file(file: pathlib.Path) -> CommandResponse:
             parent_repo = parent
             break
     repo = git.Repo(parent_repo)
+    if not repo.active_branch == webapp_repository_branch:
+        logger.info(f"Checking out to branch {webapp_repository_branch}")
+        repo.git.checkout(webapp_repository_branch)
     # Committing file
     files = [file]
     if file.is_dir():
