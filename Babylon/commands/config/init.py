@@ -8,7 +8,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-def initialize() -> CommandResponse:
+def init() -> CommandResponse:
     """
     Initialize Babylon configuration, working directory and secret key
     """
