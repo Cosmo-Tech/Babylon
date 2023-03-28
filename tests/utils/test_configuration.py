@@ -16,7 +16,8 @@ def test_init_create(copytree: object):
     """Testing configuration"""
     _ = copytree
     with patch("builtins.open", mock_open()) as mock_file:
-        Configuration(Path("pleaseDoNotExistOrIWillFail"))
+        c = Configuration(Path("pleaseDoNotExistOrIWillFail"))
+        c.initialize()
     mock_file.assert_called()
     mock_file.return_value.write.assert_called()
 
