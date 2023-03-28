@@ -17,22 +17,22 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token("graph")
-@argument("registration_id", type=QueryType())
+@argument("object_id", type=QueryType())
 @option("-f",
         "--file",
         "registration_file",
         type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
         required=True)
-def update(azure_token: str, registration_id: str, registration_file: str) -> CommandResponse:
+def update(azure_token: str, object_id: str, registration_file: str) -> CommandResponse:
     """
     Update an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-update
     """
-    route = f"https://graph.microsoft.com/v1.0/applications/{registration_id}"
+    route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
     env = Environment()
     details = env.fill_template(registration_file)
     response = oauth_request(route, azure_token, type="PATCH", data=details)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Successfully launched update of registration {registration_id}")
+    logger.info(f"Successfully launched update of registration {object_id}")
     return CommandResponse.success()
