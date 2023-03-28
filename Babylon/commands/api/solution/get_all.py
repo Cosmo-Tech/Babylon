@@ -24,7 +24,10 @@ logger = getLogger("Babylon")
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @output_to_file
 def get_all(api_url: str, azure_token: str, organization_id: str, filter: Optional[str] = None) -> CommandResponse:
-    """Get all solutions from the organization"""
+    """
+    Get all solutions from the organization
+    Can be filtered with jmespath queries: https://jmespath.org/specification.html#grammar
+    """
     logger.info(f"Getting all solutions from organization {organization_id}")
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions", azure_token)
     if response is None:

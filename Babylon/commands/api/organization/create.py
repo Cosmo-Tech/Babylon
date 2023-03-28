@@ -43,7 +43,10 @@ def create(api_url: str,
            organization_name: str,
            organization_file: Optional[str] = None,
            select: bool = False) -> CommandResponse:
-    """Register new dataset by sending description file to the API."""
+    """
+    Register new dataset by sending description file to the API.
+    See the .payload_templates/API files to edit your own file manually if needed
+    """
     env = Environment()
     organization_file = organization_file or env.working_dir.payload_path / "api/organization.json"
     details = env.fill_template(organization_file, data={"organization_name": organization_name})

@@ -35,7 +35,10 @@ def update(api_url: str,
            azure_token: str,
            organization_id: str,
            organization_file: Optional[str] = None) -> CommandResponse:
-    """Register new dataset by sending description file to the API."""
+    """
+    Register new dataset by sending description file to the API.
+    See the .payload_templates/API files to edit your own file manually if needed
+    """
     env = Environment()
     details = env.fill_template(organization_file)
     if organization_file.suffix in [".yaml", ".yml"]:

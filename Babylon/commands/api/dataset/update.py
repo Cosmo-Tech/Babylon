@@ -32,7 +32,10 @@ logger = getLogger("Babylon")
 )
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, dataset_id: str, dataset_file: str) -> CommandResponse:
-    """Register new dataset by sending description file to the API."""
+    """
+    Register new dataset by sending description file to the API.
+    See the .payload_templates/API files to edit your own file manually if needed
+    """
     env = Environment()
     details = env.fill_template(dataset_file)
     if dataset_file.suffix in [".yaml", ".yml"]:

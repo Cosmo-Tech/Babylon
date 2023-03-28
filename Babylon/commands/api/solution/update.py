@@ -36,7 +36,10 @@ logger = getLogger("Babylon")
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, solution_id: str,
            solution_file: pathlib.Path) -> CommandResponse:
-    """Register a solution by sending description file to the API."""
+    """
+    Register a solution by sending description file to the API.
+    See the API files to edit your own file manually if needed
+    """
     env = Environment()
     details = env.fill_template(solution_file)
     if solution_file.suffix in [".yaml", ".yml"]:

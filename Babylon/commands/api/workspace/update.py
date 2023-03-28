@@ -36,7 +36,7 @@ def update(api_url: str, azure_token: str, workspace_id: str, organization_id: s
            workspace_file: str) -> CommandResponse:
     """
     Register a workspace by sending a description file to the API.
-    Edit and use the workspace file template located in `API/workspace.json`
+    See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
     workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.json"

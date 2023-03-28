@@ -49,7 +49,7 @@ def create(azure_token: str,
            select: bool = False) -> CommandResponse:
     """
     Register new solution by sending description file to the API.
-    Edit and use the solution file template located in `API/solution.json`
+    See the API files to edit your own file manually if needed
     """
     env = Environment()
     details = env.fill_template(solution_file,

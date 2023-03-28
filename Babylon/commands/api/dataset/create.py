@@ -49,7 +49,7 @@ def create(
 ) -> CommandResponse:
     """
     Register a dataset by sending a description file to the API.
-    Edit and use the solution file template located in `API/dataset.json`
+    See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
     dataset_file = dataset_file or env.working_dir.payload_path / "api/dataset.json"

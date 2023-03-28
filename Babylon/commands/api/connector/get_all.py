@@ -26,7 +26,10 @@ def get_all(
     api_url: str,
     filter: Optional[str] = None,
 ) -> CommandResponse:
-    """Get all connector details."""
+    """
+    Get all connector details.
+    Can be filtered with jmespath queries: https://jmespath.org/specification.html#grammar
+    """
     response = oauth_request(f"{api_url}/connectors", azure_token)
     if response is None:
         return CommandResponse.fail()

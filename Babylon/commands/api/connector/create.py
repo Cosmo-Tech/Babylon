@@ -44,7 +44,10 @@ def create(api_url: str,
            connector_type: str,
            connector_version: str,
            connector_file: Optional[pathlib.Path] = None) -> CommandResponse:
-    """Register a new Connector by sending a file to the API."""
+    """
+    Register a new Connector by sending a file to the API.
+    See the .payload_templates/API files to edit your own file manually if needed
+    """
     env = Environment()
     if not connector_file and not connector_type:
         logger.error("Please specify a connector_file or choose a connector type to use default templates")
