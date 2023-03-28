@@ -17,6 +17,7 @@ from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
 from ....utils.environment import Environment
 from ....utils.decorators import require_platform_key
+from ....utils.yaml_utils import yaml_to_json
 
 logger = logging.getLogger("Babylon")
 
@@ -56,6 +57,8 @@ def create(api_url: str,
                                     "connector_key": connector_name.replace(" ", ""),
                                     "connector_description": connector_name
                                 })
+    if connector_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/connectors", azure_token, type="POST", data=details)
     if response is None:
         return CommandResponse.fail()

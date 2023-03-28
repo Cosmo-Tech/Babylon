@@ -57,7 +57,7 @@ def create(azure_token: str,
                                     "solution_key": solution_name.replace(" ", ""),
                                     "solution_name": solution_name
                                 })
-    if solution_file.suffix == ".yaml":
+    if solution_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions",
                              azure_token,

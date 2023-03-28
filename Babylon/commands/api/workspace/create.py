@@ -13,6 +13,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.environment import Environment
 from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
@@ -66,6 +67,8 @@ def create(api_url: str,
                                     "workspace_description": workspace_description,
                                     "solution_id": solution_id
                                 })
+    if workspace_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces",
                              azure_token,
                              type="POST",

@@ -39,7 +39,7 @@ def update(api_url: str, azure_token: str, organization_id: str, solution_id: st
     """Register a solution by sending description file to the API."""
     env = Environment()
     details = env.fill_template(solution_file)
-    if solution_file.suffix == ".yaml":
+    if solution_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions/{solution_id}",
                              azure_token,

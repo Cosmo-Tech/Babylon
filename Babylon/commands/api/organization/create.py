@@ -13,6 +13,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.environment import Environment
 from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
@@ -46,6 +47,8 @@ def create(api_url: str,
     env = Environment()
     organization_file = organization_file or env.working_dir.payload_path / "api/organization.json"
     details = env.fill_template(organization_file, data={"organization_name": organization_name})
+    if organization_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations", azure_token, type="POST", data=details)
     if response is None:
         return CommandResponse.fail()

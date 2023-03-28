@@ -12,6 +12,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.environment import Environment
 from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
@@ -34,6 +35,8 @@ def update(api_url: str, azure_token: str, organization_id: str, dataset_id: str
     """Register new dataset by sending description file to the API."""
     env = Environment()
     details = env.fill_template(dataset_file)
+    if dataset_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/datasets/{dataset_id}",
                              azure_token,
                              type="PATCH",

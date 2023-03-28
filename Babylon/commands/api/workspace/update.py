@@ -12,6 +12,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.environment import Environment
 from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
@@ -40,6 +41,8 @@ def update(api_url: str, azure_token: str, workspace_id: str, organization_id: s
     env = Environment()
     workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.json"
     details = env.fill_template(workspace_file)
+    if workspace_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces/{workspace_id}",
                              azure_token,
                              type="PATCH",

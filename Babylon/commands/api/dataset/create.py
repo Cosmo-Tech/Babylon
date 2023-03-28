@@ -13,6 +13,7 @@ from ....utils.decorators import require_platform_key
 from ....utils.environment import Environment
 from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
@@ -58,6 +59,8 @@ def create(
                                     "connector_id": connector_id,
                                     "dataset_description": dataset_description
                                 })
+    if dataset_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/datasets",
                              azure_token,
                              type="POST",
