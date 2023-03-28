@@ -8662,7 +8662,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em>dataset</em>: Command group handling PowerBI datasets</li>
-<li><em>deploy-workspace</em>: Macro command allowing full deployment of a power bi workspac</li>
+<li><em>deploy-workspace</em>: </li>
 <li><em>report</em>: Command group handling PowerBI reports</li>
 <li><em>workspace</em>: Command group handling PowerBI workspaces</li>
 </ul>
@@ -8975,8 +8975,9 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </tbody>
 </table>
 <h4 id="deploy-workspace">deploy-workspace</h4>
-<p>Macro command allowing full deployment of a power bi workspac</p>
-<p>Require a local folder named <code>powerbi-reports</code> and will initialize a full workspace with the given reports</p>
+<p>Macro command allowing full deployment of a power bi workspac
+Require a local folder named <code>powerbi-reports</code> and will initialize a full workspace with the given reports
+Won't run powerbi workspace creation if it's already existing</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon powerbi deploy-workspace [OPTIONS] WORKSPACE_NAME
 </code></pre></div>
