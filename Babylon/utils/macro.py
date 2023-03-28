@@ -50,7 +50,6 @@ class Macro():
         if self._status != self.STATUS_OK or not run_if:
             logger.warning(f"Skipping command {' '.join(command_line)}...")
             return self
-        self.env.is_verbose = False
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
                       transient=True) as progress:
             progress.add_task(' '.join(command_line))
@@ -62,7 +61,6 @@ class Macro():
                 return self
             if store_at:
                 self.env.store_data(store_at.split("."), self._responses[-1].to_dict())
-        self.env.is_verbose = True
         return self
 
     def then(self, func: Callable[["Macro"], Any], store_at: Optional[str] = None, run_if: bool = True) -> "Macro":
