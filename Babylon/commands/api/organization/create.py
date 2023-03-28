@@ -28,7 +28,7 @@ logger = getLogger("Babylon")
     "--organization-file",
     "organization_file",
     type=str,
-    help="Your custom organization description file",
+    help="Your custom organization description file (yaml or json)"
 )
 @option(
     "-s",

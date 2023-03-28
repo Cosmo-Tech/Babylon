@@ -36,7 +36,13 @@ TEMPLATES = {"ADT": "api/connector.ADT.json", "STORAGE": "api/connector.STORAGE.
         type=Choice(["ADT", "STORAGE"], case_sensitive=False),
         help="Connector type, allowed values : [ADT, STORAGE]")
 @option("-v", "--version", "connector_version", required=True, help="Version of the Connector")
-@option("-i", "--connector-file", "connector_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option(
+    "-i",
+    "--connector-file",
+    "connector_file",
+    type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+    help="Your custom connector description file (yaml or json)"
+)
 @output_to_file
 def create(api_url: str,
            azure_token: str,

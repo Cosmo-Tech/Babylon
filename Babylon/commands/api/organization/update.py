@@ -28,7 +28,7 @@ logger = getLogger("Babylon")
     "--organization-file",
     "organization_file",
     required=True,
-    help="Your custom organization description file",
+    help="Your custom organization description file (yaml or json)"
 )
 @output_to_file
 def update(api_url: str,

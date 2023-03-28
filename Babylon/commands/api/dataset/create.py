@@ -29,7 +29,7 @@ logger = getLogger("Babylon")
     "-i",
     "--dataset-file",
     "dataset_file",
-    help="Your custom dataset description file",
+    help="Your custom dataset description file (yaml or json)"
 )
 @option(
     "-d",

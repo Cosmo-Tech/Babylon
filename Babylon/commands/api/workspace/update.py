@@ -29,7 +29,7 @@ logger = getLogger("Babylon")
     "--workspace-file",
     "workspace_file",
     required=True,
-    help="Your custom workspace description file",
+    help="Your custom workspace description file (yaml or json)"
 )
 @output_to_file
 def update(api_url: str, azure_token: str, workspace_id: str, organization_id: str,

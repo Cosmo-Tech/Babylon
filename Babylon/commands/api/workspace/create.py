@@ -30,7 +30,7 @@ logger = getLogger("Babylon")
     "--workspace-file",
     "workspace_file",
     type=str,
-    help="Your custom workspace description file",
+    help="Your custom workspace description file (yaml or json)"
 )
 @option(
     "-d",

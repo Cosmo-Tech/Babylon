@@ -28,7 +28,7 @@ logger = getLogger("Babylon")
     "--dataset-file",
     "dataset_file",
     required=True,
-    help="Your custom dataset description file",
+    help="Your custom dataset description file (yaml or json)"
 )
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, dataset_id: str, dataset_file: str) -> CommandResponse:
