@@ -25,13 +25,11 @@ logger = getLogger("Babylon")
 @argument("workspace_name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
-@option(
-    "-i",
-    "--workspace-file",
-    "workspace_file",
-    type=str,
-    help="Your custom workspace description file (yaml or json)"
-)
+@option("-i",
+        "--workspace-file",
+        "workspace_file",
+        type=str,
+        help="Your custom workspace description file (yaml or json)")
 @option(
     "-d",
     "--description",

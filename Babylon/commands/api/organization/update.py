@@ -23,13 +23,11 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
 @argument("organization_id", type=QueryType())
-@option(
-    "-i",
-    "--organization-file",
-    "organization_file",
-    required=True,
-    help="Your custom organization description file (yaml or json)"
-)
+@option("-i",
+        "--organization-file",
+        "organization_file",
+        required=True,
+        help="Your custom organization description file (yaml or json)")
 @output_to_file
 def update(api_url: str,
            azure_token: str,

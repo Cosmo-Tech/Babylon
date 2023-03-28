@@ -24,13 +24,11 @@ logger = getLogger("Babylon")
 @argument("workspace_id", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
-@option(
-    "-i",
-    "--workspace-file",
-    "workspace_file",
-    required=True,
-    help="Your custom workspace description file (yaml or json)"
-)
+@option("-i",
+        "--workspace-file",
+        "workspace_file",
+        required=True,
+        help="Your custom workspace description file (yaml or json)")
 @output_to_file
 def update(api_url: str, azure_token: str, workspace_id: str, organization_id: str,
            workspace_file: str) -> CommandResponse:

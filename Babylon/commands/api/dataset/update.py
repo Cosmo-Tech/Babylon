@@ -23,13 +23,11 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @argument("dataset_id", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@option(
-    "-i",
-    "--dataset-file",
-    "dataset_file",
-    required=True,
-    help="Your custom dataset description file (yaml or json)"
-)
+@option("-i",
+        "--dataset-file",
+        "dataset_file",
+        required=True,
+        help="Your custom dataset description file (yaml or json)")
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, dataset_id: str, dataset_file: str) -> CommandResponse:
     """

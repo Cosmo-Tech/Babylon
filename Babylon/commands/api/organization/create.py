@@ -23,13 +23,11 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
 @argument("organization-name", type=QueryType())
-@option(
-    "-i",
-    "--organization-file",
-    "organization_file",
-    type=str,
-    help="Your custom organization description file (yaml or json)"
-)
+@option("-i",
+        "--organization-file",
+        "organization_file",
+        type=str,
+        help="Your custom organization description file (yaml or json)")
 @option(
     "-s",
     "--select",

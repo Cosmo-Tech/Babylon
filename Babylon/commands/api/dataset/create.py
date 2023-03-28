@@ -25,12 +25,7 @@ logger = getLogger("Babylon")
 @argument("dataset-name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("-c", "--connector-id", "connector_id", type=QueryType())
-@option(
-    "-i",
-    "--dataset-file",
-    "dataset_file",
-    help="Your custom dataset description file (yaml or json)"
-)
+@option("-i", "--dataset-file", "dataset_file", help="Your custom dataset description file (yaml or json)")
 @option(
     "-d",
     "--description",
