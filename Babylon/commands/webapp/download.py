@@ -24,6 +24,7 @@ def download(webapp_repository: str, webapp_repository_branch: str, github_token
     if destination_folder.exists():
         logger.warning(f"Local folder {destination_folder} already exists, pulling...")
         repo = git.Repo(destination_folder)
+        repo.git.checkout(webapp_repository_branch)
         repo.remotes.origin.pull()
         return CommandResponse.success()
     # Will log using the given personal access token
