@@ -1587,8 +1587,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#initialize" class="md-nav__link">
-    initialize
+  <a href="#get-variable" class="md-nav__link">
+    get-variable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    init
   </a>
   
 </li>
@@ -2175,7 +2182,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#init" class="md-nav__link">
+  <a href="#init_1" class="md-nav__link">
     init
   </a>
   
@@ -3467,8 +3474,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#initialize" class="md-nav__link">
-    initialize
+  <a href="#get-variable" class="md-nav__link">
+    get-variable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    init
   </a>
   
 </li>
@@ -4055,7 +4069,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#init" class="md-nav__link">
+  <a href="#init_1" class="md-nav__link">
     init
   </a>
   
@@ -8161,7 +8175,8 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 <li><em>deployment</em>: Sub-group for deployment</li>
 <li><em>display</em>: Display current config</li>
 <li><em>fill-template</em>: <em>No description was provided with this command.</em></li>
-<li><em>initialize</em>: </li>
+<li><em>get-variable</em>: Set a configuration variable</li>
+<li><em>init</em>: </li>
 <li><em>platform</em>: Sub-group for platform</li>
 <li><em>plugin</em>: Sub-group for plugins</li>
 <li><em>set-variable</em>: Set a configuration variable</li>
@@ -8304,10 +8319,34 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </tr>
 </tbody>
 </table>
-<h4 id="initialize">initialize</h4>
+<h4 id="get-variable">get-variable</h4>
+<p>Set a configuration variable</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon config get-variable [OPTIONS] {deploy|platform|secrets} KEY
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="init">init</h4>
 <p>Initialize Babylon configuration, working directory and secret key</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon config initialize [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon config init [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8976,7 +9015,7 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </table>
 <h4 id="deploy-workspace">deploy-workspace</h4>
 <p>Macro command allowing full deployment of a power bi workspac
-Require a local folder named <code>powerbi-reports</code> and will initialize a full workspace with the given reports
+Require a local folder named <code>POWERBI</code> and will initialize a full workspace with the given reports
 Won't run powerbi workspace creation if it's already existing</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon powerbi deploy-workspace [OPTIONS] WORKSPACE_NAME
@@ -8996,7 +9035,7 @@ Won't run powerbi workspace creation if it's already existing</p>
 <td><code>--report-folder</code>, <code>-f</code></td>
 <td>directory</td>
 <td>Override folder containing your .pbix files</td>
-<td><code>./powerbi-reports</code></td>
+<td><code>./POWERBI</code></td>
 </tr>
 <tr>
 <td><code>--report-parameter</code>, <code>-p</code></td>
@@ -10654,7 +10693,7 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 </tr>
 </tbody>
 </table>
-<h4 id="init">init</h4>
+<h4 id="init_1">init</h4>
 <p>Initialize the current working_dir</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon working-dir init [OPTIONS]
