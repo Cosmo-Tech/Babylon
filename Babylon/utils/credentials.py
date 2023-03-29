@@ -16,6 +16,7 @@ def get_azure_token(scope: str = "default") -> str:
     """Returns an azure token"""
     # Getting scope url from utils.scope
     SCOPES = {
+        "storage": "https://storage.azure.com/",
         "graph": "https://graph.microsoft.com/.default",
         "default": "https://management.azure.com/.default",
         "powerbi": Environment().configuration.get_deploy_var("powerbi_api_scope"),
