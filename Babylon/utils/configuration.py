@@ -28,9 +28,8 @@ class Configuration:
         self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
         self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
         if not self.config_dir.exists() or not self.platform or not self.deploy:
-            logger.error(
-                "Configuration folder is empty.\n"
-                "Please run `babylon config initialize` or set the environment variable BABYLON_CONFIG_DIRECTORY")
+            logger.error("Configuration folder is empty.\n"
+                         "Please run `babylon config init` or set the environment variable BABYLON_CONFIG_DIRECTORY")
 
     def initialize(self):
         if self.config_dir.exists():
