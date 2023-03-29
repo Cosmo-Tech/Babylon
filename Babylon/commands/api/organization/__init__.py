@@ -4,6 +4,7 @@ from .create import create
 from .delete import delete
 from .get import get
 from .get_all import get_all
+from .security import security
 from .update import update
 
 
@@ -23,3 +24,10 @@ list_commands = [
 
 for _command in list_commands:
     organization.add_command(_command)
+
+list_groups = [
+    security,
+]
+
+for _group in list_groups:
+    organization.add_command(_group)
