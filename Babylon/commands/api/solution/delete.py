@@ -20,7 +20,7 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@argument("solution_id", type=QueryType(), default="%deploy%solution_id")
+@argument("solution_id", type=QueryType())
 @option(
     "-f",
     "--force",
