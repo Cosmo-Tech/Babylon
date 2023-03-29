@@ -2,41 +2,37 @@
 
 ## Concept
 
-The idea of a macro command is to allow the developer to do a script of commands inside of Babylon instead of using bash or other technologies.
+The idea of a macro command is to allow the developer to do a script of commands inside of Babylon instead of using bash or other technologies.  
+A macro is a command that can be used to chain other commands using the `Macro` class.
 
-To make this possible 2 elements are required : 
-- A way to call a command inside another command
-- A way for commands to exchange information between their runs
+## Example
+Get details of every report in every workspace you have access to
+
+```python
+from Babylon.utils.macro import Macro
+from click import command
 
 
-## Helpers
+@command()
+def get_all():
+    Macro("Get all reports of all powerbi workspaces") \
+        .step(["powerbi", "workspace", "get-all"], store_at="workspaces") \
+        .iterate("%datastore%workspaces.data", ["powerbi", "report", "get-all", "-w", "%datastore%item.id"]) \
+        .dump("reports.json")
 
-The following function exists to help you run other commands inside a command.
+```
 
-::: Babylon.utils.command_helper.run_command
+::: Babylon.utils.macro.Macro
     handler: python
     options:
-       separate_signature: true
        show_root_heading: true
        show_root_full_path: false
        show_source: false
        line_length: 40
        docstring_style: sphinx
-       docstring_section_style: list
-       heading_level: 3
-
-## Return type
-
-The following class was defined as a response type for commands allowing returns to keep information
-
-::: Babylon.utils.response.CommandResponse
-    handler: python
-    options:
-       separate_signature: true
-       show_root_heading: true
-       show_root_full_path: false
-       show_source: false
-       line_length: 40
-       docstring_section_style: list
-       docstring_style: sphinx
-       heading_level: 3
+       heading_level: 2
+       members:
+          - step
+          - then
+          - wait
+          - dump

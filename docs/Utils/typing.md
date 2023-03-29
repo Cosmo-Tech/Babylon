@@ -2,7 +2,7 @@
 
 ## QueryType
 
-This type adds a capacity to easliy use file content as parameter to function.
+This type adds a capacity to easily use file content as parameter to function.
 
 ### Example in a command
 

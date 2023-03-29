@@ -15,7 +15,16 @@ logger = logging.getLogger("Babylon")
 
 
 class Macro():
-    """Handles Macro Command Chaining
+    """
+    Handles Macro Command Chaining
+
+    Run a command while allowing method chaining
+    ```python
+    Macro("My macro")
+        .step(["api", "organization", "get-all"], store_at="orgs")
+        .step(["azure", "acr", "list", "-d", "src"])
+        .dump("report.json")
+    ```
     """
     STATUS_OK = 0
     STATUS_ERROR = 1
@@ -32,20 +41,12 @@ class Macro():
              is_required: bool = True,
              run_if: bool = True) -> "Macro":
         """
-        Run a command while allowing method chaining
-        Macro()
-            .step(["api", "organization", "get-all"], store_at="orgs")
-            .step(["azure", "acr", "list", "-d", "src"])
-            .dump("report.json")
-
-        Args:
-            command_line (list[str]): command line arguments
-            store_at (Optional[str], optional): Key at which the data will be stored. Defaults to None.
-            is_required (bool, optional): will the Macro go into ERROR if it fails. Defaults to True.
-            run_if (bool, optional): run this step only if this argument is True. Defaults to True.
-
-        Returns:
-            Macro: Used for method chaining
+        Calls a function within the context of the macro
+        :param command_line: command line arguments
+        :param store_at: Key at which the data will be stored
+        :param is_required: will the Macro go into ERROR if it fails
+        :param run_if: run this step only if this argument is True.
+        :return: The original macro used for method chaining
         """
         if self._status != self.STATUS_OK or not run_if:
             logger.warning(f"Skipping command {' '.join(command_line)}...")
@@ -64,7 +65,13 @@ class Macro():
         return self
 
     def then(self, func: Callable[["Macro"], Any], store_at: Optional[str] = None, run_if: bool = True) -> "Macro":
-        """Calls a function within the context of the macro"""
+        """
+        Calls a function within the context of the macro
+        :param func: Function that takes a Macro as argument
+        :param store_at: Key at which the result must be stored in the datastore
+        :param run_if: Only call the function if run_if is set to True
+        :return: The original macro used for method chaining
+        """
         if self._status != self.STATUS_OK or not run_if:
             logger.warning("Skipping function")
             return self
@@ -73,8 +80,13 @@ class Macro():
             self.env.store_data(store_at.split("."), response)
         return self
 
-    def iterate(self, datastore_key: str, command_line: list[str]):
-        """Iterates other data in the datastore"""
+    def iterate(self, datastore_key: str, command_line: list[str]) -> "Macro":
+        """
+        Iterates a command along a list stored in the datastore
+        :param datastore_key: Datastore key at which a list is stored
+        :param command_line: command to run
+        :return: The original macro used for method chaining
+        """
         data = self.env.convert_data_query(datastore_key)
         for item in data:
             self.env.store_data(["item"], item)
@@ -82,7 +94,11 @@ class Macro():
         return self
 
     def wait(self, delay: int) -> "Macro":
-        """Wait"""
+        """
+        Waits for delay seconds before continuing
+        :param delay: number of seconds to wait for
+        :return: The original macro used for method chaining
+        """
         if self._status == self.STATUS_ERROR:
             return self
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
@@ -92,7 +108,11 @@ class Macro():
         return self
 
     def dump(self, output_file: str) -> "Macro":
-        """Dump command responses data in a json file"""
+        """
+        Dump command responses data in a json file
+        :param output_file: output file path
+        :return: The original macro used for method chaining
+        """
         compiled = [{"header": self.name}]
         compiled.extend([response.to_dict() for response in self._responses])
         path = Path(output_file)

@@ -1,5 +1,6 @@
 import pathlib
 from typing import Optional
+from typing import Union
 from typing import Any
 import json
 
@@ -30,17 +31,13 @@ def read_yaml_key(yaml_file: pathlib.Path, key: str) -> Optional[object]:
         return None
 
 
-def set_nested_key(dic: dict[str, Any], keys: list[str] or str, value: Any) -> dict[str, Any]:
+def set_nested_key(dic: dict[str, Any], keys: Union[list[str], str], value: Any) -> dict[str, Any]:
     """Sets a nested key in a dict
 
-    :param dic: input dictionaty
-    :type dic: dict[str, Any]
+    :param dic: input dictionary
     :param keys: key or list of keys of nested
-    :type keys: list[str]orstr
     :param value: value to set
-    :type value: Any
     :return: new dictionary
-    :rtype: _type_
     """
     dic = dic or {}
     if isinstance(keys, str):
@@ -53,12 +50,12 @@ def set_nested_key(dic: dict[str, Any], keys: list[str] or str, value: Any) -> d
     return dic
 
 
-def write_yaml_value(yaml_file: pathlib.Path, keys: list[str] or str, value: str) -> None:
+def write_yaml_value(yaml_file: pathlib.Path, keys: Union[list[str], str], value: str) -> None:
     """
     This function aloow to update a YAML file values
     :param yaml_file: path to the file to open
-    :param key: key to load
-    :param value:the new value of the key
+    :param keys: key to load
+    :param value: the new value of the key
     :return : None
     """
 
