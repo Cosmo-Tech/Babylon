@@ -10,11 +10,10 @@ from click import Context
 
 from Babylon.utils import BABYLON_PATH
 from Babylon.utils.environment import Environment
-from .parameter_value import parameter_value
 from .initialize_plugin import initialize_plugin
 from .tests import tests
 
-list_commands = [parameter_value, initialize_plugin]
+list_commands = [initialize_plugin]
 
 list_groups = [
     tests,
