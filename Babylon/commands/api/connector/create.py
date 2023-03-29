@@ -1,20 +1,20 @@
 import logging
-from typing import Optional
 import pathlib
+from typing import Optional
 
 from click import Path
 from click import argument
 from click import command
 from click import option
 
-from ....utils.request import oauth_request
-from ....utils.decorators import timing_decorator
-from ....utils.typing import QueryType
-from ....utils.response import CommandResponse
 from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
-from ....utils.environment import Environment
 from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
+from ....utils.environment import Environment
+from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
 from ....utils.yaml_utils import yaml_to_json
 
 logger = logging.getLogger("Babylon")

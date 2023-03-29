@@ -1,15 +1,15 @@
 from logging import getLogger
 
-from click import command
 from click import argument
+from click import command
 from click import option
 
-from ....utils.interactive import confirm_deletion
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.decorators import require_platform_key
 from ....utils.credentials import pass_azure_token
+from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
+from ....utils.interactive import confirm_deletion
 from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
 from ....utils.typing import QueryType
 
 logger = getLogger("Babylon")
@@ -20,7 +20,7 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@argument("solution_id", type=QueryType())
+@argument("solution_id", type=QueryType(), default="%deploy%solution_id")
 @option(
     "-f",
     "--force",

@@ -4,14 +4,14 @@ from click import argument
 from click import command
 from click import option
 
-from ....utils.decorators import timing_decorator
-from ....utils.typing import QueryType
-from ....utils.response import CommandResponse
+from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
 from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
 from ....utils.environment import Environment
-from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
 from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
@@ -21,7 +21,7 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=QueryType(), default="%deploy%workspace_id")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @option("-i",
