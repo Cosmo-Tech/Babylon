@@ -1,142 +1,81 @@
-import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
-from click import Path
 from click import argument
 from click import command
 from click import option
-from cosmotech_api.api.workspace_api import WorkspaceApi
-from cosmotech_api.exceptions import NotFoundException
-from cosmotech_api.exceptions import ServiceException
-from cosmotech_api.exceptions import UnauthorizedException
-from cosmotech_api.api_client import ApiClient
 
-from ....utils import TEMPLATE_FOLDER_PATH
-from ....utils.api import convert_keys_case
-from ....utils.api import get_api_file
-from ....utils.api import underscore_to_camel
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
-from ....utils.environment import Environment
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
-from ....utils.clients import pass_api_client
+from ....utils.decorators import output_to_file
+from ....utils.decorators import require_platform_key
+from ....utils.environment import Environment
+from ....utils.credentials import pass_azure_token
+from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
 
 @command()
-@describe_dry_run("Would call **workspace_api.create_workspace** to register a new Workspace")
 @timing_decorator
-@pass_api_client
-@argument("workspace-name", type=QueryType())
-@require_deployment_key("send_scenario_metadata_to_event_hub", "send_scenario_metadata_to_event_hub")
-@require_deployment_key("use_dedicated_event_hub_namespace", "use_dedicated_event_hub_namespace")
-@require_deployment_key("organization_id", "organization_id")
-@require_deployment_key("solution_id", "solution_id")
+@require_platform_key("api_url")
+@pass_azure_token("csm_api")
+@argument("workspace_name", type=QueryType())
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
+@option("-i",
+        "--workspace-file",
+        "workspace_file",
+        type=str,
+        help="Your custom workspace description file (yaml or json)")
 @option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the path be relative to the working directory ?",
-)
-@option(
-    "-i",
-    "--workspace-file",
-    "workspace_file",
-    help="Your custom workspace definition file path",
-)
-@option("-d", "--description", "workspace_description", help="Workspace description", type=QueryType())
-@option(
-    "-o",
-    "--output-file",
-    "output_file",
-    help="The path to the file where the created workspace should be outputted (json-formatted)",
-    type=Path(),
+    "-d",
+    "--description",
+    "workspace_description",
+    help="Workspace description",
 )
 @option(
     "-s",
     "--select",
     "select",
-    type=bool,
-    help="Select this new Workspace as babylon context workspace ?",
-    default=True,
+    is_flag=True,
+    help="Select this new workspace in configuration ?",
 )
-def create(
-    api_client: ApiClient,
-    select: bool,
-    solution_id: str,
-    organization_id: str,
-    workspace_name: str,
-    use_dedicated_event_hub_namespace: str,
-    send_scenario_metadata_to_event_hub: str,
-    output_file: Optional[str] = None,
-    workspace_file: Optional[str] = None,
-    workspace_description: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
-) -> CommandResponse:
-    """Send a JSON or YAML file to the API to create a workspace."""
-    workspace_api = WorkspaceApi(api_client)
+@output_to_file
+def create(api_url: str,
+           azure_token: str,
+           workspace_name: str,
+           organization_id: str,
+           solution_id: str,
+           workspace_file: Optional[str] = None,
+           workspace_description: Optional[str] = None,
+           select: bool = False) -> CommandResponse:
+    """
+    Register a workspace by sending a description file to the API.
+    See the .payload_templates/API files to edit your own file manually if needed
+    """
     env = Environment()
-    converted_workspace_content = get_api_file(api_file_path=workspace_file if workspace_file else
-                                               f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Workspace.yaml",
-                                               use_working_dir_file=use_working_dir_file if workspace_file else False)
-    if not converted_workspace_content:
-        logger.error("Can not get correct workspace definition, please check your Workspace.YAML file")
+    workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.json"
+    details = env.fill_template(workspace_file,
+                                data={
+                                    "workspace_name": workspace_name,
+                                    "workspace_key": workspace_name.replace(" ", ""),
+                                    "workspace_description": workspace_description,
+                                    "solution_id": solution_id
+                                })
+    if workspace_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
+    response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces",
+                             azure_token,
+                             type="POST",
+                             data=details)
+    if response is None:
         return CommandResponse.fail()
-
-    if not workspace_description and "workspace_description" not in converted_workspace_content:
-        converted_workspace_content["description"] = workspace_name
-
-    converted_workspace_content["name"] = workspace_name
-    converted_workspace_content["key"] = workspace_name.replace(" ", "")
-    converted_workspace_content["send_scenario_metadata_to_event_hub"] = send_scenario_metadata_to_event_hub
-    converted_workspace_content["use_dedicated_event_hub_namespace"] = use_dedicated_event_hub_namespace
-    converted_workspace_content["solution"]["solution_id"] = solution_id
-
-    if converted_workspace_content.get("id"):
-        del converted_workspace_content["id"]
-    if converted_workspace_content.get("workspace_id"):
-        del converted_workspace_content["workspace_id"]
-
-    logger.info(f"Creating Workspace {workspace_name}")
-
-    try:
-        retrieved_workspace = workspace_api.create_workspace(organization_id=organization_id,
-                                                             workspace=converted_workspace_content)
-    except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
-        return CommandResponse.fail()
-    except ServiceException:
-        logger.error(f"Organization {organization_id} or Solution {solution_id} not found.")
-        return CommandResponse.fail()
-    except NotFoundException:
-        logger.error(f"Organization {organization_id} or Solution {solution_id} not found.")
-        return CommandResponse.fail()
-
+    workspace = response.json()
+    logger.info(f"Successfully created workspace {workspace['id']}")
     if select:
-        env.configuration.set_deploy_var("workspace_id", retrieved_workspace["id"])
-        env.configuration.set_deploy_var("workspace_key", retrieved_workspace["key"])
-
-    logger.info(
-        "Created new workspace with \n"
-        f" - id: {retrieved_workspace['id']}\n"
-        f" - key: {retrieved_workspace['key']}\n"
-        f" - send_scenario_metadata_to_event_hub: {retrieved_workspace['send_scenario_metadata_to_event_hub']}\n"
-        f" - use_dedicated_event_hub_namespace: {retrieved_workspace['use_dedicated_event_hub_namespace']}")
-    logger.debug(pformat(retrieved_workspace))
-
-    if output_file:
-        converted_content = convert_keys_case(retrieved_workspace, underscore_to_camel)
-        with open(output_file, "w") as _f:
-            try:
-                json.dump(converted_content, _f, ensure_ascii=False)
-            except TypeError:
-                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Content was dumped on {output_file}")
-
-    return CommandResponse.success(retrieved_workspace)
+        logger.info("Updated configuration variables with workspace_id")
+        env.configuration.set_deploy_var("workspace_id", workspace["id"])
+    return CommandResponse.success(workspace, verbose=True)

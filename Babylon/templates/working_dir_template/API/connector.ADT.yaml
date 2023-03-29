@@ -1,0 +1,27 @@
+key: "${connector_key}"
+name: "${connector_name}"
+description: Connector for Azure Digital Twin. Converts data to CSV for a ScenarioRun
+version: "2.5.1"
+repository: cosmo-tech/azure-digital-twins-simulator-connector
+tags:
+- ADT
+- Babylon
+url: https://github.com/Cosmo-Tech/azure-digital-twins-simulator-connector
+ioTypes:
+- read
+azureAuthenticationWithCustomerAppRegistration:
+azureManagedIdentity:
+parameterGroups:
+- id: parameters
+  label: Parameters
+  parameters:
+  - id: AZURE_DIGITAL_TWINS_URL
+    label: Azure Digital Twins URL
+    valueType: string
+    envVar: AZURE_DIGITAL_TWINS_URL
+  - id: CSM_NUMBER_OF_THREAD
+    label: Number of thread used
+    valueType: int
+    options:
+    default: '1'
+    envVar: CSM_NUMBER_OF_THREAD

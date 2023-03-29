@@ -1,8 +1,0 @@
-description: ###
-# id: [workspace id]
-key: ###
-name: ###
-solution:
-  solutionId: # [soution_id]
-useDedicatedEventHubNamespace: ##
-sendScenarioMetadataToEventHub: ##

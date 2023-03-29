@@ -1,0 +1,17 @@
+{
+    "name": "${dataset_name}",
+    "description": "reference model in ADT",
+    "tags": [
+        "ADT",
+        "Babylon",
+        "Reference",
+        "dataset"
+    ],
+    "connector": {
+        "id": "${connector_id}",
+        "parametersValues": {
+            "AZURE_DIGITAL_TWINS_URL": null,
+            "CSM_NUMBER_OF_THREAD": 1
+        }
+    }
+}

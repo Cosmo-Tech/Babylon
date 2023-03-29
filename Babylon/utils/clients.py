@@ -10,7 +10,6 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.kusto import KustoManagementClient
 from azure.containerregistry import ContainerRegistryClient
 from terrasnek.api import TFC
-import cosmotech_api
 import docker
 
 from .environment import Environment
@@ -62,22 +61,6 @@ def get_docker_client(registry: str):
         logger.error(f"Could not connect to container registry {registry}")
         return None
     return client
-
-
-def pass_api_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab api configuration"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_token = get_azure_token("csm_api")
-        api_url = Environment().configuration.get_platform_var("api_url")
-        api_configuration = cosmotech_api.Configuration(host=api_url,
-                                                        discard_unknown_keys=True,
-                                                        access_token=azure_token)
-        kwargs["api_client"] = cosmotech_api.ApiClient(api_configuration)
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 def pass_kusto_client(func: Callable[..., Any]) -> Callable[..., Any]:

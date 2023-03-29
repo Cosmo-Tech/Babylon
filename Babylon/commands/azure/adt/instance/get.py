@@ -1,5 +1,4 @@
 import logging
-
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument

@@ -1,0 +1,10 @@
+{
+  "description": "${workspace_description}",
+  "key": "${workspace_key}",
+  "name": "${workspace_name}",
+  "solution": {
+      "solutionId": "${solution_id}"
+  },
+  "useDedicatedEventHubNamespace": null,
+  "sendScenarioMetadataToEventHub": null
+}

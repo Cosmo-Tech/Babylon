@@ -1,117 +1,67 @@
-import json
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
-from click import Path
 from click import argument
 from click import command
 from click import option
-from cosmotech_api.api.dataset_api import DatasetApi
-from cosmotech_api.exceptions import NotFoundException
-from cosmotech_api.exceptions import ServiceException
-from cosmotech_api.exceptions import UnauthorizedException
-from cosmotech_api.api_client import ApiClient
 
-from ....utils import TEMPLATE_FOLDER_PATH
-from ....utils.api import convert_keys_case
-from ....utils.api import get_api_file
-from ....utils.api import underscore_to_camel
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
-from ....utils.clients import pass_api_client
+from ....utils.decorators import output_to_file
+from ....utils.decorators import require_platform_key
+from ....utils.environment import Environment
+from ....utils.credentials import pass_azure_token
+from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
 
 @command()
-@describe_dry_run("Would call **dataset_api.create_dataset**")
 @timing_decorator
-@pass_api_client
-@argument("dataset-name", required=False, type=QueryType())
+@require_platform_key("api_url")
+@pass_azure_token("csm_api")
+@argument("dataset-name", type=QueryType())
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("-c", "--connector-id", "connector_id", type=QueryType())
-@require_deployment_key("organization_id", "organization_id")
-@option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the path be relative to the working directory ?",
-    type=bool,
-)
-@option(
-    "-i",
-    "--dataset-file",
-    "dataset_file",
-    type=str,
-    help="Your custom dataset description file",
-)
+@option("-i", "--dataset-file", "dataset_file", help="Your custom dataset description file (yaml or json)")
 @option(
     "-d",
     "--description",
     "dataset_description",
-    type=str,
     help="New dataset description",
 )
-@option(
-    "-o",
-    "--output-file",
-    "output_file",
-    help="File to which content should be outputted (json-formatted)",
-    type=Path(),
-)
+@output_to_file
 def create(
-    api_client: ApiClient,
-    organization_id: str,
+    api_url: str,
+    azure_token: str,
     dataset_name: str,
+    organization_id: str,
     connector_id: Optional[str] = None,
-    output_file: Optional[str] = None,
     dataset_file: Optional[str] = None,
     dataset_description: Optional[str] = None,
-    use_working_dir_file: Optional[bool] = False,
 ) -> CommandResponse:
-    """Register new dataset by sending description file to the API."""
-    dataset_api = DatasetApi(api_client)
-    converted_dataset_content = get_api_file(api_file_path=dataset_file or
-                                             f"{TEMPLATE_FOLDER_PATH}/working_dir_template/API/Dataset.yaml",
-                                             use_working_dir_file=use_working_dir_file if dataset_file else False)
-
-    if not converted_dataset_content:
-        logger.error("Error : can not get Dataset definition, please check your Dataset.YAML file")
+    """
+    Register a dataset by sending a description file to the API.
+    See the .payload_templates/API files to edit your own file manually if needed
+    """
+    env = Environment()
+    dataset_file = dataset_file or env.working_dir.payload_path / "api/dataset.json"
+    details = env.fill_template(dataset_file,
+                                data={
+                                    "dataset_name": dataset_name,
+                                    "connector_id": connector_id,
+                                    "dataset_description": dataset_description
+                                })
+    if dataset_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
+    response = oauth_request(f"{api_url}/organizations/{organization_id}/datasets",
+                             azure_token,
+                             type="POST",
+                             data=details)
+    if response is None:
         return CommandResponse.fail()
-
-    if not dataset_description and "dataset_description" not in converted_dataset_content:
-        converted_dataset_content["description"] = dataset_name
-
-    converted_dataset_content["name"] = dataset_name
-    converted_dataset_content["connector"]["id"] = connector_id
-
-    try:
-        retrieved_dataset = dataset_api.create_dataset(organization_id=organization_id,
-                                                       dataset=converted_dataset_content)
-    except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
-        return CommandResponse.fail()
-    except NotFoundException:
-        logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
-        return CommandResponse.fail()
-    except ServiceException:
-        logger.error(f"Organization with id {organization_id} and or Connector {connector_id} not found.")
-        return CommandResponse.fail()
-
-    logger.info(f"Created new dataset with id: {retrieved_dataset['id']}")
-    logger.debug(pformat(retrieved_dataset))
-
-    if output_file:
-        converted_content = convert_keys_case(retrieved_dataset, underscore_to_camel)
-        with open(output_file, "w") as _f:
-            try:
-                json.dump(converted_content, _f, ensure_ascii=False)
-            except TypeError:
-                json.dump(converted_content.to_dict(), _f, ensure_ascii=False)
-        logger.info(f"Content was dumped on {output_file}")
-
-    return CommandResponse.success(retrieved_dataset)
+    dataset = response.json()
+    logger.info(f"Successfully created dataset {dataset['id']}")
+    return CommandResponse.success(dataset, verbose=True)

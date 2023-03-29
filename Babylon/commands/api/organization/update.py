@@ -1,74 +1,49 @@
 from logging import getLogger
-from pprint import pformat
 from typing import Optional
 
+from click import argument
 from click import command
 from click import option
-from cosmotech_api.api.organization_api import OrganizationApi
-from cosmotech_api.exceptions import ForbiddenException
-from cosmotech_api.exceptions import NotFoundException
-from cosmotech_api.exceptions import UnauthorizedException
-from cosmotech_api.api_client import ApiClient
 
-from ....utils.api import get_api_file
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import require_deployment_key
 from ....utils.decorators import timing_decorator
+from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
-from ....utils.clients import pass_api_client
+from ....utils.decorators import output_to_file
+from ....utils.decorators import require_platform_key
+from ....utils.environment import Environment
+from ....utils.credentials import pass_azure_token
+from ....utils.request import oauth_request
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
 
 @command()
-@describe_dry_run("Would call **organization_api.update_organization**")
 @timing_decorator
-@pass_api_client
-@require_deployment_key("organization_id", "organization_id")
+@require_platform_key("api_url")
+@pass_azure_token("csm_api")
+@argument("organization_id", type=QueryType())
 @option("-i",
         "--organization-file",
         "organization_file",
-        help="Your new Organization description file path",
-        required=True)
-@option(
-    "-e",
-    "--use-working-dir-file",
-    "use_working_dir_file",
-    is_flag=True,
-    help="Should the path be relative to the working directory ?",
-)
-def update(
-    api_client: ApiClient,
-    organization_file: str,
-    organization_id: str,
-    use_working_dir_file: Optional[bool] = False,
-) -> CommandResponse:
-    """Update an Organization by sending a JSON or YAML file to Cosmotech Api."""
-    organization_api = OrganizationApi(api_client)
-
-    converted_organization_content = get_api_file(
-        api_file_path=organization_file,
-        use_working_dir_file=use_working_dir_file,
-    )
-    if not converted_organization_content:
-        logger.error("Can not get Organization definition, please check your Organization.YAML file")
+        required=True,
+        help="Your custom organization description file (yaml or json)")
+@output_to_file
+def update(api_url: str,
+           azure_token: str,
+           organization_id: str,
+           organization_file: Optional[str] = None) -> CommandResponse:
+    """
+    Register new dataset by sending description file to the API.
+    See the .payload_templates/API files to edit your own file manually if needed
+    """
+    env = Environment()
+    details = env.fill_template(organization_file)
+    if organization_file.suffix in [".yaml", ".yml"]:
+        details = yaml_to_json(details)
+    response = oauth_request(f"{api_url}/organizations/{organization_id}", azure_token, type="PATCH", data=details)
+    if response is None:
         return CommandResponse.fail()
-
-    try:
-        retrieved_data = organization_api.update_organization(
-            organization_id=organization_id,
-            organization=converted_organization_content,
-        )
-    except UnauthorizedException:
-        logger.error("Unauthorized access to the cosmotech api")
-        return CommandResponse.fail()
-    except NotFoundException:
-        logger.error(f"Organization with id {organization_id} not found.")
-        return CommandResponse.fail()
-    except ForbiddenException:
-        logger.error(f"You are not allowed to update the Organization : {organization_id}")
-        return CommandResponse.fail()
-
-    logger.debug(pformat(retrieved_data))
-    logger.info(f"Updated organization with id: {retrieved_data['id']}")
-    return CommandResponse.success(retrieved_data)
+    organization = response.json()
+    logger.info(f"Successfully updated organization {organization['id']}")
+    return CommandResponse.success(organization, verbose=True)
