@@ -2,14 +2,11 @@
 # -*- coding:utf-8 -*-
 import importlib.util
 import logging
-import os
-import shutil
 import sys
 
 import click
 import click_log
-from rich.highlighter import NullHighlighter
-from rich.traceback import install
+from rich.logging import RichHandler
 
 from .commands import list_groups
 from .utils.decorators import prepend_doc_with_ascii
@@ -17,14 +14,9 @@ from .utils.dry_run import display_dry_run
 from .utils.environment import Environment
 from .utils.interactive import INTERACTIVE_ARG_VALUE
 from .utils.interactive import interactive_run
-from .utils.logging import MultiLineHandler
 from .version import VERSION
 
 logger = logging.getLogger("Babylon")
-handler = MultiLineHandler(show_path=False, omit_repeated_times=False)
-formatter = logging.Formatter('{message}', style='{', datefmt='%Y/%m/%d - %H:%M:%S')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 env = Environment()
 
@@ -73,17 +65,12 @@ The following environment variables are available to override the working direct
 - `BABYLON_CONFIG_DIRECTORY`: path to a folder to use as a configuration directory
 - `BABYLON_WORKING_DIRECTORY`: path to a folder to use as a working directory
     """
-    if tests_mode:
-        os.environ.setdefault("NO_COLOR", "True")
-        logger.removeHandler(handler)
-        test_handler = MultiLineHandler(highlighter=NullHighlighter(),
-                                        show_path=False,
-                                        omit_repeated_times=False,
-                                        show_time=False,
-                                        show_level=False)
-        logger.addHandler(test_handler)
-    else:
-        install(width=shutil.get_terminal_size().columns)
+    if not tests_mode:
+        sys.tracebacklimit = 0
+        logging.basicConfig(
+            format="%(message)s",
+            datefmt="[%Y/%m/%d - %X]",
+            handlers=[RichHandler(rich_tracebacks=True, tracebacks_suppress=click, omit_repeated_times=False)])
 
 
 main.result_callback()(interactive_run)
