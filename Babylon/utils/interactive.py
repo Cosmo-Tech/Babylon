@@ -79,11 +79,8 @@ def select_from_list(elements: list[Any], actual: Optional[Any] = None) -> Optio
 def confirm_deletion(entity_type: str, entity_id: str) -> bool:
     """Ask for confirmation for deletion of an object
     :param entity_type: Entity type
-    :type entity_type: str
     :param entity_id: Entity ID
-    :type entity_id: str
     :return: Should execution continue ?
-    :rtype: bool
     """
     if not click.confirm(f"You are trying to delete {entity_type} {entity_id} \nDo you want to continue ?"):
         logger.info(f"{entity_type} deletion aborted.")

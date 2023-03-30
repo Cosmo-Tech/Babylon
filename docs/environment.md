@@ -68,5 +68,5 @@ making a bash script chaining commands)
 
 | Environment variable                       | Default                               | Effect                                             |
 |:-------------------------------------------|:--------------------------------------|----------------------------------------------------|
-| <nobr>`BABYLON_CONFIG_DIRECTORY`</nobr>    | `~/.config/babylon/`                  | Allows to replace the used configuration directory |
+| <nobr>`BABYLON_CONFIG_DIRECTORY`</nobr>    | `./config`                  | Allows to replace the used configuration directory |
 | <nobr>`BABYLON_WORKING_DIRECTORY`</nobr>   | `.` aka you current running dir       | Allows to replace the current working directory    |

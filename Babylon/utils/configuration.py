@@ -2,6 +2,7 @@ import pathlib
 import logging
 import pprint
 from typing import Any
+from typing import Union
 from typing import Optional
 import shutil
 import subprocess
@@ -255,7 +256,7 @@ class Configuration:
             raise ValueError(f"Platform file {_path} does not exists")
         return read_yaml_key(_path, var_name)
 
-    def set_deploy_var(self, var_name: str or list[str], var_value: Any) -> None:
+    def set_deploy_var(self, var_name: Union[str, list[str]], var_value: Any) -> None:
         """
         Set key value in current deployment configuration file
         :param var_name: the key to set

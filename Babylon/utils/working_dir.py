@@ -7,6 +7,7 @@ import shutil
 import zipfile
 from typing import Any
 from typing import Optional
+from typing import Union
 import yaml
 from cryptography.fernet import Fernet
 
@@ -124,7 +125,7 @@ class WorkingDir:
             return
         write_yaml_value(_path, yaml_key, var_value)
 
-    def set_encrypted_yaml_key(self, yaml_path: str, yaml_key: list[str] or str, var_value: Any) -> None:
+    def set_encrypted_yaml_key(self, yaml_path: str, yaml_key: Union[list[str], str], var_value: Any) -> None:
         """
         Set key value in an encrypted file
         :param yaml_path: path to the yaml file in the working_dir
