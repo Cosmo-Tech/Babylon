@@ -14,7 +14,6 @@ from ....utils.response import CommandResponse
 from ....utils.request import oauth_request
 from ....utils.typing import QueryType
 from ....utils.credentials import pass_azure_token
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 logger = logging.getLogger("Babylon")
 
@@ -53,14 +52,13 @@ def upload(azure_token: str, pbix_filename: str, workspace_id: str, override: bo
     # Wait for import end
     route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports/{import_data.get('id')}"
     output_data = {}
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), transient=True) as progress:
-        progress.add_task("Waiting for import to finish...")
-        while True:
-            time.sleep(RETRY_WAIT_TIME)
-            response = oauth_request(route, azure_token)
-            output_data = response.json()
-            if output_data.get("importState") != "Publishing":
-                break
+    logger.info(f"Waiting for import of file {pbix_filename} to end")
+    while True:
+        time.sleep(RETRY_WAIT_TIME)
+        response = oauth_request(route, azure_token)
+        output_data = response.json()
+        if output_data.get("importState") != "Publishing":
+            break
     if output_data.get("importState") != "Succeeded":
         logger.error(f"Failed to import report file {pbix_filename}")
         return CommandResponse.fail()
