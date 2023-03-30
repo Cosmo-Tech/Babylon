@@ -534,11 +534,64 @@
     Commands
   </a>
   
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-set-variable-secrets-key-value" class="md-nav__link">
+    babylon config set-variable secrets [key] [value]
+  </a>
+  
+    <nav class="md-nav" aria-label="babylon config set-variable secrets [key] [value]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-get-variable-secrets-key-value" class="md-nav__link">
+    babylon config get-variable secrets [key] [value]
+  </a>
+  
+    <nav class="md-nav" aria-label="babylon config get-variable secrets [key] [value]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-types" class="md-nav__link">
+    Query Types
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#secret-management_1" class="md-nav__link">
-    Secret Management
+  <a href="#additional-secret-storage" class="md-nav__link">
+    Additional secret storage
   </a>
   
 </li>
@@ -720,8 +773,6 @@
         
           
         
-          
-        
       
       
         <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
@@ -744,20 +795,6 @@
     <li class="md-nav__item">
       <a href="../decorators/" class="md-nav__link">
         Decorators
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
-        Cosmotech Api
       </a>
     </li>
   
@@ -876,11 +913,64 @@
     Commands
   </a>
   
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-set-variable-secrets-key-value" class="md-nav__link">
+    babylon config set-variable secrets [key] [value]
+  </a>
+  
+    <nav class="md-nav" aria-label="babylon config set-variable secrets [key] [value]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#babylon-config-get-variable-secrets-key-value" class="md-nav__link">
+    babylon config get-variable secrets [key] [value]
+  </a>
+  
+    <nav class="md-nav" aria-label="babylon config get-variable secrets [key] [value]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-types" class="md-nav__link">
+    Query Types
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#secret-management_1" class="md-nav__link">
-    Secret Management
+  <a href="#additional-secret-storage" class="md-nav__link">
+    Additional secret storage
   </a>
   
 </li>
@@ -905,28 +995,43 @@
 
 <h1 id="secret-management">Secret management</h1>
 <p>Babylon allows encrypting and decrypting files using a symmetrical encrypting algorithm.</p>
-<p>To start with encryption you can use th command <code>babylon working-dir encrypt-file</code> which will allow you to encrypt a full file.</p>
-<h2 id="commands">Commands</h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><code>babylon working-dir encrypt-file</code></label><label for="__tabbed_1_2">QueryType</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>Using this command you can encrypt a file, if it is your first encryption a file <code>.secret.key</code> will be generated at the same time  </p>
+<p>A <code>.secrets.yaml.encrypt</code> file exists in your current working directory and will hold sensitive information such as passwords, tokens, etc.<br />
+This file is encrypted in a way that it can be shared between users, as long as they have the same <code>secret.key</code>. </p>
 <div class="admonition warning">
-<p class="admonition-title"><code>.secret.key</code></p>
-<p>Be careful and keep that secret securely !<br />
+<p class="admonition-title">Good practice</p>
+<p><strong>Be careful and keep that secret securely !</strong><br />
+We encourage teams to share their <code>secret.key</code> using a key vault or a password manager such as <strong>Keepass</strong>.<br />
 Without it, you won't be able to decrypt your files in the future !</p>
 </div>
-</div>
-<div class="tabbed-block">
-<p>Some commands allow the use of <code>QueryType</code> parameters, when using this type you can target <code>.encrypt</code> files inside your working directory<br />
-Those files will be decrypted and made available for your queries.</p>
-</div>
-</div>
-</div>
-<h2 id="secret-management_1">Secret Management</h2>
-<p>To manage secrets, you need to ensure that secrets values are inside a <code>.encrypt</code> file with the associated <code>.secret.key</code></p>
-<p>Combining those allow to ensure that secret files could be exchanged between users, or even stored securely inside a VCS or a cloud storage.</p>
-<p>But the responsibility of securing the <code>.secret.key</code> will still be on the user side. If they loose it the encrypted files will become unreadable, and if it is made public, anyone could decrypt the files.</p>
+<h2 id="commands">Commands</h2>
+<h3 id="babylon-config-set-variable-secrets-key-value"><code>babylon config set-variable secrets [key] [value]</code></h3>
+<p>Using this command you can set a variable inside the <code>.secrets.yaml.encrypt</code> file.<br />
+If you the key has dots in it, it will be interpreted as a nested key.  </p>
+<h4 id="example">Example</h4>
+<p><code>babylon config set-variable secrets github.token hello-world</code><br />
+Will result in the following file:<br />
+<div class="highlight"><pre><span></span><code><span class="nt">github</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hello-world</span>
+</code></pre></div></p>
+<h3 id="babylon-config-get-variable-secrets-key-value"><code>babylon config get-variable secrets [key] [value]</code></h3>
+<p>Using this command you can get a variable inside the <code>.secrets.yaml.encrypt</code> file.<br />
+If you the key has dots in it, it will be interpreted as a nested key.  </p>
+<h4 id="example_1">Example</h4>
+<p><code>babylon config get-variable secrets github.token</code><br />
+Will print the following value
+<div class="highlight"><pre><span></span><code><span class="o">{</span><span class="s2">&quot;value&quot;</span>:<span class="w"> </span><span class="s2">&quot;hello-world&quot;</span><span class="o">}</span>
+</code></pre></div>
+<code>babylon config get-variable secrets github</code><br />
+Will print the following value
+<div class="highlight"><pre><span></span><code><span class="o">{</span><span class="s2">&quot;value&quot;</span>:<span class="w"> </span><span class="o">{</span><span class="s2">&quot;token&quot;</span>:<span class="w"> </span><span class="s2">&quot;hello-world&quot;</span><span class="o">}}</span>
+</code></pre></div></p>
+<h3 id="query-types">Query Types</h3>
+<p>Some commands allow the use of <code>QueryType</code> parameters, when using this type you can target the <code>.secrets.yaml.encrypt</code> file using the <code>%secrets%</code> prefix.</p>
+<h2 id="additional-secret-storage">Additional secret storage</h2>
+<p>You can create additional <code>.encrypt</code> files in your working directory and decrypt/encrypt them using the following commands.<br />
+- <code>babylon working-dir encrypt-file [file]</code><br />
+- <code>babylon working-dir decrypt-file [file]</code></p>
+<p>Commands can use those values using the <code>QueryType</code> syntax with <code>%workdir[my_file.yaml.encrypt]%</code> prefix.</p>
 
 
 

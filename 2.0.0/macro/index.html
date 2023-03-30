@@ -523,57 +523,45 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#helpers" class="md-nav__link">
-    Helpers
+  <a href="#example" class="md-nav__link">
+    Example
   </a>
-  
-    <nav class="md-nav" aria-label="Helpers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#Babylon.utils.command_helper.run_command" class="md-nav__link">
-    run_command()
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#return-type" class="md-nav__link">
-    Return type
+  <a href="#Babylon.utils.macro.Macro" class="md-nav__link">
+    Macro
   </a>
   
-    <nav class="md-nav" aria-label="Return type">
+    <nav class="md-nav" aria-label="Macro">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#Babylon.utils.response.CommandResponse" class="md-nav__link">
-    CommandResponse
+  <a href="#Babylon.utils.macro.Macro.step" class="md-nav__link">
+    step()
   </a>
   
-    <nav class="md-nav" aria-label="CommandResponse">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#Babylon.utils.response.CommandResponse.dump" class="md-nav__link">
+  <a href="#Babylon.utils.macro.Macro.then" class="md-nav__link">
+    then()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.macro.Macro.wait" class="md-nav__link">
+    wait()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.macro.Macro.dump" class="md-nav__link">
     dump()
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#Babylon.utils.response.CommandResponse.has_failed" class="md-nav__link">
-    has_failed()
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -773,8 +761,6 @@
         
           
         
-          
-        
       
       
         <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
@@ -797,20 +783,6 @@
     <li class="md-nav__item">
       <a href="../Utils/decorators/" class="md-nav__link">
         Decorators
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../Utils/api/" class="md-nav__link">
-        Cosmotech Api
       </a>
     </li>
   
@@ -932,57 +904,45 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#helpers" class="md-nav__link">
-    Helpers
+  <a href="#example" class="md-nav__link">
+    Example
   </a>
-  
-    <nav class="md-nav" aria-label="Helpers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#Babylon.utils.command_helper.run_command" class="md-nav__link">
-    run_command()
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#return-type" class="md-nav__link">
-    Return type
+  <a href="#Babylon.utils.macro.Macro" class="md-nav__link">
+    Macro
   </a>
   
-    <nav class="md-nav" aria-label="Return type">
+    <nav class="md-nav" aria-label="Macro">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#Babylon.utils.response.CommandResponse" class="md-nav__link">
-    CommandResponse
+  <a href="#Babylon.utils.macro.Macro.step" class="md-nav__link">
+    step()
   </a>
   
-    <nav class="md-nav" aria-label="CommandResponse">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#Babylon.utils.response.CommandResponse.dump" class="md-nav__link">
+  <a href="#Babylon.utils.macro.Macro.then" class="md-nav__link">
+    then()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.macro.Macro.wait" class="md-nav__link">
+    wait()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#Babylon.utils.macro.Macro.dump" class="md-nav__link">
     dump()
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#Babylon.utils.response.CommandResponse.has_failed" class="md-nav__link">
-    has_failed()
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1011,68 +971,44 @@
 
 <h1 id="macro-commands">Macro commands</h1>
 <h2 id="concept">Concept</h2>
-<p>The idea of a macro command is to allow the developer to do a script of commands inside of Babylon instead of using bash or other technologies.</p>
-<p>To make this possible 2 elements are required : 
-- A way to call a command inside another command
-- A way for commands to exchange information between their runs</p>
-<h2 id="helpers">Helpers</h2>
-<p>The following function exists to help you run other commands inside a command.</p>
+<p>The idea of a macro command is to allow the developer to do a script of commands inside of Babylon instead of using bash or other technologies.<br />
+A macro is a command that can be used to chain other commands using the <code>Macro</code> class.</p>
+<h2 id="example">Example</h2>
+<p>Get details of every report in every workspace you have access to</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">Babylon.utils.macro</span> <span class="kn">import</span> <span class="n">Macro</span>
+<span class="kn">from</span> <span class="nn">click</span> <span class="kn">import</span> <span class="n">command</span>
 
 
-<div class="doc doc-object doc-function">
-
-
-
-<h3 id="Babylon.utils.command_helper.run_command" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">run_command</span>
-
-
-</h3>
-<div class="highlight"><pre><span></span><code><span class="n">run_command</span><span class="p">(</span><span class="n">command_line</span><span class="p">)</span>
+<span class="nd">@command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">get_all</span><span class="p">():</span>
+    <span class="n">Macro</span><span class="p">(</span><span class="s2">&quot;Get all reports of all powerbi workspaces&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">step</span><span class="p">([</span><span class="s2">&quot;powerbi&quot;</span><span class="p">,</span> <span class="s2">&quot;workspace&quot;</span><span class="p">,</span> <span class="s2">&quot;get-all&quot;</span><span class="p">],</span> <span class="n">store_at</span><span class="o">=</span><span class="s2">&quot;workspaces&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">iterate</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">atastore%workspaces.data&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;powerbi&quot;</span><span class="p">,</span> <span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="s2">&quot;get-all&quot;</span><span class="p">,</span> <span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">atastore</span><span class="si">%i</span><span class="s2">tem.id&quot;</span><span class="p">])</span> \
+        <span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s2">&quot;reports.json&quot;</span><span class="p">)</span>
 </code></pre></div>
-
-  <div class="doc doc-contents first">
-  
-      <p>Helper used to run a command</p>
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>command_line</b>
-            (<code>list[str]</code>)
-        – <p>command line of the command to run</p>
-      </li>
-  </ul>
-
-  <p>Returns:</p>
-  <ul>
-      <li class="field-body">
-            <code><a class="autorefs autorefs-internal" title="Babylon.utils.response.CommandResponse" href="#Babylon.utils.response.CommandResponse">CommandResponse</a></code>
-        – <p>result of the command</p>
-      </li>
-  </ul>
-
-  </div>
-
-</div><h2 id="return-type">Return type</h2>
-<p>The following class was defined as a response type for commands allowing returns to keep information</p>
 
 
 <div class="doc doc-object doc-class">
 
 
 
-<h3 id="Babylon.utils.response.CommandResponse" class="doc doc-heading">
-        <span class="doc doc-object-name doc-class-name">CommandResponse</span>
+<h2 id="Babylon.utils.macro.Macro" class="doc doc-heading">
+        <code>Macro</code>
 
 
-</h3>
+</h2>
 
 
   <div class="doc doc-contents first">
 
   
-      <p>Contains command, status and data output from a command return value</p>
+      <p>Handles Macro Command Chaining</p>
+<p>Run a command while allowing method chaining
+<div class="highlight"><pre><span></span><code><span class="n">Macro</span><span class="p">(</span><span class="s2">&quot;My macro&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">step</span><span class="p">([</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="s2">&quot;organization&quot;</span><span class="p">,</span> <span class="s2">&quot;get-all&quot;</span><span class="p">],</span> <span class="n">store_at</span><span class="o">=</span><span class="s2">&quot;orgs&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">step</span><span class="p">([</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span> <span class="s2">&quot;acr&quot;</span><span class="p">,</span> <span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">])</span>
+    <span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s2">&quot;report.json&quot;</span><span class="p">)</span>
+</code></pre></div></p>
 
 
 
@@ -1092,17 +1028,87 @@
 
 
 
-<h4 id="Babylon.utils.response.CommandResponse.dump" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">dump</span>
+<h3 id="Babylon.utils.macro.Macro.step" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">step</span><span class="p">(</span><span class="n">command_line</span><span class="p">,</span> <span class="n">store_at</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">run_if</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
+</h3>
 
-</h4>
-<div class="highlight"><pre><span></span><code><span class="n">dump</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
-</code></pre></div>
 
   <div class="doc doc-contents ">
   
-      <p>Dump command response data in a json file</p>
+      <p>Calls a function within the context of the macro</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>command_line</code></td>
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td><p>command line arguments</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>store_at</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td><p>Key at which the data will be stored</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>is_required</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>will the Macro go into ERROR if it fails</p></td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>run_if</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>run this step only if this argument is True.</p></td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="Babylon.utils.macro.Macro" href="#Babylon.utils.macro.Macro">Macro</a></code>
+          </td>
+          <td><p>The original macro used for method chaining</p></td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
@@ -1112,17 +1118,197 @@
 
 
 
-<h4 id="Babylon.utils.response.CommandResponse.has_failed" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">has_failed</span>
+<h3 id="Babylon.utils.macro.Macro.then" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">then</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">store_at</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_if</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
+</h3>
 
-</h4>
-<div class="highlight"><pre><span></span><code><span class="n">has_failed</span><span class="p">()</span>
-</code></pre></div>
 
   <div class="doc doc-contents ">
   
-      <p>Checks if command has failed</p>
+      <p>Calls a function within the context of the macro</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>func</code></td>
+          <td>
+                <code><span title="typing.Callable">Callable</span>[[<a class="autorefs autorefs-internal" title="Babylon.utils.macro.Macro" href="#Babylon.utils.macro.Macro">Macro</a>], <span title="typing.Any">Any</span>]</code>
+          </td>
+          <td><p>Function that takes a Macro as argument</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>store_at</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td><p>Key at which the result must be stored in the datastore</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>run_if</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Only call the function if run_if is set to True</p></td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="Babylon.utils.macro.Macro" href="#Babylon.utils.macro.Macro">Macro</a></code>
+          </td>
+          <td><p>The original macro used for method chaining</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.macro.Macro.wait" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">wait</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Waits for delay seconds before continuing</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>delay</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>number of seconds to wait for</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="Babylon.utils.macro.Macro" href="#Babylon.utils.macro.Macro">Macro</a></code>
+          </td>
+          <td><p>The original macro used for method chaining</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="Babylon.utils.macro.Macro.dump" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">dump</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Dump command responses data in a json file</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>output_file</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>output file path</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="Babylon.utils.macro.Macro" href="#Babylon.utils.macro.Macro">Macro</a></code>
+          </td>
+          <td><p>The original macro used for method chaining</p></td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
