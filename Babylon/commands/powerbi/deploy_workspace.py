@@ -33,9 +33,9 @@ def deploy_workspace(workspace_name: str,
                      report_folder: pathlib.Path,
                      report_parameters: Optional[Iterable[Tuple[str, str]]] = None):
     """
-    Macro command allowing full deployment of a power bi workspac
-    Require a local folder named `POWERBI` and will initialize a full workspace with the given reports
-    Won't run powerbi workspace creation if it's already existing
+    Macro command allowing full deployment of a powerBI workspace  
+    Requires a local folder named `POWERBI` and will initialize a full workspace with the given reports  
+    Won't run powerbi workspace creation if it's already existing  
     """
     report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
 
