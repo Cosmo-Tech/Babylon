@@ -2,7 +2,6 @@ import logging
 
 from click import command
 from click import option
-from click import prompt
 
 from ...utils.typing import QueryType
 from ...utils.environment import Environment
