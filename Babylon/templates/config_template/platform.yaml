@@ -10,6 +10,10 @@ csm_platform_scope_id: ""
 azure_subscription: ""
 # azure_tenant_id: The azure tenant id used to contain the platform
 azure_tenant_id: ""
+# azure_client_id: The azure client id of the Babylon's app registration
+azure_client_id: ""
+# the redirection port of the interactive browser connection to azure
+redirect_uri_port: ""
 # adx_cluster_name: The name of the Azure Data Explorer Cluster
 adx_cluster_name: ""
 # resource_group_name: The name fo the resource group used on the platform
