@@ -5,10 +5,10 @@ from typing import Callable
 
 from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import (
-    InteractiveBrowserCredential, 
+    InteractiveBrowserCredential,
     TokenCachePersistenceOptions,
-    AuthenticationRecord
-    )
+    AuthenticationRecord,
+)
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -21,7 +21,7 @@ def get_azure_token(scope: str = "default") -> str:
         "graph": "https://graph.microsoft.com/.default",
         "default": "https://management.azure.com/.default",
         "powerbi": Environment().configuration.get_deploy_var("powerbi_api_scope"),
-        "csm_api": Environment().configuration.get_platform_var("api_scope")
+        "csm_api": Environment().configuration.get_platform_var("api_scope"),
     }
     credentials = get_azure_credentials()
     scope_url = SCOPES[scope.lower()]
@@ -46,7 +46,7 @@ def get_azure_credentials() -> Any:
     cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
     if cached_credentials.get("babylon"):
         deserialized_record = AuthenticationRecord.deserialize(
-            str(cached_credentials.get("babylon")).replace("\'", "\"")
+            str(cached_credentials.get("babylon")).replace("'", '"')
         )
         logger.info("Using previously cached token...")
 
@@ -56,17 +56,15 @@ def get_azure_credentials() -> Any:
         authentication_record=deserialized_record,
         redirect_uri=redirect_uri,
         client_id=azure_client_id,
-        tenant_id=azure_tenant_id
-        )
+        tenant_id=azure_tenant_id,
+    )
 
     if not cached_credentials.get("babylon"):
         record = credential.authenticate()
         logger.info("No valid cached token, login again to get one...")
         cached_credentials = record.serialize()
         env.working_dir.set_encrypted_yaml_key(
-            ".secrets.yaml.encrypt", 
-            "babylon", 
-            cached_credentials
+            ".secrets.yaml.encrypt", "babylon", cached_credentials
         )
 
     return credential
@@ -87,7 +85,6 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
     """Logs to Azure and pass token"""
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             kwargs["azure_token"] = get_azure_token(scope)
