@@ -3,18 +3,12 @@ from functools import wraps
 from typing import Any
 from typing import Callable
 
-from azure.core.credentials import TokenCredential
 from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import (
-    ChainedTokenCredential, 
-    ManagedIdentityCredential, 
     InteractiveBrowserCredential, 
     TokenCachePersistenceOptions,
-    SharedTokenCacheCredential,
-    DefaultAzureCredential,
     AuthenticationRecord
     )
-from azure.identity._internal import within_credential_chain
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -45,38 +39,34 @@ def get_azure_credentials() -> Any:
     env = Environment()
     azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
     azure_client_id = env.configuration.get_platform_var("azure_client_id")
-    cached_credentials = env.convert_data_query("%secrets%azure")
     redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
     redirect_uri = f"http://localhost:{redirect_uri_port}"
 
-    fn = "cred_cache.txt"
     deserialized_record = None
-    import os, json
-    # if os.path.exists(fn):
-    #     # read serialized authentication_record from local file
-    #     with open(fn, "rt") as infile:
-    #         cred_json = infile.read()
-    #         deserialized_record = AuthenticationRecord.deserialize(cred_json)
-
-    cred_json = env.working_dir.get_file_content(".secrets.yaml.encrypt")
-    logger.info(type(cred_json))
-    if cred_json.get("babylon"):
-        deserialized_record = AuthenticationRecord.deserialize(str(cred_json.get("babylon")).replace("\'", "\""))
+    cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
+    if cached_credentials.get("babylon"):
+        deserialized_record = AuthenticationRecord.deserialize(
+            str(cached_credentials.get("babylon")).replace("\'", "\"")
+        )
+        logger.info("Using previously cached token...")
 
     cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
     credential = InteractiveBrowserCredential(
         cache_persistence_options=cpo,
         authentication_record=deserialized_record,
+        redirect_uri=redirect_uri,
+        client_id=azure_client_id,
+        tenant_id=azure_tenant_id
         )
 
-    if not cred_json.get("babylon"):
-        # serialize authentication_record to local file
+    if not cached_credentials.get("babylon"):
         record = credential.authenticate()
-        cred_json = record.serialize()
-
-        # with open(fn, "wt") as outfile:
-        #     outfile.write(cred_json)
-        env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "babylon", cred_json
+        logger.info("No valid cached token, login again to get one...")
+        cached_credentials = record.serialize()
+        env.working_dir.set_encrypted_yaml_key(
+            ".secrets.yaml.encrypt", 
+            "babylon", 
+            cached_credentials
         )
 
     return credential
