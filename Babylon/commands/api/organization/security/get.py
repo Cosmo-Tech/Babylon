@@ -28,5 +28,5 @@ def get(api_url: str, azure_token: str, organization_id: str) -> CommandResponse
     if response is None:
         return CommandResponse.fail()
 
-    organization = response.json()
-    return CommandResponse.success(organization, verbose=True)
+    security = response.json()
+    return CommandResponse.success(security, verbose=True)

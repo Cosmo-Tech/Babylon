@@ -1,10 +1,10 @@
-from typing import Any
-from typing import Optional
 import json
 import logging
+from typing import Any
+from typing import Optional
 
-from rich.pretty import pprint
 from click import get_current_context
+from rich.pretty import pprint
 
 from .environment import Environment
 
@@ -49,9 +49,10 @@ class CommandResponse():
 
     def has_failed(self) -> bool:
         """Checks if command has failed"""
-        if self.status_code != self.STATUS_ERROR:
-            return False
-        return True
+        return self.status_code == self.STATUS_ERROR
+
+    def has_success(self) -> bool:
+        return self.status_code == CommandResponse.STATUS_OK
 
     @classmethod
     def fail(cls, **kwargs) -> Any:

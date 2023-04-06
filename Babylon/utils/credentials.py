@@ -3,11 +3,12 @@ from functools import wraps
 from typing import Any
 from typing import Callable
 
-from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import ClientSecretCredential
+from azure.identity import DefaultAzureCredential
 
 from .environment import Environment
+from .response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -63,7 +64,10 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
-            kwargs["azure_token"] = get_azure_token(scope)
+            try:
+                kwargs["azure_token"] = get_azure_token(scope)
+            except ConnectionError:
+                return CommandResponse().fail()
             return func(*args, **kwargs)
 
         return wrapper
