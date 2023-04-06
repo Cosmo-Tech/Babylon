@@ -3,10 +3,18 @@ from functools import wraps
 from typing import Any
 from typing import Callable
 
-from azure.identity import DefaultAzureCredential
+from azure.core.credentials import TokenCredential
 from azure.core.exceptions import ClientAuthenticationError
-from azure.identity import ClientSecretCredential
-
+from azure.identity import (
+    ChainedTokenCredential, 
+    ManagedIdentityCredential, 
+    InteractiveBrowserCredential, 
+    TokenCachePersistenceOptions,
+    SharedTokenCacheCredential,
+    DefaultAzureCredential,
+    AuthenticationRecord
+    )
+from azure.identity._internal import within_credential_chain
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -36,13 +44,42 @@ def get_azure_credentials() -> Any:
     """Logs to Azure and saves the token as a config variable"""
     env = Environment()
     azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
+    azure_client_id = env.configuration.get_platform_var("azure_client_id")
     cached_credentials = env.convert_data_query("%secrets%azure")
-    try:
-        return ClientSecretCredential(cached_credentials["tenant_id"], cached_credentials["client_id"],
-                                      cached_credentials["client_secret"])
-    except (KeyError, TypeError):
-        pass
-    return DefaultAzureCredential(shared_cache_tenant_id=azure_tenant_id, visual_studio_code_tenant_id=azure_tenant_id)
+    redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
+    redirect_uri = f"http://localhost:{redirect_uri_port}"
+
+    fn = "cred_cache.txt"
+    deserialized_record = None
+    import os, json
+    # if os.path.exists(fn):
+    #     # read serialized authentication_record from local file
+    #     with open(fn, "rt") as infile:
+    #         cred_json = infile.read()
+    #         deserialized_record = AuthenticationRecord.deserialize(cred_json)
+
+    cred_json = env.working_dir.get_file_content(".secrets.yaml.encrypt")
+    logger.info(type(cred_json))
+    if cred_json.get("babylon"):
+        deserialized_record = AuthenticationRecord.deserialize(str(cred_json.get("babylon")).replace("\'", "\""))
+
+    cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
+    credential = InteractiveBrowserCredential(
+        cache_persistence_options=cpo,
+        authentication_record=deserialized_record,
+        )
+
+    if not cred_json.get("babylon"):
+        # serialize authentication_record to local file
+        record = credential.authenticate()
+        cred_json = record.serialize()
+
+        # with open(fn, "wt") as outfile:
+        #     outfile.write(cred_json)
+        env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "babylon", cred_json
+        )
+
+    return credential
 
 
 def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
