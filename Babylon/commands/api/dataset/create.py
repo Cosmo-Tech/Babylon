@@ -1,3 +1,4 @@
+import pathlib
 from logging import getLogger
 from typing import Optional
 
@@ -5,14 +6,14 @@ from click import argument
 from click import command
 from click import option
 
-from ....utils.decorators import timing_decorator
-from ....utils.typing import QueryType
-from ....utils.response import CommandResponse
+from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
 from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
 from ....utils.environment import Environment
-from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
 from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
@@ -22,10 +23,10 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("dataset-name", type=QueryType())
+@option("--dataset_name", "-n", "dataset_name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("-c", "--connector-id", "connector_id", type=QueryType())
-@option("-i", "--dataset-file", "dataset_file", help="Your custom dataset description file (yaml or json)")
+@argument("dataset_file", type=pathlib.Path)
 @option(
     "-d",
     "--description",
@@ -39,7 +40,7 @@ def create(
     dataset_name: str,
     organization_id: str,
     connector_id: Optional[str] = None,
-    dataset_file: Optional[str] = None,
+    dataset_file: Optional[pathlib.Path] = None,
     dataset_description: Optional[str] = None,
 ) -> CommandResponse:
     """
