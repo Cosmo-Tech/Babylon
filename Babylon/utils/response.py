@@ -39,7 +39,7 @@ class CommandResponse():
         ])
 
     def toJSON(self) -> str:
-        return json.dumps(self.data, indent=4)
+        return json.dumps(self.data, indent=4, ensure_ascii=False)
 
     def dump(self, output_file: str):
         """Dump command response data in a json file"""

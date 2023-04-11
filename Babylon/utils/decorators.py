@@ -8,8 +8,8 @@ from typing import Optional
 
 import click
 
-from .environment import Environment
 from ..version import get_version
+from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 
