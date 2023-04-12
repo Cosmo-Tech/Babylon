@@ -26,8 +26,7 @@ logger = getLogger("Babylon")
 @argument("workspace_file", type=pathlib.Path)
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
-@option("-i",
-        "--workspace-name",
+@option("--workspace-name",
         "workspace_name",
         type=QueryType(),
         help="Your custom workspace description file (yaml or json)")
@@ -37,13 +36,7 @@ logger = getLogger("Babylon")
     "workspace_description",
     help="Workspace description",
 )
-@option(
-    "-s",
-    "--select",
-    "select",
-    is_flag=True,
-    help="Select this new workspace in configuration ?",
-)
+@option("--no-select", "no_select", is_flag=True, help="Do not update the configuration variables with workspace_id")
 @output_to_file
 def create(api_url: str,
            azure_token: str,
@@ -52,7 +45,7 @@ def create(api_url: str,
            workspace_file: pathlib.Path,
            workspace_name: Optional[str] = None,
            workspace_description: Optional[str] = None,
-           select: bool = False) -> CommandResponse:
+           no_select: bool = False) -> CommandResponse:
     """
     Register a workspace by sending a description file to the API.
     See the .payload_templates/API files to edit your own file manually if needed
@@ -77,7 +70,7 @@ def create(api_url: str,
         return CommandResponse.fail()
     workspace = response.json()
     logger.info(f"Successfully created workspace {workspace['id']}")
-    if select:
+    if not no_select:
         logger.info("Updated configuration variables with workspace_id")
         env.configuration.set_deploy_var("workspace_id", workspace["id"])
     return CommandResponse.success(workspace, verbose=True)

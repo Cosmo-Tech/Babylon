@@ -4,13 +4,13 @@ from click import argument
 from click import command
 from click import option
 
-from ....utils.interactive import confirm_deletion
-from ....utils.decorators import timing_decorator
-from ....utils.typing import QueryType
-from ....utils.response import CommandResponse
-from ....utils.decorators import require_platform_key
 from ....utils.credentials import pass_azure_token
+from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
+from ....utils.interactive import confirm_deletion
 from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @pass_azure_token("csm_api")
 @require_platform_key("api_url")
-@argument("connector-id", type=QueryType())
+@argument("connector_id", type=QueryType())
 @option(
     "-f",
     "--force",

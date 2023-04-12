@@ -23,9 +23,9 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option("--dataset_name", "-n", "dataset_name", type=QueryType())
+@option("--dataset_name", "dataset_name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@option("-c", "--connector-id", "connector_id", type=QueryType())
+@option("--connector-id", "connector_id", type=QueryType())
 @argument("dataset_file", type=pathlib.Path)
 @option(
     "-d",
@@ -37,10 +37,10 @@ logger = getLogger("Babylon")
 def create(
     api_url: str,
     azure_token: str,
-    dataset_name: str,
     organization_id: str,
+    dataset_file: pathlib.Path,
+    dataset_name: Optional[str] = None,
     connector_id: Optional[str] = None,
-    dataset_file: Optional[pathlib.Path] = None,
     dataset_description: Optional[str] = None,
 ) -> CommandResponse:
     """
@@ -48,7 +48,7 @@ def create(
     See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
-    dataset_file = dataset_file or env.working_dir.payload_path / "api/dataset.json"
+    #  dataset_file = dataset_file or env.working_dir.payload_path / "api/dataset.json"
     details = env.fill_template(dataset_file,
                                 data={
                                     "dataset_name": dataset_name,

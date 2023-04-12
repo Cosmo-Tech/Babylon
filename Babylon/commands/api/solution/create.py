@@ -26,26 +26,19 @@ logger = getLogger("Babylon")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @argument("solution_file", type=pathlib.Path)
 @option(
-    "-n",
     "--solution-name",
     "solution_name",
     type=QueryType(),
     help="Your custom solution name",
 )
-@option(
-    "-s",
-    "--select",
-    "select",
-    is_flag=True,
-    help="Select this new solution in configuration ?",
-)
+@option("--no-select", "no_select", is_flag=True, help="Do not update configuration variables with solution_id")
 @output_to_file
 def create(
     api_url: str,
     azure_token: str,
     organization_id: str,
     solution_file: pathlib.Path,
-    select: bool = False,
+    no_select: bool = False,
     solution_name: Optional[str] = None,
 ) -> CommandResponse:
     """
@@ -65,7 +58,7 @@ def create(
         return CommandResponse.fail()
     solution = response.json()
     logger.info(f"Successfully created dataset {solution['id']}")
-    if select:
+    if not no_select:
         logger.info("Updated configuration variables with solution_id")
         env.configuration.set_deploy_var("solution_id", solution["id"])
     return CommandResponse.success(solution, verbose=True)
