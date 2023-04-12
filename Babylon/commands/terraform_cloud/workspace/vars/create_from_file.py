@@ -10,6 +10,8 @@ from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
+from .....utils.yaml_utils import yaml_to_json
+
 from .....utils.decorators import describe_dry_run
 from .....utils.decorators import timing_decorator
 from .....utils.typing import QueryType
@@ -47,7 +49,10 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 
     var_keys = ["key", "value", "description", "category"]
     env = Environment()
-    variables = json.loads(env.fill_template(variable_file))
+    variables = env.fill_template(variable_file)
+    if variable_file.suffix in [".yaml", ".yml"]:
+        variables = yaml_to_json(variables)
+    variables = json.loads(variables)
     for variable in variables:
         variable.setdefault("category", "terraform")
         variable.setdefault("hcl", False)

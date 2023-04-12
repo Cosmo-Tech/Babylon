@@ -33,4 +33,4 @@ def last_run(tfc_client: TFC, workspace_id: str) -> CommandResponse:
         logger.info(f"No runs found in workspace {workspace_id}")
         return CommandResponse.success()
 
-    return CommandResponse.success(ordered_runs[-1].get("data"), verbose=True)
+    return CommandResponse.success(ordered_runs[-1], verbose=True)
