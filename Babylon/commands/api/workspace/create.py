@@ -1,9 +1,11 @@
 from logging import getLogger
 from typing import Optional
+import pathlib
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
@@ -28,7 +30,7 @@ logger = getLogger("Babylon")
 @option("-i",
         "--workspace-file",
         "workspace_file",
-        type=str,
+        type=Path(path_type=pathlib.Path),
         help="Your custom workspace description file (yaml or json)")
 @option(
     "-d",
@@ -49,7 +51,7 @@ def create(api_url: str,
            workspace_name: str,
            organization_id: str,
            solution_id: str,
-           workspace_file: Optional[str] = None,
+           workspace_file: Optional[pathlib.Path] = None,
            workspace_description: Optional[str] = None,
            select: bool = False) -> CommandResponse:
     """
