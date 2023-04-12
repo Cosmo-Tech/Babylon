@@ -1,9 +1,11 @@
 from logging import getLogger
 from typing import Optional
+import pathlib
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
@@ -25,7 +27,11 @@ logger = getLogger("Babylon")
 @argument("dataset-name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("-c", "--connector-id", "connector_id", type=QueryType())
-@option("-i", "--dataset-file", "dataset_file", help="Your custom dataset description file (yaml or json)")
+@option("-i",
+        "--dataset-file",
+        "dataset_file",
+        type=Path(path_type=pathlib.Path),
+        help="Your custom dataset description file (yaml or json)")
 @option(
     "-d",
     "--description",
@@ -39,7 +45,7 @@ def create(
     dataset_name: str,
     organization_id: str,
     connector_id: Optional[str] = None,
-    dataset_file: Optional[str] = None,
+    dataset_file: Optional[pathlib.Path] = None,
     dataset_description: Optional[str] = None,
 ) -> CommandResponse:
     """

@@ -1,9 +1,11 @@
 from logging import getLogger
 from typing import Optional
+import pathlib
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
@@ -26,7 +28,7 @@ logger = getLogger("Babylon")
 @option("-i",
         "--organization-file",
         "organization_file",
-        type=str,
+        type=Path(path_type=pathlib.Path),
         help="Your custom organization description file (yaml or json)")
 @option(
     "-s",
@@ -39,7 +41,7 @@ logger = getLogger("Babylon")
 def create(api_url: str,
            azure_token: str,
            organization_name: str,
-           organization_file: Optional[str] = None,
+           organization_file: Optional[pathlib.Path] = None,
            select: bool = False) -> CommandResponse:
     """
     Register new dataset by sending description file to the API.
