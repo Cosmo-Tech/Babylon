@@ -70,4 +70,5 @@ def create(api_url: str,
     if not no_select:
         logger.info("Updated configuration variables with workspace_id")
         env.configuration.set_deploy_var("workspace_id", workspace["id"])
+        env.configuration.set_deploy_var("workspace_key", workspace["key"])
     return CommandResponse.success(workspace, verbose=True)
