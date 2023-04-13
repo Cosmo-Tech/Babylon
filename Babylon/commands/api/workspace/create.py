@@ -52,7 +52,7 @@ def create(api_url: str,
     """
     env = Environment()
     workspace_key = workspace_name.replace(" ", "") if workspace_name else None
-    workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.json"
+    # workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.js:on"
     details = env.fill_template(workspace_file,
                                 data={
                                     "workspace_name": workspace_name,
