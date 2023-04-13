@@ -42,18 +42,18 @@ def upload(api_url: str,
            run_template_id: str,
            override: bool = False) -> CommandResponse:
     """Upload a solution handler zip to the solution"""
-    if not handler_path.endswith(".zip"):
+    if not handler_path.name.endswith(".zip"):
         logger.error("solution handler upload only supports zip files")
         return CommandResponse.fail()
-    with open(handler_path, "rb") as handler:
-        response = oauth_request(
-            f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
-            f"/runtemplates/{run_template_id}/handlers/{handler_id}",
-            azure_token,
-            files={handler_path.name: handler},
-            params={"overwrite": override},
-            headers={"Content-Type": "application/octet-stream"},
-            type="POST")
+    handler = open(handler_path, 'rb')
+    response = oauth_request(
+        f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
+        f"/runtemplates/{run_template_id}/handlers/{handler_id}/upload",
+        azure_token,
+        data = handler.read(),
+        params={"overwrite": override},
+        headers={"Content-Type": "application/octet-stream"},
+        type="POST")
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Successfully sent handler file {handler_path} to solution {solution_id}")
