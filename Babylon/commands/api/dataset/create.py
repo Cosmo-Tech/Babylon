@@ -1,10 +1,12 @@
 import pathlib
 from logging import getLogger
 from typing import Optional
+import pathlib
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
 from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file

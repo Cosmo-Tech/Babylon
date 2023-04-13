@@ -5,14 +5,16 @@
         "redirectUris": [
             "http://localhost:3000/scenario",
             "http://localhost:3000/sign-in",
-            % if deploy.get('webapp_domain'): ,
+            % if deploy.get('webapp_domain'):
+            ,
             "https://${deploy['webapp_domain']}/scenario",
             "https://${deploy['webapp_domain']}/sign-in"
             % endif
         ]
     },
     "requiredResourceAccess": [
-        % if platform.get('csm_platform_app_id'): {
+        % if platform.get('csm_platform_app_id'):
+        {
             "resourceAppId": "${platform['csm_platform_app_id']}",
             "resourceAccess": [
                 {
