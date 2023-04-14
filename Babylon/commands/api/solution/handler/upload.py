@@ -1,16 +1,17 @@
-from logging import getLogger
 import pathlib
+from logging import getLogger
 
+from click import Choice
+from click import Path
+from click import argument
 from click import command
 from click import option
-from click import argument
-from click import Path
 
-from .....utils.decorators import timing_decorator
-from .....utils.response import CommandResponse
-from .....utils.decorators import require_platform_key
 from .....utils.credentials import pass_azure_token
+from .....utils.decorators import require_platform_key
+from .....utils.decorators import timing_decorator
 from .....utils.request import oauth_request
+from .....utils.response import CommandResponse
 from .....utils.typing import QueryType
 
 logger = getLogger("Babylon")
@@ -23,12 +24,22 @@ logger = getLogger("Babylon")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @argument("handler_path", type=Path(path_type=pathlib.Path, exists=True))
-@argument("handler_id", type=QueryType())
+@argument(
+    "handler_id",
+    type=Choice([
+        "parameters_handler",
+        "validator",
+        "prerun",
+        "engine",
+        "postrun",
+        "scenariosdata_transform",
+    ]),
+)
 @option(
     "-r",
     "--run-template",
     "run_template_id",
-    help="The run Template identifier",
+    help="The run Template identifier name exaple: 'Sensitive analysis'",
     type=QueryType(),
     required=True,
 )
@@ -50,7 +61,7 @@ def upload(api_url: str,
         f"{api_url}/organizations/{organization_id}/solutions/{solution_id}"
         f"/runtemplates/{run_template_id}/handlers/{handler_id}/upload",
         azure_token,
-        data = handler.read(),
+        data=handler.read(),
         params={"overwrite": override},
         headers={"Content-Type": "application/octet-stream"},
         type="POST")

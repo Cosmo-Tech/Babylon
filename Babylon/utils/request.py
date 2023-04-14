@@ -1,7 +1,7 @@
 import logging
+from time import sleep
 from typing import Any
 from typing import Optional
-from time import sleep
 
 import requests
 
@@ -42,7 +42,6 @@ def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: Any)
         "DELETE": requests.delete,
     }
     request_func = request_funcs.get(type.upper())
-    logger.debug(f"Requesting {type} {url} with headers {headers} and kwargs {kwargs}")
     if not request_func:
         logger.error(f"Could not find request of type {type}")
         return None
