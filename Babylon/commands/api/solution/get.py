@@ -31,7 +31,7 @@ def get(api_url: str,
         solution_id: str,
         filter: Optional[str] = None) -> CommandResponse:
     """Get a solution from the organization"""
-    response = oauth_request(f"{api_url}/organizations/{organization_id}/datasets/{solution_id}", azure_token)
+    response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions/{solution_id}", azure_token)
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()

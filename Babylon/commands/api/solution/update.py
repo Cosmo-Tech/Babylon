@@ -34,13 +34,16 @@ def update(api_url: str, azure_token: str, organization_id: str, solution_id: st
     See the API files to edit your own file manually if needed
     """
     env = Environment()
-    details = env.fill_template(solution_file)
+    solution_details = env.working_dir.get_file_content(solution_file)
+    solution_key = solution_details["name"].replace(" ", "")
+    logger.debug(solution_details["name"])
+    details = env.fill_template(solution_file, data={"solution_key": solution_key})
     if solution_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions/{solution_id}",
                              azure_token,
                              type="PATCH",
-                             data=details)
+                             data=details.encode("utf-8"))
     if response is None:
         return CommandResponse.fail()
     solution = response.json()

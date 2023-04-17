@@ -48,7 +48,8 @@ def create(api_url: str,
     See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
-    workspace_key = workspace_name.replace(" ", "") if workspace_name else None
+    workspace_details = env.working_dir.get_file_content(workspace_file)
+    workspace_key = workspace_name.replace(" ", "") if workspace_name else workspace_details["name"].replace(" ", "")
     # workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.js:on"
     details = env.fill_template(workspace_file,
                                 data={

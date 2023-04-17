@@ -46,14 +46,17 @@ def create(
     See the API files to edit your own file manually if needed
     """
     env = Environment()
-    solution_key = solution_name.replace(" ", "") if solution_name else None
+    solution_details = env.working_dir.get_file_content(solution_file)
+
+    solution_key = solution_name.replace(" ", "") if solution_name else solution_details["name"].replace(" ", "")
+    logger.debug(solution_details["name"])
     details = env.fill_template(solution_file, data={"solution_key": solution_key, "solution_name": solution_name})
     if solution_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions",
                              azure_token,
                              type="POST",
-                             data=details)
+                             data=details.encode("utf-8"))
     if response is None:
         return CommandResponse.fail()
     solution = response.json()
