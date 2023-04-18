@@ -27,8 +27,14 @@ logger = getLogger("Babylon")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @argument("workspace_file", type=pathlib.Path)
 @output_to_file
-def update(api_url: str, azure_token: str, workspace_id: str, organization_id: str,
-           workspace_file: str) -> CommandResponse:
+def update(
+    api_url: str,
+    azure_token: str,
+    workspace_id: str,
+    organization_id: str,
+    solution_id: str,
+    workspace_file: str,
+) -> CommandResponse:
     """
     Register a workspace by sending a description file to the API.
     See the .payload_templates/API files to edit your own file manually if needed
