@@ -8,6 +8,8 @@ from azure.identity import (
     InteractiveBrowserCredential,
     TokenCachePersistenceOptions,
     AuthenticationRecord,
+    EnvironmentCredential,
+    CredentialUnavailableError,
 )
 from .environment import Environment
 
@@ -37,31 +39,41 @@ def get_azure_token(scope: str = "default") -> str:
 def get_azure_credentials() -> Any:
     """Logs to Azure and saves the token as a config variable"""
     env = Environment()
-    azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
-    azure_client_id = env.configuration.get_platform_var("azure_client_id")
+    credential = None
+    # azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
+    # azure_client_id = env.configuration.get_platform_var("azure_client_id")
     redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
     redirect_uri = f"http://localhost:{redirect_uri_port}"
 
-    deserialized_record = None
-    cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
-    if cached_credentials.get("babylon"):
-        deserialized_record = AuthenticationRecord.deserialize(str(cached_credentials.get("babylon")).replace("'", '"'))
-        logger.info("Using previously cached token...")
+    try:
+        credential = EnvironmentCredential()
+        if credential._credential is None:
+            raise AttributeError
+    except (CredentialUnavailableError, AttributeError):
+        deserialized_record = None
+        cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
+        if cached_credentials.get("babylon"):
+            deserialized_record = AuthenticationRecord.deserialize(
+                str(cached_credentials.get("babylon")).replace("'", '"')
+            )
+            logger.info("Using previously cached token...")
 
-    cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
-    credential = InteractiveBrowserCredential(
-        cache_persistence_options=cpo,
-        authentication_record=deserialized_record,
-        redirect_uri=redirect_uri,
-        client_id=azure_client_id,
-        tenant_id=azure_tenant_id,
-    )
+        cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
+        credential = InteractiveBrowserCredential(
+            cache_persistence_options=cpo,
+            authentication_record=deserialized_record,
+            redirect_uri=redirect_uri,
+            # client_id=azure_client_id,
+            # tenant_id=azure_tenant_id,
+        )
 
-    if not cached_credentials.get("babylon"):
-        record = credential.authenticate()
-        logger.info("No valid cached token, login again to get one...")
-        cached_credentials = record.serialize()
-        env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "babylon", cached_credentials)
+        if not cached_credentials.get("babylon"):
+            record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
+            logger.info("No valid cached token, login again to get one...")
+            cached_credentials = record.serialize()
+            env.working_dir.set_encrypted_yaml_key(
+                ".secrets.yaml.encrypt", "babylon", cached_credentials
+            )
 
     return credential
 
@@ -81,7 +93,6 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
     """Logs to Azure and pass token"""
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             kwargs["azure_token"] = get_azure_token(scope)
