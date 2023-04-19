@@ -43,8 +43,6 @@ def get_azure_credentials() -> Any:
     redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
     redirect_uri = f"http://localhost:{redirect_uri_port}"
 
-    cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
-
     try:
         credential = EnvironmentCredential(logging_enable=True)
         if credential._credential is None:
@@ -52,6 +50,7 @@ def get_azure_credentials() -> Any:
     except (CredentialUnavailableError, AttributeError):
         deserialized_record = None
 
+        cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
         if cached_credentials.get("babylon"):
             deserialized_record = AuthenticationRecord.deserialize(
                 str(cached_credentials.get("babylon")).replace("'", '"')
@@ -65,13 +64,13 @@ def get_azure_credentials() -> Any:
             redirect_uri=redirect_uri,
         )
 
-    if not cached_credentials.get("babylon"):
-        record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
-        logger.info("No valid cached credentials, login...")
-        cached_credentials = record.serialize()
-        env.working_dir.set_encrypted_yaml_key(
-            ".secrets.yaml.encrypt", "babylon", cached_credentials
-        )
+        if not cached_credentials.get("babylon"):
+            record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
+            logger.info("No valid cached credentials, login...")
+            cached_credentials = record.serialize()
+            env.working_dir.set_encrypted_yaml_key(
+                ".secrets.yaml.encrypt", "babylon", cached_credentials
+            )
 
     return credential
 
