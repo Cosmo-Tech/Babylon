@@ -1,0 +1,13 @@
+description: "${description}"
+# id: [workspace id]
+key: "${key}"
+name: "${name}"
+solution:
+  solutionId: "${solution_id}"
+useDedicatedEventHubNamespace: false
+sendScenarioMetadataToEventHub: false
+security:
+  default: none
+  accessControlList:
+  - id: "${security_id}"
+    role: "${security_role}"

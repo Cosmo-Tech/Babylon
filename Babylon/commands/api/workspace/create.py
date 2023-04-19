@@ -39,6 +39,18 @@ logger = getLogger("Babylon")
     help="Workspace description",
 )
 @option(
+    "-e",
+    "--email",
+    "security_id",
+    help="Workspace security_id aka email",
+)
+@option(
+    "-r",
+    "--role",
+    "security_role",
+    help="Workspace security role",
+)
+@option(
     "-s",
     "--select",
     "select",
@@ -53,6 +65,8 @@ def create(api_url: str,
            solution_id: str,
            workspace_file: Optional[pathlib.Path] = None,
            workspace_description: Optional[str] = None,
+           security_id: Optional[str] = None,
+           security_role: Optional[str] = None,
            select: bool = False) -> CommandResponse:
     """
     Register a workspace by sending a description file to the API.
@@ -65,7 +79,9 @@ def create(api_url: str,
                                     "workspace_name": workspace_name,
                                     "workspace_key": workspace_name.replace(" ", ""),
                                     "workspace_description": workspace_description,
-                                    "solution_id": solution_id
+                                    "solution_id": solution_id,
+                                    "security_id": security_id,
+                                    "security_role": security_role
                                 })
     if workspace_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)

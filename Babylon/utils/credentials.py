@@ -40,40 +40,38 @@ def get_azure_credentials() -> Any:
     """Logs to Azure and saves the token as a config variable"""
     env = Environment()
     credential = None
-    # azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
-    # azure_client_id = env.configuration.get_platform_var("azure_client_id")
     redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
     redirect_uri = f"http://localhost:{redirect_uri_port}"
 
+    cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
+
     try:
-        credential = EnvironmentCredential()
+        credential = EnvironmentCredential(logging_enable=True)
         if credential._credential is None:
             raise AttributeError
     except (CredentialUnavailableError, AttributeError):
         deserialized_record = None
-        cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
+
         if cached_credentials.get("babylon"):
             deserialized_record = AuthenticationRecord.deserialize(
                 str(cached_credentials.get("babylon")).replace("'", '"')
             )
-            logger.info("Using previously cached token...")
+            logger.info("Using previously cached credentials...")
 
         cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
         credential = InteractiveBrowserCredential(
             cache_persistence_options=cpo,
             authentication_record=deserialized_record,
             redirect_uri=redirect_uri,
-            # client_id=azure_client_id,
-            # tenant_id=azure_tenant_id,
         )
 
-        if not cached_credentials.get("babylon"):
-            record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
-            logger.info("No valid cached token, login again to get one...")
-            cached_credentials = record.serialize()
-            env.working_dir.set_encrypted_yaml_key(
-                ".secrets.yaml.encrypt", "babylon", cached_credentials
-            )
+    if not cached_credentials.get("babylon"):
+        record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
+        logger.info("No valid cached credentials, login...")
+        cached_credentials = record.serialize()
+        env.working_dir.set_encrypted_yaml_key(
+            ".secrets.yaml.encrypt", "babylon", cached_credentials
+        )
 
     return credential
 
