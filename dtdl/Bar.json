@@ -1,0 +1,28 @@
+{
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:Bar;1",
+    "@type": "Interface",
+    "contents": [
+      {
+        "@type": "Property",
+        "name": "Stock",
+        "schema": "integer"
+      },
+      {
+        "@type": "Property",
+        "name": "RestockQty",
+        "schema": "integer"
+      },
+      {
+        "@type": "Property",
+        "name": "NbWaiters",
+        "schema": "integer"
+      },
+      {
+        "@type": "Relationship",
+        "name": "Bar_vertex",
+        "target": "dtmi:Customer;1"
+      }
+    ],
+    "displayName": "Bar"
+  }

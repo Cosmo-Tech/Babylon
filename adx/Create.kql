@@ -1,0 +1,100 @@
+// ProbesMeasures table
+.create table ProbesMeasures(
+SimulationRun:guid,
+SimulationDate:datetime,
+SimulationName:string,
+ProbeDate:datetime,
+ProbeName:string,
+ProbeRun:long,
+ProbeType:string,
+SimulatedDate:datetime,
+CommonRaw:dynamic,
+FactsRaw:dynamic)
+
+// Probes measures Ingestion mapping
+.create table ProbesMeasures ingestion json mapping "ProbesMeasuresMapping"
+    '['
+    '    { "column" : "SimulationRun", "Properties":{"Path":"$.simulation.run"}},'
+    '    { "column" : "SimulationDate", "Properties":{"Path":"$.simulation.date"}},'
+    '    { "column" : "SimulationName", "Properties":{"Path":"$.simulation.name"}},'
+    '    { "column" : "ProbeDate", "Properties":{"Path":"$.probe.date"}},'
+    '    { "column" : "ProbeName", "Properties":{"Path":"$.probe.name"}},'
+    '    { "column" : "ProbeRun", "Properties":{"Path":"$.probe.run"}},'
+    '    { "column" : "ProbeType", "Properties":{"Path":"$.probe.type"}},'
+    '    { "column" : "SimulatedDate", "Properties":{"Path":"$.facts_common.MeasureDate"}},'
+    '    { "column" : "CommonRaw", "Properties":{"Path":"$.facts_common"}},'
+    '    { "column" : "FactsRaw", "Properties":{"Path":"$.facts"}},'
+    ']'
+
+// Scenario Run Simulation total facts
+.create table SimulationTotalFacts(
+SimulationId:string,
+State:string,
+Type:string,
+SentMessagesTotal: long,
+SentFactsTotal: long)
+
+// Simulation total facts ingestion mapping
+.create table SimulationTotalFacts ingestion json mapping "SimulationTotalFactsMapping"
+    '['
+    '    { "column" : "SimulationId", "Properties":{"Path":"$.sagaId"}},'
+    '    { "column" : "State", "Properties":{"Path":"$.state"}},'
+    '    { "column" : "Type", "Properties":{"Path":"$.type"}},'
+    '    { "column" : "SentMessagesTotal", "Properties":{"Path":"$.sentMessagesTotal"}},'
+    '    { "column" : "SentFactsTotal", "Properties":{"Path":"$.sentFactsTotal"}},'
+    ']'
+
+// ScenarioMetadata table
+.create table ScenarioMetadata(
+  OrganizationId:string,
+  WorkspaceId:string,
+  ScenarioId:string,
+  Name:string,
+  Description:string,
+  ParentId:string,
+  SolutionName:string,
+  RunTemplateName:string,
+  ValidationStatus:string,
+  UpdateTime:datetime)
+
+// Scenario metadata ingestion mapping
+.create table ScenarioMetadata ingestion csv mapping "ScenarioMetadataMapping"
+    '['
+    '    { "column" : "OrganizationId", "DataType":"string", "Properties":{"Ordinal":"0"}},'
+    '    { "column" : "WorkspaceId", "DataType":"string", "Properties":{"Ordinal":"1"}},'
+    '    { "column" : "ScenarioId", "DataType":"string", "Properties":{"Ordinal":"2"}},'
+    '    { "column" : "Name", "DataType":"string", "Properties":{"Ordinal":"3"}},'
+    '    { "column" : "Description", "DataType":"string", "Properties":{"Ordinal":"4"}},'
+    '    { "column" : "ParentId", "DataType":"string", "Properties":{"Ordinal":"5"}},'
+    '    { "column" : "SolutionName", "DataType":"string", "Properties":{"Ordinal":"6"}},'
+    '    { "column" : "RunTemplateName", "DataType":"string", "Properties":{"Ordinal":"7"}},'
+    '    { "column" : "ValidationStatus", "DataType":"string", "Properties":{"Ordinal":"8"}},'
+    '    { "column" : "UpdateTime", "DataType":"datetime", "Properties":{"Ordinal":"9"}},'
+    ']'
+
+// ScenarioRunMetadata table
+.create table ScenarioRunMetadata(
+  SimulationRun:guid,
+  ScenarioId:string,
+  ScenarioRunStartTime:datetime)
+
+// ScenarioRun Metadata ingestion mapping
+.create table ScenarioRunMetadata ingestion csv mapping "ScenarioRunMetadataMapping"
+    '['
+    '    { "column" : "SimulationRun", "DataType":"guid", "Properties":{"Ordinal":"0"}},'
+    '    { "column" : "ScenarioId", "DataType":"string", "Properties":{"Ordinal":"1"}},'
+    '    { "column" : "ScenarioRunStartTime", "DataType":"datetime", "Properties":{"Ordinal":"2"}},'
+    ']'
+
+// GetScenarios function to get the list of scenarios, with their latest name when renamed, and their lastest run
+.create-or-alter function with (folder = "", docstring = "", skipvalidation = "true") GetScenarios() { 
+    ScenarioMetadata
+    | summarize arg_max(UpdateTime, *) by ScenarioId
+    | lookup kind=inner
+    (
+        ScenarioRunMetadata
+        | summarize arg_max(ScenarioRunStartTime, *) by ScenarioId
+    ) on ScenarioId
+    // add columns for compatibility with "old" GetScenarios function
+    | extend LastSimulationRun = SimulationRun, ScenarioDate = ScenarioRunStartTime, ScenarioName = Name
+}
