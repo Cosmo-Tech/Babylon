@@ -6,6 +6,7 @@ from .delete import delete
 from .get import get
 from .get_all import get_all
 from .update import update
+from .delete_all import delete_all
 
 
 @group()
@@ -20,6 +21,7 @@ list_commands = [
     create,
     get,
     update,
+    delete_all
 ]
 
 for _command in list_commands:
