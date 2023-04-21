@@ -63,7 +63,9 @@ def create(api_url: str,
     connector = response.json()
     logger.info(f"Created new connector with id: {connector['id']}")
     if select:
-        value = click.prompt("Tell us which of this two should be the key in the current configuration: 'adt_connector_id' or 'storage_connector_id' ", type=str)
+        value = "adt_connector_id"
+        if env.configuration.get_deploy_var('adt_connector_id'):
+            value = click.prompt("Tell us which of this two should be the key in the current configuration: 'adt_connector_id' or 'storage_connector_id' ", type=str, default="adt_connector_id")
         logger.info(f"Updated configuration variables with {value}")
         env.configuration.set_deploy_var(value, connector["id"])
     return CommandResponse.success(connector, verbose=True)
