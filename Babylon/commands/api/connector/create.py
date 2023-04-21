@@ -1,3 +1,4 @@
+import click
 import logging
 import pathlib
 from typing import Optional
@@ -31,11 +32,19 @@ logger = logging.getLogger("Babylon")
         required=True,
         type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
         help="Your custom connector description file (yaml or json)")
+@option(
+    "-s",
+    "--select",
+    "select",
+    is_flag=True,
+    help="Select this new connector in configuration ?",
+)
 @output_to_file
 def create(api_url: str,
            azure_token: str,
            connector_name: str,
-           connector_file: Optional[pathlib.Path] = None) -> CommandResponse:
+           connector_file: Optional[pathlib.Path] = None,
+           select: bool = False) -> CommandResponse:
     """
     Register a new Connector by sending a file to the API.
     See the API files to edit your own file manually
@@ -53,4 +62,8 @@ def create(api_url: str,
         return CommandResponse.fail()
     connector = response.json()
     logger.info(f"Created new connector with id: {connector['id']}")
+    if select:
+        value = click.prompt("Tell us which of this two should be the key in the current configuration: 'adt_connector_id' or 'storage_connector_id' ", type=str)
+        logger.info(f"Updated configuration variables with {value}")
+        env.configuration.set_deploy_var(value, connector["id"])
     return CommandResponse.success(connector, verbose=True)

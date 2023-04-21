@@ -52,3 +52,7 @@ webapp_enable_insights: False
 terraform_cloud_workspace_id: ""
 # powerbi_api_scope: PowerBI API scope
 powerbi_api_scope: "https://analysis.windows.net/powerbi/api/.default"
+# ADT connector_id
+adt_connector_id: ""
+# Storage connector_id
+storage_connector_id: ""

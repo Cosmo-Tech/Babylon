@@ -26,7 +26,7 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @argument("dataset-name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@option("-c", "--connector-id", "connector_id", type=QueryType())
+@option("-c", "--connector-id", "connector_id", type=QueryType(), default="%deploy%adt_connector_id")
 @option("-i", "--dataset-file", "dataset_file", type=Path(path_type=pathlib.Path), help="Your custom dataset description file (yaml or json)")
 @option(
     "-d",
