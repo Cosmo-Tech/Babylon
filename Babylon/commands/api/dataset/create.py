@@ -1,11 +1,12 @@
 from logging import getLogger
 from typing import Optional
 import pathlib
-from click import Path
 
+from click import Path
 from click import argument
 from click import command
 from click import option
+from click import Path
 
 from ....utils.decorators import timing_decorator
 from ....utils.typing import QueryType
