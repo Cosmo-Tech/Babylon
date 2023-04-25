@@ -53,8 +53,7 @@ def get_azure_credentials() -> Any:
         cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
         if cached_credentials.get("babylon"):
             deserialized_record = AuthenticationRecord.deserialize(
-                str(cached_credentials.get("babylon")).replace("'", '"')
-            )
+                str(cached_credentials.get("babylon")).replace("'", '"'))
             logger.info("Using previously cached credentials...")
 
         cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
@@ -68,9 +67,7 @@ def get_azure_credentials() -> Any:
             record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
             logger.info("No valid cached credentials, login...")
             cached_credentials = record.serialize()
-            env.working_dir.set_encrypted_yaml_key(
-                ".secrets.yaml.encrypt", "babylon", cached_credentials
-            )
+            env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "babylon", cached_credentials)
 
     return credential
 
@@ -90,6 +87,7 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
     """Logs to Azure and pass token"""
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             kwargs["azure_token"] = get_azure_token(scope)

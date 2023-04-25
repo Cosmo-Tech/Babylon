@@ -30,7 +30,9 @@ def delete_all(api_url: str, azure_token: str, organization_id: str) -> CommandR
 
     for solution in solutions:
         logger.info(f"Deleting solution {solution['id']}")
-        response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions/{solution['id']}", azure_token, type="DELETE")
+        response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions/{solution['id']}",
+                                 azure_token,
+                                 type="DELETE")
 
     if response is None:
         return CommandResponse.fail()

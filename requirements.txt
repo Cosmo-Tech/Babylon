@@ -10,6 +10,7 @@ azure-containerregistry>=1.0.0
 azure-storage-blob>=12.14.1
 azure-mgmt-digitaltwins>=6.2.0
 azure-mgmt-resource>=21.2.1
+azure-mgmt-authorization>=3.0.0
 
 # Click requirements
 click>=8.1.3

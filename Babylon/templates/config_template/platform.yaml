@@ -28,3 +28,5 @@ resources_location: ""
 storage_account_name: ""
 # Azure AD PowerBI group
 azure_powerbi_group_id: ""
+# Service principal object ID of the app registration
+principal_id: ""

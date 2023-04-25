@@ -30,7 +30,9 @@ def delete_all(api_url: str, azure_token: str, organization_id: str) -> CommandR
 
     for workspace in workspaces:
         logger.info(f"Deleting workspace {workspace['id']}")
-        response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces/{workspace['id']}", azure_token, type="DELETE")
+        response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces/{workspace['id']}",
+                                 azure_token,
+                                 type="DELETE")
 
     if response is None:
         return CommandResponse.fail()
