@@ -2,6 +2,7 @@ import logging
 import pathlib
 from typing import Optional
 
+import click
 from click import Path
 from click import argument
 from click import command
@@ -62,9 +63,8 @@ def create(api_url: str,
     connector = response.json()
     logger.info(f"Created new connector with id: {connector['id']}")
     if select:
-        value = "adt_connector_id"
-        if env.configuration.get_deploy_var('adt_connector_id'):
-            value = "storage_connector_id"
+        value = click.prompt("Select the key_name of this connector: ",
+                             type=click.Choice(["adt_connector_id", "storage_connector_id"]))
         logger.info(f"Updated configuration variables with {value}")
         env.configuration.set_deploy_var(value, connector["id"])
     return CommandResponse.success(connector, verbose=True)
