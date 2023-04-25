@@ -21,7 +21,7 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@argument("solution_id", type=QueryType())
+@argument("solution_id", type=QueryType(), required=False)
 @option("--current", "current", type=QueryType(), is_flag=True, help="Delete solution referenced in configuration")
 @option(
     "-f",
@@ -37,12 +37,13 @@ def delete(api_url: str,
            force_validation: bool = False,
            current: bool = False) -> CommandResponse:
     """Delete a solution from the organization"""
-    if not force_validation and not confirm_deletion("solution", solution_id):
-        return CommandResponse.fail()
-
     if current:
         env = Environment()
         solution_id = env.configuration.get_deploy_var("solution_id")
+
+    if not force_validation and not confirm_deletion("solution", solution_id):
+        return CommandResponse.fail()
+
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions/{solution_id}",
                              azure_token,
                              type="DELETE")

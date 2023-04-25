@@ -19,11 +19,11 @@ logger = getLogger("Babylon")
 @require_deployment_key("organization_id")
 @pass_azure_token("csm_api")
 def delete_all(api_url: str, azure_token: str, organization_id: str) -> CommandResponse:
-    """Delete all connectors from the registered organization"""
+    """Delete all connectors from the current configuration"""
 
     if not confirm_deletion("all registered connectors in current configuration", organization_id):
         return CommandResponse.fail()
-    logger.info(f"Getting all connectors from organization {organization_id}")
+    logger.info("Getting all connectors from current configuration...")
 
     env = Environment()
 
@@ -37,5 +37,5 @@ def delete_all(api_url: str, azure_token: str, organization_id: str) -> CommandR
 
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Successfully deleted all connectors from organization {organization_id}")
+    logger.info(f"Successfully deleted connectors {connectors} from the current configuration")
     return CommandResponse.success()
