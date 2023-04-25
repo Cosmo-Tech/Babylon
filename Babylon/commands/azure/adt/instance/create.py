@@ -73,7 +73,10 @@ def create(
     logger.info(f"Successfully created digital twins instance {adt_creation_result.name}")
 
     logger.info(f"Adding role assignment to the created instance {adt_creation_result.name}...")
+
+    # Integrated Azure role
     adt_data_owner_role_id = "bcd981a7-7f74-457b-83e1-cceb9e632ffe"
+
     scope = ("/subscriptions/" + azure_subscription + "/resourceGroups/" + resource_group_name +
              "/providers/Microsoft.DigitalTwins/digitalTwinsInstances/" + adt_instance_name)
 
