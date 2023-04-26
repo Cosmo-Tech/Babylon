@@ -3,10 +3,11 @@ from click import group
 from .script import script
 from .permission import permission
 from .get_all import get_all
+from .database import database
 
 list_commands = [get_all]
 
-list_groups = [permission, script]
+list_groups = [permission, script, database]
 
 
 @group()
