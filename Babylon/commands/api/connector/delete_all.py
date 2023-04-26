@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from click import command
+from click import option
 
 from ....utils.environment import Environment
 from ....utils.interactive import confirm_deletion
@@ -18,10 +19,17 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @require_deployment_key("organization_id")
 @pass_azure_token("csm_api")
-def delete_all(api_url: str, azure_token: str, organization_id: str) -> CommandResponse:
+@option(
+    "-f",
+    "--force",
+    "force_validation",
+    is_flag=True,
+    help="Don't ask for validation before delete",
+)
+def delete_all(api_url: str, azure_token: str, organization_id: str, force_validation: bool = False) -> CommandResponse:
     """Delete all connectors from the current configuration"""
 
-    if not confirm_deletion("all registered connectors in current configuration", organization_id):
+    if not force_validation and not confirm_deletion("connector", organization_id):
         return CommandResponse.fail()
     logger.info("Getting all connectors from current configuration...")
 
