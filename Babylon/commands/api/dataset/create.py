@@ -26,7 +26,7 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @argument("dataset-name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@option("-c", "--connector-id", "connector_id", type=QueryType())
+@option("-c", "--connector-id", "connector_id", type=QueryType(), default="%deploy%adt_connector_id")
 @option("-i",
         "--dataset-file",
         "dataset_file",
@@ -38,6 +38,13 @@ logger = getLogger("Babylon")
     "dataset_description",
     help="New dataset description",
 )
+@option(
+    "-s",
+    "--select",
+    "select",
+    is_flag=True,
+    help="Select this new dataset in configuration ?",
+)
 @output_to_file
 def create(
     api_url: str,
@@ -47,6 +54,7 @@ def create(
     connector_id: Optional[str] = None,
     dataset_file: Optional[pathlib.Path] = None,
     dataset_description: Optional[str] = None,
+    select: bool = False,
 ) -> CommandResponse:
     """
     Register a dataset by sending a description file to the API.
@@ -70,4 +78,7 @@ def create(
         return CommandResponse.fail()
     dataset = response.json()
     logger.info(f"Successfully created dataset {dataset['id']}")
+    if select:
+        logger.info("Updated configuration variables with dataset_id")
+        env.configuration.set_deploy_var("dataset_id", dataset["id"])
     return CommandResponse.success(dataset, verbose=True)

@@ -6,6 +6,7 @@ from click import option
 
 from ....utils.interactive import confirm_deletion
 from ....utils.decorators import timing_decorator
+from ....utils.environment import Environment
 from ....utils.response import CommandResponse
 from ....utils.decorators import require_platform_key
 from ....utils.credentials import pass_azure_token
@@ -20,7 +21,8 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=QueryType(), required=False)
+@option("--current", "current", type=QueryType(), is_flag=True, help="Delete workspace referenced in configuration")
 @option(
     "-f",
     "--force",
@@ -32,8 +34,13 @@ def delete(api_url: str,
            azure_token: str,
            organization_id: str,
            workspace_id: str,
-           force_validation: bool = False) -> CommandResponse:
+           force_validation: bool = False,
+           current: bool = False) -> CommandResponse:
     """Delete a workspace from the organization"""
+    if current:
+        env = Environment()
+        workspace_id = env.configuration.get_deploy_var("workspace_id")
+
     if not force_validation and not confirm_deletion("solution", workspace_id):
         return CommandResponse.fail()
     response = oauth_request(f"{api_url}/organizations/{organization_id}/workspaces/{workspace_id}",

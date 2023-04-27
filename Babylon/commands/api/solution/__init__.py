@@ -14,13 +14,7 @@ def solution():
     pass
 
 
-list_commands = [
-    delete,
-    get_all,
-    create,
-    get,
-    update,
-]
+list_commands = [delete, get_all, create, get, update]
 
 for _command in list_commands:
     solution.add_command(_command)

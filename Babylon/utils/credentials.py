@@ -3,10 +3,14 @@ from functools import wraps
 from typing import Any
 from typing import Callable
 
-from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import ClientAuthenticationError
-from azure.identity import ClientSecretCredential
-
+from azure.identity import (
+    InteractiveBrowserCredential,
+    TokenCachePersistenceOptions,
+    AuthenticationRecord,
+    EnvironmentCredential,
+    CredentialUnavailableError,
+)
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -19,7 +23,7 @@ def get_azure_token(scope: str = "default") -> str:
         "graph": "https://graph.microsoft.com/.default",
         "default": "https://management.azure.com/.default",
         "powerbi": Environment().configuration.get_deploy_var("powerbi_api_scope"),
-        "csm_api": Environment().configuration.get_platform_var("api_scope")
+        "csm_api": Environment().configuration.get_platform_var("api_scope"),
     }
     credentials = get_azure_credentials()
     scope_url = SCOPES[scope.lower()]
@@ -35,14 +39,37 @@ def get_azure_token(scope: str = "default") -> str:
 def get_azure_credentials() -> Any:
     """Logs to Azure and saves the token as a config variable"""
     env = Environment()
-    azure_tenant_id = env.configuration.get_platform_var("azure_tenant_id")
-    cached_credentials = env.convert_data_query("%secrets%azure")
+    credential = None
+    redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
+    redirect_uri = f"http://localhost:{redirect_uri_port}"
+
     try:
-        return ClientSecretCredential(cached_credentials["tenant_id"], cached_credentials["client_id"],
-                                      cached_credentials["client_secret"])
-    except (KeyError, TypeError):
-        pass
-    return DefaultAzureCredential(shared_cache_tenant_id=azure_tenant_id, visual_studio_code_tenant_id=azure_tenant_id)
+        credential = EnvironmentCredential(logging_enable=True)
+        if credential._credential is None:
+            raise AttributeError
+    except (CredentialUnavailableError, AttributeError):
+        deserialized_record = None
+
+        cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
+        if cached_credentials.get("babylon"):
+            deserialized_record = AuthenticationRecord.deserialize(
+                str(cached_credentials.get("babylon")).replace("'", '"'))
+            logger.info("Using previously cached credentials...")
+
+        cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
+        credential = InteractiveBrowserCredential(
+            cache_persistence_options=cpo,
+            authentication_record=deserialized_record,
+            redirect_uri=redirect_uri,
+        )
+
+        if not cached_credentials.get("babylon"):
+            record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
+            logger.info("No valid cached credentials, login...")
+            cached_credentials = record.serialize()
+            env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "babylon", cached_credentials)
+
+    return credential
 
 
 def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:

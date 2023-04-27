@@ -7,13 +7,7 @@ from .get_all import get_all
 from .security import security
 from .update import update
 
-list_commands = [
-    update,
-    delete,
-    get_all,
-    get,
-    create,
-]
+list_commands = [update, delete, get_all, get, create]
 
 
 @group()
