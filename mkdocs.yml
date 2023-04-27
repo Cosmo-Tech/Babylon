@@ -46,6 +46,7 @@ nav:
         - Plugins: 'plugins.md'
         - Macro commands: 'macro.md'
         - Secrets management: 'Utils/secret_management.md'
+        - Authentication: 'authentication.md'
     - References:
         - babylon: 'cli.md'
         - classes:
