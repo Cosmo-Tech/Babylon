@@ -53,7 +53,8 @@ def create(
         return CommandResponse.fail()
     organization = response.json()
     logger.info(f"Successfully created organization {organization['id']}")
-    if not no_select:
+    select = not no_select
+    if select:
         logger.info("Updated configuration variables with organization_id")
         env.configuration.set_deploy_var("organization_id", organization["id"])
     return CommandResponse.success(organization, verbose=True)

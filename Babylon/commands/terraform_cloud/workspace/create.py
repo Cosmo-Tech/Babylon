@@ -3,19 +3,19 @@ import logging
 import pathlib
 import pprint
 
+from click import Path
 from click import argument
 from click import command
-from click import Path
 from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
+from ....utils.clients import pass_tfc_client
 from ....utils.decorators import describe_dry_run
+from ....utils.decorators import output_to_file
 from ....utils.decorators import timing_decorator
 from ....utils.environment import Environment
 from ....utils.response import CommandResponse
-from ....utils.clients import pass_tfc_client
-from ....utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
@@ -53,7 +53,8 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, no_select: bool =
         logger.error(f"An issue appeared while processing workspace {workspace_data['workspace_name']}:")
         logger.error(pprint.pformat(_error.args))
         return CommandResponse.fail()
-    if not no_select:
+    select = not no_select
+    if select:
         env.configuration.set_deploy_var("terraform_cloud_workspace_id", ws['data']['id'])
         logger.info(
             f"terraform_cloud_workspace_id: {ws['data']['id']} was successfully set in the deploy configuration")

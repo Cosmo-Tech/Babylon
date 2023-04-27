@@ -61,7 +61,8 @@ def create(
         return CommandResponse.fail()
     solution = response.json()
     logger.info(f"Successfully created dataset {solution['id']}")
-    if not no_select:
+    select = not no_select
+    if not select:
         logger.info("Updated configuration variables with solution_id")
         env.configuration.set_deploy_var("solution_id", solution["id"])
     return CommandResponse.success(solution, verbose=True)

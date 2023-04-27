@@ -68,7 +68,8 @@ def create(api_url: str,
         return CommandResponse.fail()
     workspace = response.json()
     logger.info(f"Successfully created workspace {workspace['id']}")
-    if not no_select:
+    select = not no_select
+    if select:
         logger.info("Updated configuration variables with workspace_id")
         env.configuration.set_deploy_var("workspace_id", workspace["id"])
         env.configuration.set_deploy_var("workspace_key", workspace["key"])
