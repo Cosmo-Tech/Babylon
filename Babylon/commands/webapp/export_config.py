@@ -1,8 +1,8 @@
+import json
 import logging
 import pathlib
+import requests
 from typing import Optional
-import json
-
 from click import command
 from click import option
 from click import Path
