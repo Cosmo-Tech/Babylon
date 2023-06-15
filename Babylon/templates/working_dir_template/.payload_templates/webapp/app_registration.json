@@ -5,8 +5,9 @@
         "redirectUris": [
             "http://localhost:3000/scenario",
             "http://localhost:3000/sign-in",
+            "https://${deploy['webapp_static_domain']}/scenario",
+            "https://${deploy['webapp_static_domain']}/sign-in",
             % if deploy.get('webapp_domain'):
-            ,
             "https://${deploy['webapp_domain']}/scenario",
             "https://${deploy['webapp_domain']}/sign-in"
             % endif

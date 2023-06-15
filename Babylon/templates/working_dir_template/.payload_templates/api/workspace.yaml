@@ -1,0 +1,246 @@
+description: "${workspace_description}"
+key: "${workspace_key}"
+name: "${workspace_name}"
+solution:
+  solutionId: "${solution_id}"
+  runTemplateFilter:
+    - '1'
+    - '2'
+    - '3'
+    - 'high cpu (DO NOT USE)'
+  defaultRunTemplateDataset: null
+useDedicatedEventHubNamespace: false
+sendScenarioMetadataToEventHub: false
+security:
+  default: none
+  accessControlList:
+  - id: "${security_id}"
+    role: "${security_role}"
+webApp:
+  url: "${deploy['webapp_static_domain']}"
+  options:
+    charts:
+      workspaceId: "${deploy['powerbi_workspace_id']}"
+      logInWithUserCredentials: false
+      scenarioViewIframeDisplayRatio: 4.514285714285714
+      dashboardsViewIframeDisplayRatio: 1.610062893081761
+      dashboardsView:
+        - title:
+            en: 'Digital Twin Structure'
+            fr: 'Structure du jumeau numérique'
+          reportId: "${deploy['powerbi_report_id']}"
+          settings:
+            navContentPaneEnabled: false
+            panes:
+              filters:
+                expanded: false
+                visible: false
+          pageName:
+            en: 'ReportSectionf3ef30b8ad34c9c2e8c4'
+            fr: 'ReportSectionf3ef30b8ad34c9c2e8c4'
+        - title:
+            en: 'Stocks Follow-up'
+            fr: 'Suivi de stock'
+          reportId: "${deploy['powerbi_report_id']}"
+          settings:
+            navContentPaneEnabled: false
+            panes:
+              filters:
+                expanded: true
+                visible: true
+          dynamicFilters:
+            - table: 'StockProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+            - table: 'Bar'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'contains_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'arc_to_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'parameters'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'CustomerSatisfactionProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+          pageName:
+            en: 'ReportSectionca125957a3f5ea936a30'
+            fr: 'ReportSectionca125957a3f5ea936a30'
+        - title:
+            en: 'Customer Satisfaction'
+            fr: 'Satisfaction client'
+          reportId: "${deploy['powerbi_report_id']}"
+          settings:
+            navContentPaneEnabled: true
+            panes:
+              filters:
+                expanded: false
+                visible: true
+          dynamicFilters:
+            - table: 'StockProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+            - table: 'Bar'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'contains_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'arc_to_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'parameters'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'CustomerSatisfactionProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+          pageName:
+            en: 'ReportSectiond5265d03b73060af4244'
+            fr: 'ReportSectiond5265d03b73060af4244'
+      scenarioView:
+        '1':
+          title:
+            en: 'Scenario dashboard for run type 1'
+            fr: 'Rapport du scenario du run type 1'
+          reportId: "${deploy['powerbi_report_id']}"
+          settings:
+            navContentPaneEnabled: false
+            panes:
+              filters:
+                expanded: true
+                visible: true
+          staticFilters:
+            - table: 'Bar'
+              column: 'Bar'
+              values:
+                - 'MyBar'
+                - 'MyBar2'
+          dynamicFilters:
+            - table: 'StockProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+            - table: 'contains_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+          pageName:
+            en: 'ReportSection937f9c72cc8f1062aa88'
+            fr: 'ReportSection937f9c72cc8f1062aa88'
+        '2':
+          title:
+            en: 'Scenario dashboard'
+            fr: 'Rapport du scenario'
+          reportId: "${deploy['powerbi_report_id']}"
+          settings:
+            navContentPaneEnabled: false
+            panes:
+              filters:
+                expanded: true
+                visible: true
+          staticFilters:
+            - table: 'Bar'
+              column: 'Bar'
+              values:
+                - 'MyBar'
+                - 'MyBar2'
+          dynamicFilters:
+            - table: 'StockProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+            - table: 'Bar'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'contains_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'arc_to_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'parameters'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'CustomerSatisfactionProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+          pageName:
+            en: 'ReportSection'
+            fr: 'ReportSection'
+        '3':
+          title:
+            en: 'Scenario dashboard'
+            fr: 'Rapport du scenario'
+          reportId: "${deploy['powerbi_report_id']}"
+          settings:
+            navContentPaneEnabled: false
+            panes:
+              filters:
+                expanded: true
+                visible: true
+          staticFilters:
+            - table: 'Bar'
+              column: 'Bar'
+              values:
+                - 'MyBar'
+                - 'MyBar2'
+          dynamicFilters:
+            - table: 'StockProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+            - table: 'Bar'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'contains_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'arc_to_Customer'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'parameters'
+              column: 'simulationrun'
+              values: 'csmSimulationRun'
+            - table: 'CustomerSatisfactionProbe'
+              column: 'SimulationRun'
+              values: 'csmSimulationRun'
+          pageName:
+            en: 'ReportSection'
+            fr: 'ReportSection'
+    instanceView:
+      dataSource:
+        type: 'adt'
+        functionUrl: "https://${functionUrl}.azurewebsites.net/api/ScenarioDownload"
+        functionKey: "${secrets['azf']['key']}"
+      dataContent:
+        compounds:
+          Bar_vertex: {}
+        edges:
+          arc_Satisfaction:
+            style: {}
+            selectable: false
+        nodes:
+          Bar:
+            style:
+              shape: 'rectangle'
+              background-color: '#466282'
+              background-opacity: 0.2
+              border-width: 0
+            pannable: true
+            selectable: true
+            grabbable: false
+          Customer:
+            style:
+              background-color: '#005A31'
+              shape: 'ellipse'
+    menu:
+      documentationUrl: 'https://portal.cosmotech.com/resources/platform-resources/platform-help'
+      supportUrl: 'https://support.cosmotech.com'
+      organizationUrl: 'https://cosmotech.com'
+sendInputToDataWarehouse: true
+useDedicatedEventHubNamespace: true
+dedicatedEventHubSasKeyName: null
+dedicatedEventHubAuthenticationStrategy: null
+sendScenarioRunToEventHub: true
+sendScenarioMetadataToEventHub: true

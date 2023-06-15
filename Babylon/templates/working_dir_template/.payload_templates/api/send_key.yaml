@@ -1,0 +1,1 @@
+dedicatedEventHubKey: "${secrets['eventhub']['key']}"

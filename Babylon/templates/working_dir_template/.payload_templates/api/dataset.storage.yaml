@@ -1,0 +1,10 @@
+name: "${dataset_name}"
+description: Brewery reference model in ADT
+organizationId: "${deploy['organization_id']}"
+tags:
+  - dataset_part
+connector:
+  id: "${deploy['storage_connector_id']}"
+  name: "Azure Storage Connector"
+  parametersValues:
+    AZURE_STORAGE_CONTAINER_BLOB_PREFIX: "%WORKSPACE_FILE%/datasets/${deploy['storage_dataset_id']}"

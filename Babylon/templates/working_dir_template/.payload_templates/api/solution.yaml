@@ -1,0 +1,40 @@
+key: "${solution_key}"
+name: "${solution_name}"
+description: ""
+repository: "${deploy['simulator_repository']}"
+version: "${deploy['simulator_version']}"
+tags:
+parameters:
+- id: parameter1
+  labels:
+    fr: Paramètre 1
+    en: Parameter 1
+  varType: string
+parameterGroups:
+- id: parameter_group1
+  labels:
+    fr: Groupe de paramètres 1
+    en: Parameter group 1
+  parameters:
+  - parameter1
+runTemplates:
+- id: run_template1
+  name: Run template 1
+  description: Run template 1
+  csmSimulation: simulation
+  tags:
+  - Simulation
+  computeSize: basic
+  noDataIngestionState: false
+  fetchDatasets: true
+  fetchScenarioParameters: true
+  applyParameters: true
+  sendDatasetsToDataWarehouse: true
+  sendInputParametersToDataWarehouse: false
+  validateData: false
+  preRun: false
+  run: true
+  postRun: false
+  parametersJson: true
+  parameterGroups:
+  - parameter_group1

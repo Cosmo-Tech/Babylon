@@ -1,0 +1,6 @@
+name: ${organization_name}
+security:
+  default: none
+  accessControlList:
+  - id: "${security_id}"
+    role: "${security_role}"

@@ -1,0 +1,225 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "functionName": {
+        "type": "string",
+        "defaultValue": "${instance_name}",
+        "metadata": {
+          "description": "Name of the function app"
+        }
+      },
+      "storageAccountName": {
+        "type": "string",
+        "defaultValue": "${workspace_key}",
+        "metadata": {
+          "description": "Name of the storage account to be created"
+        }
+      },
+      "location": {
+        "type": "string",
+        "defaultValue": "${deploy['resources_location']}",
+        "metadata": {
+          "description": "Location for the resources to be created (Function App, App Service plan and Storage Account)"
+        }
+      },
+      "csmApiHost": {
+        "type": "string",
+        "defaultValue": "${platform['api_url']}",
+        "metadata": {
+          "description": "Cosmo Tech API host"
+        }
+      },
+      "csmApiScope": {
+        "type": "string",
+        "defaultValue": "${platform['api_scope']}",
+        "metadata": {
+          "description": "Cosmo Tech API scope (must end with /.default)"
+        }
+      },
+      "azCliID": {
+        "type": "string",
+        "defaultValue": "${deploy['webapp_registration_id']}",
+        "metadata": {
+          "description": "Client id of an app registration having access to the Cosmo Tech API"
+        }
+      },
+      "azCliSecret": {
+        "type": "string",
+        "defaultValue": "${secrets['functionapp']['azf_secret']}",
+        "metadata": {
+          "description": "Client secret of an app registration having access to the Cosmo Tech API"
+        }
+      },
+      "packageAddress": {
+        "type": "string",
+        "defaultValue": "https://github.com/Cosmo-Tech/supplychain-azure-function-dataset-download/releases/download/2.1.10/artifact.zip",
+        "metadata": {
+          "description": "URL of the Azure function package to be deployed - IMPORTANT : pick the URL from the latest release"
+        }
+      }
+    },
+    "variables": {
+      "hostingPlanName": "[concat('hpn-', resourceGroup().name)]",
+      "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Web/sites",
+        "apiVersion": "2021-03-01",
+        "name": "[parameters('functionName')]",
+        "kind": "functionapp,linux",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+          "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        ],
+        "properties": {
+          "name": "[parameters('functionName')]",
+          "enabled": true,
+          "reserved": true,
+          "siteConfig": {
+            "cors": {
+              "allowedOrigins": [ "https://${deploy['webapp_static_domain']}" ],
+              "supportCredentials": true
+            },
+            "linuxFxVersion": "python|3.9",
+            "appSettings": [
+              {
+                "name": "FUNCTIONS_WORKER_RUNTIME",
+                "value": "python"
+              },
+              {
+                "name": "FUNCTIONS_EXTENSION_VERSION",
+                "value": "~4"
+              },
+              {
+                "name": "AzureWebJobsStorage",
+                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2019-06-01').keys[0].value)]"
+              },
+              {
+                "name": "WEBSITE_RUN_FROM_PACKAGE",
+                "value": "[parameters('packageAddress')]"
+              },
+              {
+                "name": "AZURE_CLIENT_ID",
+                "value": "[parameters('azCliID')]",
+                "slotSetting": false
+              },
+              {
+                "name": "AZURE_CLIENT_SECRET",
+                "value": "[parameters('azCliSecret')]",
+                "slotSetting": false
+              },
+              {
+                "name": "AZURE_TENANT_ID",
+                "value": "[subscription().tenantId]",
+                "slotSetting": false
+              },
+              {
+                "name": "COSMOTECH_API_HOST",
+                "value": "[parameters('csmApiHost')]",
+                "slotSetting": false
+              },
+              {
+                "name": "COSMOTECH_API_SCOPE",
+                "value": "[parameters('csmApiScope')]",
+                "slotSetting": false
+              }
+            ]
+          },
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+          "clientAffinityEnabled": false
+        }
+      },
+      {
+        "type": "Microsoft.Web/serverfarms",
+        "apiVersion": "2020-06-01",
+        "name": "[variables('hostingPlanName')]",
+        "kind": "linux",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "Y1",
+          "tier": "Dynamic"
+        },
+        "properties": {
+          "name": "[variables('hostingPlanName')]",
+          "computeMode": "Dynamic",
+          "reserved": true
+        }
+      },
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "name": "[parameters('storageAccountName')]",
+        "apiVersion": "2019-06-01",
+        "location": "[parameters('location')]",
+        "kind": "StorageV2",
+        "sku": {
+          "name": "Standard_LRS"
+        },
+        "properties": {
+          "supportsHttpsTrafficOnly": true
+        }
+      },
+      {
+        "type": "Microsoft.Web/sites/config",
+        "apiVersion": "2022-09-01",
+        "name": "[concat(parameters('functionName'), '/authsettingsV2')]",
+        "location": "West Europe",
+        "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', parameters('functionName'))]"
+        ],
+        "properties": {
+          "numberOfWorkers": 1,
+          "linuxFxVersion": "python|3.9",
+          "platform": {
+            "enabled": true,
+            "runtimeVersion": "~1"
+          },
+          "globalValidation": {
+            "requireAuthentication": true,
+            "unauthenticatedClientAction": "Return401",
+            "redirectToProvider": "azureactivedirectory"
+          },
+          "identityProviders": {
+            "azureActiveDirectory": {
+              "enabled": true,
+              "registration": {
+                "openIdIssuer": "[concat('https://sts.windows.net/',tenant().tenantId,'/v2.0')]",
+                "clientId": "${deploy['webapp_registration_id']}",
+                "clientSecretSettingName": "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+              },
+              "login": {
+                "disableWWWAuthenticate": false
+              },
+              "validation": {
+              "jwtClaimChecks": {},
+              "allowedAudiences": [ "${platform['csm_platform_app_id']}", "${platform['api_url']}", "${deploy['webapp_registration_id']}"],
+              "defaultAuthorizationPolicy": {
+                  "allowedPrincipals": {}
+                }
+              }
+            }
+          },
+          "login": {
+            "routes": {},
+            "tokenStore": {
+              "enabled": true,
+              "tokenRefreshExtensionHours": 72,
+              "fileSystem": {},
+              "azureBlobStorage": {}
+            },
+            "preserveUrlFragmentsForLogins": false,
+            "cookieExpiration": {
+              "convention": "FixedTime",
+              "timeToExpiration": "08:00:00"
+            },
+            "nonce": {
+              "validateNonce": true,
+              "nonceExpirationInterval": "00:05:00"
+            }
+          }
+        }  
+      }
+    ]
+  }

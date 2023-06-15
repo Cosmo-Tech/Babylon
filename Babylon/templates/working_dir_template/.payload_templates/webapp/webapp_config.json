@@ -1,9 +1,14 @@
 {
-    "REACT_APP_AZURE_TENANT_ID": "${platform['azure_tenant_id']}",
-    "REACT_APP_APP_REGISTRATION_CLIENT_ID": "${deploy['webapp_registration_id']}",
-    "REACT_APP_COSMOTECH_API_SCOPE": "${platform['api_scope']}",
-    "REACT_APP_ORGANIZATION_ID": "${deploy['organization_id']}",
-    "REACT_APP_WORKSPACE_ID": "${deploy['workspace_id']}",
     "REACT_APP_APPLICATION_INSIGHTS_INSTRUMENTATION_KEY": "${deploy.get('webapp_insights_instrumentation_key', '')}",
-    "REACT_APP_ENABLE_APPLICATION_INSIGHTS": "${deploy['webapp_enable_insights']}"
+    "REACT_APP_ENABLE_APPLICATION_INSIGHTS": "${deploy['webapp_enable_insights']}",
+    "REACT_APP_APP_REGISTRATION_CLIENT_ID": "${deploy['webapp_registration_id']}",
+    "REACT_APP_AZURE_TENANT_ID": "${platform['azure_tenant_id']}",
+    "REACT_APP_COSMOTECH_API_SCOPE": "${platform['api_scope']}",
+    "REACT_APP_DEFAULT_BASE_PATH": "${deploy['api_url']}",
+    "REACT_APP_ORGANIZATION_ID": "${deploy['organization_id']}",
+    "REACT_APP_WORKSPACES_IDS_FILTER": "",
+    "REACT_APP_APP_VERSION": "",
+    "REACT_APP_ORGANIZATION_URL": "${deploy['webapp_organization_url']}",
+    "REACT_APP_DOCUMENTATION_URL": "https://cosmotech.com",
+    "REACT_APP_SUPPORT_URL": "https://support.cosmotech.com"
 }

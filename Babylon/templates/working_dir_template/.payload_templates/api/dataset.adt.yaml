@@ -1,0 +1,12 @@
+name: "${dataset_name}"
+description: Brewery reference model in ADT
+tags:
+  - ADT
+  - Brewery
+  - Babylon
+  - Reference
+  - dataset
+connector:
+  id: "${connector_id}"
+  parametersValues:
+    AZURE_DIGITAL_TWINS_URL: "${deploy['digital_twin_url']}"
