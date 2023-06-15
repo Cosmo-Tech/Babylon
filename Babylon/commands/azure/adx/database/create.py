@@ -22,6 +22,8 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_kusto_client
+@require_deployment_key('organization_id')
+@require_deployment_key('workspace_key')
 @require_deployment_key("resource_group_name")
 @require_deployment_key('resources_location')
 @require_platform_key('adx_cluster_name')
@@ -38,6 +40,8 @@ def create(kusto_client: KustoManagementClient,
            resource_group_name: str,
            resources_location: str,
            adx_cluster_name: str,
+           organization_id: str,
+           workspace_key: str,
            database_name: Optional[str] = None,
            select: bool = False) -> CommandResponse:
     """Create database in ADX cluster"""
@@ -48,7 +52,8 @@ def create(kusto_client: KustoManagementClient,
     params_database = ReadWriteDatabase(location=resources_location,
                                         soft_delete_period=timedelta(days=365),
                                         hot_cache_period=timedelta(days=31))
-
+    if not database_name:
+        database_name = f"{organization_id}-{workspace_key}"
     try:
         name_request = CheckNameRequest(name=database_name, type="Microsoft.Kusto/clusters/databases")
         name_result = kusto_client.databases.check_name_availability(resource_group_name=resource_group_name,
@@ -79,7 +84,7 @@ def create(kusto_client: KustoManagementClient,
         if select:
             logger.info("Updated configuration variable adx_database_name")
             env = Environment()
-            env.configuration.set_deploy_var("adx_database_name", database_name)
+            env.configuration.set_deploy_var("adx_database_name", database_name.lower())
 
         _ret: list[str] = [f"Provisioning state: {poller.result().provisioning_state}"]
         logger.info("\n".join(_ret))

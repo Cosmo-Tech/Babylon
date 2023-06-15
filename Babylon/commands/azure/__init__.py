@@ -11,11 +11,12 @@ from .storage import storage
 from .appinsight import appinsight
 from .login import login
 from .logout import logout
+from .permission import permission
 
 logger = logging.getLogger("Babylon")
 
 list_commands = [login, logout]
-list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight]
+list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight, permission]
 
 
 @c_group()

@@ -1,5 +1,6 @@
 import logging
 import pathlib
+import polling2
 
 from click import command
 from click import option
@@ -12,7 +13,6 @@ from .....utils.environment import Environment
 from .....utils.decorators import output_to_file
 from .....utils.credentials import pass_azure_token
 from .....utils.typing import QueryType
-
 logger = logging.getLogger("Babylon")
 
 
@@ -31,15 +31,40 @@ def create(azure_token: str, name: str, registration_file: pathlib.Path) -> Comm
     payload_template = env.working_dir.payload_path / "webapp/app_registration.json"
     registration_file = registration_file or payload_template
     details = env.fill_template(registration_file, data={"app_name": name})
-    response = oauth_request(route, azure_token, type="POST", data=details)
-    if response is None:
-        return CommandResponse.fail()
-    output_data = response.json()
+    
+    handler = polling2.poll(
+        lambda: oauth_request(route, azure_token, type="POST", data=details),
+    check_success=is_correct_response_app,
+    step=1,
+    timeout=60)
+
+    output_data = handler.json()
+
     # Service principal creation
     sp_route = "https://graph.microsoft.com/v1.0/servicePrincipals"
-    sp_response = oauth_request(sp_route, azure_token, type="POST", json={"appId": output_data["appId"]})
+
+    sp_response = polling2.poll(
+        lambda: oauth_request(sp_route, azure_token, type="POST", json={"appId": output_data['appId']}),
+    check_success=is_correct_response_serviceprincipal,
+    step=1,
+    timeout=60)
+    sp_response = sp_response.json()
     if sp_response is None:
         logger.error("Failed to create application service principal")
         return CommandResponse.fail()
-    output_data["servicePrincipalId"] = sp_response.json()["id"]
+    output_data["servicePrincipalId"] = sp_response["id"]
     return CommandResponse.success(output_data, verbose=True)
+
+def is_correct_response_app(response):
+    if response is None:
+        return CommandResponse.fail()
+    output_data = response.json()
+    if "id" in output_data:
+        return True
+
+def is_correct_response_serviceprincipal(response):
+    if response is None:
+        return CommandResponse.fail()
+    output_data = response.json()
+    if "id" in output_data:
+        return True

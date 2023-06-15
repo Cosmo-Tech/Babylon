@@ -1,5 +1,6 @@
 import logging
 import pathlib
+import polling2
 
 from click import command
 from click import argument
@@ -17,7 +18,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_azure_token("powerbi")
+@pass_azure_token()
 @require_platform_key("azure_subscription")
 @require_platform_key("resource_group_name")
 @argument("webapp_name", type=QueryType())
@@ -31,14 +32,27 @@ def update(azure_token: str, azure_subscription: str, resource_group_name: str, 
     env = Environment()
     settings_file = settings_file or env.working_dir.payload_path / "webapp/webapp_settings.json"
     details = env.fill_template(settings_file)
-    response = oauth_request(
+    
+    response = polling2.poll(
+        lambda: oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
         f"providers/Microsoft.Web/staticSites/{webapp_name}/config/appsettings?api-version=2022-03-01",
         azure_token,
         type="PUT",
-        data=details)
+        data=details),
+    check_success=is_correct_response,
+    step=1,
+    timeout=60)
+
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
     logger.info(f"Successfully launched creation of webapp {webapp_name} settings from file {settings_file}")
     return CommandResponse.success(output_data, verbose=True)
+
+def is_correct_response(response):
+    if response is None:
+        return CommandResponse.fail()
+    output_data = response.json()
+    if "id" in output_data:
+        return True

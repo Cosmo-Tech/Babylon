@@ -3,8 +3,11 @@ import logging
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.resource.resources.models import DeploymentMode
-from click import argument
+from click import argument, option
 from click import command
+from Babylon.utils.interactive import confirm_deploy_arm_mode
+
+from Babylon.utils.typing import QueryType
 
 from ....utils.environment import Environment
 from ....utils.decorators import require_deployment_key
@@ -19,10 +22,20 @@ logger = logging.getLogger("Babylon")
 @pass_arm_client
 @argument("deployment-config-file-path")
 @require_deployment_key("resource_group_name")
+@option("--complete-mode", "deploy_mode_complete", is_flag=True)
 @timing_decorator
-def run(arm_client: ResourceManagementClient, deployment_config_file_path: str,
-        resource_group_name: str) -> CommandResponse:
+def run(arm_client: ResourceManagementClient,
+        deployment_config_file_path: str,
+        resource_group_name: str,
+        deploy_mode_complete: bool = False
+        ) -> CommandResponse:
     """Apply a resource deployment config via arm deployment."""
+    mode = DeploymentMode.INCREMENTAL
+    if deploy_mode_complete:
+        logger.warn("Warning: In complete mode, Resource Manager deletes resources that exist in the resource group but aren't specified in the template.")
+        if confirm_deploy_arm_mode():
+            mode = DeploymentMode.COMPLETE
+
     env = Environment()
     arm_deployment = env.working_dir.get_file_content(deployment_config_file_path)
     if any(k not in arm_deployment for k in ["parameters", "template_uri", "deployment_name"]):
@@ -31,7 +44,7 @@ def run(arm_client: ResourceManagementClient, deployment_config_file_path: str,
     parameters = {k: {'value': v} for k, v in dict(arm_deployment["parameters"]).items()}
     deployment_properties = {
         'properties': {
-            'mode': DeploymentMode.incremental,
+            'mode': mode,
             'template_link': {
                 'uri': arm_deployment["template_uri"],
             },

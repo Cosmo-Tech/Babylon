@@ -1,4 +1,5 @@
 import logging
+import polling2
 
 from click import command
 from click import argument
@@ -11,7 +12,6 @@ from ....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
-
 @command()
 @pass_azure_token()
 @require_platform_key("azure_subscription", "azure_subscription")
@@ -22,10 +22,23 @@ def get(azure_token: str, azure_subscription: str, resource_group_name: str, nam
     Get static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/get-static-site
     """
-    response = oauth_request(
-        f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
-        f"/providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01", azure_token)
+    # response = oauth_request(
+    #     f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
+    #     f"/providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01", azure_token)
+    
+    response = polling2.poll(
+        lambda: oauth_request(
+            f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
+            f"/providers/Microsoft.Web/staticSites/{name}?api-version=2022-03-01", azure_token),
+    check_success=is_correct_response,
+    step=1,
+    timeout=60)
+    
+    return CommandResponse.success(response, verbose=True)
+
+def is_correct_response(response):
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    return CommandResponse.success(output_data, verbose=True)
+    if "id" in output_data:
+        return output_data

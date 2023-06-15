@@ -19,10 +19,12 @@ logger = logging.getLogger("Babylon")
 @argument("object_id", type=QueryType())
 @option("-n", "--name", "password_name", help="Password display name", type=QueryType())
 @option("-s", "--select", "select", is_flag=True, help="Save secret in .secrets.yaml working dir file")
+@option("--azf", "azfunction", is_flag=True, help="Save secret in .secrets.yaml working dir file")
 def create(azure_token: str,
-           object_id: str,
-           password_name: Optional[str] = None,
-           select: bool = False) -> CommandResponse:
+            object_id: str,
+            password_name: Optional[str] = None,
+            select: bool = False,
+            azfunction: bool = False) -> CommandResponse:
     """
     Register a password or secret to an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-addpassword
@@ -39,5 +41,9 @@ def create(azure_token: str,
         env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", password_name, {
             "client_id": output_data["keyId"],
             "client_secret": output_data["secretText"]
+        })
+    if azfunction:
+        env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", password_name, {
+            "azf_secret": output_data["secretText"]
         })
     return CommandResponse.success(output_data, verbose=True)

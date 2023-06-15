@@ -4,10 +4,11 @@ from .script import script
 from .permission import permission
 from .get_all import get_all
 from .database import database
+from .connections import connections_group
 
 list_commands = [get_all]
 
-list_groups = [permission, script, database]
+list_groups = [permission, script, database, connections_group]
 
 
 @group()

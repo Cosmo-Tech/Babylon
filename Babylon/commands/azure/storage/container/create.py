@@ -15,11 +15,12 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_blob_client
+@argument("container_name", type=QueryType(), default="%deploy%organization_id")
 @timing_decorator
-@argument("container_name", type=QueryType())
 def create(blob_client: BlobServiceClient, container_name: str) -> CommandResponse:
     """Creates a new storageblob container with the given name"""
     logger.info(f"Creating container {container_name} in storage account {blob_client.account_name}")
+    container_name = container_name.lower()
     try:
         container = blob_client.create_container(container_name)
     except HttpResponseError as e:

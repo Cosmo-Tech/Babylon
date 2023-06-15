@@ -24,7 +24,7 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("resource_group_name")
 @require_platform_key("adx_cluster_name")
 @require_deployment_key("adx_database_name")
-@argument("principal_id", type=QueryType())
+@argument("principal_id", type=QueryType(), default="%platform%csm_object_platform_id")
 @option("-r",
         "--role",
         type=Choice(["User", "Viewer", "Admin"], case_sensitive=False),
@@ -37,15 +37,26 @@ logger = logging.getLogger("Babylon")
         help="Principal type of the given ID")
 @describe_dry_run("Would add ROLE to PRINCIPAL_ID")
 @timing_decorator
-def set(kusto_client: KustoManagementClient, resource_group_name: str, adx_cluster_name: str, adx_database_name: str,
-        principal_id: str, role: str, principal_type: str) -> CommandResponse:
+def set(kusto_client: KustoManagementClient,
+        resource_group_name: str,
+        adx_cluster_name: str,
+        adx_database_name: str,
+        principal_id: str,
+        role: str,
+        principal_type: str
+        ) -> CommandResponse:
     """Set permission assignments applied to the given principal id"""
     parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
     principal_assignment_name = str(uuid4())
     logger.info("Creating assignment...")
 
-    kusto_client.database_principal_assignments.begin_create_or_update(resource_group_name, adx_cluster_name,
-                                                                       adx_database_name, principal_assignment_name,
+    poller = kusto_client.database_principal_assignments.begin_create_or_update(resource_group_name, 
+                                                                       adx_cluster_name,
+                                                                       adx_database_name, 
+                                                                       principal_assignment_name,
                                                                        parameters)
-    logger.info(f"Successfully created a new {role} assignment to {principal_type} {principal_id}")
+    
+    if poller.done():
+        logger.info(f"Successfully created a new {role} assignment to {principal_type} {principal_id}")
+
     return CommandResponse.success()

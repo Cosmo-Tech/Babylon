@@ -35,6 +35,8 @@ def create(azure_token: str,
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-custom-domain
     """
     env = Environment()
+    if not domain_name:
+        return CommandResponse.fail()
     create_route = (
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
         f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01")
