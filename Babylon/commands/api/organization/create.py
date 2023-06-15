@@ -25,6 +25,8 @@ logger = getLogger("Babylon")
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
 @argument("organization-name", type=QueryType())
+@option("-e","--email", "security_id", type=QueryType())
+@option("-s","--security-role", "security_role", type=QueryType(), default="Admin")
 @option("-i",
         "--organization-file",
         "organization_file",
@@ -41,6 +43,8 @@ logger = getLogger("Babylon")
 def create(api_url: str,
            azure_token: str,
            organization_name: str,
+           security_id: str,
+           security_role: str,
            organization_file: Optional[pathlib.Path] = None,
            select: bool = False) -> CommandResponse:
     """
@@ -48,8 +52,12 @@ def create(api_url: str,
     See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
-    organization_file = organization_file or env.working_dir.payload_path / "api/organization.json"
-    details = env.fill_template(organization_file, data={"organization_name": organization_name})
+    organization_file = organization_file or env.working_dir.payload_path / "api/organization.yaml"
+    details = env.fill_template(organization_file, data={
+        "organization_name": organization_name,
+        "security_id": security_id,
+        "security_role": security_role
+    })
     if organization_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations", azure_token, type="POST", data=details)

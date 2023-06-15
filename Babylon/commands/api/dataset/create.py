@@ -24,9 +24,8 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("dataset-name", type=QueryType())
+@argument("dataset-name", type=QueryType(), default="")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@option("-c", "--connector-id", "connector_id", type=QueryType(), default="%deploy%adt_connector_id")
 @option("-i",
         "--dataset-file",
         "dataset_file",
@@ -45,13 +44,14 @@ logger = getLogger("Babylon")
     is_flag=True,
     help="Select this new dataset in configuration ?",
 )
+@option("-t", "--type", "dataset_type", type=QueryType())
 @output_to_file
 def create(
     api_url: str,
     azure_token: str,
     dataset_name: str,
     organization_id: str,
-    connector_id: Optional[str] = None,
+    dataset_type: str,
     dataset_file: Optional[pathlib.Path] = None,
     dataset_description: Optional[str] = None,
     select: bool = False,
@@ -61,7 +61,13 @@ def create(
     See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
-    dataset_file = dataset_file or env.working_dir.payload_path / "api/dataset.json"
+    if not dataset_type:
+        logger.error("Dataset type not found")
+        return CommandResponse.fail()
+    
+    dataset_type = dataset_type.lower()
+    dataset_file = dataset_file or env.working_dir.payload_path / f"api/dataset.{dataset_type}.yaml"
+    connector_id = env.configuration.get_deploy_var(f"{dataset_type}_connector_id")
     details = env.fill_template(dataset_file,
                                 data={
                                     "dataset_name": dataset_name,
@@ -80,5 +86,5 @@ def create(
     logger.info(f"Successfully created dataset {dataset['id']}")
     if select:
         logger.info("Updated configuration variables with dataset_id")
-        env.configuration.set_deploy_var("dataset_id", dataset["id"])
+        env.configuration.set_deploy_var(f"{dataset_type}_dataset_id", dataset["id"])
     return CommandResponse.success(dataset, verbose=True)

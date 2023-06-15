@@ -12,6 +12,7 @@ from ....utils.typing import QueryType
 from ....utils.response import CommandResponse
 from ....utils.decorators import output_to_file
 from ....utils.decorators import require_platform_key
+from ....utils.decorators import require_deployment_key
 from ....utils.environment import Environment
 from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
@@ -22,11 +23,12 @@ logger = getLogger("Babylon")
 
 @command()
 @timing_decorator
-@require_platform_key("api_url")
 @pass_azure_token("csm_api")
+@require_platform_key("api_url")
+@require_deployment_key("organization_id")
+@require_deployment_key("solution_id")
+@require_deployment_key("workspace_key")
 @argument("workspace_name", type=QueryType())
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @option("-i",
         "--workspace-file",
         "workspace_file",
@@ -60,9 +62,10 @@ logger = getLogger("Babylon")
 @output_to_file
 def create(api_url: str,
            azure_token: str,
-           workspace_name: str,
            organization_id: str,
            solution_id: str,
+           workspace_name: str,
+           workspace_key: str,
            workspace_file: Optional[pathlib.Path] = None,
            workspace_description: Optional[str] = None,
            security_id: Optional[str] = None,
@@ -73,11 +76,13 @@ def create(api_url: str,
     See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
-    workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.json"
+    workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.yaml"
     details = env.fill_template(workspace_file,
                                 data={
+                                    "functionUrl": f"{organization_id.lower()}-{workspace_key.lower()}",
+                                    "function_key": "",
                                     "workspace_name": workspace_name,
-                                    "workspace_key": workspace_name.replace(" ", ""),
+                                    "workspace_key": workspace_key,
                                     "workspace_description": workspace_description,
                                     "solution_id": solution_id,
                                     "security_id": security_id,

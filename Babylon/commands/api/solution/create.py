@@ -66,7 +66,7 @@ def create(azure_token: str,
     if response is None:
         return CommandResponse.fail()
     solution = response.json()
-    logger.info(f"Successfully created dataset {solution['id']}")
+    logger.info(f"Successfully created solution {solution['id']}")
     if select:
         logger.info("Updated configuration variables with solution_id")
         env.configuration.set_deploy_var("solution_id", solution["id"])

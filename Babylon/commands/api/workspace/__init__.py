@@ -6,8 +6,10 @@ from .get import get
 from .get_all import get_all
 from .security import security
 from .update import update
+from .set_key import setkey
+from .create_key import create_key
 
-list_commands = [update, delete, get_all, get, create]
+list_commands = [update, delete, get_all, get, create, setkey, create_key]
 
 
 @group()
