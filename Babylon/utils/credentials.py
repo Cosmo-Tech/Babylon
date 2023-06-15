@@ -40,7 +40,7 @@ def get_azure_credentials() -> Any:
     """Logs to Azure and saves the token as a config variable"""
     env = Environment()
     credential = None
-    redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
+    redirect_uri_port = env.configuration.get_platform_var("redirect_uri_port") or "8484"
     redirect_uri = f"http://localhost:{redirect_uri_port}"
 
     try:

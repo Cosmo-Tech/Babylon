@@ -37,8 +37,8 @@ class Configuration:
             logger.info("Configuration folder already exists")
             return
         shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
-        self.deploy = self.config_dir.absolute() / "deploy.yaml"
-        self.platform = self.config_dir.absolute() / "platform.yaml"
+        self.deploy = "./deploy.yaml"
+        self.platform = "./platform.yaml"
         self.plugins: list[dict[str, Any]] = list()
         self.save_config()
         logger.info(f"Successfully copied configuration in {self.config_dir}")
