@@ -40,19 +40,16 @@ def deploy_workspace(workspace_name: str,
     Won't run powerbi workspace creation if it's already existing  
     """
     report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
-
     macro = Macro("powerbi workspace deploy") \
         .step(["powerbi", "workspace", "get", "-n", workspace_name], store_at="workspace", is_required=False)
-    macro.step(["powerbi", "workspace", "create", workspace_name],
-               store_at="workspace",
-               run_if=not macro.env.get_data(["workspace", "data"]))
-    upload_cmd = ["powerbi", "report", "upload", "-w", "%datastore%workspace.data.id"]
+    macro.step(["powerbi", "workspace", "create", workspace_name, "-s"], store_at="workspace", run_if=not macro.env.get_data(["workspace", "data"]))
+    upload_cmd = ["powerbi", "report", "upload"]
     if override:
         upload_cmd.append("--override")
     for report_path in report_folder.glob("*.pbix"):
-        macro.step([*upload_cmd, str(report_path)], store_at="report")
+        macro.step([*upload_cmd, str(report_path), "-s"], store_at="report")
         for dataset in macro.env.convert_data_query("%datastore%report.data.datasets") or []:
-            macro.step(["powerbi", "dataset", "parameters", "update", "-w", "%datastore%workspace.data.id",
-                       dataset["id"], *report_params.split(" ")], run_if=report_params != "") \
-                .step(["powerbi", "dataset", "update-credentials", "-w", "%datastore%workspace.data.id", dataset["id"]])
+            macro.step(["powerbi", "dataset", "take-over", dataset["id"]]) \
+                .step(["powerbi", "dataset", "parameters", "update", dataset["id"], *report_params.split(" ")], run_if=report_params != "") \
+                .step(["powerbi", "dataset", "update-credentials", dataset["id"]])
     macro.dump("powerbi_workspace_deploy.json")

@@ -6,7 +6,6 @@ from .take_over import take_over
 from .get_all import get_all
 from .update_credentials import update_credentials
 from .parameters import parameters
-
 list_groups = [parameters]
 
 list_commands = [
@@ -14,7 +13,7 @@ list_commands = [
     delete,
     get,
     take_over,
-    get_all,
+    get_all
 ]
 
 

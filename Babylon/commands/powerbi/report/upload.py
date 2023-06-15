@@ -11,6 +11,7 @@ from click import option
 
 from ....utils.decorators import timing_decorator
 from ....utils.response import CommandResponse
+from ....utils.environment import Environment
 from ....utils.request import oauth_request
 from ....utils.typing import QueryType
 from ....utils.credentials import pass_azure_token
@@ -30,8 +31,21 @@ RETRY_WAIT_TIME = 0.5
         type=QueryType(),
         default="%deploy%powerbi_workspace_id")
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict ?")
+@option(
+    "-s",
+    "--select",
+    "select",
+    is_flag=True,
+    help="Select this new report in configuration ?",
+)
 @timing_decorator
-def upload(azure_token: str, pbix_filename: str, workspace_id: str, override: bool = False) -> CommandResponse:
+def upload(
+        azure_token: str, 
+        pbix_filename: str,
+        workspace_id: str, 
+        override: bool = False,
+        select: bool = False,
+    ) -> CommandResponse:
     """Publish the given pbxi file to the PowerBI workspace"""
     name = os.path.splitext(pbix_filename)[0]
     header = {"Content-Type": "multipart/form-data", "Authorization": f"Bearer {azure_token}"}
@@ -62,5 +76,11 @@ def upload(azure_token: str, pbix_filename: str, workspace_id: str, override: bo
     if output_data.get("importState") != "Succeeded":
         logger.error(f"Failed to import report file {pbix_filename}")
         return CommandResponse.fail()
+
+    if select:
+        env = Environment()
+        logger.info(f"Updated configuration variable powerbi_report_id")
+        env.configuration.set_deploy_var("powerbi_report_id", output_data['id'])
+
     logger.info(f"Successfully imported report {pbix_filename}")
     return CommandResponse.success(output_data, verbose=True)
