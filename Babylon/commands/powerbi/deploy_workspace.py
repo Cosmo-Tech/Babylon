@@ -41,7 +41,7 @@ def deploy_workspace(workspace_name: str,
     """
     report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
     macro = Macro("powerbi workspace deploy") \
-        .step(["powerbi", "workspace", "get", "-n", workspace_name], store_at="workspace", is_required=False)
+        .step(["powerbi", "workspace", "get", "-n", workspace_name, "-s"], store_at="workspace", is_required=False)
     macro.step(["powerbi", "workspace", "create", workspace_name, "-s"], store_at="workspace", run_if=not macro.env.get_data(["workspace", "data"]))
     upload_cmd = ["powerbi", "report", "upload"]
     if override:
