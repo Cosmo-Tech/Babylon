@@ -21,7 +21,7 @@ logger = logging.getLogger("Babylon")
         "--select",
         "select",
         is_flag=True,
-        help="Select this new Organization as one of babylon context Organizations ?",
+        help="Select this new Workspace ?",
         default=False)
 @output_to_file
 def create(azure_token: str, workspace_name: str, select: bool) -> CommandResponse:
@@ -29,9 +29,11 @@ def create(azure_token: str, workspace_name: str, select: bool) -> CommandRespon
     env = Environment()
     url_groups = 'https://api.powerbi.com/v1.0/myorg/groups?$workspaceV2=True'
     response = oauth_request(url=url_groups, access_token=azure_token, json={"name": workspace_name}, type="POST")
+    print(response)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
+    print(output_data)
     if select:
         env.configuration.set_deploy_var(
             "powerbi_workspace_id",
