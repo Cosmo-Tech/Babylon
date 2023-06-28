@@ -13,11 +13,7 @@ list_groups = [
     report,
 ]
 
-list_commands = [
-    deploy_workspace,
-    resume,
-    suspend
-]
+list_commands = [deploy_workspace, resume, suspend]
 
 
 @group()

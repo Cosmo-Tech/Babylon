@@ -16,10 +16,7 @@ logger = logging.getLogger('Babylon')
 @require_platform_key('azure_subscription')
 @require_platform_key('resource_group_name')
 @argument('powerbi_name', type=QueryType())
-def suspend(azure_token: str,
-            azure_subscription: str,
-            resource_group_name: str,
-            powerbi_name: str) -> CommandResponse:
+def suspend(azure_token: str, azure_subscription: str, resource_group_name: str, powerbi_name: str) -> CommandResponse:
 
     route = (f'https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/'
              f'providers/Microsoft.PowerBIDedicated/capacities/{powerbi_name}/suspend?api-version=2021-01-01')
