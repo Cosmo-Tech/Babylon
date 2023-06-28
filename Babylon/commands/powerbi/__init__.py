@@ -1,6 +1,8 @@
 from click import group
 
 from .deploy_workspace import deploy_workspace
+from .resume import resume
+from .suspend import suspend
 from .dataset import dataset
 from .workspace import workspace
 from .report import report
@@ -11,9 +13,7 @@ list_groups = [
     report,
 ]
 
-list_commands = [
-    deploy_workspace,
-]
+list_commands = [deploy_workspace, resume, suspend]
 
 
 @group()
