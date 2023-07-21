@@ -80,7 +80,7 @@ def upload(
     if select:
         env = Environment()
         logger.info(f"Updated configuration variable powerbi_report_id")
-        env.configuration.set_deploy_var("powerbi_report_id", output_data['id'])
+        env.configuration.set_deploy_var("powerbi_report_id", output_data['reports'][0]['id'])
 
     logger.info(f"Successfully imported report {pbix_filename}")
     return CommandResponse.success(output_data, verbose=True)
