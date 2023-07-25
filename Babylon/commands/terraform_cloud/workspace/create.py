@@ -9,6 +9,7 @@ from click import command
 from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
+from terrasnek.exceptions import TFCHTTPNotFound
 
 from ....utils.clients import pass_tfc_client
 from ....utils.decorators import describe_dry_run
@@ -47,9 +48,15 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, no_select: bool =
     payload_template = env.working_dir.payload_path / "tfc/workspace_create.json"
     payload = env.fill_template(payload_template, workspace_data)
     payload_data = json.loads(payload)
+    print(payload_data)
     try:
         ws = tfc_client.workspaces.create(payload_data)
     except TFCHTTPUnprocessableEntity as _error:
+        logger.error(f"An issue appeared while processing workspace {workspace_data['workspace_name']}:")
+        logger.error(pprint.pformat(_error.args))
+        return CommandResponse.fail()
+
+    except TFCHTTPNotFound as _error:
         logger.error(f"An issue appeared while processing workspace {workspace_data['workspace_name']}:")
         logger.error(pprint.pformat(_error.args))
         return CommandResponse.fail()

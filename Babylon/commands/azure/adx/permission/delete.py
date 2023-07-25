@@ -6,7 +6,6 @@ from click import command
 from click import option
 
 from .....utils.decorators import describe_dry_run
-from .....utils.decorators import require_deployment_key
 from .....utils.decorators import require_platform_key
 from .....utils.decorators import timing_decorator
 from .....utils.interactive import confirm_deletion
@@ -21,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @pass_kusto_client
 @require_platform_key("resource_group_name")
 @require_platform_key("adx_cluster_name")
-@require_deployment_key("adx_database_name")
+@option("--database", "adx_database_name", type=QueryType(), default="%deploy%adx_database_name")
 @argument("principal_id", type=QueryType())
 @option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
 @describe_dry_run("Would go through each role of given principal and delete them.")
