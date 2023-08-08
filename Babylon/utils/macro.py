@@ -48,9 +48,9 @@ class Macro():
         :param run_if: run this step only if this argument is True.
         :return: The original macro used for method chaining
         """
-        if self._status != self.STATUS_OK or not run_if:
-            logger.warning(f"Skipping command {' '.join(command_line)}...")
-            return self
+        # if self._status != self.STATUS_OK or not run_if:
+        #     logger.warning(f"Skipping command {' '.join(command_line)}...")
+        #     return self
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
                       transient=True) as progress:
             progress.add_task(' '.join(command_line))
