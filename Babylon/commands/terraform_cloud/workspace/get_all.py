@@ -21,7 +21,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 def get_all(tfc_client: TFC, filter: Optional[str] = None) -> CommandResponse:
     """Get all available workspaces in the organization"""
-    ws = tfc_client.workspaces.list()
+    ws = tfc_client.workspaces.list_all()
 
     def get_last_changed(_r):
         return _r.get('attributes', {}).get('latest-change-at', '')

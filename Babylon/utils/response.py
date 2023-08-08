@@ -25,7 +25,7 @@ class CommandResponse():
         self.command = ctx.command_path.split(" ")
         self.params = {k: str(v) for k, v in ctx.params.items()}
         if verbose and Environment().is_verbose:
-            pprint(self.data, max_length=100)
+            pprint(self.data)
 
     def to_dict(self) -> dict[str, Any]:
         return {"command": self.command, "params": self.params, "status_code": self.status_code, "data": self.data}
