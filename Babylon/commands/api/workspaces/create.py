@@ -65,16 +65,16 @@ def create(ctx: Context,
     azf_secret = env.get_project_secret(organization_id=context['api_organization_id'].lower(),
                                         workspace_key=work_key,
                                         name="func")
-    details = env.fill_template(
-        t_file,
-        data={
-            "functionUrl": f"{context['api_organization_id'].lower()}-{context['api_workspace_key'].lower()}",
-            "name": name,
-            "key": context['api_workspace_key'],
-            "security_id": security_id,
-            "azf_key": azf_secret,
-            "security_role": security_role
-        })
+    details = env.fill_template(t_file,
+                                data={
+                                    "functionUrl":
+                                    f"{context['api_organization_id'].lower()}-{context['api_workspace_key'].lower()}",
+                                    "name": name,
+                                    "key": context['api_workspace_key'],
+                                    "security_id": security_id,
+                                    "azf_key": azf_secret,
+                                    "security_role": security_role
+                                })
     response = oauth_request(f"{context['api_url']}/organizations/{context['api_organization_id']}/workspaces",
                              azure_token,
                              type="POST",

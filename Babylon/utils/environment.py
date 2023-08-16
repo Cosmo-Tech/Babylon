@@ -24,6 +24,7 @@ from ruamel.yaml import YAML
 logger = logging.getLogger("Babylon")
 
 STORE_STRING = "datastore"
+TEMPLATES_STRING = "templates"
 PATH_SYMBOL = "%"
 
 
@@ -155,6 +156,19 @@ class Environment(metaclass=SingletonMeta):
         except OSError:
             return
 
+    def convert_template_path(self, query) -> str:
+        check_regex = re.compile(f"{PATH_SYMBOL}"
+                                 f"({TEMPLATES_STRING})"
+                                 f"{PATH_SYMBOL}"
+                                 f"(.+)")
+        match_content = check_regex.match(query)
+        if not match_content:
+            return None
+        a, b = match_content.groups()
+        templates_path = self.working_dir.original_template_path.absolute().as_posix()
+        templates_path += b
+        return templates_path
+
     def convert_data_query(self, query: str) -> Any:
         extracted_content = self.extract_value_content(query)
         if not extracted_content:
@@ -182,7 +196,7 @@ class Environment(metaclass=SingletonMeta):
 
         SEARCH_FILES = "|".join(config_files)
         check_regex = re.compile(f"{PATH_SYMBOL}"
-                                 f"({SEARCH_FILES}|{STORE_STRING})"
+                                 f"({SEARCH_FILES}|{STORE_STRING}|{TEMPLATES_STRING})"
                                  f"(?:(?<={STORE_STRING})\\[(.+)])?"
                                  f"{PATH_SYMBOL}"
                                  f"(.+)")
@@ -305,7 +319,7 @@ class Environment(metaclass=SingletonMeta):
             logger.error(e)
             sys.exit(1)
         prefix = f'{self.organization_name}/{self.tenant_id}/projects/{self.context_id}'
-        schema = f'{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}'
+        schema = f'{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}'.lower()
         data = client.read(path=schema)
         if data is None:
             return None

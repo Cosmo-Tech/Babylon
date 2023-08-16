@@ -30,8 +30,8 @@ def delete(tfc_client: TFC, workspace_id: str, var_key: str, force_validation: b
     if not force_validation and not confirm_deletion("variable", var_key):
         return CommandResponse.fail()
 
-    r = list(
-        v for v in list_all_vars(tfc_client, workspace_id, lookup_var_sets=False) if v['attributes']['key'] == var_key)
+    r = list(v for v in list_all_vars(tfc_client, workspace_id, lookup_var_sets=False)
+             if v['attributes']['key'] == var_key)
 
     if not r:
         logger.error(f"Var {var_key} is not set for workspace {workspace_id}")
