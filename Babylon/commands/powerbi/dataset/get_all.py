@@ -1,37 +1,31 @@
 import logging
-from typing import Optional
+import jmespath
+from typing import Any, Optional
 
 from click import command
 from click import option
-import jmespath
 
-from ....utils.decorators import require_deployment_key
-from ....utils.decorators import output_to_file
-from ....utils.response import CommandResponse
-from ....utils.request import oauth_request
-from ....utils.credentials import pass_azure_token
-from ....utils.typing import QueryType
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.request import oauth_request
+from Babylon.utils.credentials import pass_powerbi_token
+from Babylon.utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_azure_token("powerbi")
-@require_deployment_key("powerbi_workspace_id", required=False)
+@output_to_file
+@pass_powerbi_token()
 @option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--filter", "filter", help="Filter response with a jmespath query")
-@output_to_file
-def get_all(azure_token: str,
-            powerbi_workspace_id: str,
-            workspace_id: Optional[str] = None,
-            filter: Optional[str] = None) -> CommandResponse:
+@inject_context_with_resource({"powerbi": ['workspace']})
+def get_all(context: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:
     """Get a list of all powerbi datasets in the current workspace"""
-    workspace_id = workspace_id or powerbi_workspace_id
-    if not workspace_id:
-        logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse.fail()
+    workspace_id = workspace_id or context['powerbi_workspace']['id']
     url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
-    response = oauth_request(url, azure_token)
+    response = oauth_request(url, powerbi_token)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get("value")

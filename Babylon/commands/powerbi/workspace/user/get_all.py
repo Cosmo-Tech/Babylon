@@ -1,31 +1,32 @@
 import logging
-from typing import Optional
-
-from click import command
-from click import option
 import jmespath
 
-from .....utils.decorators import output_to_file
-from .....utils.typing import QueryType
-from .....utils.response import CommandResponse
-from .....utils.request import oauth_request
-from .....utils.credentials import pass_azure_token
+from typing import Any, Optional
+from click import command
+from click import option
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.typing import QueryType
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.request import oauth_request
+from Babylon.utils.credentials import pass_powerbi_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_azure_token("powerbi")
-@option("-w", "--workspace", "workspace_id", type=QueryType(), default="%deploy%powerbi_workspace_id")
-@option("--filter", "filter", help="Filter response with a jmespath query")
 @output_to_file
-def get_all(azure_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:
-    """List all exisiting users in the power bi workspace"""
-    if not workspace_id:
-        logger.error("A workspace id is required either in your config or with parameter '-w'")
-        return CommandResponse.fail()
+@pass_powerbi_token()
+@option("-w", "--workspace", "workspace_id", type=QueryType())
+@option("--filter", "filter", help="Filter response with a jmespath query")
+@inject_context_with_resource({"powerbi": ['workspace']})
+def get_all(context: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:
+    """
+    List all exisiting users in the power bi workspace
+    """
+    workspace_id = workspace_id or context['powerbi_workspace']['id']
     url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users'
-    response = oauth_request(url_users, azure_token)
+    response = oauth_request(url_users, powerbi_token)
     if response is None:
         return CommandResponse.fail()
     output_data = response.json().get('value')
