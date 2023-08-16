@@ -1,18 +1,22 @@
+import logging
+import json
+import pathlib
+import shutil
+import tempfile
+import yaml
+
 from typing import Any
 from typing import Optional
-import json
-import logging
-
 from rich.pretty import pprint
 from click import get_current_context
-
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 
 
 class CommandResponse():
-    """Contains command, status and data output from a command return value
+    """
+    Contains command, status and data output from a command return value
     """
 
     STATUS_OK = 0
@@ -41,7 +45,20 @@ class CommandResponse():
     def toJSON(self) -> str:
         return json.dumps(self.data, indent=4)
 
-    def dump(self, output_file: str):
+    def toYAML(self) -> str:
+        return yaml.dump(self.data)
+
+    def dump_yaml(self, output_file: pathlib.Path):
+        """Dump command response data in a yaml file"""
+        yaml_file = yaml.dump(self.data)
+        tmpf = tempfile.NamedTemporaryFile(mode="w+")
+        tmpf.write(yaml_file)
+        tmpf.seek(0)
+        shutil.copy(tmpf.name, output_file)
+        tmpf.flush()
+        tmpf.close()
+
+    def dump_json(self, output_file: pathlib.Path):
         """Dump command response data in a json file"""
         with open(output_file, "w") as _f:
             _f.write(self.toJSON())
@@ -49,9 +66,7 @@ class CommandResponse():
 
     def has_failed(self) -> bool:
         """Checks if command has failed"""
-        if self.status_code != self.STATUS_ERROR:
-            return False
-        return True
+        return self.status_code == self.STATUS_ERROR
 
     @classmethod
     def fail(cls, **kwargs) -> Any:
