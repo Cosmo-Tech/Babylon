@@ -1,65 +1,78 @@
 import logging
-from pathlib import Path
 
+from pathlib import Path
+import pathlib
+import sys
+from typing import Any, Optional
 from click import command
 from click import option
-
-from ...utils.decorators import require_deployment_key
-from ...utils.decorators import require_platform_key
-from ...utils.macro import Macro
+from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.macro import Macro
 
 logger = logging.getLogger("Babylon")
+env = Environment()
+
+prefixWebApp = "WebApp"
+prefixApp = "App"
 
 
 @command()
-@require_deployment_key("deployment_name")
-@require_platform_key("azure_powerbi_group_id")
-@require_deployment_key("webapp_domain", required=False)
-@require_deployment_key("webapp_enable_insights")
-@option("--enable-powerbi", "enable_powerbi", is_flag=True, help="Enable PowerBI configuration")
-def deploy(deployment_name: str,
-           azure_powerbi_group_id: str,
-           webapp_domain: str,
-           webapp_enable_insights: bool = False,
-           enable_powerbi: bool = False):
-    """Macro command that deploys a new webapp"""
-    m = Macro("webapp deploy") \
-        .step(["azure", "staticwebapp", "create", f"Azure{deployment_name}WebApp"], store_at="webapp") \
-        .then(
-            lambda m: m.env.convert_data_query("%datastore%webapp.data.properties.defaultHostname").split(".")[0],
-            store_at="hostname") \
-        .step(
-            ["azure", "staticwebapp", "custom-domain", "create", f"Azure{deployment_name}WebApp", webapp_domain],
-            is_required=False) \
-        .step(["azure", "ad", "app", "create", f"Azure{deployment_name}WebApp"], store_at="app") \
-        .step(
-            ["azure", "appinsight", "create", f"Insight{deployment_name}WebApp"],
-            store_at="insights", run_if=webapp_enable_insights) \
-        .step(["config", "set-variable", "deploy", "webapp_insights_instrumentation_key",
-               "%datastore%insights.properties.InstrumentationKey"], run_if=webapp_enable_insights) \
-        .step(
-            ["azure", "ad", "group", "member", "add", azure_powerbi_group_id, "%datastore%app.data.servicePrincipalId"],
-            is_required=False, run_if=enable_powerbi)
+@option("--arm-path", "arm_path", type=pathlib.Path)
+@inject_context_with_resource({'webapp': ['enable_insights', 'deployment_name'], 'powerbi': ['group_id']})
+def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
+    """
+    Macro command that deploys a new webapp
+    """
+    deployment_name = context['webapp_deployment_name']
+    azure_powerbi_group_id = context["powerbi_group_id"]
+    github_secret = env.get_global_secret(resource="github", name="token")
+    if not github_secret:
+        logger.error("Personal Access Token Github not found")
+        sys.exit(1)
 
-    # Wait for workflow file to be created by static webapp
-    workflow_file = ("webapp_src/.github/workflows/azure-static-web-apps-"
-                     f"{m.env.convert_data_query('%datastore%hostname')}.yml")
+    macro = Macro("webapp deploy").step(["azure", "staticwebapp", "get", f'{prefixWebApp}{deployment_name}'],
+                                        store_at="webapp")
+    web = macro.env.get_data_from_store(["webapp", "id"])
+    if not web:
+        macro = macro.step(["azure", "staticwebapp", "create", f"{prefixWebApp}{deployment_name}"]).wait(5)
+    else:
+        logger.info("The webapp already exists")
+        sys.exit(1)
+
+    macro = macro.step(["azure", "ad", "app", "get-all"], store_at="apps")
+    apps = macro.env.get_data_from_store(["apps"])
+    created = False
+    for i in apps:
+        name = i['displayName']
+        if f"{prefixApp}{deployment_name}" in name:
+            created = True
+            sys.exit(1)
+
+    if not created:
+        macro = macro.step(["azure", "ad", "app", "create", f"{prefixApp}{deployment_name}"])
+    macro = macro.step(["azure", "ad", "app", "password", "create", "-n",
+                        "azf"]).step(["azure", "ad", "app", "password", "create", "-n",
+                                      "pbi"]).step(["azure", "ad", "app", "get-principal", "%app%object_id"]).step([
+                                          "azure", "ad", "group", "member", "add", "-gi", azure_powerbi_group_id, "-pi",
+                                          "%app%principal_id"
+                                      ])
+
+    cmd_line = ["azure", "func", "deploy", f"Arm{deployment_name}"]
+    if arm_path:
+        cmd_line = [*cmd_line, "-f", str(arm_path)]
+    macro = macro.step(cmd_line)
+
+    macro = macro.step(["azure", "staticwebapp", "app-settings", "update", f"WebApp{deployment_name}"])
+    macro = macro.step(["github", "runs", "get", "%webapp%hostname"])
+    macro = macro.step(["github", "runs", "cancel"])
+
+    workflow_file = f'webapp_src/{macro.env.configuration.get_var("github", "workflow_path")}'
     timeout = 0
-    while not Path(workflow_file).exists() and timeout < 20:
-        m.wait(2) \
-            .step(["webapp", "download", "webapp_src"])
+    while not Path(workflow_file).exists() and timeout < 10:
+        macro.wait(2).step(["webapp", "download", "webapp_src"])
         timeout += 2
-    m.step(["webapp", "export-config", "-o", "webapp_src/config.json"]) \
-        .step(["webapp", "update-workflow", workflow_file]) \
-        .step(["webapp", "upload-file", "webapp_src/config.json"]) \
-        .step(["webapp", "upload-file", "webapp_src/.github/workflows/"]) \
-        .step(
-            ["azure", "ad", "app", "password", "create", "%datastore%app.data.id", "-n", "powerbi"],
-            run_if=enable_powerbi) \
-        .step(
-            ["powerbi", "workspace", "user", "add", "%datastore%app.data.servicePrincipalId", "App", "Member"],
-            run_if=enable_powerbi) \
-        .step(
-            ["azure", "staticwebapp", "app-settings", "update", f"Azure{deployment_name}WebApp"],
-            run_if=enable_powerbi) \
-        .dump("webapp_deploy.json")
+
+    macro.step(["webapp", "export-config", "-o",
+                "webapp_src/config.json"]).step(["webapp", "update-workflow", workflow_file]).step(
+                    ["webapp", "upload-many", "-f", "webapp_src/config.json", "-f", "webapp_src/.github/workflows/"])
