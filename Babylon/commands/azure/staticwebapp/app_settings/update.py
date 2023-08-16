@@ -21,7 +21,10 @@ env = Environment()
 @command()
 @wrapcontext
 @pass_azure_token()
-@option("--file", "settings_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file",
+        "settings_file",
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+        help="Your custom settings description file yaml")
 @argument("webapp_name", type=QueryType())
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],

@@ -20,7 +20,11 @@ env = Environment()
 @command()
 @wrapcontext
 @pass_azure_token("graph")
-@option("--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
+@option("--file",
+        "registration_file",
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+        required=True,
+        help="Your custom app description file (yaml or json)")
 @argument("object_id", type=QueryType())
 def update(azure_token: str, object_id: str, registration_file: str) -> CommandResponse:
     """

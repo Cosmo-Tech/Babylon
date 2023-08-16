@@ -21,7 +21,10 @@ logger = logging.getLogger("Babylon")
 @wrapcontext
 @pass_context
 @pass_azure_token()
-@option("--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file",
+        "create_file",
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+        help="Your custom custom-domain description file yaml")
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())
 @inject_context_with_resource({'azure': ['resource_group_name']})

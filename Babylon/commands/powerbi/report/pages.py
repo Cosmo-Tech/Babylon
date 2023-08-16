@@ -2,7 +2,7 @@ import logging
 import jmespath
 
 from typing import Any
-from click import command
+from click import Choice, command
 from click import argument
 from click import option
 from Babylon.utils.environment import Environment
@@ -21,7 +21,7 @@ env = Environment()
 @wrapcontext
 @output_to_file
 @pass_powerbi_token()
-@option("--report-type", "report_type", type=QueryType())
+@option("--report-type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), help="Report Type")
 @option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})

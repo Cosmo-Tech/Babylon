@@ -24,7 +24,10 @@ env = Environment()
 @wrapcontext
 @pass_context
 @pass_azure_token()
-@option("--file", "swa_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file",
+        "swa_file",
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+        help="Your custom staticwebapp description file yaml")
 @option("--select", "select", is_flag=True, default=True, help="Save this new staticwebapp in your configuration")
 @argument("webapp_name", type=QueryType())
 @inject_context_with_resource({'azure': ['resource_group_name', 'subscription_id']})

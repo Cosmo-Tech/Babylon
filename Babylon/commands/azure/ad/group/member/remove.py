@@ -15,8 +15,8 @@ logger = logging.getLogger("Babylon")
 @command()
 @wrapcontext
 @pass_azure_token("graph")
-@option("--gi", "--group-id", "group_id", type=QueryType(), required=True)
-@option("--pi", "--object-id", "object_id", type=QueryType(), required=True)
+@option("--gi", "--group-id", "group_id", type=QueryType(), required=True, help="Group Id Azure Directory")
+@option("--pi", "--object-id", "object_id", type=QueryType(), required=True, help="Principal Id Azure Directory")
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
 def remove(azure_token: str, group_id: str, object_id: str, force_validation: bool = False) -> CommandResponse:
     """

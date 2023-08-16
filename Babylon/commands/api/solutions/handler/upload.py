@@ -29,7 +29,7 @@ env = Environment()
     type=QueryType(),
     required=True,
 )
-@option("--override", "override", is_flag=True)
+@option("--override", "override", is_flag=True, help="Override handler solution")
 @argument("handler_id", type=QueryType())
 @argument("handler_path", type=Path(path_type=pathlib.Path, exists=True))
 @inject_context_with_resource({'api': ['url', 'organization_id', "solution_id"]})

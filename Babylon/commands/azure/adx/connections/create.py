@@ -21,11 +21,15 @@ env = Environment()
 @wrapcontext
 @timing_decorator
 @pass_kusto_client
-@option("--mapping", "mapping", type=QueryType())
-@option("--compression", "compression_value", type=Choice(['None', "GZip"]), default="None")
-@option("--consumer-group", "consumer_group", type=QueryType(), default="$Default")
-@option("--table-name", "table_name", type=QueryType())
-@option("--data-format", "data_format", type=Choice(["JSON", "CSV", "TXT"]), required=True)
+@option("--mapping", "mapping", type=QueryType(), help="ADX mapping name")
+@option("--compression",
+        "compression_value",
+        type=Choice(['None', "GZip"]),
+        default="None",
+        help="Compression Gzip or None")
+@option("--consumer-group", "consumer_group", type=QueryType(), default="$Default", help="Consumer group name")
+@option("--table-name", "table_name", type=QueryType(), help="ADX table name")
+@option("--data-format", "data_format", type=Choice(["JSON", "CSV", "TXT"]), required=True, help="Data format")
 @argument("connection_name", type=QueryType())
 @argument("database_name", type=QueryType())
 @inject_context_with_resource({

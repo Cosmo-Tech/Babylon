@@ -24,8 +24,11 @@ env = Environment()
 @command()
 @wrapcontext
 @pass_arm_client
-@option("--complete-mode", "deploy_mode_complete", is_flag=True)
-@option("--file", "deploy_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--complete-mode", "deploy_mode_complete", is_flag=True, help="Flag to run on complete mode")
+@option("--file",
+        "deploy_file",
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+        help="Your custom arm description file yaml")
 @argument("deployment_name", type=QueryType())
 @inject_context_with_resource({'api': ['organization_id', 'workspace_key'], 'azure': ['resource_group_name']})
 def deploy(

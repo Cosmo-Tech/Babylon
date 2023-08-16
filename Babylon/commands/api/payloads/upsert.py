@@ -74,7 +74,7 @@ def _get_results(query: str,
 def upsert(origin_file: pathlib.Path, target_file: pathlib.Path, query: str, section: str, flat: bool, stream: Any,
            dashboard_view: bool, scenario_view: bool) -> CommandResponse:
     """
-    Insert or update an object into section of yaml file
+    Insert or update an object in section yaml file
     """
     yaml_loader = YAML()
     data_origin = yaml.safe_load(origin_file.open())

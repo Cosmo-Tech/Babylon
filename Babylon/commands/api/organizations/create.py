@@ -30,8 +30,8 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("--email", "security_id", type=QueryType())
-@option("--role", "security_role", type=QueryType(), default="Admin", required=True)
+@option("--email", "security_id", type=QueryType(), help="Email valid")
+@option("--role", "security_role", type=QueryType(), default="Admin", required=True, help="Role RBAC")
 @option("--file",
         "org_file",
         type=Path(path_type=pathlib.Path),

@@ -19,7 +19,7 @@ prefixApp = "App"
 
 @command()
 @wrapcontext
-@option("--arm-path", "arm_path", type=pathlib.Path)
+@option("--arm-path", "arm_path", type=pathlib.Path, help="Your custom arm azure function description file yaml")
 @inject_context_with_resource({'webapp': ['enable_insights', 'deployment_name'], 'powerbi': ['group_id']})
 def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
     """
