@@ -1,0 +1,13 @@
+name: "${name}"
+description: "${tag} reference model in ADT"
+tags:  
+- Storage
+- Babylon
+- Reference
+- dataset_part
+- "${tag}"
+connector:
+  id: "${connector_id}"
+  name: "Azure Storage Connector"
+  parametersValues:
+    AZURE_STORAGE_CONTAINER_BLOB_PREFIX: "%WORKSPACE_FILE%/datasets"
