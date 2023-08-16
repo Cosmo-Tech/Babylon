@@ -6,7 +6,7 @@ import time
 from functools import wraps
 from typing import Any
 from typing import Callable
-from click import get_current_context, option
+from click import get_current_context, option, pass_context
 from Babylon.utils.checkers import check_exists
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -177,11 +177,11 @@ def inject_context_with_resource(scope, required: bool = True) -> Callable[..., 
 
 def wrapcontext(func: Callable[..., Any]) -> Callable[..., Any]:
 
-    @option("-prj", "--project", required=True, help="Project Name")
-    @option("-plt", "--platform", required=True, help="Platform Name")
+    @option("-c", "--context", required=True, help="Context Name")
+    @option("-p", "--platform", required=True, help="Platform Name")
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        project = kwargs.pop("project", None)
+        project = kwargs.pop("context", None)
         env.set_context(project)
         platform = kwargs.pop("platform", None)
         env.set_environ(platform)

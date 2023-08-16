@@ -12,7 +12,7 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 
-@command()
+@command(name="select")
 @pass_hvac_client
 def init(hvac_client: Client) -> CommandResponse:
     """

@@ -35,6 +35,6 @@ def list(context: Any, server: Optional[str] = None) -> CommandResponse:
         props = cr_client.list_tag_properties(repository=repo)
         tags = [p.name for p in props]
         tags.sort(reverse=True)
-        _ret.append(f" • {repo}: {tags[0:3]}")
+        _ret.append(f" • {repo}: {tags}")
     logger.info("\n".join(_ret))
     CommandResponse.success()
