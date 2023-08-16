@@ -21,11 +21,12 @@ env = Environment()
 @command()
 @timing_decorator
 @pass_azure_token("csm_api")
-@option("--run-template",
-        "run_template_id",
-        help="The run Template identifier",
-        type=QueryType(),
-        required=True,
+@option(
+    "--run-template",
+    "run_template_id",
+    help="The run Template identifier",
+    type=QueryType(),
+    required=True,
 )
 @option("--override", "override", is_flag=True)
 @argument("handler_id", type=QueryType())

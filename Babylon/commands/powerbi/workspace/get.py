@@ -17,7 +17,7 @@ env = Environment()
 
 @command()
 @pass_powerbi_token()
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--name", "name", help="PowerBI workspace name", type=QueryType())
 @option("--select", "select", is_flag=True, default=True, help="Select this workspace PowerBI")
 @inject_context_with_resource({"powerbi": ['workspace']})

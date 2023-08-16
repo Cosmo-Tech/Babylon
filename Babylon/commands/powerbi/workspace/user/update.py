@@ -16,7 +16,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_powerbi_token()
-@option("--workspace","workspace_id", type=QueryType())
+@option("--workspace", "workspace_id", type=QueryType())
 @argument("email", type=QueryType())
 @argument("type", type=Choice(["App", "Group", "User", "None"], case_sensitive=False))
 @argument("right", type=Choice(["Admin", "Contributor", "Member", "Viewer", "None"], case_sensitive=False))

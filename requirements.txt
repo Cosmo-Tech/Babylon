@@ -11,6 +11,10 @@ azure-storage-blob>=12.14.1
 azure-mgmt-digitaltwins>=6.2.0
 azure-mgmt-resource>=21.2.1
 azure-mgmt-authorization>=3.0.0
+azure-mgmt-eventhub>=11.0.0
+
+# Vault Hashicorp client
+hvac>=1.1.1
 
 # Vault Hashicorp client
 hvac>=1.1.1

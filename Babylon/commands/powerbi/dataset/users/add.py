@@ -17,7 +17,7 @@ env = Environment()
 
 @command()
 @pass_powerbi_token()
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--email", "email", type=QueryType())
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace'], "azure": ['email']})

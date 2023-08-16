@@ -1,10 +1,10 @@
-from typing import IO
-
 import mkdocs_gen_files
 import requirements
 
+from typing import IO
+
 _md_file: IO
-with mkdocs_gen_files.open("dependencies.md", "w") as _md_file, open("requirements.txt") as _req:
+with mkdocs_gen_files.open("getting_started/dependencies.md", "w") as _md_file, open("requirements.txt") as _req:
     content = ["# List of dependencies", ""]
 
     _requirements: list[str] = _req.read().splitlines()

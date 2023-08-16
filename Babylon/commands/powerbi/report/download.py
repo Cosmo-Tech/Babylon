@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_powerbi_token()
 @option("-o", "--output", "output_folder", type=Path(path_type=pathlib.Path), default="powerbi", help="Output folder")
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def download(context: Any, powerbi_token: str, report_id: str, workspace_id: str,
