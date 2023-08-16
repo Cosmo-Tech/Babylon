@@ -18,7 +18,10 @@ env = Environment()
 @command()
 @wrapcontext
 @pass_azure_token()
-@option("--file", "file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file",
+        "file",
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+        help="Your custom appinsight description file yaml")
 @argument('name', type=QueryType())
 @inject_context_with_resource({'azure': ['resource_group_name', 'subscription_id'], 'webapp': ["location"]})
 def create(context: Any, azure_token: str, name: str, file: Optional[pathlib.Path] = None) -> CommandResponse:

@@ -46,7 +46,7 @@ plugin `dev-tools` to create a bare plugin ready for you to develop.
 
 ## Interact with a plugin
 
-You can make use of the group of commands `babylon config plugin` to add/remove or activate/deactivate a plugin.
+You can make use of the group of commands `babylon -prj <context_id> -plt <platform_id> config plugin` to add/remove or activate/deactivate a plugin.
 
 Adding a plugin makes it known to babylon, before its folder are ignored and any change you made to them would have no
 effect, removing a plugin won't delete your folder, it will only unlink them from babylon at the configuration level.

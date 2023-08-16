@@ -17,7 +17,10 @@ env = Environment()
 @command()
 @wrapcontext
 @output_to_file
-@option("--file", "config_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file",
+        "config_file",
+        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+        help="Your custom config description file yaml")
 def export_config(config_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """
     Export webapp configuration in a json file

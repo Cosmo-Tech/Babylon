@@ -16,7 +16,7 @@ env = Environment()
 
 @command()
 @wrapcontext
-@option("--rewrite", "rewrite", multiple=True, type=Choice(config_files))
+@option("--rewrite", "rewrite", multiple=True, type=Choice(config_files), help="Config file resource")
 @option("--yes", "yes", is_flag=True, help="Automatic yes to confirm new platform registry")
 @pass_hvac_client
 def upload(

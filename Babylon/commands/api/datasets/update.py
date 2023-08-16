@@ -25,7 +25,11 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
+@option("--type",
+        "type",
+        type=Choice(['adt', 'storage', 'twin']),
+        required=True,
+        help="Dataset type Cosmotech Platform")
 @option("--file",
         "dataset_file",
         type=Path(path_type=pathlib.Path),

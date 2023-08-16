@@ -21,34 +21,21 @@ def my_call(my_arg):
 ### Usage
 The `QueryType` accepts the following syntaxes :
 
-- `%deploy%<JMESPath Query>` : This will apply the given JMESPath query to the deploy config file and send the result as an argument instead.
-- `%platform%<JMESPath Query>` : Same as above but will get applied to the platform config file.
-- `%workdir[File/Path]%<JMESPath Query>` : This syntax will apply the JMESPath query to the give file in the working directory
+- `%resource%<key_name>` : This will retrieve the given key name from the resource config file and send the result as an argument instead.
 
 ### Example use
 Using the previously defined command and the following example config files
 ```yaml
-# Deploy
+# config file api resource
 solution_id: "MySolution"
 ```
 
-```yaml
-# Platform
-organization_id: "MyOrganization"
-```
-
-We can except the following results :
+We can accept the following results :
 ```bash
-my_call %deploy%solution_id
+my_call %api%solution_id
 # The value of my arg is :
 # MySolution
-my_call %platform%*
-# The value of my arg is :
-# ['MyOrganization']
 ```
-
-For more information on the JMESPath syntax I invite you to check the following website : [JMESPath.org](https://jmespath.org)
-
 
 ::: Babylon.utils.typing.QueryType
     handler: python

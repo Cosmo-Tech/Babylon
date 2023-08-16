@@ -22,8 +22,8 @@ class Macro():
     Run a command while allowing method chaining
     ```python
     Macro("My macro")
-        .step(["api", "organization", "get-all"], store_at="orgs")
-        .step(["azure", "acr", "list", "-d", "src"])
+        .step(["api", "organizations", "get-all"], store_at="orgs")
+        .step(["azure", "acr", "list"])
         .dump("report.json")
     ```
     """

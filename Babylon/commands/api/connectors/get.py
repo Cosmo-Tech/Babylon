@@ -23,7 +23,11 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--select", "select", is_flag=True, default=True, help="Save this connector in configuration")
-@option("--type", "type", type=Choice(["adt", "storage", "twin"]), required=True)
+@option("--type",
+        "type",
+        type=Choice(["adt", "storage", "twin"]),
+        required=True,
+        help="Connector type Cosmotech Platform")
 @argument("id", type=QueryType())
 @inject_context_with_resource({'api': ['url']})
 def get(ctx: Context, context: Any, azure_token: str, id: str, type: str, select: bool = False) -> CommandResponse:

@@ -18,7 +18,7 @@ env = Environment()
 
 @command()
 @wrapcontext
-@option("--item", "items", multiple=True, type=str)
+@option("--item", "items", multiple=True, type=str, help="Item <Key Value>")
 @argument("resource", type=Choice(config_files))
 @argument("key", type=QueryType())
 @argument("value", type=QueryType(), required=False)

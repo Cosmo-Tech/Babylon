@@ -14,6 +14,9 @@ env = Environment()
 @command()
 @wrapcontext
 def create() -> CommandResponse:
+    """
+    Create a new organization payload
+    """
     init_file = env.working_dir.original_template_path / "api/organization.yaml"
     target_file = env.working_dir.payload_path / f"{env.context_id}.{env.environ_id}.organization.yaml"
     shutil.copyfile(init_file, target_file)

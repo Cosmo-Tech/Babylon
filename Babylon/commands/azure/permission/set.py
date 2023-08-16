@@ -20,14 +20,15 @@ env = Environment()
 @command()
 @wrapcontext
 @pass_iam_client
-@option("--resource-type", "resource_type", type=QueryType())
-@option("--resource-name", "resource_name", type=QueryType())
+@option("--resource-type", "resource_type", type=QueryType(), help="Ressource Type Id Azure")
+@option("--resource-name", "resource_name", type=QueryType(), help="Ressource Name Azure")
 @option("--principal-type",
         "principal_type",
         type=Choice(["User", "Group", "ServicePrincipal", "ForeignGroup", "Device"]),
-        default="ServicePrincipal")
-@option("--principal-id", "principal_id", type=QueryType(), required=True)
-@option("--role-id", "role_id", type=QueryType(), required=True)
+        default="ServicePrincipal",
+        help="Principal Type Azure")
+@option("--principal-id", "principal_id", type=QueryType(), required=True, help="Principal Id Ressource")
+@option("--role-id", "role_id", type=QueryType(), required=True, help="Role Id Ressource")
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],
     'azure': ['resource_group_name', 'subscription_id'],

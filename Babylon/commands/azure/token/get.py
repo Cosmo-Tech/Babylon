@@ -12,7 +12,7 @@ env = Environment()
 @command()
 @wrapcontext
 @option("--email", "email", help="User email")
-@option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True)
+@option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True, help="API Scope")
 def get(scope: str, email: str) -> CommandResponse:
     """
     Get un acces token using a secret key

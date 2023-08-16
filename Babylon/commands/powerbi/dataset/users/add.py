@@ -19,7 +19,7 @@ env = Environment()
 @wrapcontext
 @pass_powerbi_token()
 @option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@option("--email", "email", type=QueryType())
+@option("--email", "email", type=QueryType(), help="Email valid")
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace'], "azure": ['email']})
 def add(context: Any,

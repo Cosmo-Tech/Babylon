@@ -31,7 +31,7 @@ env = Environment()
         multiple=True,
         help="Add a combination <Key Value> that will be sent as parameter to all your datasets")
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict ?")
-@option("--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True)
+@option("--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True, help="Report type")
 @argument("workspace_name", type=QueryType())
 @inject_context_with_resource({"adx": ['database_name', 'cluster_uri'], "azure": ['email']})
 def deploy(context: Any,

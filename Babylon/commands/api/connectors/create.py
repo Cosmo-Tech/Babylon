@@ -33,8 +33,12 @@ env = Environment()
         type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
         help="Your custom connector description file (yaml or json)")
 @option("--select", "select", is_flag=True, default=True, help="Save the connector in configuration")
-@option("--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
-@option("--version", "version", type=QueryType(), required=True)
+@option("--type",
+        "type",
+        type=Choice(['adt', 'storage', 'twin']),
+        required=True,
+        help="Connector type Cosmotech Platform")
+@option("--version", "version", type=QueryType(), required=True, help="Connector version")
 @argument("name", type=QueryType(), required=True)
 @output_to_file
 @inject_context_with_resource({"api": ["url"]})
