@@ -1,49 +1,42 @@
 import logging
-from typing import Optional
 
+from typing import Any, Optional
 from click import argument
 from click import command
 from click import option
-
-from .....utils.decorators import require_deployment_key
-from .....utils.interactive import confirm_deletion
-from .....utils.typing import QueryType
-from .....utils.response import CommandResponse
-from .....utils.request import oauth_request
-from .....utils.credentials import pass_azure_token
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.interactive import confirm_deletion
+from Babylon.utils.typing import QueryType
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.request import oauth_request
+from Babylon.utils.credentials import pass_powerbi_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_azure_token("powerbi")
-@option("-w", "--workspace", "override_workspace_id", type=QueryType())
-@argument("identifier", type=QueryType())
-@option(
-    "-f",
-    "--force",
-    "force_validation",
-    is_flag=True,
-    help="Don't ask for validation before delete",
-)
-@require_deployment_key("powerbi_workspace_id", required=False)
+@wrapcontext()
+@pass_powerbi_token()
+@option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")
+@option("-D", "force_validation", is_flag=True, help="Force Delete")
+@argument("email", type=QueryType())
+@inject_context_with_resource({"powerbi": ['workspace']})
 def delete(
-    azure_token: str,
-    powerbi_workspace_id: str,
-    override_workspace_id: Optional[str],
-    identifier: str,
+    context: Any,
+    powerbi_token: str,
+    workspace_id: Optional[str],
+    email: str,
     force_validation: Optional[bool] = False,
 ) -> CommandResponse:
-    """Delete IDENTIFIER from the power bi workspace"""
-    workspace_id = override_workspace_id or powerbi_workspace_id
-    if not workspace_id:
-        logger.error("A workspace id is required either in your config or with parameter '-w'")
+    """
+    Delete IDENTIFIER from the power bi workspace
+    """
+    workspace_id = workspace_id or context['powerbi_workspace']['id']
+    url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{email}'
+    if not force_validation and not confirm_deletion("user", email):
         return CommandResponse.fail()
-    url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{identifier}'
-    if not force_validation and not confirm_deletion("user", identifier):
-        return CommandResponse.fail()
-    response = oauth_request(url_users, azure_token, type="DELETE")
+    response = oauth_request(url_users, powerbi_token, type="DELETE")
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"{identifier} was successfully removed from workspace {workspace_id}")
+    logger.info("Successfully removed")
     return CommandResponse.success()
