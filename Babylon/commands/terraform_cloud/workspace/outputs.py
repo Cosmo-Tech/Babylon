@@ -6,31 +6,29 @@ from click import command
 from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
-
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.clients import pass_tfc_client
-from ....utils.typing import QueryType
-from ....utils.decorators import output_to_file
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_tfc_client
+from Babylon.utils.typing import QueryType
+from Babylon.utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@timing_decorator
+@output_to_file
 @pass_tfc_client
-@argument("workspace_id", type=QueryType(), default="%deploy%terraform_cloud_workspace_id")
-@option("-s",
-        "--states",
+@option("--states",
         "states_webpage_open",
         is_flag=True,
-        help="Add this option to open the webapp page to the states of the workspace.\n"
-        "(Allow to see content of sensitives outputs)")
-@output_to_file
-@timing_decorator
+        help="Add this option to open the webapp page to the states of the workspace")
+@argument("workspace_id", type=QueryType())
 def outputs(tfc_client: TFC, workspace_id: str, states_webpage_open: bool) -> CommandResponse:
-    """List outputs of a workspace.
-
-Sensitive outputs are not readable, use -s option to access the state in the web application to get those."""
+    """
+    List outputs of a workspace
+    Sensitive outputs are not readable, use -s option to access the state in the web application to get those
+    """
     try:
         ws = tfc_client.workspaces.show(workspace_id=workspace_id)
         ws_name = ws['data']['attributes']['name']
@@ -50,5 +48,4 @@ Sensitive outputs are not readable, use -s option to access the state in the web
         webbrowser.open(state_url)
     else:
         logger.info(f"Full state info can be found at : {state_url}")
-
     return CommandResponse.success(ws.get("data"), verbose=True)

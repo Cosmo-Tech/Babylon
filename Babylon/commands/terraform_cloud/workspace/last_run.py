@@ -1,30 +1,27 @@
 import logging
-from typing import Optional
 
 from click import command
-from click import option
 from click import argument
-import jmespath
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
-
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.clients import pass_tfc_client
-from ....utils.typing import QueryType
-from ....utils.decorators import output_to_file
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_tfc_client
+from Babylon.utils.typing import QueryType
+from Babylon.utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_tfc_client
-@output_to_file
-@argument("workspace_id", type=QueryType(), default="%deploy%terraform_cloud_workspace_id")
-@option("--filter", "filter", help="Filter response with a jmespath query")
 @timing_decorator
-def last_run(tfc_client: TFC, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:
-    """Get state of the last run of a workspace"""
+@output_to_file
+@pass_tfc_client
+@argument("workspace_id", type=QueryType())
+def last_run(tfc_client: TFC, workspace_id: str) -> CommandResponse:
+    """
+    Get state of the last run of a workspace
+    """
     try:
         r = tfc_client.runs.list_all(workspace_id=workspace_id)['data']
     except TFCHTTPNotFound:
@@ -37,8 +34,4 @@ def last_run(tfc_client: TFC, workspace_id: str, filter: Optional[str] = None) -
         logger.info(f"No runs found in workspace {workspace_id}")
         return CommandResponse.success()
 
-    run_data = ordered_runs[-1]
-    if filter:
-        run_data = jmespath.search(filter, run_data)
-
-    return CommandResponse.success(run_data, verbose=True)
+    return CommandResponse.success(ordered_runs[-1].get("data"), verbose=True)
