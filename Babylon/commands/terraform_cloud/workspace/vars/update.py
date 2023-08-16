@@ -1,42 +1,38 @@
 import logging
 import pprint
-from typing import Optional
 
+from typing import Optional
 from click import argument
 from click import command
 from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
-
 from .list_all_vars import list_all_vars
-from .....utils.decorators import describe_dry_run
-from .....utils.decorators import timing_decorator
-from .....utils.typing import QueryType
-from .....utils.response import CommandResponse
-from .....utils.clients import pass_tfc_client
+from Babylon.utils.decorators import describe_dry_run
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.typing import QueryType
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_tfc_client
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@timing_decorator
 @pass_tfc_client
-@option("-w",
-        "--workspace",
-        "workspace_id",
-        help="Id of the workspace to use",
-        default="%deploy%terraform_cloud_workspace_id",
-        type=QueryType())
 @describe_dry_run("Would send a variable update payload to terraform")
-@argument("var_key", type=QueryType())
+@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
 @option("--value", "var_value", help="A new value to apply to the variable", type=QueryType())
 @option("--description", "var_description", help="A new description to apply to the variable", type=QueryType())
-@timing_decorator
+@argument("var_key", type=QueryType())
 def update(tfc_client: TFC, workspace_id: str, var_key: str, var_value: Optional[str],
            var_description: Optional[str]) -> CommandResponse:
-    """Update VAR_KEY variable in a workspace
+    """
+    Update VAR_KEY variable in a workspace
 
-More information on the arguments can be found at :
-https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body"""
+    More information on the arguments can be found at :
+    https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body
+    """
 
     original_var = None
     existing_vars = list_all_vars(tfc_client, workspace_id, lookup_var_sets=False)

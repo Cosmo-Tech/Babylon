@@ -6,33 +6,28 @@ import pathlib
 from click import Path
 from click import argument
 from click import command
-from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
-
-from .....utils.decorators import describe_dry_run
-from .....utils.decorators import timing_decorator
-from .....utils.typing import QueryType
-from .....utils.response import CommandResponse
-from .....utils.clients import pass_tfc_client
-from .....utils.environment import Environment
+from Babylon.utils.decorators import describe_dry_run
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.typing import QueryType
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_tfc_client
+from Babylon.utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
-@pass_tfc_client
-@option("-w",
-        "--workspace",
-        "workspace_id",
-        help="Id of the workspace to use",
-        default="%deploy%terraform_cloud_workspace_id",
-        type=QueryType())
-@describe_dry_run("Sending multiple variable creation payloads to terraform")
-@argument("variable_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @timing_decorator
+@pass_tfc_client
+@describe_dry_run("Sending multiple variable creation payloads to terraform")
+@argument("workspace_id", type=QueryType())
+@argument("variable_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 def create_from_file(tfc_client: TFC, workspace_id: str, variable_file: pathlib.Path) -> CommandResponse:
-    """Set multiple variables in a workspace
+    """
+    Set multiple variables in a workspace
     Variable file must be a json file containing an array of the following json objects
     [{
         "key": "",
@@ -43,10 +38,10 @@ def create_from_file(tfc_client: TFC, workspace_id: str, variable_file: pathlib.
         "sensitive": false
     }]
 More information on the arguments can be found at :
-https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body"""
+https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-body
+"""
 
     var_keys = ["key", "value", "description", "category"]
-    env = Environment()
     variables = json.loads(env.fill_template(variable_file))
     for variable in variables:
         variable.setdefault("category", "terraform")
