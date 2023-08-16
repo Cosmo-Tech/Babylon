@@ -6,7 +6,7 @@ import time
 from functools import wraps
 from typing import Any
 from typing import Callable
-from click import get_current_context, option, pass_context
+from click import get_current_context, option
 from Babylon.utils.checkers import check_exists
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
