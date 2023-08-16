@@ -1,6 +1,6 @@
 {
   "kind": "web",
-  "location": "${deploy['webapp_location']}",
+  "location": "${cosmotech['webapp']['location']}",
   "properties": {
     "Application_Type": "web",
     "DisableIpMasking": false,

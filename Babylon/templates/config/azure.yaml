@@ -1,0 +1,13 @@
+function_artifact_url: ''
+resource_group_name: ''
+resource_location: ''
+storage_account_name: ''
+team_id: ''
+subscription_id: ''
+email: ''
+eventhub_built_contributor_id: b24988ac-6180-42a0-ab88-20f7382dd24c
+eventhub_built_data_receiver: a638d3c7-ab3a-418d-83e6-5f17a39d4fde
+eventhub_built_data_sender:  2b629674-e913-4c01-ae53-ef4638d8f975
+cli_client_id: 04b07795-8ddb-461a-bbee-02f9e1bf7b46
+storage_blob_reader: 2a2b9908-6ea1-4ae2-8e65-a410df84e7d1
+user_principal_id: ''

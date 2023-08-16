@@ -1,0 +1,23 @@
+{
+    "displayName": "${app_name}",
+    "signInAudience": "AzureADMyOrg",
+    "spa": {
+        "redirectUris": [
+            "http://localhost:3000/sign-in",
+            % if cosmotech['webapp']['static_domain']:
+            "https://${cosmotech['webapp']['static_domain']}/sign-in"
+            % endif
+        ]
+    },
+    "requiredResourceAccess": [
+        {
+            "resourceAppId": "${cosmotech['platform']['app_id']}",
+            "resourceAccess": [
+                {
+                    "id": "${cosmotech['platform']['scope_id']}",
+                    "type": "Scope"
+                }
+            ]
+        }
+    ]
+}

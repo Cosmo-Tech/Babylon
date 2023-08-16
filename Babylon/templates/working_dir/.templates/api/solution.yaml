@@ -1,0 +1,11 @@
+key: ${key}
+name: ${name}
+description: "${tag} solution"
+repository: ${cosmotech['acr']['simulator_repository']}
+version: ${cosmotech['acr']['simulator_version']}
+tags:
+- ${tag}
+parameters:
+runTemplates:
+parameterGroups:
+
