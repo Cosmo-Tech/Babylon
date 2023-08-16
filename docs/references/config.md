@@ -1,4 +1,4 @@
-::: Babylon.utils.working_dir.WorkingDir
+::: Babylon.utils.configuration.Configuration
     handler: python
     options:
        show_root_heading: true
@@ -8,9 +8,4 @@
        docstring_style: sphinx
        heading_level: 1
        members:
-          - copy_template
-          - compare_to_template
-          - create_zip
-          - get_file
-          - get_yaml_key
-
+          - 

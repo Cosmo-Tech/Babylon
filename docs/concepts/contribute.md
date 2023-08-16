@@ -13,20 +13,6 @@ A `.style.yapf` file is included at the root of the project and specifies specif
 ### Linting with Flake8
 A `.flake8` file is included at the root of the project and specifies specific parameters Babylon uses. Please integrate `flake8` linting within your IDE of choice.
 
-### Testing with pytest
-Units tests are located in the `tests` folder. Tests should be run when the `Babylon/utils` are modified as it is for now the only part of the code that is automated.
-
-## The plugin `babylon dev-tools`
-
-The plugin `babylon dev-tools` is available, once you added it you can do `babylon dev-tools --help` to check the existing commands
-
-### Adding the plugin
-
-In the folder you cloned Babylon you can do the following command to activate the plugin
-
-```bash
-babylon config plugin add plugins/dev_tools
-```
 
 After running this command you will have access to the plugin in you babylon
 
@@ -41,7 +27,25 @@ In this part you will learn to do what the commands of initialization have autom
 A module will contain an `__init__.py` file containing a `click` Group function. A template can be found in the following location. 
 
 ```python
---8<-- "Babylon/templates/group_template/__init__.py"
+from click import group
+from click import Group
+from click import Command
+
+list_commands: list[Command] = []
+list_groups: list[Group] = []
+
+
+@group()
+def group_template():
+    """Group initialized from a template"""
+    pass
+
+
+for _command in list_commands:
+    group_template.add_command(_command)
+
+for _group in list_groups:
+    group_template.add_command(_group)
 ```
 
 #### Add your group to the groups callable by the cli
@@ -84,7 +88,18 @@ You follow the same instruction as adding a group in `Babylon.groups` but in a s
 This template can be copied in the group module we want to add the command to.
 
 ```python
---8<-- "Babylon/templates/command_template.py"
+import logging
+
+from click import command
+
+logger = logging.getLogger("Babylon")
+
+
+@command()
+@wrapcontext()
+def command_template():
+    """Command created from a template"""
+    logger.warning("This command was initialized from a template and is empty")
 ```
 
 #### Add to `__init__.py`

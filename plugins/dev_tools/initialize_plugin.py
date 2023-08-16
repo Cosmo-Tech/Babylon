@@ -5,7 +5,7 @@ import shutil
 
 import click
 
-from Babylon.utils import TEMPLATE_FOLDER_PATH
+from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.environment import Environment
 from Babylon.utils.string import is_valid_command_name
 
@@ -25,7 +25,7 @@ def initialize_plugin(plugin_name: str, plugin_folder: pathlib.Path, add: bool =
         logger.error(f"`{plugin_name}` contains illegal characters")
         return
 
-    plugin_template = TEMPLATE_FOLDER_PATH / "plugin_template"
+    plugin_template = ORIGINAL_TEMPLATE_FOLDER_PATH / "plugin_template"
 
     if plugin_folder.exists():
         logger.error(f"{plugin_folder.absolute()} already exists")

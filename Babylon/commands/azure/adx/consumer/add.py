@@ -40,6 +40,6 @@ def add(context: Any, name: str, event_hub_name: str) -> CommandResponse:
                                             namespace_name=f"{org_id}-{work_id}",
                                             consumer_group_name=name.lower(),
                                             event_hub_name=event_hub_name.lower(),
-                                            parameters=ConsumerGroupCreateOrUpdateParameters(location=location,))
+                                            parameters=ConsumerGroupCreateOrUpdateParameters(location=location, ))
     logger.info(SUCCESS_CREATED("consumer adx", f"{org_id}-{work_id}/{event_hub_name.lower()}"))
     return CommandResponse.success()

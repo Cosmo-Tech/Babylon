@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "main"
-      - "**-dev"
   pull_request:
     branches:
       - "main"
@@ -25,8 +24,3 @@ jobs:
         with:
           max-line-length: "120"
           path: "Babylon"
-      - name: flake8 Lint plugins/dev-tools
-        uses: py-actions/flake8@v2
-        with:
-          max-line-length: "120"
-          path: "plugins/dev_tools"

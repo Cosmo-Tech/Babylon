@@ -24,6 +24,7 @@ import click
 
 
 @click.command()
+@wrapcontext()
 def MyPlugin():
     print("This is my awesome Plugin")
 ```
@@ -41,12 +42,10 @@ You can see that the name of the command in the `__init__.py` and the `plugin_na
 identical. It is by design, as the parameter `plugin_name` is used by babylon to find the command in the `__init__.py`
 to make it an available command.
 
-If you want an easier time creating a plugin, you can use the command `babylon dev-tools initialize-plugin` of the
-plugin `dev-tools` to create a bare plugin ready for you to develop.
 
 ## Interact with a plugin
 
-You can make use of the group of commands `babylon config plugin` to add/remove or activate/deactivate a plugin.
+You can make use of the group of commands `babylon plugin` to add/remove or activate/deactivate a plugin.
 
 Adding a plugin makes it known to babylon, before its folder are ignored and any change you made to them would have no
 effect, removing a plugin won't delete your folder, it will only unlink them from babylon at the configuration level.
