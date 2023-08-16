@@ -1,21 +1,20 @@
 import io
+import os
 import json
 import logging
-import os
 import pathlib
 import shutil
 import zipfile
+import yaml
+
 from typing import Any
 from typing import Optional
 from typing import Union
-import yaml
 from cryptography.fernet import Fernet
-
-from . import TEMPLATE_FOLDER_PATH
-from .yaml_utils import compare_yaml_keys
-from .yaml_utils import complete_yaml
-from .yaml_utils import write_yaml_value
-from .yaml_utils import set_nested_key
+from . import ORIGINAL_TEMPLATE_FOLDER_PATH
+from . import ORIGINAL_CONFIG_FOLDER_PATH
+from Babylon.utils.yaml_utils import write_yaml_value
+from Babylon.utils.yaml_utils import set_nested_key
 
 logger = logging.getLogger("Babylon")
 
@@ -37,59 +36,22 @@ class WorkingDir:
         if self.is_zip:
             self.zip_file = zipfile.ZipFile(self.path)
             self.path = zipfile.Path(self.zip_file)
-        self.template_path = TEMPLATE_FOLDER_PATH / "working_dir_template"
-        self.payload_path = self.path / ".payload_templates"
+        self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir/.templates"
+        self.original_config_dir = ORIGINAL_CONFIG_FOLDER_PATH
+        self.template_path = self.path / ".templates"
+        self.payload_path = self.path / ".payload"
+        self.dtdl_path = self.path / "dtdl"
+        self.powerbi_path = self.path / "powerbi"
+        self.adx_path = self.path / "adx"
+        self.updates_path = self.path / ".updates"
         self.encoding_key = None
-        if not self.compare_to_template(False):
-            logger.warning("Working-dir files are incomplete, please run `babylon working-dir complete`")
 
-    def copy_template(self):
+    def copy_templates(self):
         """
         Initialize the working_dir by making a copy of the template
         """
         if not self.is_zip:
-            shutil.copytree(self.template_path, str(self.path), dirs_exist_ok=True)
-
-    def compare_to_template(self, update_if_error: bool = False) -> bool:
-        """
-        Check if the current working_dir is valid (aka: has all folders and files required by the template)
-        :param update_if_error: Replace error logs by info and update the current working_dir with missing elements
-        :return: Is the working_dir valid ?
-        """
-        _root = pathlib.Path(self.template_path)
-        has_err = False
-        for root, _, files in os.walk(self.template_path):
-            rel_path = pathlib.Path(os.path.relpath(root, _root))
-            local_dir_path = self.path / rel_path
-            template_dir_path = _root / rel_path
-            if not local_dir_path.exists() and not (rel_path == pathlib.Path(".") and self.is_zip):
-                has_err = True
-                logger.info(f"Working-dir directory `{local_dir_path}` is missing")
-                if update_if_error and not self.is_zip:
-                    logger.warning(f"Creating missing directory {local_dir_path}")
-                    shutil.copytree(template_dir_path, str(local_dir_path), dirs_exist_ok=True)
-                continue
-            for _f in files:
-                f_rel_path = rel_path / pathlib.Path(_f)
-                template_file_path = _root / f_rel_path
-                local_file_path = self.path / f_rel_path
-                if os.path.getsize(_root / f_rel_path) > -1:
-                    if not local_file_path.exists():
-                        logger.info(f"Working-dir file `{local_file_path}` is missing")
-                        has_err = True
-                        if update_if_error and not self.is_zip:
-                            logger.warning(f"Copying missing file {local_file_path}")
-                            shutil.copy(template_file_path, str(local_file_path))
-                    elif local_file_path.name.endswith(".yaml"):
-                        logger.debug(f"{f_rel_path} is a yaml file, checking for missing keys")
-                        missing_keys, _ = compare_yaml_keys(template_file_path, local_file_path)
-                        if missing_keys:
-                            has_err = True
-                            logger.info(f"Missing keys `{','.join(missing_keys)}` in file {local_file_path}")
-                            if update_if_error and not self.is_zip:
-                                logger.warning(f"Adding missing keys to {local_file_path}")
-                                complete_yaml(template_file_path, local_file_path)
-        return not has_err
+            shutil.copytree(self.original_template_path, str(self.path / ".templates"), dirs_exist_ok=True)
 
     def requires_file(self, file_path: str) -> bool:
         return self.get_file(file_path).exists()
@@ -172,7 +134,7 @@ class WorkingDir:
 
     def __str__(self):
         _ret = [
-            f"Template path: {self.template_path}", f"Working_dir path: {self.initial_path.resolve()}",
+            f"Template path: {self.original_template_path}", f"Working_dir path: {self.initial_path.resolve()}",
             f"is_zip: {self.is_zip}", "content:"
         ]
         content = []
@@ -228,15 +190,11 @@ class WorkingDir:
             raise ValueError(".secret.key file could not be opened")
 
     def generate_secret_key(self, override: bool = False) -> pathlib.Path:
-        path = self.get_file(".secret.key")
-        if path.exists() and not override:
-            return path
         generated_key = Fernet.generate_key()
         self.encoding_key = generated_key
-        with open(path, "wb") as f:
-            f.write(generated_key)
-        logger.warning(f"Generated new secret key `{path}` make sure to keep it safe.")
-        return path
+        logger.info(f"Generated new secret key: {generated_key.decode('utf-8')}")
+        logger.info("keep that secret securely")
+        logger.info(f"export BABYLON_ENCODING_KEY={generated_key.decode('utf-8')}")
 
     @staticmethod
     def encrypt_content(encoding_key: bytes, content: bytes) -> bytes:

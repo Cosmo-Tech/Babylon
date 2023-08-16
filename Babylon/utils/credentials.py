@@ -1,74 +1,64 @@
+import sys
 import logging
-from functools import wraps
-from typing import Any
-from typing import Callable
 
+from functools import wraps
+from typing import Callable
+from typing import Any
 from azure.core.exceptions import ClientAuthenticationError
-from azure.identity import (
-    InteractiveBrowserCredential,
-    TokenCachePersistenceOptions,
-    AuthenticationRecord,
-    EnvironmentCredential,
-    CredentialUnavailableError,
-)
+from azure.identity import ClientSecretCredential
+from azure.identity import CredentialUnavailableError
+from click import option
+
+from Babylon.utils.checkers import check_email
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
+env = Environment()
+
+
+def get_powerbi_token(email: str = None) -> str:
+    """Returns an powerbi token"""
+    if email:
+        access_token = env.get_access_token_with_refresh_token(username=email, internal_scope="powerbi")
+        return access_token
+    credentials = get_azure_credentials()
+    env.AZURE_SCOPES.update({"powerbi": env.configuration.get_var(resource_id="powerbi", var_name="scope")})
+    logger.debug(f"Getting azure token with scope {env.AZURE_SCOPES['powerbi']}")
+    try:
+        token = credentials.get_token(env.AZURE_SCOPES['powerbi'])
+    except ClientAuthenticationError:
+        logger.error(f"Could not get token with scope {env.AZURE_SCOPES['powerbi']}")
+        sys.exit(1)
+    return token.token
 
 
 def get_azure_token(scope: str = "default") -> str:
     """Returns an azure token"""
-    # Getting scope url from utils.scope
-    SCOPES = {
-        "graph": "https://graph.microsoft.com/.default",
-        "default": "https://management.azure.com/.default",
-        "powerbi": Environment().configuration.get_deploy_var("powerbi_api_scope"),
-        "csm_api": Environment().configuration.get_platform_var("api_scope"),
-    }
     credentials = get_azure_credentials()
-    scope_url = SCOPES[scope.lower()]
+    env.AZURE_SCOPES.update({"csm_api": env.configuration.get_var(resource_id="api", var_name="scope")})
+    scope_url = env.AZURE_SCOPES[scope.lower()]
     logger.debug(f"Getting azure token with scope {scope_url}")
     try:
         token = credentials.get_token(scope_url)
     except ClientAuthenticationError:
         logger.error(f"Could not get token with scope {scope_url}")
-        raise ConnectionError(f"Could not connect to Azure API with scope {scope_url}")
+        sys.exit(1)
     return token.token
 
 
-def get_azure_credentials() -> Any:
+def get_azure_credentials() -> ClientSecretCredential:
     """Logs to Azure and saves the token as a config variable"""
-    env = Environment()
     credential = None
-    redirect_uri_port = env.configuration.get_platform_var("redirect_uri") or "8842"
-    redirect_uri = f"http://localhost:{redirect_uri_port}"
-
+    babylon_client_id = env.configuration.get_var(resource_id="babylon", var_name="client_id")
     try:
-        credential = EnvironmentCredential(logging_enable=True)
-        if credential._credential is None:
+        baby_client_secret = env.get_env_babylon(name="client")
+        credential = ClientSecretCredential(client_id=babylon_client_id,
+                                            tenant_id=env.tenant_id,
+                                            client_secret=baby_client_secret)
+        if credential is None:
             raise AttributeError
-    except (CredentialUnavailableError, AttributeError):
-        deserialized_record = None
-
-        cached_credentials = env.working_dir.get_file_content(".secrets.yaml.encrypt")
-        if cached_credentials.get("babylon"):
-            deserialized_record = AuthenticationRecord.deserialize(
-                str(cached_credentials.get("babylon")).replace("'", '"'))
-            logger.info("Using previously cached credentials...")
-
-        cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
-        credential = InteractiveBrowserCredential(
-            cache_persistence_options=cpo,
-            authentication_record=deserialized_record,
-            redirect_uri=redirect_uri,
-        )
-
-        if not cached_credentials.get("babylon"):
-            record = credential.authenticate(kwargs={'scopes': "https://management.azure.com/.default"})
-            logger.info("No valid cached credentials, login...")
-            cached_credentials = record.serialize()
-            env.working_dir.set_encrypted_yaml_key(".secrets.yaml.encrypt", "babylon", cached_credentials)
-
+    except (CredentialUnavailableError, AttributeError) as exp:
+        logger.error(exp)
     return credential
 
 
@@ -83,6 +73,17 @@ def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
+def pass_powerbi_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Grab powerbi credentials and pass credentials"""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        kwargs["powerbi_credentials"] = get_azure_token()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
     """Logs to Azure and pass token"""
 
@@ -91,6 +92,25 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             kwargs["azure_token"] = get_azure_token(scope)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return wrap_function
+
+
+def pass_powerbi_token() -> Callable[..., Any]:
+    """Logs to powerbi and pass token"""
+
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
+        @option("-e", "--email", "email", help="User email")
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            email = kwargs.pop("email", None)
+            if email:
+                check_email(email)
+            kwargs["powerbi_token"] = get_powerbi_token(email)
             return func(*args, **kwargs)
 
         return wrapper
