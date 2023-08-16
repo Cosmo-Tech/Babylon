@@ -1,11 +1,12 @@
 from click import group
-
-from .deploy_workspace import deploy_workspace
+from Babylon.utils.environment import Environment
 from .resume import resume
 from .suspend import suspend
 from .dataset import dataset
 from .workspace import workspace
 from .report import report
+
+env = Environment()
 
 list_groups = [
     dataset,
@@ -13,12 +14,18 @@ list_groups = [
     report,
 ]
 
-list_commands = [deploy_workspace, resume, suspend]
+list_commands = [workspace, resume, suspend]
 
 
 @group()
 def powerbi():
-    """Group handling communication with PowerBI API"""
+    """Group handling communication with PowerBI API\n
+    \b 
+    Optional:\n
+    Environment variable to get access token with a user email\n
+    - BABYLON_ENCODING_KEY
+    """
+    env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
 
 
 for _command in list_commands:
