@@ -1,19 +1,23 @@
 import pathlib
 import logging
-import pprint
-from typing import Any
-from typing import Union
-from typing import Optional
 import shutil
 import subprocess
 import sys
-
 import click
-import yaml
+import tempfile
 
-from . import TEMPLATE_FOLDER_PATH
-from .yaml_utils import read_yaml_key
-from .yaml_utils import write_yaml_value
+from . import ORIGINAL_TEMPLATE_FOLDER_PATH
+from hvac import Client
+from typing import Any
+from typing import Optional
+from mako.template import Template
+from Babylon.config import config_files
+from Babylon.config import pwd
+from Babylon.config import get_settings_by_context
+from Babylon.utils.yaml_utils import get_file_config_from_keys
+from Babylon.utils.yaml_utils import read_yaml_key
+from Babylon.utils.yaml_utils import read_yaml_key_from_context
+from Babylon.utils.yaml_utils import write_yaml_value_from_context
 
 logger = logging.getLogger("Babylon")
 
@@ -24,25 +28,18 @@ class Configuration:
     """
 
     def __init__(self, config_directory: pathlib.Path):
+        self.context_id: str = ""
+        self.environ_id: str = ""
+        self.server_id: str = ""
         self.config_dir = config_directory
-        self.deploy = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "deploy")))
-        self.platform = pathlib.Path(str(read_yaml_key(self.config_dir / "config.yaml", "platform")))
-        self.plugins = read_yaml_key(self.config_dir / "config.yaml", "plugins") or list()
-        if not self.config_dir.exists() or not self.platform or not self.deploy:
-            logger.error("Configuration folder is empty.\n"
-                         "Please run `babylon config init` or set the environment variable BABYLON_CONFIG_DIRECTORY")
+        self.plugins = read_yaml_key(self.config_dir / "plugins.yaml", "plugins") or list()
 
-    def initialize(self):
-        if self.config_dir.exists():
-            logger.info("Configuration folder already exists")
-            return
-        shutil.copytree(TEMPLATE_FOLDER_PATH / "config_template", self.config_dir)
-        self.deploy = self.config_dir.absolute() / "deploy.yaml"
-        self.platform = self.config_dir.absolute() / "platform.yaml"
+    def initialize(self) -> bool:
+        if not self.config_dir.exists():
+            logger.error("Configuration folder does not exists.")
+
         self.plugins: list[dict[str, Any]] = list()
-        self.save_config()
-        logger.info(f"Successfully copied configuration in {self.config_dir}")
-        return
+        return True
 
     def get_active_plugins(self) -> list[(str, pathlib.Path)]:
         """
@@ -127,200 +124,111 @@ class Configuration:
         self.save_config()
         return str(plugin_name)
 
-    def set_deploy(self, deploy_path: pathlib.Path) -> bool:
-        """
-        Change configured deployment to the one given
-        :param deploy_path: the deployment path
-        :return: True if the change was a success
-        """
-        if not deploy_path.exists():
-            logger.error(f"{deploy_path} is not an existing deployment")
-            return False
-        self.deploy = deploy_path.absolute()
-        self.save_config()
-        return True
+    def get_path(self, resource_id: str) -> Optional[pathlib.Path]:
 
-    def set_platform(self, platform_path: pathlib.Path) -> bool:
-        """
-        Change configured platform to the one given
-        :param platform_path: the platform path
-        :return: True if the change was a success
-        """
-        if not platform_path.exists():
-            logger.error(f"{platform_path} is not an existing platform")
-            return False
-        self.platform = platform_path.absolute()
-        self.save_config()
-        return True
+        file_path = self.config_dir / f"{self.context_id}.{self.environ_id}.{resource_id}.yaml"
+        if not file_path.exists():
+            logger.info(f"You are trying to use {resource_id.upper()} group")
+            logger.info(f"With '{self.environ_id}' platform and '{self.context_id}' context.")
+            logger.info(f"File configuration: {self.context_id}.{self.environ_id}.{resource_id}.yaml not found.")
+            logger.info(f"Run: babylon -prj {self.context_id} -plt {self.environ_id} config init")
+            raise FileNotFoundError()
+        return file_path
 
-    def create_deploy(self, deploy_name: str):
+    def set_var(self, resource_id: str, var_name: str, var_value: Any) -> bool:
         """
-        Create a new deployment file from the template and open it with the default text editor
-        :param deploy_name: the name of the new deploy
+        Set <key>: <value> after in configuration file
         """
-        _target = self.config_dir / f"{deploy_name}.yaml"
+        if not (_path := self.get_path(resource_id)).exists():
+            return
+        write_yaml_value_from_context(_path, self.context_id, var_name, var_value)
+
+    def get_var(self, resource_id: str, var_name: str) -> str:
+        if not (_path := self.get_path(resource_id)).exists():
+            return
+        return read_yaml_key_from_context(_path, self.context_id, var_name)
+
+    def create(self, config_type: str):
+        """
+        Create a new config file from the template and open it with the default text editor
+        """
+        context_id = self.context_id.lower().strip()
+        environ_id = self.environ_id.lower().strip()
+        config_type = config_type.lower().strip()
+
+        _target = self.config_dir / f"{context_id}.{environ_id}.{config_type}.yaml"
         if _target.exists():
-            logger.error(f"Deployment {deploy_name} already exists")
+            logger.info(f"Config file {context_id}.{config_type} already exists")
             return
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/deploy.yaml", _target)
-        click.edit(filename=str(_t))
+        template_file = ORIGINAL_TEMPLATE_FOLDER_PATH / f"config_template/{config_type}.yaml"
+        if not template_file.exists():
+            sys.exit(1)
 
-    def create_platform(self, platform_name: str):
-        """
-        Create a new platform file from the template and open it with the default text editor
-        :param platform_name: the name of the new platform
-        """
-        _target = self.config_dir / f"{platform_name}.yaml"
-        if _target.exists():
-            logger.error(f"Platform {platform_name} already exists")
-            return
-        _t = shutil.copy(TEMPLATE_FOLDER_PATH / "config_template/platform.yaml", _target)
-        click.edit(filename=str(_t))
+        content = Template(filename=str(template_file)).render(context_id=context_id)
+        text = click.edit(text=content, require_save=True)
+        if text is None:
+            sys.exit(1)
+        tmpf = tempfile.NamedTemporaryFile(mode="w+")
+        tmpf.write(text)
+        tmpf.seek(0)
+        shutil.copy(tmpf.name, _target)
 
-    def edit_deploy(self, deploy_path: pathlib.Path):
-        """
-        Open a given deployment file with the default text editor
-        :param deploy_path: the path of the deployment
-        """
-        if not deploy_path.exists():
-            logger.error(f"Deployment {deploy_path} does not exists")
-            return
-        click.edit(filename=str(deploy_path))
+        _ret: list[str] = []
+        _ret.append(f"New config file: {context_id}.{environ_id}.{config_type}.yaml 🚀")
+        logger.info("\n".join(_ret))
 
-    def edit_platform(self, platform_path: pathlib.Path):
-        """
-        Open a given platform file with the default text editor
-        :param platform_path: the path of the platform
-        """
-        if not platform_path.exists():
-            logger.error(f"Platform {platform_path} does not exists")
-            return
-        click.edit(filename=str(platform_path))
+    def set_context(self, context_id):
+        self.context_id = context_id
 
-    def save_config(self):
-        """
-        Save the current config
-        """
-        with open(self.config_dir / "config.yaml", "r") as _file:
-            _d = yaml.safe_load(_file) or {}
-            _d['deploy'] = str(self.deploy)
-            _d['platform'] = str(self.platform)
-            _d['plugins'] = self.plugins
-        if _d.get("locked", False):
-            logger.error("Current config file is locked and won't be updated.")
-            return
-        logger.debug(f"Saving config:\n{pprint.pformat(_d)}")
-        yaml.safe_dump(_d, open(self.config_dir / "config.yaml", "w"))
+    def set_environ(self, environ_id):
+        self.environ_id = environ_id
 
-    def get_deploy_path(self) -> Optional[pathlib.Path]:
-        """
-        Get path to the current deployment file
-        :return: path to the current deployment file
-        """
-        if not self.deploy:
-            raise ValueError("Deploy path not found")
-        if self.deploy.is_absolute():
-            return self.deploy
-        return self.config_dir / self.deploy
+    def set_configuration_files_from_template(self, hvac_client: Client, template_name: str, tenant_id: str):
+        for _k in config_files:
+            key = f"{_k}"
+            yaml_config_file = self.config_dir / f"{self.context_id}.{template_name}.{_k}.yaml"
+            if not yaml_config_file.exists():
+                get_file_config_from_keys(
+                    hvac_client=hvac_client,
+                    context_id=self.context_id,
+                    config_file=yaml_config_file,
+                    tenant_id=tenant_id,
+                    key_name=key,
+                    resource=template_name,
+                )
+                continue
 
-    def get_platform_path(self) -> Optional[pathlib.Path]:
-        """
-        Get path to the current platform file
-        :return: path to the current platform file
-        """
-        if not self.platform:
-            raise ValueError("Platform file not found")
-        if self.platform.is_absolute():
-            return self.platform
-        return self.config_dir / self.platform
-
-    def get_deploy_var(self, var_name: str) -> Optional[object]:
-        """
-        Read a key value from the current deployment file
-        :param var_name: the key to read
-        :return: the value of the key in the deployment file if exists else None
-        """
-        if not (_path := self.get_deploy_path()).exists():
-            logger.error(f"Deploy file {_path} does not exists")
-            raise ValueError(f"Deploy file {_path} does not exists")
-        return read_yaml_key(_path, var_name)
-
-    def get_platform_var(self, var_name: str) -> Optional[object]:
-        """
-        Read a key value from the current platform file
-        :param var_name: the key to read
-        :return: the value of the key in the platform file if exists else None
-        """
-        if not (_path := self.get_platform_path()).exists():
-            logger.error(f"Platform file {_path} does not exists")
-            raise ValueError(f"Platform file {_path} does not exists")
-        return read_yaml_key(_path, var_name)
-
-    def set_deploy_var(self, var_name: Union[str, list[str]], var_value: Any) -> None:
-        """
-        Set key value in current deployment configuration file
-        :param var_name: the key to set
-        :param var_value: the value to assign
-        """
-        if not (_path := self.get_deploy_path()).exists():
-            return
-        write_yaml_value(_path, var_name, var_value)
-
-    def set_platform_var(self, var_name: str, var_value: Any) -> None:
-        """
-        Set key value in current platform configuration file
-        :param var_name: the key to set
-        :param var_value: the value to assign
-        """
-        if not (_path := self.get_platform_path()).exists():
-            return
-        write_yaml_value(_path, var_name, var_value)
-
-    def get_deploy(self) -> Any:
-        """
-        Get deploy file after a yaml load
-        :return: result of yaml.safe_load for the deploy file
-        """
-        if not (_path := self.get_deploy_path()).exists():
-            return dict()
-        with _path.open("r") as _f:
-            return yaml.safe_load(_f)
-
-    def get_platform(self) -> Any:
-        """
-        Get platform file after a yaml load
-        :return: result of yaml.safe_load for the platform file
-        """
-        if not (_path := self.get_platform_path()).exists():
-            return dict()
-        with _path.open("r") as _f:
-            return yaml.safe_load(_f)
-
-    def check_api(self) -> bool:
-        """
-        :return: True if the api targeted in the deploy is the same as the platform we use
-        """
-        config_platform = self.get_platform_var("api_url")
-        target_platform = self.get_deploy_var("api_url")
-
-        if config_platform != target_platform:
-            logger.warning("The platform targeted by the deploy is not the platform configured.")
-            logger.warning(f"  deploy  : {target_platform}")
-            logger.warning(f"  platform: {config_platform}")
-            return False
-        return True
+        logger.info(f"Context: '{self.context_id}'")
+        logger.info(f"Platform: '{self.environ_id}'")
+        logger.info("Successfully initialized")
 
     def __str__(self) -> str:
-        _ret: list[str] = ["Configuration:", f"  dir: {self.config_dir}", f"  deployment: {self.deploy}"]
-        with open(self.get_deploy_path(), "r") as _file:
-            for k, v in yaml.safe_load(_file).items():
-                _ret.append(f"    {k}: {v}")
-        _ret.append(f"  platform: {self.platform}")
-        with open(self.get_platform_path(), "r") as _file:
-            for k, v in yaml.safe_load(_file).items():
-                _ret.append(f"    {k}: {v}")
-        _ret.append("  plugins:")
+        _ret: list[str] = ["Configuration:"]
+        _ret.append(f"  context: '{self.context_id}'")
+        _ret.append(f"  platform: '{self.environ_id}'")
+        _ret.append("  plugins: ")
         for plugin in self.plugins:
             state = "[x]" if plugin.get('active') else "[ ]"
             _ret.append(f"    {state} {plugin['name']}: {plugin['path']}")
+
+        _ret.append("  resources: ")
+        for config in config_files:
+            _settings = get_settings_by_context(pwd / self.config_dir,
+                                                resource=config,
+                                                context_id=self.context_id,
+                                                environ_id=self.environ_id)
+            _ret.append(f"    [{config}]")
+            for k, v in _settings.items():
+                if isinstance(v, dict):
+                    _rett: list[str] = [f"      [{k}]"]
+                    for m, p in v.items():
+                        _rett.append(f"         • {m}: {p}")
+                    _ret.append("\n".join(_rett))
+                elif isinstance(v, list):
+                    _rett: list[str] = [f"      [{k}]"]
+                    for m, p in enumerate(v):
+                        _rett.append(f"         • {m}: {p}")
+                    _ret.append("\n".join(_rett))
+                else:
+                    _ret.append(f"      • {k}: {v}")
         return "\n".join(_ret)

@@ -1,17 +1,18 @@
 import json
 import logging
+
 from typing import Any
 from typing import Optional
 from typing import Callable
 from pathlib import Path
 from time import sleep
 from rich.progress import Progress, SpinnerColumn, TextColumn
-
 from .response import CommandResponse
 from .command_helper import run_command
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 class Macro():
@@ -32,14 +33,15 @@ class Macro():
     def __init__(self, name: str):
         self.name = name
         self._responses: list[CommandResponse] = []
-        self.env = Environment()
+        self.env = env
         self._status = self.STATUS_OK
 
-    def step(self,
-             command_line: list[str],
-             store_at: Optional[str] = None,
-             is_required: bool = True,
-             run_if: bool = True) -> "Macro":
+    def step(
+        self,
+        command_line: list[str],
+        is_required: bool = True,
+        store_at: Optional[str] = None,
+    ) -> "Macro":
         """
         Calls a function within the context of the macro
         :param command_line: command line arguments
@@ -48,20 +50,18 @@ class Macro():
         :param run_if: run this step only if this argument is True.
         :return: The original macro used for method chaining
         """
-        if self._status != self.STATUS_OK or not run_if:
-            logger.warning(f"Skipping command {' '.join(command_line)}...")
-            return self
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
                       transient=True) as progress:
-            progress.add_task(' '.join(command_line))
+            prefix = ["-prj", self.env.context_id, "-plt", self.env.environ_id]
+            cmd_line = prefix + command_line
+            progress.add_task(" ".join(cmd_line))
             self.env.is_verbose = False
-            self._responses.append(run_command(command_line))
-            self.env.is_verbose = True
-            if is_required and self._responses[-1].has_failed():
+            res = run_command(cmd_line)
+            self._responses.append(res.to_dict())
+            if is_required and self._responses[-1]["status_code"]:
                 self._status = self.STATUS_ERROR
-                return self
             if store_at:
-                self.env.store_data(store_at.split("."), self._responses[-1].to_dict())
+                self.env.store_data(store_at.split("."), self._responses[-1]['data'])
         return self
 
     def then(self, func: Callable[["Macro"], Any], store_at: Optional[str] = None, run_if: bool = True) -> "Macro":
@@ -73,7 +73,6 @@ class Macro():
         :return: The original macro used for method chaining
         """
         if self._status != self.STATUS_OK or not run_if:
-            logger.warning("Skipping function")
             return self
         response = func(self)
         if store_at:
