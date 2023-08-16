@@ -1,25 +1,26 @@
+import os
 import logging
 import pathlib
-import os
+import git
 
+from typing import Any
 from click import command
 from click import argument
 from click import Path
-import git
-
-from ...utils.response import CommandResponse
-from ...utils.decorators import require_deployment_key
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@require_deployment_key("webapp_repository_branch")
-@argument("file",
-          type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
-                    exists=True))
-def upload_file(webapp_repository_branch: str, file: pathlib.Path) -> CommandResponse:
-    """Upload a file to the webapp github repository"""
+@wrapcontext()
+@argument("file", type=Path(path_type=pathlib.Path, exists=True))
+@inject_context_with_resource({'github': ['branch', 'repository']})
+def upload_file(context: Any, file: pathlib.Path) -> CommandResponse:
+    """
+    Upload a file to the webapp github repository
+    """
     # Get parent git repository of the workflow file
     parent_repo = None
     for parent in file.parents:
@@ -27,9 +28,9 @@ def upload_file(webapp_repository_branch: str, file: pathlib.Path) -> CommandRes
             parent_repo = parent
             break
     repo = git.Repo(parent_repo)
-    if not repo.active_branch == webapp_repository_branch:
-        logger.info(f"Checking out to branch {webapp_repository_branch}")
-        repo.git.checkout(webapp_repository_branch)
+    if not repo.active_branch == context['github_branch']:
+        logger.info(f"Checking out to branch {context['github_branch']}")
+        repo.git.checkout(context['github_branch'])
     # Committing file
     files = [file]
     if file.is_dir():
@@ -41,5 +42,5 @@ def upload_file(webapp_repository_branch: str, file: pathlib.Path) -> CommandRes
         repo.index.commit(f"Babylon: updated file '{rel_file}'")
     # Pushing commit
     repo.remotes.origin.push()
-    logger.info("Successfully uploaded files to remote repository")
+    logger.info("Successfully uploaded")
     return CommandResponse.success()
