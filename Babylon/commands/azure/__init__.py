@@ -1,6 +1,7 @@
 import logging
 
 from click import group as c_group
+from Babylon.utils.decorators import wrapcontext
 
 from Babylon.utils.environment import Environment
 from .ad import ad
@@ -35,6 +36,7 @@ list_groups = [
 
 
 @c_group()
+@wrapcontext
 def azure():
     """Group allowing communication with Microsoft Azure Cloud"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])

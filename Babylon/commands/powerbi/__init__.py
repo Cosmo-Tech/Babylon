@@ -1,4 +1,5 @@
 from click import group
+from Babylon.utils.decorators import wrapcontext
 
 from Babylon.utils.environment import Environment
 from .resume import resume
@@ -19,6 +20,7 @@ list_commands = [workspace, resume, suspend]
 
 
 @group()
+@wrapcontext
 def powerbi():
     """Group handling communication with PowerBI API\n
     \b 

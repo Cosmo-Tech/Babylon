@@ -1,4 +1,5 @@
 from click import group
+from Babylon.utils.decorators import wrapcontext
 
 from Babylon.utils.environment import Environment
 from .runs import runs
@@ -9,8 +10,9 @@ env = Environment()
 
 
 @group()
+@wrapcontext
 def github():
-    """Group made to work with github Rest API"""
+    """Group allowing communication with Github REST API"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
 
 

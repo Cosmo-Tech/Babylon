@@ -1,4 +1,5 @@
 from click import group
+from Babylon.utils.decorators import wrapcontext
 
 from Babylon.utils.environment import Environment
 from .set import set
@@ -21,6 +22,7 @@ list_groups = []
 
 
 @group()
+@wrapcontext
 def config():
     """Group made to work on the config"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
