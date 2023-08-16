@@ -1,7 +1,6 @@
 from click import group
 from click import pass_context
 from click.core import Context
-
 from .activate import activate
 from .add import add
 from .deactivate import deactivate
@@ -18,7 +17,7 @@ list_commands = [
 @group()
 @pass_context
 def plugin(ctx: Context):
-    """Sub-group for plugins"""
+    """Subgroup for plugins"""
     pass
 
 

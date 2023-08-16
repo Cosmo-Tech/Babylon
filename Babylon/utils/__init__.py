@@ -1,4 +1,5 @@
 import pathlib
 
 BABYLON_PATH = list(pathlib.Path(__file__).parents)[1]
-TEMPLATE_FOLDER_PATH = BABYLON_PATH / "templates"
+ORIGINAL_TEMPLATE_FOLDER_PATH = BABYLON_PATH / "templates"
+ORIGINAL_CONFIG_FOLDER_PATH = BABYLON_PATH / "templates" / "config"
