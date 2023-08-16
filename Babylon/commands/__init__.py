@@ -6,9 +6,14 @@ from .config import config
 from .vault import vault
 from .git_hub import github
 from .terraform_cloud import terraform_cloud
-from .working_dir import working_dir
+from .plugin import plugin
 
 list_groups = [
+    api,
+    azure,
+    config,
+    plugin,
+    powerbi,
     webapp,
     powerbi,
     terraform_cloud,

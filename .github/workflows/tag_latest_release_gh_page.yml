@@ -13,11 +13,11 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install -e .
-      - run: pip install -r plugins/dev_tools/requirements.txt
+      - run: pip install -r requirements.txt
       - name: Extract version
-        shell: bash
-        run: echo "##[set-output name=version;]$(python -c 'from Babylon.version import VERSION; print(VERSION)')"
         id: version
+        run: echo "version=$(babylon --version)" >> $GITHUB_OUTPUT
+        shell: bash
       - name: Configure Git user
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"

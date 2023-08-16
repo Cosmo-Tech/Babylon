@@ -59,11 +59,12 @@ def print_version(ctx, param, value):
 def main(tests_mode, interactive):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
-The following environment variables are available to override the working directory or the configuration:
+The following environment variables are required:
 
 \b
-- `BABYLON_CONFIG_DIRECTORY`: path to a folder to use as a configuration directory
-- `BABYLON_WORKING_DIRECTORY`: path to a folder to use as a working directory
+- BABYLON_SERVICE: Vault Service URI
+- BABYLON_TOKEN: Access Token for Vault Server
+- BABYLON_ORG_NAME: Organization Name
     """
     if not tests_mode:
         sys.tracebacklimit = 0

@@ -29,14 +29,13 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("-f",
-        "--file",
+@option("--file",
         "w_file",
         type=Path(path_type=pathlib.Path),
         help="Your custom workspace description file (yaml or json)")
-@option("-e", "--email", "security_id", help="Workspace security_id aka email")
-@option("-r", "--role", "security_role", required=True, default="Admin", help="Workspace security role")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this new workspace in configuration")
+@option("--email", "security_id", help="Workspace security_id aka email")
+@option("--role", "security_role", required=True, default="Admin", help="Workspace security role")
+@option("--select", "select", is_flag=True, default=True, help="Save this new workspace in configuration")
 @argument("name", type=QueryType())
 @inject_context_with_resource({
     "azure": ['email'],

@@ -1,12 +1,12 @@
 site_name: babylon
-repo_url: https://github.com/Cosmo-Tech/Babylon
+repo_url: https://github.com/Cosmo-Tech/Babylon/home
 repo_name: Cosmo-Tech/Babylon
 
 theme:
   name: material
   font:
     code: Fira Mono
-  logo: img/logo.png
+  logo: assets/img/logo.png
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -36,55 +36,48 @@ extra:
   version:
     provider: mike
 nav:
-    - Home: 'index.md'
-    - Getting started:
-      - Installation: 'installation.md'
-      - Dependencies: 'dependencies.md'
-    - Concepts:
-        - Contribute: 'contribute.md'
-        - Environments: 'environment.md'
-        - Plugins: 'plugins.md'
-        - Macro commands: 'macro.md'
-        - Secrets management: 'Utils/secret_management.md'
-        - Authentication: 'authentication.md'
-    - References:
-        - babylon: 'cli.md'
-        - classes:
-            - Configuration: 'Utils/config.md'
-            - Working Directory: 'Utils/working_dir.md'
-        - typing: 'Utils/typing.md'
-        - functions:
-            - Decorators: 'Utils/decorators.md'
-            - Others: 'Utils/others.md'
-        - plugins:
-            - Dev-tools: 'plugins/devtools.md'
+  - Home: 'index.md'
+  - Getting started:
+    - Installation: 'getting_started/installation.md'
+    - Dependencies: 'getting_started/dependencies.md'
+  - Concepts:
+      - Contribute: 'concepts/contribute.md'
+      - Environments: 'concepts/environment.md'
+      - Macro commands: 'concepts/macro.md'
+      - Secrets management: 'concepts/secret_management.md'
+  - References:
+      - babylon: 'references/cli.md'
+      - typing: 'references/typing.md'
+      - functions:
+          - Decorators: 'references/decorators.md'
+          - Others: 'references/others.md'
 
 markdown_extensions:
-    - mkdocs-click
-    - admonition
-    - attr_list
-    - footnotes
-    - md_in_html
-    - tables
-    - def_list
-    - pymdownx.details
-    - pymdownx.snippets
-    - pymdownx.superfences
-    - pymdownx.critic
-    - pymdownx.caret
-    - pymdownx.keys
-    - pymdownx.mark
-    - pymdownx.tilde
-    - pymdownx.tabbed:
-        alternate_style: true
-    - pymdownx.emoji:
-        emoji_index: !!python/name:materialx.emoji.twemoji
-        emoji_generator: !!python/name:materialx.emoji.to_svg
+  - mkdocs-click
+  - admonition
+  - attr_list
+  - footnotes
+  - md_in_html
+  - tables
+  - def_list
+  - pymdownx.details
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 plugins:
     - search
     - mkdocstrings
     - gen-files:
         scripts:
-          - scripts/generate_dependencies_markdown.py
           - scripts/generate_index.py
+          - scripts/generate_dependencies.py
     - mike

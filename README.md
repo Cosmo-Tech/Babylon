@@ -21,5 +21,3 @@ pip install .
 ```
 
 After installation, you should have access to the `babylon` command.
-
-![Babylon Example](docs/img/example_babylon.gif)

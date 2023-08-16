@@ -9,8 +9,8 @@ version = get_version()
 setup(
     name='Babylon',
     version=version,
-    author='Alexis Fossart',
-    author_email='alexis.fossart@cosmotech.com',
+    author='Cosmo Tech',
+    author_email='nibaldo.donoso@cosmotech.com',
     url="https://github.com/Cosmo-Tech/Babylon",
     description='A CLI made to simplify interaction between Cosmo solutions and Azure',
     packages=find_packages(),
