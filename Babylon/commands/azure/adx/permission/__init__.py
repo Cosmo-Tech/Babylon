@@ -15,7 +15,7 @@ list_commands = [
 
 @group()
 def permission():
-    """Group interacting with ADX permissions"""
+    """ADX permissions"""
     pass
 
 

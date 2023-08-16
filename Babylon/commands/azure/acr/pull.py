@@ -1,57 +1,53 @@
-import logging
-import typing
-
 import docker
+import logging
+
+from typing import Any, Optional
 from click import command
 from click import option
-
-from ....utils.decorators import require_deployment_key
-from ....utils.decorators import require_platform_key
-from ....utils.decorators import timing_decorator
-from ....utils.typing import QueryType
-from ....utils.response import CommandResponse
-from ....utils.clients import get_docker_client
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.typing import QueryType
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import get_docker_client
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
-@require_platform_key("csm_acr_registry_name")
-@require_deployment_key("csm_simulator_repository")
-@require_deployment_key("simulator_version")
-@require_deployment_key("simulator_repository")
-@option("-r", "--registry", type=QueryType(), help="Container Registry name to pull from, ex: myregistry.azurecr.io")
-@option("-i", "--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
+@wrapcontext()
 @timing_decorator
-def pull(csm_acr_registry_name: str,
-         csm_simulator_repository: str,
-         simulator_repository: str,
-         simulator_version: str,
-         registry: typing.Optional[str] = None,
-         image: typing.Optional[str] = None) -> CommandResponse:
-    """Pulls a docker image from the ACR registry given in platform configuration.
-       Also tag the docker image into the new reference (docker tag).
+@option("-i", "--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
+@option("-s", "--select", "select", is_flag=True, default=True, help="Select this repository in configuration")
+@inject_context_with_resource({'acr': ['login_server', 'simulator_repository', 'simulator_version']}, required=False)
+def pull(context: Any, select: bool, image: Optional[str] = None) -> CommandResponse:
     """
-    image = image or f"{csm_simulator_repository}:{simulator_version}"
-    registry = registry or csm_acr_registry_name
-    client = get_docker_client(registry)
+    Pulls a docker image from the ACR registry
+    """
+    registry_server = context['acr_login_server']
+    image = image or f"{context['acr_simulator_repository']}:{context['acr_simulator_version']}"
+    client = get_docker_client(registry=registry_server)
     if not client:
         return CommandResponse.fail()
-    repo = f"{registry}/{image}"
-    logger.info(f"Pulling remote image {image} from registry {registry}")
+    repo = f"{registry_server}/{image}"
+    logger.info(f"Pulling remote image {image} from registry {registry_server}")
     try:
         img = client.images.pull(repository=repo)
         logger.debug("Renaming local image without registry prefix")
-        img.tag(f"{simulator_repository}:{simulator_version}")
+        img.tag(image)
         logger.debug("Removing local image with registry prefix")
         client.images.remove(image=repo)
     except docker.errors.NotFound:
-        logger.error(f"Image {image} not found in registry {registry} ")
+        logger.error(f"Image {image} not found in registry {registry_server} ")
         return CommandResponse.fail()
     except docker.errors.APIError as api_error:
         logger.error(api_error)
         return CommandResponse.fail()
     except Exception as e:
         logger.error(str(e))
-    logger.info(f"Successfully pulled image {image} from registry {registry}")
+    if select:
+        env.configuration.set_var(resource_id="acr", var_name="simulator_repository", var_value=image.split(":")[0])
+        env.configuration.set_var(resource_id="acr", var_name="simulator_version", var_value=image.split(":")[1])
+    logger.info(f"Successfully pulled image {image} from registry {registry_server}")
     return CommandResponse.success()

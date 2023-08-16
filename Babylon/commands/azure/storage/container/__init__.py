@@ -1,19 +1,15 @@
 from click import group
-
 from .create import create
 from .delete import delete
 from .get_all import get_all
+from .upload import upload
 
-list_commands = [
-    delete,
-    create,
-    get_all,
-]
+list_commands = [delete, create, get_all, upload]
 
 
 @group()
 def container():
-    """Group interacting with Azure Storage Blob containers"""
+    """Azure Storage Blob containers"""
     pass
 
 

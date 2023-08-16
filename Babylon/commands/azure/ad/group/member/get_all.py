@@ -2,20 +2,20 @@ import logging
 
 from click import command
 from click import argument
-
-from ......utils.request import oauth_request
-from ......utils.response import CommandResponse
-from ......utils.decorators import output_to_file
-from ......utils.credentials import pass_azure_token
-from ......utils.typing import QueryType
+from Babylon.utils.request import oauth_request
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.decorators import output_to_file, wrapcontext
+from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext()
+@output_to_file
 @pass_azure_token("graph")
 @argument("group_id", type=QueryType())
-@output_to_file
 def get_all(azure_token: str, group_id: str) -> CommandResponse:
     """
     Get members of a group in active directory

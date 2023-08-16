@@ -1,29 +1,32 @@
 import logging
 
+from typing import Any
 from click import command
 from click import argument
-
-from .....utils.request import oauth_request
-from .....utils.decorators import require_platform_key
-from .....utils.response import CommandResponse
-from .....utils.credentials import pass_azure_token
-from .....utils.typing import QueryType
+from Babylon.utils.request import oauth_request
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.environment import Environment
+from Babylon.utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
+@wrapcontext()
 @pass_azure_token()
-@require_platform_key("azure_subscription", "azure_subscription")
-@require_platform_key("resource_group_name", "resource_group_name")
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())
-def get(azure_token: str, azure_subscription: str, resource_group_name: str, webapp_name: str,
-        domain_name: str) -> CommandResponse:
+@inject_context_with_resource({'azure': ['resource_group_name', 'subscription_id']})
+def get(context: Any, azure_token: str, webapp_name: str, domain_name: str) -> CommandResponse:
     """
     Get a static webapp custom domain for the given static web app
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/get-static-site-custom-domain
     """
+    azure_subscription = context['azure_subscription_id']
+    resource_group_name = context['azure_resource_group_name']
     response = oauth_request(
         f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
         f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01",
