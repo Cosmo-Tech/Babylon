@@ -1,5 +1,4 @@
 from click import group
-
 from .container import container
 
 list_groups = [
@@ -9,7 +8,7 @@ list_groups = [
 
 @group()
 def storage():
-    """Group interacting with Azure Storage Blob"""
+    """Azure Storage Blob"""
     pass
 
 

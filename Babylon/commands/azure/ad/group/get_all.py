@@ -1,22 +1,21 @@
 import logging
-from typing import Optional
-
-from click import command
-from click import option
 import jmespath
 
-from .....utils.request import oauth_request
-from .....utils.response import CommandResponse
-from .....utils.decorators import output_to_file
-from .....utils.credentials import pass_azure_token
+from typing import Optional
+from click import command
+from click import option
+from Babylon.utils.request import oauth_request
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.credentials import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@output_to_file
 @pass_azure_token("graph")
 @option("--filter", "filter", help="Filter response with a jmespath query")
-@output_to_file
 def get_all(azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     """
     Get all AD groups from current subscription

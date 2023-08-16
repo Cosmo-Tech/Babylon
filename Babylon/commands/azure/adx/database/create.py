@@ -1,56 +1,59 @@
 import logging
-from typing import Optional
 
-from click import argument, command, option
+from typing import Any, Optional
+from click import Context, argument, command, option, pass_context
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.kusto.models import ReadWriteDatabase
 from azure.mgmt.kusto.models import CheckNameRequest
-
+from Babylon.utils.checkers import check_ascii
+from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.typing import QueryType
-
-from .....utils.clients import pass_kusto_client
-from .....utils.environment import Environment
-from .....utils.response import CommandResponse
-from .....utils.decorators import require_deployment_key
-from .....utils.decorators import require_platform_key
-from .....utils.decorators import timing_decorator
+from Babylon.utils.clients import pass_kusto_client
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import timing_decorator
 
 from datetime import timedelta
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
+@pass_context
 @pass_kusto_client
-@require_deployment_key("resource_group_name")
-@require_deployment_key('resources_location')
-@require_platform_key('adx_cluster_name')
 @timing_decorator
-@option(
-    "-s",
-    "--select",
-    "select",
-    is_flag=True,
-    help="Select this new database in configuration ?",
-)
-@argument("database_name", type=QueryType(), default="%deploy%adx_database_name")
-def create(kusto_client: KustoManagementClient,
-           resource_group_name: str,
-           resources_location: str,
-           adx_cluster_name: str,
-           database_name: Optional[str] = None,
+@option("-s", "--select", "select", is_flag=True, default=True, help="Save this new database in configuration")
+@argument("name", type=QueryType(), required=False)
+@inject_context_with_resource({
+    'api': ['organization_id', 'workspace_key'],
+    'azure': ['resource_location', 'resource_group_name'],
+    'adx': ['cluster_name']
+})
+def create(ctx: Context,
+           context: Any,
+           kusto_client: KustoManagementClient,
+           name: Optional[str] = None,
            select: bool = False) -> CommandResponse:
-    """Create database in ADX cluster"""
+    """
+    Create database in ADX cluster
+    """
+    check_ascii(name)
+    organization_id = context['api_organization_id']
+    workspace_key = context['api_workspace_key']
+    resource_location = context['azure_resource_location']
+    resource_group_name = context['azure_resource_group_name']
+    adx_cluster_name = context['adx_cluster_name']
 
-    # parameters
     # soft delete period by default 365 days
     # cache period by default 31 days
-    params_database = ReadWriteDatabase(location=resources_location,
+    params_database = ReadWriteDatabase(location=resource_location,
                                         soft_delete_period=timedelta(days=365),
                                         hot_cache_period=timedelta(days=31))
-
+    name = name or f"{organization_id}-{workspace_key}"
     try:
-        name_request = CheckNameRequest(name=database_name, type="Microsoft.Kusto/clusters/databases")
+        name_request = CheckNameRequest(name=name, type="Microsoft.Kusto/clusters/databases")
         name_result = kusto_client.databases.check_name_availability(resource_group_name=resource_group_name,
                                                                      cluster_name=adx_cluster_name,
                                                                      resource_name=name_request,
@@ -64,26 +67,22 @@ def create(kusto_client: KustoManagementClient,
     except Exception:
         return CommandResponse.fail()
 
-    try:
-        poller = kusto_client.databases.begin_create_or_update(resource_group_name=resource_group_name,
-                                                               cluster_name=adx_cluster_name,
-                                                               database_name=database_name,
-                                                               parameters=params_database,
-                                                               content_type="application/json")
-        poller.wait()
-        # check if done
-        if not poller.done():
-            return CommandResponse.fail()
-        # batabase created
-
-        if select:
-            logger.info("Updated configuration variable adx_database_name")
-            env = Environment()
-            env.configuration.set_deploy_var("adx_database_name", database_name)
-
-        _ret: list[str] = [f"Provisioning state: {poller.result().provisioning_state}"]
-        logger.info("\n".join(_ret))
-        return CommandResponse.success()
-    except Exception as ex:
-        logger.info(ex)
+    poller = kusto_client.databases.begin_create_or_update(resource_group_name=resource_group_name,
+                                                           cluster_name=adx_cluster_name,
+                                                           database_name=name,
+                                                           parameters=params_database,
+                                                           content_type="application/json")
+    poller.wait()
+    # check if done
+    if not poller.done():
         return CommandResponse.fail()
+    # batabase created
+    if select:
+        env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
+                                  var_name="database_name",
+                                  var_value=name.lower())
+        logger.info(SUCCESS_CONFIG_UPDATED("adx", "database_name"))
+
+    _ret: list[str] = [f"Provisioning state: {poller.result().provisioning_state}"]
+    logger.info("\n".join(_ret))
+    return CommandResponse.success()

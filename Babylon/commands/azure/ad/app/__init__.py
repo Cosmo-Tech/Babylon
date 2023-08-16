@@ -1,5 +1,4 @@
 from click import group
-
 from .password import password
 from .create import create
 from .delete import delete
@@ -15,7 +14,7 @@ list_groups = [password]
 
 @group()
 def app():
-    """Group interacting with Azure Active Directory Apps"""
+    """Azure Active Directory Apps"""
     pass
 
 

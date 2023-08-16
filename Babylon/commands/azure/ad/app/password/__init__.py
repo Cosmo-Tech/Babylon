@@ -1,5 +1,4 @@
 from click import group
-
 from .delete import delete
 from .create import create
 

@@ -1,5 +1,4 @@
 from click import group as c_group
-
 from .app import app
 from .group import group
 
@@ -11,7 +10,7 @@ list_groups = [
 
 @c_group()
 def ad():
-    """Group interacting with Azure Active Directory"""
+    """Azure Active Directory"""
 
 
 for _group in list_groups:

@@ -1,5 +1,4 @@
 from click import group
-
 from .member import member
 from .get_all import get_all
 
@@ -9,7 +8,7 @@ list_commands = [get_all]
 
 @group()
 def group():
-    """Group interacting with Azure Directory Groups"""
+    """Azure Directory Groups"""
     pass
 
 

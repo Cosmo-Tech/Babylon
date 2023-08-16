@@ -4,20 +4,56 @@ import logging
 import pathlib
 import pprint
 
-import click
+from click import Path
 from azure.core.exceptions import ResourceExistsError
 from azure.core.exceptions import ResourceNotFoundError
 from azure.digitaltwins.core import DigitalTwinsClient
 from click import argument
 from click import command
 from click import option
-
-from .....utils.decorators import describe_dry_run
-from .....utils.decorators import timing_decorator
-from .....utils.response import CommandResponse
-from .....utils.clients import pass_adt_client
+from Babylon.utils.decorators import describe_dry_run
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_adt_client
 
 logger = logging.getLogger("Babylon")
+
+
+@command()
+@timing_decorator
+@pass_adt_client
+@option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
+@describe_dry_run("Would go through the given file and upload the models to ADT")
+@argument("model_file_folder",
+          type=Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
+def upload(
+    adt_client: DigitalTwinsClient,
+    model_file_folder: pathlib.Path,
+    override_if_exists: bool = False,
+):
+    """
+    Upload MODEL_FILE_FOLDER content to adt
+    """
+
+    model_files = glob.glob(str(model_file_folder / "*.json"))
+    if not len(model_files):
+        return CommandResponse.fail()
+
+    for _model_file in model_files:
+        model_file = pathlib.Path(_model_file)
+        if model_file.suffix != ".json":
+            logger.error(f"{model_file} is not a json file")
+            continue
+
+        with open(model_file, "r") as file:
+            model_file_content = json.load(file)
+
+        if isinstance(model_file_content, list):
+            for model in model_file_content:
+                upload_one_model(adt_client, model, override_if_exists)
+            continue
+        upload_one_model(adt_client, model_file_content, override_if_exists)
+    return CommandResponse.success()
 
 
 def upload_one_model(adt_client: DigitalTwinsClient, model: dict, override: bool) -> bool:
@@ -52,38 +88,3 @@ def upload_one_model(adt_client: DigitalTwinsClient, model: dict, override: bool
         logger.error(f"Model {model_id} already exists")
         return False
     return True
-
-
-@command()
-@pass_adt_client
-@argument("model_file_folder",
-          type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
-@option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
-@describe_dry_run("Would go through the given file and upload the models to ADT")
-@timing_decorator
-def upload(
-    adt_client: DigitalTwinsClient,
-    model_file_folder: pathlib.Path,
-    override_if_exists: bool = False,
-):
-    """Upload MODEL_FILE_FOLDER content to adt
-
-    MODEL_FILE_FOLDER must be a folder containing json file"""
-
-    model_files = glob.glob(str(model_file_folder / "*.json"))
-    for _model_file in model_files:
-        model_file = pathlib.Path(_model_file)
-        if model_file.suffix != ".json":
-            logger.error(f"{model_file} is not a json file")
-            continue
-
-        with open(model_file, "r") as file:
-            model_file_content = json.load(file)
-
-        if isinstance(model_file_content, list):
-            for model in model_file_content:
-                upload_one_model(adt_client, model, override_if_exists)
-            continue
-        upload_one_model(adt_client, model_file_content, override_if_exists)
-
-    return CommandResponse.success()

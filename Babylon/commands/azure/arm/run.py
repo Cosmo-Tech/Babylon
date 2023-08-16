@@ -1,56 +1,83 @@
+import json
 import logging
+import pathlib
 
+from typing import Any
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.resource.resources.models import DeploymentMode
-from click import argument
+from azure.mgmt.resource.resources.models import Deployment
+from azure.mgmt.resource.resources.models import DeploymentProperties
+from click import argument, option
 from click import command
-
-from ....utils.environment import Environment
-from ....utils.decorators import require_deployment_key
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.clients import pass_arm_client
+from Babylon.utils.interactive import confirm_deploy_arm_mode
+from Babylon.utils.typing import QueryType
+from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_arm_client
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
 @pass_arm_client
-@argument("deployment-config-file-path")
-@require_deployment_key("resource_group_name")
-@timing_decorator
-def run(arm_client: ResourceManagementClient, deployment_config_file_path: str,
-        resource_group_name: str) -> CommandResponse:
-    """Apply a resource deployment config via arm deployment."""
-    env = Environment()
-    arm_deployment = env.working_dir.get_file_content(deployment_config_file_path)
-    if any(k not in arm_deployment for k in ["parameters", "template_uri", "deployment_name"]):
-        logger.error("ARM deployment file is missing keys")
-        return CommandResponse.fail()
-    parameters = {k: {'value': v} for k, v in dict(arm_deployment["parameters"]).items()}
-    deployment_properties = {
-        'properties': {
-            'mode': DeploymentMode.incremental,
-            'template_link': {
-                'uri': arm_deployment["template_uri"],
-            },
-            'parameters': parameters,
-        }
-    }
+@argument("deployment_name", type=QueryType())
+@option("-f", "--file", "deploy_file", type=str)
+@option("--complete-mode", "deploy_mode_complete", is_flag=True)
+@inject_context_with_resource({'api': ['organization_id', 'workspace_key'], 'azure': ['resource_group_name']})
+def run(
+    context: Any,
+    arm_client: ResourceManagementClient,
+    deployment_name: str,
+    deploy_file: str,
+    deploy_mode_complete: bool = False,
+) -> CommandResponse:
+    """
+    Apply a resource deployment config via arm template file in working directory
+    """
+    organization_id = context['api_organization_id']
+    workspace_key = context['api_workspace_key']
+    resource_group_name = context['azure_resource_group_name']
 
-    logger.info(f"Starting {arm_deployment['deployment_name']} deployment")
+    deploy_file = pathlib.Path(env.convert_template_path(deploy_file)) or pathlib.Path(deploy_file)
+    mode = DeploymentMode.INCREMENTAL
+    if deploy_mode_complete:
+        logger.warn("""Warning: In complete mode\n
+                    Resource Manager deletes resources that exist in the resource group,\n
+                    but aren't specified in the template.""")
+        if confirm_deploy_arm_mode():
+            mode = DeploymentMode.COMPLETE
+
+    if not deploy_file:
+        logger.error("Deploy file not found")
+        return CommandResponse.fail()
+
+    arm_template = env.fill_template(deploy_file,
+                                     data={
+                                         "instance_name": f"{organization_id.lower()}-{workspace_key.lower()}",
+                                         "organization_id": organization_id.lower(),
+                                         "workspace_key": workspace_key.lower()
+                                     })
+    arm_template = json.loads(arm_template)
+    parameters = {k: {"value": v['defaultValue']} for k, v in dict(arm_template["parameters"]).items()}
+    logger.info("Starting deployment")
 
     try:
-        arm_client.deployments.begin_create_or_update(
+        poller = arm_client.deployments.begin_create_or_update(
             resource_group_name=resource_group_name,
-            deployment_name=arm_deployment["deployment_name"],
-            parameters=deployment_properties,
+            deployment_name=deployment_name,
+            parameters=Deployment(
+                properties=DeploymentProperties(mode=mode, template=arm_template, parameters=parameters)),
         )
+        poller.wait()
+        if not poller.done():
+            return CommandResponse.fail()
+
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
         return CommandResponse.fail()
 
-    logger.info("Deployment created")
-
+    logger.info("Provisioning state: successful")
     return CommandResponse.success()

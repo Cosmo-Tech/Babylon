@@ -1,5 +1,4 @@
 from click import group
-
 from .instance import instance
 from .model import model
 
@@ -11,7 +10,7 @@ list_groups = [
 
 @group()
 def adt():
-    """Allow communication with Azure Digital Twin"""
+    """Azure Digital Twin"""
 
 
 for _group in list_groups:

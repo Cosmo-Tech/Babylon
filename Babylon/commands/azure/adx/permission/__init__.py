@@ -1,5 +1,4 @@
 from click import group
-
 from .delete import delete
 from .get import get
 from .get_all import get_all
@@ -15,7 +14,7 @@ list_commands = [
 
 @group()
 def permission():
-    """Group interacting with ADX permissions"""
+    """ADX permissions"""
     pass
 
 
