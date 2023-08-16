@@ -1,7 +1,0 @@
-## babylon config platform create
-
-### Commands
-```bash
-babylon config platform create test_platform
-```
-Should copy the template platform into the config folder.

@@ -1,7 +1,0 @@
-# babylon dev-tools initialize-group
-
-### Commands
-```bash
-babylon dev-tools initialize-group test_group test_group2
-```
-Should create a new group and subgroup needs to be checked in folder hierarchy

@@ -1,7 +1,0 @@
-## babylon working-dir complete
-
-### Commands
-```bash
-babylon working-dir complete
-```
-Should complete working directory with missing files from template

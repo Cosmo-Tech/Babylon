@@ -1,7 +1,0 @@
-## babylon config platform edit
-
-### Commands
-```bash
-babylon config platform edit test_platform
-```
-Should open the `test_platform` file with the default text editor

@@ -1,7 +1,0 @@
-## babylon dev-tools initialize-plugin
-
-### Commands
-```bash
-babylon dev-tools initialize-plugin test_plugin
-```
-Should create an empty plugin called `test_plugin`

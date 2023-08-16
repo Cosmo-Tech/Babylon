@@ -1,7 +1,0 @@
-## babylon terraform-cloud workspace delete
-
-### Commands
-```bash
-babylon terraform-cloud workspace delete
-```
-Should delete the workspace
