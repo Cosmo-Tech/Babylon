@@ -1,7 +1,0 @@
-## babylon config plugin activate
-
-### Commands
-```bash
-babylon config plugin activate dev_tools
-```
-Should activate a plugin. You need to add it and disable it first.

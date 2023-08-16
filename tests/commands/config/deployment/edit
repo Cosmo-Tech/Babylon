@@ -1,6 +1,0 @@
-## babylon config deployment edit
-### Commands
-```bash
-babylon config deployment edit test
-```
-Should create a new `test.yaml` file by copying the matching template file in the config directory.

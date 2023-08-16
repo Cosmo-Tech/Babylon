@@ -1,7 +1,0 @@
-## babylon dev-tools initialize-command
-
-### Commands
-```bash
-babylon dev-tools initialize-command test_group test_command
-```
-Should create a new command and a new group, can be tried with `babylon test_group test_command`

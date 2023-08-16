@@ -1,7 +1,0 @@
-## babylon terraform-cloud workspace outputs
-
-### Commands
-```bash
-babylon terraform-cloud workspace outputs
-```
-Should return an error for our workspace as no outputs exists for it

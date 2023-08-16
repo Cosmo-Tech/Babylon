@@ -1,7 +1,0 @@
-## babylon terraform-cloud workspace last-run
-
-### Commands
-```bash
-babylon terraform-cloud workspace last-run
-```
-Should return information close to the one of the previous commands (but with a different state)

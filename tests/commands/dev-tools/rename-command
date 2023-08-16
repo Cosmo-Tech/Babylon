@@ -1,7 +1,0 @@
-## babylon dev-tools rename-command
-
-### Commands
-```bash
-babylon dev-tools rename-command config display test_display
-```
-Should rename the `config display` command, test with `babylon config test_display`

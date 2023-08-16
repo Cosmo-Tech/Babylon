@@ -1,7 +1,0 @@
-## babylon webapp export-config
-
-### Commands
-```bash
-babylon webapp export-config -o [config_file.json]
-```
-Should export a json file containing needed data for the sample webapp.

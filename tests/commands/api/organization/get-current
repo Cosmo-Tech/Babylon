@@ -1,4 +1,0 @@
-## babylon api organization get-current
-`babylon api organization get-current`
-
-Do the same things as get but without `organization_id` argument, the `organization_id` in deploy config file will be used and is required in deploy config file.

@@ -1,7 +1,0 @@
-## babylon azure adx run-script
-
-### Commands
-```bash
-babylon azure adx run-script [script_file]
-```
-Should run the database script given in `script_file`
