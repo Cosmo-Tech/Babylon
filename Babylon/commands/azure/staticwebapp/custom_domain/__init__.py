@@ -1,5 +1,4 @@
 from click import group
-
 from .get import get
 from .get_all import get_all
 from .update import update
@@ -17,7 +16,7 @@ list_commands = [
 
 @group()
 def custom_domain():
-    """Group interacting with Azure Static Webapps custom domains"""
+    """Azure Static Webapps custom domains"""
     pass
 
 

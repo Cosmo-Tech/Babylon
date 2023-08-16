@@ -1,39 +1,36 @@
 import logging
-from typing import Optional
 
+from typing import Any, Optional
 from click import argument, command, option
 from azure.mgmt.kusto import KustoManagementClient
-
 from Babylon.utils.typing import QueryType
-from .....utils.clients import pass_kusto_client
-
-from .....utils.response import CommandResponse
-from .....utils.environment import Environment
-from .....utils.decorators import require_deployment_key
-from .....utils.decorators import require_platform_key
-from .....utils.decorators import timing_decorator
+from Babylon.utils.clients import pass_kusto_client
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
-@pass_kusto_client
-@require_deployment_key("resource_group_name")
-@require_platform_key('adx_cluster_name')
+@wrapcontext()
 @timing_decorator
+@pass_kusto_client
 @option("--current", "current", type=QueryType(), is_flag=True, help="Delete database adx referenced in configuration")
-@argument("database_name", type=QueryType(), default="%deploy%adx_database_name")
-def delete(kusto_client: KustoManagementClient,
-           resource_group_name: str,
-           adx_cluster_name: str,
-           database_name: Optional[str] = None,
+@argument("name", type=QueryType())
+@inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})
+def delete(context: Any,
+           kusto_client: KustoManagementClient,
+           name: Optional[str] = None,
            current: bool = False) -> CommandResponse:
-    """Delete database in ADX cluster"""
-
-    if current:
-        env = Environment()
-        database_name = env.configuration.get_deploy_var("adx_database_name")
-
+    """
+    Delete database in ADX cluster
+    """
+    resource_group_name = context['azure_resource_group_name']
+    adx_cluster_name = context['adx_cluster_name']
+    database_name = context["adx_database_name"] if current else name
     try:
         kusto_client.databases.get(
             resource_group_name=resource_group_name,
@@ -44,19 +41,15 @@ def delete(kusto_client: KustoManagementClient,
         logger.error(ex)
         return CommandResponse.fail()
 
-    try:
-        poller = kusto_client.databases.begin_delete(
-            resource_group_name=resource_group_name,
-            cluster_name=adx_cluster_name,
-            database_name=database_name,
-        )
-        poller.wait()
-        if not poller.done():
-            return CommandResponse.fail()
-        if poller.status() == "Succeeded":
-            _ret: list[str] = ["Provisioning state: Deleted"]
-        logger.info("\n".join(_ret))
-        return CommandResponse.success()
-    except Exception as ex:
-        logger.info(ex)
+    poller = kusto_client.databases.begin_delete(
+        resource_group_name=resource_group_name,
+        cluster_name=adx_cluster_name,
+        database_name=database_name,
+    )
+    poller.wait()
+    if not poller.done():
         return CommandResponse.fail()
+    if poller.status() == "Succeeded":
+        _ret: list[str] = ["Provisioning state: Deleted"]
+    logger.info("\n".join(_ret))
+    return CommandResponse.success()

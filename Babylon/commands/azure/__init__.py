@@ -1,6 +1,7 @@
 import logging
 
-from click import group as c_group
+from click import group
+from Babylon.utils.environment import Environment
 from .ad import ad
 from .staticwebapp import staticwebapp
 from .arm import arm
@@ -9,18 +10,33 @@ from .adt import adt
 from .adx import adx
 from .storage import storage
 from .appinsight import appinsight
-from .login import login
-from .logout import logout
+from .permission import permission
+from .func import func
+from .token import token
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
-list_commands = [login, logout]
-list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight]
+list_commands = []
+list_groups = [
+    ad,
+    staticwebapp,
+    arm,
+    storage,
+    acr,
+    adt,
+    adx,
+    appinsight,
+    permission,
+    func,
+    token,
+]
 
 
-@c_group()
+@group()
 def azure():
     """Group allowing communication with Microsoft Azure Cloud"""
+    env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
 
 
 for _group in list_groups:

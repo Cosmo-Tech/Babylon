@@ -1,27 +1,32 @@
 import logging
 
+from typing import Any
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
 from click import command
-
-from ....utils.decorators import require_deployment_key
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.clients import pass_arm_client
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_arm_client
+from Babylon.utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
-@pass_arm_client
-@require_deployment_key("resource_group_name")
+@wrapcontext()
 @timing_decorator
+@pass_arm_client
+@inject_context_with_resource({'azure': ['resource_group_name']})
 def get_all(
+    context: Any,
     arm_client: ResourceManagementClient,
-    resource_group_name: str,
 ) -> CommandResponse:
-    """Get all the deployments for a resource group."""
-
+    """
+    Get all the deployments for a resource group
+    """
+    resource_group_name = context['azure_resource_group_name']
     try:
         deployment_list = arm_client.deployments.list_by_resource_group(resource_group_name)
     except HttpResponseError as _e:
@@ -32,5 +37,4 @@ def get_all(
         'name': _ele.as_dict()['name'],
         'provisioning_state': _ele.as_dict()['properties']['provisioning_state'],
     } for _ele in deployment_list]
-
     return CommandResponse.success(deployments, verbose=True)

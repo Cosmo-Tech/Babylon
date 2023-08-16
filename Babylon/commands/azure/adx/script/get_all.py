@@ -1,29 +1,35 @@
 import logging
 
-import click
-from click import option
+from typing import Any
 from azure.mgmt.kusto import KustoManagementClient
-
-from .....utils.decorators import require_platform_key
-from .....utils.decorators import timing_decorator
-from .....utils.response import CommandResponse
-from .....utils.clients import pass_kusto_client
-from .....utils.typing import QueryType
+from click import command
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_kusto_client
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
-@click.command()
-@pass_kusto_client
-@require_platform_key("adx_cluster_name")
-@require_platform_key("resource_group_name")
-@option("--database", "adx_database_name", type=QueryType(), default="%deploy%adx_database_name")
+@command()
+@wrapcontext()
 @timing_decorator
-def get_all(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str,
-            adx_database_name: str) -> CommandResponse:
-    """List scripts on the database"""
+@pass_kusto_client
+@inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})
+def get_all(
+    context: Any,
+    kusto_client: KustoManagementClient,
+) -> CommandResponse:
+    """
+    List scripts on the database
+    """
+    resource_group_name = context['azure_resource_group_name']
+    adx_cluster_name = context['adx_cluster_name']
+    database_name = context['adx_database_name']
     response = kusto_client.scripts.list_by_database(resource_group_name=resource_group_name,
                                                      cluster_name=adx_cluster_name,
-                                                     database_name=adx_database_name)
+                                                     database_name=database_name)
     scripts = [item.as_dict() for item in response]
     return CommandResponse.success(scripts, verbose=True)
