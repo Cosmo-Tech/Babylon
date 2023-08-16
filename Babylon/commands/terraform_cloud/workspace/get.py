@@ -4,23 +4,24 @@ from click import command
 from click import argument
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPNotFound
-
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.clients import pass_tfc_client
-from ....utils.typing import QueryType
-from ....utils.decorators import output_to_file
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_tfc_client
+from Babylon.utils.typing import QueryType
+from Babylon.utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_tfc_client
-@argument("workspace_id", type=QueryType(), default="%deploy%terraform_cloud_workspace_id")
-@output_to_file
 @timing_decorator
+@output_to_file
+@pass_tfc_client
+@argument("workspace_id", type=QueryType())
 def get(tfc_client: TFC, workspace_id: str) -> CommandResponse:
-    """Get a workspace in the organization"""
+    """
+    Get a workspace in the organization
+    """
     try:
         ws = tfc_client.workspaces.show(workspace_id=workspace_id)
     except TFCHTTPNotFound:

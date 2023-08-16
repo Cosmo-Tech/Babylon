@@ -1,33 +1,28 @@
 import logging
 import pprint
+
 from typing import Optional
-
-from click import command
-from click import option
+from click import argument, command
 from terrasnek.api import TFC
-
 from .list_all_vars import list_all_vars
-from .....utils.decorators import timing_decorator
-from .....utils.typing import QueryType
-from .....utils.response import CommandResponse
-from .....utils.clients import pass_tfc_client
-from .....utils.decorators import output_to_file
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.typing import QueryType
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_tfc_client
+from Babylon.utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@pass_tfc_client
-@option("-w",
-        "--workspace",
-        "workspace_id",
-        help="Id of the workspace to use",
-        default="%deploy%terraform_cloud_workspace_id",
-        type=QueryType())
-@output_to_file
 @timing_decorator
+@output_to_file
+@pass_tfc_client
+@argument("workspace_id", type=QueryType())
 def get_all(tfc_client: TFC, workspace_id: Optional[str]) -> CommandResponse:
-    """Get all available variables in the workspace"""
+    """
+    Get all available variables in the workspace
+    """
     r = list_all_vars(tfc_client, workspace_id)
     if not r:
         logger.warning(f"No vars are set for workspace {workspace_id}")
