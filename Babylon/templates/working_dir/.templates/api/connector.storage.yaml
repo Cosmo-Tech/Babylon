@@ -1,12 +1,12 @@
-key: "${connector_key}"
-name: "${connector_name}"
-description: Connector for Azure Storage. Read all data in a container with a prefix
-  and write the data in CSV for a ScenarioRun
-version: "1.1.2"
+key: "${key}"
+name: "${name}"
+description: Connector for Azure Storage
+version: "${version}"
 repository: cosmo-tech/azure-storage-simulator-connector
 tags:
 - Azure Storage
 - Babylon
+- "${tag}"
 url: https://github.com/Cosmo-Tech/azure-storage-simulator-connector
 ioTypes:
 - read

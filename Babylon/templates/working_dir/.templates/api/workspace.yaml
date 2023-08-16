@@ -1,0 +1,38 @@
+key: ${key}
+name: ${name}
+description: "Workspace for solution"
+solution:
+  solutionId: ${cosmotech['api']['solution_id']}
+  runTemplateFilter:
+  defaultRunTemplateDataset: null
+useDedicatedEventHubNamespace: ${cosmotech['api']['use_dedicated_event_hub_namespace']}
+sendScenarioMetadataToEventHub: ${cosmotech['api']['send_scenario_metadata_to_event_hub']}
+sendInputToDataWarehouse: true
+dedicatedEventHubSasKeyName: null
+dedicatedEventHubAuthenticationStrategy: null
+sendScenarioRunToEventHub: true
+security:
+  default: none
+  accessControlList:
+  - id: ${security_id}
+    role: ${security_role}
+webApp:
+  url: https://${cosmotech['webapp']['static_domain']}
+  options:
+    charts:
+      workspaceId: ${cosmotech['powerbi']['workspace']['id']}
+      logInWithUserCredentials: false
+      scenarioViewIframeDisplayRatio: 4.514285714285714
+      dashboardsViewIframeDisplayRatio: 1.610062893081761
+      dashboardsView:
+      scenarioview:
+    instanceView:
+      dataSource:
+        type: adt
+        functionUrl: "https://${functionUrl}.azurewebsites.net/api/ScenarioDownload"
+        functionKey: ${azf_key}
+      datacontent:
+    menu:
+      documentationUrl: https://portal.cosmotech.com/resources/platform-resources/platform-help
+      supportUrl: https://support.cosmotech.com
+      organizationUrl: https://cosmotech.com
