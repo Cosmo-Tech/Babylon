@@ -5,8 +5,7 @@ from click import command
 from click import argument
 from click import Path
 from ruamel.yaml import YAML
-
-from ...utils.response import CommandResponse
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -36,13 +35,14 @@ def update_file(workflow_file: pathlib.Path):
 @command()
 @argument("workflow_file", type=Path(path_type=pathlib.Path))
 def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
-    """Update a github workflow file to read environment from a config.json file during deployment"""
+    """
+    Update a github workflow file to read environment from a config.json file during deployment
+    """
     if not workflow_file.is_dir():
         try:
             update_file(workflow_file)
         except Exception:
             return CommandResponse.fail()
-        return CommandResponse.success()
     for file in workflow_file.glob("azure-static-web-apps-*.yml"):
         try:
             update_file(file)
