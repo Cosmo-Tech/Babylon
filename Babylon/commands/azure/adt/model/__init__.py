@@ -1,5 +1,4 @@
 from click import group
-
 from .get_all import get_all
 from .upload import upload
 

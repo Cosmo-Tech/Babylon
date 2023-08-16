@@ -1,32 +1,32 @@
 import logging
-from typing import Optional
 
+from typing import Optional
 from click import argument
 from click import command
 from click import option
 from ruamel.yaml import YAML
-
-from ....utils import TEMPLATE_FOLDER_PATH
-from ....utils.decorators import describe_dry_run
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.typing import QueryType
+from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
+from Babylon.utils.decorators import describe_dry_run
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@argument("deployment_name", type=QueryType())
-@option("-t", "--template-uri", "template_uri", type=QueryType())
-@describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
 @timing_decorator
+@describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
+@option("-t", "--template-uri", "template_uri", type=QueryType())
+@argument("deployment_name", type=QueryType())
 def create(
     deployment_name: str,
     template_uri: Optional[str] = "",
 ) -> CommandResponse:
-    """Create a resource deployment config."""
-
-    _azure_deployment_template = TEMPLATE_FOLDER_PATH / "azure_resource_manager/azure_deployment.yaml"
+    """
+    Create a resource deployment config
+    """
+    _azure_deployment_template = ORIGINAL_TEMPLATE_FOLDER_PATH / "azure_resource_manager/azure_deployment.yaml"
     _commented_yaml_loader = YAML()
 
     with open(_azure_deployment_template, mode='r') as file:

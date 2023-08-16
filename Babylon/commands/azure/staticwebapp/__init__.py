@@ -1,5 +1,4 @@
 from click import group
-
 from .update import update
 from .delete import delete
 from .create import create
@@ -24,7 +23,7 @@ list_groups = [
 
 @group()
 def staticwebapp():
-    """Group interacting with Azure Static Webapps"""
+    """Azure Static Webapps"""
 
 
 for _command in list_commands:

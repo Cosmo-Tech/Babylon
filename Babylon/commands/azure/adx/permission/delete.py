@@ -1,40 +1,41 @@
 import logging
 
+from typing import Any
 from azure.mgmt.kusto import KustoManagementClient
 from click import argument
 from click import command
 from click import option
-
-from .....utils.decorators import describe_dry_run
-from .....utils.decorators import require_deployment_key
-from .....utils.decorators import require_platform_key
-from .....utils.decorators import timing_decorator
-from .....utils.interactive import confirm_deletion
-from .....utils.response import CommandResponse
-from .....utils.clients import pass_kusto_client
-from .....utils.typing import QueryType
+from Babylon.utils.decorators import describe_dry_run
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.interactive import confirm_deletion
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.environment import Environment
+from Babylon.utils.clients import pass_kusto_client
+from Babylon.utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
-@pass_kusto_client
-@require_platform_key("resource_group_name")
-@require_platform_key("adx_cluster_name")
-@require_deployment_key("adx_database_name")
-@argument("principal_id", type=QueryType())
-@option("-f", "--force", "force_validation", is_flag=True, help="Don't ask for validation before delete")
-@describe_dry_run("Would go through each role of given principal and delete them.")
 @timing_decorator
-def delete(kusto_client: KustoManagementClient,
-           resource_group_name: str,
-           adx_cluster_name: str,
-           adx_database_name: str,
+@pass_kusto_client
+@describe_dry_run("Would go through each role of given principal and delete them.")
+@option("-D", "force_validation", is_flag=True, help="Delete on force mode")
+@argument("principal_id", type=QueryType())
+@inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})
+def delete(context: Any,
+           kusto_client: KustoManagementClient,
            principal_id: str,
            force_validation: bool = False) -> CommandResponse:
-    """Delete all permission assignments applied to the given principal id"""
-    assignments = kusto_client.database_principal_assignments.list(resource_group_name, adx_cluster_name,
-                                                                   adx_database_name)
+    """
+    Delete all permission assignments applied to the given principal id
+    """
+    resource_group_name = context['azure_resource_group_name']
+    adx_cluster_name = context['adx_cluster_name']
+    database_name = context['adx_database_name']
+    assignments = kusto_client.database_principal_assignments.list(resource_group_name, adx_cluster_name, database_name)
     entity_assignments = [assign for assign in assignments if assign.principal_id == principal_id]
     if not entity_assignments:
         logger.error(f"No assignment found for principal ID {principal_id}")
@@ -50,6 +51,6 @@ def delete(kusto_client: KustoManagementClient,
         assign_name: str = str(assign.name).split("/")[-1]
         kusto_client.database_principal_assignments.begin_delete(resource_group_name,
                                                                  adx_cluster_name,
-                                                                 adx_database_name,
+                                                                 database_name,
                                                                  principal_assignment_name=assign_name)
     return CommandResponse.success()

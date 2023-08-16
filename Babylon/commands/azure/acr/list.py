@@ -1,39 +1,40 @@
 import logging
-import typing
 
+from typing import Any, Optional
 from azure.core.exceptions import ServiceRequestError
-from click import Choice
-from click import command
-from click import option
-
-from ....utils.decorators import require_platform_key
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.typing import QueryType
-from ....utils.clients import get_registry_client
+from click import argument, command
+from Babylon.utils.typing import QueryType
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.environment import Environment
+from Babylon.utils.clients import get_registry_client
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
-@require_platform_key("csm_acr_registry_name", "csm_acr_registry_name")
-@require_platform_key("acr_registry_name", "acr_registry_name")
-@option("-r", "--registry", type=QueryType(), help="Container Registry name to scan, example: myregistry.azurecr.io")
-@option("-d", "--direction", type=Choice(["src", "dest"]), help="Container Registry choice to delete from")
 @timing_decorator
-def list(csm_acr_registry_name: str, acr_registry_name: str, registry: typing.Optional[str],
-         direction: typing.Optional[str]) -> CommandResponse:
-    """List all docker images in the specified registry"""
-    registry = registry or {"src": csm_acr_registry_name, "dest": acr_registry_name}.get(direction)
-    if not registry:
-        logger.error("Please specify a registry to list from with --direction or --registry")
-        return CommandResponse.fail()
-    cr_client = get_registry_client(registry)
-    logger.info("Getting repositories stored in registry %s", registry)
+@argument("server", type=QueryType(), required=False)
+@inject_context_with_resource({'acr': ['login_server']})
+def list(context: Any, server: Optional[str] = None) -> CommandResponse:
+    """
+    List all docker images in the specified registry
+    """
+    acr_login_server = server or context['acr_login_server']
+    cr_client = get_registry_client(acr_login_server)
+    logger.info(f"Getting repositories stored in registry {acr_login_server}")
     try:
         repos = [repo for repo in cr_client.list_repository_names()]
     except ServiceRequestError:
-        logger.error(f"Could not list from registry {registry}")
+        logger.error(f"Could not list from registry {acr_login_server}")
         return CommandResponse.fail()
-    logger.info(repos)
-    return CommandResponse.success({"repositories": repos})
+    _ret: list[str] = [f"Respositories from {acr_login_server}:"]
+    for repo in repos:
+        props = cr_client.list_tag_properties(repository=repo)
+        tags = [p.name for p in props]
+        tags.sort(reverse=True)
+        _ret.append(f" • {repo}: {tags[0:3]}")
+    logger.info("\n".join(_ret))
+    CommandResponse.success()

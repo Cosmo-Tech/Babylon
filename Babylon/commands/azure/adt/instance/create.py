@@ -1,50 +1,52 @@
 import logging
 import uuid
 
+from typing import Any
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
-
-from click import argument
+from click import Context, option, pass_context
 from click import command
-
-from .....utils.decorators import require_platform_key
-from .....utils.decorators import timing_decorator
-from .....utils.response import CommandResponse
-from .....utils.clients import (
+from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.environment import Environment
+from Babylon.utils.clients import (
     pass_adt_management_client,
     get_azure_credentials,
 )
-from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
-@pass_adt_management_client
-@argument("adt_instance_name", type=QueryType())
-@require_platform_key("resource_group_name")
-@require_platform_key("resources_location")
-@require_platform_key("azure_subscription")
-@require_platform_key("principal_id")
+@pass_context
 @timing_decorator
-def create(
-    adt_management_client: AzureDigitalTwinsManagementClient,
-    resource_group_name: str,
-    resources_location: str,
-    adt_instance_name: str,
-    azure_subscription: str,
-    principal_id: str,
-) -> CommandResponse:
-    """Create a new ADT instance in current platform resource group
-    and assign a role adt_data_owner"""
-
+@pass_adt_management_client
+@option("-s", "--select", "select", is_flag=True, default=True, help="Save host name adt in configuration file")
+@inject_context_with_resource({
+    'api': ['organization_id', 'workspace_key'],
+    'azure': ['resource_location', 'resource_group_name', 'subscription_id'],
+    'babylon': ['principal_id'],
+    'platform': ['principal_id']
+})
+def create(ctx: Context,
+           context: Any,
+           adt_management_client: AzureDigitalTwinsManagementClient,
+           select: bool = False) -> CommandResponse:
+    """
+    Create a new ADT instance in current platform resource group
+    """
+    azure_subscription: str = context['azure_subscription_id']
+    name = f"{context['api_organization_id'].lower()}-{context['api_workspace_key'].lower()}"
     availability_result = (adt_management_client.digital_twins.check_name_availability(
         digital_twins_instance_check_name={
-            "name": adt_instance_name,
+            "name": name,
             "type": "Microsoft.DigitalTwins/digitalTwinsInstances",
         },
-        location=resources_location,
+        location=context['azure_resource_location'],
     ))
 
     if not availability_result.name_available:
@@ -53,10 +55,10 @@ def create(
 
     try:
         poller = adt_management_client.digital_twins.begin_create_or_update(
-            resource_group_name,
-            adt_instance_name,
+            context['azure_resource_group_name'],
+            name,
             {
-                "location": resources_location,
+                "location": context['azure_resource_location'],
                 "tags": {
                     "creator": "babylon"
                 }
@@ -64,45 +66,62 @@ def create(
         )
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
-        logger.error(f"Failed to create ADT instance '{adt_instance_name}': {error_message[0]}")
+        logger.error(f"Failed to create ADT instance '{name}': {error_message[0]}")
         return CommandResponse.fail()
 
     # Long-running operations return a poller object; calling poller.result()
     # waits for completion.
     adt_creation_result = poller.result()
-    logger.info(f"Successfully created digital twins instance {adt_creation_result.name}")
+    adt_host_name = f"https://{adt_creation_result.host_name}"
 
-    logger.info(f"Adding role assignment to the created instance {adt_creation_result.name}...")
-
+    logger.info(f"Adding role assignment to the created instance {adt_host_name}...")
     #  Integrated Azure role
-    adt_data_owner_role_id = "bcd981a7-7f74-457b-83e1-cceb9e632ffe"
-
-    scope = ("/subscriptions/" + azure_subscription + "/resourceGroups/" + resource_group_name +
-             "/providers/Microsoft.DigitalTwins/digitalTwinsInstances/" + adt_instance_name)
-
+    adt_data_owner_role_id = env.azure['roles']['adt_owner']
+    scope = ("/subscriptions/" + azure_subscription + "/resourceGroups/" + context['azure_resource_group_name'] +
+             "/providers/Microsoft.DigitalTwins/digitalTwinsInstances/" + name)
     authorization_client = AuthorizationManagementClient(
         credential=get_azure_credentials(),
         subscription_id=azure_subscription,
     )
 
     try:
-        role_assignment = authorization_client.role_assignments.create(
+        authorization_client.role_assignments.create(
             scope,
             str(uuid.uuid4()),
             {
                 "roleDefinitionId":
-                    "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
-                    adt_data_owner_role_id,
+                "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
+                adt_data_owner_role_id,
                 "principalId":
-                    principal_id,
+                context['babylon_principal_id'],
                 "principalType":
-                    "ServicePrincipal",
+                "ServicePrincipal",
             },
         )
     except Exception as e:
-        logger.error(f"Failed to assign a new role to ADT instance '{adt_instance_name}': {e}")
+        logger.error(f"Failed to assign a new role to ADT instance '{name}': {e}")
 
-    return CommandResponse.success({
-        "adt_instance": adt_creation_result.name,
-        "role_assignment": role_assignment,
-    })
+    try:
+        authorization_client.role_assignments.create(
+            scope,
+            str(uuid.uuid4()),
+            {
+                "roleDefinitionId":
+                "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
+                adt_data_owner_role_id,
+                "principalId":
+                context['platform_principal_id'],
+                "principalType":
+                "ServicePrincipal",
+            },
+        )
+    except Exception as e:
+        logger.error(f"Failed to assign a new role to ADT instance '{name}': {e}")
+
+    if select:
+        env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
+                                  var_name="digital_twin_url",
+                                  var_value=adt_host_name)
+        logger.info(SUCCESS_CONFIG_UPDATED("adt", "digital_twin_url"))
+    logger.info("Successfully created")
+    return CommandResponse.success()
