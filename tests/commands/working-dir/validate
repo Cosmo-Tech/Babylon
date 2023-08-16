@@ -1,7 +1,0 @@
-## babylon working-dir validate
-
-### Commands
-```bash
-babylon working-dir validate
-```
-Should check the current working dir against the template files.

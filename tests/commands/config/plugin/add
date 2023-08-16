@@ -1,7 +1,0 @@
-## babylon config plugin add
-
-### Commands
-```bash
-babylon config plugin add plugins/dev-tools
-```
-Should add the dev-tools plugin and allow `babylon dev-tools`

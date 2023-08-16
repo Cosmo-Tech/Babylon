@@ -1,7 +1,0 @@
-## babylon dev-tools move-group
-
-### Commands
-```bash
-babylon dev-tools move-group config test_config
-```
-Should move the config group to test_config, check with `babylon test-config display`

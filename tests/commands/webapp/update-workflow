@@ -1,7 +1,0 @@
-## babylon webapp update-workflow
-
-### Commands
-```bash
-babylon webapp update-workflow [webapp/.github/myworkflow.yaml]
-```
-Should update the github workflow to use a `config.json` to set environment variables

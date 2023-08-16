@@ -1,8 +1,0 @@
-## babylon api solution create
-
-### Commands
-
-```bash
-babylon api solution create -n "Babylon Solution"
-babylon api solution create
-```
