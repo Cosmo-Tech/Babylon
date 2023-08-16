@@ -1,5 +1,4 @@
 import logging
-
 import click
 
 from .response import CommandResponse
@@ -19,7 +18,7 @@ def run_command(command_line: list[str]) -> CommandResponse:
     else:
         root = context.find_root()
     babylon = root.command
-    ctx = babylon.make_context("babylon", ["-v", "WARNING", *command_line], ignore_unknown_options=True)
+    ctx = babylon.make_context("babylon", [*command_line], ignore_unknown_options=True)
     ret: CommandResponse = babylon.invoke(ctx)
     logger.setLevel(logging.INFO)
     return ret

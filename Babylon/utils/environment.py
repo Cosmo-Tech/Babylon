@@ -1,26 +1,29 @@
+import os
 import json
 import logging
-import os
 import pathlib
 import re
+import sys
+import jmespath
+import requests
+
+from hvac import Client
 from collections import defaultdict
 from typing import Any
 from typing import List
 from typing import Optional
-
-import jmespath
 from mako.template import Template
 
+from Babylon.utils.yaml_utils import yaml_to_json
 from .configuration import Configuration
 from .working_dir import WorkingDir
+from Babylon.config import config_files
+from Babylon.config import get_settings_by_context
+from ruamel.yaml import YAML
 
 logger = logging.getLogger("Babylon")
 
-WORKING_DIR_STRING = "workdir"
-DEPLOY_STRING = "deploy"
-PLATFORM_STRING = "platform"
 STORE_STRING = "datastore"
-SECRETS_STRING = "secrets"
 PATH_SYMBOL = "%"
 
 
@@ -47,14 +50,42 @@ class SingletonMeta(type):
 class Environment(metaclass=SingletonMeta):
 
     def __init__(self):
+        self.pwd = pathlib.Path.cwd()
+        workingdir_path = self.pwd
+        config_path = self.pwd / "config"
+        self.context_id: str = ""
+        self.environ_id: str = ""
+        self.server_id: str = ""
+        self.tenant_id: str = ""
+        self.organization_name: str = ""
         self.dry_run = False
-        config_path = pathlib.Path(os.environ.get('BABYLON_CONFIG_DIRECTORY', "./config"))
-        self.configuration = Configuration(config_path)
-        workingdir_path = pathlib.Path(os.environ.get('BABYLON_WORKING_DIRECTORY', "."))
-        self.working_dir = WorkingDir(workingdir_path)
-        self.data_store: defaultdict[str, Any] = defaultdict()
         self.is_verbose = True
+        self.working_dir = WorkingDir(workingdir_path)
+        self.configuration = Configuration(config_path)
+        self.data_store: defaultdict[str, Any] = defaultdict()
+        self.AZURE_SCOPES = {
+            "graph": "https://graph.microsoft.com/.default",
+            "default": "https://management.azure.com/.default",
+            "powerbi": "https://analysis.windows.net/powerbi/api/.default",
+            "csm_api": ""
+        }
         self.reset_data_store()
+
+    def check_environ(self, list_to_check: list):
+        vars = list_to_check
+        checkers = [k in os.environ for k in vars]
+        response = dict(zip(vars, checkers))
+        for i, k in response.items():
+            if not k:
+                logger.error("You can not perform this command")
+                logger.error(f"{i} variable is missing")
+            else:
+                if "SERVICE" in i:
+                    self.set_server_id()
+                if "ORG_NAME" in i and "TOKEN":
+                    self.set_org_name()
+        if not all(checkers):
+            sys.exit(1)
 
     def set_configuration(self, configuration_path: pathlib.Path):
         self.configuration = Configuration(config_directory=configuration_path)
@@ -92,7 +123,7 @@ class Environment(metaclass=SingletonMeta):
 
         return True
 
-    def get_data(self, data_path: List[str]) -> Any:
+    def get_data_from_store(self, data_path: List[str]) -> Any:
         """
         Will look up a data from a given data path and return it
         :param data_path: the path to the data to get
@@ -103,57 +134,40 @@ class Environment(metaclass=SingletonMeta):
 
         r = self.convert_data_query(f"{PATH_SYMBOL}{STORE_STRING}{PATH_SYMBOL}" + ".".join(data_path))
         if r is None:
-            raise KeyError("Data path can't get data")
+            return False
         return r
 
     def printable_store(self) -> str:
         return json.dumps(self.data_store, indent=2, default=str)
 
-    def convert_data_query(self, query: str) -> Any:
+    def get_data_from_key(self, resource_id: str, keys: list) -> Any:
+        config_dir = self.configuration.config_dir
+        file_path = config_dir / f"{self.configuration.context_id}.{self.configuration.environ_id}.{resource_id}.yaml"
+        _commented_yaml_loader = YAML()
+        try:
+            with file_path.open(mode='r') as file:
+                _y = _commented_yaml_loader.load(file) or {}
+                if len(keys) == 1:
+                    _value = _y[self.configuration.context_id][keys[-1]]
+                else:
+                    _value = _y[self.configuration.context_id][keys[-len(keys)]][keys[-1]]
+                return _value
+        except OSError:
+            return
 
+    def convert_data_query(self, query: str) -> Any:
         extracted_content = self.extract_value_content(query)
         if not extracted_content:
             logger.debug(f"  '{query}' -> no conversion applied")
             return None
 
-        _type, _file, _query = extracted_content
-        # Check content of platform / deploy / secrets
-        possibles = {
-            DEPLOY_STRING: (self.configuration.get_deploy(), self.configuration.get_deploy_path()),
-            PLATFORM_STRING: (self.configuration.get_platform(), self.configuration.get_platform_path())
-        }
-
-        if _type in possibles:
-            logger.debug(f"    Detected parameter type '{_type}' with query '{_query}'")
-            _data, _path = possibles.get(_type)
-            r = jmespath.search(_query, _data)
-            if r is None:
-                raise KeyError(f"Could not find results for query '{_query}' in {_path}")
-        elif _type == SECRETS_STRING:
-            data = self.working_dir.get_file_content(".secrets.yaml.encrypt")
-            r = jmespath.search(_query, data)
-        elif _type == STORE_STRING:
-            logger.debug(f"    Detected parameter type '{_type}' with query '{_query}'")
-            r = jmespath.search(_query, self.data_store)
+        _type, resource, key_name = extracted_content
+        if _type == STORE_STRING:
+            logger.debug(f"    Detected parameter type '{_type}' with query '{query}'")
+            _value = jmespath.search(key_name, self.data_store)
         else:
-            # Check content of workdir
-            logger.debug(f"    Detected parameter type '{_type}' with query '{_query}' on file '{_file}'")
-            wd = self.working_dir
-            if not wd.requires_file(_file):
-                raise KeyError(f"File '{_file}' does not exists in current working dir.")
-
-            _content = wd.get_file_content(_file)
-            r = jmespath.search(_query, _content)
-            if r is None:
-                raise KeyError(f"Could not find results for query '{_query}' in '{wd.get_file(_file)}'")
-
-        return r
-
-    @staticmethod
-    def auto_completion_guide():
-        bases = [WORKING_DIR_STRING + '[]', SECRETS_STRING, DEPLOY_STRING, PLATFORM_STRING, STORE_STRING]
-        base_names = [f"{PATH_SYMBOL}{base}{PATH_SYMBOL}" for base in bases]
-        return base_names
+            _value = self.configuration.get_var(resource_id=_type, var_name=key_name)
+        return _value
 
     @staticmethod
     def extract_value_content(value: Any) -> Optional[tuple[str, Optional[str], str]]:
@@ -166,10 +180,10 @@ class Environment(metaclass=SingletonMeta):
         if not isinstance(value, str):
             return None
 
+        SEARCH_FILES = "|".join(config_files)
         check_regex = re.compile(f"{PATH_SYMBOL}"
-                                 f"({SECRETS_STRING}|{PLATFORM_STRING}|{DEPLOY_STRING}|"
-                                 f"{WORKING_DIR_STRING}|{STORE_STRING})"
-                                 f"(?:(?<={WORKING_DIR_STRING})\\[(.+)])?"
+                                 f"({SEARCH_FILES}|{STORE_STRING})"
+                                 f"(?:(?<={STORE_STRING})\\[(.+)])?"
                                  f"{PATH_SYMBOL}"
                                  f"(.+)")
 
@@ -181,9 +195,7 @@ class Environment(metaclass=SingletonMeta):
         match_content = check_regex.match(value)
         if not match_content:
             return None
-        _type, _file, _query = match_content.groups()
-
-        return _type, _file, _query
+        return match_content.groups()
 
     def fill_template(self, template_file: pathlib.Path, data: dict[str, Any] = {}) -> str:
         """
@@ -193,10 +205,134 @@ class Environment(metaclass=SingletonMeta):
         :type template_file: str
         :return: filled template
         """
-        secrets = self.working_dir.get_file_content(".secrets.yaml.encrypt")
         template = Template(filename=str(template_file.absolute()), strict_undefined=True)
-        return template.render(**data,
-                               platform=self.configuration.get_platform(),
-                               deploy=self.configuration.get_deploy(),
-                               datastore=self.data_store,
-                               secrets=secrets)
+        context = dict()
+        config_dir = self.configuration.config_dir
+        for k in config_files:
+            context[k] = get_settings_by_context(config_dir=config_dir,
+                                                 resource=k,
+                                                 context_id=self.context_id,
+                                                 environ_id=self.environ_id)
+        result = template.render(**data, cosmotech=context, datastore=self.data_store)
+        if template_file.suffix in [".yaml", ".yml"]:
+            result = yaml_to_json(result)
+        return result
+
+    def set_context(self, context_id):
+        self.context_id = context_id
+        self.configuration.set_context(self.context_id)
+
+    def set_environ(self, environ_id):
+        self.environ_id = environ_id
+        self.configuration.set_environ(self.environ_id)
+
+    def set_org_name(self):
+        org_name = os.environ.get('BABYLON_ORG_NAME')
+        self.organization_name = org_name
+        self.tenant_id = self.get_organization_secret(org_name, "tenant")
+
+    def set_server_id(self):
+        self.server_id = os.environ.get('BABYLON_SERVICE')
+
+    def get_organization_secret(self, organization_name: str, name: str):
+        try:
+            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+        except Exception as e:
+            logger.error(e)
+
+        data = client.read(path=f'organization/{organization_name}')
+        if data is None:
+            logger.error(f"Message: organization {self.organization_name} not found")
+            sys.exit(1)
+        result = data['data'][name]
+        return result
+
+    def get_env_babylon(self, name: str):
+        try:
+            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+        except Exception as e:
+            logger.error(e)
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{self.environ_id}/{name}")
+        if data is None:
+            return None
+        return data['data']['secret']
+
+    def get_global_secret(self, resource: str, name: str):
+        try:
+            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+        except Exception as e:
+            logger.error(e)
+            sys.exit(1)
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
+        if data is None:
+            return None
+        return data['data']['secret']
+
+    def get_users_secrets(self, email: str, scope: str):
+        try:
+            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+        except Exception as e:
+            logger.error(e)
+            sys.exit(1)
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}")
+        if data:
+            return data['data']
+        return None
+
+    def set_users_secrets(self, email: str, scope: str, cached: dict):
+        try:
+            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+        except Exception as e:
+            logger.error(e)
+            sys.exit(1)
+        client.write(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}", **cached)
+
+    def get_platform_secret(self, platform: str, resource: str, name: str):
+        try:
+            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+        except Exception as e:
+            logger.error(e)
+            sys.exit(1)
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
+        if data is None:
+            return None
+        return data['data']['secret']
+
+    def get_project_secret(self, organization_id: str, workspace_key: str, name: str):
+        try:
+            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+        except Exception as e:
+            logger.error(e)
+            sys.exit(1)
+        prefix = f'{self.organization_name}/{self.tenant_id}/projects/{self.context_id}'
+        schema = f'{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}'
+        data = client.read(path=schema)
+        if data is None:
+            return None
+        return data['data']['secret']
+
+    def get_access_token_with_refresh_token(self, username: str = None, internal_scope: str = None):
+        email = username or self.configuration.get_var(resource_id="azure", var_name="email")
+        cli_client_id = self.configuration.get_var(resource_id="azure", var_name="cli_client_id")
+        data = self.get_users_secrets(email, internal_scope)
+        if data is None:
+            return None
+        encrypted_refresh_token = data['token']
+        encoding_key = os.environ.get("BABYLON_ENCODING_KEY")
+        if encoding_key is None:
+            logger.info("BABYLON_ENCODING_KEY is missing")
+            sys.exit(1)
+        decryoted_token = self.working_dir.decrypt_content(encoding_key, encrypted_refresh_token)
+        response = requests.post(url=f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token",
+                                 data=dict(client_id=cli_client_id,
+                                           scope=f"{self.AZURE_SCOPES[internal_scope]} offline_access",
+                                           grant_type="refresh_token",
+                                           refresh_token=decryoted_token.decode("utf-8")))
+        response_json = response.json()
+        if "refresh_token" not in response_json:
+            return None
+        token_encrypt = self.working_dir.encrypt_content(encoding_key=encoding_key,
+                                                         content=bytes(response_json['refresh_token'],
+                                                                       encoding="utf-8"))
+        self.set_users_secrets(email, internal_scope, dict(token=token_encrypt.decode("utf-8")))
+        return response_json['access_token']

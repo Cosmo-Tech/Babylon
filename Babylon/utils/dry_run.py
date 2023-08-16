@@ -1,11 +1,10 @@
 import logging
 import sys
-
 import click
 import rich
 import rich.markdown
 
-LOGGER = logging.getLogger("Babylon")
+logger = logging.getLogger("Babylon")
 
 
 def display_dry_run(ctx: click.Context, param: click.Parameter, value: str):

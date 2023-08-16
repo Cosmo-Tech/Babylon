@@ -1,23 +1,27 @@
 import logging
-from functools import wraps
+import os
+import sys
+import docker
+import hvac
+
 from typing import Any
 from typing import Callable
-
+from functools import wraps
 from azure.storage.blob import BlobServiceClient
 from azure.digitaltwins.core import DigitalTwinsClient
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
+from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.kusto import KustoManagementClient
 from azure.containerregistry import ContainerRegistryClient
 from terrasnek.api import TFC
-import docker
-
 from .environment import Environment
 from .credentials import get_azure_credentials
 from .credentials import get_azure_token
 from .request import oauth_request
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 def get_registry_client(registry: str):
@@ -40,8 +44,7 @@ def get_docker_client(registry: str):
     :return: Docker client
     """
     # Getting Refresh token
-    tenant_id = Environment().convert_data_query("%platform%azure_tenant_id")
-    body = f"grant_type=access_token&service={registry}&tenant={tenant_id}&access_token={get_azure_token()}"
+    body = f"grant_type=access_token&service={registry}&tenant={env.tenant_id}&access_token={get_azure_token()}"
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     response = oauth_request(f"https://{registry}/oauth2/exchange",
                              get_azure_token(),
@@ -63,12 +66,32 @@ def get_docker_client(registry: str):
     return client
 
 
-def pass_kusto_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab api configuration"""
+def pass_hvac_client(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Grab hvac client"""
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = Environment().configuration.get_platform_var("azure_subscription")
+        client = None
+        try:
+            client = hvac.Client(url=env.server_id, token=os.environ.get('BABYLON_TOKEN'))
+            if not client.is_authenticated():
+                logger.info("Forbidden. Check your credentials")
+                sys.exit(1)
+        except Exception as e:
+            logger.info(e)
+            client = None
+        kwargs["hvac_client"] = client
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def pass_kusto_client(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Grab kusto configuration"""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
         azure_credential = get_azure_credentials()
         kwargs["kusto_client"] = KustoManagementClient(credential=azure_credential, subscription_id=azure_subscription)
         return func(*args, **kwargs)
@@ -81,7 +104,7 @@ def pass_adt_management_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = Environment().configuration.get_platform_var("azure_subscription")
+        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
         azure_credential = get_azure_credentials()
         kwargs["adt_management_client"] = AzureDigitalTwinsManagementClient(azure_credential, azure_subscription)
         return func(*args, **kwargs)
@@ -94,7 +117,7 @@ def pass_adt_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        digital_twin_url = Environment().configuration.get_deploy_var("digital_twin_url")
+        digital_twin_url = env.configuration.get_var(resource_id='adt', var_name="digital_twin_url")
         azure_credential = get_azure_credentials()
         kwargs["adt_client"] = DigitalTwinsClient(credential=azure_credential, endpoint=digital_twin_url)
         return func(*args, **kwargs)
@@ -107,7 +130,7 @@ def pass_arm_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = Environment().configuration.get_platform_var("azure_subscription")
+        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
         azure_credential = get_azure_credentials()
         kwargs["arm_client"] = ResourceManagementClient(azure_credential, azure_subscription)
         return func(*args, **kwargs)
@@ -120,10 +143,11 @@ def pass_blob_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        account_name = Environment().configuration.get_platform_var("storage_account_name")
-        azure_credential = get_azure_credentials()
-        account_url = f"https://{account_name}.blob.core.windows.net"
-        kwargs["blob_client"] = BlobServiceClient(account_url, azure_credential)
+        account_name = env.configuration.get_var(resource_id='azure', var_name="storage_account_name")
+        account_secret = env.get_platform_secret(platform=env.environ_id, resource="storage", name="account")
+        prefix = f"DefaultEndpointsProtocol=https;AccountName={account_name}"
+        connection_str = f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net"
+        kwargs["blob_client"] = BlobServiceClient.from_connection_string(connection_str)
         return func(*args, **kwargs)
 
     return wrapper
@@ -134,14 +158,28 @@ def pass_tfc_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        env = Environment()
-        secrets = env.working_dir.get_file_content(".secrets.yaml.encrypt")
-        if not secrets.get("tfc") or any(key not in secrets.get("tfc") for key in ["token", "url", "organization"]):
-            logger.error("Missing secrets for TFC, please run terraform-cloud login")
-            raise KeyError("Missing secrets for TFC, please run babylon terraform-cloud login")
-        api = TFC(secrets["tfc"]["token"], secrets["tfc"]["url"])
-        api.set_org(secrets["tfc"]["organization"])
+        token = env.get_global_secret(resource="tfc", name="token")
+        url = env.get_global_secret(resource="tfc", name="url")
+        organization = env.get_global_secret(resource="tfc", name="organization")
+        api = TFC(token, url)
+        api.set_org(organization)
         kwargs["tfc_client"] = api
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def pass_iam_client(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Grab iam client"""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
+        authorization_client = AuthorizationManagementClient(
+            credential=get_azure_credentials(),
+            subscription_id=azure_subscription,
+        )
+        kwargs["iam_client"] = authorization_client
         return func(*args, **kwargs)
 
     return wrapper

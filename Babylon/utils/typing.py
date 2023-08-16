@@ -1,13 +1,12 @@
 import logging
+
 from typing import Any
 from typing import List
 from typing import Optional
-
 from click import Context
 from click import ParamType
 from click import Parameter
 from click.shell_completion import CompletionItem
-
 from .environment import Environment
 from .environment import PATH_SYMBOL
 
@@ -43,7 +42,6 @@ class QueryType(ParamType):
         """
 
         logger.debug(f"Converting '{value}' for parameter '{param.name}'")
-
         try:
             r = env.convert_data_query(query=value)
         except KeyError as _ke:

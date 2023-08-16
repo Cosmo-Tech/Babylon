@@ -1,27 +1,28 @@
 from click import group
-
-from .display import display
-from .validate import validate
-from .deployment import deployment
-from .platform import platform
-from .plugin import plugin
-from .set_variable import set_variable
-from .get_variable import get_variable
-from .fill_template import fill_template
+from Babylon.utils.environment import Environment
+from .set import set
+from .get import get
 from .init import init
+from .upload import upload
+from .display import display
 
-list_commands = [validate, display, get_variable, set_variable, fill_template, init]
+env = Environment()
 
-list_groups = [
-    plugin,
-    platform,
-    deployment,
+list_commands = [
+    set,
+    get,
+    init,
+    upload,
+    display,
 ]
+
+list_groups = []
 
 
 @group()
 def config():
     """Group made to work on the config"""
+    env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
 
 
 for _command in list_commands:

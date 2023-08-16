@@ -1,16 +1,18 @@
 import logging
 
 from click import command
-
-from ...utils.environment import Environment
-from ...utils.response import CommandResponse
+from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext()
 def display() -> CommandResponse:
-    """Display current config"""
+    """
+    Display current configuration
+    """
     config = Environment().configuration
     logger.info(str(config))
-    return CommandResponse.success({"deployment": config.get_deploy(), "platform": config.get_platform()})

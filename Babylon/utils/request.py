@@ -1,9 +1,9 @@
 import logging
+import requests
+
 from typing import Any
 from typing import Optional
 from time import sleep
-
-import requests
 
 logger = logging.getLogger("Babylon")
 
@@ -43,15 +43,15 @@ def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: Any)
     }
     request_func = request_funcs.get(type.upper())
     if not request_func:
-        logger.error(f"Could not find request of type {type}")
+        logger.warn(f"Could not find request of type {type}")
         return None
     try:
         response = request_func(url=url, headers=headers, **kwargs)
     except Exception as e:
-        logger.error(f"Request failed: {e}")
+        logger.warn(f"Request failed: {e}")
         return None
     if response.status_code >= 300:
-        logger.error(f"Request failed ({response.status_code}): {response.text}")
+        logger.warn(f"Failed: ({response.status_code}): {response.text}")
         return None
     logger.debug(f"Request success ({response.status_code}): {response.text}")
     return response
