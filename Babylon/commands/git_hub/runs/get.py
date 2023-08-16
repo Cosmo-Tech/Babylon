@@ -41,8 +41,6 @@ def get(context: Any, workflow_name: Optional[str] = None) -> CommandResponse:
             run_url = workflow.get("url")
             env.configuration.set_var(resource_id="github", var_name="run_url", var_value=run_url)
             logger.info(SUCCESS_CONFIG_UPDATED("github", "run_url"))
-            env.configuration.set_var(resource_id="github",
-                                    var_name="workflow_path",
-                                    var_value=workflow.get("path"))
+            env.configuration.set_var(resource_id="github", var_name="workflow_path", var_value=workflow.get("path"))
             logger.info(SUCCESS_CONFIG_UPDATED("github", "workflow_path"))
     return CommandResponse.success()
