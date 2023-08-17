@@ -1,7 +1,6 @@
 import logging
 import pathlib
 import shutil
-import sys
 import time
 
 from functools import wraps
