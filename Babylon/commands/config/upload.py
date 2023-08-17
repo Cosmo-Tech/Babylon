@@ -28,43 +28,51 @@ def upload(
     yaml_loader = YAML()
     environ_id = env.environ_id
     rewrite = list(rewrite)
-    platforms = hvac_client.list(path=f"{env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}")
+
+    vault_path_config = f"{env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}"
+
+    platforms = hvac_client.list(path=vault_path_config)
     if platforms is None and not yes:
         question = [inquirer.Confirm(name="new_platform", message="Do you want continue")]
         response = inquirer.prompt(question)
         if not response['new_platform']:
             return CommandResponse.fail()
 
-    for o in config_files:
-        section_path = env.working_dir.original_config_dir / f"{o}.yaml"
+    for config_file in config_files:
+        section_path = env.working_dir.original_config_dir / f"{config_file}.yaml"
         section_data = yaml_loader.load(section_path.absolute())
         section_keys = dict(section_data).keys()
-        if platforms and o in rewrite:
-            logger.info(f"[{o}]")
-            data = hvac_client.read(path=f"{env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}/{o}")
-            logger.info(f"rw {env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}/{o}")
+        if platforms and config_file in rewrite:
+            logger.info(f"[{config_file}]")
+            secrets = hvac_client.read(path=f"{vault_path_config} /{config_file}")
+            secrets_data = secrets["data"]
+            logger.info(f"rw {vault_path_config}/{config_file}")
             for i in section_keys:
-                if i not in data['data'].keys():
-                    data['data'].update({i: section_data[i]})
-            questions = [inquirer.Text(name=test, message=test, default=data['data'][test]) for test in section_keys]
+                secrets_data.setdefault(i, section_data[i])
+            questions = [inquirer.Text(
+                name=secret_key, 
+                message=secret_key, 
+                default=secrets_data[secret_key]) for secret_key in section_keys]
             answers = inquirer.prompt(questions)
             if not answers:
                 return CommandResponse.fail()
-            hvac_client.write(path=f"{env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}/{o}",
+            hvac_client.write(path=f"{vault_path_config} /{config_file}",
                               **answers)
-            logger.info(f"Configuration {environ_id}/{o} successfully created")
-        elif platforms and o in platforms['data']['keys']:
-            logger.info(f"{env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}/{o} already exists")
+            logger.info(f"Configuration {environ_id}/{config_file} successfully created")
+        elif platforms and config_file in platforms['data']['keys']:
+            logger.info(f"{vault_path_config} / {config_file} already exists")
             continue
         else:
-            logger.info(f"New path: [{o}]")
-            data = dict()
+            logger.info(f"New path: [{config_file}]")
+            new_secrets_data = dict()
             for i in section_keys:
-                data.update({i: section_data[i]})
-            questions = [inquirer.Text(test, message=test, default=data[test]) for test in section_keys]
+                new_secrets_data.update({i: section_data[i]})
+            questions = [inquirer.Text(
+                new_key, 
+                message=new_key, 
+                default=new_secrets_data[new_key]) for new_key in section_keys]
             answers = inquirer.prompt(questions)
             if not answers:
                 return CommandResponse.fail()
-            hvac_client.write(path=f"{env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}/{o}",
-                              **answers)
-            logger.info(f"Configuration {environ_id}/{o} successfully created")
+            hvac_client.write(path=f"{vault_path_config}/{config_file}", **answers)
+            logger.info(f"Configuration {environ_id}/{config_file} successfully created")

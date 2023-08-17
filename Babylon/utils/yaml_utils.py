@@ -88,10 +88,10 @@ def write_yaml_value(yaml_file: pathlib.Path, keys: Union[list[str], str], value
     _commented_yaml_loader = YAML()
     try:
         with yaml_file.open(mode='r') as file:
-            _y = _commented_yaml_loader.load(file) or {}
-            _y = set_nested_key(_y, keys, value)
+            commented_file = _commented_yaml_loader.load(file) or {}
+            commented_file = set_nested_key(commented_file, keys, value)
         with yaml_file.open(mode='w') as file:
-            _commented_yaml_loader.dump(_y, yaml_file)
+            _commented_yaml_loader.dump(commented_file, yaml_file)
     except OSError:
         return
 
@@ -109,12 +109,12 @@ def write_yaml_value_from_context(yaml_file: pathlib.Path, context_id: str, keys
     _commented_yaml_loader = YAML()
     try:
         with yaml_file.open(mode='r') as file:
-            _y = _commented_yaml_loader.load(file) or {}
-            _temp = _y[context_id]
-            _z = set_nested_key(_temp, keys, value)
-            _y[context_id] = _z
+            commented_file = _commented_yaml_loader.load(file) or {}
+            temp_file = commented_file[context_id]
+            nested_dict = set_nested_key(temp_file, keys, value)
+            commented_file[context_id] = nested_dict
         with yaml_file.open(mode='w') as file:
-            _commented_yaml_loader.dump(_y, yaml_file)
+            _commented_yaml_loader.dump(commented_file, yaml_file)
     except OSError:
         return
 
@@ -175,9 +175,7 @@ def get_file_config_from_keys(hvac_client: Client, context_id: str, config_file:
         logger.info(f"{organization_name}/{tenant_id}:babylon/config/{resource}/{key_name} not found")
         sys.exit(1)
     data = unflatten_list(response['data'], separator=".")
-    temp = dict()
-    temp[context_id] = data
-    yaml_file = yaml.dump(temp)
+    yaml_file = yaml.dump({context_id: data})
     tmpf = tempfile.NamedTemporaryFile(mode="w+")
     tmpf.write(yaml_file)
     tmpf.seek(0)

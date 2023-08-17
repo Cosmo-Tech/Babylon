@@ -252,7 +252,7 @@ class Environment(metaclass=SingletonMeta):
             client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
         except Exception as e:
             logger.error(e)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{self.environ_id}/{name}",)
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{self.environ_id}/{name}")
         if data is None:
             return None
         return data['data']['secret']
@@ -263,7 +263,7 @@ class Environment(metaclass=SingletonMeta):
         except Exception as e:
             logger.error(e)
             sys.exit(1)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}",)
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
         if data is None:
             return None
         return data['data']['secret']
@@ -293,7 +293,7 @@ class Environment(metaclass=SingletonMeta):
         except Exception as e:
             logger.error(e)
             sys.exit(1)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}",)
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
         if data is None:
             return None
         return data['data']['secret']
