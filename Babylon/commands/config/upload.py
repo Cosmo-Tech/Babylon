@@ -49,15 +49,14 @@ def upload(
             logger.info(f"rw {vault_path_config}/{config_file}")
             for i in section_keys:
                 secrets_data.setdefault(i, section_data[i])
-            questions = [inquirer.Text(
-                name=secret_key, 
-                message=secret_key, 
-                default=secrets_data[secret_key]) for secret_key in section_keys]
+            questions = [
+                inquirer.Text(name=secret_key, message=secret_key, default=secrets_data[secret_key])
+                for secret_key in section_keys
+            ]
             answers = inquirer.prompt(questions)
             if not answers:
                 return CommandResponse.fail()
-            hvac_client.write(path=f"{vault_path_config} /{config_file}",
-                              **answers)
+            hvac_client.write(path=f"{vault_path_config} /{config_file}", **answers)
             logger.info(f"Configuration {environ_id}/{config_file} successfully created")
         elif platforms and config_file in platforms['data']['keys']:
             logger.info(f"{vault_path_config} / {config_file} already exists")
@@ -67,10 +66,9 @@ def upload(
             new_secrets_data = dict()
             for i in section_keys:
                 new_secrets_data.update({i: section_data[i]})
-            questions = [inquirer.Text(
-                new_key, 
-                message=new_key, 
-                default=new_secrets_data[new_key]) for new_key in section_keys]
+            questions = [
+                inquirer.Text(new_key, message=new_key, default=new_secrets_data[new_key]) for new_key in section_keys
+            ]
             answers = inquirer.prompt(questions)
             if not answers:
                 return CommandResponse.fail()
