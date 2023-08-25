@@ -14,7 +14,7 @@ sep = "."
 def get_section_and_replace(section: str, new_value: Any, data: dict, unflatten: bool = True):
     """Replace section in yaml file"""
     flatten_data = flatten(data, separator=sep)
-    # add new sectin in flatten object
+    # add new section in flatten object
     if isinstance(new_value, list):
         # subclasses in new_value
         for key_new_section in new_value:
