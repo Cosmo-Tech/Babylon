@@ -42,9 +42,6 @@ class QueryType(ParamType):
         """
 
         logger.debug(f"Converting '{value}' for parameter '{param.name}'")
-
-        # print(value)
-
         try:
             r = env.convert_data_query(query=value)
         except KeyError as _ke:

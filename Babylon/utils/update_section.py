@@ -13,30 +13,38 @@ sep = "."
 
 def get_section_and_replace(section: str, new_value: Any, data: dict, unflatten: bool = True):
     """Replace section in yaml file"""
-    s = flatten(data, separator=sep)
+    flatten_data = flatten(data, separator=sep)
+    # add new sectin in flatten object
     if isinstance(new_value, list):
-        for i, k in enumerate(new_value):
-            if isinstance(k, dict):
-                if section in s:
-                    del s[section]
-                tmp = flatten(k, separator=sep)
-                for w, k in tmp.items():
-                    s.update({f"{section}.{i}.{w}": k})
+        # subclasses in new_value
+        for key_new_section in new_value:
+            if isinstance(key_new_section, dict):
+                # delete old section
+                if section in flatten_data:
+                    del flatten_data[section]
+                # replace section
+                flatten_tmp = flatten(key_new_section, separator=sep)
+                for new_section_to_replace, key_new_section in flatten_tmp.items():
+                    new_key = f"{section}.{new_section_to_replace}.{new_section_to_replace}"
+                    flatten_data.update({new_key: key_new_section})
             else:
-                s.update({f"{section}.{i}": k})
+                flatten_data.update({f"{section}.{new_section_to_replace}": key_new_section})
     elif isinstance(new_value, dict):
-        tmp = flatten(new_value, separator=sep)
-        if section in s:
-            del s[section]
-        for i, k in tmp.items():
-            s.update({f"{section}.{i}": k})
+        # flatten subclass dict in new_value
+        flatten_tmp = flatten(new_value, separator=sep)
+        # delete old section
+        if section in flatten_data:
+            del flatten_data[section]
+        # replace section
+        for new_section_to_replace, key_new_section in flatten_tmp.items():
+            flatten_data.update({f"{section}.{new_section_to_replace}": key_new_section})
     else:
-        s[section] = new_value
+        flatten_data[section] = new_value
 
     if unflatten:
-        final = unflatten_list(s, separator=sep)
+        final = unflatten_list(flatten_data, separator=sep)
     else:
-        final = s
+        final = flatten_data
     return final
 
 

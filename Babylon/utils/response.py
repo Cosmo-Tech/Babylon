@@ -50,8 +50,7 @@ class CommandResponse():
 
     def dump_yaml(self, output_file: pathlib.Path):
         """Dump command response data in a yaml file"""
-        temp = self.to_dict()
-        yaml_file = yaml.dump(temp['data'])
+        yaml_file = yaml.dump(self.data)
         tmpf = tempfile.NamedTemporaryFile(mode="w+")
         tmpf.write(yaml_file)
         tmpf.seek(0)
