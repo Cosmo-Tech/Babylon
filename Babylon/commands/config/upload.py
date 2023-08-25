@@ -33,7 +33,7 @@ def upload(
 
     platforms = hvac_client.list(path=vault_path_config)
     if platforms is None and not yes:
-        question = [inquirer.Confirm(name="new_platform", message="Do you want continue")]
+        question = [inquirer.Confirm(name="new_platform", message="Do you want to continue")]
         response = inquirer.prompt(question)
         if not response['new_platform']:
             return CommandResponse.fail()
