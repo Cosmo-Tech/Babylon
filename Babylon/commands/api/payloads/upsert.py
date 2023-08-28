@@ -28,13 +28,8 @@ def _normalize(key: str, item: str, idx: int, data_o_f: dict):
         data_o_f.update({new_end_key: v})
     return unflatten_list(data_o_f, separator=".")
 
-def _get_result_if_match(data_o: dict,
-                         data_stdin: dict,
-                         key: str,
-                         idx: int,
-                         data_o_f: dict, 
-                         old: str, 
-                         key_stdin: str):
+
+def _get_result_if_match(data_o: dict, data_stdin: dict, key: str, idx: int, data_o_f: dict, old: str, key_stdin: str):
     result = data_o
     for item in data_stdin:
         if item[key_stdin] != old[key_stdin]:
@@ -43,12 +38,7 @@ def _get_result_if_match(data_o: dict,
     return result
 
 
-def _get_results(query: str, 
-                 data_stdin: dict, 
-                 data_o: dict, 
-                 data_o_f: dict, 
-                 key_query: str, 
-                 selector: str = None):
+def _get_results(query: str, data_stdin: dict, data_o: dict, data_o_f: dict, key_query: str, selector: str = None):
     _match = jmespath.search(query, data_o)
     if _match is None:
         logger.info("Query error: object not found")
@@ -87,14 +77,14 @@ def upsert(origin_file: pathlib.Path, target_file: pathlib.Path, query: str, sec
     data_stdin = yaml.safe_load(data_s.read())
     result = None
     powerbi_section = dashboard_view or scenario_view
-    
+
     if query and not flat and powerbi_section:
         selector = "dashboardsView" if dashboard_view else "scenarioview"
         result = _get_results(query, data_stdin, data_o, data_o_f, "reportId", selector)
 
     if query and not flat and not powerbi_section:
         result = _get_results(query, data_stdin, data_o, data_o_f, "id")
-        
+
     if not query and not flat and not powerbi_section:
         for item in enumerate(data_stdin):
             _q = f"{section}[?id=='{item['id']}'] |"
