@@ -17,6 +17,55 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 
+def _normalize(key: str, item: str, idx: int, data_o_f: dict):
+    d = dict()
+    d[key] = [item]
+    test = flatten(d, separator=".")
+    for k, v in test.items():
+        i = k.index("0")
+        end = k[i + 2:]
+        new_end_key = f"{key}.{idx}.{end}"
+        data_o_f.update({new_end_key: v})
+    return unflatten_list(data_o_f, separator=".")
+
+def _get_result_if_match(data_o: dict,
+                         data_stdin: dict,
+                         key: str,
+                         idx: int,
+                         data_o_f: dict, 
+                         old: str, 
+                         key_stdin: str):
+    result = data_o
+    for item in data_stdin:
+        if item[key_stdin] != old[key_stdin]:
+            continue
+        result = _normalize(key, item, idx, data_o_f)
+    return result
+
+
+def _get_results(query: str, 
+                 data_stdin: dict, 
+                 data_o: dict, 
+                 data_o_f: dict, 
+                 key_query: str, 
+                 selector: str = None):
+    _match = jmespath.search(query, data_o)
+    if _match is None:
+        logger.info("Query error: object not found")
+        return CommandResponse.fail()
+    key, old = _match.get("key"), _match.get("value")
+    try:
+        selector = selector or key
+        idx = data_o[selector].index(old)
+    except AttributeError as exp:
+        logger.warn(exp)
+        return CommandResponse.fail()
+
+    if _match:
+        return _get_result_if_match(data_o, data_stdin, key, idx, data_o_f, old, key_query)
+    return None
+
+
 @command()
 @option("--flatten", "flat", is_flag=True, help="Flatten option")
 @option("--dashboard_view", "dashboard_view", is_flag=True, help="dashboard_view section")
@@ -37,64 +86,16 @@ def upsert(origin_file: pathlib.Path, target_file: pathlib.Path, query: str, sec
     data_s = click.get_text_stream('stdin', encoding="utf-8")
     data_stdin = yaml.safe_load(data_s.read())
     result = None
-    if query and not flat and (dashboard_view or scenario_view):
-        _match = jmespath.search(query, data_o)
-        if _match is None:
-            logger.info("Query error: object not found")
-            return CommandResponse.fail()
-        key = _match.get("key")
-        old = _match.get("value")
-        try:
-            _key = "dashboardsView" if dashboard_view else "scenarioview"
-            idx = data_o["webApp"]["options"]["charts"][_key].index(old)
-        except AttributeError as exp:
-            logger.warn(exp)
-            return CommandResponse.fail()
+    powerbi_section = dashboard_view or scenario_view
+    
+    if query and not flat and powerbi_section:
+        selector = "dashboardsView" if dashboard_view else "scenarioview"
+        result = _get_results(query, data_stdin, data_o, data_o_f, "reportId", selector)
 
-        if _match:
-            result = data_o
-            for item in data_stdin:
-                if item['reportId'] != old['reportId']:
-                    continue
-                d = dict()
-                d[key] = [item]
-                test = flatten(d, separator=".")
-                for k, v in test.items():
-                    i = k.index("0")
-                    end = k[i + 2:]
-                    nk = f"{key}.{idx}.{end}"
-                    data_o_f.update({nk: v})
-                result = unflatten_list(data_o_f, separator=".")
-
-    if query and not flat and not (dashboard_view or scenario_view):
-        _match = jmespath.search(query, data_o)
-        if _match is None:
-            logger.info("Query error: object not found")
-            return CommandResponse.fail()
-        key = _match.get("key")
-        old = _match.get("value")
-        try:
-            idx = data_o[key].index(old)
-        except AttributeError as exp:
-            logger.warn(exp)
-            return CommandResponse.fail()
-
-        if _match:
-            result = data_o
-            for item in data_stdin:
-                if item['id'] != old['id']:
-                    continue
-                d = dict()
-                d[key] = [item]
-                test = flatten(d, separator=".")
-                for k, v in test.items():
-                    i = k.index("0")
-                    end = k[i + 2:]
-                    nk = f"{key}.{idx}.{end}"
-                    data_o_f.update({nk: v})
-                result = unflatten_list(data_o_f, separator=".")
-
-    if not query and not flat and not (dashboard_view or scenario_view):
+    if query and not flat and not powerbi_section:
+        result = _get_results(query, data_stdin, data_o, data_o_f, "id")
+        
+    if not query and not flat and not powerbi_section:
         for item in enumerate(data_stdin):
             _q = f"{section}[?id=='{item['id']}'] |"
             _q += "{" + "\"key\": '{s}'".format(s=section) + ", value: [0]}"
@@ -103,15 +104,7 @@ def upsert(origin_file: pathlib.Path, target_file: pathlib.Path, query: str, sec
             found = _match.get("value") if _match else False
             if found:
                 idx = data_o[key].index(_match.get("value"))
-                d = dict()
-                d[key] = [item]
-                test = flatten(d, separator=".")
-                for k, v in test.items():
-                    i = k.index("0")
-                    end = k[i + 2:]
-                    nk = f"{key}.{idx}.{end}"
-                    data_o_f.update({nk: v})
-                result = unflatten_list(data_o_f, separator=".")
+                result = _normalize(key, item, idx, data_o_f)
             else:
                 data_o[key] = data_o[key] or []
                 data_o[key].append(item)
