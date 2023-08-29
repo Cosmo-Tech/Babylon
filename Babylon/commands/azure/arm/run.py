@@ -72,15 +72,12 @@ def run(
                 properties=DeploymentProperties(mode=mode, template=arm_template, parameters=parameters)),
         )
         poller.wait()
-        # check if done
         if not poller.done():
             return CommandResponse.fail()
-        # deployments created
 
     except HttpResponseError as _e:
         logger.error(f"An error occurred : {_e.message}")
         return CommandResponse.fail()
 
-    _ret: list[str] = ["Provisioning state: successful"]
-    logger.info("\n".join(_ret))
+    logger.info("Provisioning state: successful")
     return CommandResponse.success()

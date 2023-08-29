@@ -48,7 +48,7 @@ def create(ctx: Context, azure_token: str, name: str, select: bool, registration
 
     sp_response = polling2.poll(
         lambda: oauth_request(sp_route, azure_token, type="POST", json={"appId": output_data['appId']}),
-        check_success=is_correct_response_serviceprincipal,
+        check_success=is_correct_response_app,
         step=1,
         timeout=60)
     sp_response = sp_response.json()
@@ -72,13 +72,4 @@ def is_correct_response_app(response):
     if response is None:
         return CommandResponse.fail()
     output_data = response.json()
-    if "id" in output_data:
-        return True
-
-
-def is_correct_response_serviceprincipal(response):
-    if response is None:
-        return CommandResponse.fail()
-    output_data = response.json()
-    if "id" in output_data:
-        return True
+    return "id" in output_data

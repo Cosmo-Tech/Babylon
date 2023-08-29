@@ -84,39 +84,23 @@ def create(ctx: Context,
         subscription_id=azure_subscription,
     )
 
-    try:
-        authorization_client.role_assignments.create(
-            scope,
-            str(uuid.uuid4()),
-            {
-                "roleDefinitionId":
-                    "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
-                    adt_data_owner_role_id,
-                "principalId":
-                    context['babylon_principal_id'],
-                "principalType":
-                    "ServicePrincipal",
-            },
-        )
-    except Exception as e:
-        logger.error(f"Failed to assign a new role to ADT instance '{name}': {e}")
-
-    try:
-        authorization_client.role_assignments.create(
-            scope,
-            str(uuid.uuid4()),
-            {
-                "roleDefinitionId":
-                    "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
-                    adt_data_owner_role_id,
-                "principalId":
-                    context['platform_principal_id'],
-                "principalType":
-                    "ServicePrincipal",
-            },
-        )
-    except Exception as e:
-        logger.error(f"Failed to assign a new role to ADT instance '{name}': {e}")
+    for principal_id in ['babylon_principal_id', 'platform_principal_id']:
+        try:
+            authorization_client.role_assignments.create(
+                scope,
+                str(uuid.uuid4()),
+                {
+                    "roleDefinitionId":
+                        "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
+                        adt_data_owner_role_id,
+                    "principalId":
+                        context[principal_id],
+                    "principalType":
+                        "ServicePrincipal",
+                },
+            )
+        except Exception as e:
+            logger.error(f"Failed to assign a new role to ADT instance '{name}': {e}")
 
     if select:
         env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
