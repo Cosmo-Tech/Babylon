@@ -36,8 +36,8 @@ def create(
     """
     check_alphanum(password_name)
     object_id = object_id or context['app_object_id']
-    org_id : str = context['api_organization_id']
-    work_key : str = context['api_workspace_key']
+    org_id: str = context['api_organization_id']
+    work_key: str = context['api_workspace_key']
     route = f"https://graph.microsoft.com/v1.0/applications/{object_id}/addPassword"
     password_name = password_name or f"secret_{work_key}"
     details = {"passwordCredential": {"displayName": password_name}}

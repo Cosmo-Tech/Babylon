@@ -90,12 +90,12 @@ def create(ctx: Context,
             str(uuid.uuid4()),
             {
                 "roleDefinitionId":
-                "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
-                adt_data_owner_role_id,
+                    "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
+                    adt_data_owner_role_id,
                 "principalId":
-                context['babylon_principal_id'],
+                    context['babylon_principal_id'],
                 "principalType":
-                "ServicePrincipal",
+                    "ServicePrincipal",
             },
         )
     except Exception as e:
@@ -107,12 +107,12 @@ def create(ctx: Context,
             str(uuid.uuid4()),
             {
                 "roleDefinitionId":
-                "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
-                adt_data_owner_role_id,
+                    "/subscriptions/" + azure_subscription + "/providers/Microsoft.Authorization/roleDefinitions/" +
+                    adt_data_owner_role_id,
                 "principalId":
-                context['platform_principal_id'],
+                    context['platform_principal_id'],
                 "principalType":
-                "ServicePrincipal",
+                    "ServicePrincipal",
             },
         )
     except Exception as e:

@@ -6,7 +6,7 @@ from click import Context, command, pass_context
 from click import option
 from click import Path
 from click import argument
-from Babylon.utils.checkers import check_alpha, check_ascii
+from Babylon.utils.checkers import check_ascii
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse

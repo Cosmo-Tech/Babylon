@@ -1,14 +1,14 @@
 import json
 import logging
 import pathlib
-from typing import Any, Optional
 
+from typing import Any
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.resource.resources.models import DeploymentMode
 from azure.mgmt.resource.resources.models import Deployment
 from azure.mgmt.resource.resources.models import DeploymentProperties
-from click import Path, argument, option
+from click import argument, option
 from click import command
 from Babylon.utils.interactive import confirm_deploy_arm_mode
 from Babylon.utils.typing import QueryType
