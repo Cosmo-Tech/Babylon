@@ -33,8 +33,7 @@ def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
 
     macro = Macro("webapp deploy").step(["azure", "staticwebapp", "get", f'{prefixWebApp}{deployment_name}'],
                                         store_at="webapp")
-    web = macro.env.get_data_from_store(["webapp", "id"])
-    if not web:
+    if not macro.env.get_data_from_store(["webapp", "id"]):
         macro = macro.step(["azure", "staticwebapp", "create", f"{prefixWebApp}{deployment_name}"]).wait(5)
     else:
         logger.info("The webapp already exists")
