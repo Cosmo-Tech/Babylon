@@ -57,8 +57,7 @@ def deploy(context: Any,
     macro = Macro("powerbi workspace deploy").step(["powerbi", "workspace", "get", "-n", workspace_name],
                                                    store_at="workspace")
 
-    w = macro.env.get_data_from_store(["workspace"])
-    if not w:
+    if not macro.env.get_data_from_store(["workspace"]):
         macro.step(["powerbi", "workspace", "create", workspace_name], store_at="workspace")
 
     macro = macro.step(["powerbi", "workspace", "user", "get-all", "--filter", f"[?emailAddress=='{email}']"],

@@ -46,8 +46,10 @@ def pages(
 
     yaml_loader = YAML()
     data_file = env.configuration.config_dir / f"{env.context_id}.{env.environ_id}.powerbi.yaml"
-    if data_file.exists():
-        yaml_file = data_file
+    if not data_file.exists():
+        logger.info(f"Config file {env.context_id}.{env.environ_id}.powerbi.yaml not found")
+        return CommandResponse.fail()
+    yaml_file = data_file
     with yaml_file.open(mode='r') as _f:
         data = yaml_loader.load(_f)
     _view = data[env.context_id][report_type]
