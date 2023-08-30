@@ -46,6 +46,7 @@ def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
         name = i['displayName']
         if f"{prefixApp}{deployment_name}" in name:
             created = True
+            logger.info("The app already exists")
             sys.exit(1)
 
     if not created:
