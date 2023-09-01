@@ -26,7 +26,6 @@ env = Environment()
         required=True,
         help="Override folder containing your .pbix files")
 @option("--parameter",
-        "-p",
         "report_parameters",
         type=(QueryType(), QueryType()),
         multiple=True,

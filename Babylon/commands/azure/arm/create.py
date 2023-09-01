@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @wrapcontext()
 @timing_decorator
 @describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
-@option("-t", "--template-uri", "template_uri", type=QueryType())
+@option("--template-uri", "template_uri", type=QueryType())
 @argument("deployment_name", type=QueryType())
 def create(
     deployment_name: str,

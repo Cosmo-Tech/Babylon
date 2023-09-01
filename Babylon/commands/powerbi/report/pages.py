@@ -2,7 +2,7 @@ import logging
 import jmespath
 
 from typing import Any
-from click import command
+from click import Choice, command
 from click import argument
 from click import option
 from Babylon.utils.environment import Environment
