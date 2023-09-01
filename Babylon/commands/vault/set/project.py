@@ -26,7 +26,7 @@ def project(context: Any, hvac_client: Client, resource: str, value: str) -> Com
     work_key: str = context['api_workspace_key']
     d = dict(secret=value)
     prefix = f"{env.organization_name}/{env.tenant_id}/projects/{env.context_id}"
-    schema = f"{prefix}/{env.environ_id}/{org_id.lower()}/{work_key.lower()}/{resource.lower()}"
+    schema = f"{prefix}/{env.environ_id}/{org_id}/{work_key}/{resource}".lower()
     hvac_client.write(path=schema, **d)
     logger.info("Successfully created")
     return CommandResponse.success()
