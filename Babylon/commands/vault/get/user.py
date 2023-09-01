@@ -22,10 +22,10 @@ def get_user_secrets(hvac_client: Client, email: str, resource: str, name: str) 
     Get a secret from user scope
     """
     check_email(email)
-    schema = f"{env.organization_name}/{env.tenant_id}/cache/{email}/{resource}"
+    schema = f"{env.organization_name}/{env.tenant_id}/users/{email}/{resource}"
     response = hvac_client.read(path=schema)
     if response is None:
-        logger.info(f"{resource} not found")
+        logger.error(f"{resource} not found")
         return CommandResponse.fail()
 
     data = response['data']
