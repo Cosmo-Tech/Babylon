@@ -23,7 +23,7 @@ logger = logging.getLogger("Babylon")
 @wrapcontext()
 @timing_decorator
 @pass_adt_client
-@option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
+@option("--override", "override_if_exists", is_flag=True, help="Override existing models")
 @describe_dry_run("Would go through the given file and upload the models to ADT")
 @argument("model_file_folder",
           type=Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))

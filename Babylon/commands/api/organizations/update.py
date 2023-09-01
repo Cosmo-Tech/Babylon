@@ -24,8 +24,7 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("-f",
-        "--file",
+@option("--file",
         "organization_file",
         type=Path(path_type=pathlib.Path),
         help="Your custom organization description file (yaml or json)")

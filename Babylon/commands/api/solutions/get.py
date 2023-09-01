@@ -21,7 +21,7 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this solution in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this solution in configuration")
 @argument("id", type=QueryType(), required=False)
 @inject_context_with_resource({"api": ['url', 'organization_id']})
 def get(ctx: Context, context: Any, azure_token: str, id: str, select: bool) -> CommandResponse:

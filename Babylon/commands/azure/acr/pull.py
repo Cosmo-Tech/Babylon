@@ -18,8 +18,8 @@ env = Environment()
 @command()
 @wrapcontext()
 @timing_decorator
-@option("-i", "--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Select this repository in configuration")
+@option("--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
+@option("--select", "select", is_flag=True, default=True, help="Select this repository in configuration")
 @inject_context_with_resource({'acr': ['login_server', 'simulator_repository', 'simulator_version']}, required=False)
 def pull(context: Any, select: bool, image: Optional[str] = None) -> CommandResponse:
     """

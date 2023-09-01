@@ -25,7 +25,7 @@ env = Environment()
 @pass_context
 @pass_kusto_client
 @timing_decorator
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this new database in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this new database in configuration")
 @argument("name", type=QueryType(), required=False)
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],
