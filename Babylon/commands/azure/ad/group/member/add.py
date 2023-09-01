@@ -11,8 +11,8 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token("graph")
-@option("-gi", "--group-id", "group_id", type=QueryType(), required=True)
-@option("-pi", "--object-id", "object_id", type=QueryType(), required=True)
+@option("--gi", "--group-id", "group_id", type=QueryType(), required=True)
+@option("--pi", "--object-id", "object_id", type=QueryType(), required=True)
 def add(
     azure_token: str,
     group_id: str,

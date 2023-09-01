@@ -19,7 +19,7 @@ env = Environment()
 
 @command()
 @timing_decorator
-@option("-i", "--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
+@option("--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
 @option("-D", "force_validation", is_flag=True, default=True, help="Delete on force mode")
 @inject_context_with_resource({'acr': ['login_server', 'simulator_repository', 'simulator_version']}, required=False)
 def delete(context: Any, image: Optional[str] = None, force_validation: Optional[bool] = False) -> CommandResponse:

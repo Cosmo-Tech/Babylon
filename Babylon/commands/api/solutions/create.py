@@ -29,13 +29,12 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option(
-    "-f",
     "--file",
     "solution_file",
     type=Path(path_type=pathlib.Path),
     help="Your custom solution description file (yaml or json)",
 )
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this new solution in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this new solution in configuration")
 @argument("name", type=QueryType())
 @inject_context_with_resource({"api": ['url', 'organization_id'], 'acr': ['simulator_repository', 'simulator_version']})
 def create(ctx: Context, context: Any, azure_token: str, name: str, solution_file: pathlib.Path,

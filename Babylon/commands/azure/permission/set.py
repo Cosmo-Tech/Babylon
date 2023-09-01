@@ -19,15 +19,14 @@ env = Environment()
 
 @command()
 @pass_iam_client
-@option("-rt", "--resource-type", "resource_type", type=QueryType())
-@option("-rn", "--resource-name", "resource_name", type=QueryType())
-@option("-pt",
-        "--principal-type",
+@option("--resource-type", "resource_type", type=QueryType())
+@option("--resource-name", "resource_name", type=QueryType())
+@option("--principal-type",
         "principal_type",
         type=Choice(["User", "Group", "ServicePrincipal", "ForeignGroup", "Device"]),
         default="ServicePrincipal")
-@option("-pi", "--principal-id", "principal_id", type=QueryType(), required=True)
-@option("-ri", "--role-id", "role_id", type=QueryType(), required=True)
+@option("--principal-id", "principal_id", type=QueryType(), required=True)
+@option("--role-id", "role_id", type=QueryType(), required=True)
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],
     'azure': ['resource_group_name', 'subscription_id'],

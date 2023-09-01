@@ -23,8 +23,8 @@ env = Environment()
 @pass_context
 @output_to_file
 @pass_azure_token("graph")
-@option("-f", "--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this new organization in configuration")
+@option("--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--select", "select", is_flag=True, default=True, help="Save this new organization in configuration")
 @argument("name", type=QueryType())
 def create(ctx: Context, azure_token: str, name: str, select: bool, registration_file: pathlib.Path) -> CommandResponse:
     """

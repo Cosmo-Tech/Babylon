@@ -9,7 +9,7 @@ env = Environment()
 
 
 @command()
-@option("-e", "--email", "email", help="User email")
+@option("--email", "email", help="User email")
 @option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True)
 def get(scope: str, email: str) -> CommandResponse:
     """

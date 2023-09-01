@@ -24,7 +24,6 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option(
-    "-f",
     "--file",
     "solution_file",
     type=Path(path_type=pathlib.Path),

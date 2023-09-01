@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@option("-e", "--email", "email", help="User email")
+@option("--email", "email", help="User email")
 @option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True)
 @inject_context_with_resource({'azure': ['user_principal_id', 'cli_client_id']})
 def store(context: Any, scope: str, email: str) -> CommandResponse:

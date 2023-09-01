@@ -22,13 +22,11 @@ env = Environment()
 @command()
 @timing_decorator
 @pass_kusto_client
-@option("-r",
-        "--role",
+@option("--role",
         type=Choice(["User", "Viewer", "Admin"], case_sensitive=False),
         required=True,
         help="Assignment Role to Add")
-@option("-t",
-        "--principal-type",
+@option("--principal-type",
         type=Choice(["User", "Group", "App"], case_sensitive=False),
         required=True,
         help="Principal type of the given ID")

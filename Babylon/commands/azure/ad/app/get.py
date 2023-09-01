@@ -20,7 +20,7 @@ env = Environment()
 @output_to_file
 @pass_azure_token("graph")
 @argument("object_id", type=QueryType())
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this app in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this app in configuration")
 def get(
     ctx: Context,
     azure_token: str,

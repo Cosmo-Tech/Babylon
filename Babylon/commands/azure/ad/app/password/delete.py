@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_azure_token("graph")
-@option("-k", "--key", "key_id", help="Password Key ID", required=True, type=QueryType())
+@option("--key", "key_id", help="Password Key ID", required=True, type=QueryType())
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
 @argument("object_id", type=QueryType())
 def delete(azure_token: str, object_id: str, key_id: str, force_validation: bool = False) -> CommandResponse:

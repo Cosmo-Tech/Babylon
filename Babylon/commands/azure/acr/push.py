@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@option("-i", "--image", type=QueryType(), help="Local docker image to push")
+@option("--image", type=QueryType(), help="Local docker image to push")
 @timing_decorator
 @inject_context_with_resource({'acr': ['login_server', 'simulator_repository', 'simulator_version']}, required=False)
 def push(

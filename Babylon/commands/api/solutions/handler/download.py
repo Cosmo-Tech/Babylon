@@ -21,7 +21,7 @@ env = Environment()
 @pass_azure_token("csm_api")
 @option("--org-id", "org_id", type=QueryType(), help="Organization id or referenced in configuration")
 @option("--sol-id", "sol_id", type=QueryType(), help="Solution id or referenced in configuration")
-@option("-r", "--run-template", "run_template_id", help="The run Template identifier", required=True, type=QueryType())
+@option("--run-template", "run_template_id", help="The run Template identifier", required=True, type=QueryType())
 @argument("handler_id", type=QueryType())
 @inject_context_with_resource({'api': ['url', 'organization_id', "solution_id"]})
 def download(context: Any, azure_token: str, org_id: str, sol_id: str, handler_id: str,

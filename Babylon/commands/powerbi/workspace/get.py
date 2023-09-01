@@ -17,9 +17,9 @@ env = Environment()
 
 @command()
 @pass_powerbi_token()
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@option("-n", "--name", "name", help="PowerBI workspace name", type=QueryType())
-@option("-s", "--select", "select", is_flag=True, default=True, help="Select this workspace PowerBI")
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--name", "name", help="PowerBI workspace name", type=QueryType())
+@option("--select", "select", is_flag=True, default=True, help="Select this workspace PowerBI")
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get(
     context: Any,

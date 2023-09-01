@@ -24,16 +24,12 @@ env = Environment()
 @command()
 @timing_decorator
 @pass_powerbi_token()
-@option("-f",
-        "--file",
-        "pbix_filename",
-        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
-        required=True)
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--file", "pbix_filename", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Select this new report in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Select this new report in configuration")
 @option("-n", "--name", "report_name", type=QueryType())
-@option("-t", "--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True)
+@option("--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True)
 @inject_context_with_resource({"powerbi": ['workspace']})
 def upload(
     context: Any,

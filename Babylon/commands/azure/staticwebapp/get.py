@@ -19,7 +19,7 @@ env = Environment()
 
 @command()
 @pass_azure_token()
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this new connector in your configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this new connector in your configuration")
 @argument("name", type=QueryType())
 @inject_context_with_resource({'azure': ['resource_group_name', 'subscription_id']})
 def get(context: Any, azure_token: str, select: bool, name: str) -> CommandResponse:

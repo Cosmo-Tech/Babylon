@@ -19,7 +19,7 @@ env = Environment()
 @pass_context
 @output_to_file
 @pass_azure_token("graph")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this app in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this app in configuration")
 @argument("object_id", type=QueryType())
 def get_principal(ctx: Any, azure_token: str, select: bool, object_id: str) -> CommandResponse:
     """

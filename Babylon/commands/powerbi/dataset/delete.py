@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @pass_powerbi_token()
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
