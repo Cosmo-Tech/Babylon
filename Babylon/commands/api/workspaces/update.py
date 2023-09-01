@@ -23,8 +23,7 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--org-id", "org_id", type=QueryType())
-@option("-f",
-        "--file",
+@option("--file",
         "workspace_file",
         type=Path(path_type=pathlib.Path),
         help="Your custom workspace description file (yaml or json)")

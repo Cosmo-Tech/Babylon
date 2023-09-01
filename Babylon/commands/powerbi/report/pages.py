@@ -20,8 +20,8 @@ env = Environment()
 @command()
 @output_to_file
 @pass_powerbi_token()
-@option("-t", "--report_type", "report_type", type=QueryType())
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--report-type", "report_type", type=QueryType())
+@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def pages(

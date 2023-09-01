@@ -23,8 +23,8 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("-r", "--role", "role", type=QueryType(), required=True, default="viewer")
-@option("-e", "--email", "email", type=QueryType(), required=True)
+@option("--role", "role", type=QueryType(), required=True, default="viewer")
+@option("--email", "email", type=QueryType(), required=True)
 @inject_context_with_resource({"api": ['url', 'organization_id', 'workspace_id']})
 def add(
     context: Any,

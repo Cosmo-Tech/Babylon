@@ -28,13 +28,12 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("-f",
-        "--file",
+@option("--file",
         "dataset_file",
         type=Path(path_type=pathlib.Path),
         help="Your custom dataset description file (yaml or json)")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this dataset in configuration")
-@option("-t", "--type", "type", type=Choice(['adt', 'storage']), required=True)
+@option("--select", "select", is_flag=True, default=True, help="Save this dataset in configuration")
+@option("--type", "type", type=Choice(['adt', 'storage']), required=True)
 @argument("name", type=QueryType())
 @inject_context_with_resource({'api': ['url', 'organization_id', 'connector']})
 def create(

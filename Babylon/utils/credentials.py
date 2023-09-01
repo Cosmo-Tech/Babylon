@@ -104,7 +104,7 @@ def pass_powerbi_token() -> Callable[..., Any]:
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
-        @option("-e", "--email", "email", help="User email")
+        @option("--email", "email", help="User email")
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             email = kwargs.pop("email", None)

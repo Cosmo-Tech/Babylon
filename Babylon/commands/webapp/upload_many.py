@@ -13,8 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@option("-f",
-        "--files",
+@option("--files",
         "files",
         type=(pathlib.Path),
         multiple=True,

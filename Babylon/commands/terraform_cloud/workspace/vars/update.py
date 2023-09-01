@@ -21,7 +21,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @pass_tfc_client
 @describe_dry_run("Would send a variable update payload to terraform")
-@option("-w", "--workspace", "workspace_id", help="Id of the workspace to use", type=QueryType())
+@option("--workspace","workspace_id", help="Id of the workspace to use", type=QueryType())
 @option("--value", "var_value", help="A new value to apply to the variable", type=QueryType())
 @option("--description", "var_description", help="A new description to apply to the variable", type=QueryType())
 @argument("var_key", type=QueryType())

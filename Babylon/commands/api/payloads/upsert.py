@@ -70,7 +70,7 @@ def _get_results(query: str,
 @option("--target", "target_file", required=True, type=Path(path_type=pathlib.Path), help="yaml file to dump changes")
 @option("--query", "query", type=str, help="Jmespath query")
 @option("--section", "section", type=str, help="section in yaml file to perform changes")
-@argument("stream", help="Argument to wrap stdin with click context")
+@argument("stream")
 def upsert(origin_file: pathlib.Path, target_file: pathlib.Path, query: str, section: str, flat: bool, stream: Any,
            dashboard_view: bool, scenario_view: bool) -> CommandResponse:
     """

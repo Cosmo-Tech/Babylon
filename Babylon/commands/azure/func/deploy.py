@@ -24,7 +24,7 @@ env = Environment()
 @command()
 @pass_arm_client
 @option("--complete-mode", "deploy_mode_complete", is_flag=True)
-@option("-f", "--file", "deploy_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file", "deploy_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @argument("deployment_name", type=QueryType())
 @inject_context_with_resource({'api': ['organization_id', 'workspace_key'], 'azure': ['resource_group_name']})
 def deploy(

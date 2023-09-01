@@ -16,7 +16,7 @@ env = Environment()
 
 @command()
 @output_to_file
-@option("-f", "--file", "config_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file", "config_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 def export_config(config_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """
     Export webapp configuration in a json file

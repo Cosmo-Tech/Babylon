@@ -11,7 +11,7 @@ env = Environment()
 
 
 @command()
-@option("-t", "--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
+@option("--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
 def create(type: str) -> CommandResponse:
     init_file = env.working_dir.original_template_path / f"api/connector.{type}.yaml"
     target_file = env.working_dir.payload_path / f"{env.context_id}.{env.environ_id}.connector.{type}.yaml"

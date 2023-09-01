@@ -20,7 +20,7 @@ env = Environment()
 
 @command()
 @pass_azure_token()
-@option("-f", "--file", "settings_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@option("--file", "settings_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @argument("webapp_name", type=QueryType())
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],

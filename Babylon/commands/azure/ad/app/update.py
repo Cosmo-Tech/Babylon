@@ -18,8 +18,7 @@ env = Environment()
 
 @command()
 @pass_azure_token("graph")
-@option("-f",
-        "--file",
+@option("--file",
         "registration_file",
         type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
         required=True)

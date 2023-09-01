@@ -23,9 +23,8 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("-t", "--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
-@option("-f",
-        "--file",
+@option("--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
+@option("--file",
         "dataset_file",
         type=Path(path_type=pathlib.Path),
         help="Your custom dataset description file (yaml or json)")

@@ -27,14 +27,13 @@ env = Environment()
 @timing_decorator
 @pass_context
 @pass_azure_token("csm_api")
-@option("-f",
-        "--file",
+@option("--file",
         "connector_file",
         type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
         help="Your custom connector description file (yaml or json)")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save the connector in configuration")
-@option("-t", "--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
-@option("-v", "--version", "version", type=QueryType(), required=True)
+@option("--select", "select", is_flag=True, default=True, help="Save the connector in configuration")
+@option("--type", "type", type=Choice(['adt', 'storage', 'twin']), required=True)
+@option("--version", "version", type=QueryType(), required=True)
 @argument("name", type=QueryType(), required=True)
 @output_to_file
 @inject_context_with_resource({"api": ["url"]})

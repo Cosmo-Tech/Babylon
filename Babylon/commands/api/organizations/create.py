@@ -28,14 +28,13 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("-e", "--email", "security_id", type=QueryType())
-@option("-r", "--role", "security_role", type=QueryType(), default="Admin", required=True)
-@option("-f",
-        "--file",
+@option("--email", "security_id", type=QueryType())
+@option("--role", "security_role", type=QueryType(), default="Admin", required=True)
+@option("--file",
         "org_file",
         type=Path(path_type=pathlib.Path),
         help="Your custom organization description file (yaml or json)")
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this new organization in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this new organization in configuration")
 @argument("name", type=QueryType())
 @inject_context_with_resource({"api": ['url'], "azure": ['email']}, required=False)
 def create(

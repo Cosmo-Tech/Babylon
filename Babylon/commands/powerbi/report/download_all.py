@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("-o", "--output", "output_folder", help="Output folder", type=Path(path_type=pathlib.Path), default="powerbi")
 @inject_context_with_resource({"powerbi": ['workspace']})
 def download_all(context: Any, workspace_id: str, output_folder: pathlib.Path) -> CommandResponse:

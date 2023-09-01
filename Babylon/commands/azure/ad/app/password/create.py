@@ -19,7 +19,7 @@ env = Environment()
 
 @command()
 @pass_azure_token("graph")
-@option("-n", "--name", "password_name", type=QueryType(), help="Password display name")
+@option("--name", "password_name", type=QueryType(), help="Password display name")
 @option("--object-id", "object_id", type=QueryType())
 @pass_hvac_client
 @inject_context_with_resource({'api': ['organization_id', 'workspace_key'], 'app': ['object_id', 'name']})

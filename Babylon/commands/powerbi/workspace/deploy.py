@@ -17,20 +17,18 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@option("-f",
-        "--folder",
+@option("--folder",
         "report_folder",
         type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=pathlib.Path),
         required=True,
         help="Override folder containing your .pbix files")
 @option("--parameter",
-        "-p",
         "report_parameters",
         type=(QueryType(), QueryType()),
         multiple=True,
         help="Add a combination <Key Value> that will be sent as parameter to all your datasets")
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict ?")
-@option("-t", "--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True)
+@option("--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True)
 @argument("workspace_name", type=QueryType())
 @inject_context_with_resource({"adx": ['database_name', 'cluster_uri'], "azure": ['email']})
 def deploy(context: Any,

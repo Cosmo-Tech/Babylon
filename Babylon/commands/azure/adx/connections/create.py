@@ -20,11 +20,11 @@ env = Environment()
 @command()
 @timing_decorator
 @pass_kusto_client
-@option("-mp", "--mapping", "mapping", type=QueryType())
-@option("-cp", "--compression", "compression_value", type=Choice(['None', "GZip"]), default="None")
-@option("-cg", "--consumer-group", "consumer_group", type=QueryType(), default="$Default")
-@option("-tn", "--table-name", "table_name", type=QueryType())
-@option("-df", "--data-format", "data_format", type=Choice(["JSON", "CSV", "TXT"]), required=True)
+@option("--mapping", "mapping", type=QueryType())
+@option("--compression", "compression_value", type=Choice(['None', "GZip"]), default="None")
+@option("--consumer-group", "consumer_group", type=QueryType(), default="$Default")
+@option("--table-name", "table_name", type=QueryType())
+@option("--data-format", "data_format", type=Choice(["JSON", "CSV", "TXT"]), required=True)
 @argument("connection_name", type=QueryType())
 @argument("database_name", type=QueryType())
 @inject_context_with_resource({

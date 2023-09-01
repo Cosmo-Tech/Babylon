@@ -20,7 +20,7 @@ env = Environment()
 @pass_context
 @output_to_file
 @pass_powerbi_token()
-@option("-s", "--select", "select", is_flag=True, default=True, help="Select this new Workspace PowerBI")
+@option("--select", "select", is_flag=True, default=True, help="Select this new Workspace PowerBI")
 @argument("name", type=QueryType())
 def create(ctx: Context, powerbi_token: str, name: str, select: bool) -> CommandResponse:
     """

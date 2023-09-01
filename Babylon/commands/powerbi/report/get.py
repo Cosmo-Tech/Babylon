@@ -18,8 +18,8 @@ env = Environment()
 @command()
 @output_to_file
 @pass_powerbi_token()
-@option("-w", "--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@option("-s", "--select", "select", is_flag=True, default=True, help="Select this new report in configuration")
+@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--select", "select", is_flag=True, default=True, help="Select this new report in configuration")
 @argument("report_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get(

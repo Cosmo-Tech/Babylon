@@ -19,7 +19,7 @@ env = Environment()
 @pass_context
 @timing_decorator
 @pass_kusto_client
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save this adx database name in configuration")
+@option("--select", "select", is_flag=True, default=True, help="Save this adx database name in configuration")
 @argument("name", type=QueryType(), required=False)
 @inject_context_with_resource({
     'azure': ['resource_group_name'],

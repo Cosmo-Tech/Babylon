@@ -25,7 +25,7 @@ env = Environment()
 @pass_context
 @timing_decorator
 @pass_adt_management_client
-@option("-s", "--select", "select", is_flag=True, default=True, help="Save host name adt in configuration file")
+@option("--select", "select", is_flag=True, default=True, help="Save host name adt in configuration file")
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],
     'azure': ['resource_location', 'resource_group_name', 'subscription_id'],
