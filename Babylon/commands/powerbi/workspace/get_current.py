@@ -2,7 +2,7 @@ import logging
 
 from typing import Any
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.request import oauth_request
 from Babylon.utils.credentials import pass_powerbi_token
@@ -11,6 +11,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_powerbi_token()
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get_current(

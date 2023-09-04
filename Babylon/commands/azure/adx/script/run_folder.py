@@ -4,7 +4,7 @@ import pathlib
 
 from click import Context, Path, command, pass_context, argument
 from azure.mgmt.kusto import KustoManagementClient
-from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.clients import pass_kusto_client
 from Babylon.utils.response import CommandResponse
 from .run import run
@@ -13,6 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_context
 @pass_kusto_client

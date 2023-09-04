@@ -6,7 +6,7 @@ from click import command
 from click import argument
 from click import option
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import inject_context_with_resource, output_to_file
+from Babylon.utils.decorators import inject_context_with_resource, output_to_file, wrapcontext
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -18,10 +18,11 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @output_to_file
 @pass_powerbi_token()
 @option("--report-type", "report_type", type=QueryType())
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def pages(

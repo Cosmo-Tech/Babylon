@@ -11,7 +11,7 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.clients import pass_kusto_client
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 
 from datetime import timedelta
@@ -21,6 +21,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @pass_kusto_client
 @timing_decorator

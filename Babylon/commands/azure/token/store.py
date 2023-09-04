@@ -4,7 +4,7 @@ from typing import Any
 from click import Choice, command, option
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from azure.identity import TokenCachePersistenceOptions
 from azure.identity import InteractiveBrowserCredential
 from azure.identity import AuthenticationRecord
@@ -14,6 +14,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @option("--email", "email", help="User email")
 @option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True)
 @inject_context_with_resource({'azure': ['user_principal_id', 'cli_client_id']})

@@ -9,7 +9,7 @@ from click import pass_context
 from click import Context
 from click import Path
 from .create import create
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
@@ -18,6 +18,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_context
 @pass_azure_token()
 @option("--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))

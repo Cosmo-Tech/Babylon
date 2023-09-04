@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -13,6 +13,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_azure_token("csm_api")
 @inject_context_with_resource({"api": ['url', 'organization_id', 'workspace_key', 'workspace_id']})

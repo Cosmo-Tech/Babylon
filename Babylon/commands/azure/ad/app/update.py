@@ -6,6 +6,7 @@ from click import command
 from click import option
 from click import argument
 from click import Path
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -17,11 +18,9 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_azure_token("graph")
-@option("--file",
-        "registration_file",
-        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
-        required=True)
+@option("--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
 @argument("object_id", type=QueryType())
 def update(azure_token: str, object_id: str, registration_file: str) -> CommandResponse:
     """

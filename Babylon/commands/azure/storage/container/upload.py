@@ -6,7 +6,7 @@ import pathlib
 from typing import Any, Optional
 from azure.storage.blob import BlobServiceClient
 from click import Path, command, option
-from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.clients import pass_blob_client
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import inject_context_with_resource
@@ -17,10 +17,10 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_blob_client
-@option("-f",
-        "--folder",
+@option("--folder",
         "folder",
         required=True,
         type=Path(readable=True, dir_okay=True, exists=True, path_type=pathlib.Path),

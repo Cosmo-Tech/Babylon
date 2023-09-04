@@ -6,7 +6,7 @@ from click import argument
 from click import option
 
 from Babylon.utils.request import oauth_request
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.credentials import pass_azure_token
@@ -18,6 +18,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_azure_token()
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
 @argument("name", type=QueryType())

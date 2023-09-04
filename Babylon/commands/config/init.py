@@ -4,6 +4,7 @@ import os
 from hvac import Client
 from click import command
 from Babylon.utils.clients import pass_hvac_client
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -12,7 +13,8 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 
-@command(name="select")
+@command(name="init")
+@wrapcontext
 @pass_hvac_client
 def init(hvac_client: Client) -> CommandResponse:
     """

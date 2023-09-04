@@ -5,7 +5,7 @@ from typing import Any, Optional
 from click import command, option
 
 from Babylon.utils.request import oauth_request
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
@@ -15,6 +15,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_azure_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @inject_context_with_resource({'azure': ['resource_group_name', 'subscription_id']})

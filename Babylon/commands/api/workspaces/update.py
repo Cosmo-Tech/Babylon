@@ -6,7 +6,7 @@ from click import Path, argument
 from click import command
 from click import option
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
@@ -19,6 +19,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")

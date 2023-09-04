@@ -4,7 +4,7 @@ from click import Context, command, pass_context
 from click import argument
 from click import option
 from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.decorators import inject_context_with_resource, timing_decorator
+from Babylon.utils.decorators import inject_context_with_resource, timing_decorator, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.messages import SUCCESS_DELETED
 from Babylon.utils.response import CommandResponse
@@ -17,6 +17,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @timing_decorator
 @pass_azure_token("csm_api")

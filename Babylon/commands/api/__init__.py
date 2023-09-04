@@ -1,6 +1,4 @@
 from click import group
-from Babylon.utils.decorators import wrapcontext
-
 from Babylon.utils.environment import Environment
 from .connectors import connectors
 from .datasets import datasets
@@ -13,7 +11,6 @@ env = Environment()
 
 
 @group()
-@wrapcontext
 def api():
     """Cosmotech API"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])

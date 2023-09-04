@@ -4,7 +4,7 @@ from azure.identity import DefaultAzureCredential
 from azure.mgmt.eventhub import EventHubManagementClient
 from azure.mgmt.eventhub.models import AuthorizationRule
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource, timing_decorator
+from Babylon.utils.decorators import inject_context_with_resource, timing_decorator, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 
@@ -13,6 +13,7 @@ env = Environment()
 
 
 @command(name="create-key")
+@wrapcontext
 @timing_decorator
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],

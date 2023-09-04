@@ -2,6 +2,7 @@ import logging
 
 from click import command
 from click import option
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
@@ -12,6 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_azure_token("graph")
 @option("--gi", "--group-id", "group_id", type=QueryType(), required=True)
 @option("--pi", "--object-id", "object_id", type=QueryType(), required=True)

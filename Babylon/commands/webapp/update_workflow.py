@@ -5,6 +5,7 @@ from click import command
 from click import argument
 from click import Path
 from ruamel.yaml import YAML
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -33,6 +34,7 @@ def update_file(workflow_file: pathlib.Path):
 
 
 @command()
+@wrapcontext
 @argument("workflow_file", type=Path(path_type=pathlib.Path))
 def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
     """

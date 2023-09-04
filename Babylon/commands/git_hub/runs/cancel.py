@@ -3,7 +3,7 @@ import requests
 
 from click import command
 from typing import Any, Optional
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -12,6 +12,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @inject_context_with_resource({'github': ['run_url']})
 def cancel(context: Any, workflow_name: Optional[str] = None) -> CommandResponse:
     """

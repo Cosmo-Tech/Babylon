@@ -5,7 +5,7 @@ from typing import Any, Optional
 from click import command
 from click import option
 
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.request import oauth_request
@@ -16,9 +16,10 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get_all(context: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:

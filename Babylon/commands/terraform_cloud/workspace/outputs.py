@@ -19,8 +19,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @output_to_file
 @pass_tfc_client
-@option("-s",
-        "--states",
+@option("--states",
         "states_webpage_open",
         is_flag=True,
         help="Add this option to open the webapp page to the states of the workspace.\n"

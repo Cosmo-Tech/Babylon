@@ -6,7 +6,7 @@ from click import option
 from azure.mgmt.kusto import KustoManagementClient
 import jmespath
 
-from Babylon.utils.decorators import inject_context_with_resource, timing_decorator
+from Babylon.utils.decorators import inject_context_with_resource, timing_decorator, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
 
@@ -14,6 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_kusto_client
 @option("--filter", "filter", help="Filter response with a jmespath query")

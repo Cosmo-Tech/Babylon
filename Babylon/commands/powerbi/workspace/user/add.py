@@ -9,12 +9,13 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.request import oauth_request
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_powerbi_token()
 @option("--workspace", "workspace_id", type=QueryType())
 @argument("identifier", type=QueryType())

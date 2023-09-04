@@ -4,7 +4,7 @@ from click import Context, argument, command, option, pass_context
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.typing import QueryType
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.request import oauth_request
@@ -16,6 +16,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @timing_decorator
 @output_to_file

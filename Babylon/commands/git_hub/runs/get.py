@@ -3,6 +3,7 @@ import requests
 
 from typing import Optional
 from click import argument, command
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.response import CommandResponse
@@ -13,6 +14,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @argument("workflow_name", type=QueryType())
 def get(workflow_name: Optional[str] = None) -> CommandResponse:
     """

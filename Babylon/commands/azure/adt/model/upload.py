@@ -11,7 +11,7 @@ from azure.digitaltwins.core import DigitalTwinsClient
 from click import argument
 from click import command
 from click import option
-from Babylon.utils.decorators import describe_dry_run
+from Babylon.utils.decorators import describe_dry_run, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_adt_client
@@ -20,6 +20,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_adt_client
 @option("--override", "override_if_exists", is_flag=True, help="Override existing models")

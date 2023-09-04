@@ -4,7 +4,7 @@ from click import Context, command, pass_context
 from click import argument
 from click import option
 from Babylon.utils.checkers import check_ascii
-from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import output_to_file, wrapcontext
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED, SUCCESS_CREATED
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
@@ -17,6 +17,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @output_to_file
 @pass_powerbi_token()

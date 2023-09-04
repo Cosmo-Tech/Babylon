@@ -1,9 +1,9 @@
-import click
 import logging
 
 from typing import Any
 from azure.mgmt.kusto import KustoManagementClient
-from Babylon.utils.decorators import inject_context_with_resource
+from click import command
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
@@ -13,7 +13,8 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 
-@click.command()
+@command()
+@wrapcontext
 @timing_decorator
 @pass_kusto_client
 @inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})

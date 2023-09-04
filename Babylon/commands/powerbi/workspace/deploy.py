@@ -9,14 +9,17 @@ from click import argument
 from click import command
 from click import option
 from Babylon.utils.checkers import check_email, check_encoding_key
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
 from Babylon.utils.macro import Macro
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
+@wrapcontext
 @option("--folder",
         "report_folder",
         type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=pathlib.Path),
@@ -50,9 +53,9 @@ def deploy(context: Any,
     adx_database = context['adx_database_name']
     report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
     if not report_params:
-        report_params = "".join(f"-p ADX_CLUSTER {adx_cluster} -p ADX_DATABASE {adx_database}")
+        report_params = "".join(f"--parameter ADX_cluster {adx_cluster} --parameter ADX_databse {adx_database}")
 
-    macro = Macro("powerbi workspace deploy").step(["powerbi", "workspace", "get", "-n", workspace_name],
+    macro = Macro("powerbi workspace deploy").step(["powerbi", "workspace", "get", "--name", workspace_name],
                                                    store_at="workspace")
 
     if not macro.env.get_data_from_store(["workspace"]):
@@ -68,14 +71,14 @@ def deploy(context: Any,
     upload_cmd = ["powerbi", "report", "upload"]
     if override:
         upload_cmd.append("--override")
-    upload_cmd = upload_cmd + ["-t", report_type, "-f"]
+    upload_cmd = upload_cmd + ["--type", report_type, "--file"]
     for report_path in report_folder.glob("*.pbix"):
         cmd_line = [*upload_cmd, str(report_path)]
         macro = macro.step(cmd_line, store_at="report")
         report = macro.env.get_data_from_store(["report"])
-        macro = macro.step(["powerbi", "report", "pages", "-t", report_type, report["id"]])
+        macro = macro.step(["powerbi", "report", "pages", "--type", report_type, report["id"]])
         datasets = report["datasets"]
         for dataset in datasets:
-            macro.step(["powerbi", "dataset", "take-over", dataset["id"], "-e", email]).step([
-                "powerbi", "dataset", "parameters", "update", dataset["id"], "-e", email, *report_params.split(" ")
-            ]).step(["powerbi", "dataset", "update-credentials", dataset["id"], "-e", email])
+            macro.step(["powerbi", "dataset", "take-over", dataset["id"], "--email", email]).step([
+                "powerbi", "dataset", "parameters", "update", dataset["id"], "--email", email, *report_params.split(" ")
+            ]).step(["powerbi", "dataset", "update-credentials", dataset["id"], "--email", email])

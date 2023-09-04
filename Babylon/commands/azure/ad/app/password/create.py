@@ -6,7 +6,7 @@ from click import option
 from hvac import Client
 from Babylon.utils.checkers import check_alphanum
 from Babylon.utils.clients import pass_hvac_client
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -18,6 +18,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_azure_token("graph")
 @option("--name", "password_name", type=QueryType(), help="Password display name")
 @option("--object-id", "object_id", type=QueryType())

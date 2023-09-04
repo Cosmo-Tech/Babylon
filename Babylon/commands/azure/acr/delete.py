@@ -5,7 +5,7 @@ from azure.core.exceptions import HttpResponseError
 from azure.core.exceptions import ResourceNotFoundError
 from click import command
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
@@ -18,6 +18,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @option("--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
 @option("-D", "force_validation", is_flag=True, default=True, help="Delete on force mode")

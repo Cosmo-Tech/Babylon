@@ -131,7 +131,7 @@ class Configuration:
             logger.info(f"You are trying to use {resource_id.upper()} group")
             logger.info(f"With '{self.environ_id}' platform and '{self.context_id}' context.")
             logger.info(f"File configuration: {self.context_id}.{self.environ_id}.{resource_id}.yaml not found.")
-            logger.info(f"Run: babylon -prj {self.context_id} -plt {self.environ_id} config init")
+            logger.info(f"Run: babylon config -c {self.context_id} -p {self.environ_id} init")
             raise FileNotFoundError()
         return file_path
 

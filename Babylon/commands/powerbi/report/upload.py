@@ -9,7 +9,7 @@ from typing import Any
 from click import Choice, command
 from click import Path
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource, timing_decorator
+from Babylon.utils.decorators import inject_context_with_resource, timing_decorator, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
@@ -22,13 +22,11 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_powerbi_token()
-@option("--file",
-        "pbix_filename",
-        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
-        required=True)
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--file", "pbix_filename", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path), required=True)
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict")
 @option("--select", "select", is_flag=True, default=True, help="Select this new report in configuration")
 @option("--name", "report_name", type=QueryType())

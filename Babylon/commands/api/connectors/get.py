@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Any
 from click import Choice, Context, argument, option, pass_context
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.typing import QueryType
@@ -17,6 +17,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @timing_decorator
 @output_to_file

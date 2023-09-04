@@ -4,7 +4,7 @@ import logging
 from typing import Any, Optional
 from click import command
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
@@ -16,6 +16,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @option("--image", type=QueryType(), help="Local docker image to push")
 @timing_decorator
 @inject_context_with_resource({'acr': ['login_server', 'simulator_repository', 'simulator_version']}, required=False)

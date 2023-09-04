@@ -5,7 +5,7 @@ from typing import Any
 from click import Context, command, pass_context
 from click import option
 from click import argument
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
@@ -16,6 +16,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_context
 @pass_azure_token("graph")
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

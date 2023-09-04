@@ -2,6 +2,7 @@ import logging
 import shutil
 
 from click import Choice, command, option
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.messages import SUCCESS_PAYLOAD_CREATED
 from Babylon.utils.response import CommandResponse
@@ -11,6 +12,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @option("--type", "type", type=Choice(['adt', 'storage']), required=True)
 def create(type: str) -> CommandResponse:
     init_file = env.working_dir.original_template_path / f"api/dataset.{type}.yaml"

@@ -6,13 +6,14 @@ from click import command
 from click import option
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import output_to_file, wrapcontext
 from Babylon.utils.credentials import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @output_to_file
 @pass_azure_token("graph")
 @option("--filter", "filter", help="Filter response with a jmespath query")

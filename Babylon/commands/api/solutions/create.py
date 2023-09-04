@@ -10,7 +10,7 @@ from click import option
 from click import Path
 from Babylon.utils.checkers import check_ascii
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED, SUCCESS_CREATED
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
@@ -24,6 +24,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @timing_decorator
 @output_to_file

@@ -7,7 +7,7 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.clients import pass_kusto_client
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 
 logger = logging.getLogger("Babylon")
@@ -15,6 +15,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_kusto_client
 @option("--current", "current", type=QueryType(), is_flag=True, help="Delete database adx referenced in configuration")

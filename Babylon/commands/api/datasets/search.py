@@ -3,6 +3,7 @@ from typing import Any
 from click import command
 from click import argument
 from Babylon.utils.decorators import inject_context_with_resource, timing_decorator
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.credentials import pass_azure_token
@@ -15,6 +16,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_azure_token("csm_api")
 @argument("tag", type=QueryType())

@@ -7,7 +7,7 @@ from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.typing import QueryType
 from Babylon.utils.clients import pass_kusto_client
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import timing_decorator
 
@@ -16,6 +16,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @timing_decorator
 @pass_kusto_client

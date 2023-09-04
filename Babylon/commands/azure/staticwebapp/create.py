@@ -11,7 +11,7 @@ from Babylon.utils.checkers import check_ascii
 from Babylon.utils.environment import Environment
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.request import oauth_request
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
@@ -21,6 +21,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @pass_azure_token()
 @option("--file", "swa_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))

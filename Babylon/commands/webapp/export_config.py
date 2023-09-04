@@ -8,13 +8,14 @@ from click import option
 from click import Path
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import output_to_file, wrapcontext
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
 @command()
+@wrapcontext
 @output_to_file
 @option("--file", "config_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 def export_config(config_file: Optional[pathlib.Path] = None) -> CommandResponse:
