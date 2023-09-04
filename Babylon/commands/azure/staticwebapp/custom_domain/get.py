@@ -4,7 +4,7 @@ from typing import Any
 from click import command
 from click import argument
 from Babylon.utils.request import oauth_request
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -15,6 +15,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_azure_token()
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())

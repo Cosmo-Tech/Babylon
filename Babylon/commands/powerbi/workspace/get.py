@@ -9,15 +9,16 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
 from Babylon.utils.request import oauth_request
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_powerbi_token()
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--name", "name", help="PowerBI workspace name", type=QueryType())
 @option("--select", "select", is_flag=True, default=True, help="Select this workspace PowerBI")
 @inject_context_with_resource({"powerbi": ['workspace']})

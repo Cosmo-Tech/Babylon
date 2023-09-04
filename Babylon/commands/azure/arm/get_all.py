@@ -4,7 +4,7 @@ from typing import Any
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_arm_client
@@ -15,6 +15,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_arm_client
 @inject_context_with_resource({'azure': ['resource_group_name']})

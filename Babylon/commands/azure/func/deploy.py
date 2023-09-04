@@ -13,7 +13,7 @@ from click import command
 from Babylon.utils.interactive import confirm_deploy_arm_mode
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_arm_client
 
@@ -22,6 +22,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_arm_client
 @option("--complete-mode", "deploy_mode_complete", is_flag=True)
 @option("--file", "deploy_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))

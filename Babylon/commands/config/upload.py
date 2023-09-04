@@ -5,6 +5,7 @@ from ruamel.yaml import YAML
 from hvac import Client
 from click import Choice, command, option
 from Babylon.utils.clients import pass_hvac_client
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.config import config_files
@@ -14,8 +15,9 @@ env = Environment()
 
 
 @command()
-@option("-rw", "rewrite", multiple=True, type=Choice(config_files))
-@option("-y", "--yes", "yes", is_flag=True, help="Automatic yes to confirm new platform registry")
+@wrapcontext
+@option("--rewrite", "rewrite", multiple=True, type=Choice(config_files))
+@option("--yes", "yes", is_flag=True, help="Automatic yes to confirm new platform registry")
 @pass_hvac_client
 def upload(
     hvac_client: Client,

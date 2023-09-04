@@ -6,7 +6,7 @@ from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.authorization.models import RoleAssignmentCreateParameters
 from click import Choice, option
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
@@ -18,6 +18,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_iam_client
 @option("--resource-type", "resource_type", type=QueryType())
 @option("--resource-name", "resource_name", type=QueryType())

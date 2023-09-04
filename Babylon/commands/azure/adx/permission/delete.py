@@ -5,7 +5,7 @@ from azure.mgmt.kusto import KustoManagementClient
 from click import argument
 from click import command
 from click import option
-from Babylon.utils.decorators import describe_dry_run
+from Babylon.utils.decorators import describe_dry_run, wrapcontext
 from Babylon.utils.decorators import inject_context_with_resource
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import confirm_deletion
@@ -19,6 +19,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_kusto_client
 @describe_dry_run("Would go through each role of given principal and delete them.")

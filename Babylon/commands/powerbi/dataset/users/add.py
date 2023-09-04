@@ -5,7 +5,7 @@ from click import argument, command
 from click import option
 from Babylon.utils.checkers import check_email
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
@@ -16,8 +16,9 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_powerbi_token()
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--email", "email", type=QueryType())
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace'], "azure": ['email']})

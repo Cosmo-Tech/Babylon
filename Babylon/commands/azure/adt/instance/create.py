@@ -7,7 +7,7 @@ from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
 from click import Context, option, pass_context
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.response import CommandResponse
@@ -22,6 +22,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @timing_decorator
 @pass_adt_management_client

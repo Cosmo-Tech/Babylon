@@ -4,7 +4,7 @@ from typing import Any, Optional
 from azure.core.exceptions import ServiceRequestError
 from click import argument, command
 from Babylon.utils.typing import QueryType
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -15,6 +15,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @argument("server", type=QueryType(), required=False)
 @inject_context_with_resource({'acr': ['login_server']})

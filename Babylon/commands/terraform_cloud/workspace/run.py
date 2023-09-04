@@ -22,8 +22,7 @@ logger = logging.getLogger("Babylon")
 @output_to_file
 @pass_tfc_client
 @describe_dry_run("Would check if WORKSPACE_ID exists Then create a run for it sending a creation payload")
-@option("-m",
-        "--message",
+@option("--message",
         "run_message",
         help="Message added to the run.",
         default="Run started with Babylon",

@@ -8,7 +8,7 @@ from click import option
 from click import pass_context
 from click import Context
 from click import Path
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 from Babylon.utils.credentials import pass_azure_token
@@ -20,6 +20,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_context
 @pass_azure_token()
 @option("--file", "swa_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))

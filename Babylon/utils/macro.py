@@ -52,8 +52,7 @@ class Macro():
         """
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
                       transient=True) as progress:
-            prefix = ["-prj", self.env.context_id, "-plt", self.env.environ_id]
-            cmd_line = prefix + command_line
+            cmd_line = command_line + ["-c", env.context_id, "-p", env.environ_id]
             progress.add_task(" ".join(cmd_line))
             self.env.is_verbose = False
             res = run_command(cmd_line)

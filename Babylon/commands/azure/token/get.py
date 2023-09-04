@@ -1,6 +1,7 @@
 import logging
 
 from click import Choice, command, option
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -9,6 +10,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @option("--email", "email", help="User email")
 @option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True)
 def get(scope: str, email: str) -> CommandResponse:

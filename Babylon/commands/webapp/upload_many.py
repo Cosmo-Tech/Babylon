@@ -6,14 +6,15 @@ import pathlib
 from typing import Any, Iterable
 from typing import Optional
 from click import command, option
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@option("--files",
+@wrapcontext
+@option("--file",
         "files",
         type=(pathlib.Path),
         multiple=True,

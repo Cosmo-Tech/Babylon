@@ -7,7 +7,7 @@ from click import argument
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 
 from Babylon.utils.request import oauth_request
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -18,6 +18,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_azure_token()
 @option("--select", "select", is_flag=True, default=True, help="Save this new connector in your configuration")
 @argument("name", type=QueryType())

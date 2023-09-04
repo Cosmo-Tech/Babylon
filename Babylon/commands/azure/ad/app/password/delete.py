@@ -3,6 +3,7 @@ import logging
 from click import command
 from click import option
 from click import argument
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
@@ -13,6 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_azure_token("graph")
 @option("--key", "key_id", help="Password Key ID", required=True, type=QueryType())
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

@@ -5,7 +5,7 @@ from azure.storage.blob import BlobServiceClient
 from click import argument
 from click import command
 from click import option
-from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -15,6 +15,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_blob_client
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

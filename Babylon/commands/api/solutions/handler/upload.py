@@ -6,7 +6,7 @@ from click import command
 from click import option
 from click import argument
 from click import Path
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -19,13 +19,15 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_azure_token("csm_api")
-@option("--run-template",
-        "run_template_id",
-        help="The run Template identifier",
-        type=QueryType(),
-        required=True,
+@option(
+    "--run-template",
+    "run_template_id",
+    help="The run Template identifier",
+    type=QueryType(),
+    required=True,
 )
 @option("--override", "override", is_flag=True)
 @argument("handler_id", type=QueryType())

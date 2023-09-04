@@ -4,7 +4,7 @@ from pprint import pformat
 from typing import Any
 from azure.mgmt.kusto import KustoManagementClient
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -15,6 +15,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_kusto_client
 @inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})

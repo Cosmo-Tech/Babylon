@@ -5,7 +5,7 @@ from click import command, argument
 
 from ...utils.response import CommandResponse
 from ...utils.request import oauth_request
-from ...utils.decorators import inject_context_with_resource
+from ...utils.decorators import inject_context_with_resource, wrapcontext
 from ...utils.credentials import pass_azure_token
 from ...utils.typing import QueryType
 
@@ -13,6 +13,7 @@ logger = logging.getLogger('Babylon')
 
 
 @command()
+@wrapcontext
 @pass_azure_token()
 @argument('powerbi_name', type=QueryType())
 @inject_context_with_resource({'azure': ['subscription_id', 'resource_group_name']})

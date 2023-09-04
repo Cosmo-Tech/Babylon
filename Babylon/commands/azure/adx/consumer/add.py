@@ -5,7 +5,7 @@ from click import argument, command
 from azure.mgmt.eventhub import EventHubManagementClient
 from azure.mgmt.eventhub.v2015_08_01.models import ConsumerGroupCreateOrUpdateParameters
 from Babylon.utils.checkers import check_ascii
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.messages import SUCCESS_CREATED
@@ -17,6 +17,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @argument("name", type=QueryType())
 @argument("event_hub_name", type=QueryType())
 @inject_context_with_resource({

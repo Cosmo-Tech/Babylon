@@ -4,7 +4,7 @@ from typing import Any, Optional
 from click import command
 from click import argument
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -15,9 +15,10 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace","workspace_id", type=QueryType(), help="PowerBI workspace ID")
+@option("--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get(context: Any, powerbi_token: str, dataset_id: str, workspace_id: Optional[str] = None) -> CommandResponse:

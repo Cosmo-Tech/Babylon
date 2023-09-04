@@ -1,6 +1,7 @@
 import logging
 
 from click import command
+from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from ruamel.yaml import YAML
 from Babylon.utils.messages import SUCCESS_PAYLOAD_CREATED
@@ -12,6 +13,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 def create() -> CommandResponse:
     """
     Create a worspace payload

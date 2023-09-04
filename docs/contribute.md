@@ -84,7 +84,18 @@ You follow the same instruction as adding a group in `Babylon.groups` but in a s
 This template can be copied in the group module we want to add the command to.
 
 ```python
---8<-- "Babylon/templates/command_template.py"
+import logging
+
+from click import command
+
+logger = logging.getLogger("Babylon")
+
+
+@command()
+@wrapcontext
+def command_template():
+    """Command created from a template"""
+    logger.warning("This command was initialized from a template and is empty")
 ```
 
 #### Add to `__init__.py`

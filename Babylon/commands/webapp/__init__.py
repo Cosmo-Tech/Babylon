@@ -1,6 +1,4 @@
 from click import group
-from Babylon.utils.decorators import wrapcontext
-
 from Babylon.utils.environment import Environment
 from .deploy import deploy
 from .export_config import export_config
@@ -22,7 +20,6 @@ list_commands = [
 
 
 @group()
-@wrapcontext
 def webapp():
     """Group handling Cosmo Sample WebApp configuration"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_ORG_NAME", "BABYLON_TOKEN"])

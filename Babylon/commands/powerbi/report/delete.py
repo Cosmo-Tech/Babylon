@@ -6,7 +6,7 @@ from click import argument
 from click import option
 from Babylon.utils.messages import SUCCESS_DELETED
 from Babylon.utils.request import oauth_request
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.interactive import confirm_deletion
@@ -16,8 +16,9 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_powerbi_token()
-@option("--workspace","workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
 @argument("report_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})

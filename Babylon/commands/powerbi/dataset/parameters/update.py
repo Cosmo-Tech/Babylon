@@ -4,7 +4,7 @@ from typing import Any, Optional
 from click import command
 from click import argument
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -14,9 +14,10 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
+@wrapcontext
 @pass_powerbi_token()
-@option("-p", "--parameter", "params", type=(QueryType(), QueryType()), multiple=True, required=True)
-@option("--workspace","workspace_id", type=QueryType(), help="PowerBI workspace ID")
+@option("--parameter", "params", type=(QueryType(), QueryType()), multiple=True, required=True)
+@option("--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def update(context: Any,

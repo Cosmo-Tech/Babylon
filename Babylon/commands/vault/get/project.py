@@ -4,7 +4,7 @@ from hvac import Client
 from click import Choice, argument, command
 from typing import Any
 from Babylon.utils.clients import pass_hvac_client
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -13,6 +13,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @pass_hvac_client
 @argument("resource", type=Choice(['azf', 'powerbi']))
 @inject_context_with_resource({

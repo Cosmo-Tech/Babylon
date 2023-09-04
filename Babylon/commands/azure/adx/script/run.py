@@ -6,7 +6,7 @@ from typing import Any
 from click import Path, command, argument, progressbar
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.kusto import KustoManagementClient
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -17,6 +17,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_kusto_client
 @argument("script_file", type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))

@@ -5,7 +5,7 @@ from click import argument
 from click import command
 from click import option
 from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.decorators import inject_context_with_resource, timing_decorator
+from Babylon.utils.decorators import inject_context_with_resource, timing_decorator, wrapcontext
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -18,6 +18,7 @@ env = Environment()
 
 
 @command()
+@wrapcontext
 @timing_decorator
 @pass_azure_token("csm_api")
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
