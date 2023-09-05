@@ -1,7 +1,7 @@
 from logging import getLogger
 
+from click import argument
 from click import command
-from click import option
 
 from .....utils.credentials import pass_azure_token
 from .....utils.decorators import output_to_file
@@ -18,7 +18,7 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@argument("organization_id", type=QueryType(), default="%deploy%organization_id")
 @output_to_file
 def get(api_url: str, azure_token: str, organization_id: str) -> CommandResponse:
     """
@@ -28,5 +28,5 @@ def get(api_url: str, azure_token: str, organization_id: str) -> CommandResponse
     if response is None:
         return CommandResponse.fail()
 
-    organization = response.json()
-    return CommandResponse.success(organization, verbose=True)
+    security = response.json()
+    return CommandResponse.success(security, verbose=True)
