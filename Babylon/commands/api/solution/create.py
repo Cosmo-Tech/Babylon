@@ -1,68 +1,62 @@
-from logging import getLogger
 import pathlib
+from logging import getLogger
+from typing import Optional
 
 from click import argument
 from click import command
 from click import option
-from click import Path
 
-from ....utils.yaml_utils import yaml_to_json
-from ....utils.decorators import timing_decorator
-from ....utils.typing import QueryType
-from ....utils.response import CommandResponse
+from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
 from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
 from ....utils.environment import Environment
-from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
+from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 
 
 @command()
 @timing_decorator
-@pass_azure_token("csm_api")
 @require_platform_key("api_url")
+@pass_azure_token("csm_api")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@argument("solution-name", type=QueryType())
+@argument("solution_file", type=pathlib.Path)
 @option(
-    "-i",
-    "--solution-file",
-    "solution_file",
-    type=Path(path_type=pathlib.Path),
-    required=True,
-    help="Your custom solution description file (yaml or json)",
+    "--solution-name",
+    "solution_name",
+    type=QueryType(),
+    help="Your custom solution name",
 )
-@option(
-    "-s",
-    "--select",
-    "select",
-    is_flag=True,
-    help="Select this new solution in configuration ?",
-)
+@option("--select", "select", type=bool, help="Select this new solution id in configuration ?", default=True)
 @output_to_file
-def create(azure_token: str,
-           api_url: str,
-           organization_id: str,
-           solution_name: str,
-           solution_file: pathlib.Path,
-           select: bool = False) -> CommandResponse:
+def create(
+    api_url: str,
+    azure_token: str,
+    organization_id: str,
+    solution_file: pathlib.Path,
+    select: bool,
+    solution_name: Optional[str] = None,
+) -> CommandResponse:
     """
     Register new solution by sending description file to the API.
     See the API files to edit your own file manually if needed
     """
     env = Environment()
-    details = env.fill_template(solution_file,
-                                data={
-                                    "solution_key": solution_name.replace(" ", ""),
-                                    "solution_name": solution_name
-                                })
+    solution_details = env.working_dir.get_file_content(solution_file)
+
+    solution_key = solution_name.replace(" ", "") if solution_name else solution_details["name"].replace(" ", "")
+    logger.debug(solution_details["name"])
+    details = env.fill_template(solution_file, data={"solution_key": solution_key, "solution_name": solution_name})
     if solution_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)
     response = oauth_request(f"{api_url}/organizations/{organization_id}/solutions",
                              azure_token,
                              type="POST",
-                             data=details)
+                             data=details.encode("utf-8"))
     if response is None:
         return CommandResponse.fail()
     solution = response.json()
