@@ -2,10 +2,9 @@ import json
 import pathlib
 from logging import getLogger
 
-from click import Path
+from click import Path, option
 from click import argument
 from click import command
-from click import option
 
 from .....utils.credentials import pass_azure_token
 from .....utils.decorators import output_to_file
@@ -50,5 +49,5 @@ def update(api_url: str, azure_token: str, organization_id: str, security_file: 
         if response is None:
             return CommandResponse.fail()
 
-    logger.info(f"Successfully updated organization {organization_id} RBAC")
+    logger.info(f"Successfully updated organization {organization_id} security")
     return CommandResponse.success(details, verbose=True)
