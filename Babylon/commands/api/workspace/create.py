@@ -33,23 +33,18 @@ logger = getLogger("Babylon")
     "workspace_description",
     help="Workspace description",
 )
-@option(
-    "--select",
-    "select",
-    type=bool,
-    help="Select this new workspace id in configuration ?",
-    default=True
-)
+@option("--select", "select", type=bool, help="Select this new workspace id in configuration ?", default=True)
 @output_to_file
-def create(api_url: str,
-           azure_token: str,
-           organization_id: str,
-           solution_id: str,
-           workspace_file: pathlib.Path,
-           select: bool,
-           workspace_name: Optional[str] = None,
-           workspace_description: Optional[str] = None,
-           ) -> CommandResponse:
+def create(
+    api_url: str,
+    azure_token: str,
+    organization_id: str,
+    solution_id: str,
+    workspace_file: pathlib.Path,
+    select: bool,
+    workspace_name: Optional[str] = None,
+    workspace_description: Optional[str] = None,
+) -> CommandResponse:
     """
     Register a workspace by sending a description file to the API.
     See the .payload_templates/API files to edit your own file manually if needed
