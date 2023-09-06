@@ -11,6 +11,8 @@ from azure.identity import (
     EnvironmentCredential,
     CredentialUnavailableError,
 )
+
+from .response import CommandResponse
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -90,7 +92,10 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
-            kwargs["azure_token"] = get_azure_token(scope)
+            try:
+                kwargs["azure_token"] = get_azure_token(scope)
+            except ConnectionError:
+                return CommandResponse().fail()
             return func(*args, **kwargs)
 
         return wrapper
