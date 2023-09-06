@@ -1,10 +1,10 @@
-from typing import Any
-from typing import Optional
 import json
 import logging
+from typing import Any
+from typing import Optional
 
-from rich.pretty import pprint
 from click import get_current_context
+from rich.pretty import pprint
 
 from .environment import Environment
 
@@ -25,7 +25,7 @@ class CommandResponse():
         self.command = ctx.command_path.split(" ")
         self.params = {k: str(v) for k, v in ctx.params.items()}
         if verbose and Environment().is_verbose:
-            pprint(self.data, max_length=100)
+            pprint(self.data)
 
     def to_dict(self) -> dict[str, Any]:
         return {"command": self.command, "params": self.params, "status_code": self.status_code, "data": self.data}
@@ -39,7 +39,7 @@ class CommandResponse():
         ])
 
     def toJSON(self) -> str:
-        return json.dumps(self.data, indent=4)
+        return json.dumps(self.data, indent=4, ensure_ascii=False)
 
     def dump(self, output_file: str):
         """Dump command response data in a json file"""
@@ -49,9 +49,10 @@ class CommandResponse():
 
     def has_failed(self) -> bool:
         """Checks if command has failed"""
-        if self.status_code != self.STATUS_ERROR:
-            return False
-        return True
+        return self.status_code == self.STATUS_ERROR
+
+    def has_success(self) -> bool:
+        return self.status_code == CommandResponse.STATUS_OK
 
     @classmethod
     def fail(cls, **kwargs) -> Any:
