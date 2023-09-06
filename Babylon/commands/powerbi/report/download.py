@@ -16,7 +16,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_powerbi_token()
 @option("--output", "output_folder", type=Path(path_type=pathlib.Path), default="powerbi", help="Output folder")
 @option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())

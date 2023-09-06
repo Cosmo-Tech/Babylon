@@ -18,7 +18,7 @@ prefixApp = "App"
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @option("--arm-path", "arm_path", type=pathlib.Path, help="Your custom arm azure function description file yaml")
 @inject_context_with_resource({'webapp': ['enable_insights', 'deployment_name'], 'powerbi': ['group_id']})
 def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
@@ -32,15 +32,20 @@ def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
         logger.error("Personal Access Token Github not found")
         sys.exit(1)
 
-    macro = Macro("webapp deploy").step(["azure", "staticwebapp", "get", f'{prefixWebApp}{deployment_name}'],
+    macro = Macro("webapp deploy").step([
+        "azure", "staticwebapp", "get", f'{prefixWebApp}{deployment_name}', "-c", env.context_id, "-p", env.environ_id
+    ],
                                         store_at="webapp")
     if not macro.env.get_data_from_store(["webapp", "id"]):
-        macro = macro.step(["azure", "staticwebapp", "create", f"{prefixWebApp}{deployment_name}"]).wait(5)
+        macro = macro.step([
+            "azure", "staticwebapp", "create", f"{prefixWebApp}{deployment_name}", "-c", env.context_id, "-p",
+            env.environ_id
+        ]).wait(5)
     else:
         logger.info("The webapp already exists")
         sys.exit(1)
 
-    macro = macro.step(["azure", "ad", "app", "get-all"], store_at="apps")
+    macro = macro.step(["azure", "ad", "app", "get-all", "-c", env.context_id, "-p", env.environ_id], store_at="apps")
     apps = macro.env.get_data_from_store(["apps"])
     created = False
     for i in apps:
@@ -51,29 +56,40 @@ def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
             sys.exit(1)
 
     if not created:
-        macro = macro.step(["azure", "ad", "app", "create", f"{prefixApp}{deployment_name}"])
-    macro = macro.step(["azure", "ad", "app", "password", "create", "--name",
-                        "azf"]).step(["azure", "ad", "app", "password", "create", "--name",
-                                      "pbi"]).step(["azure", "ad", "app", "get-principal", "%app%object_id"]).step([
-                                          "azure", "ad", "group", "member", "add", "--gi", azure_powerbi_group_id,
-                                          "--pi", "%app%principal_id"
-                                      ])
+        macro = macro.step([
+            "azure", "ad", "app", "create", f"{prefixApp}{deployment_name}", "-c", env.context_id, "-p", env.environ_id
+        ])
+    macro = macro.step([
+        "azure", "ad", "app", "password", "create", "-c", env.context_id, "-p", env.environ_id, "--name", "azf"
+    ]).step(["azure", "ad", "app", "password", "create", "-c", env.context_id, "-p", env.environ_id, "--name",
+             "pbi"]).step(
+                 ["azure", "ad", "app", "get-principal", "-c", env.context_id, "-p", env.environ_id,
+                  "%app%object_id"]).step([
+                      "azure", "ad", "group", "member", "add", "-c", env.context_id, "-p", env.environ_id, "--group-id",
+                      azure_powerbi_group_id, "--principal-id", "%app%principal_id"
+                  ])
 
-    cmd_line = ["azure", "func", "deploy", f"Arm{deployment_name}"]
+    cmd_line = ["azure", "func", "deploy", f"Arm{deployment_name}", "-c", env.context_id, "-p", env.environ_id]
     if arm_path:
         cmd_line = [*cmd_line, "--file", str(arm_path)]
     macro = macro.step(cmd_line)
 
-    macro = macro.step(["azure", "staticwebapp", "app-settings", "update", f"WebApp{deployment_name}"])
-    macro = macro.step(["github", "runs", "get", "%webapp%hostname"])
-    macro = macro.step(["github", "runs", "cancel"])
+    macro = macro.step([
+        "azure", "staticwebapp", "app-settings", "update", f"WebApp{deployment_name}", "-c", env.context_id, "-p",
+        env.environ_id
+    ])
+    macro = macro.step(["github", "runs", "get", "-c", env.context_id, "-p", env.environ_id, "%webapp%hostname"])
+    macro = macro.step(["github", "runs", "cancel", "-c", env.context_id, "-p", env.environ_id])
 
     workflow_file = f'webapp_src/{macro.env.configuration.get_var("github", "workflow_path")}'
     timeout = 0
     while not Path(workflow_file).exists() and timeout < 10:
-        macro.wait(2).step(["webapp", "download", "webapp_src"])
+        macro.wait(2).step(["webapp", "download", "webapp_src", "-c", env.context_id, "-p", env.environ_id])
         timeout += 2
 
-    macro.step(["webapp", "export-config", "--output", "webapp_src/config.json"]).step([
-        "webapp", "update-workflow", workflow_file
-    ]).step(["webapp", "upload-many", "--file", "webapp_src/config.json", "--file", "webapp_src/.github/workflows/"])
+    macro.step([
+        "webapp", "export-config", "-c", env.context_id, "-p", env.environ_id, "--output", "webapp_src/config.json"
+    ]).step(["webapp", "update-workflow", workflow_file, "-c", env.context_id, "-p", env.environ_id]).step([
+        "webapp", "upload-many", "-c", env.context_id, "-p", env.environ_id, "--file", "webapp_src/config.json",
+        "--file", "webapp_src/.github/workflows/"
+    ])

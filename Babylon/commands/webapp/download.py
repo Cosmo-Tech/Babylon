@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @argument("destination_folder", type=Path(path_type=pathlib.Path))
 @inject_context_with_resource({'github': ['organization', 'repository', 'branch']})
 def download(context: Any, destination_folder: pathlib.Path) -> CommandResponse:

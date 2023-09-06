@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @argument("server", type=QueryType(), required=False)
 @inject_context_with_resource({'acr': ['login_server']})

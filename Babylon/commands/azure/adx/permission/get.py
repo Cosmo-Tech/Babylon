@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_kusto_client
 @argument("principal_id", type=QueryType())

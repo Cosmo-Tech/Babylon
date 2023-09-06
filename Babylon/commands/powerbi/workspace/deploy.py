@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @option("--folder",
         "report_folder",
         type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=pathlib.Path),
@@ -53,22 +53,27 @@ def deploy(context: Any,
     adx_database = context['adx_database_name']
     report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
     if not report_params:
-        report_params = "".join(f"--parameter ADX_cluster {adx_cluster} --parameter ADX_databse {adx_database}")
+        report_params = "".join(f"--parameter ADX_cluster {adx_cluster} --parameter ADX_database {adx_database}")
 
-    macro = Macro("powerbi workspace deploy").step(["powerbi", "workspace", "get", "--name", workspace_name],
-                                                   store_at="workspace")
-
+    macro = Macro("powerbi workspace deploy").step(
+        ["powerbi", "workspace", "get", "-c", env.context_id, "-p", env.environ_id, "--name", workspace_name],
+        store_at="workspace")
     if not macro.env.get_data_from_store(["workspace"]):
-        macro.step(["powerbi", "workspace", "create", workspace_name], store_at="workspace")
+        macro.step(["powerbi", "workspace", "create", workspace_name, "-c", env.context_id, "-p", env.environ_id],
+                   store_at="workspace")
 
-    macro = macro.step(["powerbi", "workspace", "user", "get-all", "--filter", f"[?emailAddress=='{email}']"],
+    macro = macro.step([
+        "powerbi", "workspace", "user", "get-all", "-c", env.context_id, "-p", env.environ_id, "--filter",
+        f"[?emailAddress=='{email}']"
+    ],
                        store_at="user")
 
     user = macro.env.get_data_from_store(["user"])
     if not user:
-        macro.step(["powerbi", "workspace", "user", "add", email, "User", "Admin"])
+        macro.step(
+            ["powerbi", "workspace", "user", "add", "-c", env.context_id, "-p", env.environ_id, email, "User", "Admin"])
 
-    upload_cmd = ["powerbi", "report", "upload"]
+    upload_cmd = ["powerbi", "report", "upload", "-c", env.context_id, "-p", env.environ_id]
     if override:
         upload_cmd.append("--override")
     upload_cmd = upload_cmd + ["--type", report_type, "--file"]
@@ -76,9 +81,19 @@ def deploy(context: Any,
         cmd_line = [*upload_cmd, str(report_path)]
         macro = macro.step(cmd_line, store_at="report")
         report = macro.env.get_data_from_store(["report"])
-        macro = macro.step(["powerbi", "report", "pages", "--type", report_type, report["id"]])
+        macro = macro.step([
+            "powerbi", "report", "pages", "-c", env.context_id, "-p", env.environ_id, "--report-type", report_type,
+            report["id"]
+        ])
         datasets = report["datasets"]
         for dataset in datasets:
-            macro.step(["powerbi", "dataset", "take-over", dataset["id"], "--email", email]).step([
-                "powerbi", "dataset", "parameters", "update", dataset["id"], "--email", email, *report_params.split(" ")
-            ]).step(["powerbi", "dataset", "update-credentials", dataset["id"], "--email", email])
+            macro.step([
+                "powerbi", "dataset", "take-over", "-c", env.context_id, "-p", env.environ_id, dataset["id"], "--email",
+                email
+            ]).step([
+                "powerbi", "dataset", "parameters", "update", "-c", env.context_id, "-p", env.environ_id, dataset["id"],
+                "--email", email, *report_params.split(" ")
+            ]).step([
+                "powerbi", "dataset", "update-credentials", "-c", env.context_id, "-p", env.environ_id, dataset["id"],
+                "--email", email
+            ])

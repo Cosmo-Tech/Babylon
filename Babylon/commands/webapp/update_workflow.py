@@ -34,7 +34,7 @@ def update_file(workflow_file: pathlib.Path):
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @argument("workflow_file", type=Path(path_type=pathlib.Path))
 def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
     """

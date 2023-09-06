@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token()
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())

@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token()
 @option("--select", "select", is_flag=True, default=True, help="Save this new connector in your configuration")
 @argument("name", type=QueryType())

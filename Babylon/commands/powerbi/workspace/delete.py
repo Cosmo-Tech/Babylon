@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_powerbi_token()
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
 @option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")

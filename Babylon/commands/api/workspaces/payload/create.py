@@ -13,7 +13,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 def create() -> CommandResponse:
     """
     Create a worspace payload

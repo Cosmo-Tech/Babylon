@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @inject_context_with_resource({'azure': ['resource_group_name', 'subscription_id']})

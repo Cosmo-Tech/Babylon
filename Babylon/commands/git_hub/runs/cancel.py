@@ -12,7 +12,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @inject_context_with_resource({'github': ['run_url']})
 def cancel(context: Any, workflow_name: Optional[str] = None) -> CommandResponse:
     """

@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @output_to_file
 @option("--file",
         "config_file",

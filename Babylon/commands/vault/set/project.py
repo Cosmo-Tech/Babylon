@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_hvac_client
 @argument("resource", type=Choice(['azf', 'powerbi', 'eventhub', 'func']))
 @argument("value", type=QueryType())

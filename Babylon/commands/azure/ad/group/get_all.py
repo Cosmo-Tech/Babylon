@@ -13,7 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @output_to_file
 @pass_azure_token("graph")
 @option("--filter", "filter", help="Filter response with a jmespath query")

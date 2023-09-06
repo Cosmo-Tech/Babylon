@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @argument("workflow_name", type=QueryType())
 def get(workflow_name: Optional[str] = None) -> CommandResponse:
     """

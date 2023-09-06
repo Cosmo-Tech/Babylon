@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--output", "output_folder", help="Output folder", type=Path(path_type=pathlib.Path), default="powerbi")
 @inject_context_with_resource({"powerbi": ['workspace']})

@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token()
 @argument("webapp_name", type=QueryType())
 @inject_context_with_resource({'azure': ['resource_group_name', 'subscription_id']})

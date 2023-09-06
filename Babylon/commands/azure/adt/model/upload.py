@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_adt_client
 @option("--override", "override_if_exists", is_flag=True, help="Override existing models")

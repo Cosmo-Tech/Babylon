@@ -22,7 +22,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_arm_client
 @option("--complete-mode", "deploy_mode_complete", is_flag=True, help="Flag to run on complete mode")
 @option("--file",

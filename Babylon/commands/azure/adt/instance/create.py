@@ -22,7 +22,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_context
 @timing_decorator
 @pass_adt_management_client

@@ -13,7 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_context
 @pass_kusto_client

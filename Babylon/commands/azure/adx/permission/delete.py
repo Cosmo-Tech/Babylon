@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_kusto_client
 @describe_dry_run("Would go through each role of given principal and delete them.")

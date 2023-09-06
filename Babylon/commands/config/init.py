@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command(name="init")
-@wrapcontext
+@wrapcontext()
 @pass_hvac_client
 def init(hvac_client: Client) -> CommandResponse:
     """

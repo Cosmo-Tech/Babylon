@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_context
 @output_to_file
 @pass_powerbi_token()

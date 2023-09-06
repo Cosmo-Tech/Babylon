@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @output_to_file
 @pass_powerbi_token()
 @option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())

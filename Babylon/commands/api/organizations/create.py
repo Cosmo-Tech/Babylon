@@ -25,7 +25,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_context
 @timing_decorator
 @output_to_file

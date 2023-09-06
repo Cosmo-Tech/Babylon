@@ -13,7 +13,7 @@ logger = logging.getLogger('Babylon')
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token()
 @argument('powerbi_name', type=QueryType())
 @inject_context_with_resource({'azure': ['subscription_id', 'resource_group_name']})

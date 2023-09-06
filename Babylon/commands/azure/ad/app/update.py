@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token("graph")
 @option("--file",
         "registration_file",

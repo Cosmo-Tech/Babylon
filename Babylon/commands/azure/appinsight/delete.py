@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token()
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")
 @argument("name", type=QueryType())

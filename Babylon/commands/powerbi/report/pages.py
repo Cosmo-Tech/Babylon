@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @output_to_file
 @pass_powerbi_token()
 @option("--report-type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), help="Report Type")

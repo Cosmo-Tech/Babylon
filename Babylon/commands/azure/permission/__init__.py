@@ -1,4 +1,5 @@
 from click import group
+
 from .set import set
 
 list_commands = [set]

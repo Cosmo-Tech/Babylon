@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command(name="babylon")
-@wrapcontext
+@wrapcontext()
 @pass_hvac_client
 @argument("name", type=QueryType())
 def get_babylon(

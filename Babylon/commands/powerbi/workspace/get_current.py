@@ -11,7 +11,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_powerbi_token()
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get_current(

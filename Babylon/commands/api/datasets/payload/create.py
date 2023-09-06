@@ -12,7 +12,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @option("--type", "type", type=Choice(['adt', 'storage']), required=True, help="Dataset type Cosmotech Platform")
 def create(type: str) -> CommandResponse:
     """

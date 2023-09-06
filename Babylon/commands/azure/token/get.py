@@ -10,7 +10,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @option("--email", "email", help="User email")
 @option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True, help="API Scope")
 def get(scope: str, email: str) -> CommandResponse:

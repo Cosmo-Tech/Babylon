@@ -22,7 +22,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_powerbi_token()
 @option("--file",

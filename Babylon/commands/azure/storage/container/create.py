@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_blob_client
 @argument("name", type=QueryType())

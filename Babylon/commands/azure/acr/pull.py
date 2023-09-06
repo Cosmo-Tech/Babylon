@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @option("--image", type=QueryType(), help="Remote docker image to pull, example hello-world:latest")
 @option("--select", "select", is_flag=True, default=True, help="Select this repository in configuration")

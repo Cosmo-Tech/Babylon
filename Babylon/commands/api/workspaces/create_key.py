@@ -13,7 +13,7 @@ env = Environment()
 
 
 @command(name="create-key")
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],

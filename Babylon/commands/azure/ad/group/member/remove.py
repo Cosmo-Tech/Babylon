@@ -13,7 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token("graph")
 @option("--gi", "--group-id", "group_id", type=QueryType(), required=True, help="Group Id Azure Directory")
 @option("--pi", "--object-id", "object_id", type=QueryType(), required=True, help="Principal Id Azure Directory")

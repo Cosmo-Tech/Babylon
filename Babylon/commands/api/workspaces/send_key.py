@@ -13,7 +13,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
 @inject_context_with_resource({"api": ['url', 'organization_id', 'workspace_key', 'workspace_id']})

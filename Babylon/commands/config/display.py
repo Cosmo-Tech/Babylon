@@ -9,7 +9,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 def display() -> CommandResponse:
     """
     Display current configuration

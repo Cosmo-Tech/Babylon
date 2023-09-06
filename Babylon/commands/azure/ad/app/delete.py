@@ -16,7 +16,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_context
 @pass_azure_token("graph")
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

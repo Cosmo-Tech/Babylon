@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token("graph")
 @option("--name", "password_name", type=QueryType(), help="Password display name")
 @option("--object-id", "object_id", type=QueryType(), help="Object Id Azure App Registration")

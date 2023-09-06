@@ -7,7 +7,6 @@ from typing import Callable
 from pathlib import Path
 from time import sleep
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from .response import CommandResponse
 from .command_helper import run_command
 from .environment import Environment
 
@@ -32,7 +31,7 @@ class Macro():
 
     def __init__(self, name: str):
         self.name = name
-        self._responses: list[CommandResponse] = []
+        self._responses: list[dict] = []
         self.env = env
         self._status = self.STATUS_OK
 
@@ -52,7 +51,8 @@ class Macro():
         """
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
                       transient=True) as progress:
-            cmd_line = command_line + ["-c", env.context_id, "-p", env.environ_id]
+            cmd_line = command_line
+            print(" ".join(cmd_line))
             progress.add_task(" ".join(cmd_line))
             self.env.is_verbose = False
             res = run_command(cmd_line)

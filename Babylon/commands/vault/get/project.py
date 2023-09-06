@@ -13,7 +13,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_hvac_client
 @argument("resource", type=Choice(['azf', 'powerbi']))
 @inject_context_with_resource({

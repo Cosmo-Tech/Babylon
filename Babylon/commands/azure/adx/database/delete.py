@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_kusto_client
 @option("--current", "current", type=QueryType(), is_flag=True, help="Delete database adx referenced in configuration")

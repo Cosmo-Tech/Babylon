@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_powerbi_token()
 @option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

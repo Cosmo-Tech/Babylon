@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_blob_client
 @option("--folder",

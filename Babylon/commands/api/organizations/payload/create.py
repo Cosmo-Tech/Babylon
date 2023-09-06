@@ -12,7 +12,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 def create() -> CommandResponse:
     """
     Create a new organization payload

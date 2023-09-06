@@ -12,7 +12,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_blob_client
 @option("--filter", "filter", help="Filter response with a jmespath query")

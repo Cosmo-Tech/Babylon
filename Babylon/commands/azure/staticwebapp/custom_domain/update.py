@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_context
 @pass_azure_token()
 @option("--file",

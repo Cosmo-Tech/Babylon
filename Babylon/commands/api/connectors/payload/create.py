@@ -12,7 +12,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @option("--type",
         "type",
         type=Choice(['adt', 'storage', 'twin']),

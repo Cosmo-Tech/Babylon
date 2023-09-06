@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_powerbi_token()
 @option("--parameter", "params", type=(QueryType(), QueryType()), multiple=True, required=True, help="Report parameter")
 @option("--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")

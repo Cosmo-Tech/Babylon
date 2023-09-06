@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @output_to_file
 @pass_adt_client

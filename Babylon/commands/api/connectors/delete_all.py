@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_context
 @timing_decorator
 @pass_azure_token("csm_api")

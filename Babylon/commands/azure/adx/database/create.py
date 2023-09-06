@@ -21,7 +21,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_context
 @pass_kusto_client
 @timing_decorator
@@ -40,7 +40,8 @@ def create(ctx: Context,
     """
     Create database in ADX cluster
     """
-    check_ascii(name)
+    if name:
+        check_ascii(name)
     organization_id = context['api_organization_id']
     workspace_key = context['api_workspace_key']
     resource_location = context['azure_resource_location']

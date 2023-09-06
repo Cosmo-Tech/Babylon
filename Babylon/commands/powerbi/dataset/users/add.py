@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_powerbi_token()
 @option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--email", "email", type=QueryType(), help="Email valid")

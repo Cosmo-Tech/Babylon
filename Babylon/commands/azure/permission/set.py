@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_iam_client
 @option("--resource-type", "resource_type", type=QueryType(), help="Ressource Type Id Azure")
 @option("--resource-name", "resource_name", type=QueryType(), help="Ressource Name Azure")

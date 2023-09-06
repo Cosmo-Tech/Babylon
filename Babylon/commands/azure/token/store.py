@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @option("--email", "email", help="User email")
 @option("--scope", "scope", type=Choice(['default', "powerbi", "graph"]), required=True, help="API Scope")
 @inject_context_with_resource({'azure': ['user_principal_id', 'cli_client_id']})

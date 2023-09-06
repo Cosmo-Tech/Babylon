@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @argument("name", type=QueryType())
 @argument("event_hub_name", type=QueryType())
 @inject_context_with_resource({

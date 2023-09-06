@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_blob_client
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

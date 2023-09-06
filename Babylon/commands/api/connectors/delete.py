@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

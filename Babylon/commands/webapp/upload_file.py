@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @argument("file", type=Path(path_type=pathlib.Path, exists=True))
 @inject_context_with_resource({'github': ['branch', 'repository']})
 def upload_file(context: Any, file: pathlib.Path) -> CommandResponse:

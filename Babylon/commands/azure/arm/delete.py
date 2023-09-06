@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @timing_decorator
 @pass_arm_client
 @option("-D", "force_validation", is_flag=True, help="Delete on force mode")

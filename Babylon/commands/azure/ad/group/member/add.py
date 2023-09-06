@@ -11,23 +11,23 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @pass_azure_token("graph")
 @option("--gi", "--group-id", "group_id", type=QueryType(), required=True, help="Group Id Azure Directory")
-@option("--pi", "--object-id", "object_id", type=QueryType(), required=True, help="Principal Id Azure Directory")
+@option("--pi", "--principal-id", "principal_id", type=QueryType(), required=True, help="Principal Id Azure Directory")
 def add(
     azure_token: str,
     group_id: str,
-    object_id: str,
+    principal_id: str,
 ) -> CommandResponse:
     """
     Add a member in a group in active directory
     https://learn.microsoft.com/en-us/graph/api/group-post-members
     """
     route = f"https://graph.microsoft.com/v1.0/groups/{group_id}/members/$ref"
-    details = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{object_id}"}
+    details = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{principal_id}"}
     response = oauth_request(route, azure_token, type="POST", json=details)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Successfully added principal {object_id} to group {group_id}")
+    logger.info(f"Successfully added principal {principal_id} to group {group_id}")
     return CommandResponse.success()

@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext
+@wrapcontext()
 @argument("resource", type=Choice(config_files))
 @argument("key", type=QueryType())
 def get(resource: str, key: str) -> CommandResponse:
