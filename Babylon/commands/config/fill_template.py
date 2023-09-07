@@ -15,12 +15,12 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@argument("template_path", type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path), exists=True, dir_okay=False))
+@argument("template_path", type=Path(path_type=pathlib.Path, exists=True, dir_okay=False))
 @option("-p", "--parameter", "params", type=(QueryType(), QueryType()), multiple=True)
 @option("-o",
         "--output",
         "output_file",
-        type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path), dir_okay=False),
+        type=Path(path_type=pathlib.Path, dir_okay=False),
         help="File to which content should be outputted")
 def fill_template(template_path: pathlib.Path,
                   params: list[tuple[str, str]] = [],

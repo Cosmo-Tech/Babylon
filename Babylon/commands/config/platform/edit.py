@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @argument("platform",
           required=False,
-          type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+          type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 def edit(platform: Optional[pathlib.Path] = None) -> CommandResponse:
     """Open editor to edit variables in given platform
 
