@@ -3,19 +3,19 @@ import logging
 import pathlib
 import pprint
 
+from click import Path
 from click import argument
 from click import command
-from click import Path
 from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
+from ....utils.clients import pass_tfc_client
 from ....utils.decorators import describe_dry_run
+from ....utils.decorators import output_to_file
 from ....utils.decorators import timing_decorator
 from ....utils.environment import Environment
 from ....utils.response import CommandResponse
-from ....utils.clients import pass_tfc_client
-from ....utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
 
@@ -30,7 +30,7 @@ logger = logging.getLogger("Babylon")
 @option("--select", "select", is_flag=True, help="Select the created workspace")
 @timing_decorator
 @output_to_file
-def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool = False) -> CommandResponse:
+def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool) -> CommandResponse:
     """
     Use given parameters to create a workspace in the organization
     Takes a workspace_data_file as input, which should contain the following keys:
@@ -38,11 +38,10 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool = Fa
     - working_directory
     - vcs_branch
     - vcs_identifier
-    - vcs_oauth_token_id
     """
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
-    workspace_keys = {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier", "vcs_oauth_token_id"}
+    workspace_keys = {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier"}
     if any(key not in workspace_data.keys() for key in workspace_keys):
         logger.error(f"Workspace data file should contain keys: {','.join(workspace_keys)}")
         return CommandResponse.fail()
