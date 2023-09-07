@@ -1,8 +1,10 @@
+import pathlib
 from logging import getLogger
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
 from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
@@ -21,23 +23,23 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("workspace_id", type=QueryType())
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
-@option("-i",
-        "--workspace-file",
-        "workspace_file",
-        required=True,
-        help="Your custom workspace description file (yaml or json)")
+@option("--workspace-id", "workspace_id", type=QueryType(), default="%deploy%workspace_id")
+@option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@argument("workspace_file",
+          type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @output_to_file
-def update(api_url: str, azure_token: str, workspace_id: str, organization_id: str,
-           workspace_file: str) -> CommandResponse:
+def update(
+    api_url: str,
+    azure_token: str,
+    workspace_id: str,
+    organization_id: str,
+    workspace_file: str,
+) -> CommandResponse:
     """
     Register a workspace by sending a description file to the API.
     See the .payload_templates/API files to edit your own file manually if needed
     """
     env = Environment()
-    workspace_file = workspace_file or env.working_dir.payload_path / "api/workspace.json"
     details = env.fill_template(workspace_file)
     if workspace_file.suffix in [".yaml", ".yml"]:
         details = yaml_to_json(details)

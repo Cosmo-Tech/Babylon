@@ -1,16 +1,16 @@
 from logging import getLogger
 from typing import Optional
 
+import jmespath
 from click import command
 from click import option
-import jmespath
 
-from ....utils.decorators import timing_decorator
-from ....utils.response import CommandResponse
-from ....utils.decorators import require_platform_key
 from ....utils.credentials import pass_azure_token
-from ....utils.request import oauth_request
 from ....utils.decorators import output_to_file
+from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
+from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
