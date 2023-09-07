@@ -31,7 +31,7 @@ logger = getLogger("Babylon")
     type=QueryType(),
     help="Your custom solution name",
 )
-@option("--select", "select", type=bool, help="Select this new solution id in configuration ?", default=True)
+@option("-s", "--select", "select", is_flag=True, default=True, help="Select the created solution ?")
 @output_to_file
 def create(
     api_url: str,

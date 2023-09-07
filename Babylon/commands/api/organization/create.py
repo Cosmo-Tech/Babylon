@@ -25,7 +25,7 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @argument("organization_file", type=pathlib.Path)
 @option("--organization-name", "organization_name", type=QueryType(), help="Your custom organization name")
-@option("--select", "select", type=bool, help="Select this new organization id in configuration ?", default=True)
+@option("-s", "--select", "select", is_flag=True, default=True, help="Select the created organization ?")
 @output_to_file
 def create(
     api_url: str,

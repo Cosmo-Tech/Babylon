@@ -33,7 +33,7 @@ logger = getLogger("Babylon")
     "workspace_description",
     help="Workspace description",
 )
-@option("--select", "select", type=bool, help="Select this new workspace id in configuration ?", default=True)
+@option("-s", "--select", "select", is_flag=True, default=True, help="Select the created workspace")
 @output_to_file
 def create(
     api_url: str,
