@@ -35,7 +35,7 @@ def update(api_url: str, azure_token: str, organization_id: str, solution_id: st
     """
     env = Environment()
     solution_details = env.working_dir.get_file_content(solution_file)
-    solution_key = solution_details["name"].replace(" ", "")
+    solution_key = solution_details.get("name").replace(" ", "")
     logger.debug(solution_details["name"])
     details = env.fill_template(solution_file, data={"solution_key": solution_key})
     if solution_file.suffix in [".yaml", ".yml"]:
