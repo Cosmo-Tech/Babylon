@@ -23,8 +23,8 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option("--dataset_name", "dataset_name", type=QueryType())
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--dataset-name", "dataset_name", type=QueryType())
+@option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--connector-id", "connector_id", type=QueryType())
 @argument("dataset_file", type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option(
