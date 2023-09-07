@@ -21,7 +21,7 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @argument("workspace_id", type=QueryType(), default="%deploy%workspace_id")
 @output_to_file
