@@ -28,8 +28,7 @@ logger = getLogger("Babylon")
 @option("--workspace", "workspace_id", type=QueryType(), default="%deploy%workspace_id")
 @argument(
     "security_file",
-    type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
-    required=True,
+    type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)
 )
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, workspace_id: str,
