@@ -27,7 +27,6 @@ logger = getLogger("Babylon")
 @argument(
     "security_file",
     type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
-    required=True,
 )
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, security_file: pathlib.Path) -> CommandResponse:
