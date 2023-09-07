@@ -24,7 +24,8 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("workspace_file", type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
+@argument("workspace_file",
+          type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution-id", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @option("--workspace-name", "workspace_name", type=QueryType(), help="Your custom workspace name")
@@ -52,7 +53,8 @@ def create(
     """
     env = Environment()
     workspace_details = env.working_dir.get_file_content(workspace_file)
-    workspace_key = workspace_name.replace(" ", "") if workspace_name else workspace_details.get("name").replace(" ", "")
+    workspace_key = workspace_name.replace(" ", "") if workspace_name else workspace_details.get("name").replace(
+        " ", "")
     details = env.fill_template(workspace_file,
                                 data={
                                     "workspace_name": workspace_name,

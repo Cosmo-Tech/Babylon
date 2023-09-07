@@ -24,7 +24,8 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("organization_file", type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
+@argument("organization_file",
+          type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option("--organization-name", "organization_name", type=QueryType(), help="Your custom organization name")
 @option("-s", "--select", "select", is_flag=True, default=True, help="Select the created organization ?")
 @output_to_file
