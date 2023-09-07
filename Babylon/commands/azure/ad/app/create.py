@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_azure_token("graph")
 @argument("name", type=QueryType())
-@option("-f", "--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@option("-f", "--file", "registration_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 @output_to_file
 def create(azure_token: str, name: str, registration_file: pathlib.Path) -> CommandResponse:
     """

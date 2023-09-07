@@ -9,7 +9,6 @@ from click import command
 from click import option
 
 from .....utils.decorators import describe_dry_run
-from .....utils.decorators import require_deployment_key
 from .....utils.decorators import require_platform_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
@@ -23,7 +22,7 @@ logger = logging.getLogger("Babylon")
 @pass_kusto_client
 @require_platform_key("resource_group_name")
 @require_platform_key("adx_cluster_name")
-@require_deployment_key("adx_database_name")
+@option("--database", "adx_database_name", type=QueryType(), default="%deploy%adx_database_name")
 @argument("principal_id", type=QueryType())
 @option("-r",
         "--role",

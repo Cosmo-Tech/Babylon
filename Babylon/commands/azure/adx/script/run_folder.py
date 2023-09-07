@@ -23,7 +23,7 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("resource_group_name")
 @require_deployment_key("adx_database_name")
 @click.argument("script_folder",
-                type=Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+                type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
 @describe_dry_run("Would go through the folder and run all files found")
 @timing_decorator
 def run_folder(

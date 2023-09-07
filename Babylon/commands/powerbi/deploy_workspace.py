@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @option("--report-folder",
         "-f",
         "report_folder",
-        type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
+        type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=pathlib.Path),
         default="./POWERBI",
         help="Override folder containing your .pbix files")
 @option("--report-parameter",
@@ -35,9 +35,9 @@ def deploy_workspace(workspace_name: str,
                      report_parameters: Optional[Iterable[Tuple[str, str]]] = None,
                      override: bool = False):
     """
-    Macro command allowing full deployment of a powerBI workspace
-    Requires a local folder named `POWERBI` and will initialize a full workspace with the given reports
-    Won't run powerbi workspace creation if it's already existing
+    Macro command allowing full deployment of a powerBI workspace  
+    Requires a local folder named `POWERBI` and will initialize a full workspace with the given reports  
+    Won't run powerbi workspace creation if it's already existing  
     """
     report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
 

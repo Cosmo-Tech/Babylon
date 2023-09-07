@@ -2,27 +2,30 @@ import logging
 import pathlib
 import time
 
-import click
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.kusto import KustoManagementClient
+from click import Path
+from click import argument
+from click import command
+from click import option
+from click import progressbar
 
+from .....utils.clients import pass_kusto_client
 from .....utils.decorators import describe_dry_run
-from .....utils.decorators import require_deployment_key
 from .....utils.decorators import require_platform_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
-from .....utils.clients import pass_kusto_client
+from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
 
-@click.command()
+@command()
 @pass_kusto_client
 @require_platform_key("adx_cluster_name")
 @require_platform_key("resource_group_name")
-@require_deployment_key("adx_database_name")
-@click.argument("script_file",
-                type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@argument("script_file", type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
+@option("--database", "adx_database_name", type=QueryType(), default="%deploy%adx_database_name")
 @describe_dry_run("Would send the content of the given script to ADX then delete it once run is finished")
 @timing_decorator
 def run(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str, adx_database_name: str,
@@ -44,7 +47,7 @@ In the script instances of "<database name>" will be replaced by the actual data
                                                         parameters={"script_content": script_content},
                                                         polling_interval=1)
         try:
-            with click.progressbar(length=20, label="Waiting for script to finish") as bar:
+            with progressbar(length=20, label="Waiting for script to finish") as bar:
                 for _ in bar:
                     if not s.done():
                         s.wait(1)
