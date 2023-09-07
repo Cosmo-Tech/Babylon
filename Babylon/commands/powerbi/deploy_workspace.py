@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @option("--report-folder",
         "-f",
         "report_folder",
-        type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
+        type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
         default="./POWERBI",
         help="Override folder containing your .pbix files")
 @option("--report-parameter",

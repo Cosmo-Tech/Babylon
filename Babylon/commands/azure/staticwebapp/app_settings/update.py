@@ -21,7 +21,7 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("azure_subscription")
 @require_platform_key("resource_group_name")
 @argument("webapp_name", type=QueryType())
-@option("-f", "--file", "settings_file", type=Path(readable=True, dir_okay=False, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@option("-f", "--file", "settings_file", type=Path(readable=True, dir_okay=False, path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 def update(azure_token: str, azure_subscription: str, resource_group_name: str, webapp_name: str,
            settings_file: pathlib.Path) -> CommandResponse:
     """

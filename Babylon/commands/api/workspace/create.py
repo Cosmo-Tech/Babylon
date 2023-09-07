@@ -23,7 +23,7 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("workspace_file", type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
+@argument("workspace_file", type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @option("--workspace-name", "workspace_name", type=QueryType(), help="Your custom workspace name")

@@ -12,7 +12,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@argument("deploy", type=Path(path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@argument("deploy", type=Path(path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 def select(deploy: pathlib.Path) -> CommandResponse:
     """Change active deploy file in given platform"""
     config = Environment().configuration

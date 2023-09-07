@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@option("-f", "--file", "config_file", type=Path(readable=True, dir_okay=False, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@option("-f", "--file", "config_file", type=Path(readable=True, dir_okay=False, path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @output_to_file
 def export_config(config_file: Optional[pathlib.Path] = None) -> CommandResponse:
     """Export webapp configuration in a json file"""

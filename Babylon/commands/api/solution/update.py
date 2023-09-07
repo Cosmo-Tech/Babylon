@@ -23,9 +23,9 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
-@argument("solution_file", type=Path(path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--solution-id", "solution_id", type=QueryType(), default="%deploy%solution_id")
+@argument("solution_file", type=Path(path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, solution_id: str,
            solution_file: pathlib.Path) -> CommandResponse:

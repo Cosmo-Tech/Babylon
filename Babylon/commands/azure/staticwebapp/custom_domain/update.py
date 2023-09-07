@@ -25,7 +25,7 @@ logger = logging.getLogger("Babylon")
 @require_platform_key("resource_group_name")
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())
-@option("-f", "--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@option("-f", "--file", "create_file", type=Path(readable=True, dir_okay=False, path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @option("-e",
         "--use-working-dir-file",
         "use_working_dir_file",

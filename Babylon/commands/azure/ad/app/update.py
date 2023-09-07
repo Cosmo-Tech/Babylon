@@ -21,7 +21,7 @@ logger = logging.getLogger("Babylon")
 @option("-f",
         "--file",
         "registration_file",
-        type=Path(readable=True, dir_okay=False, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
+        type=Path(readable=True, dir_okay=False, path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
         required=True)
 def update(azure_token: str, object_id: str, registration_file: str) -> CommandResponse:
     """

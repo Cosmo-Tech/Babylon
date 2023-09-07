@@ -23,7 +23,7 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
-@argument("handler_path", type=Path(path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path), exists=True))
+@argument("handler_path", type=Path(path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path), exists=True))
 @argument(
     "handler_id",
     type=Choice([
