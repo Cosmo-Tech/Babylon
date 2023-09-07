@@ -5,6 +5,7 @@ from typing import Optional
 from click import argument
 from click import command
 from click import option
+from click import Path
 
 from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
@@ -26,7 +27,7 @@ logger = getLogger("Babylon")
 @option("--dataset-name", "dataset_name", type=QueryType())
 @option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--connector-id", "connector_id", type=QueryType())
-@argument("dataset_file", type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
+@argument("dataset_file", type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option(
     "-d",
     "--description",

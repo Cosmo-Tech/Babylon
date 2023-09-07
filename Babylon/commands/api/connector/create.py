@@ -23,7 +23,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("connector_file", type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
+@argument("connector_file", type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option("--connector-name", "connector_name", type=QueryType())
 @output_to_file
 def create(

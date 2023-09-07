@@ -28,7 +28,7 @@ logger = getLogger("Babylon")
 @option("--workspace", "workspace_id", type=QueryType(), default="%deploy%workspace_id")
 @argument(
     "security_file",
-    type=Path(path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
+    type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
     required=True,
 )
 @output_to_file

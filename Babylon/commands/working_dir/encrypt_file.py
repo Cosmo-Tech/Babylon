@@ -13,7 +13,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@argument("source_file", type=Path(exists=True, readable=True, file_okay=True, dir_okay=False, path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@argument("source_file", type=Path(exists=True, readable=True, file_okay=True, dir_okay=False, path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @option("-o", "--override", is_flag=True, help="Should override already encrypted file")
 def encrypt_file(source_file: pathlib.Path, override: bool):
     """Encrypt given SOURCE_FILE"""

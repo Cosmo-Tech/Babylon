@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @require_deployment_key("webapp_repository")
 @require_deployment_key("webapp_repository_branch")
 @working_dir_requires_yaml_key(".secrets.yaml.encrypt", "github.token", "github_token")
-@argument("destination_folder", type=Path(path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@argument("destination_folder", type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 def download(webapp_repository: str, webapp_repository_branch: str, github_token: str,
              destination_folder: pathlib.Path) -> CommandResponse:
     """Download the github repository locally"""

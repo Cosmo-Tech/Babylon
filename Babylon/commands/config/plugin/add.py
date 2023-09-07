@@ -12,7 +12,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@argument("plugin_path", type=Patth(file_okay=False, dir_okay=True, readable=True, path_type=Patth(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@argument("plugin_path", type=Path(file_okay=False, dir_okay=True, readable=True, path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 def add(plugin_path: pathlib.Path) -> CommandResponse:
     """Add a plugin found at PLUGIN_PATH"""
     config = Environment().configuration
