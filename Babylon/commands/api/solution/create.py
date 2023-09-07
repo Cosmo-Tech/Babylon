@@ -23,7 +23,7 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @argument("solution_file", type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option(
     "--solution-name",
