@@ -22,7 +22,7 @@ RETRY_WAIT_TIME = 0.5
 
 @command()
 @pass_azure_token("powerbi")
-@argument("pbix_filename", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@argument("pbix_filename", type=Path(readable=True, dir_okay=False, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @option("-w",
         "--workspace",
         "workspace_id",

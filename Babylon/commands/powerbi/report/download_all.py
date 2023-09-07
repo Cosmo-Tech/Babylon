@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
         help="PowerBI workspace ID",
         type=QueryType(),
         default="%deploy%powerbi_workspace_id")
-@option("-o", "--output", "output_folder", help="Output folder", type=Path(path_type=pathlib.Path), default="POWERBI")
+@option("-o", "--output", "output_folder", help="Output folder", type=Path(path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)), default="POWERBI")
 def download_all(workspace_id: str, output_folder: pathlib.Path) -> CommandResponse:
     """Download all reports from a workspace"""
     logger.info(f"Downloading reports from workspace {workspace_id}...")

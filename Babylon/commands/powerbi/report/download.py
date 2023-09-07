@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_azure_token("powerbi")
 @argument("report_id", type=QueryType())
-@option("-o", "--output", "output_folder", help="Output folder", type=Path(path_type=pathlib.Path), default="POWERBI")
+@option("-o", "--output", "output_folder", help="Output folder", type=Path(path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)), default="POWERBI")
 @option("-w",
         "--workspace",
         "workspace_id",

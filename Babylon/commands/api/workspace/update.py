@@ -24,7 +24,7 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @option("--workspace", "workspace_id", type=QueryType(), default="%deploy%workspace_id")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
-@argument("workspace_file", type=pathlib.Path)
+@argument("workspace_file", type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @output_to_file
 def update(
     api_url: str,

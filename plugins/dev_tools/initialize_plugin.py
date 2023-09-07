@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 @click.command()
 @click.argument("plugin_folder",
-                type=click.Path(file_okay=False, dir_okay=True, readable=True, writable=True, path_type=pathlib.Path))
+                type=click.Path(file_okay=False, dir_okay=True, readable=True, writable=True, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @click.argument("plugin_name")
 @click.option("-a", "--add", "add", is_flag=True, help="Add the created plugin to the config.")
 def initialize_plugin(plugin_name: str, plugin_folder: pathlib.Path, add: bool = False):

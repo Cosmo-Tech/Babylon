@@ -26,7 +26,7 @@ logger = getLogger("Babylon")
 @option("--dataset_name", "dataset_name", type=QueryType())
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--connector-id", "connector_id", type=QueryType())
-@argument("dataset_file", type=pathlib.Path)
+@argument("dataset_file", type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @option(
     "-d",
     "--description",

@@ -57,7 +57,7 @@ def upload_one_model(adt_client: DigitalTwinsClient, model: dict, override: bool
 @command()
 @pass_adt_client
 @argument("model_file_folder",
-          type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
+          type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @option("-o", "--override", "override_if_exists", is_flag=True, help="Override existing models")
 @describe_dry_run("Would go through the given file and upload the models to ADT")
 @timing_decorator

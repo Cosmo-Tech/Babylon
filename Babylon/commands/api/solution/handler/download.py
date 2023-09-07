@@ -42,7 +42,7 @@ logger = getLogger("Babylon")
     type=QueryType(),
     required=True,
 )
-@option("-o", "--output", "output_folder", help="Output folder", type=Path(path_type=pathlib.Path))
+@option("-o", "--output", "output_folder", help="Output folder", type=Path(path_type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 def download(api_url: str, azure_token: str, organization_id: str, solution_id: str, handler_id: str,
              run_template_id: str, output_folder: pathlib.Path) -> CommandResponse:
     """Download a solution handler zip from the solution"""
