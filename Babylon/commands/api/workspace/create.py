@@ -52,7 +52,7 @@ def create(
     """
     env = Environment()
     workspace_details = env.working_dir.get_file_content(workspace_file)
-    workspace_key = workspace_name.replace(" ", "") if workspace_name else workspace_details["name"].replace(" ", "")
+    workspace_key = workspace_name.replace(" ", "") if workspace_name else workspace_details.get("name").replace(" ", "")
     details = env.fill_template(workspace_file,
                                 data={
                                     "workspace_name": workspace_name,
