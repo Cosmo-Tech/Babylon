@@ -30,7 +30,10 @@ logger = logging.getLogger("Babylon")
         default="%deploy%terraform_cloud_workspace_id",
         type=QueryType())
 @describe_dry_run("Sending multiple variable creation payloads to terraform")
-@argument("variable_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@argument("variable_file",
+          type=Path(readable=True,
+                    dir_okay=False,
+                    path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @timing_decorator
 def create_from_file(tfc_client: TFC, workspace_id: str, variable_file: pathlib.Path) -> CommandResponse:
     """Set multiple variables in a workspace

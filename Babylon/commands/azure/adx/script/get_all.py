@@ -1,13 +1,14 @@
 import logging
 
 import click
+from click import option
 from azure.mgmt.kusto import KustoManagementClient
 
-from .....utils.decorators import require_deployment_key
 from .....utils.decorators import require_platform_key
 from .....utils.decorators import timing_decorator
 from .....utils.response import CommandResponse
 from .....utils.clients import pass_kusto_client
+from .....utils.typing import QueryType
 
 logger = logging.getLogger("Babylon")
 
@@ -16,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @pass_kusto_client
 @require_platform_key("adx_cluster_name")
 @require_platform_key("resource_group_name")
-@require_deployment_key("adx_database_name")
+@option("--database", "adx_database_name", type=QueryType(), default="%deploy%adx_database_name")
 @timing_decorator
 def get_all(kusto_client: KustoManagementClient, adx_cluster_name: str, resource_group_name: str,
             adx_database_name: str) -> CommandResponse:

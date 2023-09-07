@@ -23,8 +23,11 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_tfc_client
 @describe_dry_run("Would send a workspace creation payload to terraform")
-@argument("workspace_data_file", type=Path(path_type=pathlib.Path, exists=True, dir_okay=False))
-@option("--select", "select", is_flag=True, default=True, help="Select the created workspace")
+@argument("workspace_data_file",
+          type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
+                    exists=True,
+                    dir_okay=False))
+@option("--select", "select", is_flag=True, help="Select the created workspace")
 @timing_decorator
 @output_to_file
 def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool) -> CommandResponse:

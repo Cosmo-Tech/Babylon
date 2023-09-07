@@ -2,10 +2,9 @@ import json
 import pathlib
 from logging import getLogger
 
-from click import Path
+from click import Path, option
 from click import argument
 from click import command
-from click import option
 
 from .....utils.credentials import pass_azure_token
 from .....utils.decorators import output_to_file
@@ -24,11 +23,10 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @argument(
     "security_file",
-    type=Path(path_type=pathlib.Path),
-    required=True,
+    type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)),
 )
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, security_file: pathlib.Path) -> CommandResponse:
@@ -50,5 +48,5 @@ def update(api_url: str, azure_token: str, organization_id: str, security_file: 
         if response is None:
             return CommandResponse.fail()
 
-    logger.info(f"Successfully updated organization {organization_id} RBAC")
+    logger.info(f"Successfully updated organization {organization_id} security")
     return CommandResponse.success(details, verbose=True)

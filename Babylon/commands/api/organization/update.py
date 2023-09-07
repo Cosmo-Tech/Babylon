@@ -1,18 +1,19 @@
+import pathlib
 from logging import getLogger
-from typing import Optional
 
 from click import argument
 from click import command
 from click import option
+from click import Path
 
-from ....utils.decorators import timing_decorator
-from ....utils.typing import QueryType
-from ....utils.response import CommandResponse
+from ....utils.credentials import pass_azure_token
 from ....utils.decorators import output_to_file
 from ....utils.decorators import require_platform_key
+from ....utils.decorators import timing_decorator
 from ....utils.environment import Environment
-from ....utils.credentials import pass_azure_token
 from ....utils.request import oauth_request
+from ....utils.response import CommandResponse
+from ....utils.typing import QueryType
 from ....utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
@@ -22,17 +23,11 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@argument("organization_id", type=QueryType())
-@option("-i",
-        "--organization-file",
-        "organization_file",
-        required=True,
-        help="Your custom organization description file (yaml or json)")
+@option("--organization-id", "organization_id", type=QueryType(), default="%deploy%organization_id")
+@argument("organization_file",
+          type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @output_to_file
-def update(api_url: str,
-           azure_token: str,
-           organization_id: str,
-           organization_file: Optional[str] = None) -> CommandResponse:
+def update(api_url: str, azure_token: str, organization_id: str, organization_file: pathlib.Path) -> CommandResponse:
     """
     Register new dataset by sending description file to the API.
     See the .payload_templates/API files to edit your own file manually if needed
