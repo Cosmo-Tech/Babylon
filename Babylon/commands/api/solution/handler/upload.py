@@ -39,7 +39,7 @@ logger = getLogger("Babylon")
     "-r",
     "--run-template",
     "run_template_id",
-    help="The run Template identifier name exaple: 'Sensitive analysis'",
+    help="The run Template identifier name example: 'Sensitive analysis'",
     type=QueryType(),
     required=True,
 )
