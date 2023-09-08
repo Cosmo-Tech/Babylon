@@ -1,10 +1,10 @@
 name: "${name}"
 description: "${tag} reference model in ADT"
 tags:  
-- Storage
 - Babylon
 - Reference
 - dataset_part
+- dataset
 - "${tag}"
 connector:
   id: "${connector_id}"
