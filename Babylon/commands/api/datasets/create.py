@@ -8,7 +8,7 @@ from click import Choice, Context, argument, pass_context
 from click import command
 from click import option
 from click import Path
-from Babylon.utils.checkers import check_alphanum
+from Babylon.utils.checkers import check_ascii
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED, SUCCESS_CREATED
@@ -49,7 +49,7 @@ def create(
     """
     Register a dataset
     """
-    check_alphanum(name)
+    check_ascii(name)
     connector_id = context['api_connector'][f"{type}_id"]
     if not connector_id:
         logger.error(f"You trying to use '{env.context_id}.{env.environ_id}.api.yaml' configuration")
