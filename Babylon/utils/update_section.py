@@ -25,7 +25,7 @@ def get_section_and_replace(section: str, new_value: Any, data: dict, unflatten:
                 # replace section
                 flatten_tmp = flatten(key_new_section, separator=sep)
                 for new_section_to_replace, key_new_section in flatten_tmp.items():
-                    new_key = f"{section}.{new_section_to_replace}"
+                    new_key = f"{section}.{index}.{new_section_to_replace}"
                     flatten_data.update({new_key: key_new_section})
             else:
                 flatten_data.update({f"{section}.{index}": key_new_section})
@@ -45,6 +45,7 @@ def get_section_and_replace(section: str, new_value: Any, data: dict, unflatten:
         final = unflatten_list(flatten_data, separator=sep)
     else:
         final = flatten_data
+
     return final
 
 

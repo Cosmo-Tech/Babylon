@@ -43,7 +43,7 @@ def pages(
         return CommandResponse.fail()
     output_data = response.json()
     pagesnames = jmespath.search("value[?order==`0`]", output_data)
-    pagesname = pagesnames[0] if len(pagesnames) else None
+    pagesname = pagesnames[0] if len(pagesnames) else "ReportSection"
 
     yaml_loader = YAML()
     data_file = env.configuration.config_dir / f"{env.context_id}.{env.environ_id}.powerbi.yaml"

@@ -38,7 +38,7 @@ def create() -> CommandResponse:
 
     update_section_yaml(origin_file=out_file,
                         target_file=out_file,
-                        section="webApp.options.charts.scenarioview",
+                        section="webApp.options.charts.scenarioView",
                         new_value=powerbi[env.context_id]['scenario_view'])
 
     logger.info(SUCCESS_PAYLOAD_CREATED("workspace"))
