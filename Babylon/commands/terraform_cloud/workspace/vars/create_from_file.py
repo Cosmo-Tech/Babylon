@@ -10,6 +10,7 @@ from click import option
 from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 
+from .....utils.yaml_utils import yaml_to_json
 from .....utils.decorators import describe_dry_run
 from .....utils.decorators import timing_decorator
 from .....utils.typing import QueryType
@@ -29,7 +30,10 @@ logger = logging.getLogger("Babylon")
         default="%deploy%terraform_cloud_workspace_id",
         type=QueryType())
 @describe_dry_run("Sending multiple variable creation payloads to terraform")
-@argument("variable_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
+@argument("variable_file",
+          type=Path(readable=True,
+                    dir_okay=False,
+                    path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
 @timing_decorator
 def create_from_file(tfc_client: TFC, workspace_id: str, variable_file: pathlib.Path) -> CommandResponse:
     """Set multiple variables in a workspace
@@ -47,7 +51,10 @@ https://developer.hashicorp.com/terraform/cloud-docs/api-docs/variables#request-
 
     var_keys = ["key", "value", "description", "category"]
     env = Environment()
-    variables = json.loads(env.fill_template(variable_file))
+    variables = env.fill_template(variable_file)
+    if variable_file.suffix in [".yaml", ".yml"]:
+        variables = yaml_to_json(variables)
+    variables = json.loads(variables)
     for variable in variables:
         variable.setdefault("category", "terraform")
         variable.setdefault("hcl", False)

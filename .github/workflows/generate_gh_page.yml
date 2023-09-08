@@ -2,7 +2,7 @@ name: generate_github_page
 on:
   push:
     branches:
-      - main
+      - "main"
 jobs:
   deploy:
     runs-on: ubuntu-latest
