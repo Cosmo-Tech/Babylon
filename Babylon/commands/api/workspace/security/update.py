@@ -26,10 +26,8 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--workspace", "workspace_id", type=QueryType(), default="%deploy%workspace_id")
-@argument(
-    "security_file",
-    type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)
-)
+@argument("security_file",
+          type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
 @output_to_file
 def update(api_url: str, azure_token: str, organization_id: str, workspace_id: str,
            security_file: pathlib.Path) -> CommandResponse:
