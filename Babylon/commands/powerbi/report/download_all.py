@@ -17,7 +17,7 @@ env = Environment()
 
 @command()
 @wrapcontext()
-@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--output", "output_folder", help="Output folder", type=Path(path_type=pathlib.Path), default="powerbi")
 @inject_context_with_resource({"powerbi": ['workspace']})
 def download_all(context: Any, workspace_id: str, output_folder: pathlib.Path) -> CommandResponse:
@@ -29,10 +29,10 @@ def download_all(context: Any, workspace_id: str, output_folder: pathlib.Path) -
     if not output_folder.exists():
         output_folder.mkdir()
     m = Macro("PowerBI download all", "powerbi") \
-        .step(["powerbi", "report", "get-all", "--workspace", workspace_id], store_at="reports") \
+        .step(["powerbi", "report", "get-all", "-c", env.context_id, "-p", env.environ_id, "--workspace-id", workspace_id], store_at="reports") \
         .iterate("datastore.reports.data",
-                 ["powerbi", "report", "download", "--workspace",
-                  workspace_id, "%datastore%item.id", "-o", str(output_folder)])
+                 ["powerbi", "report", "download", "-c", env.context_id, "-p", env.environ_id, "--workspace-id",
+                  workspace_id, "%datastore%item.id", "--override", str(output_folder)])
     reports = m.env.get_data(["reports", "data"])
     logger.info("Successfully saved the following reports:")
     logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))

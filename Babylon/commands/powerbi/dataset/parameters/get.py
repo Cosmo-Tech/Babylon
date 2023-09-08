@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @wrapcontext()
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
+@option("--workspace-id", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get(context: Any, powerbi_token: str, dataset_id: str, workspace_id: Optional[str] = None) -> CommandResponse:

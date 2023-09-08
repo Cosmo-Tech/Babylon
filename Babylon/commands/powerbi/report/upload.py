@@ -30,7 +30,7 @@ env = Environment()
         type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
         required=True,
         help="Your report file")
-@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict")
 @option("--select", "select", is_flag=True, default=True, help="Select this new report in configuration")
 @option("--name", "report_name", type=QueryType(), help="Report name")

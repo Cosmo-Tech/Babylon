@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @wrapcontext()
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @inject_context_with_resource({"powerbi": ['workspace']})
 def get_all(context: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:

@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @wrapcontext()
 @pass_powerbi_token()
 @option("--parameter", "params", type=(QueryType(), QueryType()), multiple=True, required=True, help="Report parameter")
-@option("--workspace", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
+@option("--workspace-id", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @argument("dataset_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
 def update(context: Any,

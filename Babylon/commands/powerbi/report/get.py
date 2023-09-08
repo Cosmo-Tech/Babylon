@@ -19,7 +19,7 @@ env = Environment()
 @wrapcontext()
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--select", "select", is_flag=True, default=True, help="Select this new report in configuration")
 @argument("report_id", type=QueryType())
 @inject_context_with_resource({"powerbi": ['workspace']})
