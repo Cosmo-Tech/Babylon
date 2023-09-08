@@ -47,14 +47,11 @@ def update(
     update a registered dataset
     """
     type = type.lower()
-    path_file = f"{env.context_id}.{env.environ_id}.dataset.yaml"
+    path_file = f"{env.context_id}.{env.environ_id}.dataset.{type}.yaml"
     dataset_file = dataset_file or env.working_dir.payload_path / path_file
     if not dataset_file.exists():
         return CommandResponse.fail()
     details = env.fill_template(dataset_file)
-    details = json.loads(details)
-    if not details.get('id') == id:
-        return CommandResponse.fail()
     response = oauth_request(f"{context['api_url']}/organizations/{context['api_organization_id']}/datasets/{id}",
                              azure_token,
                              type="PATCH",

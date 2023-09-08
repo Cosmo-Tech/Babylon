@@ -40,10 +40,6 @@ def update(context: Any, azure_token: str, id: str, organization_file: Optional[
     if not organization_file.exists():
         return CommandResponse.fail()
     details = env.fill_template(organization_file)
-    details = json.loads(details)
-    if not details.get('id') == id:
-        logger.error(f"{id} not found")
-        return CommandResponse.fail()
     response = oauth_request(f"{context['api_url']}/organizations/{org_id}", azure_token, type="PATCH", data=details)
     if response is None:
         return CommandResponse.fail()

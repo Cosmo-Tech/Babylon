@@ -46,11 +46,9 @@ def update(
     path_file = f"{env.context_id}.{env.environ_id}.workspace.yaml"
     workspace_file = workspace_file or env.working_dir.payload_path / path_file
     if not workspace_file.exists():
+        logger.info("qsdqsd")
         return CommandResponse.fail()
     details = env.fill_template(workspace_file)
-    details = json.loads(details)
-    if not details.get('id') == id:
-        return CommandResponse.fail()
     response = oauth_request(f"{context['api_url']}/organizations/{organization_id}/workspaces/{workspace_id}",
                              azure_token,
                              type="PATCH",

@@ -42,9 +42,6 @@ def update(context: Any, azure_token: str, id: str, solution_file: pathlib.Path)
     if not solution_file.exists():
         return CommandResponse.fail()
     details = env.fill_template(solution_file)
-    details = json.loads(details)
-    if not details.get('id') == id:
-        return CommandResponse.fail()
     response = oauth_request(
         f"{context['api_url']}/organizations/{context['api_organization_id']}/solutions/{solution_id}",
         azure_token,
