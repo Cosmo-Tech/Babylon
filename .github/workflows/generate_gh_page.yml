@@ -1,0 +1,26 @@
+name: generate_github_page
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.x
+      - run: pip install -e .
+      - run: pip install -r requirements.txt
+      - name: Extract version
+        id: version
+        run: echo "version=$(babylon --version)" >> $GITHUB_OUTPUT
+        shell: bash
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      - run: mike deploy --push ${{ steps.version.outputs.version }}

@@ -3,10 +3,11 @@ name: check yapf formatting
 on:
   push:
     branches:
-      - "ndon/pr/3"
+      - "main"
   pull_request:
     branches:
-       "ndon/pr/3"
+      - "main"
+      - "**-dev"
 jobs:
   check-formatting:
     runs-on: ubuntu-latest

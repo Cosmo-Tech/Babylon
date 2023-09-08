@@ -3,10 +3,11 @@ name: linting flake8
 on:
   push:
     branches:
-       "ndon/pr/3"
+      - "main"
   pull_request:
     branches:
-       "ndon/pr/3"
+      - "main"
+      - "**-dev"
 jobs:
   flake8-lint:
     runs-on: ubuntu-latest
