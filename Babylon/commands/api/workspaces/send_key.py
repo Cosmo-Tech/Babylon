@@ -1,3 +1,4 @@
+import json
 from logging import getLogger
 from typing import Any
 from click import command
@@ -29,6 +30,7 @@ def send_key(
     work_id = context['api_workspace_id']
     secret_eventhub = env.get_project_secret(organization_id=org_id, workspace_key=work_key, name="eventhub")
     details_json = {"dedicatedEventHubKey": secret_eventhub.replace("\"", "")}
+    details_json = json.dumps(details_json, indent=4, default=str)
     response = oauth_request(f"{context['api_url']}/organizations/{org_id}/workspaces/{work_id}/secret",
                              azure_token,
                              type="POST",
