@@ -5,6 +5,6 @@
         "POWER_BI_WORKSPACE_ID": "${cosmotech['powerbi']['workspace']['id']}",
         "POWER_BI_CLIENT_ID": "${cosmotech['app']['app_id']}",
         "POWER_BI_CLIENT_SECRET": "${secrets_powerbi}",
-        "POWER_BI_TENANT_ID": "${cosmotech['azure']['tenant_id']}}"
+        "POWER_BI_TENANT_ID": "${cosmotech['azure']['tenant_id']}"
     }
 }
