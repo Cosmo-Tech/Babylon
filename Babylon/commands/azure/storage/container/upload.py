@@ -27,12 +27,14 @@ env = Environment()
         help="Folder with cvs files to upload")
 @option("--org-id", "org_id", help="Organization id")
 @option("--work-id", "work_id", help="Workspace id")
-@inject_context_with_resource({'api': ['organization_id', 'workspace_id'], 'azure': ['storage_account_name']})
+@option("--dataset-id", "dataset_id", help="Dataset id")
+@inject_context_with_resource({'api': ['organization_id', 'workspace_id', 'dataset'], 'azure': ['storage_account_name']})
 def upload(
     context: Any,
     blob_client: BlobServiceClient,
     org_id: str,
     work_id: str,
+    dataset_id: str,
     folder: Optional[Path] = None,
 ) -> CommandResponse:
     """
@@ -40,6 +42,7 @@ def upload(
     """
     organization_id = org_id or context['api_organization_id']
     workspace_id = work_id or context['api_workspace_id']
+    dataset_id = dataset_id or context['api_dataset']['storage_id']
     files = glob.glob(os.path.join(folder, "*.csv"))
     check = blob_client.get_container_client(container=organization_id.lower())
     if not check.exists():
@@ -48,7 +51,7 @@ def upload(
 
     for f in files:
         client = blob_client.get_blob_client(container=organization_id.lower(),
-                                             blob=f"{workspace_id.lower()}/datasets/{os.path.basename(f)}")
+                                             blob=f"{workspace_id.lower()}/datasets/{dataset_id}/{os.path.basename(f)}")
         _f: pathlib.Path = env.pwd / f
         with open(_f, "rb") as data:
             client.upload_blob(data)
