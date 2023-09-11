@@ -24,6 +24,7 @@ from ruamel.yaml import YAML
 logger = logging.getLogger("Babylon")
 
 STORE_STRING = "datastore"
+TEMPLATES_STRING = "templates"
 PATH_SYMBOL = "%"
 
 
@@ -78,7 +79,7 @@ class Environment(metaclass=SingletonMeta):
         for i, k in response.items():
             if not k:
                 logger.error("You can not perform this command")
-                logger.error(f"{i} variable is missing")
+                logger.error(f"{i} environment variable is missing")
             else:
                 if "SERVICE" in i:
                     self.set_server_id()
@@ -155,7 +156,20 @@ class Environment(metaclass=SingletonMeta):
         except OSError:
             return
 
-    def convert_data_query(self, query: str) -> Any:
+    def convert_template_path(self, query) -> str:
+        check_regex = re.compile(f"{PATH_SYMBOL}"
+                                 f"({TEMPLATES_STRING})"
+                                 f"{PATH_SYMBOL}"
+                                 f"(.+)")
+        match_content = check_regex.match(query)
+        if not match_content:
+            return None
+        a, b = match_content.groups()
+        templates_path = self.working_dir.original_template_path.absolute().as_posix()
+        templates_path += b
+        return templates_path
+
+    def convert_data_query(self, query: str, params: dict = {}) -> Any:
         extracted_content = self.extract_value_content(query)
         if not extracted_content:
             logger.debug(f"  '{query}' -> no conversion applied")
@@ -166,6 +180,10 @@ class Environment(metaclass=SingletonMeta):
             logger.debug(f"    Detected parameter type '{_type}' with query '{query}'")
             _value = jmespath.search(key_name, self.data_store)
         else:
+            self.set_context(params['context'])
+            self.set_environ(params['platform'])
+            # self.configuration.set_context(params['context'])
+            # self.configuration.set_environ(params['platform'])
             _value = self.configuration.get_var(resource_id=_type, var_name=key_name)
         return _value
 
@@ -220,11 +238,11 @@ class Environment(metaclass=SingletonMeta):
 
     def set_context(self, context_id):
         self.context_id = context_id
-        self.configuration.set_context(self.context_id)
+        self.configuration.set_context(context_id)
 
     def set_environ(self, environ_id):
         self.environ_id = environ_id
-        self.configuration.set_environ(self.environ_id)
+        self.configuration.set_environ(environ_id)
 
     def set_org_name(self):
         org_name = os.environ.get('BABYLON_ORG_NAME')

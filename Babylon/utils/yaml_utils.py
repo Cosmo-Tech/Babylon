@@ -174,7 +174,13 @@ def get_file_config_from_keys(hvac_client: Client, context_id: str, config_file:
     if not response:
         logger.info(f"{organization_name}/{tenant_id}:babylon/config/{resource}/{key_name} not found")
         sys.exit(1)
-    data = unflatten_list(response['data'], separator=".")
+    response_parsed = dict()
+    for key, value in response['data'].items():
+        _value = None if value == "" else value
+        _value = True if str(_value).lower() == "true" else _value
+        _value = False if str(_value).lower() == "false" else _value
+        response_parsed.setdefault(key, _value)
+    data = unflatten_list(response_parsed, separator=".")
     yaml_file = yaml.dump({context_id: data})
     tmpf = tempfile.NamedTemporaryFile(mode="w+")
     tmpf.write(yaml_file)

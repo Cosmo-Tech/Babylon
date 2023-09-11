@@ -7,7 +7,6 @@ from typing import Callable
 from pathlib import Path
 from time import sleep
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from .response import CommandResponse
 from .command_helper import run_command
 from .environment import Environment
 
@@ -22,8 +21,8 @@ class Macro():
     Run a command while allowing method chaining
     ```python
     Macro("My macro")
-        .step(["api", "organization", "get-all"], store_at="orgs")
-        .step(["azure", "acr", "list", "-d", "src"])
+        .step(["api", "organizations", "get-all", "-c", <context_id>, "-p", <platform_id>], store_at="orgs")
+        .step(["azure", "acr", "list", "-c", <context_id>, "-p", <platform_id>])
         .dump("report.json")
     ```
     """
@@ -32,7 +31,7 @@ class Macro():
 
     def __init__(self, name: str):
         self.name = name
-        self._responses: list[CommandResponse] = []
+        self._responses: list[dict] = []
         self.env = env
         self._status = self.STATUS_OK
 
@@ -52,8 +51,7 @@ class Macro():
         """
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
                       transient=True) as progress:
-            prefix = ["-prj", self.env.context_id, "-plt", self.env.environ_id]
-            cmd_line = prefix + command_line
+            cmd_line = command_line
             progress.add_task(" ".join(cmd_line))
             self.env.is_verbose = False
             res = run_command(cmd_line)

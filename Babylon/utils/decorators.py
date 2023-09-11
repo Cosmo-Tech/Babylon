@@ -175,17 +175,20 @@ def inject_context_with_resource(scope, required: bool = True) -> Callable[..., 
     return wrap_function
 
 
-def wrapcontext(func: Callable[..., Any]) -> Callable[..., Any]:
+def wrapcontext() -> Callable[..., Any]:
 
-    @option("-prj", "--project", required=True, help="Project Name")
-    @option("-plt", "--platform", required=True, help="Platform Name")
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any):
-        project = kwargs.pop("project", None)
-        env.set_context(project)
-        platform = kwargs.pop("platform", None)
-        env.set_environ(platform)
-        func(*args, **kwargs)
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
+        @option("-c", "--context", "context", required=True, help="Context Name")
+        @option("-p", "--platform", "platform", required=True, help="Platform Name")
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            project = kwargs.pop("context", None)
+            env.set_context(project)
+            platform = kwargs.pop("platform", None)
+            env.set_environ(platform)
+            return func(*args, **kwargs)
+
         return wrapper
 
-    return wrapper
+    return wrap_function

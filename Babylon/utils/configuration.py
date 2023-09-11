@@ -125,14 +125,13 @@ class Configuration:
         return str(plugin_name)
 
     def get_path(self, resource_id: str) -> Optional[pathlib.Path]:
-
         file_path = self.config_dir / f"{self.context_id}.{self.environ_id}.{resource_id}.yaml"
         if not file_path.exists():
             logger.info(f"You are trying to use {resource_id.upper()} group")
-            logger.info(f"With '{self.environ_id}' platform and '{self.context_id}' context.")
-            logger.info(f"File configuration: {self.context_id}.{self.environ_id}.{resource_id}.yaml not found.")
-            logger.info(f"Run: babylon -prj {self.context_id} -plt {self.environ_id} config init")
-            raise FileNotFoundError()
+            logger.info(f"With '{self.environ_id}' platform and '{self.context_id}' context")
+            logger.info(f"File configuration: {self.context_id}.{self.environ_id}.{resource_id}.yaml not found")
+            logger.info(f"Run: babylon config init -c {self.context_id} -p {self.environ_id} ")
+            raise FileNotFoundError
         return file_path
 
     def set_var(self, resource_id: str, var_name: str, var_value: Any) -> bool:
