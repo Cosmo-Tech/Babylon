@@ -43,7 +43,7 @@ class QueryType(ParamType):
 
         logger.debug(f"Converting '{value}' for parameter '{param.name}'")
         try:
-            r = env.convert_data_query(query=value)
+            r = env.convert_data_query(query=value, params=ctx.params)
         except KeyError as _ke:
             self.fail(str(_ke), param, ctx)
         if r is None:

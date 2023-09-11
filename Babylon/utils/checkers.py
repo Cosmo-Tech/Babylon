@@ -52,5 +52,5 @@ def check_email(email):
 
 def check_encoding_key():
     if not os.environ.get("BABYLON_ENCODING_KEY"):
-        logger.error("BABYLON_ENCODING_KEY is missing")
+        logger.error("BABYLON_ENCODING_KEY environment variable is missing")
         sys.exit(1)
