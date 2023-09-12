@@ -3,58 +3,59 @@
 import importlib.util
 import logging
 import sys
-
-import click
 import click_log
-from rich.logging import RichHandler
+import click
 
-from .commands import list_groups
-from .utils.decorators import prepend_doc_with_ascii
-from .utils.dry_run import display_dry_run
-from .utils.environment import Environment
-from .utils.interactive import INTERACTIVE_ARG_VALUE
-from .utils.interactive import interactive_run
-from .version import VERSION
+from click import option
+from click import group
+from click import echo
+from rich.logging import RichHandler
+from Babylon.commands import list_groups
+from Babylon.utils.decorators import prepend_doc_with_ascii
+from Babylon.utils.dry_run import display_dry_run
+from Babylon.utils.environment import Environment
+from Babylon.utils.interactive import INTERACTIVE_ARG_VALUE
+from Babylon.utils.interactive import interactive_run
+from Babylon.version import VERSION
 
 logger = logging.getLogger("Babylon")
-
 env = Environment()
 
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo(VERSION)
+    echo(VERSION)
     ctx.exit()
 
 
-@click.group(name='babylon', invoke_without_command=False)
+@group(name='babylon', invoke_without_command=False)
 @click_log.simple_verbosity_option(logger)
-@click.option("--bare",
-              "--raw",
-              "--tests",
-              "tests_mode",
-              is_flag=True,
-              help="Enable test mode, this mode changes output formatting.")
-@click.option("-n",
-              "--dry-run",
-              "dry_run",
-              callback=display_dry_run,
-              is_flag=True,
-              expose_value=False,
-              is_eager=True,
-              help="Will run commands in dry-run mode.")
-@click.option('--version',
-              is_flag=True,
-              callback=print_version,
-              expose_value=False,
-              is_eager=True,
-              help="Print version number and return.")
-@click.option(INTERACTIVE_ARG_VALUE,
-              "interactive",
-              is_flag=True,
-              hidden=True,
-              help="Start an interactive session after command run.")
+@option("--bare",
+        "--raw",
+        "--tests",
+        "tests_mode",
+        is_flag=True,
+        help="Enable test mode, this mode changes output formatting.")
+@option("-n",
+        "--dry-run",
+        "dry_run",
+        callback=display_dry_run,
+        is_flag=True,
+        expose_value=False,
+        is_eager=True,
+        help="Will run commands in dry-run mode.")
+@option('--version',
+        is_flag=True,
+        callback=print_version,
+        expose_value=False,
+        is_eager=True,
+        help="Print version number and return.")
+@option(INTERACTIVE_ARG_VALUE,
+        "interactive",
+        is_flag=True,
+        hidden=True,
+        help="Start an interactive session after command run.")
 @prepend_doc_with_ascii
 def main(tests_mode, interactive):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
