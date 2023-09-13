@@ -64,7 +64,7 @@ The following environment variables are required:
 
 \b
 - BABYLON_SERVICE: Vault Service URI
-- BABYLON_TOKEN: Access Token for Vault Server
+- BABYLON_TOKEN: Access Token Vault Service
 - BABYLON_ORG_NAME: Organization Name
     """
     if not tests_mode:
