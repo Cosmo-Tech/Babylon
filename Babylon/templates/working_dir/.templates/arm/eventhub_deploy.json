@@ -24,8 +24,8 @@
                 "publicNetworkAccess": "Enabled",
                 "disableLocalAuth": false,
                 "zoneRedundant": true,
-                "isAutoInflateEnabled": false,
-                "maximumThroughputUnits": 0,
+                "isAutoInflateEnabled": true,
+                "maximumThroughputUnits": 10,
                 "kafkaEnabled": true
             }
         },
