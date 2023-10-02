@@ -30,7 +30,7 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--email", "security_id", type=QueryType(), help="Email valid")
-@option("--role", "security_role", type=QueryType(), default="Admin", required=True, help="Role RBAC")
+@option("--role", "security_role", type=QueryType(), default="admin", required=True, help="Role RBAC")
 @option("--file",
         "org_file",
         type=Path(path_type=pathlib.Path),
@@ -65,7 +65,7 @@ def create(
                                 data={
                                     "name": name,
                                     "security_id": security_id,
-                                    "security_role": security_role
+                                    "security_role": security_role.lower()
                                 })
     response = oauth_request(f"{context['api_url']}/organizations", azure_token, type="POST", data=details)
     if response is None:
