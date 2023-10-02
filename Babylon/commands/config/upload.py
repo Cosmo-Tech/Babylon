@@ -46,7 +46,7 @@ def upload(
         section_keys = dict(section_data).keys()
         if platforms and config_file in rewrite:
             logger.info(f"[{config_file}]")
-            secrets = hvac_client.read(path=f"{vault_path_config} /{config_file}")
+            secrets = hvac_client.read(path=f"{vault_path_config}/{config_file}")
             secrets_data = secrets["data"]
             logger.info(f"rw {vault_path_config}/{config_file}")
             for i in section_keys:
