@@ -60,6 +60,8 @@ def create(context: Any, kusto_client: KustoManagementClient, connection_name: s
 
     random = str(uuid4())
     try:
+        managed_id = f"/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
+        managed_id += f"/providers/Microsoft.Kusto/clusters/{adx_cluster_name}"
         poller = dataconnections_operations.begin_create_or_update(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
@@ -71,6 +73,7 @@ def create(context: Any, kusto_client: KustoManagementClient, connection_name: s
                                               data_format=data_format,
                                               compression=compression_value,
                                               table_name=table_name,
+                                              managed_identity_resource_id=managed_id,
                                               mapping_rule_name=mapping))
         poller.wait()
         if not poller.done():
