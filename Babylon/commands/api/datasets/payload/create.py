@@ -13,7 +13,11 @@ env = Environment()
 
 @command()
 @wrapcontext()
-@option("--type", "type", type=Choice(['adt', 'storage']), required=True, help="Dataset type Cosmotech Platform")
+@option("--type",
+        "type",
+        type=Choice(['adt', 'storage', 'twin']),
+        required=True,
+        help="Dataset type Cosmotech Platform")
 def create(type: str) -> CommandResponse:
     """
     Create a dataset payload

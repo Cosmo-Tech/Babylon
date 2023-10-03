@@ -34,7 +34,11 @@ env = Environment()
         type=Path(path_type=pathlib.Path),
         help="Your custom dataset description file (yaml or json)")
 @option("--select", "select", is_flag=True, default=True, help="Save this dataset in configuration")
-@option("--type", "type", type=Choice(['adt', 'storage']), required=True, help="Dataset type Cosmotech Platform")
+@option("--type",
+        "type",
+        type=Choice(['adt', 'storage', 'twin']),
+        required=True,
+        help="Dataset type Cosmotech Platform")
 @argument("name", type=QueryType())
 @inject_context_with_resource({'api': ['url', 'organization_id', 'connector']})
 def create(
