@@ -41,7 +41,7 @@ def upload(context: Any,
            override: bool = False) -> CommandResponse:
     """Upload a solution handler zip to the solution"""
     org_api = context['api_organization_id']
-    if not handler_path.endswith(".zip"):
+    if not handler_path.suffix == ".zip":
         logger.error("solution handler upload only supports zip files")
         return CommandResponse.fail()
     with open(handler_path, "rb") as handler:
