@@ -234,6 +234,8 @@ class Environment(metaclass=SingletonMeta):
         result = template.render(**data, cosmotech=context, datastore=self.data_store)
         if template_file.suffix in [".yaml", ".yml"]:
             result = yaml_to_json(result)
+        if template_file.suffix in [".json"]:
+            result = json.loads(result)
         return result
 
     def set_context(self, context_id):
