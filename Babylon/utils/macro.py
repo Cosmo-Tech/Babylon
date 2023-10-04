@@ -53,6 +53,7 @@ class Macro():
                       transient=True) as progress:
             cmd_line = command_line
             progress.add_task(" ".join(cmd_line))
+            logger.info(" ".join(cmd_line))
             self.env.is_verbose = False
             res = run_command(cmd_line)
             self._responses.append(res.to_dict())
