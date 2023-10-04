@@ -20,8 +20,9 @@ prefixApp = "App"
 @command()
 @wrapcontext()
 @option("--arm-path", "arm_path", type=pathlib.Path, help="Your custom arm azure function description file yaml")
+@option("--with-azf", "with_azf", is_flag=True, help="Deploy webapp with azure function", show_default=True)
 @inject_context_with_resource({'webapp': ['enable_insights', 'deployment_name'], 'powerbi': ['group_id']})
-def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
+def deploy(context: Any, with_azf: bool, arm_path: Optional[pathlib.Path] = None):
     """
     Macro command that deploys a new webapp
     """
@@ -69,10 +70,11 @@ def deploy(context: Any, arm_path: Optional[pathlib.Path] = None):
                       azure_powerbi_group_id, "--principal-id", "%app%principal_id"
                   ])
 
-    cmd_line = ["azure", "func", "deploy", f"Arm{deployment_name}", "-c", env.context_id, "-p", env.environ_id]
-    if arm_path:
-        cmd_line = [*cmd_line, "--file", str(arm_path)]
-    macro = macro.step(cmd_line)
+    if with_azf:
+        cmd_line = ["azure", "func", "deploy", f"Arm{deployment_name}", "-c", env.context_id, "-p", env.environ_id]
+        if arm_path:
+            cmd_line = [*cmd_line, "--file", str(arm_path)]
+        macro = macro.step(cmd_line)
 
     macro = macro.step([
         "azure", "staticwebapp", "app-settings", "update", f"WebApp{deployment_name}", "-c", env.context_id, "-p",
