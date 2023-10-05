@@ -28,7 +28,7 @@ def upload(
     Register or update a new configuration
     """
     yaml_loader = YAML()
-    environ_id = env.environ_id
+    environ_id = env.environ_id.strip()
     rewrite = list(rewrite)
 
     vault_path_config = f"{env.organization_name}/{env.tenant_id}/babylon/config/{environ_id}"
@@ -58,10 +58,10 @@ def upload(
             answers = inquirer.prompt(questions)
             if not answers:
                 return CommandResponse.fail()
-            hvac_client.write(path=f"{vault_path_config} /{config_file}", **answers)
+            hvac_client.write(path=f"{vault_path_config}/{config_file}", **answers)
             logger.info(f"Configuration {environ_id}/{config_file} successfully created")
         elif platforms and config_file in platforms['data']['keys']:
-            logger.info(f"{vault_path_config} / {config_file} already exists")
+            logger.info(f"{vault_path_config}/{config_file} already exists")
             continue
         else:
             logger.info(f"New path: [{config_file}]")
