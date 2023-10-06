@@ -1,10 +1,10 @@
 from click import group
 from Babylon.utils.environment import Environment
-from .set import set
-from .get import get
-from .init import init
-from .upload import upload
-from .display import display
+from Babylon.commands.config.set import set
+from Babylon.commands.config.get import get
+from Babylon.commands.config.init import init
+from Babylon.commands.config.upload import upload
+from Babylon.commands.config.display import display
 
 env = Environment()
 
