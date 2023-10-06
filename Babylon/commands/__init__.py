@@ -7,21 +7,6 @@ from .vault import vault
 from .git_hub import github
 from .terraform_cloud import terraform_cloud
 from .plugin import plugin
+from .state import state
 
-list_groups = [
-    api,
-    azure,
-    config,
-    plugin,
-    powerbi,
-    webapp,
-    powerbi,
-    terraform_cloud,
-    azure,
-    config,
-    powerbi,
-    webapp,
-    vault,
-    github,
-    terraform_cloud,
-]
+list_groups = [api, azure, config, plugin, powerbi, webapp, vault, github, terraform_cloud, state]

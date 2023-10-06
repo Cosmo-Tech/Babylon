@@ -44,6 +44,8 @@ class WorkingDir:
         self.powerbi_path = self.path / "powerbi"
         self.adx_path = self.path / "adx"
         self.updates_path = self.path / ".updates"
+        self.state_path = self.path / ".state"
+        self.storage_path = self.path / "storage"
         self.encoding_key = None
 
     def copy_templates(self):

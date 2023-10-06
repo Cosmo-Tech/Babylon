@@ -29,9 +29,9 @@ def check_ascii(value: str):
 
 def check_exists(group: str, key: str, values: dict) -> dict:
     for i, k in values.items():
-        if not str(k):
+        if k is None or not str(k):
             logger.warning(f"You are trying to use the key {k}: '{key}' in group: '{group}'")
-            logger.warning(f"Check {env.pwd}/{env.context_id}.{env.environ_id}.{group}.yaml file")
+            logger.warning(f"Check {env.context_id}.{env.environ_id}.{group}.yaml file")
             sys.exit(1)
     return values
 
