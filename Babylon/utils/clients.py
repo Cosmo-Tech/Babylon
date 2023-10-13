@@ -9,6 +9,7 @@ from typing import Callable
 from functools import wraps
 from azure.storage.blob import BlobServiceClient
 from azure.digitaltwins.core import DigitalTwinsClient
+from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.resource import ResourceManagementClient
@@ -180,6 +181,23 @@ def pass_iam_client(func: Callable[..., Any]) -> Callable[..., Any]:
             subscription_id=azure_subscription,
         )
         kwargs["iam_client"] = authorization_client
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def pass_storage_mgmt_client(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Grab storage mgmt client"""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
+        authorization_client = StorageManagementClient(
+            credential=get_azure_credentials(),
+            base_url="https://management.azure.com",
+            subscription_id=azure_subscription,
+        )
+        kwargs["storage_mgmt_client"] = authorization_client
         return func(*args, **kwargs)
 
     return wrapper
