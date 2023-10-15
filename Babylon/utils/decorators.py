@@ -1,3 +1,4 @@
+import datetime
 import logging
 import pathlib
 import shutil
@@ -71,10 +72,12 @@ def timing_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        logger.debug(f"{func.__name__} : Starting")
+        logger.info(f"{func.__name__} - Starting")
         start_time = time.time()
         resp: CommandResponse = func(*args, **kwargs)
-        logger.debug(f"{func.__name__} : Ending ({time.time() - start_time:.2f}s)")
+        end_time = time.time()
+        lapsed = end_time - start_time
+        logger.info(f"{func.__name__} - Total elapsed time: {datetime.timedelta(seconds = lapsed)}")
         return resp
 
     return wrapper

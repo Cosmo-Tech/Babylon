@@ -47,12 +47,15 @@ def get_azure_token(scope: str = "default") -> str:
     return token.token
 
 
-def get_azure_credentials() -> ClientSecretCredential:
+def get_azure_credentials(baby_client_id: str = "",
+                          context_id: str = "",
+                          environ_id: str = "") -> ClientSecretCredential:
     """Logs to Azure and saves the token as a config variable"""
     credential = None
-    babylon_client_id = env.configuration.get_var(resource_id="babylon", var_name="client_id")
+    babylon_client_id = baby_client_id or env.configuration.get_var(
+        resource_id="babylon", var_name="client_id", context_id=context_id, environ_id=environ_id)
     try:
-        baby_client_secret = env.get_env_babylon(name="client")
+        baby_client_secret = env.get_env_babylon(name="client", environ_id=environ_id)
         credential = ClientSecretCredential(client_id=babylon_client_id,
                                             tenant_id=env.tenant_id,
                                             client_secret=baby_client_secret)

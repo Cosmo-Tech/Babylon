@@ -126,7 +126,7 @@ def pass_adt_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 def pass_arm_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab api configuration"""
+    """Grab arm mgmt configuration"""
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
