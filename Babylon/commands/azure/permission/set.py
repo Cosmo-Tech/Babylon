@@ -54,8 +54,8 @@ def set(
 
     resource_name = resource_name or f"{organization_id.lower()}-{workspace_key.lower()}"
     prefix = f"/subscriptions/{azure_subscription}"
-    scope = f"/{prefix}/resourceGroups/{resource_group_name}/providers/{resource_type}/{resource_name}"
-    role = f"/{prefix}/providers/Microsoft.Authorization/roleDefinitions/{role_id}"
+    scope = f"{prefix}/resourceGroups/{resource_group_name}/providers/{resource_type}/{resource_name}"
+    role = f"{prefix}/providers/Microsoft.Authorization/roleDefinitions/{role_id}"
     try:
         iam_client.role_assignments.create(scope=scope,
                                            role_assignment_name=str(uuid.uuid4()),

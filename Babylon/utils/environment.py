@@ -267,12 +267,13 @@ class Environment(metaclass=SingletonMeta):
         result = data['data'][name]
         return result
 
-    def get_env_babylon(self, name: str):
+    def get_env_babylon(self, name: str, environ_id: str = ""):
+        env_id = environ_id or self.environ_id
         try:
             client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
         except Exception as e:
             logger.error(e)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{self.environ_id}/{name}")
+        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}")
         if data is None:
             return None
         return data['data']['secret']

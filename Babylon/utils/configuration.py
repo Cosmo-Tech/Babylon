@@ -124,14 +124,15 @@ class Configuration:
         self.save_config()
         return str(plugin_name)
 
-    def get_path(self, resource_id: str) -> Optional[pathlib.Path]:
-        file_path = self.config_dir / f"{self.context_id}.{self.environ_id}.{resource_id}.yaml"
+    def get_path(self, resource_id: str, context_id: str = "", environ_id: str = "") -> Optional[pathlib.Path]:
+        ctxt_id = context_id or self.context_id
+        env_id = environ_id or self.environ_id
+        file_path = self.config_dir / f"{ctxt_id}.{env_id}.{resource_id}.yaml"
         if not file_path.exists():
             logger.info(f"You are trying to use {resource_id.upper()} group")
-            logger.info(f"With '{self.environ_id}' platform and '{self.context_id}' context")
-            logger.info(f"File configuration: {self.context_id}.{self.environ_id}.{resource_id}.yaml not found")
-            logger.info(f"Run: babylon config init -c {self.context_id} -p {self.environ_id} ")
-            raise FileNotFoundError
+            logger.info(f"With '{env_id}' platform and '{ctxt_id}' context")
+            logger.info(f"File configuration: {ctxt_id}.{env_id}.{resource_id}.yaml not found")
+            sys.exit(1)
         return file_path
 
     def set_var(self, resource_id: str, var_name: str, var_value: Any) -> bool:
@@ -142,10 +143,12 @@ class Configuration:
             return
         write_yaml_value_from_context(_path, self.context_id, var_name, var_value)
 
-    def get_var(self, resource_id: str, var_name: str) -> str:
-        if not (_path := self.get_path(resource_id)).exists():
+    def get_var(self, resource_id: str, var_name: str, context_id: str = "", environ_id: str = "") -> str:
+        ctxt_id = context_id or self.context_id
+        env_id = environ_id or self.environ_id
+        if not (_path := self.get_path(resource_id, ctxt_id, env_id)).exists():
             return
-        return read_yaml_key_from_context(_path, self.context_id, var_name)
+        return read_yaml_key_from_context(_path, ctxt_id, var_name)
 
     def create(self, config_type: str):
         """

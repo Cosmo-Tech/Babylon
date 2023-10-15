@@ -13,24 +13,13 @@ from .appinsight import appinsight
 from .permission import permission
 from .func import func
 from .token import token
+from .resource import resource_group
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 list_commands = []
-list_groups = [
-    ad,
-    staticwebapp,
-    arm,
-    storage,
-    acr,
-    adt,
-    adx,
-    appinsight,
-    permission,
-    func,
-    token,
-]
+list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight, permission, func, token, resource_group]
 
 
 @group()
