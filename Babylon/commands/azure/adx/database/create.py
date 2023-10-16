@@ -26,8 +26,8 @@ env = Environment()
 @pass_context
 @pass_kusto_client
 @timing_decorator
-@option("--select", "select", is_flag=True, default=True, help="Save this new database in configuration")
 @argument("name", type=QueryType(), required=False)
+@option("--retention", "retention", default=365, help="Retention days", show_default=True)
 @inject_context_with_resource({
     'api': ['organization_id', 'workspace_key'],
     'azure': ['resource_location', 'resource_group_name'],
@@ -36,8 +36,8 @@ env = Environment()
 def create(ctx: Context,
            context: Any,
            kusto_client: KustoManagementClient,
-           name: Optional[str] = None,
-           select: bool = False) -> CommandResponse:
+           retention: int,
+           name: Optional[str] = None) -> CommandResponse:
     """
     Create database in ADX cluster
     """
@@ -49,10 +49,9 @@ def create(ctx: Context,
     resource_group_name = context['azure_resource_group_name']
     adx_cluster_name = context['adx_cluster_name']
 
-    # soft delete period by default 365 days
     # cache period by default 31 days
     params_database = ReadWriteDatabase(location=resource_location,
-                                        soft_delete_period=timedelta(days=365),
+                                        soft_delete_period=timedelta(days=retention),
                                         hot_cache_period=timedelta(days=31))
     name = name or f"{organization_id}-{workspace_key}"
     try:
@@ -86,6 +85,8 @@ def create(ctx: Context,
     batching_policy = json.dumps({"MaximumBatchingTimeSpan": "00:00:10"})
     script_content = f".alter database ['{name}'] policy streamingingestion disable\n"
     script_content += "//\n"
+    script_content += f".alter-merge database ['{name}'] policy retention softdelete = {retention}d"
+    script_content += "//\n"
     script_content += f".alter database ['{name}'] policy ingestionbatching '{batching_policy}'"
     s = kusto_client.scripts.begin_create_or_update(resource_group_name=resource_group_name,
                                                     cluster_name=adx_cluster_name,
@@ -111,11 +112,10 @@ def create(ctx: Context,
         script_name=script_name,
     )
     logger.info("Successfully ran")
-    if select:
-        env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
-                                  var_name="database_name",
-                                  var_value=name.lower())
-        logger.info(SUCCESS_CONFIG_UPDATED("adx", "database_name"))
+    env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
+                              var_name="database_name",
+                              var_value=name.lower())
+    logger.info(SUCCESS_CONFIG_UPDATED("adx", "database_name"))
     _ret: list[str] = [f"Provisioning state: {poller.result().provisioning_state}"]
     logger.info("\n".join(_ret))
     return CommandResponse.success()
