@@ -12,6 +12,7 @@ from typing import Optional
 from typing import Union
 from typing import Any
 from flatten_json import unflatten_list
+from flatten_json import flatten
 from ruamel.yaml import YAML
 
 logger = logging.getLogger("Babylon")
@@ -176,10 +177,17 @@ def get_file_config_from_keys(hvac_client: Client, context_id: str, config_file:
         sys.exit(1)
     response_parsed = dict()
     for key, value in response['data'].items():
-        _value = None if value == "" else value
-        _value = True if str(_value).lower() == "true" else _value
-        _value = False if str(_value).lower() == "false" else _value
-        response_parsed.setdefault(key, _value)
+        response_parsed.setdefault(key, value)
+    if config_file.exists():
+        values = yaml.load(config_file.open("r"), Loader=yaml.SafeLoader)
+        values = flatten(values[context_id], separator=".")
+        for key, value in values.items():
+            if key == "tenant_id":
+                continue
+            value = response_parsed[key] if value is None else value
+            if response_parsed[key]:
+                value = response_parsed[key]
+            response_parsed.update({key: value})
     data = unflatten_list(response_parsed, separator=".")
     yaml_file = yaml.dump({context_id: data})
     tmpf = tempfile.NamedTemporaryFile(mode="w+")
