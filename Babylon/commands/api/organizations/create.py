@@ -8,7 +8,7 @@ from click import Context, argument, pass_context
 from click import command
 from click import option
 from click import Path
-from Babylon.utils.checkers import check_alphanum, check_email
+from Babylon.utils.checkers import check_ascii, check_email
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED, SUCCESS_CREATED
@@ -51,7 +51,7 @@ def create(
     """
     Register new orgnanization
     """
-    check_alphanum(name)
+    check_ascii(name)
     security_id = security_id or context['azure_email']
     check_email(security_id)
 
