@@ -9,7 +9,7 @@ from click import argument
 from click import command
 from click import option
 from Babylon.utils.messages import SUCCESS_CREATED
-from Babylon.utils.checkers import check_alphanum
+from Babylon.utils.checkers import check_ascii
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import output_to_file
@@ -55,7 +55,7 @@ def create(
     """
     Register new Connector
     """
-    check_alphanum(name)
+    check_ascii(name)
     path_file = f"{env.context_id}.{env.environ_id}.connector.{type}.yaml"
     connector_file = connector_file or env.working_dir.payload_path / path_file
     if not connector_file.exists():
