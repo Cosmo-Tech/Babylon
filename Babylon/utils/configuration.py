@@ -186,16 +186,14 @@ class Configuration:
         for _k in config_files:
             key = f"{_k}"
             yaml_config_file = self.config_dir / f"{self.context_id}.{template_name}.{_k}.yaml"
-            if not yaml_config_file.exists():
-                get_file_config_from_keys(
-                    hvac_client=hvac_client,
-                    context_id=self.context_id,
-                    config_file=yaml_config_file,
-                    tenant_id=tenant_id,
-                    key_name=key,
-                    resource=template_name,
-                )
-                continue
+            get_file_config_from_keys(
+                hvac_client=hvac_client,
+                context_id=self.context_id,
+                config_file=yaml_config_file,
+                tenant_id=tenant_id,
+                key_name=key,
+                resource=template_name,
+            )
 
         logger.info(f"Context: '{self.context_id}'")
         logger.info(f"Platform: '{self.environ_id}'")
