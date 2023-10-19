@@ -36,6 +36,7 @@ def update(context: Any, azure_token: str, security_file: pathlib.Path) -> Comma
     organization_id = context['api_organization_id']
     api_url = context['api_url']
     details = env.fill_template(security_file)
+    details = json.loads(details)
     for item in details['acl']:
         detail = json.dumps({
             "id": item['identity_id'],
