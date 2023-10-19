@@ -51,7 +51,8 @@ def deploy(context: Any,
 
     adx_cluster = context['adx_cluster_uri']
     adx_database = context['adx_database_name']
-    report_params = " ".join([f"-p {param[0]} {param[1]}" for param in report_parameters]) if report_parameters else ""
+    report_params = " ".join([f"--parameter {param[0]} {param[1]}"
+                              for param in report_parameters]) if report_parameters else ""
     if not report_params:
         report_params = "".join(f"--parameter ADX_cluster {adx_cluster} --parameter ADX_database {adx_database}")
 
