@@ -235,7 +235,7 @@ class Environment(metaclass=SingletonMeta):
         if template_file.suffix in [".yaml", ".yml"]:
             result = yaml_to_json(result)
         if template_file.suffix in [".json"]:
-            result = json.loads(result)
+            result = json.dumps(json.loads(result))
         return result
 
     def set_context(self, context_id):
