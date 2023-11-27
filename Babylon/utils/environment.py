@@ -51,6 +51,7 @@ class SingletonMeta(type):
 class Environment(metaclass=SingletonMeta):
 
     def __init__(self):
+        self.hvac_client = None
         self.pwd = pathlib.Path.cwd()
         workingdir_path = self.pwd
         config_path = self.pwd / "config"
@@ -253,14 +254,14 @@ class Environment(metaclass=SingletonMeta):
 
     def set_server_id(self):
         self.server_id = os.environ.get('BABYLON_SERVICE')
-
-    def get_organization_secret(self, organization_name: str, name: str):
         try:
             client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+            self.hvac_client = client
         except Exception as e:
             logger.error(e)
 
-        data = client.read(path=f'organization/{organization_name}')
+    def get_organization_secret(self, organization_name: str, name: str):
+        data = self.hvac_client.read(path=f'organization/{organization_name}')
         if data is None:
             logger.error(f"Message: organization {self.organization_name} not found")
             sys.exit(1)
@@ -269,65 +270,37 @@ class Environment(metaclass=SingletonMeta):
 
     def get_env_babylon(self, name: str, environ_id: str = ""):
         env_id = environ_id or self.environ_id
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
-        except Exception as e:
-            logger.error(e)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}")
+        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}")
         if data is None:
             return None
         return data['data']['secret']
 
     def get_global_secret(self, resource: str, name: str):
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
-        except Exception as e:
-            logger.error(e)
-            sys.exit(1)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
+        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
         if data is None:
             return None
         return data['data']['secret']
 
     def get_users_secrets(self, email: str, scope: str):
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
-        except Exception as e:
-            logger.error(e)
-            sys.exit(1)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}")
+        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}")
         if data:
             return data['data']
         return None
 
     def set_users_secrets(self, email: str, scope: str, cached: dict):
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
-        except Exception as e:
-            logger.error(e)
-            sys.exit(1)
-        client.write(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}", **cached)
+        self.hvac_client.write(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}", **cached)
 
     def get_platform_secret(self, platform: str, resource: str, name: str):
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
-        except Exception as e:
-            logger.error(e)
-            sys.exit(1)
-        data = client.read(path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
+        data = self.hvac_client.read(
+            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
         if data is None:
             return None
         return data['data']['secret']
 
     def get_project_secret(self, organization_id: str, workspace_key: str, name: str):
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
-        except Exception as e:
-            logger.error(e)
-            sys.exit(1)
         prefix = f'{self.organization_name}/{self.tenant_id}/projects/{self.context_id}'
         schema = f'{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}'.lower()
-        data = client.read(path=schema)
+        data = self.hvac_client.read(path=schema)
         if data is None:
             return None
         return data['data']['secret']
@@ -357,3 +330,16 @@ class Environment(metaclass=SingletonMeta):
                                                                        encoding="utf-8"))
         self.set_users_secrets(email, internal_scope, dict(token=token_encrypt.decode("utf-8")))
         return response_json['access_token']
+
+    def pass_config_from(self, platform: str):
+        resources = config_files
+        organization_name = os.environ.get('BABYLON_ORG_NAME', '')
+        tenant_id = self.tenant_id
+        response_parsed = dict()
+        for r in resources:
+            response = self.hvac_client.read(path=f'{organization_name}/{tenant_id}/babylon/config/{platform}/{r}')
+            if not response:
+                logger.info(f"{organization_name}/{tenant_id}:babylon/config/babylon/{platform} not found")
+                sys.exit(1)
+            response_parsed.setdefault(r, dict(response['data'].items()))
+        return response_parsed
