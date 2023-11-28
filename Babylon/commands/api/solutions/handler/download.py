@@ -29,14 +29,8 @@ env = Environment()
 @option("--run-template", "run_template_id", help="The run Template identifier", required=True, type=QueryType())
 @argument("handler_id", type=QueryType())
 @inject_context_with_resource({'api': ['url', 'organization_id', "solution_id"]})
-def download(
-    blob_client: BlobServiceClient,
-    context: Any,
-    org_id: str,
-    sol_id: str,
-    handler_id: str,
-    run_template_id: str
-) -> CommandResponse:
+def download(blob_client: BlobServiceClient, context: Any, org_id: str, sol_id: str, handler_id: str,
+             run_template_id: str) -> CommandResponse:
     """Download a solution handler zip from the solution"""
     org_id = context['api_organization_id']
     sol_id = context['api_solution_id']
@@ -44,8 +38,7 @@ def download(
     if not check.exists():
         logger.info(f"Container '{org_id}' not found")
         return CommandResponse.fail()
-    client = blob_client.get_blob_client(container=org_id,
-                                         blob=f"{sol_id}/{run_template_id}/{handler_id}.zip")
+    client = blob_client.get_blob_client(container=org_id, blob=f"{sol_id}/{run_template_id}/{handler_id}.zip")
     data = client.download_blob().readall()
     zf = zipfile.ZipFile("data.zip", mode='w', compression=zipfile.ZIP_DEFLATED)
     zf.writestr(basename(client.blob_name), data)
