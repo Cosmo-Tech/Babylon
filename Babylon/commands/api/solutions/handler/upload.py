@@ -8,8 +8,10 @@ from click import argument
 from click import Path
 from azure.storage.blob import BlobServiceClient
 from Babylon.utils.clients import pass_blob_client
+from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
@@ -21,6 +23,7 @@ env = Environment()
 @command()
 @wrapcontext()
 @pass_blob_client
+@pass_azure_token("csm_api")
 @timing_decorator
 @option(
     "--run-template",
@@ -35,6 +38,7 @@ env = Environment()
 @inject_context_with_resource({'api': ['url', 'organization_id', 'solution_id']})
 def upload(context: Any,
            blob_client: BlobServiceClient,
+           azure_token: str,
            handler_path: pathlib.Path,
            handler_id: str,
            run_template_id: str,
@@ -42,6 +46,14 @@ def upload(context: Any,
     """Upload a solution handler zip to the solution"""
     org_id = context['api_organization_id']
     sol_id = context['api_solution_id']
+    response = oauth_request(f"{context['api_url']}/organizations/{org_id}/solutions/{sol_id}", azure_token, type="GET")
+    if response is None:
+        return CommandResponse.fail()
+    solution = response.json()
+    run_templates = list(map(lambda x: x['id'], solution['runTemplates']))
+    if run_template_id not in run_templates:
+        logger.info(f"Invalid runTemplateId: {run_template_id}. Must be one of: {run_templates}")
+        return CommandResponse.fail()
     if not handler_path.suffix == ".zip":
         logger.error("solution handler upload only supports zip files")
         return CommandResponse.fail()
