@@ -49,8 +49,7 @@ def upload(context: Any,
     if not check.exists():
         logger.info(f"Container '{org_id}' not found")
         return CommandResponse.fail()
-    client = blob_client.get_blob_client(container=org_id,
-                                         blob=f"{sol_id}/{run_template_id}/{handler_id}.zip")
+    client = blob_client.get_blob_client(container=org_id, blob=f"{sol_id}/{run_template_id}/{handler_id}.zip")
     if override and client.exists():
         client.delete_blob()
     with open(handler_path, "rb") as data:
