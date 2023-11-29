@@ -2,7 +2,7 @@ import pathlib
 
 from logging import getLogger
 from typing import Any
-from click import command
+from click import Choice, command
 from click import option
 from click import argument
 from click import Path
@@ -33,7 +33,8 @@ env = Environment()
     required=True,
 )
 @option("--override", "override", is_flag=True, help="Override handler solution")
-@argument("handler_id", type=QueryType())
+@argument("handler_id",
+          type=Choice(['validator', 'prerun', 'engine', 'postrun', 'scenariodata_transform', 'parameters_handler']))
 @argument("handler_path", type=Path(path_type=pathlib.Path, exists=True))
 @inject_context_with_resource({'api': ['url', 'organization_id', 'solution_id']})
 def upload(context: Any,
