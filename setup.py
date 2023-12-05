@@ -10,7 +10,7 @@ setup(
     name='Babylon',
     version=version,
     author='Cosmo Tech',
-    author_email='nibaldo.donoso@cosmotech.com',
+    author_email='alexis.fossart@cosmotech.com',
     url="https://github.com/Cosmo-Tech/Babylon",
     description='A CLI made to simplify interaction between Cosmo solutions and Azure',
     packages=find_packages(),

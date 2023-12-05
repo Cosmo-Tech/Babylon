@@ -1,9 +1,0 @@
-# docker compose run --rm babylon
-version: "3.9"
-services:
-  babylon:
-    build: .
-    volumes:
-      - ./.config:/opt/babylon/config
-    environment:
-      - BABYLON_CONFIG_DIRECTORY=/opt/babylon/config/dev
