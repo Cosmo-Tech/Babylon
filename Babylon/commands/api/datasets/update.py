@@ -47,6 +47,7 @@ def update(
     path_file = f"{env.context_id}.{env.environ_id}.dataset.{type}.yaml"
     dataset_file = dataset_file or env.working_dir.payload_path / path_file
     if not dataset_file.exists():
+        logger.error(f"{dataset_file} not found")
         return CommandResponse.fail()
     details = env.fill_template(dataset_file)
     response = oauth_request(f"{context['api_url']}/organizations/{context['api_organization_id']}/datasets/{id}",
