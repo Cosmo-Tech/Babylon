@@ -85,6 +85,6 @@ def create(
                                   var_value=connector['id'])
         env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
                                   var_name=key_connector_version,
-                                  var_value=version)
+                                  var_value=connector['version'])
     logger.info(SUCCESS_CREATED("connector", connector["id"]))
     return CommandResponse.success(connector, verbose=True)
