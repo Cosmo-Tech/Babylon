@@ -73,14 +73,18 @@ def create(
                                     "key": name.replace(" ", ""),
                                     "version": version
                                 })
-    key_name = ["connector", f"{type}_id"]
+    key_connector_type = ["connector", f"{type}_id"]
+    key_connector_version = ["connector", f"{type}_version"]
     response = oauth_request(f"{context['api_url']}/connectors", azure_token, type="POST", data=details)
     if response is None:
         return CommandResponse.fail()
     connector = response.json()
     if select:
         env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
-                                  var_name=key_name,
+                                  var_name=key_connector_type,
                                   var_value=connector['id'])
+        env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
+                                  var_name=key_connector_version,
+                                  var_value=connector['version'])
     logger.info(SUCCESS_CREATED("connector", connector["id"]))
     return CommandResponse.success(connector, verbose=True)
