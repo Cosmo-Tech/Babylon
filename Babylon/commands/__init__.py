@@ -1,3 +1,4 @@
+from .abba import abba
 from .webapp import webapp
 from .powerbi import powerbi
 from .api import api
@@ -9,4 +10,4 @@ from .terraform_cloud import terraform_cloud
 from .plugin import plugin
 from .state import state
 
-list_groups = [api, azure, config, plugin, powerbi, webapp, vault, github, terraform_cloud, state]
+list_groups = [abba, api, azure, config, plugin, powerbi, webapp, vault, github, terraform_cloud, state]
