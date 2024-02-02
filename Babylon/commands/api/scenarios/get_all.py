@@ -49,7 +49,4 @@ def get_all(
     response = scenario_service.get_all()
     if response is None:
         return CommandResponse.fail()
-    scenarios = response.json()
-    if len(scenarios) and filter:
-        scenarios = jmespath.search(filter, scenarios)
-    return CommandResponse.success(scenarios, verbose=True)
+    return CommandResponse.success(response.json(), verbose=True)
