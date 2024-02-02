@@ -1,13 +1,12 @@
-import jmespath
 import logging
 
-from typing import Optional
-from click import command
 from click import option
-from Babylon.utils.request import oauth_request
+from click import command
+from typing import Optional
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file, wrapcontext
 from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.decorators import output_to_file, wrapcontext
+from Babylon.commands.azure.ad.app.service.api import AzureDirectoyAppService
 
 logger = logging.getLogger("Babylon")
 
@@ -22,13 +21,6 @@ def get_all(azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     Get all apps registered in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-list
     """
-    route = "https://graph.microsoft.com/v1.0/applications"
-    response = oauth_request(route, azure_token)
-    if response is None:
-        return CommandResponse.fail()
-
-    response = response.json()
-    output_data = response['value']
-    if filter:
-        output_data = jmespath.search(filter, output_data)
+    apiApp = AzureDirectoyAppService()
+    output_data = apiApp.get_all(azure_token=azure_token)
     return CommandResponse.success(output_data, verbose=True)
