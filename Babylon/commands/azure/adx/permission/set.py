@@ -1,13 +1,12 @@
 import logging
 
 from typing import Any
-from uuid import uuid4
-from azure.mgmt.kusto import KustoManagementClient
-from azure.mgmt.kusto.models import DatabasePrincipalAssignment
 from click import Choice
 from click import argument
 from click import command
 from click import option
+from azure.mgmt.kusto import KustoManagementClient
+from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
@@ -38,15 +37,12 @@ def set(context: Any, kusto_client: KustoManagementClient, principal_id: str, ro
     """
     Set permission assignments applied to the given principal id
     """
-    resource_group_name = context['azure_resource_group_name']
-    adx_cluster_name = context['adx_cluster_name']
-    database_name = context['adx_database_name']
-    parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
-    principal_assignment_name = str(uuid4())
-    logger.info("Creating assignment...")
-    poller = kusto_client.database_principal_assignments.begin_create_or_update(resource_group_name, adx_cluster_name,
-                                                                                database_name,
-                                                                                principal_assignment_name, parameters)
-    if poller.done():
-        logger.info("Successfully created")
+    apiAdxPermission = AdxPermissionService()
+    apiAdxPermission.set(
+        context=context,
+        principal_id=principal_id,
+        principal_type=principal_type,
+        role=role,
+        kusto_client=kusto_client
+    )
     return CommandResponse.success()

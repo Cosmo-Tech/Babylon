@@ -1,9 +1,9 @@
 import logging
 
-from pprint import pformat
 from typing import Any
 from azure.mgmt.kusto import KustoManagementClient
 from click import command
+from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
@@ -23,11 +23,9 @@ def get_all(context: Any, kusto_client: KustoManagementClient):
     """
     Get all permission assignments in the database
     """
-    logger.info("Getting assignments...")
-    resource_group_name = context['azure_resource_group_name']
-    adx_cluster_name = context['adx_cluster_name']
-    database_name = context['adx_database_name']
-    assignments = kusto_client.database_principal_assignments.list(resource_group_name, adx_cluster_name, database_name)
-    for ent in assignments:
-        logger.info(f"{pformat(ent.__dict__)}")
+    apiAdxPermission = AdxPermissionService()
+    assignments = apiAdxPermission.get_all(
+        context=context,
+        kusto_client=kusto_client
+    )
     return CommandResponse.success({"assignments": assignments})
