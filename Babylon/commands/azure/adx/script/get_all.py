@@ -3,6 +3,7 @@ import logging
 from typing import Any
 from azure.mgmt.kusto import KustoManagementClient
 from click import command
+from Babylon.commands.azure.adx.script.service.api import AdxScriptService
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import timing_decorator
@@ -25,11 +26,6 @@ def get_all(
     """
     List scripts on the database
     """
-    resource_group_name = context['azure_resource_group_name']
-    adx_cluster_name = context['adx_cluster_name']
-    database_name = context['adx_database_name']
-    response = kusto_client.scripts.list_by_database(resource_group_name=resource_group_name,
-                                                     cluster_name=adx_cluster_name,
-                                                     database_name=database_name)
-    scripts = [item.as_dict() for item in response]
+    apiAdxScript = AdxScriptService()
+    scripts = apiAdxScript.get_all(context=context, kusto_client=kusto_client)
     return CommandResponse.success(scripts, verbose=True)

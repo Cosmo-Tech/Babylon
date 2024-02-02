@@ -1,15 +1,16 @@
-import glob
-import logging
 import pathlib
+from typing import Any
 
-from click import Context, Path, command, pass_context, argument
+from click import Path, command, pass_context, argument
 from azure.mgmt.kusto import KustoManagementClient
-from Babylon.utils.decorators import timing_decorator, wrapcontext
+from Babylon.commands.azure.adx.script.service.api import AdxScriptService
+from Babylon.utils.decorators import (
+    inject_context_with_resource,
+    timing_decorator,
+    wrapcontext,
+)
 from Babylon.utils.clients import pass_kusto_client
 from Babylon.utils.response import CommandResponse
-from .run import run
-
-logger = logging.getLogger("Babylon")
 
 
 @command()
@@ -17,22 +18,29 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @pass_context
 @pass_kusto_client
-@argument("script_folder",
-          type=Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=pathlib.Path))
+@argument(
+    "script_folder",
+    type=Path(
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        readable=True,
+        path_type=pathlib.Path,
+    ),
+)
+@inject_context_with_resource(
+    {"azure": ["resource_group_name"], "adx": ["cluster_name", "database_name"]}
+)
 def run_folder(
-    ctx: Context,
+    context: Any,
     kusto_client: KustoManagementClient,
     script_folder: pathlib.Path,
 ) -> CommandResponse:
     """
     Run all script files (.kql) from SCRIPT_FOLDER
     """
-    files = glob.glob(str(script_folder.absolute() / "*.kql"))
-    if not files:
-        logger.error(f"No script found in path {script_folder.absolute()}")
-        return CommandResponse.fail()
-    for _file in files[::-1]:
-        file_path = pathlib.Path(_file)
-        logger.info(f"Found script {file_path} sending it to the database.")
-        ctx.invoke(run, script_file=file_path)
+    apiAdxScript = AdxScriptService()
+    apiAdxScript.run_folder(
+        context=context, script_folder=script_folder, kusto_client=kusto_client
+    )
     return CommandResponse.success()
