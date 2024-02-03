@@ -9,13 +9,16 @@ logger = logging.getLogger("Babylon")
 
 class AdxConsumerService:
 
-    def add(self, name: str, context: dict, event_hub_name: str):
+    def __init__(self, state: dict = None) -> None:
+        self.state = state
+
+    def add(self, name: str, event_hub_name: str):
         check_ascii(name)
-        rg = context["azure_resource_group_name"]
-        subscription_id = context["azure_subscription_id"]
-        org_id = context["api_organization_id"].lower()
-        work_id = context["api_workspace_key"].lower()
-        location = context["azure_resource_location"]
+        rg = self.state["azure_resource_group_name"]
+        subscription_id = self.state["azure_subscription_id"]
+        org_id = self.state["api_organization_id"].lower()
+        work_id = self.state["api_workspace_key"].lower()
+        location = self.state["azure_resource_location"]
 
         client = EventHubManagementClient(
             credential=get_azure_credentials(), subscription_id=subscription_id

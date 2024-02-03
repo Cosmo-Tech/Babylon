@@ -19,21 +19,30 @@ env = Environment()
 @wrapcontext()
 @timing_decorator
 @pass_kusto_client
-@option("--current", "current", type=QueryType(), is_flag=True, help="Delete database adx referenced in configuration")
+@option(
+    "--current",
+    "current",
+    type=QueryType(),
+    is_flag=True,
+    help="Delete database adx referenced in configuration",
+)
 @argument("name", type=QueryType())
-@inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})
-def delete(context: Any,
-           kusto_client: KustoManagementClient,
-           name: Optional[str] = None,
-           current: bool = False) -> CommandResponse:
+@inject_context_with_resource(
+    {"azure": ["resource_group_name"], "adx": ["cluster_name", "database_name"]}
+)
+def delete(
+    context: Any,
+    kusto_client: KustoManagementClient,
+    name: Optional[str] = None,
+    current: bool = False,
+) -> CommandResponse:
     """
     Delete database in ADX cluster
     """
-    apiAdxDatabase = AdxDatabaseService()
+    apiAdxDatabase = AdxDatabaseService(kusto_client=kusto_client, state=context)
     apiAdxDatabase.delete(
         name=name,
         context=context,
         current=current,
-        kusto_client=kusto_client
     )
     return CommandResponse.success()

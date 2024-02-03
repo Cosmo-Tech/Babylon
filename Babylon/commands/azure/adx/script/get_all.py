@@ -26,6 +26,6 @@ def get_all(
     """
     List scripts on the database
     """
-    apiAdxScript = AdxScriptService()
-    scripts = apiAdxScript.get_all(context=context, kusto_client=kusto_client)
+    apiAdxScript = AdxScriptService(kusto_client=kusto_client, state=context)
+    scripts = apiAdxScript.get_all()
     return CommandResponse.success(scripts, verbose=True)

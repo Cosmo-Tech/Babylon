@@ -39,8 +39,6 @@ def run_folder(
     """
     Run all script files (.kql) from SCRIPT_FOLDER
     """
-    apiAdxScript = AdxScriptService()
-    apiAdxScript.run_folder(
-        context=context, script_folder=script_folder, kusto_client=kusto_client
-    )
+    apiAdxScript = AdxScriptService(kusto_client=kusto_client, state=context)
+    apiAdxScript.run_folder(script_folder=script_folder)
     return CommandResponse.success()

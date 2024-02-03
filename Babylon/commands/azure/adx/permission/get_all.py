@@ -23,9 +23,6 @@ def get_all(context: Any, kusto_client: KustoManagementClient):
     """
     Get all permission assignments in the database
     """
-    apiAdxPermission = AdxPermissionService()
-    assignments = apiAdxPermission.get_all(
-        context=context,
-        kusto_client=kusto_client
-    )
+    apiAdxPermission = AdxPermissionService(kusto_client=kusto_client, state=context)
+    assignments = apiAdxPermission.get_all()
     return CommandResponse.success({"assignments": assignments})

@@ -1,7 +1,7 @@
 import logging
+
 from uuid import uuid4
 from Babylon.utils.checkers import check_ascii
-from Babylon.utils.clients import pass_kusto_client
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.kusto.models import EventHubDataConnection
 
@@ -12,10 +12,11 @@ logger = logging.getLogger("Babylon")
 
 class AdxConnectionService:
 
-    @pass_kusto_client
+    def __init__(self, kusto_client: KustoManagementClient) -> None:
+        self.kusto_client = kusto_client
+
     def create(
         self,
-        kusto_client: KustoManagementClient,
         database_name: str,
         context: dict,
         connection_name: str,
@@ -26,7 +27,7 @@ class AdxConnectionService:
         mapping: str
     ):
         check_ascii(database_name)
-        dataconnections_operations = kusto_client.data_connections
+        dataconnections_operations = self.kusto_client.data_connections
 
         azure_subscription = context["azure_subscription_id"]
         resource_group_name = context["azure_resource_group_name"]
