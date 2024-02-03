@@ -5,10 +5,9 @@ from typing import Any, Optional
 from click import command
 from click import argument
 from click import option
-from click import pass_context
-from click import Context
 from click import Path
-from .create import create
+
+from Babylon.commands.azure.staticwebapp.custom_domain.service.api import AzureSWACustomDomainService
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -19,7 +18,6 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @wrapcontext()
-@pass_context
 @pass_azure_token()
 @option("--file",
         "create_file",
@@ -29,7 +27,6 @@ logger = logging.getLogger("Babylon")
 @argument("domain_name", type=QueryType())
 @inject_context_with_resource({'azure': ['resource_group_name']})
 def update(
-    ctx: Context,
     context: Any,
     azure_token: str,
     webapp_name: str,
@@ -40,4 +37,12 @@ def update(
     Update a static webapp custom domain in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
-    return ctx.forward(create)
+    api_swa_custom_domain = AzureSWACustomDomainService()
+    response = api_swa_custom_domain.upsert(
+        webapp_name=webapp_name,
+        domain_name=domain_name,
+        context=context,
+        create_file=create_file,
+        azure_token=azure_token,
+    )
+    return CommandResponse.success(response, verbose=True)
