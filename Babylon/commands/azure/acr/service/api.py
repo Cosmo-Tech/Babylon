@@ -15,11 +15,11 @@ env = Environment()
 
 class AzureContainerRegistryService:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, state: dict = None) -> None:
+        self.state = state
 
-    def list(self, state: dict, server: str = None):
-        acr_login_server = server or state['acr']['login_server']
+    def list(self, server: str = None):
+        acr_login_server = server or self.state['acr']['login_server']
         cr_client = get_registry_client(acr_login_server)
         logger.info(f"Getting repositories stored in registry {acr_login_server}")
         try:
@@ -35,10 +35,10 @@ class AzureContainerRegistryService:
             _ret.append(f" • {repo}: {tags}")
         logger.info("\n".join(_ret))
 
-    def pull(self, state: dict, image_tag: str):
-        registry_server = state['acr']['login_server']
-        simulator_repository = state['acr']['simulator_repository']
-        simulator_version = state['acr']['simulator_version']
+    def pull(self, image_tag: str):
+        registry_server = self.state['acr']['login_server']
+        simulator_repository = self.state['acr']['simulator_repository']
+        simulator_version = self.state['acr']['simulator_version']
         image = image_tag or f"{simulator_repository}:{simulator_version}"
         client = get_docker_client(registry=registry_server)
         if not client:
@@ -59,14 +59,14 @@ class AzureContainerRegistryService:
             return CommandResponse.fail()
         except Exception as e:
             logger.error(str(e))
-        env.configuration.set_var(resource_id="acr", var_name="simulator_repository", var_value=image.split(":")[0])
-        env.configuration.set_var(resource_id="acr", var_name="simulator_version", var_value=image.split(":")[1])
+        # env.configuration.set_var(resource_id="acr", var_name="simulator_repository", var_value=image.split(":")[0])
+        # env.configuration.set_var(resource_id="acr", var_name="simulator_version", var_value=image.split(":")[1])
         logger.info(f"Successfully pulled image {image} from registry {registry_server}")
 
-    def push(self, state: dict, image_tag: str):
-        registry_server = state['acr']['login_server']
-        simulator_repository = state['acr']['simulator_repository']
-        simulator_version = state['acr']['simulator_version']
+    def push(self, image_tag: str):
+        registry_server = self.state['acr']['login_server']
+        simulator_repository = self.state['acr']['simulator_repository']
+        simulator_version = self.state['acr']['simulator_version']
         image: str = image_tag or f"{simulator_repository}:{simulator_version}"
         client = get_docker_client(registry_server)
         if not client:
@@ -94,10 +94,10 @@ class AzureContainerRegistryService:
         client.images.remove(ref)
         logger.info(f"Successfully pushed image {image} to registry {registry_server}")
 
-    def delete(self, state: dict, image_tag: str):
-        registry_server = state['acr']['login_server']
-        simulator_repository = state['acr']['simulator_repository']
-        simulator_version = state['acr']['simulator_version']
+    def delete(self, image_tag: str):
+        registry_server = self.state['acr']['login_server']
+        simulator_repository = self.state['acr']['simulator_repository']
+        simulator_version = self.state['acr']['simulator_version']
         cr_client = get_registry_client(registry_server)
         image = image_tag or f"{simulator_repository}:{simulator_version}"
         if not image:

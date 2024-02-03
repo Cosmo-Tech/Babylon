@@ -26,11 +26,11 @@ def push(
     """
     Push a docker image to the ACR registry
     """
-    acrApi = AzureContainerRegistryService()
     state = dict()
     state['acr'] = dict()
     state['acr']['login_server'] = context['acr_login_server']
     state['acr']['simulator_repository'] = context['acr_simulator_repository']
     state['acr']['simulator_version'] = context['acr_simulator_version']
+    acrApi = AzureContainerRegistryService(state=state)
     acrApi.push(state, image_tag=image)
     return CommandResponse.success()
