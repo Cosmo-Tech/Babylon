@@ -26,8 +26,8 @@ def get_all(context: Any, azure_token: str, webapp_name: str) -> CommandResponse
     Get static webapp custom domains for the given static web app
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list-static-site-custom-domains
     """
-    api_swa_custom_domain = AzureSWACustomDomainService()
+    api_swa_custom_domain = AzureSWACustomDomainService(azure_token=azure_token, state=context)
     response = api_swa_custom_domain.get_all(
-        webapp_name=webapp_name, context=context, azure_token=azure_token
+        webapp_name=webapp_name
     )
     return CommandResponse.success(response, verbose=True)
