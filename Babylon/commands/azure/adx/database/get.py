@@ -1,7 +1,7 @@
 import logging
 
 from typing import Any, Optional
-from click import Context, argument, command, option, pass_context
+from click import argument, command
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
 from Babylon.utils.typing import QueryType
@@ -17,30 +17,23 @@ env = Environment()
 
 @command()
 @wrapcontext()
-@pass_context
 @timing_decorator
 @pass_kusto_client
-@option("--select", "select", is_flag=True, default=True, help="Save this adx database name in configuration")
 @argument("name", type=QueryType(), required=False)
-@inject_context_with_resource({
-    'azure': ['resource_group_name'],
-    'adx': ['cluster_name', 'database_name']
-},
-                              required=False)
+@inject_context_with_resource(
+    {"azure": ["resource_group_name"], "adx": ["cluster_name", "database_name"]},
+    required=False,
+)
 def get(
-    ctx: Context,
     context: Any,
     kusto_client: KustoManagementClient,
-    select: bool,
     name: Optional[str] = None,
 ) -> CommandResponse:
     """
     Get database from ADX cluster
     """
-    apiAdxDatabase = AdxDatabaseService()
+    apiAdxDatabase = AdxDatabaseService(kusto_client=kusto_client, state=context)
     apiAdxDatabase.get(
-        context=context,
         name=name,
-        kusto_client=kusto_client
     )
     return CommandResponse.success()

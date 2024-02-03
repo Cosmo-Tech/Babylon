@@ -3,11 +3,13 @@ import logging
 from typing import Optional
 from click import Choice, argument, command, option
 from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
+from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
-from Babylon.utils.response import CommandResponse
+from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.clients import pass_kusto_client
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -16,6 +18,7 @@ env = Environment()
 @command()
 @wrapcontext()
 @timing_decorator
+@pass_kusto_client
 @option("--mapping", "mapping", type=QueryType(), help="ADX mapping name")
 @option(
     "--compression",
@@ -49,6 +52,7 @@ env = Environment()
     }
 )
 def create(
+    kusto_client: KustoManagementClient,
     connection_name: str,
     data_format: str,
     compression_value: str,
@@ -60,7 +64,7 @@ def create(
     """
     Create new connection in ADX database
     """
-    apiAdxConn = AdxConnectionService()
+    apiAdxConn = AdxConnectionService(kusto_client=kusto_client)
     apiAdxConn.create(
         compression_value=compression_value,
         connection_name=connection_name,

@@ -14,20 +14,22 @@ logger = logging.getLogger("Babylon")
 
 class AdxDatabaseService:
 
+    def __init__(self, kusto_client: KustoManagementClient, state: dict = None) -> None:
+        self.kusto_client = kusto_client
+        self.state = state
+
     def create(
         self,
         name: str,
-        context: dict,
         retention: int,
-        kusto_client: KustoManagementClient,
     ):
         if name:
             check_ascii(name)
-        organization_id = context["api_organization_id"]
-        workspace_key = context["api_workspace_key"]
-        resource_location = context["azure_resource_location"]
-        resource_group_name = context["azure_resource_group_name"]
-        adx_cluster_name = context["adx_cluster_name"]
+        organization_id = self.state["api_organization_id"]
+        workspace_key = self.state["api_workspace_key"]
+        resource_location = self.state["azure_resource_location"]
+        resource_group_name = self.state["azure_resource_group_name"]
+        adx_cluster_name = self.state["adx_cluster_name"]
 
         # cache period by default 31 days
         params_database = ReadWriteDatabase(
@@ -40,7 +42,7 @@ class AdxDatabaseService:
             name_request = CheckNameRequest(
                 name=name, type="Microsoft.Kusto/clusters/databases"
             )
-            name_result = kusto_client.databases.check_name_availability(
+            name_result = self.kusto_client.databases.check_name_availability(
                 resource_group_name=resource_group_name,
                 cluster_name=adx_cluster_name,
                 resource_name=name_request,
@@ -55,7 +57,7 @@ class AdxDatabaseService:
         except Exception:
             return CommandResponse.fail()
 
-        poller = kusto_client.databases.begin_create_or_update(
+        poller = self.kusto_client.databases.begin_create_or_update(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
             database_name=name,
@@ -80,7 +82,7 @@ class AdxDatabaseService:
         script_content += (
             f".alter database ['{name}'] policy ingestionbatching '{batching_policy}'"
         )
-        s = kusto_client.scripts.begin_create_or_update(
+        s = self.kusto_client.scripts.begin_create_or_update(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
             database_name=name,
@@ -101,7 +103,7 @@ class AdxDatabaseService:
         except Exception as _resp_error:
             logger.error(_resp_error.message.split("\nMessage:")[1])
             return CommandResponse.fail()
-        kusto_client.scripts.begin_delete(
+        self.kusto_client.scripts.begin_delete(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
             database_name=name,
@@ -118,16 +120,14 @@ class AdxDatabaseService:
 
     def delete(
         self,
-        context: dict,
         current: bool,
         name: str,
-        kusto_client: KustoManagementClient,
     ):
-        resource_group_name = context["azure_resource_group_name"]
-        adx_cluster_name = context["adx_cluster_name"]
-        database_name = context["adx_database_name"] if current else name
+        resource_group_name = self.state["azure_resource_group_name"]
+        adx_cluster_name = self.state["adx_cluster_name"]
+        database_name = self.state["adx_database_name"] if current else name
         try:
-            kusto_client.databases.get(
+            self.kusto_client.databases.get(
                 resource_group_name=resource_group_name,
                 cluster_name=adx_cluster_name,
                 database_name=database_name,
@@ -136,7 +136,7 @@ class AdxDatabaseService:
             logger.error(ex)
             return CommandResponse.fail()
 
-        poller = kusto_client.databases.begin_delete(
+        poller = self.kusto_client.databases.begin_delete(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
             database_name=database_name,
@@ -150,20 +150,18 @@ class AdxDatabaseService:
 
     def get(
         self,
-        context: dict,
         name: str,
-        kusto_client: KustoManagementClient
     ):
-        adx_cluster_name = context["adx_cluster_name"]
+        adx_cluster_name = self.state["adx_cluster_name"]
         if not name:
-            logger.error(f"Current value: '{context['adx_database_name']}'")
-        adx_database_name = name or context["adx_database_name"]
+            logger.error(f"Current value: '{self.state['adx_database_name']}'")
+        adx_database_name = name or self.state["adx_database_name"]
         if not adx_database_name:
             logger.error("Database name is missing")
             return CommandResponse.fail()
-        resource_group_name = context["azure_resource_group_name"]
+        resource_group_name = self.state["azure_resource_group_name"]
         try:
-            database = kusto_client.databases.get(
+            database = self.kusto_client.databases.get(
                 resource_group_name=resource_group_name,
                 cluster_name=adx_cluster_name,
                 database_name=adx_database_name,
