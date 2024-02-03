@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 from click import argument, command, option
+from Babylon.commands.azure.storage.policy.service.api import AzureStoragePolicyService
 from Babylon.utils.clients import pass_storage_mgmt_client
 from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.decorators import inject_context_with_resource
@@ -22,41 +23,6 @@ def create(context: Any, storage_mgmt_client: StorageManagementClient, days: int
     """
     Create or update default policy storage account
     """
-    if account_name is None:
-        logger.info(f"Account Name: {context['azure_resource_group_name']}")
-    resource_group = context['azure_resource_group_name']
-    account_name = account_name or context['azure_storage_account_name']
-    s = storage_mgmt_client.management_policies.create_or_update(
-        resource_group, account_name, "default", {
-            "policy": {
-                "rules": [{
-                    "enabled": True,
-                    "name": f"csm{days}days",
-                    "type": "Lifecycle",
-                    "definition": {
-                        "filters": {
-                            "blob_types": ["blockBlob"]
-                        },
-                        "actions": {
-                            "base_blob": {
-                                "delete": {
-                                    "days_after_modification_greater_than": days
-                                }
-                            },
-                            "snapshot": {
-                                "delete": {
-                                    "days_after_creation_greater_than": days
-                                }
-                            },
-                            "version": {
-                                "delete": {
-                                    "days_after_creation_greater_than": days
-                                }
-                            }
-                        }
-                    }
-                }]
-            }
-        })
-    logger.info(f"Successfully created policy {s}")
+    api_storage_policy = AzureStoragePolicyService(storage_mgmt_client=storage_mgmt_client)
+    api_storage_policy.create(account_name=account_name, context=context, days=days)
     return CommandResponse.success()
