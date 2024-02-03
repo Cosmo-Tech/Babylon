@@ -15,10 +15,14 @@ env = Environment()
 
 class AzureSWAService:
 
-    def create(self, webapp_name: str, context: dict, swa_file: Path, azure_token: str):
+    def __init__(self, azure_token: str, state: dict = None) -> None:
+        self.state = state
+        self.azure_token = azure_token
+
+    def create(self, webapp_name: str, swa_file: Path):
         check_ascii(webapp_name)
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         swa_file = (
             swa_file
             or env.working_dir.original_template_path / "webapp/webapp_details.json"
@@ -31,7 +35,7 @@ class AzureSWAService:
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01"
         )
-        response = oauth_request(route, azure_token, type="PUT", data=details)
+        response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()
@@ -52,11 +56,9 @@ class AzureSWAService:
         # logger.info(SUCCESS_CONFIG_UPDATED("webapp", "hostname"))
         return output_data
 
-    def delete(
-        self, webapp_name: str, context: dict, force_validation: bool, azure_token: str
-    ):
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
+    def delete(self, webapp_name: str, force_validation: bool):
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         if not force_validation and not confirm_deletion("webapp", webapp_name):
             return CommandResponse.fail()
         logger.info(
@@ -66,20 +68,20 @@ class AzureSWAService:
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01"
         )
-        response = oauth_request(route, azure_token, type="DELETE")
+        response = oauth_request(route, self.azure_token, type="DELETE")
         if response is None:
             return CommandResponse.fail()
         logger.info(
             f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}"
         )
 
-    def get_all(self, context: dict, azure_token: str):
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
+    def get_all(self):
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         response = oauth_request(
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
             "/providers/Microsoft.Web/staticSites?api-version=2022-03-01",
-            azure_token,
+            self.azure_token,
         )
         if response is None:
             return CommandResponse.fail()
@@ -88,14 +90,14 @@ class AzureSWAService:
             output_data = jmespath.search(filter, output_data)
         return output_data
 
-    def get(self, webapp_name: str, context: dict, azure_token: str):
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
+    def get(self, webapp_name: str):
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         response = polling2.poll(
             lambda: oauth_request(
                 f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
                 f"/providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01",
-                azure_token,
+                self.azure_token,
             ),
             check_success=is_correct_response,
             step=1,
@@ -114,9 +116,9 @@ class AzureSWAService:
         # logger.info(SUCCESS_CONFIG_UPDATED("webapp", "static_domain"))
         return outputdata
 
-    def update(self, webapp_name: str, context: dict, swa_file: Path, azure_token: str):
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
+    def update(self, webapp_name: str, swa_file: Path):
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         swa_file = (
             swa_file
             or env.working_dir.original_template_path / "webapp/webapp_details.json"
@@ -129,7 +131,7 @@ class AzureSWAService:
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01"
         )
-        response = oauth_request(route, azure_token, type="PUT", data=details)
+        response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()

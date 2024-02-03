@@ -42,11 +42,9 @@ def update(
     Update static webapp app settings in the given webapp
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-app-settings
     """
-    api_swa_settings = AzureSWASettingsAppService()
+    api_swa_settings = AzureSWASettingsAppService(azure_token=azure_token, state=context)
     api_swa_settings.update(
         webapp_name=webapp_name,
-        context=context,
         settings_file=settings_file,
-        azure_token=azure_token,
     )
     return CommandResponse.success()
