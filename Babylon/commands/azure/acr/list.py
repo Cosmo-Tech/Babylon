@@ -16,9 +16,9 @@ def list(context: Any, server: Optional[str] = None) -> CommandResponse:
     """
     List all docker images in the specified registry
     """
-    acrApi = AzureContainerRegistryService()
     state = dict()
     state['acr'] = dict()
     state['acr']['login_server'] = context['acr_login_server']
+    acrApi = AzureContainerRegistryService(state=state)
     acrApi.list(state)
     CommandResponse.success()
