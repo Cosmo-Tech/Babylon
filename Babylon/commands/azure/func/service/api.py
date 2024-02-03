@@ -16,16 +16,18 @@ env = Environment()
 
 class AzureAppFunctionService:
 
+    def __init__(self, arm_client: ResourceManagementClient, state: dict = None) -> None:
+        self.state = state
+        self.arm_client = arm_client
+
     def deploy(
         self,
         deployment_name: str,
-        context: str,
         deploy_mode_complete: bool,
-        arm_client: ResourceManagementClient,
     ):
-        organization_id = context["api_organization_id"]
-        workspace_key = context["api_workspace_key"]
-        resource_group_name = context["azure_resource_group_name"]
+        organization_id = self.state['api']['organization_id']
+        workspace_key = self.state['api']['workspace_key']
+        resource_group_name = self.state['azure']['resource_group_name']
 
         mode = DeploymentMode.INCREMENTAL
         if deploy_mode_complete:
@@ -56,7 +58,7 @@ class AzureAppFunctionService:
         logger.info("Starting deployment")
 
         try:
-            poller = arm_client.deployments.begin_create_or_update(
+            poller = self.arm_client.deployments.begin_create_or_update(
                 resource_group_name=resource_group_name,
                 deployment_name=deployment_name,
                 parameters=Deployment(

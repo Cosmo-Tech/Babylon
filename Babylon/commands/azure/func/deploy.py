@@ -1,9 +1,8 @@
 import logging
-import pathlib
 
-from typing import Any, Optional
+from typing import Any
 from azure.mgmt.resource import ResourceManagementClient
-from click import Path, argument, option
+from click import argument, option
 from click import command
 from Babylon.commands.azure.func.service.api import AzureAppFunctionService
 from Babylon.utils.typing import QueryType
@@ -25,12 +24,6 @@ env = Environment()
     is_flag=True,
     help="Flag to run on complete mode",
 )
-@option(
-    "--file",
-    "deploy_file",
-    type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
-    help="Your custom arm description file yaml",
-)
 @argument("deployment_name", type=QueryType())
 @inject_context_with_resource(
     {"api": ["organization_id", "workspace_key"], "azure": ["resource_group_name"]}
@@ -39,16 +32,14 @@ def deploy(
     context: Any,
     arm_client: ResourceManagementClient,
     deployment_name: str,
-    deploy_file: Optional[Path],
     deploy_mode_complete: bool,
 ) -> CommandResponse:
     """
     Deploy a new function Scenario Donwload
     """
-    apiFunc = AzureAppFunctionService()
+    apiFunc = AzureAppFunctionService(arm_client=arm_client, state=context)
     apiFunc.deploy(
         deployment_name=deployment_name,
         deploy_mode_complete=deploy_mode_complete,
-        arm_client=arm_client,
     )
     return CommandResponse.success()
