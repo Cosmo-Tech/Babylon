@@ -26,11 +26,9 @@ def delete(
     Delete app insight data from a name
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/delete
     """
-    apiAppInsight = AzureAppInsightService()
+    apiAppInsight = AzureAppInsightService(azure_token=azure_token, state=context)
     apiAppInsight.delete(
         name=name,
-        context=context,
         force_validation=force_validation,
-        azure_token=azure_token,
     )
     return CommandResponse.success()
