@@ -33,11 +33,9 @@ def delete(context: Any,
     """
     Delete all permission assignments applied to the given principal id
     """
-    apiAdxPermission = AdxPermissionService()
+    apiAdxPermission = AdxPermissionService(kusto_client=kusto_client, state=context)
     apiAdxPermission.delete(
-        context=context,
         force_validation=force_validation,
         principal_id=principal_id,
-        kusto_client=kusto_client
     )
     return CommandResponse.success()

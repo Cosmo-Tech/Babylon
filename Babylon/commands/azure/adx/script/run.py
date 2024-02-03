@@ -18,17 +18,28 @@ env = Environment()
 @command()
 @timing_decorator
 @pass_kusto_client
-@argument("script_file", type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path))
-@inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})
-def run(context: Any, kusto_client: KustoManagementClient, script_file: pathlib.Path) -> CommandResponse:
+@argument(
+    "script_file",
+    type=Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        path_type=pathlib.Path,
+    ),
+)
+@inject_context_with_resource(
+    {"azure": ["resource_group_name"], "adx": ["cluster_name", "database_name"]}
+)
+def run(
+    context: Any, kusto_client: KustoManagementClient, script_file: pathlib.Path
+) -> CommandResponse:
     """
-    Open SCRIPT_FILE and run it on the database
-In the script instances of "<database name>" will be replaced by the actual database name
+        Open SCRIPT_FILE and run it on the database
+    In the script instances of "<database name>" will be replaced by the actual database name
     """
-    apiAdxScript = AdxScriptService()
+    apiAdxScript = AdxScriptService(kusto_client=kusto_client, state=context)
     apiAdxScript.run(
-        context=context,
         script_file=script_file,
-        kusto_client=kusto_client
     )
     return CommandResponse.success()
