@@ -11,11 +11,14 @@ env = Environment()
 
 class AzureDirectoyPasswordService:
 
-    def create(self, context: dict, object_id: str, password_name: str, azure_token: str):
+    def __init__(self, state: dict = None) -> None:
+        self.state = state
+
+    def create(self, object_id: str, password_name: str, azure_token: str):
         check_alphanum(password_name)
-        object_id = object_id or context['app_object_id']
-        org_id: str = context['api_organization_id']
-        work_key: str = context['api_workspace_key']
+        object_id = object_id or self.state['app_object_id']
+        org_id: str = self.state['api_organization_id']
+        work_key: str = self.state['api_workspace_key']
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}/addPassword"
         password_name = password_name or f"secret_{work_key}"
         details = {"passwordCredential": {"displayName": password_name}}
