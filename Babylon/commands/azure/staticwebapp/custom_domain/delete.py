@@ -35,12 +35,10 @@ def delete(
     Delete static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/delete-static-site-custom-domain
     """
-    api_swa_custom_domain = AzureSWACustomDomainService()
+    api_swa_custom_domain = AzureSWACustomDomainService(azure_token=azure_token, state=context)
     api_swa_custom_domain.delete(
         webapp_name=webapp_name,
         domain_name=domain_name,
         force_validation=force_validation,
-        context=context,
-        azure_token=azure_token,
     )
     return CommandResponse.success()

@@ -33,8 +33,6 @@ def get(
     Get static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/get-static-site
     """
-    api_swa = AzureSWAService()
-    response = api_swa.get(
-        webapp_name=webapp_name, context=context, azure_token=azure_token
-    )
+    api_swa = AzureSWAService(azure_token=azure_token, state=context)
+    response = api_swa.get(webapp_name=webapp_name)
     return CommandResponse.success(response, verbose=True)

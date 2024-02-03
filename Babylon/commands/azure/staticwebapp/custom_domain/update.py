@@ -37,12 +37,10 @@ def update(
     Update a static webapp custom domain in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
-    api_swa_custom_domain = AzureSWACustomDomainService()
+    api_swa_custom_domain = AzureSWACustomDomainService(azure_token=azure_token, state=context)
     response = api_swa_custom_domain.upsert(
         webapp_name=webapp_name,
         domain_name=domain_name,
-        context=context,
         create_file=create_file,
-        azure_token=azure_token,
     )
     return CommandResponse.success(response, verbose=True)

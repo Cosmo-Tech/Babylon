@@ -13,13 +13,17 @@ env = Environment()
 
 class AzureSWASettingsAppService:
 
-    def get(self, context: dict, webapp_name: str, azure_token: str):
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
+    def __init__(self, azure_token: str, state: dict = None) -> None:
+        self.state = state
+        self.azure_token = azure_token
+
+    def get(self, webapp_name: str):
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         response = oauth_request(
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}/listAppSettings?api-version=2022-03-01",
-            azure_token,
+            self.azure_token,
             type="POST",
         )
         if response is None:
@@ -27,13 +31,11 @@ class AzureSWASettingsAppService:
         output_data = response.json()
         return output_data
 
-    def update(
-        self, webapp_name: str, context: dict, settings_file: Path, azure_token: str
-    ):
-        org_id = context["api_organization_id"]
-        work_key = context["api_workspace_key"]
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
+    def update(self, webapp_name: str, settings_file: Path):
+        org_id = self.state["api"]["organization_id"]
+        work_key = self.state["api"]["workspace_key"]
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         settings_file = (
             settings_file
             or env.working_dir.original_template_path / "webapp/webapp_settings.json"
@@ -48,7 +50,7 @@ class AzureSWASettingsAppService:
             lambda: oauth_request(
                 f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
                 f"providers/Microsoft.Web/staticSites/{webapp_name}/config/appsettings?api-version=2022-03-01",
-                azure_token,
+                self.azure_token,
                 type="PUT",
                 data=details,
             ),

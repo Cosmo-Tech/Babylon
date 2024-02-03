@@ -24,10 +24,8 @@ def get(context: Any, azure_token: str, webapp_name: str) -> CommandResponse:
     Get static webapp app settings for the given static web app
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list-static-site-app-settings
     """
-    api_swa_settings = AzureSWASettingsAppService()
+    api_swa_settings = AzureSWASettingsAppService(azure_token=azure_token, state=context)
     response = api_swa_settings.update(
         webapp_name=webapp_name,
-        context=context,
-        azure_token=azure_token,
     )
     return CommandResponse.success(response, verbose=True)
