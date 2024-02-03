@@ -1,9 +1,9 @@
 import logging
-import jmespath
 
 from typing import Optional
 from azure.storage.blob import BlobServiceClient
 from click import command, option
+from Babylon.commands.azure.storage.container.service.api import AzureStorageContainerService
 from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.clients import pass_blob_client
 from Babylon.utils.response import CommandResponse
@@ -20,19 +20,6 @@ def get_all(blob_client: BlobServiceClient, filter: Optional[str] = None) -> Com
     """
     Get all blob storage containers
     """
-    logger.info(f"Listing containers from storage account {blob_client.account_name}")
-    try:
-        containers = blob_client.list_containers()
-    except Exception as e:
-        logger.error(e.message)
-        return CommandResponse.fail()
-    output_data = [{
-        "name": container.name,
-        "lease": container.lease,
-        "etag": container.etag,
-        "deleted": container.deleted,
-        "public_access": container.public_access
-    } for container in containers]
-    if filter:
-        output_data = jmespath.search(filter, output_data)
-    return CommandResponse.success(output_data, verbose=True)
+    api_storage = AzureStorageContainerService(blob_client=blob_client)
+    response = api_storage.get_all()
+    return CommandResponse.success(response, verbose=True)
