@@ -8,8 +8,8 @@ env = Environment()
 
 class AzureTokenService:
 
-    def __init__(self, context: dict = None) -> None:
-        self.context = context
+    def __init__(self, state: dict = None) -> None:
+        self.state = state
 
     def get(self, email: str, scope: str):
         email = email or env.configuration.get_var(
@@ -21,8 +21,8 @@ class AzureTokenService:
         return access_token
 
     def store(self, email: str, scope: str):
-        home_account_id = self.context["azure_user_principal_id"]
-        cli_client_id = self.context["azure_cli_client_id"]
+        home_account_id = self.state["azure"]["user_principal_id"]
+        cli_client_id = self.state["azure"]["cli_client_id"]
         email = email or env.configuration.get_var(
             resource_id="azure", var_name="email"
         )
