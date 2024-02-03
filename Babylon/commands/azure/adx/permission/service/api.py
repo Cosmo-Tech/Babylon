@@ -13,26 +13,25 @@ logger = logging.getLogger("Babylon")
 
 class AdxPermissionService:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, kusto_client: KustoManagementClient, state: dict = None) -> None:
+        self.state = state
+        self.kusto_client = kusto_client
 
     def set(
         self,
-        context: dict,
         principal_id: str,
         principal_type: str,
         role: str,
-        kusto_client: KustoManagementClient,
     ):
-        resource_group_name = context["azure_resource_group_name"]
-        adx_cluster_name = context["adx_cluster_name"]
-        database_name = context["adx_database_name"]
+        resource_group_name = self.state["azure_resource_group_name"]
+        adx_cluster_name = self.state["adx_cluster_name"]
+        database_name = self.state["adx_database_name"]
         parameters = DatabasePrincipalAssignment(
             principal_id=principal_id, principal_type=principal_type, role=role
         )
         principal_assignment_name = str(uuid4())
         logger.info("Creating assignment...")
-        poller = kusto_client.database_principal_assignments.begin_create_or_update(
+        poller = self.kusto_client.database_principal_assignments.begin_create_or_update(
             resource_group_name,
             adx_cluster_name,
             database_name,
@@ -44,15 +43,13 @@ class AdxPermissionService:
 
     def delete(
         self,
-        context: dict,
-        kusto_client: KustoManagementClient,
         principal_id: str,
         force_validation: bool,
     ):
-        resource_group_name = context["azure_resource_group_name"]
-        adx_cluster_name = context["adx_cluster_name"]
-        database_name = context["adx_database_name"]
-        assignments = kusto_client.database_principal_assignments.list(
+        resource_group_name = self.state["azure_resource_group_name"]
+        adx_cluster_name = self.state["adx_cluster_name"]
+        database_name = self.state["adx_database_name"]
+        assignments = self.kusto_client.database_principal_assignments.list(
             resource_group_name, adx_cluster_name, database_name
         )
         entity_assignments = [
@@ -75,20 +72,18 @@ class AdxPermissionService:
                 f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}"
             )
             assign_name: str = str(assign.name).split("/")[-1]
-            kusto_client.database_principal_assignments.begin_delete(
+            self.kusto_client.database_principal_assignments.begin_delete(
                 resource_group_name,
                 adx_cluster_name,
                 database_name,
                 principal_assignment_name=assign_name,
             )
 
-    def get(
-        self, context: dict, principal_id: str, kusto_client: KustoManagementClient
-    ):
-        resource_group_name = context["azure_resource_group_name"]
-        adx_cluster_name = context["adx_cluster_name"]
-        database_name = context["adx_database_name"]
-        assignments = kusto_client.database_principal_assignments.list(
+    def get(self, principal_id: str):
+        resource_group_name = self.state["azure_resource_group_name"]
+        adx_cluster_name = self.state["adx_cluster_name"]
+        database_name = self.state["adx_database_name"]
+        assignments = self.kusto_client.database_principal_assignments.list(
             resource_group_name, adx_cluster_name, database_name
         )
         entity_assignments = [
@@ -106,12 +101,12 @@ class AdxPermissionService:
             logger.info(f"{pformat(ent.__dict__)}")
         return entity_assignments
 
-    def get_all(self, context: dict, kusto_client: KustoManagementClient):
+    def get_all(self):
         logger.info("Getting assignments...")
-        resource_group_name = context["azure_resource_group_name"]
-        adx_cluster_name = context["adx_cluster_name"]
-        database_name = context["adx_database_name"]
-        assignments = kusto_client.database_principal_assignments.list(
+        resource_group_name = self.state["azure_resource_group_name"]
+        adx_cluster_name = self.state["adx_cluster_name"]
+        database_name = self.state["adx_database_name"]
+        assignments = self.kusto_client.database_principal_assignments.list(
             resource_group_name, adx_cluster_name, database_name
         )
         for ent in assignments:
