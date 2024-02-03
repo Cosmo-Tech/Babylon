@@ -13,8 +13,6 @@ logger = logging.getLogger("Babylon")
 
 
 class AzureDirectoyAppService:
-    def __init__(self) -> None:
-        pass
 
     def create(self, name: str, azure_token: str, registration_file: Path = None):
         check_ascii(name)
