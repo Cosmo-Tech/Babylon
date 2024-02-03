@@ -39,9 +39,8 @@ def create(
     Register a password or secret to an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-addpassword
     """
-    apiPass = AzureDirectoyPasswordService()
+    apiPass = AzureDirectoyPasswordService(state=context)
     response = apiPass.create(
-        context=context,
         object_id=object_id,
         password_name=password_name,
         azure_token=azure_token,
