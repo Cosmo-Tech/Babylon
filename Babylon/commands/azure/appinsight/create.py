@@ -34,6 +34,6 @@ def create(
     Create a app insight resource in the given resource group
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/create-or-update
     """
-    apiAppInsight = AzureAppInsightService()
-    output_data = apiAppInsight.create(name=name, context=context, file=file, azure_token=azure_token)
+    apiAppInsight = AzureAppInsightService(azure_token=azure_token, state=context)
+    output_data = apiAppInsight.create(name=name, file=file)
     return CommandResponse.success(output_data, verbose=True)
