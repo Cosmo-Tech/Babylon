@@ -6,6 +6,7 @@ from typing import Optional
 from click import command
 from click import option
 from click import Path
+from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file, wrapcontext
@@ -25,7 +26,6 @@ def export_config(config_file: Optional[pathlib.Path] = None) -> CommandResponse
     """
     Export webapp configuration in a json file
     """
-    config_file = config_file or env.working_dir.original_template_path / "webapp/webapp_config.json"
-    config_data = env.fill_template(config_file)
-    logger.info("Successfully exported")
-    return CommandResponse.success(json.loads(config_data))
+    api_web_app = AzureWebAppService()
+    response = api_web_app.expor_config(config_file=config_file)
+    return CommandResponse.success(json.loads(response))
