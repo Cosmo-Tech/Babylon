@@ -7,6 +7,7 @@ import yaml
 import logging
 import requests
 
+from pathlib import Path
 from hvac import Client
 from pathlib import Path
 from mako.template import Template
