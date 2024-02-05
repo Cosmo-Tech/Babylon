@@ -4,10 +4,10 @@ from typing import Any
 from click import command
 from click import argument
 from click import option
+from Babylon.commands.powerbi.dataset.service.api import AzurePowerBIDatasetService
 
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.request import oauth_request
 from Babylon.utils.typing import QueryType
 from Babylon.utils.credentials import pass_powerbi_token
 
@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @argument("dataset_id", type=QueryType())
-@inject_context_with_resource({"powerbi": ['workspace']})
+@inject_context_with_resource({"powerbi": ["workspace"]})
 def take_over(
     context: Any,
     powerbi_token: str,
@@ -29,10 +29,6 @@ def take_over(
     """
     Take ownership of a powerbi dataset in the current workspace
     """
-    workspace_id = workspace_id or context['powerbi_workspace']['id']
-    url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/Default.TakeOver"
-    response = oauth_request(url, powerbi_token, type="POST")
-    if response is None:
-        return CommandResponse.fail()
-    logger.info(f"Successfully took ownership of dataset {dataset_id}")
+    api_powerbi = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
+    api_powerbi.take_over(workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse.success()
