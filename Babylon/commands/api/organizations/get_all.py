@@ -1,11 +1,10 @@
 import jmespath
 
 from logging import getLogger
-from typing import Any, Optional
+from typing import Any
 from click import command
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource
-from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import retrieve_state, timing_decorator
 from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
@@ -23,15 +22,18 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--filter", "filter", help="Filter response with a jmespath query")
-@inject_context_with_resource({"api": ['url']})
-def get_all(context: Any, azure_token: str, filter: Optional[str] = None) -> CommandResponse:
+@retrieve_state
+def get_all(state: Any, azure_token: str, filter: str) -> CommandResponse:
     """
     Get all organization details
     """
-    response = oauth_request(f"{context['api_url']}/organizations", azure_token)
+    api_url = state["state"]["api"].get('url')
+    response = oauth_request(f"{api_url}/organizations", azure_token)
     if response is None:
         return CommandResponse.fail()
     organizations = response.json()
     if len(organizations) and filter:
         organizations = jmespath.search(filter, organizations)
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
     return CommandResponse.success(organizations, verbose=True)
