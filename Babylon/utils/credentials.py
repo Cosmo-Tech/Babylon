@@ -26,7 +26,7 @@ def get_powerbi_token(email: str = None) -> str:
     env.AZURE_SCOPES.update({"powerbi": env.configuration.get_var(resource_id="powerbi", var_name="scope")})
     logger.debug(f"Getting azure token with scope {env.AZURE_SCOPES['powerbi']}")
     try:
-        token = credentials.get_token(env.AZURE_SCOPES['powerbi'])
+        token = credentials.get_token(env.AZURE_SCOPES["powerbi"])
     except ClientAuthenticationError:
         logger.error(f"Could not get token with scope {env.AZURE_SCOPES['powerbi']}")
         sys.exit(1)
@@ -36,7 +36,9 @@ def get_powerbi_token(email: str = None) -> str:
 def get_azure_token(scope: str = "default") -> str:
     """Returns an azure token"""
     credentials = get_azure_credentials()
-    env.AZURE_SCOPES.update({"csm_api": env.configuration.get_var(resource_id="api", var_name="scope")})
+    config = env.get_state_from_vault_by_platform(env.environ_id)
+    api = config["api"]
+    env.AZURE_SCOPES.update({"csm_api": api["scope"]})
     scope_url = env.AZURE_SCOPES[scope.lower()]
     logger.debug(f"Getting azure token with scope {scope_url}")
     try:
@@ -52,13 +54,17 @@ def get_azure_credentials(baby_client_id: str = "",
                           environ_id: str = "") -> ClientSecretCredential:
     """Logs to Azure and saves the token as a config variable"""
     credential = None
-    babylon_client_id = baby_client_id or env.configuration.get_var(
-        resource_id="babylon", var_name="client_id", context_id=context_id, environ_id=environ_id)
+    config = env.get_state_from_vault_by_platform(env.environ_id)
+    babylon_client_id = config["babylon"]["client_id"]
+    # babylon_client_id = baby_client_id or env.configuration.get_var(
+    # resource_id="babylon", var_name="client_id", context_id=context_id, environ_id=environ_id)
     try:
         baby_client_secret = env.get_env_babylon(name="client", environ_id=environ_id)
-        credential = ClientSecretCredential(client_id=babylon_client_id,
-                                            tenant_id=env.tenant_id,
-                                            client_secret=baby_client_secret)
+        credential = ClientSecretCredential(
+            client_id=babylon_client_id,
+            tenant_id=env.tenant_id,
+            client_secret=baby_client_secret,
+        )
         if credential is None:
             raise AttributeError
     except (CredentialUnavailableError, AttributeError) as exp:

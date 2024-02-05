@@ -1,19 +1,21 @@
+import uuid
+import yaml
 import os
 import json
 import logging
-import pathlib
 import re
 import sys
 import jmespath
 import requests
 
+from pathlib import Path
 from hvac import Client
 from collections import defaultdict
 from typing import Any
 from typing import List
 from typing import Optional
 from mako.template import Template
-
+from Babylon.services.blob import blob_client
 from Babylon.utils.yaml_utils import yaml_to_json
 from .configuration import Configuration
 from .working_dir import WorkingDir
@@ -52,7 +54,7 @@ class Environment(metaclass=SingletonMeta):
 
     def __init__(self):
         self.hvac_client = None
-        self.pwd = pathlib.Path.cwd()
+        self.pwd = Path.cwd()
         workingdir_path = self.pwd
         config_path = self.pwd / "config"
         self.context_id: str = ""
@@ -69,7 +71,7 @@ class Environment(metaclass=SingletonMeta):
             "graph": "https://graph.microsoft.com/.default",
             "default": "https://management.azure.com/.default",
             "powerbi": "https://analysis.windows.net/powerbi/api/.default",
-            "csm_api": ""
+            "csm_api": "",
         }
         self.reset_data_store()
 
@@ -89,10 +91,10 @@ class Environment(metaclass=SingletonMeta):
         if not all(checkers):
             sys.exit(1)
 
-    def set_configuration(self, configuration_path: pathlib.Path):
+    def set_configuration(self, configuration_path: Path):
         self.configuration = Configuration(config_directory=configuration_path)
 
-    def set_working_dir(self, working_dir_path: pathlib.Path):
+    def set_working_dir(self, working_dir_path: Path):
         self.working_dir = WorkingDir(working_dir_path=working_dir_path)
 
     def reset_data_store(self):
@@ -144,10 +146,10 @@ class Environment(metaclass=SingletonMeta):
 
     def get_data_from_key(self, resource_id: str, keys: list) -> Any:
         config_dir = self.configuration.config_dir
-        file_path = config_dir / f"{self.configuration.context_id}.{self.configuration.environ_id}.{resource_id}.yaml"
+        file_path = (config_dir / f"{self.configuration.context_id}.{self.configuration.environ_id}.{resource_id}.yaml")
         _commented_yaml_loader = YAML()
         try:
-            with file_path.open(mode='r') as file:
+            with file_path.open(mode="r") as file:
                 _y = _commented_yaml_loader.load(file) or {}
                 if len(keys) == 1:
                     _value = _y[self.configuration.context_id][keys[-1]]
@@ -181,8 +183,8 @@ class Environment(metaclass=SingletonMeta):
             logger.debug(f"    Detected parameter type '{_type}' with query '{query}'")
             _value = jmespath.search(key_name, self.data_store)
         else:
-            self.set_context(params['context'])
-            self.set_environ(params['platform'])
+            self.set_context(params["context"])
+            self.set_environ(params["platform"])
             # self.configuration.set_context(params['context'])
             # self.configuration.set_environ(params['platform'])
             _value = self.configuration.get_var(resource_id=_type, var_name=key_name)
@@ -216,7 +218,7 @@ class Environment(metaclass=SingletonMeta):
             return None
         return match_content.groups()
 
-    def fill_template(self, template_file: pathlib.Path, data: dict[str, Any] = {}) -> str:
+    def fill_template(self, template_file: Path, data: dict[str, Any] = {}) -> str:
         """
         Fills a template with environment data using mako template engine
         https://docs.makotemplates.org/en/latest/syntax.html
@@ -228,10 +230,12 @@ class Environment(metaclass=SingletonMeta):
         context = dict()
         config_dir = self.configuration.config_dir
         for k in config_files:
-            context[k] = get_settings_by_context(config_dir=config_dir,
-                                                 resource=k,
-                                                 context_id=self.context_id,
-                                                 environ_id=self.environ_id)
+            context[k] = get_settings_by_context(
+                config_dir=config_dir,
+                resource=k,
+                context_id=self.context_id,
+                environ_id=self.environ_id,
+            )
         result = template.render(**data, cosmotech=context, datastore=self.data_store)
         if template_file.suffix in [".yaml", ".yml"]:
             result = yaml_to_json(result)
@@ -248,24 +252,24 @@ class Environment(metaclass=SingletonMeta):
         self.configuration.set_environ(environ_id)
 
     def set_org_name(self):
-        org_name = os.environ.get('BABYLON_ORG_NAME')
+        org_name = os.environ.get("BABYLON_ORG_NAME")
         self.organization_name = org_name
         self.tenant_id = self.get_organization_secret(org_name, "tenant")
 
     def set_server_id(self):
-        self.server_id = os.environ.get('BABYLON_SERVICE')
+        self.server_id = os.environ.get("BABYLON_SERVICE")
         try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get('BABYLON_TOKEN'))
+            client = Client(url=f"{self.server_id}", token=os.environ.get("BABYLON_TOKEN"))
             self.hvac_client = client
         except Exception as e:
             logger.error(e)
 
     def get_organization_secret(self, organization_name: str, name: str):
-        data = self.hvac_client.read(path=f'organization/{organization_name}')
+        data = self.hvac_client.read(path=f"organization/{organization_name}")
         if data is None:
             logger.error(f"Message: organization {self.organization_name} not found")
             sys.exit(1)
-        result = data['data'][name]
+        result = data["data"][name]
         return result
 
     def get_env_babylon(self, name: str, environ_id: str = ""):
@@ -273,37 +277,40 @@ class Environment(metaclass=SingletonMeta):
         data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}")
         if data is None:
             return None
-        return data['data']['secret']
+        return data["data"]["secret"]
 
     def get_global_secret(self, resource: str, name: str):
         data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
         if data is None:
             return None
-        return data['data']['secret']
+        return data["data"]["secret"]
 
     def get_users_secrets(self, email: str, scope: str):
         data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}")
         if data:
-            return data['data']
+            return data["data"]
         return None
 
     def set_users_secrets(self, email: str, scope: str, cached: dict):
-        self.hvac_client.write(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}", **cached)
+        self.hvac_client.write(
+            path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}",
+            **cached,
+        )
 
     def get_platform_secret(self, platform: str, resource: str, name: str):
         data = self.hvac_client.read(
             path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
         if data is None:
             return None
-        return data['data']['secret']
+        return data["data"]["secret"]
 
     def get_project_secret(self, organization_id: str, workspace_key: str, name: str):
-        prefix = f'{self.organization_name}/{self.tenant_id}/projects/{self.context_id}'
-        schema = f'{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}'.lower()
+        prefix = f"{self.organization_name}/{self.tenant_id}/projects/{self.context_id}"
+        schema = f"{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}".lower()
         data = self.hvac_client.read(path=schema)
         if data is None:
             return None
-        return data['data']['secret']
+        return data["data"]["secret"]
 
     def get_access_token_with_refresh_token(self, username: str = None, internal_scope: str = None):
         email = username or self.configuration.get_var(resource_id="azure", var_name="email")
@@ -311,35 +318,92 @@ class Environment(metaclass=SingletonMeta):
         data = self.get_users_secrets(email, internal_scope)
         if data is None:
             return None
-        encrypted_refresh_token = data['token']
+        encrypted_refresh_token = data["token"]
         encoding_key = os.environ.get("BABYLON_ENCODING_KEY")
         if encoding_key is None:
             logger.info("BABYLON_ENCODING_KEY is missing")
             sys.exit(1)
         decryoted_token = self.working_dir.decrypt_content(encoding_key, encrypted_refresh_token)
-        response = requests.post(url=f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token",
-                                 data=dict(client_id=cli_client_id,
-                                           scope=f"{self.AZURE_SCOPES[internal_scope]} offline_access",
-                                           grant_type="refresh_token",
-                                           refresh_token=decryoted_token.decode("utf-8")))
+        response = requests.post(
+            url=f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token",
+            data=dict(
+                client_id=cli_client_id,
+                scope=f"{self.AZURE_SCOPES[internal_scope]} offline_access",
+                grant_type="refresh_token",
+                refresh_token=decryoted_token.decode("utf-8"),
+            ),
+        )
         response_json = response.json()
         if "refresh_token" not in response_json:
             return None
-        token_encrypt = self.working_dir.encrypt_content(encoding_key=encoding_key,
-                                                         content=bytes(response_json['refresh_token'],
-                                                                       encoding="utf-8"))
+        token_encrypt = self.working_dir.encrypt_content(
+            encoding_key=encoding_key,
+            content=bytes(response_json["refresh_token"], encoding="utf-8"),
+        )
         self.set_users_secrets(email, internal_scope, dict(token=token_encrypt.decode("utf-8")))
-        return response_json['access_token']
+        return response_json["access_token"]
 
-    def pass_config_from(self, platform: str):
+    def get_state_from_vault_by_platform(self, platform: str):
         resources = config_files
-        organization_name = os.environ.get('BABYLON_ORG_NAME', '')
+        organization_name = os.environ.get("BABYLON_ORG_NAME", "")
         tenant_id = self.tenant_id
         response_parsed = dict()
         for r in resources:
-            response = self.hvac_client.read(path=f'{organization_name}/{tenant_id}/babylon/config/{platform}/{r}')
+            response = self.hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}")
             if not response:
-                logger.info(f"{organization_name}/{tenant_id}:babylon/config/babylon/{platform} not found")
+                logger.info(f"{organization_name}/{tenant_id}/babylon/config/babylon/{platform} not found")
                 sys.exit(1)
-            response_parsed.setdefault(r, dict(response['data'].items()))
+            response_parsed.setdefault(r, dict(response["data"].items()))
         return response_parsed
+
+    def store_state_in_local(self, state: dict):
+        state_dir = Path().home() / ".config/cosmotech/babylon"
+        if not state_dir.exists():
+            state_dir.mkdir(parents=True, exist_ok=True)
+        s = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
+        s.write_bytes(data=yaml.dump(state).encode("utf-8"))
+
+    def store_state_in_cloud(self, state: dict):
+        s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
+        account_secret = self.get_platform_secret(platform=self.environ_id, resource="storage", name="account")
+        state_blob = blob_client(config=state,
+                                 account_secret=account_secret).get_blob_client(container="babylon-states", blob=s)
+        if state_blob.exists():
+            state_blob.delete_blob()
+        state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
+
+    def get_state_from_local(self):
+        state_dir = Path().home() / ".config/cosmotech/babylon"
+        state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
+        if not state_file.exists():
+            return None
+        state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
+        return state_data
+
+    def get_state_from_cloud(self, state: dict) -> dict:
+        if not state.get("id"):
+            return state
+        s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
+        account_secret = self.get_platform_secret(platform=self.environ_id, resource="storage", name="account")
+        state_blob = blob_client(config=state,
+                                 account_secret=account_secret).get_blob_client(container="babylon-states", blob=s)
+        if not state_blob.exists():
+            return state
+        if state_blob.exists():
+            data = yaml.load(state_blob.download_blob().readall(), Loader=yaml.SafeLoader)
+        return data
+
+    def get_state_id(self):
+        state_local = self.get_state_from_local()
+        if not state_local:
+            state_local = dict()
+        if not state_local.get("id"):
+            state_local.setdefault("id", str(uuid.uuid4()))
+            self.store_state_in_local(state_local)
+            return state_local.get("id")
+        state_cloud = self.get_state_from_cloud(state_local)
+        if not state_cloud:
+            state_cloud = dict()
+        if not state_cloud.get("id"):
+            state_cloud.setdefault("id", state_local.get("id"))
+        return state_cloud.get("id")

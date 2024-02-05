@@ -173,7 +173,7 @@ def get_file_config_from_keys(hvac_client: Client, context_id: str, config_file:
     organization_name = os.environ.get('BABYLON_ORG_NAME', '')
     response = hvac_client.read(path=f'{organization_name}/{tenant_id}/babylon/config/{resource}/{key_name}')
     if not response:
-        logger.info(f"{organization_name}/{tenant_id}:babylon/config/{resource}/{key_name} not found")
+        logger.info(f"{organization_name}/{tenant_id}/babylon/config/{resource}/{key_name} not found")
         sys.exit(1)
     response_parsed = dict()
     for key, value in response['data'].items():
