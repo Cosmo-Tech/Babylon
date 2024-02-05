@@ -1,13 +1,11 @@
-import json
-
 from click import command
 
 from Babylon.commands.api.scenarios.service.api import ScenarioService
-from Babylon.utils.credentials import get_azure_token
+from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.response import CommandResponse
 
-payload = json.dumps({
+payload = {
     "name": "Creating scenario with Babylon",
     "description": "Brewery master reference analysis",
     "tags": ["Brewery", "reference"],
@@ -19,29 +17,32 @@ payload = json.dumps({
             "role": "admin"
         }],
     },
-})
+}
 
 
 @command()
 @wrapcontext()
+@pass_azure_token("csm_api")
 @timing_decorator
-def create() -> CommandResponse:
+def create(azure_token: str) -> CommandResponse:
     """
     Create new scenario
     """
 
-    token = get_azure_token("csm_api")
-
     state = {
-        "api_url": "https://dev.api.cosmotech.com",
-        "organizationId": "o-3z188zr63xk",
-        "workspaceId": "w-k91e49pgyw6",
-        "azure_token": token,
+        "state": {
+            "api": {
+                "url": "https://dev.api.cosmotech.com",
+                "organization_id": "o-3z188zr63xk",
+                "workspace_id": "w-k91e49pgyw6",
+            }
+        },
     }
     spec = payload
 
-    service = ScenarioService(state=state, spec=spec)
-    response = service.create()
-    if response is None:
+    scenario_service = ScenarioService(state=state, azure_token=azure_token, spec=spec)
+    scenario_service_response = scenario_service.create()
+    if scenario_service_response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(response.json(), verbose=True)
+    response = scenario_service_response.json()
+    return CommandResponse.success(response, verbose=True)
