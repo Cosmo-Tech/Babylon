@@ -1,13 +1,16 @@
 import json
 from logging import getLogger
 
+import yaml
+from Babylon.utils.typing import QueryType
+
+from Babylon.utils.credentials import get_azure_token
 from click import command, option
+from pathlib import Path
 
 from Babylon.commands.api.scenarioruns.service.api import ScenarioRunService
-from Babylon.utils.credentials import get_azure_token
 from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
 
 logger = getLogger("Babylon")
 payload = json.dumps({
@@ -21,9 +24,9 @@ payload = json.dumps({
 @timing_decorator
 @option("--org-id", "organization_id", type=QueryType())
 @option("--scenariorun-id", "scenariorun_id", type=QueryType())
-def stop(organization_id: str, scenariorun_id: str) -> CommandResponse:
+def cumulated_logs(organization_id: str, scenariorun_id: str) -> CommandResponse:
     """
-    Stop the scenarioRun
+    Get the cumulated logs for the scenarioRun
     """
     token = get_azure_token("csm_api")
 
@@ -32,13 +35,12 @@ def stop(organization_id: str, scenariorun_id: str) -> CommandResponse:
         "organization_id": "o-3z188zr63xk",
         "scenariorun_id": ""
     }
-
     state['state']['api']['organization_id'] = organization_id or state['state']['api']['organization_id']
     state['state']['api']['scenariorun_id'] = scenariorun_id or state['state']['api']['scenariorun_id']
 
-    logger.info(f"stopping scenariorun: {state['state']['api']['scenariorun_id']}")
+    logger.info(f"Getting cumulated logs for scenariorun: {state['state']['api']['scenariorun_id']}")
     service = ScenarioRunService(state=state, azure_token=token)
-    response = service.stop()
+    response = service.cumulated_logs()
 
     if response is None:
         return CommandResponse.fail()
