@@ -1,6 +1,6 @@
 from click import group
 
-from Babylon.commands.abba.scenarioruns import scenarioruns
+from Babylon.commands.api.scenarioruns import scenarioruns
 
 
 @group()
