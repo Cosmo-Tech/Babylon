@@ -4,54 +4,83 @@ from Babylon.utils.request import oauth_request
 
 class ScenarioService:
 
-    def __init__(self, state: dict, spec: Optional = None):
+    def __init__(self, state: dict, azure_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
+        self.azure_token = azure_token
 
     def get_all(self):
-        return oauth_request(
-            f"{self.state['api_url']}/organizations/{self.state['organizationId']}/workspaces/"
-            f"{self.state['workspaceId']}/scenarios",
-            self.state["azure_token"],
+        url = self.state["state"]["api"]["url"]
+        organization_id = self.state["state"]["api"]["organization_id"]
+        workspace_id = self.state["state"]["api"]["workspace_id"]
+        response = oauth_request(
+            f"{url}/organizations/{organization_id}/workspaces/"
+            f"{workspace_id}/scenarios",
+            self.azure_token,
         )
+        return response
 
     def get(self):
-        return oauth_request(
-            f"{self.state['api_url']}/organizations/{self.state['organizationId']}/workspaces/"
-            f"{self.state['workspaceId']}/scenarios/{self.state['scenario_id']}",
-            self.state["azure_token"],
+        url = self.state["state"]["api"]["url"]
+        organization_id = self.state["state"]["api"]["organization_id"]
+        workspace_id = self.state["state"]["api"]["workspace_id"]
+        scenario_id = self.state["state"]["api"]["scenario_id"]
+        response = oauth_request(
+            f"{url}/organizations/{organization_id}/workspaces/"
+            f"{workspace_id}/scenarios/{scenario_id}",
+            self.azure_token,
         )
+        return response
 
     def update(self):
-        return oauth_request(
-            f"{self.state['api_url']}/organizations/{self.state['organizationId']}/workspaces/"
-            f"{self.state['workspaceId']}/scenarios/{self.state['scenario_id']}",
-            self.state["azure_token"],
+        url = self.state["state"]["api"]["url"]
+        organization_id = self.state["state"]["api"]["organization_id"]
+        workspace_id = self.state["state"]["api"]["workspace_id"]
+        scenario_id = self.state["state"]["api"]["scenario_id"]
+        response = oauth_request(
+            f"{url}/organizations/{organization_id}/workspaces/"
+            f"{workspace_id}/scenarios/{scenario_id}",
+            self.azure_token,
             type="PATCH",
             data=self.spec,
         )
+        return response
 
     def create(self):
-        return oauth_request(
-            f"{self.state['api_url']}/organizations/{self.state['organizationId']}/workspaces/"
-            f"{self.state['workspaceId']}/scenarios",
-            self.state["azure_token"],
+        url = self.state["state"]["api"]["url"]
+        organization_id = self.state["state"]["api"]["organization_id"]
+        workspace_id = self.state["state"]["api"]["workspace_id"]
+        response = oauth_request(
+            f"{url}/organizations/{organization_id}/workspaces/"
+            f"{workspace_id}/scenarios",
+            self.azure_token,
             type="POST",
             data=self.spec,
         )
+        return response
 
     def delete(self):
-        return oauth_request(
-            f"{self.state['api_url']}/organizations/{self.state['organizationId']}/workspaces/"
-            f"{self.state['workspaceId']}/scenarios/{self.state['scenario_id']}",
-            self.state["azure_token"],
+        url = self.state["state"]["api"]["url"]
+        organization_id = self.state["state"]["api"]["organization_id"]
+        workspace_id = self.state["state"]["api"]["workspace_id"]
+        scenario_id = self.state["state"]["api"]["scenario_id"]
+        response = oauth_request(
+            f"{url}/organizations/{organization_id}/workspaces/"
+            f"{workspace_id}/scenarios/{scenario_id}",
+            self.azure_token,
             type="DELETE",
         )
+        return response
 
     def run(self):
-        return oauth_request(
-            f"{self.state['api_url']}/organizations/{self.state['organizationId']}/workspaces/"
-            f"{self.state['workspaceId']}/scenarios/{self.state['scenario_id']}/run",
-            self.state["azure_token"],
+        url = self.state["state"]["api"]["url"]
+        organization_id = self.state["state"]["api"]["organization_id"]
+        workspace_id = self.state["state"]["api"]["workspace_id"]
+        scenario_id = self.state["state"]["api"]["scenario_id"]
+        response = oauth_request(
+            f"{url}/organizations/{organization_id}/workspaces/"
+            f"{workspace_id}/scenarios/{scenario_id}/run",
+            self.azure_token,
             type="POST",
         )
+        return response

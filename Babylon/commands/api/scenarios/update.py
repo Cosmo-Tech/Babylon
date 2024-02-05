@@ -1,13 +1,13 @@
-import json
+from logging import getLogger
 
 from click import command, argument
 
 from Babylon.commands.api.scenarios.service.api import ScenarioService
-from Babylon.utils.credentials import get_azure_token
+from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.response import CommandResponse
 
-payload = json.dumps({
+payload = {
     "parametersValues": [
         {
             "parameterId": "stock",
@@ -25,29 +25,37 @@ payload = json.dumps({
             "varType": "int"
         },
     ]
-})
+}
+logger = getLogger("Babylon")
 
 
 @command()
 @wrapcontext()
+@pass_azure_token("csm_api")
 @timing_decorator
 @argument("scenario_id", required=False)
-def update(scenario_id: str) -> CommandResponse:
+def update(scenario_id: str, azure_token: str) -> CommandResponse:
     """
     Update a scenario
     """
-    token = get_azure_token("csm_api")
-    scenario_id = scenario_id or "s-43gl934nn2"
+    if not scenario_id:
+        logger.error("Scenario id is missing")
+        return CommandResponse.fail()
+
     state = {
-        "api_url": "https://dev.api.cosmotech.com",
-        "organizationId": "o-3z188zr63xk",
-        "workspaceId": "w-k91e49pgyw6",
-        "scenario_id": scenario_id,
-        "azure_token": token,
+        "state": {
+            "api": {
+                "url": "https://dev.api.cosmotech.com",
+                "organization_id": "o-3z188zr63xk",
+                "workspace_id": "w-k91e49pgyw6",
+                "scenario_id": scenario_id
+            }
+        },
     }
     spec = payload
-    service = ScenarioService(state, spec)
-    response = service.update()
-    if response is None:
+    scenario_service = ScenarioService(state=state, spec=spec, azure_token=azure_token)
+    scenario_service_response = scenario_service.update()
+    if scenario_service_response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(response.json(), verbose=True)
+    response = scenario_service_response.json()
+    return CommandResponse.success(response, verbose=True)
