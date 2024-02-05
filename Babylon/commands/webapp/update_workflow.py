@@ -5,6 +5,7 @@ from click import command
 from click import argument
 from click import Path
 from ruamel.yaml import YAML
+from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.response import CommandResponse
 
@@ -40,14 +41,6 @@ def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
     """
     Update a github workflow file to read environment from a config.json file during deployment
     """
-    if not workflow_file.is_dir():
-        try:
-            update_file(workflow_file)
-        except Exception:
-            return CommandResponse.fail()
-    for file in workflow_file.glob("azure-static-web-apps-*.yml"):
-        try:
-            update_file(file)
-        except Exception:
-            return CommandResponse.fail()
+    api_web_app = AzureWebAppService()
+    api_web_app.update_workflow(workflow_file=workflow_file)
     return CommandResponse.success()
