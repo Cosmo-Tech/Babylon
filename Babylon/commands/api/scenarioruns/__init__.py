@@ -8,7 +8,7 @@ from Babylon.commands.api.scenarioruns.stop import stop
 
 @group()
 def scenarioruns():
-    """Scenarioruns - Cosmotech ABBA"""
+    """Scenarioruns - Cosmotech API"""
     pass
 
 
