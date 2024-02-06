@@ -39,7 +39,7 @@ class AzurePowerBIWorkspaceUserService:
             return CommandResponse.fail()
         logger.info("Successfully removed")
 
-    def get_all(self, workspace_id: str):
+    def get_all(self, workspace_id: str, filter: bool):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users'
         response = oauth_request(url_users, self.powerbi_token)
@@ -51,7 +51,7 @@ class AzurePowerBIWorkspaceUserService:
         return output_data
 
     def update(self, workspace_id: str, right: str, type: str, email: str):
-        workspace_id = workspace_id or self.state["powerbi_workspace"]["id"]
+        workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url_users = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users'
         body = {
             "identifier": email,

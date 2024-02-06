@@ -1,6 +1,6 @@
 import logging
 
-from typing import Optional
+from typing import Any, Optional
 from click import Choice, argument, command, option
 from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
 from Babylon.utils.response import CommandResponse
@@ -52,6 +52,7 @@ env = Environment()
     }
 )
 def create(
+    context: Any,
     kusto_client: KustoManagementClient,
     connection_name: str,
     data_format: str,
@@ -64,7 +65,7 @@ def create(
     """
     Create new connection in ADX database
     """
-    apiAdxConn = AdxConnectionService(kusto_client=kusto_client)
+    apiAdxConn = AdxConnectionService(kusto_client=kusto_client, state=context)
     apiAdxConn.create(
         compression_value=compression_value,
         connection_name=connection_name,

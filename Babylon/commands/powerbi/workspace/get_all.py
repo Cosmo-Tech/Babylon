@@ -21,5 +21,5 @@ def get_all(powerbi_token: str, filter: Optional[str] = None) -> CommandResponse
     Get all workspace information for the given account
     """
     api_powerbi_wrokspace = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token)
-    response = api_powerbi_wrokspace.get_all()
+    response = api_powerbi_wrokspace.get_all(filter=filter)
     return CommandResponse.success(response, verbose=True)

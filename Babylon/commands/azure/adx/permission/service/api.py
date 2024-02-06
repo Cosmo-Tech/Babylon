@@ -23,9 +23,9 @@ class AdxPermissionService:
         principal_type: str,
         role: str,
     ):
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
-        database_name = self.state["adx_database_name"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"]
         parameters = DatabasePrincipalAssignment(
             principal_id=principal_id, principal_type=principal_type, role=role
         )
@@ -46,9 +46,9 @@ class AdxPermissionService:
         principal_id: str,
         force_validation: bool,
     ):
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
-        database_name = self.state["adx_database_name"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"]
         assignments = self.kusto_client.database_principal_assignments.list(
             resource_group_name, adx_cluster_name, database_name
         )
@@ -80,9 +80,9 @@ class AdxPermissionService:
             )
 
     def get(self, principal_id: str):
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
-        database_name = self.state["adx_database_name"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"]
         assignments = self.kusto_client.database_principal_assignments.list(
             resource_group_name, adx_cluster_name, database_name
         )
@@ -103,9 +103,9 @@ class AdxPermissionService:
 
     def get_all(self):
         logger.info("Getting assignments...")
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
-        database_name = self.state["adx_database_name"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"]
         assignments = self.kusto_client.database_principal_assignments.list(
             resource_group_name, adx_cluster_name, database_name
         )

@@ -17,9 +17,6 @@ class AzureWebAppService:
     def __init__(self, state: dict = None) -> None:
         self.state = state
 
-    def deploy(self):
-        pass
-
     def download(self, destination_folder: Path):
         repo_org = self.state["github"]["organization"]
         repo_name = self.state["github"]["repository"]

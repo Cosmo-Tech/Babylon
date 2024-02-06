@@ -29,5 +29,5 @@ def pull(context: Any, image: Optional[str] = None) -> CommandResponse:
     state['acr']['simulator_repository'] = context['acr_simulator_repository']
     state['acr']['simulator_version'] = context['acr_simulator_version']
     acrApi = AzureContainerRegistryService(state=state)
-    acrApi.pull(state, image_tag=image)
+    acrApi.pull(image_tag=image)
     return CommandResponse.success()

@@ -25,7 +25,7 @@ class AzurePowerBIDatasetService:
             return CommandResponse.fail()
         return response
 
-    def get_all(self, workspace_id: str):
+    def get_all(self, workspace_id: str, filter: bool):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
         response = oauth_request(url, self.powerbi_token)

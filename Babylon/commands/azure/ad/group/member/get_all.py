@@ -21,6 +21,6 @@ def get_all(azure_token: str, group_id: str) -> CommandResponse:
     Get members of a group in active directory
     https://learn.microsoft.com/en-us/graph/api/group-post-members
     """
-    apiMember = AzureDirectoyMemberService()
-    response = apiMember.get_all(group_id=group_id, azure_token=azure_token)
+    apiMember = AzureDirectoyMemberService(azure_token=azure_token)
+    response = apiMember.get_all(group_id=group_id)
     return CommandResponse.success(response, verbose=True)

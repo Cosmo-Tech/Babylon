@@ -1,7 +1,6 @@
 import logging
 import polling2
 
-from pathlib import Path
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
@@ -31,15 +30,12 @@ class AzureSWASettingsAppService:
         output_data = response.json()
         return output_data
 
-    def update(self, webapp_name: str, settings_file: Path):
+    def update(self, webapp_name: str):
         org_id = self.state["api"]["organization_id"]
         work_key = self.state["api"]["workspace_key"]
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        settings_file = (
-            settings_file
-            or env.working_dir.original_template_path / "webapp/webapp_settings.json"
-        )
+        settings_file = env.working_dir.original_template_path / "webapp/webapp_settings.json"
         secrets_powerbi = env.get_project_secret(
             organization_id=org_id, workspace_key=work_key, name="pbi"
         )

@@ -31,5 +31,5 @@ def get_all(
     api_powerbi_work_user = AzurePowerBIWorkspaceUserService(
         powerbi_token=powerbi_token, state=context
     )
-    response = api_powerbi_work_user.get_all(workspace_id=workspace_id)
+    response = api_powerbi_work_user.get_all(workspace_id=workspace_id, filter=filter)
     return CommandResponse.success(response, verbose=True)

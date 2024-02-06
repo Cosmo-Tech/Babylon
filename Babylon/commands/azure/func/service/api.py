@@ -16,7 +16,9 @@ env = Environment()
 
 class AzureAppFunctionService:
 
-    def __init__(self, arm_client: ResourceManagementClient, state: dict = None) -> None:
+    def __init__(
+        self, arm_client: ResourceManagementClient, state: dict = None
+    ) -> None:
         self.state = state
         self.arm_client = arm_client
 
@@ -25,9 +27,9 @@ class AzureAppFunctionService:
         deployment_name: str,
         deploy_mode_complete: bool,
     ):
-        organization_id = self.state['api']['organization_id']
-        workspace_key = self.state['api']['workspace_key']
-        resource_group_name = self.state['azure']['resource_group_name']
+        organization_id = self.state["api"]["organization_id"]
+        workspace_key = self.state["api"]["workspace_key"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
 
         mode = DeploymentMode.INCREMENTAL
         if deploy_mode_complete:

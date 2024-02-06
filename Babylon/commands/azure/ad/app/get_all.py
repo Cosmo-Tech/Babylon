@@ -21,6 +21,6 @@ def get_all(azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     Get all apps registered in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-list
     """
-    apiApp = AzureDirectoyAppService()
-    output_data = apiApp.get_all(azure_token=azure_token)
+    apiApp = AzureDirectoyAppService(azure_token=azure_token)
+    output_data = apiApp.get_all()
     return CommandResponse.success(output_data, verbose=True)

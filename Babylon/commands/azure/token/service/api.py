@@ -12,9 +12,7 @@ class AzureTokenService:
         self.state = state
 
     def get(self, email: str, scope: str):
-        email = email or env.configuration.get_var(
-            resource_id="azure", var_name="email"
-        )
+        email = email or self.state["azure"]["email"]
         access_token = env.get_access_token_with_refresh_token(
             username=email, internal_scope=scope
         )
@@ -23,9 +21,7 @@ class AzureTokenService:
     def store(self, email: str, scope: str):
         home_account_id = self.state["azure"]["user_principal_id"]
         cli_client_id = self.state["azure"]["cli_client_id"]
-        email = email or env.configuration.get_var(
-            resource_id="azure", var_name="email"
-        )
+        email = email or self.state["azure"]["email"]
         cpo = TokenCachePersistenceOptions(allow_unencrypted_storage=True)
         record = {
             "authority": "login.microsoftonline.com",
@@ -45,16 +41,8 @@ class AzureTokenService:
             redirect_uri="http://localhost:8484",
         )
 
-        env.AZURE_SCOPES.update(
-            {"csm_api": env.configuration.get_var(resource_id="api", var_name="scope")}
-        )
-        env.AZURE_SCOPES.update(
-            {
-                "powerbi": env.configuration.get_var(
-                    resource_id="powerbi", var_name="scope"
-                )
-            }
-        )
+        env.AZURE_SCOPES.update({"csm_api": self.state["api"]["scope"]})
+        env.AZURE_SCOPES.update({"powerbi": self.state["powerbi"]["scope"]})
         token = credential._request_token(f"{env.AZURE_SCOPES[scope]} offline_access")
         env.working_dir.generate_secret_key()
         if "refresh_token" in token:
@@ -62,7 +50,6 @@ class AzureTokenService:
                 env.working_dir.encoding_key,
                 bytes(token["refresh_token"], encoding="utf-8"),
             )
-
             env.set_users_secrets(
                 email, scope, dict(token=token_encrypt.decode("utf-8"))
             )

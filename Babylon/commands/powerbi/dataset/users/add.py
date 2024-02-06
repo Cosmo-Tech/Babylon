@@ -1,14 +1,14 @@
 import logging
 
-from typing import Any, Optional
-from click import argument, command
+from typing import Any
 from click import option
-from Babylon.commands.powerbi.dataset.users.service.api import AzurePowerBUsersIService
-from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from click import argument, command
+from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+from Babylon.utils.credentials import pass_powerbi_token
+from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.commands.powerbi.dataset.users.service.api import AzurePowerBUsersIService
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -27,7 +27,6 @@ def add(
     powerbi_token: str,
     workspace_id: str,
     email: str,
-    filter: Optional[str] = None,
 ) -> CommandResponse:
     """
     Add user to dataset
