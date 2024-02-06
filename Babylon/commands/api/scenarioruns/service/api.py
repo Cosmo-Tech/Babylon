@@ -10,37 +10,33 @@ class ScenarioRunService:
         self.azure_token = azure_token
 
     def logs(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        scenariorun_id = self.state["state"]["api"]["scenariorun_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        scenariorun_id = self.state["api"]["scenariorun_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/logs",
-            self.azure_token)
+            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/logs", self.azure_token)
         return response
 
     def cumulated_logs(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        scenariorun_id = self.state["state"]["api"]["scenariorun_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        scenariorun_id = self.state["api"]["scenariorun_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/cumulatedlogs",
-            self.azure_token)
+            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/cumulatedlogs", self.azure_token)
         return response
 
     def status(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        scenariorun_id = self.state["state"]["api"]["scenariorun_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        scenariorun_id = self.state["api"]["scenariorun_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/status",
-            self.azure_token)
+            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/status", self.azure_token)
         return response
 
     def stop(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        scenariorun_id = self.state["state"]["api"]["scenariorun_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        scenariorun_id = self.state["api"]["scenariorun_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/stop",
-            self.azure_token, "POST")
+            f"{url}/organizations/{organization_id}/scenarioruns/{scenariorun_id}/stop", self.azure_token, "POST")
         return response
