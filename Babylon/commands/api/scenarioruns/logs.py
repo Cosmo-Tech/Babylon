@@ -7,7 +7,6 @@ from Babylon.commands.api.scenarioruns.service.api import ScenarioRunService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
 
 logger = getLogger("Babylon")
 
@@ -16,8 +15,8 @@ logger = getLogger("Babylon")
 @wrapcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
-@option("--org-id", "organization_id", type=QueryType())
-@option("--scenariorun-id", "scenariorun_id", type=QueryType())
+@option("--organization-id", "organization_id", type=str)
+@option("--scenariorun-id", "scenariorun_id", type=str)
 @retrieve_state
 def logs(state: Any, azure_token: str, organization_id: str, scenariorun_id: str) -> CommandResponse:
     """
