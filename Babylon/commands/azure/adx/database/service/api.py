@@ -25,11 +25,11 @@ class AdxDatabaseService:
     ):
         if name:
             check_ascii(name)
-        organization_id = self.state["api_organization_id"]
-        workspace_key = self.state["api_workspace_key"]
-        resource_location = self.state["azure_resource_location"]
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_key = self.state["api"]["workspace_key"]
+        resource_location = self.state["azure"]["resource_location"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
 
         # cache period by default 31 days
         params_database = ReadWriteDatabase(
@@ -123,9 +123,9 @@ class AdxDatabaseService:
         current: bool,
         name: str,
     ):
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
-        database_name = self.state["adx_database_name"] if current else name
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"] if current else name
         try:
             self.kusto_client.databases.get(
                 resource_group_name=resource_group_name,
@@ -152,14 +152,14 @@ class AdxDatabaseService:
         self,
         name: str,
     ):
-        adx_cluster_name = self.state["adx_cluster_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
         if not name:
             logger.error(f"Current value: '{self.state['adx_database_name']}'")
-        adx_database_name = name or self.state["adx_database_name"]
+        adx_database_name = name or self.state["adx"]["database_name"]
         if not adx_database_name:
             logger.error("Database name is missing")
             return CommandResponse.fail()
-        resource_group_name = self.state["azure_resource_group_name"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         try:
             database = self.kusto_client.databases.get(
                 resource_group_name=resource_group_name,

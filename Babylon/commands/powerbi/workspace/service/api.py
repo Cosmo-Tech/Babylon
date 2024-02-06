@@ -1,11 +1,11 @@
 import logging
-
 import jmespath
+
 from Babylon.utils.checkers import check_ascii
-from Babylon.utils.environment import Environment
-from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
+from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
+from Babylon.utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -55,7 +55,7 @@ class AzurePowerBIWorkspaceService:
             return CommandResponse.fail()
         return response
 
-    def get_all(self):
+    def get_all(self, filter: bool):
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:

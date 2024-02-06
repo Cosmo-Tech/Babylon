@@ -5,13 +5,13 @@ from click import Choice
 from click import argument
 from click import command
 from click import option
-from Babylon.commands.powerbi.workspace.user.service.api import (
-    AzurePowerBIWorkspaceUserService,
-)
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.commands.powerbi.workspace.user.service.api import (
+    AzurePowerBIWorkspaceUserService,
+)
 
 logger = logging.getLogger("Babylon")
 

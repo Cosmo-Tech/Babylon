@@ -40,6 +40,6 @@ def add(
     Add a member in a group in active directory
     https://learn.microsoft.com/en-us/graph/api/group-post-members
     """
-    apiMember = AzureDirectoyMemberService()
-    apiMember.add(group_id=group_id, azure_token=azure_token)
+    apiMember = AzureDirectoyMemberService(azure_token=azure_token)
+    apiMember.add(group_id=group_id, principal_id=principal_id)
     return CommandResponse.success()

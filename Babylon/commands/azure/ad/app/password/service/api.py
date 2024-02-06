@@ -11,10 +11,11 @@ env = Environment()
 
 class AzureDirectoyPasswordService:
 
-    def __init__(self, state: dict = None) -> None:
+    def __init__(self, azure_token: str, state: dict = None) -> None:
         self.state = state
+        self.azure_token = azure_token
 
-    def create(self, object_id: str, password_name: str, azure_token: str):
+    def create(self, object_id: str, password_name: str):
         check_alphanum(password_name)
         object_id = object_id or self.state['app_object_id']
         org_id: str = self.state['api_organization_id']
@@ -22,7 +23,7 @@ class AzureDirectoyPasswordService:
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}/addPassword"
         password_name = password_name or f"secret_{work_key}"
         details = {"passwordCredential": {"displayName": password_name}}
-        response = oauth_request(route, azure_token, type="POST", json=details)
+        response = oauth_request(route, self.azure_token, type="POST", json=details)
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()
@@ -33,10 +34,10 @@ class AzureDirectoyPasswordService:
         logger.info("Successfully created")
         return output_data
 
-    def delete(self, key_id: str, object_id: str, azure_token: str):
+    def delete(self, key_id: str, object_id: str):
         logger.info(f"Deleting secret {key_id} of app registration {object_id}")
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}/removePassword"
-        response = oauth_request(route, azure_token, type="POST", json={"keyId": key_id})
+        response = oauth_request(route, self.azure_token, type="POST", json={"keyId": key_id})
         if response is None:
             return CommandResponse.fail()
         logger.info(f"Successfully deleted secret of app registration {object_id}")

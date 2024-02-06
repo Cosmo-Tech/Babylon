@@ -46,12 +46,11 @@ def upload(
     """
     Upload csv files to blob storage container
     """
-    api_storage = AzureStorageContainerService(blob_client=blob_client)
+    api_storage = AzureStorageContainerService(blob_client=blob_client, state=context)
     api_storage.upload(
         org_id=org_id,
         work_id=work_id,
         dataset_id=dataset_id,
-        context=context,
         folder=folder,
     )
     return CommandResponse.success()

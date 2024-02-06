@@ -20,5 +20,5 @@ def list(context: Any, server: Optional[str] = None) -> CommandResponse:
     state['acr'] = dict()
     state['acr']['login_server'] = context['acr_login_server']
     acrApi = AzureContainerRegistryService(state=state)
-    acrApi.list(state)
+    acrApi.list()
     CommandResponse.success()

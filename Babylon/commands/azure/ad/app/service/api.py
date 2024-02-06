@@ -14,7 +14,10 @@ logger = logging.getLogger("Babylon")
 
 class AzureDirectoyAppService:
 
-    def create(self, name: str, azure_token: str, registration_file: Path = None):
+    def __init__(self, azure_token: str) -> None:
+        self.azure_token = azure_token
+
+    def create(self, name: str, registration_file: Path = None):
         check_ascii(name)
         route = "https://graph.microsoft.com/v1.0/applications"
         registration_file = (
@@ -24,7 +27,7 @@ class AzureDirectoyAppService:
         details = env.fill_template(registration_file, data={"app_name": name})
         print(details)
         handler = polling2.poll(
-            lambda: oauth_request(route, azure_token, type="POST", data=details),
+            lambda: oauth_request(route, self.azure_token, type="POST", data=details),
             check_success=is_correct_response_app,
             step=1,
             timeout=60,
@@ -34,7 +37,7 @@ class AzureDirectoyAppService:
         sp_route = "https://graph.microsoft.com/v1.0/servicePrincipals"
         sp_response = polling2.poll(
             lambda: oauth_request(
-                sp_route, azure_token, type="POST", json={"appId": output_data["appId"]}
+                sp_route, self.azure_token, type="POST", json={"appId": output_data["appId"]}
             ),
             check_success=is_correct_response_app,
             step=1,
@@ -49,11 +52,11 @@ class AzureDirectoyAppService:
         # env.configuration.set_var(resource_id=r_id, var_name="principal_id", var_value=sp_response["id"])
         # env.configuration.set_var(resource_id=r_id, var_name="object_id", var_value=output_data["id"])
 
-    def delete(self, object_id: str, azure_token: str):
+    def delete(self, object_id: str):
         logger.info(f"Deleting app registration {object_id}")
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         sp_response = polling2.poll(
-            lambda: oauth_request(route, azure_token, type="DELETE"),
+            lambda: oauth_request(route, self.azure_token, type="DELETE"),
             check_success=is_correct_response_app_deleted,
             step=1,
             timeout=60,
@@ -62,9 +65,9 @@ class AzureDirectoyAppService:
             logger.info("Successfully deleted")
             return CommandResponse.success()
 
-    def get_all(self, azure_token: str):
+    def get_all(self):
         route = "https://graph.microsoft.com/v1.0/applications"
-        response = oauth_request(route, azure_token)
+        response = oauth_request(route, self.azure_token)
         if response is None:
             return CommandResponse.fail()
 
@@ -74,24 +77,24 @@ class AzureDirectoyAppService:
             output_data = jmespath.search(filter, output_data)
         return output_data
 
-    def get_principal(self, object_id: str, azure_token: str):
+    def get_principal(self, object_id: str):
         get_route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
-        get_response = oauth_request(get_route, azure_token)
+        get_response = oauth_request(get_route, self.azure_token)
         if get_response is None:
             return CommandResponse.fail()
         app_id = get_response.json().get("appId")
         route = f"https://graph.microsoft.com/v1.0/servicePrincipals(appId='{app_id}')"
-        response = oauth_request(route, azure_token)
+        response = oauth_request(route, self.azure_token)
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()
         # env.configuration.set_var(resource_id="app", var_name="principal_id", var_value=output_data["id"])
         return output_data["id"]
 
-    def get(self, object_id: str, azure_token: str):
+    def get(self, object_id: str):
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         response = polling2.poll(
-            lambda: oauth_request(route, azure_token),
+            lambda: oauth_request(route, self.azure_token),
             check_success=is_correct_response_app,
             step=1,
             timeout=60,
@@ -104,11 +107,11 @@ class AzureDirectoyAppService:
         # env.configuration.set_var(resource_id=r_id, var_name="object_id", var_value=object_id)
         return CommandResponse.success(output_data, verbose=True)
 
-    def update(self, object_id: str, azure_token: str, registration_file: str):
+    def update(self, object_id: str, registration_file: str):
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         details = env.fill_template(registration_file)
         sp_response = polling2.poll(
-            lambda: oauth_request(route, azure_token, type="PATCH", data=details),
+            lambda: oauth_request(route, self.azure_token, type="PATCH", data=details),
             check_success=is_correct_response_app,
             step=1,
             timeout=60,

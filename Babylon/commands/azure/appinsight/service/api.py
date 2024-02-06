@@ -20,8 +20,8 @@ class AzureAppInsightService:
 
     def create(self, name: str, file: Path):
         check_ascii(name)
-        azure_subscription = self.state["azure_subscription_id"]
-        resource_group_name = self.state["azure_resource_group_name"]
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         create_file = (
             file or env.working_dir.original_template_path / "webapp/app_insight.json"
         )
@@ -39,8 +39,8 @@ class AzureAppInsightService:
         return output_data
 
     def delete(self, name: str, force_validation: bool):
-        azure_subscription = self.state["azure_subscription_id"]
-        resource_group_name = self.state["azure_resource_group_name"]
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         if not force_validation and not confirm_deletion("appinsight", name):
             return CommandResponse.fail()
         route = (
@@ -56,8 +56,8 @@ class AzureAppInsightService:
         logger.info("Successfully deleted")
 
     def get_all(self):
-        azure_subscription = self.state["azure_subscription_id"]
-        resource_group_name = self.state["azure_resource_group_name"]
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Insights/components?api-version=2015-05-01"
@@ -71,8 +71,8 @@ class AzureAppInsightService:
         return output_data
 
     def get(self, name: str):
-        azure_subscription = self.state["azure_subscription_id"]
-        resource_group_name = self.state["azure_resource_group_name"]
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01"
