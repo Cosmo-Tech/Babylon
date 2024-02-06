@@ -12,13 +12,13 @@ logger = logging.getLogger("Babylon")
 
 class AdxConnectionService:
 
-    def __init__(self, kusto_client: KustoManagementClient) -> None:
+    def __init__(self, kusto_client: KustoManagementClient, state: dict = None) -> None:
+        self.state = state
         self.kusto_client = kusto_client
 
     def create(
         self,
         database_name: str,
-        context: dict,
         connection_name: str,
         consumer_group: str,
         data_format: str,
@@ -29,12 +29,12 @@ class AdxConnectionService:
         check_ascii(database_name)
         dataconnections_operations = self.kusto_client.data_connections
 
-        azure_subscription = context["azure_subscription_id"]
-        resource_group_name = context["azure_resource_group_name"]
-        resource_location = context["azure_resource_location"]
-        organization_id = context["api_organization_id"]
-        workspace_key = context["api_workspace_key"]
-        adx_cluster_name = context["adx_cluster_name"]
+        azure_subscription = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        resource_location = self.state["azure"]["resource_location"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_key = self.state["api"]["workspace_key"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
 
         eventhub_id = f"/subscriptions/{azure_subscription}/"
         eventhub_id += f"resourceGroups/{resource_group_name}/"

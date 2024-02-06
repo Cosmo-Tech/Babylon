@@ -6,9 +6,12 @@ from Babylon.utils.response import CommandResponse
 
 class AzureDirectoyGroupService:
 
-    def get_all(self, azure_token: str):
+    def __init__(self, azure_token: str) -> None:
+        self.azure_token = azure_token
+
+    def get_all(self):
         route = "https://graph.microsoft.com/v1.0/groups/"
-        response = oauth_request(route, azure_token)
+        response = oauth_request(route, self.azure_token)
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()["value"]

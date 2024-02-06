@@ -18,9 +18,9 @@ class AdxScriptService:
         self.kusto_client = kusto_client
 
     def get_all(self):
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
-        database_name = self.state["adx_database_name"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"]
         response = self.kusto_client.scripts.list_by_database(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
@@ -37,12 +37,12 @@ class AdxScriptService:
         for _file in files[::-1]:
             file_path = Path(_file)
             logger.info(f"Found script {file_path} sending it to the database.")
-            self.run(context=self.state, script_file=file_path, kusto_client=self.kusto_client)
+            self.run(script_file=file_path, kusto_client=self.kusto_client)
 
     def run(self, script_file: Path):
-        resource_group_name = self.state["azure_resource_group_name"]
-        adx_cluster_name = self.state["adx_cluster_name"]
-        database_name = self.state["adx_database_name"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"]
         if script_file.suffix != ".kql":
             logger.warning(
                 f"File {script_file.name} is not a kql file. Errors could happen."

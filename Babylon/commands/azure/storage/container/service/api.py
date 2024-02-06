@@ -18,8 +18,9 @@ env = Environment()
 
 class AzureStorageContainerService:
 
-    def __init__(self, blob_client: BlobServiceClient) -> None:
+    def __init__(self, blob_client: BlobServiceClient, state: dict = None) -> None:
         self.blob_client = blob_client
+        self.state = state
 
     def create(self, name: str):
         check_ascii(name)
@@ -51,7 +52,7 @@ class AzureStorageContainerService:
             return CommandResponse.fail()
         logger.info("Successfully deleted")
 
-    def get_all(self):
+    def get_all(self, filter: bool):
         logger.info(
             f"Listing containers from storage account {self.blob_client.account_name}"
         )
@@ -74,12 +75,10 @@ class AzureStorageContainerService:
             output_data = jmespath.search(filter, output_data)
         return output_data
 
-    def upload(
-        self, org_id: str, work_id: str, dataset_id: str, context: dict, folder: str
-    ):
-        organization_id = org_id or context["api_organization_id"]
-        workspace_id = work_id or context["api_workspace_id"]
-        dataset_id = dataset_id or context["api_dataset"]["storage_id"]
+    def upload(self, org_id: str, work_id: str, dataset_id: str, folder: str):
+        organization_id = org_id or self.state["api"]["organization_id"]
+        workspace_id = work_id or self.state["api"]["workspace_id"]
+        dataset_id = dataset_id or self.state["api"]["dataset.storage_id"]
         files = glob(os.path.join(folder, "*.csv"))
         check = self.blob_client.get_container_client(container=organization_id.lower())
         if not check.exists():
