@@ -42,7 +42,6 @@ def delete(
     apiAdxDatabase = AdxDatabaseService(kusto_client=kusto_client, state=context)
     apiAdxDatabase.delete(
         name=name,
-        context=context,
         current=current,
     )
     return CommandResponse.success()

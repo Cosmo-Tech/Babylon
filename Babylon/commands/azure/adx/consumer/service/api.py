@@ -14,12 +14,11 @@ class AdxConsumerService:
 
     def add(self, name: str, event_hub_name: str):
         check_ascii(name)
-        rg = self.state["azure_resource_group_name"]
-        subscription_id = self.state["azure_subscription_id"]
-        org_id = self.state["api_organization_id"].lower()
-        work_id = self.state["api_workspace_key"].lower()
-        location = self.state["azure_resource_location"]
-
+        rg = self.state["azure"]["resource_group_name"]
+        subscription_id = self.state["azure"]["subscription_id"]
+        org_id = self.state["api"]["organization_id"].lower()
+        work_id = self.state["api"]["workspace_key"].lower()
+        location = self.state["azure"]["resource_location"]
         client = EventHubManagementClient(
             credential=get_azure_credentials(), subscription_id=subscription_id
         )

@@ -30,6 +30,6 @@ def delete(
     """
     if not force_validation and not confirm_deletion("secret", key_id):
         return CommandResponse.fail()
-    apiPass = AzureDirectoyPasswordService()
-    apiPass.delete(key_id=key_id, object_id=object_id, azure_token=azure_token)
+    apiPass = AzureDirectoyPasswordService(azure_token=azure_token)
+    apiPass.delete(key_id=key_id, object_id=object_id)
     return CommandResponse.success()

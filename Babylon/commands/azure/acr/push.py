@@ -32,5 +32,5 @@ def push(
     state['acr']['simulator_repository'] = context['acr_simulator_repository']
     state['acr']['simulator_version'] = context['acr_simulator_version']
     acrApi = AzureContainerRegistryService(state=state)
-    acrApi.push(state, image_tag=image)
+    acrApi.push(image_tag=image)
     return CommandResponse.success()

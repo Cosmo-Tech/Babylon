@@ -25,5 +25,5 @@ def get_all(
 ) -> CommandResponse:
     """Get a list of all powerbi datasets in the current workspace"""
     api_powerbi = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
-    response = api_powerbi.get_all(workspace_id=workspace_id)
+    response = api_powerbi.get_all(workspace_id=workspace_id, filter=filter)
     return CommandResponse.success(response, verbose=True)
