@@ -11,7 +11,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.request import oauth_request
+from Babylon.services.organizations_service import OrganizationsService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -28,14 +28,10 @@ env = Environment()
 @inject_context_with_resource({"api": ['url', 'organization_id']}, required=False)
 def get(ctx: Context, context: Any, id: str, azure_token: str, select: bool) -> CommandResponse:
     """Get an organization details"""
-    if not id:
-        logger.error(f"You trying to {ctx.command.name} {ctx.parent.command.name} referenced in configuration")
-        logger.error(f"Current value: {context['api_organization_id']}")
-    organization_id = id or context['api_organization_id']
-    if not organization_id:
-        logger.error("Organization id is missing")
-        return CommandResponse.fail()
-    response = oauth_request(f"{context['api_url']}/organizations/{organization_id}", azure_token)
+
+    organizations_service = OrganizationsService(context, azure_token)
+    response = organizations_service.get(ctx)
+
     if response is None:
         return CommandResponse.fail()
     organization = response.json()

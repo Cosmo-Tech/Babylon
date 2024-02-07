@@ -1,14 +1,11 @@
 import pathlib
 
 from logging import getLogger
-from posixpath import basename
-import sys
 from typing import Any, Optional
 from click import Context, argument, pass_context
 from click import command
 from click import option
 from click import Path
-from Babylon.utils.checkers import check_ascii, check_email
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED, SUCCESS_CREATED
@@ -17,7 +14,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.request import oauth_request
+from Babylon.services.organizations_service import OrganizationsService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -51,23 +48,9 @@ def create(
     """
     Register new orgnanization
     """
-    check_ascii(name)
-    security_id = security_id or context['azure_email']
-    check_email(security_id)
 
-    path_file = f"{env.context_id}.{env.environ_id}.organization.yaml"
-    org_file = org_file or env.working_dir.payload_path / path_file
-    if not org_file.exists():
-        logger.error(f"No such file: '{basename(org_file)}' in .payload directory")
-        sys.exit(1)
-
-    details = env.fill_template(org_file,
-                                data={
-                                    "name": name,
-                                    "security_id": security_id,
-                                    "security_role": security_role.lower()
-                                })
-    response = oauth_request(f"{context['api_url']}/organizations", azure_token, type="POST", data=details)
+    organizations_service = OrganizationsService(context, azure_token)
+    response = organizations_service.create(name, security_id, security_role, org_file)
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
