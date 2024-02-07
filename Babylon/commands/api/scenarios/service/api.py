@@ -1,5 +1,10 @@
+import sys
+from logging import getLogger
+
 from typing import Optional
 from Babylon.utils.request import oauth_request
+
+logger = getLogger("Babylon")
 
 
 class ScenarioService:
@@ -10,9 +15,20 @@ class ScenarioService:
         self.azure_token = azure_token
 
     def get_all(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        workspace_id = self.state["state"]["api"]["workspace_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_id = self.state["api"]["workspace_id"]
+
+        if not url:
+            logger.error("API url not found")
+            sys.exit(1)
+        if not organization_id:
+            logger.error("organization_id not found")
+            sys.exit(1)
+        if not workspace_id:
+            logger.error("workspace_id not found")
+            sys.exit(1)
+
         response = oauth_request(
             f"{url}/organizations/{organization_id}/workspaces/"
             f"{workspace_id}/scenarios",
@@ -21,10 +37,21 @@ class ScenarioService:
         return response
 
     def get(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        workspace_id = self.state["state"]["api"]["workspace_id"]
-        scenario_id = self.state["state"]["api"]["scenario_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_id = self.state["api"]["workspace_id"]
+        scenario_id = self.spec["scenario_id"]
+
+        if not url:
+            logger.error("API url not found")
+            sys.exit(1)
+        if not organization_id:
+            logger.error("organization_id not found")
+            sys.exit(1)
+        if not workspace_id:
+            logger.error("workspace_id not found")
+            sys.exit(1)
+
         response = oauth_request(
             f"{url}/organizations/{organization_id}/workspaces/"
             f"{workspace_id}/scenarios/{scenario_id}",
@@ -33,10 +60,22 @@ class ScenarioService:
         return response
 
     def update(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        workspace_id = self.state["state"]["api"]["workspace_id"]
-        scenario_id = self.state["state"]["api"]["scenario_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_id = self.state["api"]["workspace_id"]
+        # need to reconsider this line when scenario manipulation in macro commands will be clearer
+        scenario_id = self.state["api"]["scenario_id"]
+
+        if not url:
+            logger.error("API url not found")
+            sys.exit(1)
+        if not organization_id:
+            logger.error("organization_id not found")
+            sys.exit(1)
+        if not workspace_id:
+            logger.error("workspace_id not found")
+            sys.exit(1)
+
         response = oauth_request(
             f"{url}/organizations/{organization_id}/workspaces/"
             f"{workspace_id}/scenarios/{scenario_id}",
@@ -47,9 +86,19 @@ class ScenarioService:
         return response
 
     def create(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        workspace_id = self.state["state"]["api"]["workspace_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_id = self.state["api"]["workspace_id"]
+
+        if not url:
+            logger.error("API url not found")
+            sys.exit(1)
+        if not organization_id:
+            logger.error("organization_id not found")
+            sys.exit(1)
+        if not workspace_id:
+            logger.error("workspace_id not found")
+            sys.exit(1)
         response = oauth_request(
             f"{url}/organizations/{organization_id}/workspaces/"
             f"{workspace_id}/scenarios",
@@ -60,10 +109,20 @@ class ScenarioService:
         return response
 
     def delete(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        workspace_id = self.state["state"]["api"]["workspace_id"]
-        scenario_id = self.state["state"]["api"]["scenario_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_id = self.state["api"]["workspace_id"]
+        scenario_id = self.spec["scenario_id"]
+
+        if not url:
+            logger.error("API url not found")
+            sys.exit(1)
+        if not organization_id:
+            logger.error("organization_id not found")
+            sys.exit(1)
+        if not workspace_id:
+            logger.error("workspace_id not found")
+            sys.exit(1)
         response = oauth_request(
             f"{url}/organizations/{organization_id}/workspaces/"
             f"{workspace_id}/scenarios/{scenario_id}",
@@ -73,10 +132,20 @@ class ScenarioService:
         return response
 
     def run(self):
-        url = self.state["state"]["api"]["url"]
-        organization_id = self.state["state"]["api"]["organization_id"]
-        workspace_id = self.state["state"]["api"]["workspace_id"]
-        scenario_id = self.state["state"]["api"]["scenario_id"]
+        url = self.state["api"]["url"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_id = self.state["api"]["workspace_id"]
+        scenario_id = self.spec["scenario_id"]
+
+        if not url:
+            logger.error("API url not found")
+            sys.exit(1)
+        if not organization_id:
+            logger.error("organization_id not found")
+            sys.exit(1)
+        if not workspace_id:
+            logger.error("workspace_id not found")
+            sys.exit(1)
         response = oauth_request(
             f"{url}/organizations/{organization_id}/workspaces/"
             f"{workspace_id}/scenarios/{scenario_id}/run",

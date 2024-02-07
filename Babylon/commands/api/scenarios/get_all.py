@@ -1,6 +1,5 @@
 from logging import getLogger
 
-import jmespath
 from click import command, option
 from typing import Any, Optional
 
