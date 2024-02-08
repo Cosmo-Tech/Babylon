@@ -6,7 +6,7 @@ from click import argument
 from Babylon.commands.azure.staticwebapp.custom_domain.service.api import (
     AzureSWACustomDomainService,
 )
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -21,15 +21,15 @@ env = Environment()
 @pass_azure_token()
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())
-@inject_context_with_resource({"azure": ["resource_group_name", "subscription_id"]})
+@retrieve_state
 def get(
-    context: Any, azure_token: str, webapp_name: str, domain_name: str
+    state: Any, azure_token: str, webapp_name: str, domain_name: str
 ) -> CommandResponse:
     """
     Get a static webapp custom domain for the given static web app
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/get-static-site-custom-domain
     """
-    service = AzureSWACustomDomainService(azure_token=azure_token, state=context)
+    service = AzureSWACustomDomainService(azure_token=azure_token, state=state)
     response = service.get(
         webapp_name=webapp_name,
         domain_name=domain_name,

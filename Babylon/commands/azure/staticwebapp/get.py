@@ -7,7 +7,7 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.commands.azure.staticwebapp.service.api import AzureSWAService
 
 logger = logging.getLogger("Babylon")
@@ -18,14 +18,14 @@ env = Environment()
 @wrapcontext()
 @pass_azure_token()
 @argument("webapp_name", type=QueryType())
-@inject_context_with_resource({"azure": ["resource_group_name", "subscription_id"]})
+@retrieve_state
 def get(
-    context: Any, azure_token: str, webapp_name: str
+    state: Any, azure_token: str, webapp_name: str
 ) -> CommandResponse:
     """
     Get static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/get-static-site
     """
-    service = AzureSWAService(azure_token=azure_token, state=context)
+    service = AzureSWAService(azure_token=azure_token, state=state)
     response = service.get(webapp_name=webapp_name)
     return CommandResponse.success(response, verbose=True)
