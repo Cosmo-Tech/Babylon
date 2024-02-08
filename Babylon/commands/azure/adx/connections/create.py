@@ -1,15 +1,14 @@
 import logging
 
 from typing import Any, Optional
-from click import Choice, argument, command, option
-from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
-from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
-from Babylon.utils.decorators import timing_decorator, wrapcontext
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
+from click import Choice, argument, command, option
+from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
+from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -44,15 +43,9 @@ env = Environment()
 )
 @argument("connection_name", type=QueryType())
 @argument("database_name", type=QueryType())
-@inject_context_with_resource(
-    {
-        "api": ["organization_id", "workspace_key"],
-        "azure": ["resource_group_name", "resource_location", "subscription_id"],
-        "adx": ["cluster_name"],
-    }
-)
+@retrieve_state
 def create(
-    context: Any,
+    state: Any,
     kusto_client: KustoManagementClient,
     connection_name: str,
     data_format: str,
@@ -65,7 +58,7 @@ def create(
     """
     Create new connection in ADX database
     """
-    service = AdxConnectionService(kusto_client=kusto_client, state=context)
+    service = AdxConnectionService(kusto_client=kusto_client, state=state)
     service.create(
         compression_value=compression_value,
         connection_name=connection_name,

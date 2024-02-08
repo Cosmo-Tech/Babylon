@@ -5,7 +5,7 @@ from click import Path, command, pass_context, argument
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.commands.azure.adx.script.service.api import AdxScriptService
 from Babylon.utils.decorators import (
-    inject_context_with_resource,
+    retrieve_state,
     timing_decorator,
     wrapcontext,
 )
@@ -28,17 +28,15 @@ from Babylon.utils.response import CommandResponse
         path_type=pathlib.Path,
     ),
 )
-@inject_context_with_resource(
-    {"azure": ["resource_group_name"], "adx": ["cluster_name", "database_name"]}
-)
+@retrieve_state
 def run_folder(
-    context: Any,
+    state: Any,
     kusto_client: KustoManagementClient,
     script_folder: pathlib.Path,
 ) -> CommandResponse:
     """
     Run all script files (.kql) from SCRIPT_FOLDER
     """
-    service = AdxScriptService(kusto_client=kusto_client, state=context)
+    service = AdxScriptService(kusto_client=kusto_client, state=state)
     service.run_folder(script_folder=script_folder)
     return CommandResponse.success()
