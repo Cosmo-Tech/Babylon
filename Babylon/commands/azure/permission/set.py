@@ -5,7 +5,7 @@ from azure.mgmt.authorization import AuthorizationManagementClient
 from click import Choice, option
 from click import command
 from Babylon.commands.azure.permission.service.api import AzureIamService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
@@ -43,15 +43,9 @@ env = Environment()
 @option(
     "--role-id", "role_id", type=QueryType(), required=True, help="Role Id Ressource"
 )
-@inject_context_with_resource(
-    {
-        "api": ["organization_id", "workspace_key"],
-        "azure": ["resource_group_name", "subscription_id"],
-        "platform": ["principal_id"],
-    }
-)
+@retrieve_state
 def set(
-    context: Any,
+    state: Any,
     iam_client: AuthorizationManagementClient,
     resource_type: str,
     resource_name: str,
@@ -62,7 +56,7 @@ def set(
     """
     Assign a new role in resource given
     """
-    service = AzureIamService(iam_client=iam_client, state=context)
+    service = AzureIamService(iam_client=iam_client, state=state)
     service.set(
         principal_id=principal_id,
         principal_type=principal_type,
