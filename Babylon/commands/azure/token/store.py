@@ -5,7 +5,7 @@ from click import Choice, command, option
 from Babylon.commands.azure.token.service.api import AzureTokenService
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 
 
 logger = logging.getLogger("Babylon")
@@ -22,11 +22,11 @@ env = Environment()
     required=True,
     help="API Scope",
 )
-@inject_context_with_resource({"azure": ["user_principal_id", "cli_client_id"]})
-def store(context: Any, scope: str, email: str) -> CommandResponse:
+@retrieve_state
+def store(state: Any, scope: str, email: str) -> CommandResponse:
     """
     Store a refresh token using a secret key
     """
-    service = AzureTokenService(state=context)
+    service = AzureTokenService(state=state)
     service.store(email=email, scope=scope)
     return CommandResponse.success()

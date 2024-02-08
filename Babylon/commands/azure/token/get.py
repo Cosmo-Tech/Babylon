@@ -1,8 +1,9 @@
 import logging
+from typing import Any
 
 from click import Choice, command, option
 from Babylon.commands.azure.token.service.api import AzureTokenService
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -20,10 +21,11 @@ env = Environment()
     required=True,
     help="API Scope",
 )
-def get(scope: str, email: str) -> CommandResponse:
+@retrieve_state
+def get(state: Any, scope: str, email: str) -> CommandResponse:
     """
     Get un acces token using a secret key
     """
-    service = AzureTokenService()
+    service = AzureTokenService(state=state)
     response = service.get(email=email, scope=scope)
     return CommandResponse.success(response, verboser=True)
