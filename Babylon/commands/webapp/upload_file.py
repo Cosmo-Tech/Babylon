@@ -7,7 +7,7 @@ from click import argument
 from click import Path
 from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 
 logger = logging.getLogger("Babylon")
 
@@ -15,12 +15,12 @@ logger = logging.getLogger("Babylon")
 @command()
 @wrapcontext()
 @argument("file", type=Path(path_type=pathlib.Path, exists=True))
-@inject_context_with_resource({'github': ['branch', 'repository']})
-def upload_file(context: Any, file: pathlib.Path) -> CommandResponse:
+@retrieve_state
+def upload_file(state: Any, file: pathlib.Path) -> CommandResponse:
     """
     Upload a file to the webapp github repository
     """
     # Get parent git repository of the workflow file
-    service = AzureWebAppService(state=context)
+    service = AzureWebAppService(state=state)
     service.upload_file(file=file)
     return CommandResponse.success()

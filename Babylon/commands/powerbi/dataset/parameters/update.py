@@ -5,7 +5,7 @@ from click import command
 from click import argument
 from click import option
 from Babylon.commands.powerbi.dataset.parameters.service.api import AzurePowerBIParamsService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.credentials import pass_powerbi_token
@@ -26,9 +26,9 @@ logger = logging.getLogger("Babylon")
 )
 @option("--workspace-id", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @argument("dataset_id", type=QueryType())
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def update(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     dataset_id: str,
     params: list[tuple[str, str]],
@@ -37,6 +37,6 @@ def update(
     """
     Update parameters of a given dataset
     """
-    service = AzurePowerBIParamsService(powerbi_token=powerbi_token, state=context)
+    service = AzurePowerBIParamsService(powerbi_token=powerbi_token, state=state)
     service.update(workspace_id=workspace_id, params=params, dataset_id=dataset_id)
     return CommandResponse.success()

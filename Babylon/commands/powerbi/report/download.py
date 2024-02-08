@@ -8,7 +8,7 @@ from click import option
 from click import Path
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.typing import QueryType
 
@@ -28,9 +28,9 @@ logger = logging.getLogger("Babylon")
 )
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def download(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     report_id: str,
     workspace_id: str,
@@ -39,9 +39,7 @@ def download(
     """
     Download a report in the current workspace
     """
-    service = AzurePowerBIReportService(
-        powerbi_token=powerbi_token, state=context
-    )
+    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=state)
     response = service.download(
         workspace_id=workspace_id, report_id=report_id, output_folder=output_folder
     )

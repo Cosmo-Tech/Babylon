@@ -4,7 +4,7 @@ from typing import Any, Optional
 from click import command
 from click import option
 from Babylon.commands.powerbi.dataset.service.api import AzurePowerBIDatasetService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -19,11 +19,11 @@ logger = logging.getLogger("Babylon")
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--filter", "filter", help="Filter response with a jmespath query")
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def get_all(
-    context: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None
+    state: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None
 ) -> CommandResponse:
     """Get a list of all powerbi datasets in the current workspace"""
-    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
+    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=state)
     response = service.get_all(workspace_id=workspace_id, filter=filter)
     return CommandResponse.success(response, verbose=True)

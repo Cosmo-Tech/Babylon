@@ -11,7 +11,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
-    inject_context_with_resource,
+    retrieve_state,
     timing_decorator,
     wrapcontext,
 )
@@ -46,9 +46,9 @@ env = Environment()
     required=True,
     help="Report type",
 )
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def upload(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     pbix_filename: pathlib.Path,
     workspace_id: str,
@@ -59,9 +59,7 @@ def upload(
     """
     Publish the given pbxi file to the PowerBI workspace
     """
-    service = AzurePowerBIReportService(
-        powerbi_token=powerbi_token, state=context
-    )
+    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=state)
     service.upload(
         workspace_id=workspace_id,
         pbix_filename=pbix_filename,
