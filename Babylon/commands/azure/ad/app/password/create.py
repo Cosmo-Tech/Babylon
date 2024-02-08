@@ -1,16 +1,16 @@
 import logging
 
-from typing import Any, Optional
-from click import command
 from click import option
+from click import command
+from typing import Any, Optional
+from Babylon.utils.typing import QueryType
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.commands.azure.ad.app.password.service.api import (
     AzureDirectoyPasswordService,
 )
-from Babylon.utils.typing import QueryType
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_azure_token
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -26,11 +26,9 @@ env = Environment()
     type=QueryType(),
     help="Object Id Azure App Registration",
 )
-@inject_context_with_resource(
-    {"api": ["organization_id", "workspace_key"], "app": ["object_id", "name"]}
-)
+@retrieve_state
 def create(
-    context: Any,
+    state: Any,
     azure_token: str,
     object_id: str,
     password_name: Optional[str] = None,
@@ -39,7 +37,7 @@ def create(
     Register a password or secret to an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-addpassword
     """
-    service = AzureDirectoyPasswordService(azure_token=azure_token, state=context)
+    service = AzureDirectoyPasswordService(azure_token=azure_token, state=state)
     response = service.create(
         object_id=object_id,
         password_name=password_name,

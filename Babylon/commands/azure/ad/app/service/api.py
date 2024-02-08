@@ -14,8 +14,9 @@ logger = logging.getLogger("Babylon")
 
 class AzureDirectoyAppService:
 
-    def __init__(self, azure_token: str) -> None:
+    def __init__(self, azure_token: str, state: dict = None) -> None:
         self.azure_token = azure_token
+        self.state = state
 
     def create(self, name: str, registration_file: Path = None):
         check_ascii(name)
@@ -65,7 +66,7 @@ class AzureDirectoyAppService:
             logger.info("Successfully deleted")
             return CommandResponse.success()
 
-    def get_all(self):
+    def get_all(self, filter: bool):
         route = "https://graph.microsoft.com/v1.0/applications"
         response = oauth_request(route, self.azure_token)
         if response is None:
