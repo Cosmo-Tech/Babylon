@@ -10,7 +10,7 @@ from Babylon.commands.azure.staticwebapp.app_settings.service.api import (
     AzureSWASettingsAppService,
 )
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
@@ -29,20 +29,15 @@ env = Environment()
     help="Your custom settings description file yaml",
 )
 @argument("webapp_name", type=QueryType())
-@inject_context_with_resource(
-    {
-        "api": ["organization_id", "workspace_key"],
-        "azure": ["resource_group_name", "subscription_id"],
-    }
-)
+@retrieve_state
 def update(
-    context: Any, azure_token: str, webapp_name: str, settings_file: pathlib.Path
+    state: Any, azure_token: str, webapp_name: str, settings_file: pathlib.Path
 ) -> CommandResponse:
     """
     Update static webapp app settings in the given webapp
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-app-settings
     """
-    service = AzureSWASettingsAppService(azure_token=azure_token, state=context)
+    service = AzureSWASettingsAppService(azure_token=azure_token, state=state)
     service.update(
         webapp_name=webapp_name,
         settings_file=settings_file,

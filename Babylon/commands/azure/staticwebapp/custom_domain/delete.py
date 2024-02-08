@@ -7,7 +7,7 @@ from click import option
 from Babylon.commands.azure.staticwebapp.custom_domain.service.api import (
     AzureSWACustomDomainService,
 )
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -23,9 +23,9 @@ env = Environment()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())
-@inject_context_with_resource({"azure": ["resource_group_name", "subscription_id"]})
+@retrieve_state
 def delete(
-    context: Any,
+    state: Any,
     azure_token: str,
     webapp_name: str,
     domain_name: str,
@@ -35,7 +35,7 @@ def delete(
     Delete static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/delete-static-site-custom-domain
     """
-    service = AzureSWACustomDomainService(azure_token=azure_token, state=context)
+    service = AzureSWACustomDomainService(azure_token=azure_token, state=state)
     service.delete(
         webapp_name=webapp_name,
         domain_name=domain_name,
