@@ -1,18 +1,18 @@
 import logging
 
 from typing import Any
-from click import Choice
-from click import argument
-from click import command
 from click import option
-from azure.mgmt.kusto import KustoManagementClient
-from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
-from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
-from Babylon.utils.clients import pass_kusto_client
+from click import Choice
+from click import command
+from click import argument
 from Babylon.utils.typing import QueryType
+from Babylon.utils.environment import Environment
+from azure.mgmt.kusto import KustoManagementClient
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.clients import pass_kusto_client
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -31,13 +31,13 @@ env = Environment()
         required=True,
         help="Principal type of the given ID")
 @argument("principal_id", type=QueryType(), required=True)
-@inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})
-def set(context: Any, kusto_client: KustoManagementClient, principal_id: str, role: str,
+@retrieve_state
+def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role: str,
         principal_type: str) -> CommandResponse:
     """
     Set permission assignments applied to the given principal id
     """
-    service = AdxPermissionService(kusto_client=kusto_client, state=context)
+    service = AdxPermissionService(kusto_client=kusto_client, state=state)
     service.set(
         principal_id=principal_id,
         principal_type=principal_type,

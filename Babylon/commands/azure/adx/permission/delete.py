@@ -9,9 +9,8 @@ from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
-from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.decorators import inject_context_with_resource
 from Babylon.utils.decorators import describe_dry_run, wrapcontext
+from Babylon.utils.decorators import retrieve_state, timing_decorator
 from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
 
 logger = logging.getLogger("Babylon")
@@ -25,15 +24,15 @@ env = Environment()
 @describe_dry_run("Would go through each role of given principal and delete them.")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("principal_id", type=QueryType())
-@inject_context_with_resource({'azure': ['resource_group_name'], 'adx': ['cluster_name', 'database_name']})
-def delete(context: Any,
+@retrieve_state
+def delete(state: Any,
            kusto_client: KustoManagementClient,
            principal_id: str,
            force_validation: bool = False) -> CommandResponse:
     """
     Delete all permission assignments applied to the given principal id
     """
-    service = AdxPermissionService(kusto_client=kusto_client, state=context)
+    service = AdxPermissionService(kusto_client=kusto_client, state=state)
     service.delete(
         force_validation=force_validation,
         principal_id=principal_id,

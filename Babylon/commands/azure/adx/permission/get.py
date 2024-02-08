@@ -1,16 +1,19 @@
 import logging
 
 from typing import Any
-from click import argument
 from click import command
-from azure.mgmt.kusto import KustoManagementClient
-from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
-from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
-from Babylon.utils.clients import pass_kusto_client
+from click import argument
 from Babylon.utils.typing import QueryType
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
+from azure.mgmt.kusto import KustoManagementClient
+from Babylon.utils.clients import pass_kusto_client
+from Babylon.utils.decorators import timing_decorator
+from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
+from Babylon.utils.decorators import (
+    retrieve_state,
+    wrapcontext,
+)
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -21,15 +24,13 @@ env = Environment()
 @timing_decorator
 @pass_kusto_client
 @argument("principal_id", type=QueryType())
-@inject_context_with_resource(
-    {"azure": ["resource_group_name"], "adx": ["cluster_name", "database_name"]}
-)
+@retrieve_state
 def get(
-    context: Any, kusto_client: KustoManagementClient, principal_id: str
+    state: Any, kusto_client: KustoManagementClient, principal_id: str
 ) -> CommandResponse:
     """
     Get permission assignments applied to the given principal id
     """
-    service = AdxPermissionService(kusto_client=kusto_client, state=context)
+    service = AdxPermissionService(kusto_client=kusto_client, state=state)
     entity_assignments = service.get(principal_id=principal_id)
     return CommandResponse.success({"assignments": entity_assignments})

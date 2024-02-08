@@ -5,7 +5,7 @@ from typing import Any
 from click import Path, command, argument
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.commands.azure.adx.script.service.api import AdxScriptService
-from Babylon.utils.decorators import inject_context_with_resource
+from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -28,17 +28,15 @@ env = Environment()
         path_type=pathlib.Path,
     ),
 )
-@inject_context_with_resource(
-    {"azure": ["resource_group_name"], "adx": ["cluster_name", "database_name"]}
-)
+@retrieve_state
 def run(
-    context: Any, kusto_client: KustoManagementClient, script_file: pathlib.Path
+    state: Any, kusto_client: KustoManagementClient, script_file: pathlib.Path
 ) -> CommandResponse:
     """
         Open SCRIPT_FILE and run it on the database
     In the script instances of "<database name>" will be replaced by the actual database name
     """
-    service = AdxScriptService(kusto_client=kusto_client, state=context)
+    service = AdxScriptService(kusto_client=kusto_client, state=state)
     service.run(
         script_file=script_file,
     )
