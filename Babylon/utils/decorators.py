@@ -217,19 +217,19 @@ def retrieve_state(func) -> Callable[..., Any]:
     def wrapper(*args: Any, **kwargs: Any):
         init_state = dict()
         final_state = dict()
-        final_state["state"] = dict()
+        final_state["services"] = dict()
         data_vault = env.get_state_from_vault_by_platform(env.environ_id)
-        init_state["state"] = data_vault
+        init_state["services"] = data_vault
         state_id = env.get_state_id()
         init_state["id"] = state_id
         state_cloud = env.get_state_from_cloud(init_state)
         env.store_state_in_local(state_cloud)
-        for section, keys in state_cloud.get("state").items():
-            final_state["state"][section] = dict()
+        for section, keys in state_cloud.get("services").items():
+            final_state["services"][section] = dict()
             for key, _ in keys.items():
-                final_state["state"][section].update({key: state_cloud["state"][section][key]})
+                final_state["services"][section].update({key: state_cloud["services"][section][key]})
                 if data_vault[section][key]:
-                    final_state["state"][section].update({key: data_vault[section][key]})
+                    final_state["services"][section].update({key: data_vault[section][key]})
         final_state["id"] = init_state.get("id") or state_cloud.get("id")
         final_state["context"] = env.context_id
         final_state["platform"] = env.environ_id

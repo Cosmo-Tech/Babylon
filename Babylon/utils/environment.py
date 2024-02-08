@@ -366,8 +366,8 @@ class Environment(metaclass=SingletonMeta):
     def store_state_in_cloud(self, state: dict):
         s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
         account_secret = self.get_platform_secret(platform=self.environ_id, resource="storage", name="account")
-        state_blob = blob_client(config=state,
-                                 account_secret=account_secret).get_blob_client(container="babylon-states", blob=s)
+        state_blob = blob_client(state=state, account_secret=account_secret).get_blob_client(container="babylon-states",
+                                                                                             blob=s)
         if state_blob.exists():
             state_blob.delete_blob()
         state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
@@ -385,8 +385,8 @@ class Environment(metaclass=SingletonMeta):
             return state
         s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
         account_secret = self.get_platform_secret(platform=self.environ_id, resource="storage", name="account")
-        state_blob = blob_client(config=state,
-                                 account_secret=account_secret).get_blob_client(container="babylon-states", blob=s)
+        state_blob = blob_client(state=state, account_secret=account_secret).get_blob_client(container="babylon-states",
+                                                                                             blob=s)
         if not state_blob.exists():
             return state
         if state_blob.exists():
