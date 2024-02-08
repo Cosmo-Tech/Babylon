@@ -24,6 +24,6 @@ def get_all(
     Get all static webapps within the subscription
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list
     """
-    api_swa = AzureSWAService(azure_token=azure_token, state=context)
-    response = api_swa.get_all()
+    service = AzureSWAService(azure_token=azure_token, state=context)
+    response = service.get_all()
     return CommandResponse.success(response, verbose=True)

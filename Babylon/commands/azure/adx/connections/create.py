@@ -65,8 +65,8 @@ def create(
     """
     Create new connection in ADX database
     """
-    apiAdxConn = AdxConnectionService(kusto_client=kusto_client, state=context)
-    apiAdxConn.create(
+    service = AdxConnectionService(kusto_client=kusto_client, state=context)
+    service.create(
         compression_value=compression_value,
         connection_name=connection_name,
         consumer_group=consumer_group,

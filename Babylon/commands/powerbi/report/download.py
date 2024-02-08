@@ -39,10 +39,10 @@ def download(
     """
     Download a report in the current workspace
     """
-    api_powerbi_report = AzurePowerBIReportService(
+    service = AzurePowerBIReportService(
         powerbi_token=powerbi_token, state=context
     )
-    response = api_powerbi_report.download(
+    response = service.download(
         workspace_id=workspace_id, report_id=report_id, output_folder=output_folder
     )
     return CommandResponse.success({"file": response})

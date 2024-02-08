@@ -35,10 +35,10 @@ def download_all(
     """
     Download all reports from a workspace
     """
-    api_powerbi_report = AzurePowerBIReportService(
+    service = AzurePowerBIReportService(
         powerbi_token=powerbi_token, state=context
     )
-    macro = api_powerbi_report.download_all(
+    macro = service.download_all(
         workspace_id=workspace_id, output_folder=output_folder
     )
     return CommandResponse.success(macro.env.get_data(["reports", "data"]))

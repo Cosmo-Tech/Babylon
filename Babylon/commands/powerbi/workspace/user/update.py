@@ -40,10 +40,10 @@ def update(
     """
     Updates an existing user in the power bi workspace
     """
-    api_powerbi_work_user = AzurePowerBIWorkspaceUserService(
+    service = AzurePowerBIWorkspaceUserService(
         powerbi_token=powerbi_token, state=context
     )
-    response = api_powerbi_work_user.update(
+    response = service.update(
         workspace_id=workspace_id, right=right, type=type, email=email
     )
     response = response.json()

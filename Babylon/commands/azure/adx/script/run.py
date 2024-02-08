@@ -38,8 +38,8 @@ def run(
         Open SCRIPT_FILE and run it on the database
     In the script instances of "<database name>" will be replaced by the actual database name
     """
-    apiAdxScript = AdxScriptService(kusto_client=kusto_client, state=context)
-    apiAdxScript.run(
+    service = AdxScriptService(kusto_client=kusto_client, state=context)
+    service.run(
         script_file=script_file,
     )
     return CommandResponse.success()

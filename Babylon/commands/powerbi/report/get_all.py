@@ -26,8 +26,8 @@ def get_all(
     """
     Get info from every powerbi reports of a workspace
     """
-    api_powerbi_report = AzurePowerBIReportService(
+    service = AzurePowerBIReportService(
         powerbi_token=powerbi_token, state=context
     )
-    response = api_powerbi_report.get_all(workspace_id=workspace_id, filter=filter)
+    response = service.get_all(workspace_id=workspace_id, filter=filter)
     return CommandResponse.success(response, verbose=True)

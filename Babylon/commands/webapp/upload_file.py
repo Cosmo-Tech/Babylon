@@ -21,6 +21,6 @@ def upload_file(context: Any, file: pathlib.Path) -> CommandResponse:
     Upload a file to the webapp github repository
     """
     # Get parent git repository of the workflow file
-    api_web_app = AzureWebAppService(state=context)
-    api_web_app.upload_file(file=file)
+    service = AzureWebAppService(state=context)
+    service.upload_file(file=file)
     return CommandResponse.success()

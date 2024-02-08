@@ -29,8 +29,8 @@ def delete(
     Delete static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/delete-static-site
     """
-    api_swa = AzureSWAService(azure_token=azure_token, state=context)
-    api_swa.delete(
+    service = AzureSWAService(azure_token=azure_token, state=context)
+    service.delete(
         webapp_name=webapp_name,
         force_validation=force_validation,
     )

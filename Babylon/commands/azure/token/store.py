@@ -27,6 +27,6 @@ def store(context: Any, scope: str, email: str) -> CommandResponse:
     """
     Store a refresh token using a secret key
     """
-    api_token = AzureTokenService(state=context)
-    api_token.store(email=email, scope=scope)
+    service = AzureTokenService(state=context)
+    service.store(email=email, scope=scope)
     return CommandResponse.success()

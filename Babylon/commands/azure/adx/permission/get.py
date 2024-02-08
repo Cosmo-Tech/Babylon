@@ -30,6 +30,6 @@ def get(
     """
     Get permission assignments applied to the given principal id
     """
-    apiAdxPermission = AdxPermissionService(kusto_client=kusto_client, state=context)
-    entity_assignments = apiAdxPermission.get(principal_id=principal_id)
+    service = AdxPermissionService(kusto_client=kusto_client, state=context)
+    entity_assignments = service.get(principal_id=principal_id)
     return CommandResponse.success({"assignments": entity_assignments})

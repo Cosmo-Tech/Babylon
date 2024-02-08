@@ -31,6 +31,6 @@ def create(azure_token: str, name: str, registration_file: pathlib.Path) -> Comm
     Register an app in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-post-applications
     """
-    apiApp = AzureDirectoyAppService(azure_token=azure_token)
-    response = apiApp.create(name=name, registration_file=registration_file)
+    service = AzureDirectoyAppService(azure_token=azure_token)
+    response = service.create(name=name, registration_file=registration_file)
     return CommandResponse.success(response, verbose=True)

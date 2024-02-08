@@ -39,6 +39,6 @@ def create(
     """
     Create database in ADX cluster
     """
-    apiAdxDatabase = AdxDatabaseService(kusto_client=kusto_client, state=context)
-    apiAdxDatabase.create(name=name, retention=retention)
+    service = AdxDatabaseService(kusto_client=kusto_client, state=context)
+    service.create(name=name, retention=retention)
     return CommandResponse.success()

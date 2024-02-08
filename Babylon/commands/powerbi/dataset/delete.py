@@ -30,8 +30,8 @@ def delete(
     """
     Delete a powerbi dataset in the current workspace
     """
-    api_powerbi = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
-    response = api_powerbi.delete(
+    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
+    response = service.delete(
         workspace_id=workspace_id,
         force_validation=force_validation,
         dataset_id=dataset_id,

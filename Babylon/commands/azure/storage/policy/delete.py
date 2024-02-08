@@ -24,6 +24,6 @@ def delete(
     """
     Delete default policy storage account
     """
-    api_storage_policy = AzureStoragePolicyService(storage_mgmt_client=storage_mgmt_client)
-    api_storage_policy.delete(account_name=account_name)
+    service = AzureStoragePolicyService(storage_mgmt_client=storage_mgmt_client)
+    service.delete(account_name=account_name)
     return CommandResponse.success()

@@ -30,6 +30,6 @@ def get(
     """
     Get parameters of a given dataset
     """
-    api_powerbi = AzurePowerBIParamsService(powerbi_token=powerbi_token, state=context)
-    response = api_powerbi.get(workspace_id=workspace_id, dataset_id=dataset_id)
+    service = AzurePowerBIParamsService(powerbi_token=powerbi_token, state=context)
+    response = service.get(workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse.success(response, verbose=True)

@@ -22,6 +22,6 @@ def create(powerbi_token: str, name: str, select: bool) -> CommandResponse:
     """
     Create workspace named WORKSPACE_NAME into Power Bi App
     """
-    api_powerbi_wrokspace = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token)
-    response = api_powerbi_wrokspace.create(name=name)
+    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token)
+    response = service.create(name=name)
     return CommandResponse.success(response, verbose=True)
