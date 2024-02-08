@@ -8,7 +8,7 @@ from click import option
 from click import Path
 
 from Babylon.commands.azure.staticwebapp.custom_domain.service.api import AzureSWACustomDomainService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
@@ -25,9 +25,9 @@ logger = logging.getLogger("Babylon")
         help="Your custom custom-domain description file yaml")
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())
-@inject_context_with_resource({'azure': ['resource_group_name']})
+@retrieve_state
 def update(
-    context: Any,
+    state: Any,
     azure_token: str,
     webapp_name: str,
     domain_name: str,
@@ -37,7 +37,7 @@ def update(
     Update a static webapp custom domain in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
-    service = AzureSWACustomDomainService(azure_token=azure_token, state=context)
+    service = AzureSWACustomDomainService(azure_token=azure_token, state=state)
     response = service.upsert(
         webapp_name=webapp_name,
         domain_name=domain_name,

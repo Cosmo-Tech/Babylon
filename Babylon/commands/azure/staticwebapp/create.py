@@ -10,7 +10,7 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.commands.azure.staticwebapp.service.api import AzureSWAService
 
 logger = logging.getLogger("Babylon")
@@ -27,9 +27,9 @@ env = Environment()
     help="Your custom staticwebapp description file yaml",
 )
 @argument("webapp_name", type=QueryType())
-@inject_context_with_resource({"azure": ["resource_group_name", "subscription_id"]})
+@retrieve_state
 def create(
-    context: Any,
+    state: Any,
     azure_token: str,
     webapp_name: str,
     swa_file: Optional[pathlib.Path] = None,
@@ -38,7 +38,7 @@ def create(
     Create a static webapp data in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
-    service = AzureSWAService(azure_token=azure_token, state=context)
+    service = AzureSWAService(azure_token=azure_token, state=state)
     response = service.create(
         webapp_name=webapp_name,
         swa_file=swa_file,
