@@ -21,8 +21,8 @@ def get_current(
     """
     Get a specific workspace information
     """
-    api_powerbi_wrokspace = AzurePowerBIWorkspaceService(
+    service = AzurePowerBIWorkspaceService(
         powerbi_token=powerbi_token, state=context
     )
-    response = api_powerbi_wrokspace.get_current()
+    response = service.get_current()
     return CommandResponse(data=response, verbose=True)

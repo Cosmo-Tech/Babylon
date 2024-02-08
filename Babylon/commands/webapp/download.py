@@ -22,6 +22,6 @@ def download(context: Any, destination_folder: pathlib.Path) -> CommandResponse:
     """
     Download the github repository locally
     """
-    api_web_app = AzureWebAppService(state=context)
-    api_web_app.download(destination_folder=destination_folder)
+    service = AzureWebAppService(state=context)
+    service.download(destination_folder=destination_folder)
     return CommandResponse.success()

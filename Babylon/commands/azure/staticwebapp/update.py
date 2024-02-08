@@ -38,8 +38,8 @@ def update(
     Update a static webapp data in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
-    api_swa = AzureSWAService(azure_token=azure_token, state=context)
-    response = api_swa.update(
+    service = AzureSWAService(azure_token=azure_token, state=context)
+    response = service.update(
         webapp_name=webapp_name,
         swa_file=swa_file,
     )

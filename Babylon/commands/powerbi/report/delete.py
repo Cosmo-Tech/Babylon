@@ -30,10 +30,10 @@ def delete(
     """
     Delete a powerbi report in the current workspace
     """
-    api_powerbi_report = AzurePowerBIReportService(
+    service = AzurePowerBIReportService(
         powerbi_token=powerbi_token, state=context
     )
-    api_powerbi_report.delete(
+    service.delete(
         workspace_id=workspace_id,
         report_id=report_id,
         force_validation=force_validation,

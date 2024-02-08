@@ -29,6 +29,6 @@ def take_over(
     """
     Take ownership of a powerbi dataset in the current workspace
     """
-    api_powerbi = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
-    api_powerbi.take_over(workspace_id=workspace_id, dataset_id=dataset_id)
+    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
+    service.take_over(workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse.success()

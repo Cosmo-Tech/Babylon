@@ -39,8 +39,8 @@ def delete(
     """
     Delete database in ADX cluster
     """
-    apiAdxDatabase = AdxDatabaseService(kusto_client=kusto_client, state=context)
-    apiAdxDatabase.delete(
+    service = AdxDatabaseService(kusto_client=kusto_client, state=context)
+    service.delete(
         name=name,
         current=current,
     )

@@ -25,6 +25,6 @@ def delete(
     """
     Delete a blob storage container
     """
-    api_storage = AzureStorageContainerService(blob_client=blob_client)
-    api_storage.delete(name=name, force_validation=force_validation)
+    service = AzureStorageContainerService(blob_client=blob_client)
+    service.delete(name=name, force_validation=force_validation)
     return CommandResponse.success()

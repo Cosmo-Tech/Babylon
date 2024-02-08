@@ -21,6 +21,6 @@ def get_all(azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     Get all AD groups from current subscription
     https://learn.microsoft.com/en-us/graph/api/group-list
     """
-    apiGroup = AzureDirectoyGroupService()
-    response = apiGroup.get_all(azure_token=azure_token)
+    service = AzureDirectoyGroupService()
+    response = service.get_all(azure_token=azure_token)
     return CommandResponse.success(response, verbose=True)

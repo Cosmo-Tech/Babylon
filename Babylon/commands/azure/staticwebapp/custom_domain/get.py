@@ -29,8 +29,8 @@ def get(
     Get a static webapp custom domain for the given static web app
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/get-static-site-custom-domain
     """
-    api_swa_custom_domain = AzureSWACustomDomainService(azure_token=azure_token, state=context)
-    response = api_swa_custom_domain.get(
+    service = AzureSWACustomDomainService(azure_token=azure_token, state=context)
+    response = service.get(
         webapp_name=webapp_name,
         domain_name=domain_name,
     )
