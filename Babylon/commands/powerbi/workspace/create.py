@@ -18,7 +18,7 @@ env = Environment()
 @output_to_file
 @pass_powerbi_token()
 @argument("name", type=QueryType())
-def create(powerbi_token: str, name: str, select: bool) -> CommandResponse:
+def create(powerbi_token: str, name: str) -> CommandResponse:
     """
     Create workspace named WORKSPACE_NAME into Power Bi App
     """

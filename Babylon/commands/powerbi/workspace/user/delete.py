@@ -7,7 +7,7 @@ from click import option
 from Babylon.commands.powerbi.workspace.user.service.api import (
     AzurePowerBIWorkspaceUserService,
 )
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -21,9 +21,9 @@ logger = logging.getLogger("Babylon")
 @option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("email", type=QueryType())
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def delete(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     workspace_id: Optional[str],
     email: str,
@@ -32,9 +32,7 @@ def delete(
     """
     Delete IDENTIFIER from the power bi workspace
     """
-    service = AzurePowerBIWorkspaceUserService(
-        powerbi_token=powerbi_token, state=context
-    )
+    service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=state)
     service.delete(
         workspace_id=workspace_id, force_validation=force_validation, email=email
     )

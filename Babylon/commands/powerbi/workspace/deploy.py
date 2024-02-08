@@ -9,7 +9,7 @@ from click import argument
 from click import command
 from click import option
 from Babylon.utils.checkers import check_email, check_encoding_key
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
 from Babylon.utils.macro import Macro
@@ -33,8 +33,8 @@ env = Environment()
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict ?")
 @option("--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True, help="Report type")
 @argument("workspace_name", type=QueryType())
-@inject_context_with_resource({"adx": ['database_name', 'cluster_uri'], "azure": ['email']})
-def deploy(context: Any,
+@retrieve_state
+def deploy(state: Any,
            workspace_name: str,
            report_folder: pathlib.Path,
            report_type: str,
@@ -45,12 +45,12 @@ def deploy(context: Any,
     Requires a local folder named `POWERBI` and will initialize a full workspace with the given reports  
     Won't run powerbi workspace creation if it's already existing  
     """
-    email = context['azure_email']
+    email = state['azure_email']
     check_email(email)
     check_encoding_key()
 
-    adx_cluster = context['adx_cluster_uri']
-    adx_database = context['adx_database_name']
+    adx_cluster = state['adx_cluster_uri']
+    adx_database = state['adx_database_name']
     report_params = " ".join([f"--parameter {param[0]} {param[1]}"
                               for param in report_parameters]) if report_parameters else ""
     if not report_params:

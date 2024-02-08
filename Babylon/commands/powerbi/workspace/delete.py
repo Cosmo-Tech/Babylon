@@ -8,7 +8,10 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import (
+    retrieve_state,
+    wrapcontext,
+)
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -19,17 +22,13 @@ env = Environment()
 @pass_powerbi_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def delete(
-    context: Any, powerbi_token: str, workspace_id: str, force_validation: bool
+    state: Any, powerbi_token: str, workspace_id: str, force_validation: bool
 ) -> CommandResponse:
     """
     Delete workspace from Power Bi APP
     """
-    service = AzurePowerBIWorkspaceService(
-        powerbi_token=powerbi_token, state=context
-    )
-    service.delete(
-        workspace_id=workspace_id, force_validation=force_validation
-    )
+    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=state)
+    service.delete(workspace_id=workspace_id, force_validation=force_validation)
     return CommandResponse.success()

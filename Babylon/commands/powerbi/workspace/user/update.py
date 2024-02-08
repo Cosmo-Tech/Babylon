@@ -8,7 +8,10 @@ from click import option
 from Babylon.commands.powerbi.workspace.user.service.api import (
     AzurePowerBIWorkspaceUserService,
 )
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import (
+    retrieve_state,
+    wrapcontext,
+)
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -28,9 +31,9 @@ logger = logging.getLogger("Babylon")
         ["Admin", "Contributor", "Member", "Viewer", "None"], case_sensitive=False
     ),
 )
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def update(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     workspace_id: Optional[str],
     email: str,
@@ -40,9 +43,7 @@ def update(
     """
     Updates an existing user in the power bi workspace
     """
-    service = AzurePowerBIWorkspaceUserService(
-        powerbi_token=powerbi_token, state=context
-    )
+    service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=state)
     response = service.update(
         workspace_id=workspace_id, right=right, type=type, email=email
     )
