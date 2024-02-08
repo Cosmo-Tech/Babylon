@@ -3,8 +3,14 @@ import pathlib
 
 from typing import Any
 from click import Path
+<<<<<<< HEAD
 from click import option
 from click import command
+=======
+from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
+from Babylon.utils.credentials import pass_powerbi_token
+from Babylon.utils.decorators import retrieve_state, wrapcontext
+>>>>>>> cc0b634d (add new state to powerbi)
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -28,6 +34,7 @@ env = Environment()
     default="powerbi",
 )
 @retrieve_state
+<<<<<<< HEAD
 def download_all(state: Any, powerbi_token: str, workspace_id: str, output_folder: pathlib.Path) -> CommandResponse:
     """
     Download all reports from a workspace
@@ -36,3 +43,14 @@ def download_all(state: Any, powerbi_token: str, workspace_id: str, output_folde
     service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=service_state)
     service.download_all(workspace_id=workspace_id, output_folder=output_folder)
     return CommandResponse.success()
+=======
+def download_all(
+    state: Any, powerbi_token: str, workspace_id: str, output_folder: pathlib.Path
+) -> CommandResponse:
+    """
+    Download all reports from a workspace
+    """
+    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=state)
+    macro = service.download_all(workspace_id=workspace_id, output_folder=output_folder)
+    return CommandResponse.success(macro.env.get_data(["reports", "data"]))
+>>>>>>> cc0b634d (add new state to powerbi)

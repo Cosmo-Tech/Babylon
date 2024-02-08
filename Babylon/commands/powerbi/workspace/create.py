@@ -17,7 +17,11 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_powerbi_token()
+<<<<<<< HEAD
 @argument("name", type=str)
+=======
+@argument("name", type=QueryType())
+>>>>>>> cc0b634d (add new state to powerbi)
 def create(powerbi_token: str, name: str) -> CommandResponse:
     """
     Create workspace named WORKSPACE_NAME into Power Bi App

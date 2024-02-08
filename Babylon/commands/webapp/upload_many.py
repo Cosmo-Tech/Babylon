@@ -6,7 +6,11 @@ from typing import Any, Iterable
 from click import command, option
 from Babylon.utils.response import CommandResponse
 from Babylon.commands.webapp.service.api import AzureWebAppService
+<<<<<<< HEAD
 from Babylon.utils.decorators import retrieve_state, injectcontext
+=======
+from Babylon.utils.decorators import retrieve_state, wrapcontext
+>>>>>>> cc0b634d (add new state to powerbi)
 
 logger = logging.getLogger("Babylon")
 
@@ -27,7 +31,11 @@ def upload_many(
     Upload files to the webapp github repository
     """
     # Get parent git repository of the workflow file
+<<<<<<< HEAD
     service_state = state['services']
     service = AzureWebAppService(state=service_state)
+=======
+    service = AzureWebAppService(state=state)
+>>>>>>> cc0b634d (add new state to powerbi)
     service.upload_many(files=files)
     return CommandResponse.success()
