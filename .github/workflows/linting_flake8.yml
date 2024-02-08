@@ -8,6 +8,7 @@ on:
     branches:
       - "main"
       - "**-dev"
+      - "feat**"
 jobs:
   flake8-lint:
     runs-on: ubuntu-latest
