@@ -22,7 +22,7 @@ def status(state: Any, azure_token: str, organization_id: str, scenariorun_id: s
     """
     Get the status of the scenarioRun
     """
-    state = state['state']
+    state = state['services']
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
     state['api']['scenariorun_id'] = scenariorun_id or state['api'].get('scenariorun_id')
     if state['api']['scenariorun_id'] is None:
