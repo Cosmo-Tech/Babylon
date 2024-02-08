@@ -7,7 +7,7 @@ from click import command
 from Babylon.commands.azure.func.service.api import AzureAppFunctionService
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_arm_client
 
@@ -25,11 +25,9 @@ env = Environment()
     help="Flag to run on complete mode",
 )
 @argument("deployment_name", type=QueryType())
-@inject_context_with_resource(
-    {"api": ["organization_id", "workspace_key"], "azure": ["resource_group_name"]}
-)
+@retrieve_state
 def deploy(
-    context: Any,
+    state: Any,
     arm_client: ResourceManagementClient,
     deployment_name: str,
     deploy_mode_complete: bool,
@@ -37,7 +35,7 @@ def deploy(
     """
     Deploy a new function Scenario Donwload
     """
-    service = AzureAppFunctionService(arm_client=arm_client, state=context)
+    service = AzureAppFunctionService(arm_client=arm_client, state=state)
     service.deploy(
         deployment_name=deployment_name,
         deploy_mode_complete=deploy_mode_complete,
