@@ -41,6 +41,6 @@ def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
     """
     Update a github workflow file to read environment from a config.json file during deployment
     """
-    api_web_app = AzureWebAppService()
-    api_web_app.update_workflow(workflow_file=workflow_file)
+    service = AzureWebAppService()
+    service.update_workflow(workflow_file=workflow_file)
     return CommandResponse.success()

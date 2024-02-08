@@ -26,6 +26,6 @@ def get_all(
     get all app insight data from a resource group
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/list-by-resource-group
     """
-    apiAppInsight = AzureAppInsightService(azure_token=azure_token, state=context)
-    response = apiAppInsight.get_all()
+    service = AzureAppInsightService(azure_token=azure_token, state=context)
+    response = service.get_all()
     return CommandResponse.success(response, verbose=True)

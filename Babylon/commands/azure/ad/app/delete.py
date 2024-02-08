@@ -20,6 +20,6 @@ def delete(object_id: str, azure_token: str) -> CommandResponse:
     Delete an app in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-delete
     """
-    apiApp = AzureDirectoyAppService(azure_token=azure_token)
-    apiApp.delete(object_id)
+    service = AzureDirectoyAppService(azure_token=azure_token)
+    service.delete(object_id)
     return CommandResponse.success(None, verbose=True)

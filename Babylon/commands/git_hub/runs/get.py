@@ -20,6 +20,6 @@ def get(context: Any, workflow_name: Optional[str] = None) -> CommandResponse:
     """
     Get github workflow 
     """
-    api_runs_github = GitHubRunsService(state=context)
-    response = api_runs_github.get(workflow_name=workflow_name)
+    service = GitHubRunsService(state=context)
+    response = service.get(workflow_name=workflow_name)
     return CommandResponse.success(response, verbose=True)

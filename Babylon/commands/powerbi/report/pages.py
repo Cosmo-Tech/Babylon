@@ -42,10 +42,10 @@ def pages(
     """
     Get info from a powerbi report of a workspace
     """
-    api_powerbi_report = AzurePowerBIReportService(
+    service = AzurePowerBIReportService(
         powerbi_token=powerbi_token, state=context
     )
-    api_powerbi_report.pages(
+    service.pages(
         workspace_id=workspace_id, report_id=report_id, report_type=report_type
     )
     return CommandResponse.success()

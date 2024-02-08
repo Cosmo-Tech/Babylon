@@ -18,6 +18,6 @@ def cancel(context: Any) -> CommandResponse:
     """
     Cancel a github workflow from run url
     """
-    api_runs_github = GitHubRunsService(state=context)
-    response = api_runs_github.cancel()
+    service = GitHubRunsService(state=context)
+    response = service.cancel()
     return CommandResponse.success(response, verbose=True)

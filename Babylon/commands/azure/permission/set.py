@@ -62,8 +62,8 @@ def set(
     """
     Assign a new role in resource given
     """
-    apiIam = AzureIamService(iam_client=iam_client, state=context)
-    apiIam.set(
+    service = AzureIamService(iam_client=iam_client, state=context)
+    service.set(
         principal_id=principal_id,
         principal_type=principal_type,
         resource_type=resource_type,

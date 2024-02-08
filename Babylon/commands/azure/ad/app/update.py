@@ -32,8 +32,8 @@ def update(azure_token: str, object_id: str, registration_file: str) -> CommandR
     Update an app registration in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-update
     """
-    apiApp = AzureDirectoyAppService(azure_token=azure_token)
-    apiApp.update(
+    service = AzureDirectoyAppService(azure_token=azure_token)
+    service.update(
         object_id=object_id,
         registration_file=registration_file,
     )

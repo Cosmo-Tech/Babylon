@@ -24,6 +24,6 @@ def get(scope: str, email: str) -> CommandResponse:
     """
     Get un acces token using a secret key
     """
-    api_token = AzureTokenService()
-    response = api_token.get(email=email, scope=scope)
+    service = AzureTokenService()
+    response = service.get(email=email, scope=scope)
     return CommandResponse.success(response, verboser=True)

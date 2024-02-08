@@ -29,6 +29,6 @@ def delete(context: Any, image: Optional[str] = None, force_validation: Optional
     state['acr']['login_server'] = context['acr_login_server']
     state['acr']['simulator_repository'] = context['acr_simulator_repository']
     state['acr']['simulator_version'] = context['acr_simulator_version']
-    acrApi = AzureContainerRegistryService(state=state)
-    acrApi.delete(state, image_tag=image)
+    service = AzureContainerRegistryService(state=state)
+    service.delete(state, image_tag=image)
     return CommandResponse.success()

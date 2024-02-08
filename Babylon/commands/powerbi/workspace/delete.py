@@ -26,10 +26,10 @@ def delete(
     """
     Delete workspace from Power Bi APP
     """
-    api_powerbi_wrokspace = AzurePowerBIWorkspaceService(
+    service = AzurePowerBIWorkspaceService(
         powerbi_token=powerbi_token, state=context
     )
-    api_powerbi_wrokspace.delete(
+    service.delete(
         workspace_id=workspace_id, force_validation=force_validation
     )
     return CommandResponse.success()

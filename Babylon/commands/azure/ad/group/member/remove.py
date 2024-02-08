@@ -24,6 +24,6 @@ def remove(azure_token: str, group_id: str, principal_id: str, force_validation:
     """
     if not force_validation and not confirm_deletion("member", principal_id):
         return CommandResponse.fail()
-    apiMember = AzureDirectoyMemberService(azure_token=azure_token)
-    apiMember.remove(group_id=group_id, principal_id=principal_id)
+    service = AzureDirectoyMemberService(azure_token=azure_token)
+    service.remove(group_id=group_id, principal_id=principal_id)
     return CommandResponse.success()

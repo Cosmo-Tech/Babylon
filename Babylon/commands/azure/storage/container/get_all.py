@@ -20,6 +20,6 @@ def get_all(blob_client: BlobServiceClient, filter: Optional[str] = None) -> Com
     """
     Get all blob storage containers
     """
-    api_storage = AzureStorageContainerService(blob_client=blob_client)
-    response = api_storage.get_all(filter=filter)
+    service = AzureStorageContainerService(blob_client=blob_client)
+    response = service.get_all(filter=filter)
     return CommandResponse.success(response, verbose=True)

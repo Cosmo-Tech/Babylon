@@ -31,8 +31,8 @@ def add(
     """
     Add user to dataset
     """
-    api_powerbi_users = AzurePowerBUsersIService(
+    service = AzurePowerBUsersIService(
         powerbi_token=powerbi_token, state=context
     )
-    response = api_powerbi_users.add(email=email, workspace_id=workspace_id, dataset_id=dataset_id)
+    response = service.add(email=email, workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse.success(response.text, verbose=True)

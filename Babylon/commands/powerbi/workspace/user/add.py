@@ -40,10 +40,10 @@ def add(
     """
     Adds a new user to the power bi workspace using the following information:
     """
-    api_powerbi_work_user = AzurePowerBIWorkspaceUserService(
+    service = AzurePowerBIWorkspaceUserService(
         powerbi_token=powerbi_token, state=context
     )
-    api_powerbi_work_user.add(
+    service.add(
         workspace_id=workspace_id, right=right, type=type, email=identifier
     )
     return CommandResponse.success()

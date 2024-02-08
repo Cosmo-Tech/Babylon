@@ -32,10 +32,10 @@ def delete(
     """
     Delete IDENTIFIER from the power bi workspace
     """
-    api_powerbi_work_user = AzurePowerBIWorkspaceUserService(
+    service = AzurePowerBIWorkspaceUserService(
         powerbi_token=powerbi_token, state=context
     )
-    api_powerbi_work_user.delete(
+    service.delete(
         workspace_id=workspace_id, force_validation=force_validation, email=email
     )
     return CommandResponse.success()

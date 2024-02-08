@@ -28,8 +28,8 @@ def get_all(
     """
     List all exisiting users in the power bi workspace
     """
-    api_powerbi_work_user = AzurePowerBIWorkspaceUserService(
+    service = AzurePowerBIWorkspaceUserService(
         powerbi_token=powerbi_token, state=context
     )
-    response = api_powerbi_work_user.get_all(workspace_id=workspace_id, filter=filter)
+    response = service.get_all(workspace_id=workspace_id, filter=filter)
     return CommandResponse.success(response, verbose=True)

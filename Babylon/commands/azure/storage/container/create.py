@@ -21,6 +21,6 @@ def create(blob_client: BlobServiceClient, name: str) -> CommandResponse:
     """
     Creates a blob storage container
     """
-    api_storage = AzureStorageContainerService(blob_client=blob_client)
-    response = api_storage.create(name=name)
+    service = AzureStorageContainerService(blob_client=blob_client)
+    response = service.create(name=name)
     return CommandResponse({"name": name, "url": response.url})

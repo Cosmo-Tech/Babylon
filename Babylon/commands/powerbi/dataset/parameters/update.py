@@ -37,6 +37,6 @@ def update(
     """
     Update parameters of a given dataset
     """
-    api_powerbi = AzurePowerBIParamsService(powerbi_token=powerbi_token, state=context)
-    api_powerbi.update(workspace_id=workspace_id, params=params, dataset_id=dataset_id)
+    service = AzurePowerBIParamsService(powerbi_token=powerbi_token, state=context)
+    service.update(workspace_id=workspace_id, params=params, dataset_id=dataset_id)
     return CommandResponse.success()
