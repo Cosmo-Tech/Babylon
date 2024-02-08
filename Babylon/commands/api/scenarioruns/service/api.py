@@ -4,7 +4,7 @@ from Babylon.utils.request import oauth_request
 
 
 class ScenarioRunService:
-    def __init__(self, state: dict, azure_token: str, spec: Optional[dict] = None):
+    def __init__(self, state: dict, azure_token: str, spec: Optional[dict]=None):
         self.state = state
         self.spec = spec
         self.azure_token = azure_token
