@@ -15,6 +15,7 @@ env = Environment()
 
 
 class OrganizationsService:
+
     def __init__(self, states: dict, azure_token: str, spec: Optional[dict] = None):
         self.states = states
         self.azure_token = azure_token
@@ -35,7 +36,7 @@ class OrganizationsService:
                                         "name": name,
                                         "security_id": security_id,
                                         "security_role": security_role.lower()
-                                    })        
+                                    })
         url = self.states["api"]["url"]
         return oauth_request(f"{url}/organizations", self.azure_token, type="POST", data=details)
 
@@ -52,7 +53,7 @@ class OrganizationsService:
             return CommandResponse.fail()
         if not organization_id:
             logger.error("Organization id is missing")
-            return CommandResponse.fail()        
+            return CommandResponse.fail()
         return oauth_request(f"{url}/organizations/{organization_id}", self.azure_token, type="DELETE")
 
     def get(self, ctx: Context):
@@ -65,7 +66,7 @@ class OrganizationsService:
         organization_id = id or organization_id
         if not organization_id:
             logger.error("Organization id is missing")
-            return CommandResponse.fail()  
+            return CommandResponse.fail()
 
         return oauth_request(f"{url}/organizations/{organization_id}", self.azure_token)
 
@@ -80,5 +81,5 @@ class OrganizationsService:
         organization_file = organization_file or env.working_dir.payload_path / path_file
         if not organization_file.exists():
             return CommandResponse.fail()
-        details = env.fill_template(organization_file)        
+        details = env.fill_template(organization_file)
         return oauth_request(f"{url}/organizations/{organization_id}", self.azure_token, type="PATCH", data=details)
