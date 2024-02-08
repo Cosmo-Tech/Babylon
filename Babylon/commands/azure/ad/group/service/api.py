@@ -9,7 +9,7 @@ class AzureDirectoyGroupService:
     def __init__(self, azure_token: str) -> None:
         self.azure_token = azure_token
 
-    def get_all(self):
+    def get_all(self, filter: bool):
         route = "https://graph.microsoft.com/v1.0/groups/"
         response = oauth_request(route, self.azure_token)
         if response is None:
