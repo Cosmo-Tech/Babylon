@@ -10,8 +10,8 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.utils.decorators import (
-    inject_context_with_resource,
     output_to_file,
+    retrieve_state,
     wrapcontext,
 )
 
@@ -31,9 +31,9 @@ env = Environment()
 )
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def pages(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     report_id: str,
     report_type: str,
@@ -42,9 +42,7 @@ def pages(
     """
     Get info from a powerbi report of a workspace
     """
-    service = AzurePowerBIReportService(
-        powerbi_token=powerbi_token, state=context
-    )
+    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=state)
     service.pages(
         workspace_id=workspace_id, report_id=report_id, report_type=report_type
     )

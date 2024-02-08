@@ -8,7 +8,10 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import (
+    retrieve_state,
+    wrapcontext,
+)
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -19,9 +22,9 @@ env = Environment()
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--name", "name", help="PowerBI workspace name", type=QueryType())
-@inject_context_with_resource({"powerbi": ['workspace']})
+@retrieve_state
 def get(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     workspace_id: Optional[str] = None,
     name: Optional[str] = None,
@@ -29,8 +32,6 @@ def get(
     """
     Get a specific workspace information
     """
-    service = AzurePowerBIWorkspaceService(
-        powerbi_token=powerbi_token, state=context
-    )
+    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=state)
     response = service.get(workspace_id=workspace_id, name=name)
     return CommandResponse.success(response, verbose=True)

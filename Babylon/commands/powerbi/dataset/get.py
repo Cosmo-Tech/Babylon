@@ -5,7 +5,7 @@ from click import command
 from click import option
 from click import argument
 from Babylon.commands.powerbi.dataset.service.api import AzurePowerBIDatasetService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -20,9 +20,9 @@ logger = logging.getLogger("Babylon")
 @argument("dataset_id", type=QueryType())
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @output_to_file
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def get(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     workspace_id: str,
     dataset_id: str,
@@ -30,6 +30,6 @@ def get(
     """
     Get a powerbi dataset in the current workspace
     """
-    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
+    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=state)
     response = service.get(workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse.success(response, verbose=True)

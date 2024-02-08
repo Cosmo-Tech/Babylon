@@ -6,7 +6,7 @@ from typing import Any, Iterable
 from click import command, option
 from Babylon.utils.response import CommandResponse
 from Babylon.commands.webapp.service.api import AzureWebAppService
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 
 logger = logging.getLogger("Babylon")
 
@@ -18,15 +18,15 @@ logger = logging.getLogger("Babylon")
         type=(pathlib.Path),
         multiple=True,
         help="Add a combination <Key Value> that will be sent as parameter to all your datasets")
-@inject_context_with_resource({"github": ["branch"]})
+@retrieve_state
 def upload_many(
-    context: Any,
+    state: Any,
     files: Optional[Iterable[pathlib.Path]] = None,
 ) -> CommandResponse:
     """
     Upload files to the webapp github repository
     """
     # Get parent git repository of the workflow file
-    service = AzureWebAppService(state=context)
+    service = AzureWebAppService(state=state)
     service.upload_many(files=files)
     return CommandResponse.success()

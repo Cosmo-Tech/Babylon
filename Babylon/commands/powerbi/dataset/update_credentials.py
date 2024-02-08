@@ -7,7 +7,7 @@ from click import option
 from Babylon.commands.powerbi.dataset.service.api import AzurePowerBIDatasetService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.credentials import pass_powerbi_token
 
 logger = logging.getLogger("Babylon")
@@ -18,9 +18,9 @@ logger = logging.getLogger("Babylon")
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("dataset_id", type=QueryType())
-@inject_context_with_resource({"powerbi": ["workspace"]})
+@retrieve_state
 def update_credentials(
-    context: Any,
+    state: Any,
     powerbi_token: str,
     workspace_id: str,
     dataset_id: str,
@@ -28,6 +28,6 @@ def update_credentials(
     """
     Update azure credentials of a given datasource
     """
-    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=context)
+    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=state)
     service.update_credentials(workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse()
