@@ -35,7 +35,8 @@ def deploy(
     """
     Deploy a new function Scenario Donwload
     """
-    service = AzureAppFunctionService(arm_client=arm_client, state=state)
+    service_state = state['services']
+    service = AzureAppFunctionService(arm_client=arm_client, state=service_state)
     service.deploy(
         deployment_name=deployment_name,
         deploy_mode_complete=deploy_mode_complete,

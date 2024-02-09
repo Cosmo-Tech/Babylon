@@ -39,9 +39,7 @@ class AdxDatabaseService:
         )
         name = name or f"{organization_id}-{workspace_key}"
         try:
-            name_request = CheckNameRequest(
-                name=name, type="Microsoft.Kusto/clusters/databases"
-            )
+            name_request = CheckNameRequest(name=name, type="Microsoft.Kusto/clusters/databases")
             name_result = self.kusto_client.databases.check_name_availability(
                 resource_group_name=resource_group_name,
                 cluster_name=adx_cluster_name,
@@ -73,15 +71,11 @@ class AdxDatabaseService:
         # init bd with policies
         script_name = f"initdb-{name}.kusto"
         batching_policy = json.dumps({"MaximumBatchingTimeSpan": "00:00:10"})
-        script_content = (
-            f".alter database ['{name}'] policy streamingingestion disable\n"
-        )
+        script_content = (f".alter database ['{name}'] policy streamingingestion disable\n")
         script_content += "//\n"
         script_content += f".alter-merge database ['{name}'] policy retention softdelete = {retention}d"
         script_content += "//\n"
-        script_content += (
-            f".alter database ['{name}'] policy ingestionbatching '{batching_policy}'"
-        )
+        script_content += (f".alter database ['{name}'] policy ingestionbatching '{batching_policy}'")
         s = self.kusto_client.scripts.begin_create_or_update(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
@@ -92,9 +86,7 @@ class AdxDatabaseService:
             polling_interval=1,
         )
         try:
-            with progressbar(
-                length=20, label="Waiting for init script to finish"
-            ) as bar:
+            with progressbar(length=20, label="Waiting for init script to finish") as bar:
                 for _ in bar:
                     if not s.done():
                         s.wait(1)

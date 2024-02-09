@@ -7,8 +7,7 @@ from click import argument
 from click import Path
 from click import option
 from Babylon.commands.azure.staticwebapp.app_settings.service.api import (
-    AzureSWASettingsAppService,
-)
+    AzureSWASettingsAppService, )
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
@@ -30,14 +29,13 @@ env = Environment()
 )
 @argument("webapp_name", type=QueryType())
 @retrieve_state
-def update(
-    state: Any, azure_token: str, webapp_name: str, settings_file: pathlib.Path
-) -> CommandResponse:
+def update(state: Any, azure_token: str, webapp_name: str, settings_file: pathlib.Path) -> CommandResponse:
     """
     Update static webapp app settings in the given webapp
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-app-settings
     """
-    service = AzureSWASettingsAppService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureSWASettingsAppService(azure_token=azure_token, state=service_state)
     service.update(
         webapp_name=webapp_name,
         settings_file=settings_file,

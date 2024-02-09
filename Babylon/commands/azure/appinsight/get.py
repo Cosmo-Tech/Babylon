@@ -23,6 +23,7 @@ def get(state: Any, azure_token: str, name: str) -> CommandResponse:
     Get app insight data from a name
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/get
     """
-    service = AzureAppInsightService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureAppInsightService(azure_token=azure_token, state=service_state)
     response = service.get(name=name)
     return CommandResponse.success(response, verbose=True)

@@ -30,6 +30,7 @@ def get(
     """
     Get a powerbi dataset in the current workspace
     """
-    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=state)
+    service_state = state['services']
+    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=service_state)
     response = service.get(workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse.success(response, verbose=True)

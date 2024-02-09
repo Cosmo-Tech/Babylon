@@ -23,6 +23,7 @@ def delete(state: Any, image: Optional[str] = None) -> CommandResponse:
     """
     Delete docker image from selected repository
     """
-    service = AzureContainerRegistryService(state=state)
-    service.delete(state, image_tag=image)
+    service_state = state['services']
+    service = AzureContainerRegistryService(state=service_state)
+    service.delete(image_tag=image)
     return CommandResponse.success()

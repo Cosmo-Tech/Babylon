@@ -30,13 +30,12 @@ env = Environment()
 )
 @argument("name", type=QueryType())
 @retrieve_state
-def create(
-    state: Any, azure_token: str, name: str, registration_file: pathlib.Path
-) -> CommandResponse:
+def create(state: Any, azure_token: str, name: str, registration_file: pathlib.Path) -> CommandResponse:
     """
     Register an app in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-post-applications
     """
-    service = AzureDirectoyAppService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
     response = service.create(name=name, registration_file=registration_file)
     return CommandResponse.success(response, verbose=True)

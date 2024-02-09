@@ -10,9 +10,7 @@ class AzureDirectoyMemberService:
 
     def add(self, group_id: str, principal_id: str):
         route = f"https://graph.microsoft.com/v1.0/groups/{group_id}/members/$ref"
-        details = {
-            "@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{principal_id}"
-        }
+        details = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{principal_id}"}
         response = oauth_request(route, self.azure_token, type="POST", json=details)
         if response is None:
             return CommandResponse.fail()

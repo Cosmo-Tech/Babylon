@@ -17,13 +17,12 @@ env = Environment()
 @pass_azure_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
-def get_all(
-    state: Any, azure_token: str, filter: Optional[str] = None
-) -> CommandResponse:
+def get_all(state: Any, azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     """
     Get all static webapps within the subscription
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/list
     """
-    service = AzureSWAService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureSWAService(azure_token=azure_token, state=service_state)
     response = service.get_all()
     return CommandResponse.success(response, verbose=True)

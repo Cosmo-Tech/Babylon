@@ -24,9 +24,7 @@ class AzureStorageContainerService:
 
     def create(self, name: str):
         check_ascii(name)
-        logger.info(
-            f"Creating container {name} in storage account {self.blob_client.account_name}"
-        )
+        logger.info(f"Creating container {name} in storage account {self.blob_client.account_name}")
         name = name.lower()
         try:
             container = self.blob_client.create_container(name)
@@ -53,24 +51,19 @@ class AzureStorageContainerService:
         logger.info("Successfully deleted")
 
     def get_all(self, filter: bool):
-        logger.info(
-            f"Listing containers from storage account {self.blob_client.account_name}"
-        )
+        logger.info(f"Listing containers from storage account {self.blob_client.account_name}")
         try:
             containers = self.blob_client.list_containers()
         except Exception as e:
             logger.error(e.message)
             return CommandResponse.fail()
-        output_data = [
-            {
-                "name": container.name,
-                "lease": container.lease,
-                "etag": container.etag,
-                "deleted": container.deleted,
-                "public_access": container.public_access,
-            }
-            for container in containers
-        ]
+        output_data = [{
+            "name": container.name,
+            "lease": container.lease,
+            "etag": container.etag,
+            "deleted": container.deleted,
+            "public_access": container.public_access,
+        } for container in containers]
         if filter:
             output_data = jmespath.search(filter, output_data)
         return output_data

@@ -7,7 +7,6 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 
@@ -27,6 +26,7 @@ def store(state: Any, scope: str, email: str) -> CommandResponse:
     """
     Store a refresh token using a secret key
     """
-    service = AzureTokenService(state=state)
+    service_state = state['services']
+    service = AzureTokenService(state=service_state)
     service.store(email=email, scope=scope)
     return CommandResponse.success()

@@ -21,6 +21,7 @@ def add(state: Any, name: str, event_hub_name: str) -> CommandResponse:
     """
     Create new consumer group in EventHub
     """
-    service = AdxConsumerService(state=state)
+    service_state = state['services']
+    service = AdxConsumerService(state=service_state)
     service.add(name=name, event_hub_name=event_hub_name)
     return CommandResponse.success()

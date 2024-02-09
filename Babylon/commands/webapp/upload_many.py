@@ -27,6 +27,7 @@ def upload_many(
     Upload files to the webapp github repository
     """
     # Get parent git repository of the workflow file
-    service = AzureWebAppService(state=state)
+    service_state = state['services']
+    service = AzureWebAppService(state=service_state)
     service.upload_many(files=files)
     return CommandResponse.success()

@@ -4,7 +4,6 @@ import requests
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 
@@ -30,10 +29,7 @@ class GitHubRunsService:
         if response is None:
             return CommandResponse.fail()
         response = response.json()
-        responses = [
-            {"path": i.get("path"), "url": i.get("url")}
-            for i in response["workflow_runs"]
-        ]
+        responses = [{"path": i.get("path"), "url": i.get("url")} for i in response["workflow_runs"]]
         workflow_name = f"azure-static-web-apps-{workflow_name}.yml"
         for workflow in responses:
             if workflow_name in workflow.get("path"):
