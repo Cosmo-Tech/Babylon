@@ -27,6 +27,7 @@ def export_config(state: Any, config_file: Optional[pathlib.Path] = None) -> Com
     """
     Export webapp configuration in a json file
     """
-    service = AzureWebAppService(state=state)
+    service_state = state['services']
+    service = AzureWebAppService(state=service_state)
     response = service.expor_config(config_file=config_file)
     return CommandResponse.success(json.loads(response))

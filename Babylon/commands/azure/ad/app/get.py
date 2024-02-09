@@ -25,6 +25,7 @@ def get(state: Any, azure_token: str, object_id: str) -> CommandResponse:
     Get an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-get
     """
-    service = AzureDirectoyAppService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
     service.get(object_id=object_id)
     return CommandResponse.success(None, verbose=True)

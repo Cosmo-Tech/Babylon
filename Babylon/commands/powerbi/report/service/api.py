@@ -28,9 +28,7 @@ class AzurePowerBIReportService:
         if not force_validation and not confirm_deletion("report", report_id):
             return CommandResponse.fail()
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}"
-        response = oauth_request(
-            url=urls_reports, access_token=self.powerbi_token, type="DELETE"
-        )
+        response = oauth_request(url=urls_reports, access_token=self.powerbi_token, type="DELETE")
         if response is None:
             return CommandResponse.fail()
         return response
@@ -40,45 +38,39 @@ class AzurePowerBIReportService:
         logger.info(f"Downloading reports from workspace {workspace_id}...")
         if not output_folder.exists():
             output_folder.mkdir()
-        m = (
-            Macro("PowerBI download all", "powerbi")
-            .step(
-                [
-                    "powerbi",
-                    "report",
-                    "get-all",
-                    "-c",
-                    env.context_id,
-                    "-p",
-                    env.environ_id,
-                    "--workspace-id",
-                    workspace_id,
-                ],
-                store_at="reports",
-            )
-            .iterate(
-                "datastore.reports.data",
-                [
-                    "powerbi",
-                    "report",
-                    "download",
-                    "-c",
-                    env.context_id,
-                    "-p",
-                    env.environ_id,
-                    "--workspace-id",
-                    workspace_id,
-                    "%datastore%item.id",
-                    "--override",
-                    str(output_folder),
-                ],
-            )
-        )
+        m = (Macro("PowerBI download all", "powerbi").step(
+            [
+                "powerbi",
+                "report",
+                "get-all",
+                "-c",
+                env.context_id,
+                "-p",
+                env.environ_id,
+                "--workspace-id",
+                workspace_id,
+            ],
+            store_at="reports",
+        ).iterate(
+            "datastore.reports.data",
+            [
+                "powerbi",
+                "report",
+                "download",
+                "-c",
+                env.context_id,
+                "-p",
+                env.environ_id,
+                "--workspace-id",
+                workspace_id,
+                "%datastore%item.id",
+                "--override",
+                str(output_folder),
+            ],
+        ))
         reports = m.env.get_data(["reports", "data"])
         logger.info("Successfully saved the following reports:")
-        logger.info(
-            "\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports)
-        )
+        logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))
         return m
 
     def download(self, workspace_id: str, report_id: str, output_folder: Path):
@@ -97,9 +89,7 @@ class AzurePowerBIReportService:
 
     def get_all(self, workspace_id: str, filter: bool):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        urls_reports = (
-            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports"
-        )
+        urls_reports = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports")
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
             return CommandResponse.fail()
@@ -126,14 +116,9 @@ class AzurePowerBIReportService:
         output_data = response.json()
         pagesnames = jmespath.search("value[?order==`0`]", output_data)
         pagesname = pagesnames[0] if len(pagesnames) else "ReportSection"
-        data_file = (
-            env.configuration.config_dir
-            / f"{env.context_id}.{env.environ_id}.powerbi.yaml"
-        )
+        data_file = (env.configuration.config_dir / f"{env.context_id}.{env.environ_id}.powerbi.yaml")
         if not data_file.exists():
-            logger.info(
-                f"Config file {env.context_id}.{env.environ_id}.powerbi.yaml not found"
-            )
+            logger.info(f"Config file {env.context_id}.{env.environ_id}.powerbi.yaml not found")
             return CommandResponse.fail()
         data = yaml.load(data_file.open("r"), Loader=yaml.SafeLoader)
         _view = data[env.context_id][report_type]
@@ -164,10 +149,8 @@ class AzurePowerBIReportService:
             "Authorization": f"Bearer {self.powerbi_token}",
         }
         name_conflict = "CreateOrOverwrite" if override else "Abort"
-        route = (
-            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
-            f"/imports?datasetDisplayName={name}&nameConflict={name_conflict}"
-        )
+        route = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
+                 f"/imports?datasetDisplayName={name}&nameConflict={name_conflict}")
         session = requests.Session()
         with open(pbix_filename, "rb") as _f:
             try:
@@ -176,9 +159,7 @@ class AzurePowerBIReportService:
                 logger.error(f"Request failed: {e}")
                 return CommandResponse.fail()
             if response.status_code >= 300:
-                logger.error(
-                    f"Request failed ({response.status_code}): {response.text}"
-                )
+                logger.error(f"Request failed ({response.status_code}): {response.text}")
                 return CommandResponse.fail()
         import_data = response.json()
         # Wait for import end
@@ -194,10 +175,7 @@ class AzurePowerBIReportService:
         )
         output_data = handler.json()
         report_name = report_name or output_data["reports"][0]["name"]
-        data_file = (
-            env.configuration.config_dir
-            / f"{env.context_id}.{env.environ_id}.powerbi.yaml"
-        )
+        data_file = (env.configuration.config_dir / f"{env.context_id}.{env.environ_id}.powerbi.yaml")
         if data_file.exists():
             data = yaml.load(_f, Loader=yaml.SafeLoader)
         dashboard_view = data[env.context_id][report_type]

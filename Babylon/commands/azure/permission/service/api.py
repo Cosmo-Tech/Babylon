@@ -9,9 +9,7 @@ logger = logging.getLogger("Babylon")
 
 class AzureIamService:
 
-    def __init__(
-        self, iam_client: AuthorizationManagementClient, state: dict = None
-    ) -> None:
+    def __init__(self, iam_client: AuthorizationManagementClient, state: dict = None) -> None:
         self.state = state
         self.iam_client = iam_client
 
@@ -29,9 +27,7 @@ class AzureIamService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         principal_id = principal_id or self.state["platform"]["principal_id"]
 
-        resource_name = (
-            resource_name or f"{organization_id.lower()}-{workspace_key.lower()}"
-        )
+        resource_name = (resource_name or f"{organization_id.lower()}-{workspace_key.lower()}")
         prefix = f"/subscriptions/{azure_subscription}"
         scope = f"{prefix}/resourceGroups/{resource_group_name}/providers/{resource_type}/{resource_name}"
         role = f"{prefix}/providers/Microsoft.Authorization/roleDefinitions/{role_id}"

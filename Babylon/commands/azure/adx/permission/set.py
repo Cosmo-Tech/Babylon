@@ -37,7 +37,8 @@ def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role
     """
     Set permission assignments applied to the given principal id
     """
-    service = AdxPermissionService(kusto_client=kusto_client, state=state)
+    service_state = state['services']
+    service = AdxPermissionService(kusto_client=kusto_client, state=service_state)
     service.set(
         principal_id=principal_id,
         principal_type=principal_type,

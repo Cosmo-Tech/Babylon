@@ -30,8 +30,7 @@ class AzureSWACustomDomainService:
             return CommandResponse.fail()
         create_route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01"
-        )
+            f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01")
         details = '{"properties":{}}'
         if create_file:
             details = env.fill_template(create_file)
@@ -78,9 +77,7 @@ class AzureSWACustomDomainService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         if not force_validation and not confirm_deletion("domain", domain_name):
             return CommandResponse.fail()
-        logger.info(
-            f"Deleting custom domain {domain_name} for static webapp {webapp_name}"
-        )
+        logger.info(f"Deleting custom domain {domain_name} for static webapp {webapp_name}")
         response = oauth_request(
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01",

@@ -5,8 +5,7 @@ from click import command
 from click import argument
 from click import option
 from Babylon.commands.azure.staticwebapp.custom_domain.service.api import (
-    AzureSWACustomDomainService,
-)
+    AzureSWACustomDomainService, )
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -35,7 +34,8 @@ def delete(
     Delete static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/delete-static-site-custom-domain
     """
-    service = AzureSWACustomDomainService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureSWACustomDomainService(azure_token=azure_token, state=service_state)
     service.delete(
         webapp_name=webapp_name,
         domain_name=domain_name,

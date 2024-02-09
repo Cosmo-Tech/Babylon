@@ -7,8 +7,7 @@ from click import argument
 from click import Path
 from click import option
 from Babylon.commands.azure.staticwebapp.custom_domain.service.api import (
-    AzureSWACustomDomainService,
-)
+    AzureSWACustomDomainService, )
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
@@ -42,7 +41,8 @@ def create(
     Create a static webapp custom domain in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site-custom-domain
     """
-    service = AzureSWACustomDomainService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureSWACustomDomainService(azure_token=azure_token, state=service_state)
     response = service.upsert(
         webapp_name=webapp_name,
         domain_name=domain_name,

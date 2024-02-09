@@ -25,6 +25,7 @@ def get_principal(state: Any, azure_token: str, object_id: str) -> CommandRespon
     Get an app registration service principal
     https://learn.microsoft.com/en-us/graph/api/serviceprincipal-get
     """
-    service = AzureDirectoyAppService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
     service.get_principal(object_id=object_id)
     return CommandResponse.success(None, verbose=True)

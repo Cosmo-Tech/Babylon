@@ -59,7 +59,8 @@ def upload(
     """
     Publish the given pbxi file to the PowerBI workspace
     """
-    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=state)
+    service_state = state['services']
+    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=service_state)
     service.upload(
         workspace_id=workspace_id,
         pbix_filename=pbix_filename,

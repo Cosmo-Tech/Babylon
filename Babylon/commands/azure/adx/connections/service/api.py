@@ -16,16 +16,8 @@ class AdxConnectionService:
         self.state = state
         self.kusto_client = kusto_client
 
-    def create(
-        self,
-        database_name: str,
-        connection_name: str,
-        consumer_group: str,
-        data_format: str,
-        compression_value: str,
-        table_name: str,
-        mapping: str
-    ):
+    def create(self, database_name: str, connection_name: str, consumer_group: str, data_format: str,
+               compression_value: str, table_name: str, mapping: str):
         check_ascii(database_name)
         dataconnections_operations = self.kusto_client.data_connections
 

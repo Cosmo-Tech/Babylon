@@ -25,12 +25,11 @@ env = Environment()
 @pass_kusto_client
 @argument("principal_id", type=QueryType())
 @retrieve_state
-def get(
-    state: Any, kusto_client: KustoManagementClient, principal_id: str
-) -> CommandResponse:
+def get(state: Any, kusto_client: KustoManagementClient, principal_id: str) -> CommandResponse:
     """
     Get permission assignments applied to the given principal id
     """
-    service = AdxPermissionService(kusto_client=kusto_client, state=state)
+    service_state = state['services']
+    service = AdxPermissionService(kusto_client=kusto_client, state=service_state)
     entity_assignments = service.get(principal_id=principal_id)
     return CommandResponse.success({"assignments": entity_assignments})

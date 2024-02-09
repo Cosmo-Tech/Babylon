@@ -23,6 +23,7 @@ def pull(state: Any, image: Optional[str] = None) -> CommandResponse:
     """
     Pulls a docker image from the ACR registry
     """
-    service = AzureContainerRegistryService(state=state)
+    service_state = state['services']
+    service = AzureContainerRegistryService(state=service_state)
     service.pull(image_tag=image)
     return CommandResponse.success()

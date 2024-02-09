@@ -10,8 +10,7 @@ from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.commands.azure.ad.app.password.service.api import (
-    AzureDirectoyPasswordService,
-)
+    AzureDirectoyPasswordService, )
 
 logger = logging.getLogger("Babylon")
 
@@ -34,8 +33,9 @@ def delete(
     Delete a password for an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-removepassword
     """
+    service_state = state['services']
     if not force_validation and not confirm_deletion("secret", key_id):
         return CommandResponse.fail()
-    service = AzureDirectoyPasswordService(azure_token=azure_token, state=state)
+    service = AzureDirectoyPasswordService(azure_token=azure_token, state=service_state)
     service.delete(key_id=key_id, object_id=object_id)
     return CommandResponse.success()

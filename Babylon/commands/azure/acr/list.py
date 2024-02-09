@@ -16,6 +16,7 @@ def list(state: Any, server: Optional[str] = None) -> CommandResponse:
     """
     List all docker images in the specified registry
     """
-    service = AzureContainerRegistryService(state=state)
+    service_state = state['services']
+    service = AzureContainerRegistryService(state=service_state)
     service.list(server=server)
     CommandResponse.success()

@@ -26,6 +26,7 @@ def push(
     """
     Push a docker image to the ACR registry
     """
-    service = AzureContainerRegistryService(state=state)
+    service_state = state['services']
+    service = AzureContainerRegistryService(state=service_state)
     service.push(image_tag=image)
     return CommandResponse.success()

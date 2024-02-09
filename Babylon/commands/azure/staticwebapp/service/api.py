@@ -23,25 +23,17 @@ class AzureSWAService:
         check_ascii(webapp_name)
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        swa_file = (
-            swa_file
-            or env.working_dir.original_template_path / "webapp/webapp_details.json"
-        )
+        swa_file = (swa_file or env.working_dir.original_template_path / "webapp/webapp_details.json")
         github_secret = env.get_global_secret(resource="github", name="token")
-        details = env.fill_template(
-            swa_file, data={"secrets_github_token": github_secret}
-        )
+        details = env.fill_template(swa_file, data={"secrets_github_token": github_secret})
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01"
-        )
+            f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()
-        logger.info(
-            f"Successfully launched of webapp {webapp_name} in resource group {resource_group_name}"
-        )
+        logger.info(f"Successfully launched of webapp {webapp_name} in resource group {resource_group_name}")
         # env.configuration.set_var(
         #     resource_id="webapp",
         #     var_name="static_domain",
@@ -61,19 +53,15 @@ class AzureSWAService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         if not force_validation and not confirm_deletion("webapp", webapp_name):
             return CommandResponse.fail()
-        logger.info(
-            f"Deleting static webapp {webapp_name} from resource group {resource_group_name}"
-        )
+        logger.info(f"Deleting static webapp {webapp_name} from resource group {resource_group_name}")
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01"
-        )
+            f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="DELETE")
         if response is None:
             return CommandResponse.fail()
         logger.info(
-            f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}"
-        )
+            f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}")
 
     def get_all(self):
         azure_subscription = self.state["azure"]["subscription_id"]
@@ -119,18 +107,12 @@ class AzureSWAService:
     def update(self, webapp_name: str, swa_file: Path):
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        swa_file = (
-            swa_file
-            or env.working_dir.original_template_path / "webapp/webapp_details.json"
-        )
+        swa_file = (swa_file or env.working_dir.original_template_path / "webapp/webapp_details.json")
         github_secret = env.get_global_secret(resource="github", name="token")
-        details = env.fill_template(
-            swa_file, data={"secrets_github_token": github_secret}
-        )
+        details = env.fill_template(swa_file, data={"secrets_github_token": github_secret})
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01"
-        )
+            f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
             return CommandResponse.fail()

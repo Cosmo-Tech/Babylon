@@ -29,8 +29,7 @@ def get(
     """
     Get database from ADX cluster
     """
-    service = AdxDatabaseService(kusto_client=kusto_client, state=state)
-    service.get(
-        name=name,
-    )
+    service_state = state['services']
+    service = AdxDatabaseService(kusto_client=kusto_client, state=service_state)
+    service.get(name=name, )
     return CommandResponse.success()

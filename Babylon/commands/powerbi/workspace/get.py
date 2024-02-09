@@ -32,6 +32,7 @@ def get(
     """
     Get a specific workspace information
     """
-    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=state)
+    service_state = state['services']
+    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=service_state)
     response = service.get(workspace_id=workspace_id, name=name)
     return CommandResponse.success(response, verbose=True)

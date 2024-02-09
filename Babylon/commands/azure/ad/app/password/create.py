@@ -9,8 +9,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.commands.azure.ad.app.password.service.api import (
-    AzureDirectoyPasswordService,
-)
+    AzureDirectoyPasswordService, )
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -37,7 +36,8 @@ def create(
     Register a password or secret to an app registration in active directory
     https://learn.microsoft.com/en-us/graph/api/application-addpassword
     """
-    service = AzureDirectoyPasswordService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureDirectoyPasswordService(azure_token=azure_token, state=service_state)
     response = service.create(
         object_id=object_id,
         password_name=password_name,

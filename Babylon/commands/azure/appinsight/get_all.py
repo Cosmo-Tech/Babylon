@@ -19,13 +19,12 @@ env = Environment()
 @pass_azure_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
-def get_all(
-    state: Any, azure_token: str, filter: Optional[str] = None
-) -> CommandResponse:
+def get_all(state: Any, azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     """
     get all app insight data from a resource group
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/list-by-resource-group
     """
-    service = AzureAppInsightService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureAppInsightService(azure_token=azure_token, state=service_state)
     response = service.get_all()
     return CommandResponse.success(response, verbose=True)

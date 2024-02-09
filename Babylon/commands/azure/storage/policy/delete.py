@@ -17,14 +17,11 @@ logger = logging.getLogger("Babylon")
 @pass_storage_mgmt_client
 @argument("account_name", type=QueryType())
 @retrieve_state
-def delete(
-    state: Any, storage_mgmt_client: StorageManagementClient, account_name: str
-) -> CommandResponse:
+def delete(state: Any, storage_mgmt_client: StorageManagementClient, account_name: str) -> CommandResponse:
     """
     Delete default policy storage account
     """
-    service = AzureStoragePolicyService(
-        storage_mgmt_client=storage_mgmt_client, state=state
-    )
+    service_state = state['services']
+    service = AzureStoragePolicyService(storage_mgmt_client=storage_mgmt_client, state=service_state)
     service.delete(account_name=account_name)
     return CommandResponse.success()
