@@ -20,11 +20,11 @@ logger = getLogger("Babylon")
 @retrieve_state
 @pass_azure_token("csm_api")
 @timing_decorator
-@option("--organization-id", "organization_id", type=str, required=False)
-@option("--workspace-id", "workspace_id", type=str, required=False)
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
 @option(
-    "--file",
-    "file",
+    "--payload",
+    "payload",
     type=Path(path_type=pathlib.Path),
     help="Your custom scenario description file (yaml or json)",
     required=False,
@@ -34,7 +34,7 @@ def create(
     organization_id: str,
     workspace_id: str,
     azure_token: str,
-    file: Optional[pathlib.Path] = None,
+    payload: Optional[pathlib.Path] = None,
 ) -> CommandResponse:
     """
     Create new scenario
@@ -43,7 +43,7 @@ def create(
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
 
-    details = env.fill_template(file)
+    details = env.fill_template(payload)
 
     scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=details)
     response = scenario_service.create()
