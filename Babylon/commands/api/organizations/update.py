@@ -33,7 +33,7 @@ def update(state: Any, azure_token: str, id: str, organization_file: Optional[pa
     """
     Update an organization
     """
-    organizations_service = OrganizationsService(state, azure_token)
+    organizations_service = OrganizationsService(state['services'], azure_token)
     response = organizations_service.update(id, organization_file)
     if response is None:
         return CommandResponse.fail()
