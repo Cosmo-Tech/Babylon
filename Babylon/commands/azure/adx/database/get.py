@@ -31,5 +31,5 @@ def get(
     """
     service_state = state['services']
     service = AdxDatabaseService(kusto_client=kusto_client, state=service_state)
-    service.get(name=name, )
+    service.get(name=name)
     return CommandResponse.success()
