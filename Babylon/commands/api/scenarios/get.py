@@ -16,9 +16,9 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @timing_decorator
 @retrieve_state
-@option("--organization-id", "organization_id", type=str, required=False)
-@option("--workspace-id", "workspace_id", type=str, required=False)
-@option("--scenario-id", type=str, required=False)
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
+@option("--scenario-id", type=str)
 def get(
     state: Any,
     organization_id: str,
