@@ -26,6 +26,7 @@ def status(state: Any, azure_token: str, organization_id: str, scenariorun_id: s
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
     state['api']['scenariorun_id'] = scenariorun_id or state['api'].get('scenariorun_id')
     if state['api']['scenariorun_id'] is None:
+        logger.error(f"scenariorun : {state['api']['scenariorun_id']} does not exist")
         return CommandResponse.fail()
 
     logger.info(f"Getting status for scenariorun: {state['api']['scenariorun_id']}")
