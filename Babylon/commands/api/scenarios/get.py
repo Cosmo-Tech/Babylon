@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 
-from click import command, argument, option
+from click import command, option
 
 from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
@@ -16,9 +16,9 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @timing_decorator
 @retrieve_state
-@option("--organization_id", "organization_id", type=str)
-@option("--workspace_id", "workspace_id", type=str)
-@argument("scenario_id", required=False)
+@option("--organization-id", "organization_id", type=str, required=False)
+@option("--workspace-id", "workspace_id", type=str, required=False)
+@option("--scenario-id", type=str, required=False)
 def get(
     state: Any,
     organization_id: str,
@@ -29,19 +29,12 @@ def get(
     """
     Get scenario details
     """
-    if not scenario_id:
-        logger.error("Scenario id is missing")
-        return CommandResponse.fail()
-    service_state = state["state"]
-    if organization_id:
-        service_state["api"]["organization_id"] = organization_id
-    if workspace_id:
-        service_state["api"]["workspace_id"] = workspace_id
+    service_state = state["services"]
+    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
+    service_state["api"]["scenario_id"] = scenario_id or state["services"]["api"]["scenario_id"]
 
-    # change this line when scenario manipulation will be specified
-    spec = {"scenario_id": scenario_id}
-
-    scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=spec)
+    scenario_service = ScenarioService(state=service_state, azure_token=azure_token)
     response = scenario_service.get()
     if response is None:
         return CommandResponse.fail()
