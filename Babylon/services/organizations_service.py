@@ -8,7 +8,6 @@ from Babylon.utils.checkers import check_ascii, check_email
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
-from click import Context
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -40,11 +39,11 @@ class OrganizationsService:
         url = self.states["api"]["url"]
         return oauth_request(f"{url}/organizations", self.azure_token, type="POST", data=details)
 
-    def delete(self, ctx: Context, id: str, force_validation: bool = False):
+    def delete(self, id: str, force_validation: bool = False):
         url = self.states["api"]["url"]
         organization_id = self.states["api"]["organization_id"]
         if not id:
-            logger.error(f"You trying to {ctx.command.name} {ctx.parent.command.name} referenced in configuration")
+            logger.error("You trying to delete an organization referenced in configuration")
             logger.error(f"Current value: {organization_id}")
 
         organization_id = id or organization_id
@@ -56,12 +55,12 @@ class OrganizationsService:
             return CommandResponse.fail()
         return oauth_request(f"{url}/organizations/{organization_id}", self.azure_token, type="DELETE")
 
-    def get(self, ctx: Context):
+    def get(self):
         url = self.states["api"]["url"]
         organization_id = self.states["api"]["organization_id"]
 
         if not id:
-            logger.error(f"You trying to {ctx.command.name} {ctx.parent.command.name} referenced in configuration")
+            logger.error("You trying to get an organization referenced in configuration")
             logger.error(f"Current value: {organization_id}")
         organization_id = id or organization_id
         if not organization_id:
