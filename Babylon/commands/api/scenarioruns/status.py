@@ -32,7 +32,8 @@ def status(state: Any, azure_token: str, organization_id: str, scenariorun_id: s
     logger.info(f"Getting status for scenariorun: {state['api']['scenariorun_id']}")
     service = ScenarioRunService(state=state, azure_token=azure_token)
     response = service.status()
+    logs = response.json()
 
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(response.json(), verbose=True)
+    return CommandResponse.success(logs, verbose=True)
