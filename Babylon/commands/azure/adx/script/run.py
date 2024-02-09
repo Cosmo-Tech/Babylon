@@ -36,5 +36,5 @@ def run(state: Any, kusto_client: KustoManagementClient, script_file: pathlib.Pa
     """
     service_state = state['services']
     service = AdxScriptService(kusto_client=kusto_client, state=service_state)
-    service.run(script_file=script_file, )
+    service.run(script_file=script_file)
     return CommandResponse.success()
