@@ -27,7 +27,7 @@ def get_all(state: Any, azure_token: str, filter: str) -> CommandResponse:
     """
     Get all organization details
     """
-    organizations_service = OrganizationsService(state, azure_token)
+    organizations_service = OrganizationsService(state['services'], azure_token)
     response = organizations_service.get_all()
     if response is None:
         return CommandResponse.fail()
