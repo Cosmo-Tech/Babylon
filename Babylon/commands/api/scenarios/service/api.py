@@ -12,73 +12,53 @@ class ScenarioService:
     def __init__(self, state: dict, azure_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
+        self.url = state["api"]["url"]
+        self.organization_id = state["api"]["organization_id"]
+        self.workspace_id = state["api"]["workspace_id"]
         self.azure_token = azure_token
 
-    def get_all(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        workspace_id = self.state["api"]["workspace_id"]
-
-        if not url:
+        if not self.url:
             logger.error("API url not found")
             sys.exit(1)
-        if not organization_id:
+        if not self.organization_id:
             logger.error("organization_id not found")
             sys.exit(1)
-        if not workspace_id:
+        if not self.workspace_id:
             logger.error("workspace_id not found")
             sys.exit(1)
 
+    def get_all(self):
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/workspaces/"
-            f"{workspace_id}/scenarios",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/scenarios",
             self.azure_token,
         )
         return response
 
     def get(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        workspace_id = self.state["api"]["workspace_id"]
-        scenario_id = self.spec["scenario_id"]
+        scenario_id = self.state["api"]["scenario_id"]
 
-        if not url:
-            logger.error("API url not found")
-            sys.exit(1)
-        if not organization_id:
-            logger.error("organization_id not found")
-            sys.exit(1)
-        if not workspace_id:
-            logger.error("workspace_id not found")
+        if not scenario_id:
+            logger.error("scenario_id is missing")
             sys.exit(1)
 
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/workspaces/"
-            f"{workspace_id}/scenarios/{scenario_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/scenarios/{scenario_id}",
             self.azure_token,
         )
         return response
 
     def update(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        workspace_id = self.state["api"]["workspace_id"]
-        # need to reconsider this line when scenario manipulation in macro commands will be clearer
         scenario_id = self.state["api"]["scenario_id"]
 
-        if not url:
-            logger.error("API url not found")
-            sys.exit(1)
-        if not organization_id:
-            logger.error("organization_id not found")
-            sys.exit(1)
-        if not workspace_id:
-            logger.error("workspace_id not found")
+        if not scenario_id:
+            logger.error("scenario_id is missing")
             sys.exit(1)
 
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/workspaces/"
-            f"{workspace_id}/scenarios/{scenario_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/scenarios/{scenario_id}",
             self.azure_token,
             type="PATCH",
             data=self.spec,
@@ -86,22 +66,9 @@ class ScenarioService:
         return response
 
     def create(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        workspace_id = self.state["api"]["workspace_id"]
-
-        if not url:
-            logger.error("API url not found")
-            sys.exit(1)
-        if not organization_id:
-            logger.error("organization_id not found")
-            sys.exit(1)
-        if not workspace_id:
-            logger.error("workspace_id not found")
-            sys.exit(1)
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/workspaces/"
-            f"{workspace_id}/scenarios",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/scenarios",
             self.azure_token,
             type="POST",
             data=self.spec,
@@ -109,46 +76,30 @@ class ScenarioService:
         return response
 
     def delete(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        workspace_id = self.state["api"]["workspace_id"]
-        scenario_id = self.spec["scenario_id"]
+        scenario_id = self.state["api"]["scenario_id"]
 
-        if not url:
-            logger.error("API url not found")
+        if not scenario_id:
+            logger.error("scenario_id is missing")
             sys.exit(1)
-        if not organization_id:
-            logger.error("organization_id not found")
-            sys.exit(1)
-        if not workspace_id:
-            logger.error("workspace_id not found")
-            sys.exit(1)
+
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/workspaces/"
-            f"{workspace_id}/scenarios/{scenario_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/scenarios/{scenario_id}",
             self.azure_token,
             type="DELETE",
         )
         return response
 
     def run(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        workspace_id = self.state["api"]["workspace_id"]
-        scenario_id = self.spec["scenario_id"]
+        scenario_id = self.state["api"]["scenario_id"]
 
-        if not url:
-            logger.error("API url not found")
+        if not scenario_id:
+            logger.error("scenario_id is missing")
             sys.exit(1)
-        if not organization_id:
-            logger.error("organization_id not found")
-            sys.exit(1)
-        if not workspace_id:
-            logger.error("workspace_id not found")
-            sys.exit(1)
+
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/workspaces/"
-            f"{workspace_id}/scenarios/{scenario_id}/run",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/scenarios/{scenario_id}/run",
             self.azure_token,
             type="POST",
         )
