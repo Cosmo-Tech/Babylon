@@ -4,14 +4,11 @@ from typing import Any
 from click import argument
 from click import command
 from click import option
-from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.decorators import inject_context_with_resource, timing_decorator, wrapcontext
-from Babylon.utils.typing import QueryType
+from Babylon.commands.api.connectors.service.api import ApiConnectorService
+from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
-from Babylon.utils.request import oauth_request
-from Babylon.utils.messages import SUCCESS_DELETED
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -22,19 +19,21 @@ env = Environment()
 @timing_decorator
 @pass_azure_token("csm_api")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("id", type=QueryType())
-@inject_context_with_resource({"api": ["url"]})
+@argument("id", type=str)
+@retrieve_state
 def delete(
-    context: Any,
+    state: Any,
     azure_token: str,
     id: str,
     force_validation: bool = False,
 ) -> CommandResponse:
     """Delete a registered connector"""
-    if not force_validation and not confirm_deletion("connector", id):
-        return CommandResponse.fail()
-    response = oauth_request(f"{context['api_url']}/connectors/{id}", azure_token, type="DELETE")
-    if response is None:
-        return CommandResponse.fail()
-    logger.info(SUCCESS_DELETED("connector", id))
+    service_state = state["services"]
+    service = ApiConnectorService(azure_token=azure_token, state=service_state)
+    service.delete(force_validation=force_validation, id=id)
+    if "connector.id" in state["services"]["api"]:
+        state["services"]["api"]["connector.id"] = ''
+    env.store_state_in_local(state=state)
+    env.store_state_in_cloud(state=state)
+    logger.info(f"connector id '{id}' successfully deleted in state {state.get('id')}")
     return CommandResponse.success()
