@@ -19,15 +19,11 @@ class AdxConsumerService:
         org_id = self.state["api"]["organization_id"].lower()
         work_id = self.state["api"]["workspace_key"].lower()
         location = self.state["azure"]["resource_location"]
-        client = EventHubManagementClient(
-            credential=get_azure_credentials(), subscription_id=subscription_id
-        )
+        client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         client.consumer_groups.create_or_update(
             resource_group_name=rg,
             namespace_name=f"{org_id}-{work_id}",
             consumer_group_name=name.lower(),
             event_hub_name=event_hub_name.lower(),
-            parameters=ConsumerGroupCreateOrUpdateParameters(
-                location=location,
-            ),
+            parameters=ConsumerGroupCreateOrUpdateParameters(location=location, ),
         )
