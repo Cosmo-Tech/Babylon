@@ -1,26 +1,18 @@
-import json
-from typing import Any
+import pathlib
+from logging import getLogger
+from typing import Any, Optional
 
-from click import command, option
+from click import command, option, Path
 
 from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state
+from Babylon.utils.environment import Environment
+from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.response import CommandResponse
 
-payload = json.dumps({
-    "name": "Creating scenario with Babylon",
-    "description": "Brewery master reference analysis",
-    "tags": ["Brewery", "reference"],
-    "runTemplateId": "hundred",
-    "security": {
-        "default": "viewer",
-        "accessControlList": [{
-            "id": "elena.sasova@cosmotech.com",
-            "role": "admin"
-        }],
-    },
-})
+env = Environment()
+logger = getLogger("Babylon")
 
 
 @command()
@@ -28,24 +20,51 @@ payload = json.dumps({
 @retrieve_state
 @pass_azure_token("csm_api")
 @timing_decorator
-@option("--organization_id", "organization_id", type=str)
-@option("--workspace_id", "workspace_id", type=str)
-def create(state: Any, organization_id: str, workspace_id: str, azure_token: str) -> CommandResponse:
+@option("--organization-id", "organization_id", type=str, required=False)
+@option("--workspace-id", "workspace_id", type=str, required=False)
+@option(
+    "--file",
+    "file",
+    type=Path(path_type=pathlib.Path),
+    help="Your custom scenario description file (yaml or json)",
+    required=False,
+)
+def create(
+    state: Any,
+    organization_id: str,
+    workspace_id: str,
+    azure_token: str,
+    file: Optional[pathlib.Path] = None,
+) -> CommandResponse:
     """
     Create new scenario
     """
-    service_state = state["state"]
-    if organization_id:
-        service_state["api"]["organization_id"] = organization_id
-    if workspace_id:
-        service_state["api"]["workspace_id"] = workspace_id
+    service_state = state["services"]
+    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
 
-    # change this line when scenario manipulation is specified
-    spec = payload
+    details = env.fill_template(file)
 
-    scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=spec)
+    scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=details)
     response = scenario_service.create()
     if response is None:
         return CommandResponse.fail()
     scenario = response.json()
+
+    if organization_id:
+        state["services"]["api"]["organization_id"] = organization_id
+        env.store_state_in_local(state)
+        env.store_state_in_cloud(state)
+        logger.info(SUCCESS_CONFIG_UPDATED("api", "organization_id"))
+
+    if workspace_id:
+        state["services"]["api"]["workspace_id"] = workspace_id
+        env.store_state_in_local(state)
+        env.store_state_in_cloud(state)
+        logger.info(SUCCESS_CONFIG_UPDATED("api", "workspace_id"))
+
+    state["services"]["api"]["scenario_id"] = scenario["id"]
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
+    logger.info(f"Scenario {scenario['id']} has been successfully added in state")
     return CommandResponse.success(scenario, verbose=True)
