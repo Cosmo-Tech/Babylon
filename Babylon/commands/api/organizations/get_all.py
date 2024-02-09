@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
-from Babylon.utils.request import oauth_request
+from Babylon.services.organizations_service import OrganizationsService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -27,8 +27,8 @@ def get_all(state: Any, azure_token: str, filter: str) -> CommandResponse:
     """
     Get all organization details
     """
-    api_url = state["state"]["api"].get('url')
-    response = oauth_request(f"{api_url}/organizations", azure_token)
+    organizations_service = OrganizationsService(state, azure_token)
+    response = organizations_service.get_all()
     if response is None:
         return CommandResponse.fail()
     organizations = response.json()
