@@ -19,12 +19,12 @@ env = Environment()
 @retrieve_state
 @pass_azure_token("csm_api")
 @timing_decorator
-@option("--organization-id", "organization_id", type=str, required=False)
-@option("--workspace-id", "workspace_id", type=str, required=False)
-@option("--scenario-id", type=str, required=False)
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
+@option("--scenario-id", type=str)
 @option(
-    "--file",
-    "file",
+    "--payload",
+    "payload",
     type=Path(path_type=pathlib.Path),
     help="Your custom scenario description file (yaml or json)",
     required=False,
@@ -35,7 +35,7 @@ def update(
     workspace_id: str,
     scenario_id: str,
     azure_token: str,
-    file: Optional[pathlib.Path] = None,
+    payload: Optional[pathlib.Path] = None,
 ) -> CommandResponse:
     """
     Update a scenario
@@ -45,7 +45,7 @@ def update(
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["scenario_id"] = (scenario_id or state["services"]["api"]["scenario_id"])
 
-    details = env.fill_template(file)
+    details = env.fill_template(payload)
 
     scenario_service = ScenarioService(state=service_state, spec=details, azure_token=azure_token)
     response = scenario_service.update()
