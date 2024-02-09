@@ -32,7 +32,8 @@ def delete(state: Any,
     """
     Delete all permission assignments applied to the given principal id
     """
-    service = AdxPermissionService(kusto_client=kusto_client, state=state)
+    service_state = state['services']
+    service = AdxPermissionService(kusto_client=kusto_client, state=service_state)
     service.delete(
         force_validation=force_validation,
         principal_id=principal_id,

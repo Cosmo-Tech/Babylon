@@ -8,9 +8,7 @@ logger = logging.getLogger("Babylon")
 
 class AzureStoragePolicyService:
 
-    def __init__(
-        self, storage_mgmt_client: StorageManagementClient, state: dict = None
-    ) -> None:
+    def __init__(self, storage_mgmt_client: StorageManagementClient, state: dict = None) -> None:
         self.storage_mgmt_client = storage_mgmt_client
         self.state = state
 
@@ -25,33 +23,33 @@ class AzureStoragePolicyService:
             "default",
             {
                 "policy": {
-                    "rules": [
-                        {
-                            "enabled": True,
-                            "name": f"csm{days}days",
-                            "type": "Lifecycle",
-                            "definition": {
-                                "filters": {"blob_types": ["blockBlob"]},
-                                "actions": {
-                                    "base_blob": {
-                                        "delete": {
-                                            "days_after_modification_greater_than": days
-                                        }
-                                    },
-                                    "snapshot": {
-                                        "delete": {
-                                            "days_after_creation_greater_than": days
-                                        }
-                                    },
-                                    "version": {
-                                        "delete": {
-                                            "days_after_creation_greater_than": days
-                                        }
-                                    },
+                    "rules": [{
+                        "enabled": True,
+                        "name": f"csm{days}days",
+                        "type": "Lifecycle",
+                        "definition": {
+                            "filters": {
+                                "blob_types": ["blockBlob"]
+                            },
+                            "actions": {
+                                "base_blob": {
+                                    "delete": {
+                                        "days_after_modification_greater_than": days
+                                    }
+                                },
+                                "snapshot": {
+                                    "delete": {
+                                        "days_after_creation_greater_than": days
+                                    }
+                                },
+                                "version": {
+                                    "delete": {
+                                        "days_after_creation_greater_than": days
+                                    }
                                 },
                             },
-                        }
-                    ]
+                        },
+                    }]
                 }
             },
         )
@@ -60,9 +58,7 @@ class AzureStoragePolicyService:
     def delete(self, account_name: str):
         resource_group = self.state["azure"]["resource_group_name"]
         try:
-            self.storage_mgmt_client.management_policies.delete(
-                resource_group, account_name, "default"
-            )
+            self.storage_mgmt_client.management_policies.delete(resource_group, account_name, "default")
         except Exception as exp:
             logger.error(exp)
             return CommandResponse.fail()

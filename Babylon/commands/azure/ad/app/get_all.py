@@ -17,13 +17,12 @@ logger = logging.getLogger("Babylon")
 @pass_azure_token("graph")
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
-def get_all(
-    state: Any, azure_token: str, filter: Optional[str] = None
-) -> CommandResponse:
+def get_all(state: Any, azure_token: str, filter: Optional[str] = None) -> CommandResponse:
     """
     Get all apps registered in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-list
     """
-    service = AzureDirectoyAppService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
     output_data = service.get_all(filter=filter)
     return CommandResponse.success(output_data, verbose=True)

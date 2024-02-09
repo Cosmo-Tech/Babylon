@@ -23,12 +23,11 @@ env = Environment()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")
 @retrieve_state
-def delete(
-    state: Any, powerbi_token: str, workspace_id: str, force_validation: bool
-) -> CommandResponse:
+def delete(state: Any, powerbi_token: str, workspace_id: str, force_validation: bool) -> CommandResponse:
     """
     Delete workspace from Power Bi APP
     """
-    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=state)
+    service_state = state['services']
+    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=service_state)
     service.delete(workspace_id=workspace_id, force_validation=force_validation)
     return CommandResponse.success()

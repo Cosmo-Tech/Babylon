@@ -29,15 +29,12 @@ env = Environment()
     ),
 )
 @retrieve_state
-def run(
-    state: Any, kusto_client: KustoManagementClient, script_file: pathlib.Path
-) -> CommandResponse:
+def run(state: Any, kusto_client: KustoManagementClient, script_file: pathlib.Path) -> CommandResponse:
     """
         Open SCRIPT_FILE and run it on the database
     In the script instances of "<database name>" will be replaced by the actual database name
     """
-    service = AdxScriptService(kusto_client=kusto_client, state=state)
-    service.run(
-        script_file=script_file,
-    )
+    service_state = state['services']
+    service = AdxScriptService(kusto_client=kusto_client, state=service_state)
+    service.run(script_file=script_file, )
     return CommandResponse.success()

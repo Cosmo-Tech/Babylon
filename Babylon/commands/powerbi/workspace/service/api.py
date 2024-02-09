@@ -39,18 +39,13 @@ class AzurePowerBIWorkspaceService:
     def delete(self, workspace_id: str, force_validation: bool):
         if not workspace_id:
             logger.warning(
-                f"You trying to use workspace referenced in '{env.context_id}.{env.environ_id}.powerbi.yaml'"
-            )
+                f"You trying to use workspace referenced in '{env.context_id}.{env.environ_id}.powerbi.yaml'")
             logger.warning(f'Current value: {self.state["powerbi"]["workspace"]["id"]}')
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        if not force_validation and not confirm_deletion(
-            "Power Bi Workspace", workspace_id
-        ):
+        if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):
             return CommandResponse.fail()
         url_delete = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
-        response = oauth_request(
-            url=url_delete, access_token=self.powerbi_token, type="DELETE"
-        )
+        response = oauth_request(url=url_delete, access_token=self.powerbi_token, type="DELETE")
         if response is None:
             return CommandResponse.fail()
         return response

@@ -5,7 +5,6 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 
@@ -36,12 +35,8 @@ class AzureSWASettingsAppService:
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
         settings_file = env.working_dir.original_template_path / "webapp/webapp_settings.json"
-        secrets_powerbi = env.get_project_secret(
-            organization_id=org_id, workspace_key=work_key, name="pbi"
-        )
-        details = env.fill_template(
-            settings_file, data={"secrets_powerbi": secrets_powerbi}
-        )
+        secrets_powerbi = env.get_project_secret(organization_id=org_id, workspace_key=work_key, name="pbi")
+        details = env.fill_template(settings_file, data={"secrets_powerbi": secrets_powerbi})
         response = polling2.poll(
             lambda: oauth_request(
                 f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"

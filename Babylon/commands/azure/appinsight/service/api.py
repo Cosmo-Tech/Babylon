@@ -22,14 +22,11 @@ class AzureAppInsightService:
         check_ascii(name)
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        create_file = (
-            file or env.working_dir.original_template_path / "webapp/app_insight.json"
-        )
+        create_file = (file or env.working_dir.original_template_path / "webapp/app_insight.json")
         details = env.fill_template(create_file)
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01"
-        )
+            f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01")
 
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
@@ -45,8 +42,7 @@ class AzureAppInsightService:
             return CommandResponse.fail()
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01"
-        )
+            f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01")
         response = oauth_request(route, self.azure_token, type="DELETE")
         if response is None:
             return CommandResponse.fail()
@@ -60,8 +56,7 @@ class AzureAppInsightService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Insights/components?api-version=2015-05-01"
-        )
+            f"providers/Microsoft.Insights/components?api-version=2015-05-01")
         response = oauth_request(route, self.azure_token)
         if response is None:
             return CommandResponse.fail()
@@ -75,8 +70,7 @@ class AzureAppInsightService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
-            f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01"
-        )
+            f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01")
         response = oauth_request(route, self.azure_token)
         if response is None:
             return CommandResponse.fail()

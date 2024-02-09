@@ -10,8 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
 from Babylon.utils.clients import (
-    pass_iam_client,
-)
+    pass_iam_client, )
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -20,12 +19,8 @@ env = Environment()
 @command()
 @wrapcontext()
 @pass_iam_client
-@option(
-    "--resource-type", "resource_type", type=QueryType(), help="Ressource Type Id Azure"
-)
-@option(
-    "--resource-name", "resource_name", type=QueryType(), help="Ressource Name Azure"
-)
+@option("--resource-type", "resource_type", type=QueryType(), help="Ressource Type Id Azure")
+@option("--resource-name", "resource_name", type=QueryType(), help="Ressource Name Azure")
 @option(
     "--principal-type",
     "principal_type",
@@ -40,9 +35,7 @@ env = Environment()
     required=True,
     help="Principal Id Ressource",
 )
-@option(
-    "--role-id", "role_id", type=QueryType(), required=True, help="Role Id Ressource"
-)
+@option("--role-id", "role_id", type=QueryType(), required=True, help="Role Id Ressource")
 @retrieve_state
 def set(
     state: Any,
@@ -56,7 +49,8 @@ def set(
     """
     Assign a new role in resource given
     """
-    service = AzureIamService(iam_client=iam_client, state=state)
+    service_state = state['services']
+    service = AzureIamService(iam_client=iam_client, state=service_state)
     service.set(
         principal_id=principal_id,
         principal_type=principal_type,

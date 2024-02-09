@@ -13,8 +13,7 @@ from Babylon.utils.decorators import (
     wrapcontext,
 )
 from Babylon.commands.powerbi.workspace.user.service.api import (
-    AzurePowerBIWorkspaceUserService,
-)
+    AzurePowerBIWorkspaceUserService, )
 
 logger = logging.getLogger("Babylon")
 
@@ -27,9 +26,7 @@ logger = logging.getLogger("Babylon")
 @argument("type", type=Choice(["App", "Group", "User", "None"], case_sensitive=False))
 @argument(
     "right",
-    type=Choice(
-        ["Admin", "Contributor", "Member", "Viewer", "None"], case_sensitive=False
-    ),
+    type=Choice(["Admin", "Contributor", "Member", "Viewer", "None"], case_sensitive=False),
 )
 @retrieve_state
 def add(
@@ -43,6 +40,7 @@ def add(
     """
     Adds a new user to the power bi workspace using the following information:
     """
-    service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=state)
+    service_state = state['services']
+    service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=service_state)
     service.add(workspace_id=workspace_id, right=right, type=type, email=identifier)
     return CommandResponse.success()

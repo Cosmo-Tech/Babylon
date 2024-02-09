@@ -13,9 +13,7 @@ class AzureTokenService:
 
     def get(self, email: str, scope: str):
         email = email or self.state["azure"]["email"]
-        access_token = env.get_access_token_with_refresh_token(
-            username=email, internal_scope=scope
-        )
+        access_token = env.get_access_token_with_refresh_token(username=email, internal_scope=scope)
         return access_token
 
     def store(self, email: str, scope: str):
@@ -32,9 +30,7 @@ class AzureTokenService:
             "version": "1.0",
         }
 
-        record_deserialize = AuthenticationRecord.deserialize(
-            str(record).replace("'", '"')
-        )
+        record_deserialize = AuthenticationRecord.deserialize(str(record).replace("'", '"'))
         credential = InteractiveBrowserCredential(
             cache_persistence_options=cpo,
             authentication_record=record_deserialize,
@@ -50,6 +46,4 @@ class AzureTokenService:
                 env.working_dir.encoding_key,
                 bytes(token["refresh_token"], encoding="utf-8"),
             )
-            env.set_users_secrets(
-                email, scope, dict(token=token_encrypt.decode("utf-8"))
-            )
+            env.set_users_secrets(email, scope, dict(token=token_encrypt.decode("utf-8")))

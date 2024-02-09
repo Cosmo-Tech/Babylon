@@ -19,12 +19,11 @@ logger = logging.getLogger("Babylon")
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
-def get_all(
-    state: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None
-) -> CommandResponse:
+def get_all(state: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:
     """
     Get info from every powerbi reports of a workspace
     """
-    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=state)
+    service_state = state['services']
+    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=service_state)
     response = service.get_all(workspace_id=workspace_id, filter=filter)
     return CommandResponse.success(response, verbose=True)

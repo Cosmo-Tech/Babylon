@@ -28,6 +28,7 @@ def update_credentials(
     """
     Update azure credentials of a given datasource
     """
-    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=state)
+    service_state = state['services']
+    service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=service_state)
     service.update_credentials(workspace_id=workspace_id, dataset_id=dataset_id)
     return CommandResponse()

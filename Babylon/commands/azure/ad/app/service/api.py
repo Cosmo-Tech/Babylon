@@ -21,10 +21,8 @@ class AzureDirectoyAppService:
     def create(self, name: str, registration_file: Path = None):
         check_ascii(name)
         route = "https://graph.microsoft.com/v1.0/applications"
-        registration_file = (
-            registration_file
-            or env.working_dir.original_template_path / "webapp/app_registration.yaml"
-        )
+        registration_file = (registration_file
+                             or env.working_dir.original_template_path / "webapp/app_registration.yaml")
         details = env.fill_template(registration_file, data={"app_name": name})
         print(details)
         handler = polling2.poll(
@@ -37,9 +35,7 @@ class AzureDirectoyAppService:
         # Service principal creation
         sp_route = "https://graph.microsoft.com/v1.0/servicePrincipals"
         sp_response = polling2.poll(
-            lambda: oauth_request(
-                sp_route, self.azure_token, type="POST", json={"appId": output_data["appId"]}
-            ),
+            lambda: oauth_request(sp_route, self.azure_token, type="POST", json={"appId": output_data["appId"]}),
             check_success=is_correct_response_app,
             step=1,
             timeout=60,

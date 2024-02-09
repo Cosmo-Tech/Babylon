@@ -33,8 +33,7 @@ def create(
     """
     Create or update default policy storage account
     """
-    service = AzureStoragePolicyService(
-        storage_mgmt_client=storage_mgmt_client, state=state
-    )
+    service_state = state['services']
+    service = AzureStoragePolicyService(storage_mgmt_client=storage_mgmt_client, state=service_state)
     service.create(account_name=account_name, days=days)
     return CommandResponse.success()

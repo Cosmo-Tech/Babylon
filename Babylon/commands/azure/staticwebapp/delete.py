@@ -22,14 +22,13 @@ env = Environment()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("webapp_name", type=QueryType())
 @retrieve_state
-def delete(
-    state: Any, azure_token: str, webapp_name: str, force_validation: bool = False
-) -> CommandResponse:
+def delete(state: Any, azure_token: str, webapp_name: str, force_validation: bool = False) -> CommandResponse:
     """
     Delete static webapp data from a resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/delete-static-site
     """
-    service = AzureSWAService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureSWAService(azure_token=azure_token, state=service_state)
     service.delete(
         webapp_name=webapp_name,
         force_validation=force_validation,

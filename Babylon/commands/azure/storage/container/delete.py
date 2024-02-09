@@ -19,9 +19,7 @@ logger = logging.getLogger("Babylon")
 @pass_blob_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("name", type=QueryType())
-def delete(
-    blob_client: BlobServiceClient, name: str, force_validation: bool = False
-) -> CommandResponse:
+def delete(blob_client: BlobServiceClient, name: str, force_validation: bool = False) -> CommandResponse:
     """
     Delete a blob storage container
     """

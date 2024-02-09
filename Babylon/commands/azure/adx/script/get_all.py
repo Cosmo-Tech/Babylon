@@ -26,6 +26,7 @@ def get_all(state: Any, kusto_client: KustoManagementClient) -> CommandResponse:
     """
     List scripts on the database
     """
-    service = AdxScriptService(kusto_client=kusto_client, state=state)
+    service_state = state['services']
+    service = AdxScriptService(kusto_client=kusto_client, state=service_state)
     scripts = service.get_all()
     return CommandResponse.success(scripts, verbose=True)

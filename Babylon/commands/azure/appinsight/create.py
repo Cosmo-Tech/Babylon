@@ -25,13 +25,12 @@ env = Environment()
 )
 @argument("name", type=QueryType())
 @retrieve_state
-def create(
-    state: Any, azure_token: str, name: str, file: Optional[pathlib.Path] = None
-) -> CommandResponse:
+def create(state: Any, azure_token: str, name: str, file: Optional[pathlib.Path] = None) -> CommandResponse:
     """
     Create a app insight resource in the given resource group
     https://learn.microsoft.com/en-us/rest/api/application-insights/components/create-or-update
     """
-    service = AzureAppInsightService(azure_token=azure_token, state=state)
+    service_state = state['services']
+    service = AzureAppInsightService(azure_token=azure_token, state=service_state)
     output_data = service.create(name=name, file=file)
     return CommandResponse.success(output_data, verbose=True)

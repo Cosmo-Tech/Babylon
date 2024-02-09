@@ -20,9 +20,7 @@ env = Environment()
 @pass_kusto_client
 @timing_decorator
 @argument("name", type=QueryType(), required=False)
-@option(
-    "--retention", "retention", default=365, help="Retention days", show_default=True
-)
+@option("--retention", "retention", default=365, help="Retention days", show_default=True)
 @retrieve_state
 def create(
     state: Any,
@@ -33,6 +31,7 @@ def create(
     """
     Create database in ADX cluster
     """
-    service = AdxDatabaseService(kusto_client=kusto_client, state=state)
+    service_state = state['services']
+    service = AdxDatabaseService(kusto_client=kusto_client, state=service_state)
     service.create(name=name, retention=retention)
     return CommandResponse.success()
