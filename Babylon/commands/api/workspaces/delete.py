@@ -1,16 +1,18 @@
 from logging import getLogger
 from typing import Any
-from click import Context, command, pass_context
-from click import argument
+from click import command
 from click import option
+
+from Babylon.commands.api.workspaces.service.api import WorkspaceService
 from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import (
+    wrapcontext,
+    retrieve_state,
+)
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.request import oauth_request
-from Babylon.utils.typing import QueryType
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -18,37 +20,38 @@ env = Environment()
 
 @command()
 @wrapcontext()
-@pass_context
 @timing_decorator
+@retrieve_state
 @pass_azure_token("csm_api")
-@option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("id", type=QueryType(), required=False)
-@inject_context_with_resource({"api": ['url', 'organization_id']})
+@option("-D", "force_validation", is_flag=True, default=True, help="Force Delete")
+@option("--organization-id", type=str)
+@option("--workspace-id", type=str)
 def delete(
-    ctx: Context,
-    context: Any,
+    state: Any,
     azure_token: str,
-    id: str,
-    force_validation: bool = False,
+    organization_id: str,
+    workspace_id: str,
+    force_validation: bool = True,
 ) -> CommandResponse:
     """
     Delete a workspace
     """
-    workspace_id = env.configuration.get_var(resource_id=ctx.parent.parent.command.name, var_name="workspace_id")
-    if not id:
-        logger.error(f"You trying to {ctx.command.name} {ctx.parent.command.name} referenced in configuration")
-        logger.error(f"Current value: {workspace_id}")
-    if not workspace_id:
-        logger.error("Workspace id is missing")
-        return CommandResponse.fail()
-    workspace_id = id or workspace_id
+
+    service_state = state["services"]
+    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     if not force_validation and not confirm_deletion("workspace", workspace_id):
         return CommandResponse.fail()
-    response = oauth_request(
-        f"{context['api_url']}/organizations/{context['api_organization_id']}/workspaces/{workspace_id}",
-        azure_token,
-        type="DELETE")
+
+    workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
+    response = workspace_service.delete()
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Successfully deleted workspace {workspace_id} from organization {context['api_organization_id']}")
+    if not workspace_id or workspace_id == state["services"]["api"]["workspace_id"]:
+        state["services"]["api"]["workspace_id"] = ""
+        env.store_state_in_local(state)
+        env.store_state_in_cloud(state)
+        logger.info(f"Workspace {service_state['api']['workspace_id']} has been successfully removed from the state")
+    else:
+        logger.info(f"Workspace {service_state['api']['workspace_id']} has been successfully deleted")
     return CommandResponse.success()

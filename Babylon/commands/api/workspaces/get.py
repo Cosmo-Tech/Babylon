@@ -1,12 +1,15 @@
 from logging import getLogger
 from typing import Any
-from click import Context, argument, command, option, pass_context
-from Babylon.utils.typing import QueryType
+from click import command, option
+
+from Babylon.commands.api.workspaces.service.api import WorkspaceService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import (
+    wrapcontext,
+    retrieve_state,
+)
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 
@@ -16,32 +19,24 @@ env = Environment()
 
 @command()
 @wrapcontext()
-@pass_context
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("--select", "select", is_flag=True, default=True, help="Save this new organization in configuration")
-@argument("id", type=QueryType(), required=False)
-@inject_context_with_resource({"api": ['url', 'organization_id']})
-def get(ctx: Context, context: Any, azure_token: str, id: str, select: bool) -> CommandResponse:
+@retrieve_state
+@option("--organization-id", type=str)
+@option("--workspace-id", type=str)
+def get(state: Any, organization_id: str, azure_token: str, workspace_id: str) -> CommandResponse:
     """
     Get a workspace details
     """
-    workspace_id = id or env.configuration.get_var(resource_id=ctx.parent.parent.command.name, var_name="workspace_id")
-    if not id:
-        logger.info(f"You trying to {ctx.command.name} {ctx.parent.command.name} referenced in configuration")
-        logger.info(f"Current value: {workspace_id}")
-    if not workspace_id:
-        logger.info("Workspace id is missing")
-        return CommandResponse.fail()
-    response = oauth_request(
-        f"{context['api_url']}/organizations/{context['api_organization_id']}/workspaces/{workspace_id}", azure_token)
+    service_state = state["services"]
+    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
+    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
+
+    workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
+
+    response = workspace_service.get()
     if response is None:
         return CommandResponse.fail()
     workspace = response.json()
-    if select:
-        env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
-                                  var_name="workspace_id",
-                                  var_value=workspace["id"])
-        logger.info("Updated configuration variables")
     return CommandResponse.success(workspace, verbose=True)
