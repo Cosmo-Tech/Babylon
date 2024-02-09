@@ -228,7 +228,7 @@ def retrieve_state(func) -> Callable[..., Any]:
             final_state["services"][section] = dict()
             for key, _ in keys.items():
                 final_state["services"][section].update({key: state_cloud["services"][section][key]})
-                if data_vault[section][key]:
+                if key in data_vault[section] and data_vault[section][key]:
                     final_state["services"][section].update({key: data_vault[section][key]})
         final_state["id"] = init_state.get("id") or state_cloud.get("id")
         final_state["context"] = env.context_id
