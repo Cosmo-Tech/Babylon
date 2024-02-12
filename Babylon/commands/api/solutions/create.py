@@ -24,20 +24,23 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
-@argument("payload", type=Path(path_type=pathlib.Path))
+@argument("payload_file", type=Path(path_type=pathlib.Path))
 @retrieve_state
-def create(state: Any, azure_token: str, organization_id: str, payload: pathlib.Path) -> CommandResponse:
+def create(state: Any, azure_token: str, organization_id: str, payload_file: pathlib.Path) -> CommandResponse:
     """
     Register a new solution
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    if not payload_file.exists():
+        print(f"file {payload_file} not found in directory")
+        return CommandResponse.fail()
     spec = dict()
-    spec["payload"] = payload
+    spec["payload"] = env.fill_template(payload_file)
     service = SolutionService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.create()
     solution = response.json()
-    state["services"]["api"]["solution_id"] = solution.get('id')
+    state["services"]["api"]["solution_id"] = solution.get("id")
     env.store_state_in_local(state)
     env.store_state_in_cloud(state)
     logger.info(f"Solution {solution.get('id')} successfully saved in state {state.get('id')}")

@@ -24,14 +24,14 @@ env = Environment()
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
 @option("--solution-id", "solution_id", type=str)
-@argument("payload", type=Path(path_type=pathlib.Path))
+@argument("payload_file", type=Path(path_type=pathlib.Path))
 @retrieve_state
 def update(
     state: Any,
     azure_token: str,
     organization_id: str,
     solution_id: str,
-    payload: pathlib.Path,
+    payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
     Update a solution
@@ -39,8 +39,11 @@ def update(
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
+    if not payload_file.exists():
+        print(f"file {payload_file} not found in directory")
+        return CommandResponse.fail()
     spec = dict()
-    spec["payload"] = payload
+    spec["payload"] = env.fill_template(payload_file)
     service = SolutionService(state=service_state, azure_token=azure_token, spec=spec)
     response = service.update()
     if response is None:
