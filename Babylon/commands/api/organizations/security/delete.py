@@ -1,7 +1,6 @@
-import json
 import logging
 
-from click import argument, command, option
+from click import argument, command
 from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -19,23 +18,13 @@ env = Environment()
 @timing_decorator
 @pass_azure_token("csm_api")
 @output_to_file
-@option(
-    "--role",
-    "role",
-    type=str,
-    required=True,
-    default="viewer",
-    help="Role RBAC",
-)
-@option("--email", "email", type=str, required=True, help="Email valid")
 @argument("id", type=str)
 @retrieve_state
-def update(state: dict, azure_token: str, id: str, email: str, role: str) -> CommandResponse:
+def delete(state: dict, azure_token: str, id: str) -> CommandResponse:
     """
-    Update organization users RBAC access
+    Delete organization users RBAC access
     """
     service_state = state["services"]
-    details = json.dumps({"id": email, "role": role})
     service = ApiOrganizationSecurityService(azure_token=azure_token, state=service_state)
-    response = service.update(id=id, details=details)
+    response = service.delete(id=id)
     return CommandResponse.success(response, verbose=True)
