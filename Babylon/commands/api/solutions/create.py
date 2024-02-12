@@ -35,12 +35,13 @@ env = Environment()
     "--file",
     "solution_file",
     type=Path(path_type=pathlib.Path),
-    help="Your custom solution description file (yaml or json)", )
+    help="Your custom solution description file (yaml or json)",
+)
 @option("--select", "select", is_flag=True, default=True, help="Save this new solution in configuration")
 @argument("name", type=QueryType())
 @retrieve_state
-def create(state: Any, azure_token: str, organization_id: str, solution_name: str, solution_file: pathlib.Path, select:
-           bool) -> CommandResponse:
+def create(state: Any, azure_token: str, organization_id: str, solution_name: str, solution_file: pathlib.Path,
+           select: bool) -> CommandResponse:
     """
     Register a new solution
     """
