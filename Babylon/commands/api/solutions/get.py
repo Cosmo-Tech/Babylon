@@ -27,18 +27,13 @@ def get(state: Any, azure_token: str, organization_id: str, solution_id: str) ->
     """
     Get a solution details
     """
-    state = state['services']
-    state['api']['organization_id'] = organization_id or state['api']['organization_id']
-    state['api']['solution_id'] = solution_id or state['api']['solution_id']
-    if state['api']['solution_id'] is None:
-        logger.error(f"solution : {state['api']['solution_id']} does not exist")
-        return CommandResponse.fail()
-
-    logger.info(f"Searching solution: {state['api']['solution_id']}")
-    service = SolutionService(state=state, azure_token=azure_token)
+    service_state = state["services"]
+    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
+    logger.info(f"Searching solution: {service_state['api']['solution_id']}")
+    service = SolutionService(state=service_state, azure_token=azure_token)
     response = service.get()
-    solution = response.json()
-
     if response is None:
         return CommandResponse.fail()
+    solution = response.json()
     return CommandResponse.success(solution, verbose=True)

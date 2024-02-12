@@ -5,7 +5,6 @@ from .delete import delete
 from .get import get
 from .get_all import get_all
 from .update import update
-from .payload import payload
 
 
 @group()
@@ -14,7 +13,7 @@ def solutions():
     pass
 
 
-list_commands = [delete, get_all, create, get, update, payload]
+list_commands = [delete, get_all, create, get, update]
 
 for _command in list_commands:
     solutions.add_command(_command)
