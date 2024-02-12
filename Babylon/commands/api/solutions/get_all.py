@@ -32,7 +32,7 @@ def get_all(state: Any,
     """
     Get all solutions details
     """
-    state = state['state']
+    state = state['services']
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
     state['api']['solution_id'] = solution_id or state['api']['solution_id']
     if state['api']['solution_id'] is None:
