@@ -27,13 +27,12 @@ def get_all(state: Any, azure_token: str, filter: str) -> CommandResponse:
     """
     Get all organization details
     """
-    organizations_service = OrganizationsService(state['services'], azure_token)
-    response = organizations_service.get_all()
+    service_state = state["services"]
+    organization_service = OrganizationsService(state=service_state, azure_token=azure_token)
+    response = organization_service.get_all()
     if response is None:
         return CommandResponse.fail()
     organizations = response.json()
     if len(organizations) and filter:
         organizations = jmespath.search(filter, organizations)
-    env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
     return CommandResponse.success(organizations, verbose=True)

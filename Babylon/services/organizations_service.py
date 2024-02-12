@@ -1,12 +1,10 @@
+import json
 import sys
-import pathlib
-from typing import Optional
+
 from logging import getLogger
-from posixpath import basename
+from Babylon.commands.api.organizations.security.service.api import (
+    ApiOrganizationSecurityService, )
 from Babylon.utils.request import oauth_request
-from Babylon.utils.checkers import check_ascii, check_email
-from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 
 logger = getLogger("Babylon")
@@ -15,70 +13,87 @@ env = Environment()
 
 class OrganizationsService:
 
-    def __init__(self, states: dict, azure_token: str, spec: Optional[dict] = None):
-        self.states = states
-        self.azure_token = azure_token
+    def __init__(self, state: dict, azure_token: str, spec: dict = None):
+        self.state = state
         self.spec = spec
-
-    def create(self, name: str, security_id: str, security_role: str, org_file: Optional[pathlib.Path] = None):
-        security_id = security_id or self.states['azure']['email']
-        check_email(security_id)
-        check_ascii(name)
-        path_file = f"{env.context_id}.{env.environ_id}.organization.yaml"
-        org_file = org_file or env.working_dir.payload_path / path_file
-        if not org_file.exists():
-            logger.error(f"No such file: '{basename(org_file)}' in .payload directory")
+        self.azure_token = azure_token
+        self.url = state["api"]["url"]
+        if not self.url:
+            logger.error("API url not found")
             sys.exit(1)
+        self.security_svc = ApiOrganizationSecurityService(azure_token=azure_token, state=state)
 
-        details = env.fill_template(org_file,
-                                    data={
-                                        "name": name,
-                                        "security_id": security_id,
-                                        "security_role": security_role.lower()
-                                    })
-        url = self.states["api"]["url"]
-        return oauth_request(f"{url}/organizations", self.azure_token, type="POST", data=details)
+    def create(self):
+        details = self.spec["payload"]
+        response = oauth_request(f"{self.url}/organizations", self.azure_token, type="POST", data=details)
+        return response
 
-    def delete(self, id: str, force_validation: bool = False):
-        url = self.states["api"]["url"]
-        organization_id = self.states["api"]["organization_id"]
-        if not id:
-            logger.error("You trying to delete an organization referenced in configuration")
-            logger.error(f"Current value: {organization_id}")
-
-        organization_id = id or organization_id
-        logger.info(f"You trying to delete the '{organization_id}' organization")
-        if not force_validation and not confirm_deletion("organization", organization_id):
-            return CommandResponse.fail()
+    def delete(self, id: str):
+        organization_id = self.state["api"]["organization_id"]
         if not organization_id:
-            logger.error("Organization id is missing")
-            return CommandResponse.fail()
-        return oauth_request(f"{url}/organizations/{organization_id}", self.azure_token, type="DELETE")
+            logger.error("organization id not found")
+            sys.exit(1)
+        response = oauth_request(
+            f"{self.url}/organizations/{organization_id}",
+            self.azure_token,
+            type="DELETE",
+        )
+        return response
 
     def get(self):
-        url = self.states["api"]["url"]
-        organization_id = self.states["api"]["organization_id"]
-
-        if not id:
-            logger.error("You trying to get an organization referenced in configuration")
-            logger.error(f"Current value: {organization_id}")
-        organization_id = id or organization_id
+        organization_id = self.state["api"]["organization_id"]
         if not organization_id:
             logger.error("Organization id is missing")
-            return CommandResponse.fail()
-
-        return oauth_request(f"{url}/organizations/{organization_id}", self.azure_token)
+            return None
+        response = oauth_request(f"{self.url}/organizations/{organization_id}", self.azure_token)
+        return response
 
     def get_all(self):
-        url = self.states["api"]["url"]
-        return oauth_request(f"{url}/organizations", self.azure_token)
+        return oauth_request(f"{self.url}/organizations", self.azure_token)
 
-    def update(self, id: str, organization_file: Optional[pathlib.Path]):
-        url = self.states["api"]["url"]
-        organization_id = id or self.states["api"]["organization_id"]
-        path_file = f"{env.context_id}.{env.environ_id}.organization.yaml"
-        organization_file = organization_file or env.working_dir.payload_path / path_file
-        if not organization_file.exists():
-            return CommandResponse.fail()
-        details = env.fill_template(organization_file)
-        return oauth_request(f"{url}/organizations/{organization_id}", self.azure_token, type="PATCH", data=details)
+    def update(self):
+        details = self.spec["payload"]
+        organization_id = self.states["api"]["organization_id"]
+        response = oauth_request(
+            f"{self.url}/organizations/{organization_id}",
+            self.azure_token,
+            type="PATCH",
+            data=details,
+        )
+        return response
+
+    def security(self, data: dict):
+        security_spec = self.spec["payload"].get("security")
+        if not security_spec:
+            logger.error("security is missing")
+            sys.exit(1)
+        organization_id = self.state["api"]["organization_id"]
+        ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
+        ids_existing = [i.get("id") for i in data["security"]["accessControlList"]]
+        if "default" in security_spec:
+            data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
+            response = oauth_request(
+                f"{self.url}/organizations/{organization_id}/security/default",
+                access_token=self.azure_token,
+                type="POST",
+                data=data,
+            )
+            if response is None:
+                return None
+        for s in ids_existing:
+            if s not in ids_spec:
+                response = self.security_svc.delete(s.get("id"))
+                if response is None:
+                    return None
+        for g in security_spec["accessControlList"]:
+            if g.get("id") in ids_existing:
+                details = json.dumps(obj=g, indent=2, ensure_ascii=True)
+                response = self.security_svc.update(g.get("id"), details=details)
+                if response is None:
+                    return None
+            if g.get("id") not in ids_existing:
+                details = json.dumps(obj=g, indent=2, ensure_ascii=True)
+                response = self.security_svc.add(details)
+                if response is None:
+                    return None
+        return self
