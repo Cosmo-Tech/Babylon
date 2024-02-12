@@ -24,11 +24,7 @@ class SolutionService:
             sys.exit(1)
 
     def create(self):
-        payload = self.spec["payload"]
-        if not payload.exists():
-            print(f"file {payload} not found in directory")
-            return None
-        details = env.fill_template(payload)
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions",
             self.azure_token,
@@ -65,11 +61,7 @@ class SolutionService:
 
     def update(self):
         check_if_solution_exists(self.solution_id)
-        payload = self.spec["payload"]
-        if not payload.exists():
-            print(f"file {payload} not found in directory")
-            return None
-        details = env.fill_template(payload)
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
             self.azure_token,

@@ -22,19 +22,17 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@retrieve_state
 @option("--organization-id", type=str)
 @option("--workspace-id", type=str)
+@retrieve_state
 def get(state: Any, organization_id: str, azure_token: str, workspace_id: str) -> CommandResponse:
     """
     Get a workspace details
     """
     service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
-
+    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
-
     response = workspace_service.get()
     if response is None:
         return CommandResponse.fail()
