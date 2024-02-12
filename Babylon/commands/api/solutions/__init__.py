@@ -19,9 +19,7 @@ list_commands = [delete, get_all, create, get, update, payload]
 for _command in list_commands:
     solutions.add_command(_command)
 
-list_groups = [
-    handler,
-]
+list_groups = [handler, ]
 
 for _group in list_groups:
     solutions.add_command(_group)

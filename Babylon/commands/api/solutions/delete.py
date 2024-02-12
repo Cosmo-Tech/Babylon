@@ -23,7 +23,10 @@ logger = getLogger("Babylon")
 @option("--solution-id", "solution_id", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @retrieve_state
-def delete(state: Any, azure_token: str, organization_id: str, solution_id: str,
+def delete(state: Any,
+           azure_token: str,
+           organization_id: str,
+           solution_id: str,
            force_validation: bool = False) -> CommandResponse:
     """
     Delete a solution
