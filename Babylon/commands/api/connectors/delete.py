@@ -30,10 +30,13 @@ def delete(
     """Delete a registered connector"""
     service_state = state["services"]
     service = ApiConnectorService(azure_token=azure_token, state=service_state)
-    service.delete(force_validation=force_validation, id=id)
-    if "connector.id" in state["services"]["api"]:
-        state["services"]["api"]["connector.id"] = ''
-    env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
-    logger.info(f"connector id '{id}' successfully deleted in state {state.get('id')}")
+    response = service.delete(force_validation=force_validation, id=id)
+    if response:
+        logger.info(f"connector id '{id}' successfully deleted")
+        if "connector.id" in state["services"]["api"]:
+            if id == state["services"]["api"]["connector.id"]:
+                state["services"]["api"]["connector.id"] = ''
+                env.store_state_in_local(state=state)
+                env.store_state_in_cloud(state=state)
+                logger.info(f"connector id '{id}' successfully deleted in state {state.get('id')}")
     return CommandResponse.success()

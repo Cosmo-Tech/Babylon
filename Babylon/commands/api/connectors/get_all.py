@@ -1,6 +1,7 @@
 from logging import getLogger
 from typing import Any, Optional
 from click import command, option
+import jmespath
 from Babylon.commands.api.connectors.service.api import ApiConnectorService
 from Babylon.utils.decorators import output_to_file, retrieve_state, wrapcontext
 from Babylon.utils.decorators import timing_decorator
@@ -26,5 +27,7 @@ def get_all(state: Any, azure_token: str, filter: Optional[str] = None) -> Comma
     """
     service_state = state["services"]
     service = ApiConnectorService(azure_token=azure_token, state=service_state)
-    response = service.get_all(filter=filter)
-    return CommandResponse.success(response, verbose=True)
+    response = service.get_all()
+    if len(response) and filter:
+        connectors = jmespath.search(filter, response)
+    return CommandResponse.success(connectors, verbose=True)

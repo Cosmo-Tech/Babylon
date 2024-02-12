@@ -38,9 +38,9 @@ def create(
     service_state = state["services"]
     service = ApiConnectorService(azure_token=azure_token, state=service_state)
     response = service.create(connector_file=connector_file)
-    if "connector.id" in state["services"]["api"]:
+    if response:
         state["services"]["api"]["connector.id"] = response.get("id")
-    env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
-    logger.info(f"connector id '{response.get('id')}' successfully saved in state {state.get('id')}")
+        env.store_state_in_local(state=state)
+        env.store_state_in_cloud(state=state)
+        logger.info(f"connector id '{response.get('id')}' successfully saved in state {state.get('id')}")
     return CommandResponse.success(response, verbose=True)
