@@ -31,8 +31,7 @@ class SolutionService:
         return response
 
     def get_all(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions", self.azure_token)
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions", self.azure_token)
         return response
 
     def update(self):
