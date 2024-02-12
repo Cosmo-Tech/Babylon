@@ -1,8 +1,7 @@
 from logging import getLogger
 from typing import Any
-from click import argument, option
+from click import option
 from click import command
-from Babylon.utils.typing import QueryType
 from Babylon.utils.decorators import retrieve_state, timing_decorator
 from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.decorators import output_to_file
@@ -20,16 +19,15 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@option("--select", "select", is_flag=True, default=True, help="Save this organization in configuration")
-@argument("id", type=QueryType(), required=False)
+@option("--organization-id", "organization_id", type=str)
 @retrieve_state
-def get(state: Any, id: str, azure_token: str) -> CommandResponse:
+def get(state: Any, organization_id: str, azure_token: str) -> CommandResponse:
     """Get an organization details"""
-    organizations_service = OrganizationsService(state['services'], azure_token)
+    services_state = state["services"]
+    services_state["api"]["organization_id"] = (organization_id or services_state["api"]["organization_id"])
+    organizations_service = OrganizationsService(state=services_state, azure_token=azure_token)
     response = organizations_service.get()
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
-    env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
     return CommandResponse.success(organization, verbose=True)
