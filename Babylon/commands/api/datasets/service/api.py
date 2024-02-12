@@ -8,7 +8,6 @@ from typing import Optional
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
-from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -19,6 +18,8 @@ class ApiDatasetService:
     def __init__(self, azure_token: str, state: dict = None) -> None:
         self.state = state
         self.azure_token = azure_token
+        self.url = self.state["api"]["url"]
+        self.organization_id = self.state["api"]["organization_id"]
 
     def create(self, dataset_file: Path):
         if not dataset_file:
@@ -29,7 +30,7 @@ class ApiDatasetService:
             return None
         details = env.fill_template(dataset_file)
         response = oauth_request(
-            f'{self.state["api"]["url"]}/organizations/{self.state["api"]["organization_id"]}/datasets',
+            f'{self.url}/organizations/{self.organization_id}/datasets',
             self.azure_token,
             type="POST",
             data=details,
@@ -41,9 +42,9 @@ class ApiDatasetService:
 
     def delete(self, force_validation: bool, id: str):
         if not force_validation and not confirm_deletion("dataset", id):
-            return CommandResponse.fail()
+            return None
         response = oauth_request(
-            f'{self.state["api"]["url"]}/organizations/{self.state["api"]["organization_id"]}/datasets/{id}',
+            f'{self.url}/organizations/{self.organization_id}/datasets/{id}',
             self.azure_token,
             type="DELETE",
         )
@@ -53,7 +54,7 @@ class ApiDatasetService:
 
     def get_all(self, filter: Optional[str]):
         response = oauth_request(
-            f'{self.state["api"]["url"]}/organizations/{self.state["api"]["organization_id"]}/datasets',
+            f'{self.url}/organizations/{self.organization_id}/datasets',
             self.azure_token,
         )
         if response is None:
@@ -64,10 +65,10 @@ class ApiDatasetService:
         return datasets
 
     def get(self, id: str):
-        org_id = self.state["api"]["organization_id"]
+        org_id = self.organization_id
         id = id or self.state["api"]["dataset.id"]
         response = oauth_request(
-            f'{self.state["api"]["url"]}/organizations/{org_id}/datasets/{id}',
+            f'{self.url}/organizations/{org_id}/datasets/{id}',
             self.azure_token,
         )
         if response is None:
@@ -77,9 +78,9 @@ class ApiDatasetService:
 
     def search(self, tag: str):
         details = {"datasetTags": [tag]}
-        org_id = self.state["api"]["organization_id"]
+        org_id = self.organization_id
         response = oauth_request(
-            f'{self.state["api"]["url"]}/organizations/{org_id}/datasets/search',
+            f'{self.url}/organizations/{org_id}/datasets/search',
             self.azure_token,
             type="POST",
             json=details,
@@ -96,7 +97,7 @@ class ApiDatasetService:
         details = env.fill_template(dataset_file)
         dataset_id = json.loads(details).get("id") or self.state["api"]["dataset.id"]
         response = oauth_request(
-            f'{self.state["api"]["url"]}/organizations/{self.state["api"]["organization_id"]}/datasets/{dataset_id}',
+            f'{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}',
             self.azure_token,
             type="PATCH",
             data=details,
