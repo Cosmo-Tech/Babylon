@@ -24,7 +24,10 @@ logger = getLogger("Babylon")
 @option("--solution-id", "solution_id", type=str)
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
-def get_all(state: Any, azure_token: str, organization_id: str, solution_id: str,
+def get_all(state: Any,
+            azure_token: str,
+            organization_id: str,
+            solution_id: str,
             filter: Optional[str] = None) -> CommandResponse:
     """
     Get all solutions details
