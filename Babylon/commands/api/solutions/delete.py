@@ -1,6 +1,7 @@
 from logging import getLogger
 from typing import Any
 
+from Babylon.utils.environment import Environment
 from click import command
 from click import option
 
@@ -9,10 +10,11 @@ from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.decorators import wrapcontext, retrieve_state
 from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.messages import SUCCESS_DELETED
+from Babylon.utils.messages import SUCCESS_DELETED, SUCCESS_CONFIG_UPDATED
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
+env = Environment()
 
 
 @command()
@@ -31,7 +33,7 @@ def delete(state: Any,
     """
     Delete a solution
     """
-    state = state['state']
+    state = state['services']
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
     state['api']['solution_id'] = solution_id or state['api']['solution_id']
     if state['api']['solution_id'] is None:
@@ -47,5 +49,10 @@ def delete(state: Any,
 
     if response is None:
         return CommandResponse.fail()
+    if not solution_id or solution_id == state["services"]["api"]["solution_id"]:
+        state['api']['solution_id'] = ""
+        env.store_state_in_local(state)
+        env.store_state_in_cloud(state)
+        logger.info(SUCCESS_CONFIG_UPDATED("api", "solution_id"))
     logger.info(SUCCESS_DELETED("solution", solution_id))
     return CommandResponse.success()

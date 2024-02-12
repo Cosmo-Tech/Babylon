@@ -27,18 +27,17 @@ env = Environment()
 @option("--organization-id", "organization_id", type=str)
 @option("--solution-id", "solution_id", type=str)
 @option(
-    "--file",
-    "solution_file",
+    "--payload",
+    "payload",
     type=Path(path_type=pathlib.Path),
-    help="Your custom solution description file yaml",
-)
+    help="Your custom solution description file yaml", )
 @retrieve_state
-def update(state: Any, azure_token: str, organization_id: str, solution_id: str,
-           solution_file: pathlib.Path) -> CommandResponse:
+def update(state: Any, azure_token: str, organization_id: str, solution_id: str, solution_file:
+pathlib.Path) -> CommandResponse:
     """
     Update a solution
     """
-    state = state['state']
+    state = state['services']
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
     state['api']['solution_id'] = solution_id or state['api']['solution_id']
     if state['api']['solution_id'] is None:
