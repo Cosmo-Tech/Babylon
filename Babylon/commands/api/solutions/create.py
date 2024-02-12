@@ -1,7 +1,5 @@
 import pathlib
-import sys
 from logging import getLogger
-from posixpath import basename
 from typing import Any
 
 from click import Path
@@ -35,25 +33,20 @@ env = Environment()
     "--file",
     "solution_file",
     type=Path(path_type=pathlib.Path),
-    help="Your custom solution description file (yaml or json)",
-)
-@option("--select", "select", is_flag=True, default=True, help="Save this new solution in configuration")
+    help="Your custom solution description file (yaml or json)", )
 @argument("name", type=QueryType())
 @retrieve_state
-def create(state: Any, azure_token: str, organization_id: str, solution_name: str, solution_file: pathlib.Path,
-           select: bool) -> CommandResponse:
+def create(state: Any, azure_token: str, organization_id: str, solution_name: str,
+           solution_file: pathlib.Path) -> CommandResponse:
     """
     Register a new solution
     """
-    state = state['state']
+    state = state['services']
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
 
     check_ascii(solution_name)
     path_file = f"{env.context_id}.{env.environ_id}.solution.yaml"
     t_file = solution_file or env.working_dir.payload_path / path_file
-    if not t_file.exists():
-        logger.error(f"No such file: '{basename(t_file)}' in .payload directory")
-        sys.exit(1)
     details = env.fill_template(t_file,
                                 data={
                                     "key": solution_name.replace(" ", ""),
@@ -68,10 +61,9 @@ def create(state: Any, azure_token: str, organization_id: str, solution_name: st
 
     if response is None:
         return CommandResponse.fail()
-    if select:
-        state["api"]["solution_id"] = created_solution["id"]
-        env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
-        logger.info(SUCCESS_CONFIG_UPDATED("api", "solution_id"))
+    state["api"]["solution_id"] = created_solution["id"]
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
+    logger.info(SUCCESS_CONFIG_UPDATED("api", "solution_id"))
     logger.info(SUCCESS_CREATED("solution", created_solution["id"]))
     return CommandResponse.success(created_solution, verbose=True)
