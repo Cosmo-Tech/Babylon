@@ -32,14 +32,17 @@ def get_all(state: Any, azure_token: str, organization_id: str, solution_id: str
     state = state['state']
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
     state['api']['solution_id'] = solution_id or state['api']['solution_id']
+    if state['api']['solution_id'] is None:
+        logger.error(f"solution : {state['api']['solution_id']} does not exist")
+        return CommandResponse.fail()
 
     logger.info(f"Getting all solutions from organization {state['api']['organization_id']}")
     service = SolutionService(state=state, azure_token=azure_token)
     response = service.get_all()
+    solutions = response.json()
 
     if response is None:
         return CommandResponse.fail()
-    solutions = response.json()
     if len(solutions) and filter:
         solutions = jmespath.search(filter, solutions)
     return CommandResponse.success(solutions, verbose=True)

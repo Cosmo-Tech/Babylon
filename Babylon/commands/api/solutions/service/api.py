@@ -8,44 +8,37 @@ class SolutionService:
         self.state = state
         self.spec = spec
         self.azure_token = azure_token
+        self.url = self.state["api"]["url"]
+        self.organization_id = self.state["api"]["organization_id"]
+        self.solution_id = self.state["api"]["solution_id"]
 
     def create(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        solution_id = self.state["api"]["solution_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/solutions/{solution_id}", self.azure_token, "POST",
-            data=self.spec)
+            f"{self.url}/organizations/{self.organization_id}/solutions",
+            self.azure_token,
+            type="POST",
+            data=self.spec["data"])
         return response
 
     def delete(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        solution_id = self.state["api"]["solution_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/solutions/{solution_id}", self.azure_token, "DELETE")
+            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}", self.azure_token, "DELETE")
         return response
 
     def get(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        solution_id = self.state["api"]["solution_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/solutions/{solution_id}", self.azure_token)
+            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}", self.azure_token)
         return response
 
     def get_all(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        solution_id = self.state["api"]["solution_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/solutions", self.azure_token)
+            f"{self.url}/organizations/{self.organization_id}/solutions", self.azure_token)
         return response
 
     def update(self):
-        url = self.state["api"]["url"]
-        organization_id = self.state["api"]["organization_id"]
-        solution_id = self.state["api"]["solution_id"]
         response = oauth_request(
-            f"{url}/organizations/{organization_id}/solutions/{solution_id}", self.azure_token, "PATCH")
+            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
+            self.azure_token,
+            "PATCH",
+            data=self.spec["data"])
         return response

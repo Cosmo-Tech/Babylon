@@ -32,10 +32,14 @@ def get(state: Any, azure_token: str, organization_id: str, solution_id: str, se
     state = state['state']
     state['api']['organization_id'] = organization_id or state['api']['organization_id']
     state['api']['solution_id'] = solution_id or state['api']['solution_id']
+    if state['api']['solution_id'] is None:
+        logger.error(f"solution : {state['api']['solution_id']} does not exist")
+        return CommandResponse.fail()
 
     logger.info(f"Searching solution: {state['api']['solution_id']}")
     service = SolutionService(state=state, azure_token=azure_token)
     response = service.get()
+    solution = response.json()
 
     if response is None:
         return CommandResponse.fail()
@@ -43,4 +47,4 @@ def get(state: Any, azure_token: str, organization_id: str, solution_id: str, se
         env.store_state_in_local(state)
         env.store_state_in_cloud(state)
         logger.info(SUCCESS_CONFIG_UPDATED("api", "solution_id"))
-    return CommandResponse.success(response.json(), verbose=True)
+    return CommandResponse.success(solution, verbose=True)
