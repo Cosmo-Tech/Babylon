@@ -1,48 +1,47 @@
 from logging import getLogger
 from typing import Any
-from click import Context, argument, pass_context
+
 from click import command
 from click import option
+
+from Babylon.commands.api.solutions.service.api import SolutionService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import wrapcontext, retrieve_state
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.messages import SUCCESS_DELETED
-from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
 
 logger = getLogger("Babylon")
-env = Environment()
 
 
 @command()
 @wrapcontext()
-@pass_context
 @timing_decorator
 @pass_azure_token("csm_api")
+@option("--organization-id", "organization_id", type=str)
+@option("--solution-id", "solution_id", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("id", type=QueryType(), required=False)
-@inject_context_with_resource({"api": ['url', 'organization_id']})
-def delete(ctx: Context, context: Any, azure_token: str, id: str, force_validation: bool = False) -> CommandResponse:
+@retrieve_state
+def delete(state: Any, azure_token: str, organization_id: str, solution_id: str,
+           force_validation: bool = False) -> CommandResponse:
     """
     Delete a solution
     """
-    organization_id = context['api_organization_id']
-    solution_id = env.configuration.get_var(resource_id=ctx.parent.parent.command.name, var_name="solution_id")
-    if not id:
-        logger.error(f"You trying to {ctx.command.name} {ctx.parent.command.name} in configuration")
-        logger.error(f"Current value: {solution_id}")
-    if not solution_id:
-        logger.error("Solution id is missing")
+    state = state['state']
+    state['api']['organization_id'] = organization_id or state['api']['organization_id']
+    state['api']['solution_id'] = solution_id or state['api']['solution_id']
+    if state['api']['solution_id'] is None:
+        logger.error(f"solution : {state['api']['solution_id']} does not exist")
         return CommandResponse.fail()
-    solution_id = id or solution_id
+
     if not force_validation and not confirm_deletion("solution", solution_id):
         return CommandResponse.fail()
-    response = oauth_request(f"{context['api_url']}/organizations/{organization_id}/solutions/{solution_id}",
-                             azure_token,
-                             type="DELETE")
+
+    logger.info(f"Deleting solution: {state['api']['solution_id']}")
+    service = SolutionService(state=state, azure_token=azure_token)
+    response = service.delete()
+
     if response is None:
         return CommandResponse.fail()
     logger.info(SUCCESS_DELETED("solution", solution_id))

@@ -1,23 +1,24 @@
 import pathlib
-
+import sys
 from logging import getLogger
 from posixpath import basename
-import sys
 from typing import Any
-from click import Context, argument, pass_context
+
+from click import Path
+from click import argument
 from click import command
 from click import option
-from click import Path
+
+from Babylon.commands.api.solutions.service.api import SolutionService
 from Babylon.utils.checkers import check_ascii
-from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED, SUCCESS_CREATED
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
-from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.typing import QueryType
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file
-from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.request import oauth_request
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import wrapcontext, retrieve_state
+from Babylon.utils.environment import Environment
+from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED, SUCCESS_CREATED
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.typing import QueryType
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -25,10 +26,11 @@ env = Environment()
 
 @command()
 @wrapcontext()
-@pass_context
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
+@option("--organization-id", "organization_id", type=str)
+@option("--solution-id", "solution_id", type=str)
 @option(
     "--file",
     "solution_file",
@@ -37,13 +39,16 @@ env = Environment()
 )
 @option("--select", "select", is_flag=True, default=True, help="Save this new solution in configuration")
 @argument("name", type=QueryType())
-@inject_context_with_resource({"api": ['url', 'organization_id'], 'acr': ['simulator_repository', 'simulator_version']})
-def create(ctx: Context, context: Any, azure_token: str, name: str, solution_file: pathlib.Path,
+@retrieve_state
+def create(state: Any, azure_token: str, organization_id: str, solution_name: str, solution_file: pathlib.Path,
            select: bool) -> CommandResponse:
     """
-    Register new solution
+    Register a new solution
     """
-    check_ascii(name)
+    state = state['state']
+    state['api']['organization_id'] = organization_id or state['api']['organization_id']
+
+    check_ascii(solution_name)
     path_file = f"{env.context_id}.{env.environ_id}.solution.yaml"
     t_file = solution_file or env.working_dir.payload_path / path_file
     if not t_file.exists():
@@ -51,21 +56,22 @@ def create(ctx: Context, context: Any, azure_token: str, name: str, solution_fil
         sys.exit(1)
     details = env.fill_template(t_file,
                                 data={
-                                    "key": name.replace(" ", ""),
-                                    "name": name,
+                                    "key": solution_name.replace(" ", ""),
+                                    "name": solution_name,
                                     'tag': env.context_id.capitalize()
                                 })
-    response = oauth_request(f"{context['api_url']}/organizations/{context['api_organization_id']}/solutions",
-                             azure_token,
-                             type="POST",
-                             data=details)
+    spec = {"data": details}
+
+    service = SolutionService(state=state, azure_token=azure_token, spec=spec)
+    response = service.create()
+    created_solution = response.json()
+
     if response is None:
         return CommandResponse.fail()
-    solution = response.json()
     if select:
-        env.configuration.set_var(resource_id=ctx.parent.parent.command.name,
-                                  var_name="solution_id",
-                                  var_value=solution["id"])
-        logger.info(SUCCESS_CONFIG_UPDATED("solution", "solution_id"))
-    logger.info(SUCCESS_CREATED("solution", solution["id"]))
-    return CommandResponse.success(solution, verbose=True)
+        state["api"]["solution_id"] = created_solution["id"]
+        env.store_state_in_local(state)
+        env.store_state_in_cloud(state)
+        logger.info(SUCCESS_CONFIG_UPDATED("api", "solution_id"))
+    logger.info(SUCCESS_CREATED("solution", created_solution["id"]))
+    return CommandResponse.success(created_solution, verbose=True)
