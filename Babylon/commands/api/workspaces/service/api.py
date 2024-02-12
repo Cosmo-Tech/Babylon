@@ -1,10 +1,12 @@
 import sys
+
 from logging import getLogger
 from typing import Optional
-
+from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
 logger = getLogger("Babylon")
+env = Environment()
 
 
 class WorkspaceService:
@@ -42,24 +44,26 @@ class WorkspaceService:
         return response
 
     def create(self):
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces",
             self.azure_token,
             type="POST",
-            data=self.spec,
+            data=details,
         )
         return response
 
     def update(self):
         workspace_id = self.state["api"]["workspace_id"]
+        details = self.spec["payload"]
         if not workspace_id:
-            logger.error("workspace_id not found")
+            logger.error("workspace id not found")
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
             self.azure_token,
             type="PATCH",
-            data=self.spec,
+            data=details,
         )
         return response
 

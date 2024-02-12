@@ -7,9 +7,8 @@ from .security import security
 from .update import update
 from .send_key import send_key
 from .create_key import create_key
-from .payload import payload
 
-list_commands = [update, delete, get_all, get, create, send_key, create_key, payload]
+list_commands = [update, delete, get_all, get, create, send_key, create_key]
 
 
 @group()
