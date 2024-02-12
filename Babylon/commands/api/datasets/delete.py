@@ -1,16 +1,13 @@
 from logging import getLogger
 from typing import Any
-from click import Context, command, pass_context
+from click import command
 from click import argument
 from click import option
-from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.decorators import inject_context_with_resource, timing_decorator, wrapcontext
+from Babylon.commands.api.datasets.service.api import ApiDatasetService
+from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
 from Babylon.utils.environment import Environment
-from Babylon.utils.messages import SUCCESS_DELETED
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.request import oauth_request
-from Babylon.utils.typing import QueryType
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -18,26 +15,27 @@ env = Environment()
 
 @command()
 @wrapcontext()
-@pass_context
 @timing_decorator
 @pass_azure_token("csm_api")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("id", type=QueryType())
-@inject_context_with_resource({"api": ['url', 'organization_id']})
+@argument("id", type=str)
+@retrieve_state
 def delete(
-    ctx: Context,
-    context: Any,
+    state: Any,
     azure_token: str,
     id: str,
     force_validation: bool = False,
 ) -> CommandResponse:
     """Delete a dataset"""
-    if not force_validation and not confirm_deletion("dataset", id):
-        return CommandResponse.fail()
-    response = oauth_request(f"{context['api_url']}/organizations/{context['api_organization_id']}/datasets/{id}",
-                             azure_token,
-                             type="DELETE")
-    if response is None:
-        return CommandResponse.fail()
-    logger.info(SUCCESS_DELETED("dataset", id))
+    service_state = state["services"]
+    service = ApiDatasetService(azure_token=azure_token, state=service_state)
+    response = service.delete(force_validation=force_validation, id=id)
+    if response:
+        logger.info(f"dataset id '{id}' successfully deleted")
+        if "dataset.id" in state["services"]["api"]:
+            if id == state["services"]["api"]["dataset.id"]:
+                state["services"]["api"]["dataset.id"] = ''
+                env.store_state_in_local(state=state)
+                env.store_state_in_cloud(state=state)
+                logger.info(f"dataset id '{id}' successfully deleted in state {state.get('id')}")
     return CommandResponse.success()
