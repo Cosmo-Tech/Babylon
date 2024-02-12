@@ -4,6 +4,7 @@ from Babylon.utils.request import oauth_request
 
 
 class SolutionService:
+
     def __init__(self, state: dict, azure_token: str, spec: Optional[dict] = None):
         self.state = state
         self.spec = spec
@@ -13,21 +14,20 @@ class SolutionService:
         self.solution_id = self.state["api"]["solution_id"]
 
     def create(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions",
-            self.azure_token,
-            type="POST",
-            data=self.spec["data"])
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions",
+                                 self.azure_token,
+                                 type="POST",
+                                 data=self.spec["data"])
         return response
 
     def delete(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}", self.azure_token, "DELETE")
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
+                                 self.azure_token, "DELETE")
         return response
 
     def get(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}", self.azure_token)
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
+                                 self.azure_token)
         return response
 
     def get_all(self):
@@ -35,9 +35,8 @@ class SolutionService:
         return response
 
     def update(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
-            self.azure_token,
-            "PATCH",
-            data=self.spec["data"])
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
+                                 self.azure_token,
+                                 "PATCH",
+                                 data=self.spec["data"])
         return response

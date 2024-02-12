@@ -30,7 +30,8 @@ env = Environment()
     "run_template_id",
     help="The run Template identifier name example: 'Sensitive analysis'",
     type=QueryType(),
-    required=True, )
+    required=True,
+)
 @option("--override", "override", is_flag=True, help="Override handler solution")
 @argument("handler_id",
           type=Choice(['validator', 'prerun', 'engine', 'postrun', 'scenariodata_transform', 'parameters_handler']))

@@ -30,10 +30,11 @@ env = Environment()
     "--file",
     "solution_file",
     type=Path(path_type=pathlib.Path),
-    help="Your custom solution description file yaml", )
+    help="Your custom solution description file yaml",
+)
 @retrieve_state
-def update(state: Any, azure_token: str, organization_id: str, solution_id: str, solution_file:
-           pathlib.Path) -> CommandResponse:
+def update(state: Any, azure_token: str, organization_id: str, solution_id: str,
+           solution_file: pathlib.Path) -> CommandResponse:
     """
     Update a solution
     """
