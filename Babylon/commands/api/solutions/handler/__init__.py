@@ -9,10 +9,7 @@ def handler():
     pass
 
 
-list_commands = [
-    download,
-    upload,
-]
+list_commands = [download, upload, ]
 
 for _command in list_commands:
     handler.add_command(_command)
