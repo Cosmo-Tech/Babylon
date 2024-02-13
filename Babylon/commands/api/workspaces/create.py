@@ -50,7 +50,8 @@ def create(
     if response is None:
         return CommandResponse.fail()
     workspace = response.json()
-    state["services"]["api"]["workspace_id"] = workspace["id"]
+    state["services"]["api"]["workspace_id"] = workspace.get("id")
+    state["services"]["api"]["workspace_key"] = workspace.get("key")
     env.store_state_in_local(state)
     env.store_state_in_cloud(state)
     logger.info(f"Workspace {workspace['id']} successfully saved in state {state.get('id')}")
