@@ -23,11 +23,11 @@ def status(state: Any, azure_token: str, organization_id: str, scenariorun_id: s
     """
     Get the status of the scenarioRun
     """
-    scenariorun_state = state['services']
-    scenariorun_state['api']['organization_id'] = organization_id or scenariorun_state['api']['organization_id']
-    scenariorun_state['api']['scenariorun_id'] = scenariorun_id or scenariorun_state['api'].get('scenariorun_id')
-    logger.info(f"Getting status for scenariorun: {state['api']['scenariorun_id']}")
-    service = ScenarioRunService(state=state, azure_token=azure_token)
+    service_state = state['services']
+    service_state['api']['organization_id'] = organization_id or service_state['api']['organization_id']
+    service_state['api']['scenariorun_id'] = scenariorun_id or service_state['api'].get('scenariorun_id')
+    logger.info(f"Getting status for scenariorun: {service_state['api']['scenariorun_id']}")
+    service = ScenarioRunService(state=service_state, azure_token=azure_token)
     response = service.status()
     if response is None:
         return CommandResponse.fail()
