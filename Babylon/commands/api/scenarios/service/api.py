@@ -2,6 +2,8 @@ import sys
 from logging import getLogger
 
 from typing import Optional
+
+from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 
 logger = getLogger("Babylon")
@@ -56,31 +58,36 @@ class ScenarioService:
             logger.error("scenario_id is missing")
             sys.exit(1)
 
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/scenarios/{scenario_id}",
             self.azure_token,
             type="PATCH",
-            data=self.spec,
+            data=details,
         )
         return response
 
     def create(self):
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/scenarios",
             self.azure_token,
             type="POST",
-            data=self.spec,
+            data=details,
         )
         return response
 
-    def delete(self):
+    def delete(self, force_validation: bool):
         scenario_id = self.state["api"]["scenario_id"]
 
         if not scenario_id:
             logger.error("scenario_id is missing")
             sys.exit(1)
+
+        if not force_validation and not confirm_deletion("solution", scenario_id):
+            return None
 
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
