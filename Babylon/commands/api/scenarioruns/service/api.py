@@ -9,22 +9,18 @@ logger = getLogger("Babylon")
 
 class ScenarioRunService:
 
-    def __init__(self, state: dict, azure_token: str, spec: Optional[dict] = None):
+    def __init__(self, azure_token: str, state: dict, spec: Optional[dict] = None):
         self.state = state
         self.spec = spec
         self.azure_token = azure_token
         self.url = self.state["api"]["url"]
         self.organization_id = self.state["api"]["organization_id"]
         self.scenariorun_id = self.state["api"]["scenariorun_id"]
-
-        if not self.url:
-            logger.error("API url not found")
-            sys.exit(1)
         if not self.organization_id:
-            logger.error("organization_id not found")
+            logger.error("organization id is missing")
             sys.exit(1)
         if not self.scenariorun_id:
-            logger.error("scenariorun_id not found")
+            logger.error("solution id is missing")
             sys.exit(1)
 
     def logs(self):
