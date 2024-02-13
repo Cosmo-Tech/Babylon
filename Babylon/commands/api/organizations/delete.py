@@ -4,11 +4,10 @@ from click import command
 from click import option
 from Babylon.utils.decorators import retrieve_state, timing_decorator
 from Babylon.utils.decorators import wrapcontext
-from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
-from Babylon.services.organizations_service import OrganizationsService
+from Babylon.services.organizations_service import OrganizationService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -25,9 +24,7 @@ def delete(state: Any, azure_token: str, organization_id: str, force_validation:
     """Delete an organization"""
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
-    if not force_validation and not confirm_deletion("organization", service_state["api"]["organization_id"]):
-        return CommandResponse.fail()
-    organizations_service = OrganizationsService(state=service_state, azure_token=azure_token)
+    organizations_service = OrganizationService(state=service_state, azure_token=azure_token)
     response = organizations_service.delete()
     if response is None:
         return CommandResponse.fail()

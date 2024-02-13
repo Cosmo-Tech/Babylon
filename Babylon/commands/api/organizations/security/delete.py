@@ -1,13 +1,13 @@
 import logging
 
-from click import argument, command
+from click import argument, command, option
 from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, timing_decorator
 from Babylon.commands.api.organizations.security.service.api import (
-    ApiOrganizationSecurityService, )
+    OrganizationSecurityService, )
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -18,13 +18,15 @@ env = Environment()
 @timing_decorator
 @pass_azure_token("csm_api")
 @output_to_file
-@argument("id", type=str)
+@option("--organization-id", "organization_id", type=str)
+@argument("identity_id", type=str)
 @retrieve_state
-def delete(state: dict, azure_token: str, id: str) -> CommandResponse:
+def delete(state: dict, azure_token: str, identity_id: str, organization_id: str) -> CommandResponse:
     """
     Delete organization users RBAC access
     """
     service_state = state["services"]
-    service = ApiOrganizationSecurityService(azure_token=azure_token, state=service_state)
-    response = service.delete(id=id)
+    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service = OrganizationSecurityService(azure_token=azure_token, state=service_state)
+    response = service.delete(id=identity_id)
     return CommandResponse.success(response, verbose=True)
