@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.services.organizations_service import OrganizationsService
+from Babylon.services.organizations_service import OrganizationService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -33,7 +33,7 @@ def create(
     """
     spec = dict()
     spec["payload"] = env.fill_template(payload_file)
-    organizations_service = OrganizationsService(state['services'], azure_token, spec=spec)
+    organizations_service = OrganizationService(state['services'], azure_token, spec=spec)
     response = organizations_service.create()
     if response is None:
         return CommandResponse.fail()

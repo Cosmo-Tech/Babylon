@@ -8,7 +8,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.services.organizations_service import OrganizationsService
+from Babylon.services.organizations_service import OrganizationService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -25,7 +25,7 @@ def get(state: Any, organization_id: str, azure_token: str) -> CommandResponse:
     """Get an organization details"""
     services_state = state["services"]
     services_state["api"]["organization_id"] = (organization_id or services_state["api"]["organization_id"])
-    organizations_service = OrganizationsService(state=services_state, azure_token=azure_token)
+    organizations_service = OrganizationService(state=services_state, azure_token=azure_token)
     response = organizations_service.get()
     if response is None:
         return CommandResponse.fail()
