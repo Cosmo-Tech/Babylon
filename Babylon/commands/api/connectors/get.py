@@ -1,8 +1,8 @@
 from logging import getLogger
 from typing import Any
-from click import argument
+from click import option
 from click import command
-from Babylon.commands.api.connectors.service.api import ApiConnectorService
+from Babylon.commands.api.connectors.service.api import ConnectorService
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
@@ -19,11 +19,16 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@argument("id", type=str)
+@option("--connector-id", "connector_id", type=str)
 @retrieve_state
-def get(state: Any, azure_token: str, id: str) -> CommandResponse:
+def get(state: Any, azure_token: str, connector_id: str) -> CommandResponse:
     """Get a registered connector details"""
     service_state = state["services"]
-    service = ApiConnectorService(azure_token=azure_token, state=service_state)
-    response = service.get(id=id)
-    return CommandResponse.success(response, verbose=True)
+    service_state["api"]["connector_id"] = (connector_id or service_state["api"]["connector_id"])
+    logger.info(f"Searching connector: {service_state['api']['connector_id']}")
+    service = ConnectorService(azure_token=azure_token, state=service_state)
+    response = service.get()
+    if response is None:
+        return CommandResponse.fail()
+    connector = response.json()
+    return CommandResponse.success(connector, verbose=True)
