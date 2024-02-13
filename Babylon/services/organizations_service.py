@@ -3,7 +3,8 @@ import sys
 
 from logging import getLogger
 from Babylon.commands.api.organizations.security.service.api import (
-    ApiOrganizationSecurityService, )
+    OrganizationSecurityService, )
+from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 from Babylon.utils.environment import Environment
 
@@ -11,7 +12,7 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-class OrganizationsService:
+class OrganizationService:
 
     def __init__(self, state: dict, azure_token: str, spec: dict = None):
         self.state = state
@@ -21,14 +22,17 @@ class OrganizationsService:
         if not self.url:
             logger.error("API url not found")
             sys.exit(1)
-        self.security_svc = ApiOrganizationSecurityService(azure_token=azure_token, state=state)
+        self.security_svc = OrganizationSecurityService(azure_token=azure_token, state=state)
 
     def create(self):
         details = self.spec["payload"]
         response = oauth_request(f"{self.url}/organizations", self.azure_token, type="POST", data=details)
         return response
 
-    def delete(self, id: str):
+    def delete(self, force_validation: bool):
+        organization_id = self.state["api"]["organization_id"]
+        if not force_validation and not confirm_deletion("organization", organization_id):
+            return None
         organization_id = self.state["api"]["organization_id"]
         if not organization_id:
             logger.error("organization id not found")

@@ -8,7 +8,7 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-class ApiOrganizationSecurityService:
+class OrganizationSecurityService:
 
     def __init__(self, azure_token: str, state: dict) -> None:
         self.state = state
@@ -31,7 +31,15 @@ class ApiOrganizationSecurityService:
         )
         return response
 
-    def get(self):
+    def get(self, id: str):
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/security/{id}",
+            self.azure_token,
+            type="GET",
+        )
+        return response
+
+    def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/security",
             self.azure_token,
