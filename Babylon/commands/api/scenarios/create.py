@@ -1,14 +1,18 @@
 import pathlib
 from logging import getLogger
-from typing import Any, Optional
+from typing import Any
 
-from click import command, option, Path
+from click import command, option, Path, argument
 
 from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state
+from Babylon.utils.decorators import (
+    timing_decorator,
+    wrapcontext,
+    retrieve_state,
+    output_to_file,
+)
 from Babylon.utils.environment import Environment
-from Babylon.utils.messages import SUCCESS_CONFIG_UPDATED
 from Babylon.utils.response import CommandResponse
 
 env = Environment()
@@ -20,21 +24,19 @@ logger = getLogger("Babylon")
 @retrieve_state
 @pass_azure_token("csm_api")
 @timing_decorator
+@output_to_file
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@option(
-    "--payload",
-    "payload",
+@argument(
+    "payload_file",
     type=Path(path_type=pathlib.Path),
-    help="Your custom scenario description file (yaml or json)",
-    required=False,
 )
 def create(
     state: Any,
     organization_id: str,
     workspace_id: str,
     azure_token: str,
-    payload: Optional[pathlib.Path] = None,
+    payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
     Create new scenario
@@ -43,25 +45,17 @@ def create(
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
 
-    details = env.fill_template(payload)
+    if not payload_file.exists():
+        print(f"file {payload_file} not found in directory")
+        return CommandResponse.fail()
+    spec = dict()
+    spec["payload"] = env.fill_template(payload_file)
 
-    scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=details)
+    scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=spec)
     response = scenario_service.create()
     if response is None:
         return CommandResponse.fail()
     scenario = response.json()
-
-    if organization_id:
-        state["services"]["api"]["organization_id"] = organization_id
-        env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
-        logger.info(SUCCESS_CONFIG_UPDATED("api", "organization_id"))
-
-    if workspace_id:
-        state["services"]["api"]["workspace_id"] = workspace_id
-        env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
-        logger.info(SUCCESS_CONFIG_UPDATED("api", "workspace_id"))
 
     state["services"]["api"]["scenario_id"] = scenario["id"]
     env.store_state_in_local(state)

@@ -5,7 +5,12 @@ from click import command, option
 
 from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state
+from Babylon.utils.decorators import (
+    timing_decorator,
+    wrapcontext,
+    retrieve_state,
+    output_to_file,
+)
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -17,6 +22,7 @@ env = Environment()
 @wrapcontext()
 @pass_azure_token("csm_api")
 @timing_decorator
+@output_to_file
 @retrieve_state
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
@@ -34,7 +40,7 @@ def run(
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    service_state["api"]["scenario_id"] = scenario_id or state["services"]["api"]["scenario_id"]
+    service_state["api"]["scenario_id"] = (scenario_id or state["services"]["api"]["scenario_id"])
 
     scenario_service = ScenarioService(state=service_state, azure_token=azure_token)
     response = scenario_service.run()
