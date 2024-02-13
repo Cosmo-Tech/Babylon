@@ -1,11 +1,11 @@
 import logging
 import pathlib
 
-from typing import Any, Optional
-from click import Path
+from typing import Any
+from click import Path, argument
 from click import command
-from click import option
-from Babylon.commands.api.connectors.service.api import ApiConnectorService
+from Babylon.commands.api.connectors.service.api import (
+    ConnectorService, )
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.decorators import output_to_file
@@ -21,26 +21,26 @@ env = Environment()
 @wrapcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
-@option("--payload",
-        "connector_file",
-        type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
-        help="Your custom connector description file (yaml or json)")
+@argument("payload_file", type=Path(path_type=pathlib.Path))
 @output_to_file
 @retrieve_state
-def create(
-    state: Any,
-    azure_token: str,
-    connector_file: Optional[pathlib.Path] = None,
-) -> CommandResponse:
+def create(state: Any, azure_token: str, payload_file: pathlib.Path) -> CommandResponse:
     """
     Register new Connector
     """
     service_state = state["services"]
-    service = ApiConnectorService(azure_token=azure_token, state=service_state)
-    response = service.create(connector_file=connector_file)
-    if "connector.id" in state["services"]["api"]:
-        state["services"]["api"]["connector.id"] = response.get("id")
-    env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
-    logger.info(f"connector id '{response.get('id')}' successfully saved in state {state.get('id')}")
-    return CommandResponse.success(response, verbose=True)
+    if not payload_file.exists():
+        print(f"file {payload_file} not found in directory")
+        return CommandResponse.fail()
+    spec = dict()
+    spec["payload"] = env.fill_template(payload_file)
+    service = ConnectorService(azure_token=azure_token, state=service_state, spec=spec)
+    response = service.create()
+    if response is None:
+        return CommandResponse.fail()
+    connector = response.json()
+    state["services"]["api"]["connector_id"] = connector.get("id")
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
+    logger.info(f"Connector '{connector.get('id')}' successfully saved in state {state.get('id')}")
+    return CommandResponse.success(connector, verbose=True)
