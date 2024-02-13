@@ -1,6 +1,5 @@
 import sys
 from logging import getLogger
-from typing import Optional
 
 from Babylon.utils.request import oauth_request
 
@@ -9,9 +8,8 @@ logger = getLogger("Babylon")
 
 class ScenarioRunService:
 
-    def __init__(self, azure_token: str, state: dict, spec: Optional[dict] = None):
+    def __init__(self, azure_token: str, state: dict):
         self.state = state
-        self.spec = spec
         self.azure_token = azure_token
         self.url = self.state["api"]["url"]
         self.organization_id = self.state["api"]["organization_id"]
