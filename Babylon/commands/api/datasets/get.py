@@ -1,8 +1,7 @@
 from logging import getLogger
 from typing import Any
-from click import command
-from click import argument
-from Babylon.commands.api.datasets.service.api import ApiDatasetService
+from click import command, option
+from Babylon.commands.api.datasets.service.api import DatasetService
 from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.decorators import output_to_file
@@ -20,15 +19,23 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
-@argument("id", type=str)
+@option("--organization-id", "organization_id", type=str)
+@option("--dataset-id", "dataset_id", type=str)
 @retrieve_state
 def get(
     state: Any,
     azure_token: str,
-    id: str,
+    organization_id: str,
+    dataset_id: str,
 ) -> CommandResponse:
     """Get a dataset"""
     service_state = state["services"]
-    service = ApiDatasetService(azure_token=azure_token, state=service_state)
-    response = service.get(id=id)
-    return CommandResponse.success(response, verbose=True)
+    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
+    logger.info(f"Searching dataset: {service_state['api']['dataset_id']}")
+    service = DatasetService(azure_token=azure_token, state=service_state)
+    response = service.get()
+    if response is None:
+        return CommandResponse.fail()
+    dataset = response.json()
+    return CommandResponse.success(dataset, verbose=True)
