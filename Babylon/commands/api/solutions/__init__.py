@@ -1,9 +1,10 @@
 from click import group
-from .handler import handler
+
 from .create import create
 from .delete import delete
 from .get import get
 from .get_all import get_all
+from .handler import handler
 from .update import update
 
 
