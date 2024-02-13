@@ -1,12 +1,17 @@
 import pathlib
 from logging import getLogger
-from typing import Any, Optional
+from typing import Any
 
-from click import command, option, Path
+from click import command, option, Path, argument
 
 from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state
+from Babylon.utils.decorators import (
+    timing_decorator,
+    wrapcontext,
+    retrieve_state,
+    output_to_file,
+)
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -17,25 +22,20 @@ env = Environment()
 @command()
 @wrapcontext()
 @retrieve_state
+@output_to_file
 @pass_azure_token("csm_api")
 @timing_decorator
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--scenario-id", type=str)
-@option(
-    "--payload",
-    "payload",
-    type=Path(path_type=pathlib.Path),
-    help="Your custom scenario description file (yaml or json)",
-    required=False,
-)
+@argument("payload_file", type=Path(path_type=pathlib.Path))
 def update(
     state: Any,
     organization_id: str,
     workspace_id: str,
     scenario_id: str,
     azure_token: str,
-    payload: Optional[pathlib.Path] = None,
+    payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
     Update a scenario
@@ -45,16 +45,18 @@ def update(
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["scenario_id"] = (scenario_id or state["services"]["api"]["scenario_id"])
 
-    details = env.fill_template(payload)
+    if not payload_file.exists():
+        print(f"file {payload_file} not found in directory")
+        return CommandResponse.fail()
+    spec = dict()
+    spec["payload"] = env.fill_template(payload_file)
 
-    scenario_service = ScenarioService(state=service_state, spec=details, azure_token=azure_token)
+    scenario_service = ScenarioService(state=service_state, spec=spec, azure_token=azure_token)
     response = scenario_service.update()
     if response is None:
         return CommandResponse.fail()
     scenario = response.json()
-    if scenario_id:
-        state["services"]["api"]["scenario_id"] = scenario["id"]
-        env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
-        logger.info(f"Scenario {scenario['id']} has been successfully added in state")
+    logger.info(f'Scenario {service_state["api"]["scenario_id"]} successfully updated')
+    if service_state["api"]["scenario_id"] == state["services"]["api"]["scenario_id"]:
+        logger.info(f'Scenario {state["services"]["api"]["scenario_id"]} stored in state has been successfully updated')
     return CommandResponse.success(scenario, verbose=True)
