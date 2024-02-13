@@ -47,7 +47,7 @@ class ApiWorkspaceSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/{id}",
             self.azure_token,
-            type="PATH",
+            type="PATCH",
             data=details,
         )
         return response
