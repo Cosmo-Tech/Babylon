@@ -1,13 +1,15 @@
-import json
 from logging import getLogger
 from typing import Any
-from click import command
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from click import command, option
+from Babylon.commands.api.workspaces.service.api import WorkspaceService
+from Babylon.utils.decorators import (
+    retrieve_state,
+    wrapcontext,
+)
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.request import oauth_request
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -17,25 +19,23 @@ env = Environment()
 @wrapcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
-@inject_context_with_resource({"api": ['url', 'organization_id', 'workspace_key', 'workspace_id']})
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
+@retrieve_state
 def send_key(
-    context: Any,
+    state: Any,
     azure_token: str,
+    organization_id: str,
+    workspace_id: str,
 ) -> CommandResponse:
     """
     Send Event Hub key to given workspace
     """
-    org_id = context['api_organization_id']
-    work_key = context['api_workspace_key']
-    work_id = context['api_workspace_id']
-    secret_eventhub = env.get_project_secret(organization_id=org_id, workspace_key=work_key, name="eventhub")
-    details_json = {"dedicatedEventHubKey": secret_eventhub.replace("\"", "")}
-    details_json = json.dumps(details_json, indent=4, default=str)
-    response = oauth_request(f"{context['api_url']}/organizations/{org_id}/workspaces/{work_id}/secret",
-                             azure_token,
-                             type="POST",
-                             data=details_json)
-    if response is None:
-        return CommandResponse.fail()
-    logger.info(f"Successfully update key in workspace {work_id}")
+    service_state = state["services"]
+    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
+    service_state["api"]["workspace_key"] = (workspace_id or service_state["api"]["workspace_key"])
+    workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
+    workspace_service.send_key()
+    logger.info(f'Successfully update key in workspace {service_state["api"]["workspace_id"]}')
     return CommandResponse.success()
