@@ -13,7 +13,7 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-class ApiSolutionHandleService:
+class SolutionHandleService:
 
     def __init__(self, azure_token: str, state: dict) -> None:
         self.state = state
