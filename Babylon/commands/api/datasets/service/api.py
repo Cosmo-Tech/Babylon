@@ -1,9 +1,6 @@
-import json
 import logging
-import jmespath
+import sys
 
-from pathlib import Path
-from posixpath import basename
 from typing import Optional
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
@@ -13,62 +10,57 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 
-class ApiDatasetService:
+class DatasetService:
 
-    def __init__(self, azure_token: str, state: dict = None) -> None:
+    def __init__(self, azure_token: str, state: dict, spec: Optional[dict] = None) -> None:
         self.state = state
+        self.spec = spec
         self.azure_token = azure_token
         self.url = self.state["api"]["url"]
         self.organization_id = self.state["api"]["organization_id"]
 
-    def create(self, dataset_file: Path):
-        if not dataset_file:
-            logger.error("option --payload is missing")
-            return None
-        if not dataset_file.exists():
-            logger.error(f"No such file: '{basename(dataset_file)}' in directory")
-            return None
-        details = env.fill_template(dataset_file)
+        if not self.url:
+            logger.error("API url not found")
+            sys.exit(1)
+        if not self.organization_id:
+            logger.error("organization_id not found")
+            sys.exit(1)
+
+    def create(self):
+        details = self.spec["payload"]
         response = oauth_request(
-            f'{self.url}/organizations/{self.organization_id}/datasets',
+            f"{self.url}/organizations/{self.organization_id}/datasets",
             self.azure_token,
             type="POST",
             data=details,
         )
-        if response is None:
-            return None
-        dataset = response.json()
-        return dataset
+        return response
 
-    def delete(self, force_validation: bool, id: str):
-        if not force_validation and not confirm_deletion("dataset", id):
+    def delete(self, force_validation: bool):
+        dataset_id = self.state["api"]["dataset_id"]
+        if not force_validation and not confirm_deletion("dataset", dataset_id):
             return None
         response = oauth_request(
-            f'{self.url}/organizations/{self.organization_id}/datasets/{id}',
+            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
             self.azure_token,
             type="DELETE",
         )
-        if response is None:
-            return None
-        return True
+        return response
 
-    def get_all(self, filter: Optional[str]):
+    def get_all(self):
         response = oauth_request(
-            f'{self.url}/organizations/{self.organization_id}/datasets',
+            f"{self.url}/organizations/{self.organization_id}/datasets",
             self.azure_token,
         )
-        if response is None:
-            return None
-        datasets = response.json()
-        if len(datasets) and filter:
-            datasets = jmespath.search(filter, datasets)
-        return datasets
+        return response
 
-    def get(self, id: str):
-        org_id = self.organization_id
-        id = id or self.state["api"]["dataset.id"]
+    def get(self):
+        dataset_id = self.state["api"]["dataset_id"]
+        if not dataset_id:
+            logger.error("dataset_id not found")
+            sys.exit(1)
         response = oauth_request(
-            f'{self.url}/organizations/{org_id}/datasets/{id}',
+            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
             self.azure_token,
         )
         if response is None:
@@ -78,31 +70,24 @@ class ApiDatasetService:
 
     def search(self, tag: str):
         details = {"datasetTags": [tag]}
-        org_id = self.organization_id
         response = oauth_request(
-            f'{self.url}/organizations/{org_id}/datasets/search',
+            f"{self.url}/organizations/{self.organization_id}/datasets/search",
             self.azure_token,
             type="POST",
             json=details,
         )
-        if response is None:
-            return None
-        dataset = response.json()
-        return dataset
+        return response
 
-    def update(self, dataset_file: Path):
-        if not dataset_file.exists():
-            logger.error(f"{dataset_file} not found")
-            return None
-        details = env.fill_template(dataset_file)
-        dataset_id = json.loads(details).get("id") or self.state["api"]["dataset.id"]
+    def update(self):
+        dataset_id = self.state["api"]["dataset_id"]
+        details = self.spec["payload"]
+        if not dataset_id:
+            logger.error("dataset_id not found")
+            sys.exit(1)
         response = oauth_request(
-            f'{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}',
+            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
             self.azure_token,
             type="PATCH",
             data=details,
         )
-        if response is None:
-            return None
-        dataset = response.json()
-        return dataset
+        return response
