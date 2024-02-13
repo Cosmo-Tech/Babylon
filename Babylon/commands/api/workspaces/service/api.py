@@ -1,3 +1,4 @@
+import json
 import sys
 
 from logging import getLogger
@@ -16,11 +17,10 @@ class WorkspaceService:
         self.state = state
         self.azure_token = azure_token
         self.url = state["api"]["url"]
-        self.organization_id = state["api"]["organization_id"]
-
         if not self.url:
             logger.error("API url not found")
             sys.exit(1)
+        self.organization_id = state["api"]["organization_id"]
         if not self.organization_id:
             logger.error("organization_id not found")
             sys.exit(1)
@@ -70,11 +70,35 @@ class WorkspaceService:
     def delete(self):
         workspace_id = self.state["api"]["workspace_id"]
         if not workspace_id:
-            logger.error("workspace_id not found")
+            logger.error("workspace id not found")
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
             self.azure_token,
             type="DELETE",
+        )
+        return response
+
+    def send_key(self):
+        secret_eventhub = env.get_project_secret(
+            organization_id=self.organization_id,
+            workspace_key=self.state["api"]["workspace_key"],
+            name="eventhub",
+        )
+        if not secret_eventhub:
+            logger.error("workspace secret key is missing in vault")
+            sys.exit(1)
+        details_json = {"dedicatedEventHubKey": secret_eventhub.replace('"', "")}
+        details_json = json.dumps(details_json, indent=4, default=str)
+        work_id = self.state["api"]["workspace_id"]
+        workspace_id = self.state["api"]["workspace_id"]
+        if not workspace_id:
+            logger.error("workspace id not found")
+            sys.exit(1)
+        response = oauth_request(
+            f'{self.url}/organizations/{self.organization_id}/workspaces/{work_id}/secret',
+            self.azure_token,
+            type="POST",
+            data=details_json,
         )
         return response
