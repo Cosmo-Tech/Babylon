@@ -5,7 +5,7 @@ from click import command, option
 
 from Babylon.commands.api.scenarioruns.service.api import ScenarioRunService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state
+from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state, output_to_file
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
@@ -14,6 +14,7 @@ logger = getLogger("Babylon")
 @command()
 @wrapcontext()
 @timing_decorator
+@output_to_file
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
 @option("--scenariorun-id", "scenariorun_id", type=str)
@@ -22,18 +23,13 @@ def status(state: Any, azure_token: str, organization_id: str, scenariorun_id: s
     """
     Get the status of the scenarioRun
     """
-    state = state['services']
-    state['api']['organization_id'] = organization_id or state['api']['organization_id']
-    state['api']['scenariorun_id'] = scenariorun_id or state['api'].get('scenariorun_id')
-    if state['api']['scenariorun_id'] is None:
-        logger.error(f"scenariorun : {state['api']['scenariorun_id']} does not exist")
-        return CommandResponse.fail()
-
+    scenariorun_state = state['services']
+    scenariorun_state['api']['organization_id'] = organization_id or scenariorun_state['api']['organization_id']
+    scenariorun_state['api']['scenariorun_id'] = scenariorun_id or scenariorun_state['api'].get('scenariorun_id')
     logger.info(f"Getting status for scenariorun: {state['api']['scenariorun_id']}")
     service = ScenarioRunService(state=state, azure_token=azure_token)
     response = service.status()
-    status = response.json()
-
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(status, verbose=True)
+    run_status = response.json()
+    return CommandResponse.success(run_status, verbose=True)
