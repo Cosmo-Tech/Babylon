@@ -22,7 +22,6 @@ class OrganizationService:
         if not self.url:
             logger.error("API url not found")
             sys.exit(1)
-        self.security_svc = OrganizationSecurityService(azure_token=azure_token, state=state)
 
     def create(self):
         details = self.spec["payload"]
@@ -67,6 +66,7 @@ class OrganizationService:
         return response
 
     def security(self, data: dict):
+        self.security_svc = OrganizationSecurityService(azure_token=self.azure_token, state=self.state)
         security_spec = self.spec["payload"].get("security")
         if not security_spec:
             logger.error("security is missing")
