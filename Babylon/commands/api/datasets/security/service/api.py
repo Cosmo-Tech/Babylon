@@ -59,6 +59,14 @@ class DatasetSecurityService:
             data=details)
         return response
 
+    def set_default(self, details: str):
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/datasets/{self.dataset_id}/security/{id}",
+            self.azure_token,
+            type="PATH",
+            data=details)
+        return response
+
     def delete(self, id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{self.dataset_id}/security/{id}",
