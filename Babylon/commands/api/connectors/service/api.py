@@ -1,59 +1,60 @@
 import logging
-import jmespath
+import sys
 
 from git import Optional
-from pathlib import Path
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
-from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
-class ApiConnectorService:
+class ConnectorService:
 
-    def __init__(self, azure_token: str, state: dict = None) -> None:
+    def __init__(self, azure_token: str, state: dict, spec: Optional[dict] = None):
         self.state = state
+        self.spec = spec
         self.azure_token = azure_token
+        self.url = state["api"]["url"]
 
-    def create(self, connector_file: Path):
-        details = env.fill_template(connector_file)
+        if not self.url:
+            logger.error("API url not found")
+            sys.exit(1)
+
+    def create(self):
+        details = self.spec["payload"]
         response = oauth_request(
-            f'{self.state["api"]["url"]}/connectors',
+            f'{self.url}/connectors',
             self.azure_token,
             type="POST",
             data=details,
         )
-        if response is None:
-            return CommandResponse.fail()
-        response = response.json()
         return response
 
-    def delete(self, force_validation: bool, id: str):
-        if not force_validation and not confirm_deletion("connector", id):
-            return CommandResponse.fail()
+    def delete(self, force_validation: bool):
+        connector_id = self.state["api"]["connector_id"]
+        if not connector_id:
+            logger.error('Connector_id is missing')
+            sys.exit(1)
+        if not force_validation and not confirm_deletion("connector", connector_id):
+            return None
         response = oauth_request(
-            f'{self.state["api"]["url"]}/connectors/{id}',
+            f'{self.url}/connectors/{connector_id}',
             self.azure_token,
             type="DELETE",
         )
-        if response is None:
-            return CommandResponse.fail()
+        return response
 
-    def get_all(self, filter: Optional[str] = None):
-        response = oauth_request(f'{self.state["api"]["url"]}/connectors', self.azure_token)
-        if response is None:
-            return CommandResponse.fail()
-        connectors = response.json()
-        if len(connectors) and filter:
-            connectors = jmespath.search(filter, connectors)
-        return connectors
+    def get_all(self):
+        response = oauth_request(f'{self.url}/connectors', self.azure_token)
+        return response
 
-    def get(self, id: str):
-        response = oauth_request(f'{self.state["api"]["url"]}/connectors/{id}', self.azure_token)
-        if response is None:
-            return CommandResponse.fail()
-        connector = response.json()
-        return connector
+    def get(self):
+        connector_id = self.state["api"]["connector_id"]
+        if not connector_id:
+            logger.error('Connector_id is missing')
+            sys.exit(1)
+        response = oauth_request(f'{self.url}/connectors/{connector_id}', self.azure_token)
+
+        return response
