@@ -26,7 +26,7 @@ class ApiWorkspaceSecurityService:
             logger.error("workspace id is missing")
             sys.exit(1)
 
-    def add(self, details: dict):
+    def add(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access",
             self.azure_token,
@@ -43,7 +43,7 @@ class ApiWorkspaceSecurityService:
         )
         return response
 
-    def update(self, id: str, details: dict):
+    def update(self, id: str, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/{id}",
             self.azure_token,
