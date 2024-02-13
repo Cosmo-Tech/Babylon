@@ -3,7 +3,7 @@ from typing import Any
 from click import command
 from click import option
 from click import argument
-from Babylon.commands.api.solutions.handler.service.api import ApiSolutionHandleService
+from Babylon.commands.api.solutions.handler.service.api import SolutionHandleService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     retrieve_state,
@@ -27,13 +27,13 @@ env = Environment()
     "--organization-id",
     "organization_id",
     type=str,
-    help="Organization id or referenced in configuration",
+    help="Organization id or referenced in state",
 )
 @option(
     "--solution-id",
     "solution_id",
     type=str,
-    help="Solution id or referenced in configuration",
+    help="Solution id or referenced in state",
 )
 @option(
     "--run-template",
@@ -56,6 +56,6 @@ def download(
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["solution_id"] = solution_id or service_state["api"]["solution_id"]
-    service = ApiSolutionHandleService(state=service_state, azure_token=azure_token)
+    service = SolutionHandleService(state=service_state, azure_token=azure_token)
     service.download(run_template_id=run_template_id, handler_id=handler_id)
     return CommandResponse.success()
