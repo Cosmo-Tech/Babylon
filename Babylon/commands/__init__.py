@@ -9,5 +9,6 @@ from .git_hub import github
 from .terraform_cloud import terraform_cloud
 from .plugin import plugin
 from .state import state
+from .namespace import namespace
 
-list_groups = [abba, api, azure, config, plugin, powerbi, webapp, vault, github, terraform_cloud, state]
+list_groups = [abba, api, azure, config, plugin, powerbi, webapp, vault, github, terraform_cloud, state, namespace]

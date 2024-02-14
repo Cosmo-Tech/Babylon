@@ -407,3 +407,21 @@ class Environment(metaclass=SingletonMeta):
         if not state_cloud.get("id"):
             state_cloud.setdefault("id", state_local.get("id"))
         return state_cloud.get("id")
+
+    def store_namespace_in_local(self):
+        ns_dir = Path().home() / ".config/cosmotech/babylon"
+        if not ns_dir.exists():
+            ns_dir.mkdir(parents=True, exist_ok=True)
+        s = ns_dir / "namespace.yaml"
+        ns = dict(context=self.context_id, platform=self.environ_id)
+        s.write_bytes(data=yaml.dump(ns).encode("utf-8"))
+
+    def get_namespace_from_local(self):
+        ns_dir = Path().home() / ".config/cosmotech/babylon"
+        ns_file = ns_dir / "namespace.yaml"
+        if not ns_file.exists():
+            return None
+        ns_data = yaml.load(ns_file.open("r"), Loader=yaml.SafeLoader)
+        self.context_id = ns_data.get("context")
+        self.environ_id = ns_data.get("platform")
+        return
