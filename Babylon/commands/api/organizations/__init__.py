@@ -5,6 +5,7 @@ from .get import get
 from .get_all import get_all
 from .security import security
 from .update import update
+from .apply import apply
 
 
 @group()
@@ -13,7 +14,7 @@ def organizations():
     pass
 
 
-list_commands = [update, get, delete, create, get_all]
+list_commands = [update, get, delete, create, get_all, apply]
 
 for _command in list_commands:
     organizations.add_command(_command)
