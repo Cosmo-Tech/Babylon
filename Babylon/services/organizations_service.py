@@ -30,12 +30,11 @@ class OrganizationService:
 
     def delete(self, force_validation: bool):
         organization_id = self.state["api"]["organization_id"]
-        if not force_validation and not confirm_deletion("organization", organization_id):
-            return None
-        organization_id = self.state["api"]["organization_id"]
         if not organization_id:
             logger.error("organization id not found")
             sys.exit(1)
+        if not force_validation and not confirm_deletion("organization", organization_id):
+            return None
         response = oauth_request(
             f"{self.url}/organizations/{organization_id}",
             self.azure_token,
@@ -56,7 +55,7 @@ class OrganizationService:
 
     def update(self):
         details = self.spec["payload"]
-        organization_id = self.states["api"]["organization_id"]
+        organization_id = self.state["api"]["organization_id"]
         response = oauth_request(
             f"{self.url}/organizations/{organization_id}",
             self.azure_token,
@@ -65,15 +64,16 @@ class OrganizationService:
         )
         return response
 
-    def security(self, data: dict):
+    def update_security(self, old_security: dict):
         self.security_svc = OrganizationSecurityService(azure_token=self.azure_token, state=self.state)
-        security_spec = self.spec["payload"].get("security")
+        payload = json.loads(self.spec["payload"])
+        security_spec = payload.get("security")
         if not security_spec:
             logger.error("security is missing")
             sys.exit(1)
         organization_id = self.state["api"]["organization_id"]
         ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
-        ids_existing = [i.get("id") for i in data["security"]["accessControlList"]]
+        ids_existing = [i.get("id") for i in old_security["accessControlList"]]
         if "default" in security_spec:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
             response = oauth_request(
@@ -84,15 +84,10 @@ class OrganizationService:
             )
             if response is None:
                 return None
-        for s in ids_existing:
-            if s not in ids_spec:
-                response = self.security_svc.delete(s.get("id"))
-                if response is None:
-                    return None
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.update(g.get("id"), details=details)
+                response = self.security_svc.update(id=g.get("id"), details=details)
                 if response is None:
                     return None
             if g.get("id") not in ids_existing:
@@ -100,4 +95,9 @@ class OrganizationService:
                 response = self.security_svc.add(details)
                 if response is None:
                     return None
-        return self
+        for s in ids_existing:
+            if s not in ids_spec:
+                response = self.security_svc.delete(id=s)
+                if response is None:
+                    return None
+        return payload

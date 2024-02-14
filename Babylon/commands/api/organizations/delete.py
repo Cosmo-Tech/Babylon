@@ -24,13 +24,13 @@ def delete(state: Any, azure_token: str, organization_id: str, force_validation:
     """Delete an organization"""
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
-    organizations_service = OrganizationService(state=service_state, azure_token=azure_token)
-    response = organizations_service.delete()
+    service = OrganizationService(state=service_state, azure_token=azure_token)
+    response = service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
     if response:
         org_id = service_state["api"]["organization_id"]
-        logger.info(f'Organization {org_id["organization_id"]} successfully deleted')
+        logger.info(f'Organization {org_id} successfully deleted')
         if org_id == state["services"]["api"]["organization_id"]:
             state["services"]["api"]["organization_id"] = ""
             env.store_state_in_local(state)

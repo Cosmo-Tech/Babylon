@@ -33,7 +33,7 @@ class OrganizationSecurityService:
 
     def get(self, id: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/security/{id}",
+            f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
             self.azure_token,
             type="GET",
         )
@@ -47,15 +47,15 @@ class OrganizationSecurityService:
         )
         return response
 
-    def update(self, id: str, details: str):
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/{id}",
+    def update(self, id: str, details: dict):
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
                                  self.azure_token,
                                  type="PATCH",
                                  data=details)
         return response
 
     def delete(self, id: str):
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/{id}",
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
                                  self.azure_token,
                                  type="DELETE")
         return response
