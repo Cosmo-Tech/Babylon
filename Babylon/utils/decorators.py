@@ -211,6 +211,20 @@ def wrapcontext() -> Callable[..., Any]:
     return wrap_function
 
 
+def injectcontext() -> Callable[..., Any]:
+
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            env.get_namespace_from_local()
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return wrap_function
+
+
 def retrieve_state(func) -> Callable[..., Any]:
 
     @wraps(func)
