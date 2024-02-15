@@ -4,13 +4,14 @@ from typing import Any, Optional
 import jmespath
 from click import command
 from click import option
+
 from Babylon.commands.api.datasets.service.api import DatasetService
+from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file
-from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -33,6 +34,8 @@ def get_all(state: Any, azure_token: str, organization_id: str, filter: Optional
     logger.info(f"Getting all datasets from organization {service_state['api']['organization_id']}")
     service = DatasetService(azure_token=azure_token, state=service_state)
     response = service.get_all()
+    if response is None:
+        return CommandResponse.fail()
     datasets = response.json()
     if len(datasets) and filter:
         datasets = jmespath.search(filter, datasets)

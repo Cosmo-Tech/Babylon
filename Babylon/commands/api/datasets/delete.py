@@ -1,12 +1,14 @@
 from logging import getLogger
 from typing import Any
+
 from click import command
 from click import option
+
 from Babylon.commands.api.datasets.service.api import DatasetService
+from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_azure_token
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -20,13 +22,11 @@ env = Environment()
 @option("--dataset-id", "dataset_id", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @retrieve_state
-def delete(
-    state: Any,
-    azure_token: str,
-    organization_id: str,
-    dataset_id: str,
-    force_validation: bool = False,
-) -> CommandResponse:
+def delete(state: Any,
+           azure_token: str,
+           organization_id: str,
+           dataset_id: str,
+           force_validation: bool = False) -> CommandResponse:
     """Delete a dataset"""
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])

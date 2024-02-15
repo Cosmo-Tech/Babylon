@@ -51,5 +51,7 @@ def add(state: Any,
     service = DatasetSecurityService(azure_token=azure_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
     response = service.add(details)
+    if response is None:
+        return CommandResponse.fail()
     rbac = response.json()
     return CommandResponse.success(rbac, verbose=True)

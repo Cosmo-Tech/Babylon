@@ -31,5 +31,7 @@ def get(state: Any, azure_token: str, identity_id: str, organization_id: str, da
     service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
     service = DatasetSecurityService(azure_token=azure_token, state=service_state)
     response = service.get(id=identity_id)
+    if response is None:
+        return CommandResponse.fail()
     rbac = response.json()
     return CommandResponse.success(rbac, verbose=True)
