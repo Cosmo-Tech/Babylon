@@ -420,8 +420,12 @@ class Environment(metaclass=SingletonMeta):
         ns_dir = Path().home() / ".config/cosmotech/babylon"
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
-            return None
+            logger.error(f"{ns_file} not found")
+            logger.error("The context and the platform are not set. \
+                         Please set the platform using the 'namespace use' command.")
+            sys.exit(1)
+
         ns_data = yaml.load(ns_file.open("r"), Loader=yaml.SafeLoader)
         self.context_id = ns_data.get("context")
         self.environ_id = ns_data.get("platform")
-        return
+        return ns_data
