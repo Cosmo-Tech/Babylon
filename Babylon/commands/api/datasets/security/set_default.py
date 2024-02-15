@@ -37,5 +37,7 @@ def set_default(state: dict, azure_token: str, role: str, organization_id: str, 
     details = json.dumps({"role": role})
     service = DatasetSecurityService(azure_token=azure_token, state=service_state)
     response = service.set_default(details=details)
+    if response is None:
+        return CommandResponse.fail()
     rbac = response.json()
     return CommandResponse.success(rbac, verbose=True)

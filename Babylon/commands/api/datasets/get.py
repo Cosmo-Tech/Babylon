@@ -22,12 +22,7 @@ env = Environment()
 @option("--organization-id", "organization_id", type=str)
 @option("--dataset-id", "dataset_id", type=str)
 @retrieve_state
-def get(
-    state: Any,
-    azure_token: str,
-    organization_id: str,
-    dataset_id: str,
-) -> CommandResponse:
+def get(state: Any, azure_token: str, organization_id: str, dataset_id: str) -> CommandResponse:
     """Get a dataset"""
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])

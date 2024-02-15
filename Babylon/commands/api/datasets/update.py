@@ -1,20 +1,21 @@
 import pathlib
-
 from logging import getLogger
 from typing import Any
+
 from click import Path, argument
 from click import command
 from click import option
+
 from Babylon.commands.api.datasets.service.api import DatasetService
+from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     output_to_file,
     retrieve_state,
     timing_decorator,
     wrapcontext,
 )
-from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -29,13 +30,8 @@ env = Environment()
 @option("--dataset-id", "dataset_id", type=str)
 @argument("payload_file", type=Path(path_type=pathlib.Path))
 @retrieve_state
-def update(
-    state: Any,
-    azure_token: str,
-    organization_id: str,
-    dataset_id: str,
-    payload_file: pathlib.Path,
-) -> CommandResponse:
+def update(state: Any, azure_token: str, organization_id: str, dataset_id: str,
+           payload_file: pathlib.Path) -> CommandResponse:
     """
     update a registered dataset
     """

@@ -46,6 +46,8 @@ def create(
     spec["payload"] = env.fill_template(payload_file)
     service = DatasetService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.create()
+    if response is None:
+        return CommandResponse.fail()
     dataset = response.json()
     state["services"]["api"]["dataset_id"] = dataset.get("id")
     env.store_state_in_local(state)
