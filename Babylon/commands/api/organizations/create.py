@@ -4,8 +4,8 @@ from logging import getLogger
 from typing import Any
 from click import argument, command
 from click import Path
-from Babylon.utils.decorators import wrapcontext
-from Babylon.utils.decorators import retrieve_state, timing_decorator
+from Babylon.utils.decorators import injectcontext, timing_decorator
+from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
