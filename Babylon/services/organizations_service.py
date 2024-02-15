@@ -71,17 +71,11 @@ class OrganizationService:
         if not security_spec:
             logger.error("security is missing")
             sys.exit(1)
-        organization_id = self.state["api"]["organization_id"]
         ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
         ids_existing = [i.get("id") for i in old_security["accessControlList"]]
         if "default" in security_spec:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
-            response = oauth_request(
-                f"{self.url}/organizations/{organization_id}/security/default",
-                access_token=self.azure_token,
-                type="POST",
-                data=data,
-            )
+            response = self.security_svc.set_default(data)
             if response is None:
                 return None
         for g in security_spec["accessControlList"]:
@@ -100,4 +94,4 @@ class OrganizationService:
                 response = self.security_svc.delete(id=s)
                 if response is None:
                     return None
-        return payload
+        return security_spec
