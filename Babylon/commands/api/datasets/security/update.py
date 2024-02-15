@@ -40,5 +40,7 @@ def update(state: dict, azure_token: str, identity_id: str, email: str, role: st
     details = json.dumps({"id": email, "role": role})
     service = DatasetSecurityService(azure_token=azure_token, state=service_state)
     response = service.update(id=identity_id, details=details)
+    if response is None:
+        return CommandResponse.fail()
     rbac = response.json()
     return CommandResponse.success(rbac, verbose=True)

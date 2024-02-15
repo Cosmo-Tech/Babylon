@@ -1,13 +1,15 @@
 from logging import getLogger
 from typing import Any
-from click import command, option
+
 from click import argument
+from click import command, option
+
 from Babylon.commands.api.datasets.service.api import DatasetService
-from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file
 from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
 from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -28,5 +30,7 @@ def search(state: Any, azure_token: str, organization_id: str, tag: str) -> Comm
     logger.info(f"Searching dataset by tag: {tag}")
     service = DatasetService(azure_token=azure_token, state=service_state)
     response = service.search(tag=tag)
+    if response is None:
+        return CommandResponse.fail()
     dataset = response.json()
     return CommandResponse.success(dataset, verbose=True)
