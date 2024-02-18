@@ -243,6 +243,18 @@ class Environment(metaclass=SingletonMeta):
             result = json.dumps(json.loads(result))
         return result
 
+    def fill_specification(self, data: str):
+        result = data.replace("{{", "${").replace("}}", "}")
+        t = Template(text=result, strict_undefined=True)
+        values_file = Path().cwd() / "variables.yaml"
+        babyvars = dict()
+        if values_file.exists():
+            babyvars = yaml.safe_load(values_file.open())
+        payload = t.render(**babyvars)
+        payload_json = yaml_to_json(payload)
+        payload_dict: dict = json.loads(payload_json)
+        return payload_dict
+
     def set_context(self, context_id):
         self.context_id = context_id
         self.configuration.set_context(context_id)
@@ -372,12 +384,14 @@ class Environment(metaclass=SingletonMeta):
             state_blob.delete_blob()
         state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
 
-    def get_state_from_local(self):
+    def get_state_from_local(self, context_id: str = None, platform_id: str = None):
         state_dir = Path().home() / ".config/cosmotech/babylon"
-        state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
+        context_id = context_id or self.context_id
+        platform_id = platform_id or self.environ_id
+        state_file = state_dir / f"state.{context_id}.{platform_id}.yaml"
         if not state_file.exists():
             return None
-        state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
+        state_data = yaml.safe_load(state_file.open())
         return state_data
 
     def get_state_from_cloud(self, state: dict) -> dict:

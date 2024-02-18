@@ -88,10 +88,10 @@ def write_yaml_value(yaml_file: pathlib.Path, keys: Union[list[str], str], value
 
     _commented_yaml_loader = YAML()
     try:
-        with yaml_file.open(mode='r') as file:
+        with yaml_file.open(mode="r") as file:
             commented_file = _commented_yaml_loader.load(file) or {}
             commented_file = set_nested_key(commented_file, keys, value)
-        with yaml_file.open(mode='w') as file:
+        with yaml_file.open(mode="w") as file:
             _commented_yaml_loader.dump(commented_file, yaml_file)
     except OSError:
         return
@@ -109,12 +109,12 @@ def write_yaml_value_from_context(yaml_file: pathlib.Path, context_id: str, keys
     """
     _commented_yaml_loader = YAML()
     try:
-        with yaml_file.open(mode='r') as file:
+        with yaml_file.open(mode="r") as file:
             commented_file = _commented_yaml_loader.load(file) or {}
             temp_file = commented_file[context_id]
             nested_dict = set_nested_key(temp_file, keys, value)
             commented_file[context_id] = nested_dict
-        with yaml_file.open(mode='w') as file:
+        with yaml_file.open(mode="w") as file:
             _commented_yaml_loader.dump(commented_file, yaml_file)
     except OSError:
         return
@@ -168,15 +168,21 @@ def complete_yaml(template_yaml: pathlib.Path, target_yaml: pathlib.Path):
         yaml.safe_dump(_target, _ta)
 
 
-def get_file_config_from_keys(hvac_client: Client, context_id: str, config_file: pathlib.Path, key_name: str,
-                              resource: str, tenant_id: str):
-    organization_name = os.environ.get('BABYLON_ORG_NAME', '')
-    response = hvac_client.read(path=f'{organization_name}/{tenant_id}/babylon/config/{resource}/{key_name}')
+def get_file_config_from_keys(
+    hvac_client: Client,
+    context_id: str,
+    config_file: pathlib.Path,
+    key_name: str,
+    resource: str,
+    tenant_id: str,
+):
+    organization_name = os.environ.get("BABYLON_ORG_NAME", "")
+    response = hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{resource}/{key_name}")
     if not response:
         logger.info(f"{organization_name}/{tenant_id}/babylon/config/{resource}/{key_name} not found")
         sys.exit(1)
     response_parsed = dict()
-    for key, value in response['data'].items():
+    for key, value in response["data"].items():
         response_parsed.setdefault(key, value)
     if config_file.exists():
         values = yaml.load(config_file.open("r"), Loader=yaml.SafeLoader)
