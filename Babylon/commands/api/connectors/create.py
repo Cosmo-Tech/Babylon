@@ -7,7 +7,7 @@ from click import command
 from Babylon.commands.api.connectors.service.api import (
     ConnectorService, )
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
 @argument("payload_file", type=Path(path_type=pathlib.Path))

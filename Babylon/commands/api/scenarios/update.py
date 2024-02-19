@@ -8,7 +8,7 @@ from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     timing_decorator,
-    wrapcontext,
+    injectcontext,
     retrieve_state,
     output_to_file,
 )
@@ -20,7 +20,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @retrieve_state
 @output_to_file
 @pass_azure_token("csm_api")

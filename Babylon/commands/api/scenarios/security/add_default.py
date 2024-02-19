@@ -8,7 +8,7 @@ from Babylon.commands.api.scenarios.security.service.api import (
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import timing_decorator
@@ -20,7 +20,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")

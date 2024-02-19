@@ -4,7 +4,7 @@ from typing import Any
 from click import command
 from click import option
 from Babylon.commands.api.connectors.service.api import ConnectorService
-from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
+from Babylon.utils.decorators import retrieve_state, timing_decorator, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")

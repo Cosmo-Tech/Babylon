@@ -1,6 +1,6 @@
 import json
 from click import argument, option, command
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, timing_decorator
@@ -8,7 +8,7 @@ from Babylon.services.security.solution_security_service import SolutionSecurity
 
 
 @command(name="update")
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
 @argument("identity_id", type=str)
