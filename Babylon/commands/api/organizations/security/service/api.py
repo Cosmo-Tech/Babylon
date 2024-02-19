@@ -22,7 +22,7 @@ class OrganizationSecurityService:
             logger.error("organization id is missing")
             sys.exit(1)
 
-    def set_default(self, details: dict):
+    def set_default(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/security/default",
             self.azure_token,
@@ -56,7 +56,7 @@ class OrganizationSecurityService:
         )
         return response
 
-    def update(self, id: str, details: dict):
+    def update(self, id: str, details: str):
         response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
                                  self.azure_token,
                                  type="PATCH",
