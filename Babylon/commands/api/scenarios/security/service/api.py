@@ -44,7 +44,7 @@ class ScenarioSecurityService:
         )
         return response
 
-    def add(self, details: dict):
+    def add(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/scenarios/{self.scenario_id}/security/access",
@@ -54,7 +54,7 @@ class ScenarioSecurityService:
         )
         return response
 
-    def update(self, details: dict, id: str):
+    def update(self, id: str, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/scenarios/{self.scenario_id}/security/access/{id}",
@@ -73,7 +73,7 @@ class ScenarioSecurityService:
         )
         return response
 
-    def set_default(self, details: dict):
+    def set_default(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/scenarios/{self.scenario_id}/security/default",
