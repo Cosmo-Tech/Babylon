@@ -35,12 +35,19 @@ class ApiWorkspaceSecurityService:
         )
         return response
 
-    def get(self):
+    def get(self, id: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access/{id}",
             self.azure_token,
             type="GET",
         )
+        return response
+
+    def get_all(self):
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security",
+            self.azure_token,
+            type="GET")
         return response
 
     def update(self, id: str, details: str):
