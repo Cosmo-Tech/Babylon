@@ -26,7 +26,7 @@ class DatasetSecurityService:
             logger.error("dataset id is missing")
             sys.exit(1)
 
-    def add(self, details: dict):
+    def add(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{self.dataset_id}/security/access",
             self.azure_token,
@@ -51,7 +51,7 @@ class DatasetSecurityService:
         )
         return response
 
-    def update(self, id: str, details: dict):
+    def update(self, id: str, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{self.dataset_id}/security/access/{id}",
             self.azure_token,
@@ -59,7 +59,7 @@ class DatasetSecurityService:
             data=details)
         return response
 
-    def set_default(self, details: dict):
+    def set_default(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{self.dataset_id}/security/default",
             self.azure_token,
