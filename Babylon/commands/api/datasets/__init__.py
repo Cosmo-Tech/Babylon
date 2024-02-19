@@ -1,19 +1,27 @@
 from click import group
+
+from . import apply
 from .create import create
 from .delete import delete
 from .get import get
 from .get_all import get_all
-from .update import update
 from .search import search
-
-list_commands = [delete, update, get, create, search, get_all]
+from .security import security
+from .update import update
 
 
 @group()
-def datasets():
-    """Datasets - Cosmotech API"""
+def organizations():
+    """Organizations - Cosmotech API"""
     pass
 
 
+list_commands = [delete, update, get, create, search, get_all, apply]
+
 for _command in list_commands:
-    datasets.add_command(_command)
+    organizations.add_command(_command)
+
+list_groups = [security]
+
+for _group in list_groups:
+    organizations.add_command(_group)
