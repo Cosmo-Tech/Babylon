@@ -7,6 +7,7 @@ from .get_all import get_all
 from .handler import handler
 from .update import update
 from .security import security
+from .apply import apply
 
 
 @group()
@@ -15,7 +16,7 @@ def solutions():
     pass
 
 
-list_commands = [delete, get_all, create, get, update]
+list_commands = [delete, get_all, create, get, update, apply]
 
 for _command in list_commands:
     solutions.add_command(_command)
