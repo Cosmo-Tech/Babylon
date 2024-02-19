@@ -21,8 +21,8 @@ class SolutionSecurityService:
         if not self.organization_id:
             logger.error("organization id is missing")
             sys.exit(1)
-        self.workspace_id = self.state["api"]["workspace_id"]
-        if not self.workspace_id:
+        self.solution_id = self.state["api"]["solution_id"]
+        if not self.solution_id:
             logger.error("workspace id is missing")
             sys.exit(1)
 
@@ -73,10 +73,10 @@ class SolutionSecurityService:
             type="GET")
         return response
 
-    def update_control_access(self, identity_id: str, details: str):
+    def update_control_access(self, id: str, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/ \
-                {self.solution_id}/security/access/{identity_id}",
+                {self.solution_id}/security/access/{id}",
             self.azure_token,
             type="PATCH",
             data=details,

@@ -46,7 +46,6 @@ def apply(state: dict, azure_token: str, organization_id: str, payload_file: Pat
     values_file = Path().cwd() / "variables.yaml"
     vars = dict()
     if values_file.exists():
-        logger.info("variables.yaml found")
         vars = yaml.safe_load(values_file.open())
     payload = t.render(**vars)
     payload_json = yaml_to_json(payload)
@@ -60,9 +59,6 @@ def apply(state: dict, azure_token: str, organization_id: str, payload_file: Pat
     if not id:
         response = organization_service.create()
         organization = response.json()
-        state["services"]["api"]["organization_id"] = organization.get("id")
-        env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
     else:
         response = organization_service.update()
         response_json = response.json()
@@ -70,4 +66,7 @@ def apply(state: dict, azure_token: str, organization_id: str, payload_file: Pat
         security_spec = organization_service.update_security(old_security=old_security)
         response_json["security"] = security_spec
         organization = response_json
+    state["services"]["api"]["organization_id"] = organization.get("id")
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
     return CommandResponse.success(organization, verbose=True)
