@@ -1,7 +1,10 @@
+import json
 import logging
 import sys
 
 from typing import Optional
+
+from Babylon.commands.api.datasets.security.service.api import DatasetSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
@@ -91,3 +94,35 @@ class DatasetService:
             data=details,
         )
         return response
+
+    def update_security(self, old_security: dict):
+        self.security_svc = DatasetSecurityService(azure_token=self.azure_token, state=self.state)
+        payload = json.loads(self.spec["payload"])
+        security_spec = payload.get("security")
+        if not security_spec:
+            logger.error("security is missing")
+            sys.exit(1)
+        ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
+        ids_existing = [i.get("id") for i in old_security["accessControlList"]]
+        if "default" in security_spec:
+            data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
+            response = self.security_svc.set_default(data)
+            if response is None:
+                return None
+        for g in security_spec["accessControlList"]:
+            if g.get("id") in ids_existing:
+                details = json.dumps(obj=g, indent=2, ensure_ascii=True)
+                response = self.security_svc.update(id=g.get("id"), details=details)
+                if response is None:
+                    return None
+            if g.get("id") not in ids_existing:
+                details = json.dumps(obj=g, indent=2, ensure_ascii=True)
+                response = self.security_svc.add(details)
+                if response is None:
+                    return None
+        for s in ids_existing:
+            if s not in ids_spec:
+                response = self.security_svc.delete(id=s)
+                if response is None:
+                    return None
+        return security_spec
