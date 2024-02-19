@@ -61,7 +61,7 @@ def apply(state: dict, azure_token: str, organization_id: str, dataset_id: str, 
     service_state["api"]["organization_id"] = organization_id
     service_state["api"]["dataset_id"] = dataset_id
     dataset_service = DatasetService(azure_token=azure_token, spec=spec, state=service_state)
-    if not organization_id:
+    if not dataset_id:
         response = dataset_service.create()
         dataset = response.json()
         state["services"]["api"]["dataset_id"] = dataset.get("id")
