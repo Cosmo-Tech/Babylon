@@ -3,6 +3,7 @@ import sys
 import click
 import yaml
 
+from flatten_json import flatten
 from logging import getLogger
 from pathlib import Path
 from select import select
@@ -47,9 +48,9 @@ def apply(state: dict, azure_token: str, organization_id: str, dataset_id: str, 
     values_file = Path().cwd() / "variables.yaml"
     vars = dict()
     if values_file.exists():
-        logger.info("variables.yaml found")
         vars = yaml.safe_load(values_file.open())
-    payload = t.render(**vars)
+    flattenstate = flatten(state.get("services"), separator=".")
+    payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)
     payload_dict: dict = json.loads(payload_json)
     organization_id = payload_dict.get("organization_id") or (organization_id
@@ -64,9 +65,6 @@ def apply(state: dict, azure_token: str, organization_id: str, dataset_id: str, 
     if not dataset_id:
         response = dataset_service.create()
         dataset = response.json()
-        state["services"]["api"]["dataset_id"] = dataset.get("id")
-        env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
     else:
         response = dataset_service.update()
         response_json = response.json()
@@ -74,4 +72,7 @@ def apply(state: dict, azure_token: str, organization_id: str, dataset_id: str, 
         security_spec = dataset_service.update_security(old_security=old_security)
         response_json["security"] = security_spec
         dataset = response_json
+    state["services"]["api"]["dataset_id"] = dataset.get("id")
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
     return CommandResponse.success(dataset, verbose=True)
