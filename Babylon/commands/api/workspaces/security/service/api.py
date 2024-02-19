@@ -45,7 +45,7 @@ class ApiWorkspaceSecurityService:
 
     def update(self, id: str, details: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/{id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access/{id}",
             self.azure_token,
             type="PATCH",
             data=details,
@@ -54,8 +54,18 @@ class ApiWorkspaceSecurityService:
 
     def delete(self, id: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/{id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access/{id}",
             self.azure_token,
             type="DELETE",
+        )
+        return response
+
+    def set_default(self, details: dict):
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/security/default",
+            self.azure_token,
+            type="POST",
+            data=details,
         )
         return response
