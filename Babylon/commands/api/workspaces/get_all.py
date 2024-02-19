@@ -6,7 +6,7 @@ from click import option
 
 from Babylon.commands.api.workspaces.service.api import WorkspaceService
 from Babylon.utils.decorators import (
-    wrapcontext,
+    injectcontext,
     retrieve_state,
 )
 from Babylon.utils.decorators import timing_decorator
@@ -20,7 +20,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")

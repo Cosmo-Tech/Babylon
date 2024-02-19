@@ -5,7 +5,7 @@ from click import command, option
 from Babylon.commands.api.workspaces.service.api import WorkspaceService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
-    wrapcontext,
+    injectcontext,
     retrieve_state,
 )
 from Babylon.utils.decorators import output_to_file
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")

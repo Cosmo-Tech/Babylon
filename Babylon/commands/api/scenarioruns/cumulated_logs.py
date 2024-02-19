@@ -5,14 +5,14 @@ from click import command, option
 
 from Babylon.commands.api.scenarioruns.service.api import ScenarioRunService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import timing_decorator, wrapcontext, retrieve_state, output_to_file
+from Babylon.utils.decorators import timing_decorator, injectcontext, retrieve_state, output_to_file
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")

@@ -6,7 +6,7 @@ from click import option
 from Babylon.commands.api.workspaces.service.api import WorkspaceService
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.decorators import (
-    wrapcontext,
+    injectcontext,
     retrieve_state,
 )
 from Babylon.utils.decorators import timing_decorator
@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @retrieve_state
 @pass_azure_token("csm_api")

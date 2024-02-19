@@ -8,7 +8,7 @@ from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     retrieve_state,
     timing_decorator,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token("csm_api")
 @timing_decorator
 @output_to_file
