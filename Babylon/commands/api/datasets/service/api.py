@@ -106,18 +106,21 @@ class DatasetService:
         ids_existing = [i.get("id") for i in old_security["accessControlList"]]
         if "default" in security_spec:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
-            response = self.security_svc.set_default(data)
+            data_json = json.loads(data)
+            response = self.security_svc.set_default(data_json)
             if response is None:
                 return None
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.update(id=g.get("id"), details=details)
+                details_json = json.loads(details)
+                response = self.security_svc.update(id=g.get("id"), details=details_json)
                 if response is None:
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.add(details)
+                details_json = json.loads(details)
+                response = self.security_svc.update(id=g.get("id"), details=details_json)
                 if response is None:
                     return None
         for s in ids_existing:
