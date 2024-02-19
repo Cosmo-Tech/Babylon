@@ -58,7 +58,6 @@ def apply(
     variables_file = Path().cwd() / "variables.yaml"
     babyvars = dict()
     if variables_file.exists():
-        logger.info("variables.yaml found")
         babyvars = yaml.safe_load(variables_file.open())
     payload = t.render(**babyvars)
     payload_json = yaml_to_json(payload)
@@ -76,13 +75,13 @@ def apply(
     if not id:
         response = workspace_service.create()
         workspace = response.json()
-        state["services"]["api"]["workspace_id"] = workspace.get("id")
-        env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
     else:
         response = workspace_service.update()
         workspace = response.json()
         old_security = workspace.get("security")
         security_spec = workspace_service.update_security(old_security=old_security)
         workspace["security"] = security_spec
+    state["services"]["api"]["workspace_id"] = workspace.get("id")
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
     return CommandResponse.success(workspace, verbose=True)

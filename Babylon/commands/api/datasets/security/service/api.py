@@ -63,7 +63,7 @@ class DatasetSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{self.dataset_id}/security/default",
             self.azure_token,
-            type="PATCH",
+            type="POST",
             data=details)
         return response
 

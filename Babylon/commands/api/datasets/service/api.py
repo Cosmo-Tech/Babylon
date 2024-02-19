@@ -117,7 +117,7 @@ class DatasetService:
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.update(id=g.get("id"), details=details)
+                response = self.security_svc.add(details)
                 if response is None:
                     return None
         for s in ids_existing:
