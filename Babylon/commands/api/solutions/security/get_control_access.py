@@ -9,7 +9,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.services.security.solution_security_service import SolutionSecurityService
 
 
-@command()
+@command(name="get")
 @wrapcontext()
 @timing_decorator
 @output_to_file
