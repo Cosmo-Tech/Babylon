@@ -4,7 +4,7 @@ import logging
 from click import argument, command, option
 from Babylon.commands.api.workspaces.security.service.api import (
     ApiWorkspaceSecurityService, )
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
 @output_to_file
