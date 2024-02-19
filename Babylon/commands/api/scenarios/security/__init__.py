@@ -5,7 +5,7 @@ from .get import get
 from .update import update
 from .delete import delete
 from .get_all import get_all
-from .add_default import add_default
+from .set_default import set_default
 
 
 @group()
@@ -14,7 +14,7 @@ def security():
     pass
 
 
-list_commands = [add, get, update, delete, get_all, add_default]
+list_commands = [add, get, update, delete, get_all, set_default]
 
 for _command in list_commands:
     security.add_command(_command)
