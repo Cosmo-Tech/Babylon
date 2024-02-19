@@ -6,7 +6,7 @@ from Babylon.utils.decorators import output_to_file, retrieve_state, timing_deco
 from Babylon.services.security.solution_security_service import SolutionSecurityService
 
 
-@command()
+@command(name="delete")
 @wrapcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
