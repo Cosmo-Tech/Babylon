@@ -7,7 +7,7 @@ from Babylon.utils.decorators import output_to_file, retrieve_state, timing_deco
 from Babylon.services.security.solution_security_service import SolutionSecurityService
 
 
-@command()
+@command(name="update")
 @wrapcontext()
 @timing_decorator
 @pass_azure_token("csm_api")
@@ -17,7 +17,6 @@ from Babylon.services.security.solution_security_service import SolutionSecurity
     "role",
     type=str,
     required=True,
-    default="viewer",
     help="Role RBAC",
 )
 @output_to_file
