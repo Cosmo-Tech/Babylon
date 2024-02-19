@@ -43,11 +43,11 @@ def apply(state: dict, azure_token: str, organization_id: str, payload_file: Pat
     result = data.replace("{{", "${").replace("}}", "}")
     t = Template(text=result, strict_undefined=True)
     values_file = Path().cwd() / "variables.yaml"
-    babyvars = dict()
+    vars = dict()
     if values_file.exists():
         logger.info("variables.yaml found")
-        babyvars = yaml.safe_load(values_file.open())
-    payload = t.render(**babyvars)
+        vars = yaml.safe_load(values_file.open())
+    payload = t.render(**vars)
     payload_json = yaml_to_json(payload)
     payload_dict: dict = json.loads(payload_json)
     id = payload_dict.get("id") or (organization_id or service_state["api"].get("organization_id"))
