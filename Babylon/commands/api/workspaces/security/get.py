@@ -1,6 +1,6 @@
 from logging import getLogger
 from typing import Any
-from click import command
+from click import argument, command
 from Babylon.commands.api.workspaces.security.service.api import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.credentials import pass_azure_token
@@ -19,12 +19,13 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
+@argument("identity_id", type=str)
 @retrieve_state
-def get(state: Any, azure_token: str) -> CommandResponse:
+def get(state: Any, azure_token: str, identity_id: str) -> CommandResponse:
     """
     Get workspace users RBAC access
     """
     service_state = state["services"]
     service = ApiWorkspaceSecurityService(azure_token=azure_token, state=service_state)
-    response = service.get()
+    response = service.get(id=identity_id)
     return CommandResponse.success(response, verbose=True)
