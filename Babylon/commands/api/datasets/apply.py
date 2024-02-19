@@ -1,14 +1,13 @@
 import json
 import sys
+import click
+import yaml
+
 from logging import getLogger
 from pathlib import Path
 from select import select
-
-import click
-import yaml
 from click import command, option
 from mako.template import Template
-
 from Babylon.commands.api.datasets.service.api import DatasetService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
@@ -29,6 +28,7 @@ env = Environment()
 @option("--payload-file", "payload_file", type=Path)
 @retrieve_state
 def apply(state: dict, azure_token: str, organization_id: str, dataset_id: str, payload_file: Path):
+    """Apply dataset deployment"""
     service_state = state["services"]
     data = None
     if select([

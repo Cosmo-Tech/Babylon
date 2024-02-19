@@ -1,7 +1,5 @@
 from click import group
 
-from Babylon.commands.api.scenarioruns import scenarioruns
-
 
 @group()
 def abba():
@@ -9,7 +7,7 @@ def abba():
     pass
 
 
-list_groups = [scenarioruns]
+list_groups = []
 
 for _group in list_groups:
     abba.add_command(_group)

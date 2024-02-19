@@ -27,6 +27,7 @@ env = Environment()
 @option("--payload-file", "payload_file", type=Path)
 @retrieve_state
 def apply(state: dict, azure_token: str, organization_id: str, payload_file: Path):
+    """Apply organization deployment"""
     service_state = state["services"]
     data = None
     if select([
