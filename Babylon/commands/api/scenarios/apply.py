@@ -64,7 +64,7 @@ def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str
     service_state["api"]["workspace_id"] = workspace_id
     service_state["api"]["scenario_id"] = scenario_id
     scenario_service = ScenarioService(azure_token=azure_token, spec=spec, state=service_state)
-    if not organization_id:
+    if not scenario_id:
         response = scenario_service.create()
         scenario = response.json()
         state["services"]["api"]["dataset_id"] = scenario.get("id")
