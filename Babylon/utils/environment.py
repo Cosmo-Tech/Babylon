@@ -429,3 +429,24 @@ class Environment(metaclass=SingletonMeta):
         self.context_id = ns_data.get("context")
         self.environ_id = ns_data.get("platform")
         return ns_data
+
+    def retrieve_state_func(self):
+        init_state = dict()
+        final_state = dict()
+        final_state["services"] = dict()
+        data_vault = self.get_state_from_vault_by_platform(self.environ_id)
+        init_state["services"] = data_vault
+        state_id = self.get_state_id()
+        init_state["id"] = state_id
+        state_cloud = self.get_state_from_cloud(init_state)
+        self.store_state_in_local(state_cloud)
+        for section, keys in state_cloud.get("services").items():
+            final_state["services"][section] = dict()
+            for key, _ in keys.items():
+                final_state["services"][section].update({key: state_cloud["services"][section][key]})
+                if key in data_vault[section] and data_vault[section][key]:
+                    final_state["services"][section].update({key: data_vault[section][key]})
+        final_state["id"] = init_state.get("id") or state_cloud.get("id")
+        final_state["context"] = self.context_id
+        final_state["platform"] = self.environ_id
+        return final_state
