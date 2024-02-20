@@ -30,17 +30,26 @@ env = Environment()
     help="Your custom solution description file yaml",
 )
 @argument("id")
-@inject_context_with_resource({"api": ['url', 'organization_id', 'solution_id']})
+@inject_context_with_resource({"api": ['url', 'organization_id', 'workspace_key', 'solution_id']})
 def update(context: Any, azure_token: str, id: str, solution_file: pathlib.Path) -> CommandResponse:
     """
     Update a solution
     """
     solution_id = id or context['api_solution_id']
+    work_key = context['api_workspace_key']
     path_file = f"{env.context_id}.{env.environ_id}.solution.yaml"
     solution_file = solution_file or env.working_dir.payload_path / path_file
     if not solution_file.exists():
         return CommandResponse.fail()
-    details = env.fill_template(solution_file)
+    azf_secret = env.get_project_secret(organization_id=context['api_organization_id'].lower(),
+                                        workspace_key=work_key,
+                                        name="func")
+    details = env.fill_template(solution_file,
+                                data={
+                                    "functionUrl":
+                                    f"{context['api_organization_id'].lower()}-{context['api_workspace_key'].lower()}",
+                                    "azf_key": azf_secret,
+                                })
     response = oauth_request(
         f"{context['api_url']}/organizations/{context['api_organization_id']}/solutions/{solution_id}",
         azure_token,

@@ -37,23 +37,30 @@ env = Environment()
 )
 @option("--select", "select", is_flag=True, default=True, help="Save this new solution in configuration")
 @argument("name", type=QueryType())
-@inject_context_with_resource({"api": ['url', 'organization_id'], 'acr': ['simulator_repository', 'simulator_version']})
+@inject_context_with_resource({"api": ['url', 'organization_id', 'workspace_key'], 'acr': ['simulator_repository', 'simulator_version']})
 def create(ctx: Context, context: Any, azure_token: str, name: str, solution_file: pathlib.Path,
            select: bool) -> CommandResponse:
     """
     Register new solution
     """
     check_ascii(name)
+    work_key = context['api_workspace_key']
     path_file = f"{env.context_id}.{env.environ_id}.solution.yaml"
     t_file = solution_file or env.working_dir.payload_path / path_file
     if not t_file.exists():
         logger.error(f"No such file: '{basename(t_file)}' in .payload directory")
         sys.exit(1)
+    azf_secret = env.get_project_secret(organization_id=context['api_organization_id'].lower(),
+                                        workspace_key=work_key,
+                                        name="func")
     details = env.fill_template(t_file,
                                 data={
+                                    "functionUrl":
+                                    f"{context['api_organization_id'].lower()}-{context['api_workspace_key'].lower()}",
                                     "key": name.replace(" ", ""),
                                     "name": name,
-                                    'tag': env.context_id.capitalize()
+                                    'tag': env.context_id.capitalize(),
+                                    "azf_key": azf_secret
                                 })
     response = oauth_request(f"{context['api_url']}/organizations/{context['api_organization_id']}/solutions",
                              azure_token,
