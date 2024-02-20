@@ -1,19 +1,19 @@
-import sys
 import json
-import yaml
+import sys
 import click
+import yaml
 
+from logging import getLogger
 from pathlib import Path
 from select import select
-from logging import getLogger
 from click import command, option
 from mako.template import Template
-from Babylon.utils.environment import Environment
-from Babylon.utils.yaml_utils import yaml_to_json
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_azure_token
 from Babylon.commands.api.solutions.service.api import SolutionService
-from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
+from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.decorators import retrieve_state, injectcontext
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.yaml_utils import yaml_to_json
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -21,7 +21,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
 @option("--solution-id", "solution_id", type=str)
@@ -46,6 +45,7 @@ def apply(state: dict, azure_token: str, organization_id: str, solution_id: str,
     values_file = Path().cwd() / "variables.yaml"
     vars = dict()
     if values_file.exists():
+        logger.info("variables.yaml found")
         vars = yaml.safe_load(values_file.open())
     payload = t.render(**vars)
     payload_json = yaml_to_json(payload)
@@ -62,14 +62,9 @@ def apply(state: dict, azure_token: str, organization_id: str, solution_id: str,
     if not solution_id:
         response = solution_service.create()
         solution = response.json()
+        state["services"]["api"]["solution_id"] = solution.get("id")
+        env.store_state_in_local(state)
+        env.store_state_in_cloud(state)
     else:
         response = solution_service.update()
-        response_json = response.json()
-        old_security = response_json.get("security")
-        security_spec = solution_service.update_security(old_security=old_security)
-        response_json["security"] = security_spec
-        solution = response_json
-    state["services"]["api"]["solution_id"] = solution.get("id")
-    env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
-    return CommandResponse.success(solution, verbose=True)
+    return CommandResponse.success(response.json(), verbose=True)
