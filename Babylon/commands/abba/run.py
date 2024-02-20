@@ -1,0 +1,154 @@
+import json
+import pandas as pd
+import plotly.express as px
+from pathlib import Path
+from logging import getLogger
+from typing import Any
+from click import argument, command, option, File
+from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import retrieve_state, injectcontext, timing_decorator
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.credentials import pass_azure_token
+from Babylon.commands.api.scenarios.service.api import ScenarioService
+from Babylon.commands.api.scenarioruns.service.api import ScenarioRunService
+from Babylon.utils.response import CommandResponse
+
+logger = getLogger("Babylon")
+
+env = Environment()
+
+
+def dataframe_to_dict(df: pd.DataFrame, input_types: dict) -> list:
+    """
+    Convert a pandas DataFrame to a list of dictionaries.
+  
+    Args:
+      df (pandas.DataFrame): The DataFrame to convert.
+      input_types (dict): A dictionary mapping parameter names to their types.
+
+    Returns:
+      list: A list of dictionaries to be used with the cosmotech-api
+    """
+    result = []
+    for line in df.itertuples():
+        d = dict()
+        d['organizationId'] = line.organizationId
+        d['workspaceId'] = line.workspaceId
+        d['id'] = line.id
+        d['name'] = line.name
+        d['description'] = line.description
+        d['runTemplateId'] = line.runTemplateId
+        if line.scenarioId:
+            d['scenarioId'] = line.scenarioId
+        if line.scenariorunId:
+            d['scenariorunId'] = line.scenariorunId
+        d['parameterValues'] = []
+        for parameter_value in input_types:
+            d['parameterValues'].append({
+                'parameterId': parameter_value,
+                'value': getattr(line, parameter_value),
+                'varType': input_types[parameter_value]
+            })
+        result.append(d)
+    return result
+
+
+@command()
+@injectcontext()
+@pass_azure_token("csm_api")
+@output_to_file
+@argument("input", type=File('r'))
+@retrieve_state
+def run(state: Any, azure_token: str, input: str) -> CommandResponse:
+    """Run a series of simulations
+
+    Args:
+        input (Any): Table with details of the simulations
+    """
+    input_types = {'scenario_name': 'string', 'start_date': 'date', 'end_date': 'date'}
+    rows = []  # an array of dicts one for each input row
+    df = pd.read_csv(input, sep='\t')
+    df['scenarioId'] = ""
+    df['scenariorunId'] = ""
+    rows = dataframe_to_dict(df, input_types)
+    # TBD read organizationId workspaceId solutionid from csv (if provided) otherwise from babylon state
+    for i, entry in enumerate(rows):
+        # create scenario
+        service_state = state["services"]
+        service_state["api"]["organization_id"] = entry.get('organizationId')
+        service_state["api"]["workspace_id"] = entry.get("workspaceId")
+        spec = dict()
+        spec["payload"] = json.dumps(entry)
+        scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=spec)
+        response = scenario_service.create()
+        if response is None:
+            logger.error(f"Creating {entry['name']} failed")
+            continue
+        scenario = response.json()
+        logger.info(f"Scenario {scenario['id']} creation was posted")
+        df.loc[i, 'scenarioId'] = scenario['id']
+        # run scenario
+        scenario_service.state["api"]["scenario_id"] = scenario["id"]
+        response = scenario_service.run()
+        if response is None:
+            logger.error(f"Failed run {scenario['id']}")
+            continue
+        scenario_run = response.json()
+        df.loc[i, 'scenariorunId'] = scenario_run['id']
+        logger.info(f"Scenario {scenario_run['id']} run posted")
+    df.to_csv("back.csv", sep="\t")
+    return CommandResponse.success({'rows': rows})
+
+@command()
+@injectcontext()
+@pass_azure_token("csm_api")
+@retrieve_state
+@argument("input", type=File('r'))
+def check(state: Any, azure_token: str, input: str) -> CommandResponse:
+    """Check the status of running simulations
+
+    Args:
+        input (Any): Table with details of the simulations
+    """
+    # read file provided as argument and run api calls
+    input_types = {'scenario_name': 'string', 'start_date': 'date', 'end_date': 'date'}  #TBD move to user input file(s)
+    df = pd.read_csv(input, sep='\t')
+    rows = dataframe_to_dict(df, input_types)
+    service_state = state["services"]
+    for i, entry in enumerate(rows):
+        service_state["api"]["organization_id"] = entry.get('organizationId')
+        service_state["api"]["workspace_id"] = entry.get("workspaceId")
+        service_state["api"]["scenariorun_id"] = entry.get("scenariorunId")
+        response = get_scenariorun_status(service_state, azure_token)
+        if response.get('phase') == "Succeeded":
+            summarize(response)
+        else:
+            logger.info(f"Scenariorun {entry.get('scenariorunId')} has phase {response.get('phase')}")
+    return CommandResponse.success()
+
+
+def get_scenariorun_status(service_state, azure_token):
+    # get scenariorun status
+    service = ScenarioRunService(state=service_state, azure_token=azure_token)
+    response = service.status()
+    if response is None:
+        logger.error(f"Failed to get status of {scenario_run['id']}")
+    return response.json()
+
+
+def summarize(data: dict):
+    df = pd.DataFrame.from_records(data['nodes'])[['containerName', 'startTime', 'endTime']]
+    if df.get('phase') != "Succeeded":
+        return
+    df['startTime'] = pd.to_datetime(df['startTime'])
+    df['endTime'] = pd.to_datetime(df['endTime'])
+    df['duration'] = (df['endTime'] - df['startTime']).dt.total_seconds()
+    fig = px.timeline(df,
+                      title=f"Detailed report for {data.get('id')}",
+                      x_start="startTime",
+                      x_end="endTime",
+                      y="containerName")
+    fig.update_traces(text=df['duration'], textposition='outside')
+    fig.update_layout(title="Execution time by step (seconds)", xaxis_title="Time", yaxis_title="Step")
+    fig.show()
+    fig.write_html('report.html')
