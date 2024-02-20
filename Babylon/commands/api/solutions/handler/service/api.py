@@ -18,16 +18,16 @@ class SolutionHandleService:
     def __init__(self, azure_token: str, state: dict) -> None:
         self.state = state
         self.azure_token = azure_token
-        self.account_secret = env.get_platform_secret(platform=self.environ_id, resource="storage", name="account")
-        self.url = state["api"].get("url")
+        self.account_secret = env.get_platform_secret(platform=env.environ_id, resource="storage", name="account")
+        self.url = state["services"]["api"].get("url")
         if not self.url:
             logger.error("url api is missing")
             sys.exit(1)
-        self.organization_id = state["api"].get("organization_id")
+        self.organization_id = state["services"]["api"].get("organization_id")
         if not self.organization_id:
             logger.error("organization id is missing")
             sys.exit(1)
-        self.solution_id = state["api"].get("solution_id")
+        self.solution_id = state["services"]["api"].get("solution_id")
         if not self.solution_id:
             logger.error("solution id is missing")
             sys.exit(1)

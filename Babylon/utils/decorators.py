@@ -230,25 +230,8 @@ def retrieve_state(func) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        init_state = dict()
-        final_state = dict()
-        final_state["services"] = dict()
-        data_vault = env.get_state_from_vault_by_platform(env.environ_id)
-        init_state["services"] = data_vault
-        state_id = env.get_state_id()
-        init_state["id"] = state_id
-        state_cloud = env.get_state_from_cloud(init_state)
-        env.store_state_in_local(state_cloud)
-        for section, keys in state_cloud.get("services").items():
-            final_state["services"][section] = dict()
-            for key, _ in keys.items():
-                final_state["services"][section].update({key: state_cloud["services"][section][key]})
-                if key in data_vault[section] and data_vault[section][key]:
-                    final_state["services"][section].update({key: data_vault[section][key]})
-        final_state["id"] = init_state.get("id") or state_cloud.get("id")
-        final_state["context"] = env.context_id
-        final_state["platform"] = env.environ_id
-        kwargs["state"] = final_state
+        state = env.retrieve_state_func()
+        kwargs["state"] = state
         return func(*args, **kwargs)
 
     return wrapper
