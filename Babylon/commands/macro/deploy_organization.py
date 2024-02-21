@@ -1,7 +1,6 @@
 import json
 
 from logging import getLogger
-from Babylon.services.blob import blob_client
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
 from Babylon.services.organizations_service import OrganizationService
@@ -31,13 +30,7 @@ def deploy_organization(file_content: dict) -> bool:
     if not service_state["api"]["organization_id"]:
         response = organization_service.create()
         organization = response.json()
-        # create container
-        account_secret = env.get_platform_secret(
-            platform=env.environ_id, resource="storage", name="account"
-        )
-        storage_name = state["services"]["azure"]["storage_account_name"]
-        blob = blob_client(storage_name=storage_name, account_secret=account_secret)
-        service = AzureStorageContainerService(state=state, blob_client=blob)
+        service = AzureStorageContainerService(state=state, blob_client=env.blob_client)
         logger.info(organization)
         logger.info("creating container ...")
         response = service.create(name=organization.get("id"))

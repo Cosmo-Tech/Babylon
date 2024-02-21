@@ -3,9 +3,10 @@ import sys
 import click
 import yaml
 
-from logging import getLogger
 from pathlib import Path
 from select import select
+from logging import getLogger
+from flatten_json import flatten
 from click import command, option
 from mako.template import Template
 from Babylon.commands.api.solutions.service.api import SolutionService
@@ -47,7 +48,8 @@ def apply(state: dict, azure_token: str, organization_id: str, solution_id: str,
     if values_file.exists():
         logger.info("variables.yaml found")
         vars = yaml.safe_load(values_file.open())
-    payload = t.render(**vars)
+    flattenstate = flatten(state.get("services"), separator=".")
+    payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)
     payload_dict: dict = json.loads(payload_json)
     organization_id = payload_dict.get("organization_id") or (organization_id

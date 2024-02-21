@@ -4,7 +4,7 @@
     "parameters": {
         "projectName": {
             "type": "string",
-            "defaultValue": "${instance_name}"
+            "defaultValue": "{{instance_name}}"
         }
     },
     "variables": {},
@@ -13,7 +13,7 @@
             "type": "Microsoft.EventHub/namespaces",
             "apiVersion": "2023-01-01-preview",
             "name": "[parameters('projectName')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "sku": {
                 "name": "Standard",
                 "tier": "Standard",
@@ -33,7 +33,7 @@
             "type": "Microsoft.EventHub/namespaces/authorizationrules",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/RootManageSharedAccessKey')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
             ],
@@ -49,7 +49,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/probesmeasures')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
             ],
@@ -67,7 +67,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/scenariometadata')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
             ],
@@ -85,7 +85,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/scenariorun')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
             ],
@@ -103,7 +103,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/scenariorunmetadata')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
             ],
@@ -121,7 +121,7 @@
             "type": "Microsoft.EventHub/namespaces/networkRuleSets",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/default')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
             ],
@@ -136,7 +136,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/probesmeasures/$Default')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('projectName'), 'probesmeasures')]",
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
@@ -147,7 +147,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/scenariometadata/$Default')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('projectName'), 'scenariometadata')]",
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
@@ -158,7 +158,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/scenariorun/$Default')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('projectName'), 'scenariorun')]",
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
@@ -169,7 +169,7 @@
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
             "apiVersion": "2023-01-01-preview",
             "name": "[concat(parameters('projectName'), '/scenariorunmetadata/$Default')]",
-            "location": "${cosmotech['azure']['resource_location']}",
+            "location": "{{services['azure.resource_location']}}",
             "dependsOn": [
                 "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('projectName'), 'scenariorunmetadata')]",
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('projectName'))]"
