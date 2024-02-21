@@ -1,14 +1,14 @@
 import json
 import sys
-from logging import getLogger
-from pathlib import Path
-from select import select
-
 import click
 import yaml
+
+from pathlib import Path
+from select import select
+from logging import getLogger
+from flatten_json import flatten
 from click import command, option
 from mako.template import Template
-
 from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
@@ -49,7 +49,8 @@ def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str
     vars = dict()
     if values_file.exists():
         vars = yaml.safe_load(values_file.open())
-    payload = t.render(**vars)
+    flattenstate = flatten(state.get("services"), separator=".")
+    payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)
     payload_dict: dict = json.loads(payload_json)
     organization_id = payload_dict.get("organization_id") or (organization_id
