@@ -33,13 +33,13 @@ class SolutionHandleService:
             sys.exit(1)
 
     def download(self, run_template_id: str, handler_id: str):
-
-        check = blob_client(state=self.state,
+        storage_name = self.state["azure"]["storage_account_name"]
+        check = blob_client(storage_name=storage_name,
                             account_secret=self.account_secret).get_container_client(container=self.organization_id)
         if not check.exists():
             logger.info(f"Container '{self.organization_id}' not found")
             sys.exit(1)
-        client = blob_client(state=self.state, account_secret=self.account_secret).get_blob_client(
+        client = blob_client(storage_name=storage_name, account_secret=self.account_secret).get_blob_client(
             container=self.organization_id,
             blob=f"{self.solution_id}/{run_template_id}/{handler_id}.zip",
         )
@@ -51,6 +51,7 @@ class SolutionHandleService:
         logger.info("Successfully downloaded handler file")
 
     def upload(self, run_template_id: str, handler_id: str, handler_path: Path, override: bool):
+        storage_name = self.state["azure"]["storage_account_name"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
             self.azure_token,
@@ -64,12 +65,12 @@ class SolutionHandleService:
         if not handler_path.suffix == ".zip":
             logger.error("solution handler upload only supports zip files")
             return None
-        check = blob_client(state=self.state,
+        check = blob_client(storage_name=storage_name,
                             account_secret=self.account_secret).get_container_client(container=self.organization_id)
         if not check.exists():
             logger.info(f"Container '{self.organization_id}' not found")
             return None
-        client = blob_client(state=self.state, account_secret=self.account_secret).get_blob_client(
+        client = blob_client(storage_name=storage_name, account_secret=self.account_secret).get_blob_client(
             container=self.organization_id,
             blob=f"{self.solution_id}/{run_template_id}/{handler_id}.zip",
         )
