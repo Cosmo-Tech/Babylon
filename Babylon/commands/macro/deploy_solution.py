@@ -1,16 +1,14 @@
-from glob import glob
-import json
-
-from logging import getLogger
 import os
+import json
 import pathlib
-from posixpath import basename
-import sys
+
 from zipfile import ZipFile
-from Babylon.commands.api.solutions.handler.service.api import SolutionHandleService
+from logging import getLogger
+from posixpath import basename
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
 from Babylon.commands.api.solutions.service.api import SolutionService
+from Babylon.commands.api.solutions.handler.service.api import SolutionHandleService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -56,7 +54,7 @@ def deploy_solution(file_content: dict, deploy_dir: pathlib.Path) -> bool:
             if deploy:
                 run_id_dir_path: pathlib.Path = pathlib.Path(deploy_dir) / "run_templates" / run_id / handler_id
                 solution_handler_svc = SolutionHandleService(
-                    azure_token=azure_token, state=state
+                    azure_token=azure_token, state=state["services"]
                 )
                 if run_id_dir_path.is_dir():
                     with ZipFile(run_id_dir_path / f"{handler_id}.zip", 'w') as zip_object:
