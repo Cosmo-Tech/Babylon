@@ -136,7 +136,9 @@ class Environment(metaclass=SingletonMeta):
         if not len(data_path):
             raise KeyError("Require at least one component for the data path")
 
-        r = self.convert_data_query(f"{PATH_SYMBOL}{STORE_STRING}{PATH_SYMBOL}" + ".".join(data_path))
+        r = self.convert_data_query(
+            f"{PATH_SYMBOL}{STORE_STRING}{PATH_SYMBOL}" + ".".join(data_path)
+        )
         if r is None:
             return False
         return r
@@ -146,7 +148,10 @@ class Environment(metaclass=SingletonMeta):
 
     def get_data_from_key(self, resource_id: str, keys: list) -> Any:
         config_dir = self.configuration.config_dir
-        file_path = (config_dir / f"{self.configuration.context_id}.{self.configuration.environ_id}.{resource_id}.yaml")
+        file_path = (
+            config_dir
+            / f"{self.configuration.context_id}.{self.configuration.environ_id}.{resource_id}.yaml"
+        )
         _commented_yaml_loader = YAML()
         try:
             with file_path.open(mode="r") as file:
@@ -154,16 +159,17 @@ class Environment(metaclass=SingletonMeta):
                 if len(keys) == 1:
                     _value = _y[self.configuration.context_id][keys[-1]]
                 else:
-                    _value = _y[self.configuration.context_id][keys[-len(keys)]][keys[-1]]
+                    _value = _y[self.configuration.context_id][keys[-len(keys)]][
+                        keys[-1]
+                    ]
                 return _value
         except OSError:
             return
 
     def convert_template_path(self, query) -> str:
-        check_regex = re.compile(f"{PATH_SYMBOL}"
-                                 f"({TEMPLATES_STRING})"
-                                 f"{PATH_SYMBOL}"
-                                 f"(.+)")
+        check_regex = re.compile(
+            f"{PATH_SYMBOL}" f"({TEMPLATES_STRING})" f"{PATH_SYMBOL}" f"(.+)"
+        )
         match_content = check_regex.match(query)
         if not match_content:
             return None
@@ -202,11 +208,13 @@ class Environment(metaclass=SingletonMeta):
             return None
 
         SEARCH_FILES = "|".join(config_files)
-        check_regex = re.compile(f"{PATH_SYMBOL}"
-                                 f"({SEARCH_FILES}|{STORE_STRING}|{TEMPLATES_STRING})"
-                                 f"(?:(?<={STORE_STRING})\\[(.+)])?"
-                                 f"{PATH_SYMBOL}"
-                                 f"(.+)")
+        check_regex = re.compile(
+            f"{PATH_SYMBOL}"
+            f"({SEARCH_FILES}|{STORE_STRING}|{TEMPLATES_STRING})"
+            f"(?:(?<={STORE_STRING})\\[(.+)])?"
+            f"{PATH_SYMBOL}"
+            f"(.+)"
+        )
 
         # Regex groups captures :
         # 1 : Element to query : platform/deploy/workdir/secrets
@@ -226,7 +234,9 @@ class Environment(metaclass=SingletonMeta):
         :type template_file: str
         :return: filled template
         """
-        template = Template(filename=str(template_file.absolute()), strict_undefined=True)
+        template = Template(
+            filename=str(template_file.absolute()), strict_undefined=True
+        )
         context = dict()
         config_dir = self.configuration.config_dir
         for k in config_files:
@@ -259,7 +269,9 @@ class Environment(metaclass=SingletonMeta):
     def set_server_id(self):
         self.server_id = os.environ.get("BABYLON_SERVICE")
         try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get("BABYLON_TOKEN"))
+            client = Client(
+                url=f"{self.server_id}", token=os.environ.get("BABYLON_TOKEN")
+            )
             self.hvac_client = client
         except Exception as e:
             logger.error(e)
@@ -274,19 +286,25 @@ class Environment(metaclass=SingletonMeta):
 
     def get_env_babylon(self, name: str, environ_id: str = ""):
         env_id = environ_id or self.environ_id
-        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}")
+        data = self.hvac_client.read(
+            path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}"
+        )
         if data is None:
             return None
         return data["data"]["secret"]
 
     def get_global_secret(self, resource: str, name: str):
-        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
+        data = self.hvac_client.read(
+            path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}"
+        )
         if data is None:
             return None
         return data["data"]["secret"]
 
     def get_users_secrets(self, email: str, scope: str):
-        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}")
+        data = self.hvac_client.read(
+            path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}"
+        )
         if data:
             return data["data"]
         return None
@@ -299,7 +317,8 @@ class Environment(metaclass=SingletonMeta):
 
     def get_platform_secret(self, platform: str, resource: str, name: str):
         data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
+            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}"
+        )
         if data is None:
             return None
         return data["data"]["secret"]
@@ -312,9 +331,15 @@ class Environment(metaclass=SingletonMeta):
             return None
         return data["data"]["secret"]
 
-    def get_access_token_with_refresh_token(self, username: str = None, internal_scope: str = None):
-        email = username or self.configuration.get_var(resource_id="azure", var_name="email")
-        cli_client_id = self.configuration.get_var(resource_id="azure", var_name="cli_client_id")
+    def get_access_token_with_refresh_token(
+        self, username: str = None, internal_scope: str = None
+    ):
+        email = username or self.configuration.get_var(
+            resource_id="azure", var_name="email"
+        )
+        cli_client_id = self.configuration.get_var(
+            resource_id="azure", var_name="cli_client_id"
+        )
         data = self.get_users_secrets(email, internal_scope)
         if data is None:
             return None
@@ -323,7 +348,9 @@ class Environment(metaclass=SingletonMeta):
         if encoding_key is None:
             logger.info("BABYLON_ENCODING_KEY is missing")
             sys.exit(1)
-        decryoted_token = self.working_dir.decrypt_content(encoding_key, encrypted_refresh_token)
+        decryoted_token = self.working_dir.decrypt_content(
+            encoding_key, encrypted_refresh_token
+        )
         response = requests.post(
             url=f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token",
             data=dict(
@@ -340,7 +367,9 @@ class Environment(metaclass=SingletonMeta):
             encoding_key=encoding_key,
             content=bytes(response_json["refresh_token"], encoding="utf-8"),
         )
-        self.set_users_secrets(email, internal_scope, dict(token=token_encrypt.decode("utf-8")))
+        self.set_users_secrets(
+            email, internal_scope, dict(token=token_encrypt.decode("utf-8"))
+        )
         return response_json["access_token"]
 
     def get_state_from_vault_by_platform(self, platform: str):
@@ -349,9 +378,13 @@ class Environment(metaclass=SingletonMeta):
         tenant_id = self.tenant_id
         response_parsed = dict()
         for r in resources:
-            response = self.hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}")
+            response = self.hvac_client.read(
+                path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}"
+            )
             if not response:
-                logger.info(f"{organization_name}/{tenant_id}/babylon/config/babylon/{platform} not found")
+                logger.info(
+                    f"{organization_name}/{tenant_id}/babylon/config/babylon/{platform} not found"
+                )
                 sys.exit(1)
             response_parsed.setdefault(r, dict(response["data"].items()))
         return response_parsed
@@ -365,9 +398,13 @@ class Environment(metaclass=SingletonMeta):
 
     def store_state_in_cloud(self, state: dict):
         s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
-        account_secret = self.get_platform_secret(platform=self.environ_id, resource="storage", name="account")
-        state_blob = blob_client(state=state, account_secret=account_secret).get_blob_client(container="babylon-states",
-                                                                                             blob=s)
+        account_secret = self.get_platform_secret(
+            platform=self.environ_id, resource="storage", name="account"
+        )
+        storage_name = state["services"]["azure"]["storage_account_name"]
+        state_blob = blob_client(
+            storage_name=storage_name, account_secret=account_secret
+        ).get_blob_client(container="babylon-states", blob=s)
         if state_blob.exists():
             state_blob.delete_blob()
         state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
@@ -381,16 +418,22 @@ class Environment(metaclass=SingletonMeta):
         return state_data
 
     def get_state_from_cloud(self, state: dict) -> dict:
+        storage_name = state["services"]["azure"]["storage_account_name"]
         if not state.get("id"):
             return state
         s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
-        account_secret = self.get_platform_secret(platform=self.environ_id, resource="storage", name="account")
-        state_blob = blob_client(state=state, account_secret=account_secret).get_blob_client(container="babylon-states",
-                                                                                             blob=s)
+        account_secret = self.get_platform_secret(
+            platform=self.environ_id, resource="storage", name="account"
+        )
+        state_blob = blob_client(
+            storage_name=storage_name, account_secret=account_secret
+        ).get_blob_client(container="babylon-states", blob=s)
         if not state_blob.exists():
             return state
         if state_blob.exists():
-            data = yaml.load(state_blob.download_blob().readall(), Loader=yaml.SafeLoader)
+            data = yaml.load(
+                state_blob.download_blob().readall(), Loader=yaml.SafeLoader
+            )
         return data
 
     def get_state_id(self):
@@ -421,8 +464,10 @@ class Environment(metaclass=SingletonMeta):
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
-            logger.error("The context and the platform are not set. \
-                         Please set the platform using the 'namespace use' command.")
+            logger.error(
+                "The context and the platform are not set. \
+                         Please set the platform using the 'namespace use' command."
+            )
             sys.exit(1)
 
         ns_data = yaml.load(ns_file.open("r"), Loader=yaml.SafeLoader)
@@ -443,9 +488,13 @@ class Environment(metaclass=SingletonMeta):
         for section, keys in state_cloud.get("services").items():
             final_state["services"][section] = dict()
             for key, _ in keys.items():
-                final_state["services"][section].update({key: state_cloud["services"][section][key]})
+                final_state["services"][section].update(
+                    {key: state_cloud["services"][section][key]}
+                )
                 if key in data_vault[section] and data_vault[section][key]:
-                    final_state["services"][section].update({key: data_vault[section][key]})
+                    final_state["services"][section].update(
+                        {key: data_vault[section][key]}
+                    )
         final_state["id"] = init_state.get("id") or state_cloud.get("id")
         final_state["context"] = self.context_id
         final_state["platform"] = self.environ_id
