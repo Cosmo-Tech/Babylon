@@ -35,7 +35,8 @@ def deploy_organization(file_content: dict) -> bool:
         account_secret = env.get_platform_secret(
             platform=env.environ_id, resource="storage", name="account"
         )
-        blob = blob_client(state=state, account_secret=account_secret)
+        storage_name = state["services"]["azure"]["storage_account_name"]
+        blob = blob_client(storage_name=storage_name, account_secret=account_secret)
         service = AzureStorageContainerService(state=state, blob_client=blob)
         logger.info(organization)
         logger.info("creating container ...")
