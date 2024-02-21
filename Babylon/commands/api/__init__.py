@@ -7,6 +7,7 @@ from .scenarioruns import scenarioruns
 from .solutions import solutions
 from .workspaces import workspaces
 from .scenarios import scenarios
+from .destroy import destroy
 
 env = Environment()
 
@@ -17,7 +18,7 @@ def api():
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
 
 
-list_groups = [workspaces, datasets, connectors, organizations, solutions, scenarios, scenarioruns]
+list_groups = [workspaces, datasets, connectors, organizations, solutions, scenarios, scenarioruns, destroy]
 
 for _group in list_groups:
     api.add_command(_group)
