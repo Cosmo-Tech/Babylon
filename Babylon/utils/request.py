@@ -21,9 +21,14 @@ def poll_request(retries: int = 5, check_for_failure: bool = False, **kwargs: di
     raise ValueError("Request polling failed")
 
 
-def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: Any) -> Optional[Any]:
+def oauth_request(url: str,
+                  access_token: str,
+                  type: str = "GET",
+                  content_type: str = "application/json",
+                  **kwargs: Any) -> Optional[Any]:
     """Requests an API using OAuth authentication
 
+    :param content_type:
     :param url: request url
     :type url: str
     :param type: request type [POST, PATCH, PUT, GET]
@@ -31,7 +36,7 @@ def oauth_request(url: str, access_token: str, type: str = "GET", **kwargs: Any)
     """
     headers = {
         'Authorization': f'Bearer {access_token}',
-        "Content-Type": "application/json",
+        "Content-Type": content_type,
         **kwargs.pop("headers", {})
     }
     request_funcs = {

@@ -4,6 +4,8 @@ import sys
 
 from typing import Optional
 
+from pathlib import Path
+
 from Babylon.commands.api.datasets.security.service.api import DatasetSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
@@ -68,8 +70,7 @@ class DatasetService:
         )
         if response is None:
             return None
-        dataset = response.json()
-        return dataset
+        return response
 
     def search(self, tag: str):
         details = {"datasetTags": [tag]}
@@ -96,7 +97,7 @@ class DatasetService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = DatasetSecurityService(azure_token=self.azure_token, state=self.state)
+        security_svc = DatasetSecurityService(azure_token=self.azure_token, state=self.state)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:
@@ -106,23 +107,80 @@ class DatasetService:
         ids_existing = [i.get("id") for i in old_security["accessControlList"]]
         if "default" in security_spec:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
-            response = self.security_svc.set_default(data)
+            response = security_svc.set_default(data)
             if response is None:
                 return None
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.update(id=g.get("id"), details=details)
+                response = security_svc.update(id=g.get("id"), details=details)
                 if response is None:
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.add(details)
+                response = security_svc.add(details)
                 if response is None:
                     return None
         for s in ids_existing:
             if s not in ids_spec:
-                response = self.security_svc.delete(id=s)
+                response = security_svc.delete(id=s)
                 if response is None:
                     return None
         return security_spec
+
+    def refresh(self, dataset_id: str):
+        if not dataset_id:
+            logger.error("dataset_id not found")
+            sys.exit(1)
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/refresh",
+            self.azure_token,
+            type="POST",
+        )
+        if response is None:
+            return None
+        return response
+
+    def get_status(self, dataset_id: str):
+        if not dataset_id:
+            logger.error("dataset_id not found")
+            sys.exit(1)
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/status",
+            self.azure_token,
+        )
+        if response is None:
+            return None
+        return response
+
+    def upload(self, dataset_id: str, zip_file: Path):
+        if not dataset_id:
+            logger.error("dataset_id not found")
+            sys.exit(1)
+        with open(zip_file, "rb") as file:
+            response = oauth_request(
+                f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
+                self.azure_token,
+                type="POST",
+                data=file,
+                content_type="application/octet-stream",
+            )
+        if response is None:
+            return None
+        return response
+
+    def link_to_workspace(self, dataset_id: str):
+        if not dataset_id:
+            logger.error("dataset_id not found")
+            sys.exit(1)
+        details = dict()
+        workspace_id = self.state["api"]["workspace_id"]
+        details["workspaceId"] = workspace_id
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/link?workspaceId={workspace_id}",
+            self.azure_token,
+            type="POST",
+        )
+        if response is None:
+            return None
+        return response
