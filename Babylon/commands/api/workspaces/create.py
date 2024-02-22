@@ -39,8 +39,7 @@ env = Environment()
 @argument("name", type=QueryType())
 @inject_context_with_resource({
     "azure": ['email'],
-    "api": ['url', 'organization_id', 'workspace_key', 'solution_id', 'run_templates'],
-    "powerbi": ['dashboard_view', 'scenario_view']
+    "api": ['url', 'organization_id', 'workspace_key', 'solution_id', 'run_templates']
 })
 def create(ctx: Context,
            context: Any,
