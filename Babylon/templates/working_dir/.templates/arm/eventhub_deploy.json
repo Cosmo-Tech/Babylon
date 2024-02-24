@@ -4,7 +4,7 @@
     "parameters": {
         "projectName": {
             "type": "string",
-            "defaultValue": "{{instance_name}}"
+            "defaultValue": "{{services['api.organization_id']}}-{{services['api.workspace_key']}}"
         }
     },
     "variables": {},

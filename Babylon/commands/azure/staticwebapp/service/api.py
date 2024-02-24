@@ -19,13 +19,10 @@ class AzureSWAService:
         self.state = state
         self.azure_token = azure_token
 
-    def create(self, webapp_name: str, swa_file: Path):
+    def create(self, webapp_name: str, details: str):
         check_ascii(webapp_name)
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        swa_file = (swa_file or env.working_dir.original_template_path / "webapp/webapp_details.json")
-        github_secret = env.get_global_secret(resource="github", name="token")
-        details = env.fill_template(swa_file, data={"secrets_github_token": github_secret})
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
@@ -34,18 +31,6 @@ class AzureSWAService:
             return CommandResponse.fail()
         output_data = response.json()
         logger.info(f"Successfully launched of webapp {webapp_name} in resource group {resource_group_name}")
-        # env.configuration.set_var(
-        #     resource_id="webapp",
-        #     var_name="static_domain",
-        #     var_value=output_data["properties"]["defaultHostname"],
-        # )
-        # logger.info(SUCCESS_CONFIG_UPDATED("webapp", "static_domain"))
-        # env.configuration.set_var(
-        #     resource_id="webapp",
-        #     var_name="hostname",
-        #     var_value=output_data["properties"]["defaultHostname"].split(".")[0],
-        # )
-        # logger.info(SUCCESS_CONFIG_UPDATED("webapp", "hostname"))
         return output_data
 
     def delete(self, webapp_name: str, force_validation: bool):
@@ -63,7 +48,7 @@ class AzureSWAService:
         logger.info(
             f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}")
 
-    def get_all(self):
+    def get_all(self, filter: str):
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
         response = oauth_request(
@@ -94,14 +79,6 @@ class AzureSWAService:
         if response is None:
             return CommandResponse.fail(verbose=False)
         outputdata = response.json()
-        # env.configuration.set_var(resource_id="webapp",
-        #                             var_name="deployment_name",
-        #                             var_value=outputdata['name'].replace("WebApp", ""))
-        # logger.info(SUCCESS_CONFIG_UPDATED("webapp", "deployment_name"))
-        # env.configuration.set_var(resource_id="webapp",
-        #                             var_name="static_domain",
-        #                             var_value=outputdata['properties']['defaultHostname'])
-        # logger.info(SUCCESS_CONFIG_UPDATED("webapp", "static_domain"))
         return outputdata
 
     def update(self, webapp_name: str, swa_file: Path):

@@ -29,14 +29,9 @@ class AzureSWASettingsAppService:
         output_data = response.json()
         return output_data
 
-    def update(self, webapp_name: str):
-        org_id = self.state["api"]["organization_id"]
-        work_key = self.state["api"]["workspace_key"]
+    def update(self, webapp_name: str, details: str):
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        settings_file = env.working_dir.original_template_path / "webapp/webapp_settings.json"
-        secrets_powerbi = env.get_project_secret(organization_id=org_id, workspace_key=work_key, name="pbi")
-        details = env.fill_template(settings_file, data={"secrets_powerbi": secrets_powerbi})
         response = polling2.poll(
             lambda: oauth_request(
                 f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
@@ -49,12 +44,11 @@ class AzureSWASettingsAppService:
             step=1,
             timeout=60,
         )
-
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()
         logger.info("Successfully updated")
-        return CommandResponse.success(output_data, verbose=True)
+        return output_data
 
 
 def is_correct_response(response):

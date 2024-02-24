@@ -16,10 +16,10 @@ class AzureIamService:
     def set(
         self,
         principal_id: str,
-        principal_type: str,
         resource_name: str,
         resource_type: str,
         role_id: str,
+        principal_type: str = "ServicePrincipal",
     ):
         organization_id = self.state["api"]["organization_id"]
         workspace_key = self.state["api"]["workspace_key"]
@@ -42,4 +42,4 @@ class AzureIamService:
                 ),
             )
         except Exception as e:
-            logger.error(f"Failed to assign a new role: {e}")
+            logger.info(e)
