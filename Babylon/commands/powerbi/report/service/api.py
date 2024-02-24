@@ -1,17 +1,15 @@
 import os
-import polling2
 import logging
-
-from pathlib import Path
-
 import jmespath
 import requests
-import yaml
-from Babylon.utils.environment import Environment
-from Babylon.utils.interactive import confirm_deletion
+import polling2
+
+from pathlib import Path
 from Babylon.utils.macro import Macro
 from Babylon.utils.request import oauth_request
+from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
+from Babylon.utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -116,23 +114,8 @@ class AzurePowerBIReportService:
         output_data = response.json()
         pagesnames = jmespath.search("value[?order==`0`]", output_data)
         pagesname = pagesnames[0] if len(pagesnames) else "ReportSection"
-        data_file = (env.configuration.config_dir / f"{env.context_id}.{env.environ_id}.powerbi.yaml")
-        if not data_file.exists():
-            logger.info(f"Config file {env.context_id}.{env.environ_id}.powerbi.yaml not found")
-            return CommandResponse.fail()
-        data = yaml.load(data_file.open("r"), Loader=yaml.SafeLoader)
-        _view = data[env.context_id][report_type]
-        test_match = jmespath.search(f"[?contains(reportId, '{report_id}')]", _view)
-
-        if len(test_match):
-            idx = _view.index(test_match[0])
-        if pagesname:
-            _view[idx]["pageName"] = {
-                "en": f"{pagesname['name']}",
-                "fr": f"{pagesname['name']}",
-            }
-        data[env.context_id][report_type][idx] = _view[idx]
-        data_file.write_bytes(data=yaml.dump(data).encode("utf-8"))
+        obj = {"en": f"{pagesname['name']}", "fr": f"{pagesname['name']}"}
+        return obj
 
     def upload(
         self,
@@ -175,47 +158,25 @@ class AzurePowerBIReportService:
         )
         output_data = handler.json()
         report_name = report_name or output_data["reports"][0]["name"]
-        data_file = (env.configuration.config_dir / f"{env.context_id}.{env.environ_id}.powerbi.yaml")
-        if data_file.exists():
-            data = yaml.load(_f, Loader=yaml.SafeLoader)
-        dashboard_view = data[env.context_id][report_type]
-        if dashboard_view is None:
-            dashboard_view = []
-        idx = None
-        test_match = jmespath.search(
-            f"[?contains(reportId, '{output_data['reports'][0]['id']}')]",
-            dashboard_view,
-        )
-        if test_match:
-            idx = dashboard_view.index(test_match[0])
-        if idx is not None:
-            report_data = data[env.context_id][report_type][idx]
-            data[env.context_id][report_type][idx] = report_data
-            dashboard_view = data[env.context_id][report_type]
-        else:
-            new_report = {
-                "reportId": output_data["reports"][0]["id"],
-                "title": {
-                    "en": report_name,
-                    "fr": report_name,
+        new_report = {
+            "reportId": output_data["reports"][0]["id"],
+            "title": {
+                "en": report_name,
+                "fr": report_name,
+            },
+            "settings": {
+                "navContentPaneEnabled": True,
+                "panes": {
+                    "filters": {
+                        "expanded": report_type == "scenario_view",
+                        "visible": True,
+                    }
                 },
-                "settings": {
-                    "navContentPaneEnabled": True,
-                    "panes": {
-                        "filters": {
-                            "expanded": report_type == "scenario_view",
-                            "visible": True,
-                        }
-                    },
-                },
-                "pageName": None,
-            }
-            dashboard_view.append(new_report)
-        data[env.context_id][report_type] = dashboard_view
-        data_file.write_bytes(yaml.dump(data).encode("utf-8"))
-        logger.info("Updated configuration variable powerbi_report_id")
+            },
+            "pageName": None,
+        }
         logger.info("Successfully imported")
-        return CommandResponse.success(output_data, verbose=True)
+        return CommandResponse.success(new_report, verbose=True)
 
 
 def is_correct_response_app(response):

@@ -23,7 +23,7 @@ def get_powerbi_token(email: str = None) -> str:
         access_token = env.get_access_token_with_refresh_token(username=email, internal_scope="powerbi")
         return access_token
     credentials = get_azure_credentials()
-    env.AZURE_SCOPES.update({"powerbi": env.configuration.get_var(resource_id="powerbi", var_name="scope")})
+    env.AZURE_SCOPES.update({"powerbi": "https://analysis.windows.net/powerbi/api/.default"})
     logger.debug(f"Getting azure token with scope {env.AZURE_SCOPES['powerbi']}")
     try:
         token = credentials.get_token(env.AZURE_SCOPES["powerbi"])
@@ -49,17 +49,13 @@ def get_azure_token(scope: str = "default") -> str:
     return token.token
 
 
-def get_azure_credentials(baby_client_id: str = "",
-                          context_id: str = "",
-                          environ_id: str = "") -> ClientSecretCredential:
+def get_azure_credentials() -> ClientSecretCredential:
     """Logs to Azure and saves the token as a config variable"""
     credential = None
     config = env.get_state_from_vault_by_platform(env.environ_id)
     babylon_client_id = config["babylon"]["client_id"]
-    # babylon_client_id = baby_client_id or env.configuration.get_var(
-    # resource_id="babylon", var_name="client_id", context_id=context_id, environ_id=environ_id)
     try:
-        baby_client_secret = env.get_env_babylon(name="client", environ_id=environ_id)
+        baby_client_secret = env.get_env_babylon(name="client", environ_id=env.environ_id)
         credential = ClientSecretCredential(
             client_id=babylon_client_id,
             tenant_id=env.tenant_id,

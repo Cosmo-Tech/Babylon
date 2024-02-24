@@ -14,12 +14,12 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_solution(file_content: dict, deploy_dir: pathlib.Path) -> bool:
+def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
     print("Solution deployment")
-    payload: dict = file_content.get("spec").get("payload")
-    azure_token = get_azure_token("csm_api")
     state = env.retrieve_state_func()
-
+    azure_token = get_azure_token("csm_api")
+    content = env.fill_template(data=file_content, state=state)
+    payload: dict = content.get("spec").get("payload")
     service_state = state["services"]
     service_state["api"]["organization_id"] = "o-2v54kow7wvz6"
     service_state["api"]["solution_id"] = (

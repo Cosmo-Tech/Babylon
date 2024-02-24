@@ -47,7 +47,7 @@ class AdxConnectionService:
                     location=resource_location,
                     event_hub_resource_id=eventhub_id,
                     data_format=data_format,
-                    compression=compression_value,
+                    compression=str(compression_value),
                     table_name=table_name,
                     managed_identity_resource_id=managed_id,
                     mapping_rule_name=mapping,
@@ -61,3 +61,39 @@ class AdxConnectionService:
             return CommandResponse.fail()
 
         logger.info("Successfully created adx connection")
+
+    def get_all(self, database_name: str):
+        dataconnections_operations = self.kusto_client.data_connections
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        try:
+            connectors = dataconnections_operations.list_by_database(
+                resource_group_name=resource_group_name,
+                cluster_name=adx_cluster_name,
+                database_name=database_name,
+            )
+            result = []
+            for c in connectors:
+                result.append(c.as_dict())
+            return result
+        except Exception as ex:
+            logger.info(ex)
+            return list()
+
+    def delete(self, database_name: str, connection_name: str):
+        dataconnections_operations = self.kusto_client.data_connections
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        try:
+            poller = dataconnections_operations.begin_delete(
+                resource_group_name=resource_group_name,
+                cluster_name=adx_cluster_name,
+                database_name=database_name,
+                data_connection_name=connection_name,
+            )
+            poller.wait()
+            if not poller.done():
+                return True
+        except Exception as ex:
+            logger.info(ex)
+            return False

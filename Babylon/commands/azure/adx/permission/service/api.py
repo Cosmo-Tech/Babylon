@@ -1,6 +1,7 @@
 import logging
 
 from pprint import pformat
+from typing import Iterable
 from uuid import uuid4
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.interactive import confirm_deletion
@@ -28,12 +29,14 @@ class AdxPermissionService:
         parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
         principal_assignment_name = str(uuid4())
         logger.info("Creating assignment...")
-        poller = self.kusto_client.database_principal_assignments.begin_create_or_update(
-            resource_group_name,
-            adx_cluster_name,
-            database_name,
-            principal_assignment_name,
-            parameters,
+        poller = (
+            self.kusto_client.database_principal_assignments.begin_create_or_update(
+                resource_group_name,
+                adx_cluster_name,
+                database_name,
+                principal_assignment_name,
+                parameters,
+            )
         )
         if poller.done():
             logger.info("Successfully created")
@@ -60,12 +63,17 @@ class AdxPermissionService:
 
             logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
             assign_name: str = str(assign.name).split("/")[-1]
-            self.kusto_client.database_principal_assignments.begin_delete(
+            poller = self.kusto_client.database_principal_assignments.begin_delete(
                 resource_group_name,
                 adx_cluster_name,
                 database_name,
                 principal_assignment_name=assign_name,
             )
+            poller.wait()
+            # check if done
+            if not poller.done():
+                return False
+            return True
 
     def get(self, principal_id: str):
         resource_group_name = self.state["azure"]["resource_group_name"]
@@ -76,19 +84,23 @@ class AdxPermissionService:
         entity_assignments = [assignment for assignment in assignments if assignment.principal_id == principal_id]
         if not entity_assignments:
             logger.info(f"No assignment found for principal ID {principal_id}")
-            return CommandResponse.fail()
-        logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
+            return False
+        logger.info(
+            f"Found {len(entity_assignments)} assignments for principal ID {principal_id}"
+        )
         for ent in entity_assignments:
             logger.info(f"{pformat(ent.__dict__)}")
         return entity_assignments
 
-    def get_all(self):
+    def get_all(self) -> Iterable[DatabasePrincipalAssignment]:
         logger.info("Getting assignments...")
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
         database_name = self.state["adx"]["database_name"]
-        assignments = self.kusto_client.database_principal_assignments.list(resource_group_name, adx_cluster_name,
-                                                                            database_name)
+        assignments = self.kusto_client.database_principal_assignments.list(
+            resource_group_name, adx_cluster_name, database_name
+        )
+        result = list()
         for ent in assignments:
-            logger.info(f"{pformat(ent.__dict__)}")
-        return assignments
+            result.append(ent.__dict__)
+        return result

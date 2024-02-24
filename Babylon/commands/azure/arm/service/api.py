@@ -1,4 +1,3 @@
-import json
 import pathlib
 
 from logging import getLogger
@@ -22,11 +21,15 @@ class ArmService:
         self.state = state
         self.arm_client = arm_client
 
-    def run(self, deployment_name: str, deploy_mode_complete: bool = False):
+    def run(
+        self,
+        deployment_name: str,
+        file: str,
+        ext_args: dict,
+        deploy_mode_complete: bool = False,
+    ):
         resource_group_name = self.state["azure"]["resource_group_name"]
-        deploy_file = pathlib.Path(
-            env.convert_template_path("%templates%/arm/eventhub_deploy.json")
-        )
+        deploy_file = pathlib.Path(env.convert_template_path(f"%templates%/arm/{file}"))
         mode = DeploymentMode.INCREMENTAL
         if deploy_mode_complete:
             logger.warn(
@@ -40,8 +43,11 @@ class ArmService:
         if not deploy_file:
             logger.error("Deploy file not found")
             return CommandResponse.fail()
-        arm_template = env.fill_template(deploy_file)
-        arm_template = json.loads(arm_template)
+        arm_template = env.fill_template(
+            data=deploy_file.open().read(),
+            state=dict(services=self.state),
+            ext_args=ext_args,
+        )
         parameters = {
             k: {"value": v["defaultValue"]}
             for k, v in dict(arm_template["parameters"]).items()
