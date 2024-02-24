@@ -18,6 +18,26 @@ class AdxDatabaseService:
         self.kusto_client = kusto_client
         self.state = state
 
+    def check(self, name: str) -> bool:
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        name_request = CheckNameRequest(
+            name=name, type="Microsoft.Kusto/clusters/databases"
+        )
+        name_result = self.kusto_client.databases.check_name_availability(
+            resource_group_name=resource_group_name,
+            cluster_name=adx_cluster_name,
+            resource_name=name_request,
+            content_type="application/json",
+        )
+        _ret: list[str] = []
+        if not name_result.name_available:
+            for k, v in name_result.as_dict().items():
+                _ret.append(f"{k}: {v}")
+            logger.info("\n".join(_ret))
+            return False
+        return True
+
     def create(
         self,
         name: str,
@@ -38,23 +58,6 @@ class AdxDatabaseService:
             hot_cache_period=timedelta(days=31),
         )
         name = name or f"{organization_id}-{workspace_key}"
-        try:
-            name_request = CheckNameRequest(name=name, type="Microsoft.Kusto/clusters/databases")
-            name_result = self.kusto_client.databases.check_name_availability(
-                resource_group_name=resource_group_name,
-                cluster_name=adx_cluster_name,
-                resource_name=name_request,
-                content_type="application/json",
-            )
-            _ret: list[str] = []
-            if not name_result.name_available:
-                for k, v in name_result.as_dict().items():
-                    _ret.append(f"{k}: {v}")
-                logger.error("\n".join(_ret))
-                return CommandResponse.fail()
-        except Exception:
-            return CommandResponse.fail()
-
         poller = self.kusto_client.databases.begin_create_or_update(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
@@ -102,13 +105,9 @@ class AdxDatabaseService:
             script_name=script_name,
         )
         logger.info("Successfully ran")
-        # env.configuration.set_var(
-        #     resource_id=ctx.parent.parent.command.name,
-        #     var_name="database_name",
-        #     var_value=name.lower(),
-        # )
         _ret: list[str] = [f"Provisioning state: {poller.result().provisioning_state}"]
         logger.info("\n".join(_ret))
+        return True
 
     def delete(
         self,
@@ -162,11 +161,6 @@ class AdxDatabaseService:
             for k, v in database.as_dict().items():
                 _ret.append(f"{k}:{v}")
             logger.info("\n".join(_ret))
-            # env.configuration.set_var(
-            #     resource_id=ctx.parent.parent.command.name,
-            #     var_name="database_name",
-            #     var_value=adx_database_name,
-            # )
             return CommandResponse.success()
         except Exception as ex:
             logger.info(ex)

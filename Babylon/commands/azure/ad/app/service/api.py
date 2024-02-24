@@ -2,7 +2,6 @@ import logging
 import jmespath
 import polling2
 
-from click import Path
 from Babylon.utils.checkers import check_ascii
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
@@ -18,56 +17,54 @@ class AzureDirectoyAppService:
         self.azure_token = azure_token
         self.state = state
 
-    def create(self, name: str, registration_file: Path = None):
-        check_ascii(name)
+    def create(self, details: str):
+        logger.info("creating app")
         route = "https://graph.microsoft.com/v1.0/applications"
-        registration_file = (registration_file
-                             or env.working_dir.original_template_path / "webapp/app_registration.yaml")
-        details = env.fill_template(registration_file, data={"app_name": name})
-        print(details)
         handler = polling2.poll(
             lambda: oauth_request(route, self.azure_token, type="POST", data=details),
             check_success=is_correct_response_app,
             step=1,
-            timeout=60,
+            timeout=10,
         )
         output_data = handler.json()
         # Service principal creation
         sp_route = "https://graph.microsoft.com/v1.0/servicePrincipals"
         sp_response = polling2.poll(
-            lambda: oauth_request(sp_route, self.azure_token, type="POST", json={"appId": output_data["appId"]}),
+            lambda: oauth_request(
+                sp_route,
+                self.azure_token,
+                type="POST",
+                json={"appId": output_data["appId"]},
+            ),
             check_success=is_correct_response_app,
             step=1,
-            timeout=60,
+            timeout=10,
         )
         sp_response = sp_response.json()
         if sp_response is None:
             logger.error("Failed to create application service principal")
-            return CommandResponse.fail()
-        # env.configuration.set_var(resource_id=r_id, var_name="app_id", var_value=sp_response["appId"])
-        # env.configuration.set_var(resource_id=r_id, var_name="name", var_value=sp_response["appDisplayName"])
-        # env.configuration.set_var(resource_id=r_id, var_name="principal_id", var_value=sp_response["id"])
-        # env.configuration.set_var(resource_id=r_id, var_name="object_id", var_value=output_data["id"])
+            return False
+        return sp_response, output_data
 
     def delete(self, object_id: str):
+        logger.info("deleting app")
         logger.info(f"Deleting app registration {object_id}")
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         sp_response = polling2.poll(
             lambda: oauth_request(route, self.azure_token, type="DELETE"),
             check_success=is_correct_response_app_deleted,
             step=1,
-            timeout=60,
+            timeout=10,
         )
         if sp_response is None:
             logger.info("Successfully deleted")
-            return CommandResponse.success()
+            return True
 
-    def get_all(self, filter: bool):
+    def get_all(self, filter: str = None):
         route = "https://graph.microsoft.com/v1.0/applications"
         response = oauth_request(route, self.azure_token)
         if response is None:
             return CommandResponse.fail()
-
         response = response.json()
         output_data = response["value"]
         if filter:
@@ -83,50 +80,43 @@ class AzureDirectoyAppService:
         route = f"https://graph.microsoft.com/v1.0/servicePrincipals(appId='{app_id}')"
         response = oauth_request(route, self.azure_token)
         if response is None:
-            return CommandResponse.fail()
+            return False
         output_data = response.json()
-        # env.configuration.set_var(resource_id="app", var_name="principal_id", var_value=output_data["id"])
         return output_data["id"]
 
     def get(self, object_id: str):
+        logger.info(f'getting app {object_id}')
+        if not object_id:
+            return dict()
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         response = polling2.poll(
             lambda: oauth_request(route, self.azure_token),
             check_success=is_correct_response_app,
             step=1,
-            timeout=60,
+            timeout=10,
         )
         if response is None:
-            return CommandResponse.fail()
+            return False
         output_data = response.json()
-        # env.configuration.set_var(resource_id=r_id, var_name="app_id", var_value=output_data["appId"])
-        # env.configuration.set_var(resource_id=r_id, var_name="name", var_value=output_data["displayName"])
-        # env.configuration.set_var(resource_id=r_id, var_name="object_id", var_value=object_id)
-        return CommandResponse.success(output_data, verbose=True)
+        return output_data
 
-    def update(self, object_id: str, registration_file: str):
+    def update(self, object_id: str, details: str):
+        logger.info(f'update app {object_id}')
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
-        details = env.fill_template(registration_file)
-        sp_response = polling2.poll(
-            lambda: oauth_request(route, self.azure_token, type="PATCH", data=details),
-            check_success=is_correct_response_app,
-            step=1,
-            timeout=60,
-        )
-        sp_response = sp_response.json()
+        sp_response = oauth_request(route, self.azure_token, type="PATCH", data=details)
         if sp_response is None:
-            return CommandResponse.fail()
+            return False
         logger.info("Successfully updated")
-        return CommandResponse.success()
+        return True
 
 
 def is_correct_response_app(response):
     if response is None:
-        return CommandResponse.fail()
+        return False
     output_data = response.json()
     return "id" in output_data
 
 
 def is_correct_response_app_deleted(response):
     if response is None:
-        return CommandResponse.fail()
+        return None
