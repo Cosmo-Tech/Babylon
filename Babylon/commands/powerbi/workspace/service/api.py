@@ -1,7 +1,6 @@
 import logging
 import jmespath
 
-from Babylon.utils.checkers import check_ascii
 from Babylon.utils.request import oauth_request
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -14,11 +13,11 @@ env = Environment()
 class AzurePowerBIWorkspaceService:
 
     def __init__(self, powerbi_token: str, state: dict = None) -> None:
-        self.state = state
         self.powerbi_token = powerbi_token
+        self.state = state
 
     def create(self, name: str):
-        check_ascii(name)
+        logger.info(f"creating workspace... {name}")
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups?$workspaceV2=True"
         response = oauth_request(
             url=url_groups,
@@ -29,14 +28,10 @@ class AzurePowerBIWorkspaceService:
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()
-        # env.configuration.set_var(resource_id="powerbi", var_name=["workspace", "id"], var_value=output_data["id"])
-        # logger.info(SUCCESS_CONFIG_UPDATED("powerbi", "id"))
-        # env.configuration.set_var(resource_id="powerbi", var_name=["workspace", "name"], var_value=name)
-        # logger.info(SUCCESS_CONFIG_UPDATED("powerbi", "name"))
-        # logger.info(SUCCESS_CREATED("Workspace powerbi", output_data['id']))
         return output_data
 
     def delete(self, workspace_id: str, force_validation: bool):
+        logger.info(f"Deleting workspace... {workspace_id}")
         if not workspace_id:
             logger.warning(
                 f"You trying to use workspace referenced in '{env.context_id}.{env.environ_id}.powerbi.yaml'")
@@ -50,7 +45,8 @@ class AzurePowerBIWorkspaceService:
             return CommandResponse.fail()
         return response
 
-    def get_all(self, filter: bool):
+    def get_all(self, filter: bool = False):
+        logger.info("Getting all workspaces...")
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:
@@ -73,10 +69,7 @@ class AzurePowerBIWorkspaceService:
             return CommandResponse.fail()
         return workspace_data
 
-    def get(self, workspace_id: str, name: str):
-        if not workspace_id:
-            logger.info("You trying to use key : workspace id referenced in configuration")
-        workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
+    def get_by_name_or_id(self, name: str, workspace_id: str = ""):
         url_groups = 'https://api.powerbi.com/v1.0/myorg/groups'
         params = {"$filter": f"id eq '{workspace_id}'"} if workspace_id else {"$filter": f"name eq '{name}'"}
         response = oauth_request(url_groups, self.powerbi_token, params=params)
@@ -88,8 +81,4 @@ class AzurePowerBIWorkspaceService:
             return CommandResponse.fail()
         if len(workspace_data):
             workspace_id = workspace_data[0]['id']
-            # env.configuration.set_var(resource_id="powerbi", var_name=["workspace", "id"], var_value=workspace_id)
-            # logger.info(SUCCESS_CONFIG_UPDATED("workspace", "id"))
-            # env.configuration.set_var(resource_id="powerbi", var_name=["workspace", "name"], var_value=name)
-            # logger.info(SUCCESS_CONFIG_UPDATED("workspace", "name"))
             return workspace_data[0]

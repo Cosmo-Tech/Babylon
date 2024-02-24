@@ -1,4 +1,3 @@
-import time
 import glob
 import logging
 
@@ -39,16 +38,18 @@ class AdxScriptService:
             logger.info(f"Found script {file_path} sending it to the database.")
             self.run(script_file=file_path, kusto_client=self.kusto_client)
 
-    def run(self, script_file: Path):
+    def run(self, script_file: Path, script_id: str):
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
         database_name = self.state["adx"]["database_name"]
         if script_file.suffix != ".kql":
-            logger.warning(f"File {script_file.name} is not a kql file. Errors could happen.")
-        script_name = f"{int(time.time() // 1)}-{script_file.name}"
+            logger.warning(
+                f"File {script_file.name} is not a kql file. Errors could happen."
+            )
+        script_name = script_id
         with open(script_file) as _script_file:
             logger.info(f"Reading {script_file}")
-            script_content = _script_file.read().replace("<database name>", database_name)
+            script_content = _script_file.read()
             logger.info("Sending script to database.")
             s = self.kusto_client.scripts.begin_create_or_update(
                 resource_group_name=resource_group_name,
@@ -67,11 +68,4 @@ class AdxScriptService:
                         s.wait(1)
             except HttpResponseError as _resp_error:
                 logger.error(_resp_error.message.split("\nMessage:")[1])
-            else:
-                self.kusto_client.scripts.begin_delete(
-                    resource_group_name=resource_group_name,
-                    cluster_name=adx_cluster_name,
-                    database_name=database_name,
-                    script_name=script_name,
-                )
-                logger.info("Successfully ran")
+            logger.info("Successfully ran")

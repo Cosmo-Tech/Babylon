@@ -12,12 +12,12 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_organization(file_content: dict) -> bool:
+def deploy_organization(file_content: str) -> bool:
     print("organization deployment")
-    payload: dict = file_content.get("spec").get("payload")
     azure_token = get_azure_token("csm_api")
     state = env.retrieve_state_func()
-
+    content = env.fill_template(data=file_content, state=state)
+    payload: dict = content.get("spec").get("payload", {})
     service_state = state["services"]
     service_state["api"]["organization_id"] = (
         payload.get("id") or service_state["api"]["organization_id"]
@@ -45,4 +45,4 @@ def deploy_organization(file_content: dict) -> bool:
     state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
     env.store_state_in_cloud(state)
-    return organization.get("id") != ""
+    return True

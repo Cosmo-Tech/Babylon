@@ -4,56 +4,56 @@
   "parameters": {
     "functionName": {
       "type": "string",
-      "defaultValue": "${instance_name}",
+      "defaultValue": "{{services['api.organization_id']}}-{{services['api.workspace_key']}}",
       "metadata": {
         "description": "Name of the function app"
       }
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "${cosmotech['azure']['storage_account_name']}",
+      "defaultValue": "{{services['azure.storage_account_name']}}",
       "metadata": {
         "description": "Name of the storage account to be created"
       }
     },
     "location": {
       "type": "string",
-      "defaultValue": "${cosmotech['azure']['resource_location']}",
+      "defaultValue": "{{services['azure.resource_location']}}",
       "metadata": {
         "description": "Location for the resources to be created (Function App, App Service plan and Storage Account)"
       }
     },
     "csmApiHost": {
       "type": "string",
-      "defaultValue": "${cosmotech['api']['url']}",
+      "defaultValue": "{{services['api.url']}}",
       "metadata": {
         "description": "Cosmo Tech API host"
       }
     },
     "csmApiScope": {
       "type": "string",
-      "defaultValue": "${cosmotech['api']['scope']}",
+      "defaultValue": "{{services['api.scope']}}",
       "metadata": {
         "description": "Cosmo Tech API scope (must end with /.default)"
       }
     },
     "azCliID": {
       "type": "string",
-      "defaultValue": "${cosmotech['app']['app_id']}",
+      "defaultValue": "{{services['app.client_id']}}",
       "metadata": {
         "description": "Client id of an app registration having access to the Cosmo Tech API"
       }
     },
     "azCliSecret": {
       "type": "string",
-      "defaultValue": "${azure_app_client_secret}",
+      "defaultValue": "{{azure_app_client_secret}}",
       "metadata": {
         "description": "Client secret of an app registration having access to the Cosmo Tech API"
       }
     },
     "packageAddress": {
       "type": "string",
-      "defaultValue": "${cosmotech['azure']['function_artifact_url']}",
+      "defaultValue": "{{url_zip}}",
       "metadata": {
         "description": "URL of the Azure function package to be deployed - IMPORTANT : pick the URL from the latest release"
       }
@@ -81,7 +81,7 @@
         "siteConfig": {
           "cors": {
             "allowedOrigins": [
-              "https://${cosmotech['webapp']['static_domain']}"
+              "https://{{services['webapp.static_domain']}}"
             ],
             "supportCredentials": true
           },
@@ -119,12 +119,12 @@
               "slotSetting": false
             },
             {
-              "name": "COSMOTECH_API_HOST",
+              "name": "services_API_HOST",
               "value": "[parameters('csmApiHost')]",
               "slotSetting": false
             },
             {
-              "name": "COSMOTECH_API_SCOPE",
+              "name": "services_API_SCOPE",
               "value": "[parameters('csmApiScope')]",
               "slotSetting": false
             }
@@ -167,7 +167,7 @@
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-09-01",
       "name": "[concat(parameters('functionName'), '/authsettingsV2')]",
-      "location": "${cosmotech['azure']['resource_location']}",
+      "location": "{{services['azure.resource_location']}}",
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', parameters('functionName'))]"
       ],
@@ -188,7 +188,7 @@
             "enabled": true,
             "registration": {
               "openIdIssuer": "[concat('https://sts.windows.net/',tenant().tenantId,'/v2.0')]",
-              "clientId": "${cosmotech['app']['app_id']}",
+              "clientId": "{{services['app.client_id']}}",
               "clientSecretSettingName": "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
             },
             "login": {
@@ -197,9 +197,9 @@
             "validation": {
               "jwtClaimChecks": {},
               "allowedAudiences": [
-                "${cosmotech['platform']['app_id']}",
-                "${cosmotech['api']['url']}",
-                "${cosmotech['app']['app_id']}"
+                "{{services['platform.app_id']}}",
+                "{{services['api.url']}}",
+                "{{services['app.client_id']}}"
               ],
               "defaultAuthorizationPolicy": {
                 "allowedPrincipals": {}

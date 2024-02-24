@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
-import importlib.util
-import logging
 import sys
-import click_log
 import click
+import logging
+import click_log
 
-from click import option
-from click import group
 from click import echo
+from click import group
+from click import option
+from Babylon.version import VERSION
 from rich.logging import RichHandler
 from Babylon.commands import list_groups
-from Babylon.utils.decorators import prepend_doc_with_ascii
 from Babylon.utils.dry_run import display_dry_run
 from Babylon.utils.environment import Environment
-from Babylon.utils.interactive import INTERACTIVE_ARG_VALUE
 from Babylon.utils.interactive import interactive_run
-from Babylon.version import VERSION
+from Babylon.utils.interactive import INTERACTIVE_ARG_VALUE
+from Babylon.utils.decorators import prepend_doc_with_ascii
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -76,17 +75,6 @@ The following environment variables are required:
 
 
 main.result_callback()(interactive_run)
-
-for plugin_name, _plugin_path in env.configuration.get_active_plugins():
-    init_path = _plugin_path / "__init__.py"
-
-    _plugin_name = "BabylonPlugin." + plugin_name
-    spec = importlib.util.spec_from_file_location(_plugin_name, init_path)
-    mod = importlib.util.module_from_spec(spec)
-
-    sys.modules[_plugin_name] = mod
-    spec.loader.exec_module(mod)
-    main.add_command(mod.__dict__[plugin_name])
 
 for _group in list_groups:
     main.add_command(_group)
