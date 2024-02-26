@@ -32,11 +32,9 @@ class ArmService:
         deploy_file = pathlib.Path(env.convert_template_path(f"%templates%/arm/{file}"))
         mode = DeploymentMode.INCREMENTAL
         if deploy_mode_complete:
-            logger.warn(
-                """Warning: In complete mode\n
+            logger.warn("""Warning: In complete mode\n
                         Resource Manager deletes resources that exist in the resource group,\n
-                        but aren't specified in the template."""
-            )
+                        but aren't specified in the template.""")
             if confirm_deploy_arm_mode():
                 mode = DeploymentMode.COMPLETE
 
@@ -48,20 +46,14 @@ class ArmService:
             state=dict(services=self.state),
             ext_args=ext_args,
         )
-        parameters = {
-            k: {"value": v["defaultValue"]}
-            for k, v in dict(arm_template["parameters"]).items()
-        }
+        parameters = {k: {"value": v["defaultValue"]} for k, v in dict(arm_template["parameters"]).items()}
         logger.info("Starting deployment")
         try:
             poller = self.arm_client.deployments.begin_create_or_update(
                 resource_group_name=resource_group_name,
                 deployment_name=deployment_name,
                 parameters=Deployment(
-                    properties=DeploymentProperties(
-                        mode=mode, template=arm_template, parameters=parameters
-                    )
-                ),
+                    properties=DeploymentProperties(mode=mode, template=arm_template, parameters=parameters)),
             )
             poller.wait()
             if not poller.done():
