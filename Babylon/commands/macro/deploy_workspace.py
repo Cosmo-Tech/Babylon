@@ -1,3 +1,4 @@
+import json
 import sys
 import pathlib
 
@@ -13,7 +14,7 @@ from Babylon.commands.azure.permission.service.api import AzureIamService
 from Babylon.commands.azure.adx.script.service.api import AdxScriptService
 from Babylon.commands.azure.adx.consumer.service.api import AdxConsumerService
 from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
-from Babylon.utils.credentials import get_azure_credentials, get_powerbi_token
+from Babylon.utils.credentials import get_azure_credentials, get_azure_token, get_powerbi_token
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
 from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
@@ -25,7 +26,7 @@ from Babylon.commands.powerbi.workspace.user.service.api import (
 # from posixpath import basename
 # from azure.mgmt.kusto import KustoManagementClient
 # from Babylon.commands.api.solutions.service.api import SolutionService
-# from Babylon.commands.api.workspaces.service.api import WorkspaceService
+from Babylon.commands.api.workspaces.service.api import WorkspaceService
 # from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
 # from Babylon.commands.api.solutions.handler.service.api import SolutionHandleService
 
@@ -35,8 +36,6 @@ env = Environment()
 
 def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     print("Workspace deployment")
-    # payload: dict = file_content.get("spec").get("payload")
-    # azure_token = get_azure_token("cslm_api")
     state = env.retrieve_state_func()
     ext_args = dict(azure_function_secret="")
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
@@ -46,24 +45,24 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     service_state["api"]["organization_id"] = "o-qwy2y8eyz8k"
     service_state["api"]["workspace_key"] = "w-test"
     service_state["adx"]["database_name"] = "o-qwy2y8eyz8k-w-test"
-    # spec = dict()
-    # spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    # workspace_svc = WorkspaceService(
-    #     azure_token=azure_token, spec=spec, state=service_state
-    # )
-    # if not service_state["api"]["solution_id"]:
-    #     response = workspace_svc.create()
-    #     solution = response.json()
-    # else:
-    #     response = workspace_svc.update()
-    #     response_json = response.json()
-    #     old_security = response_json.get("security")
-    #     security_spec = workspace_svc.update_security(old_security=old_security)
-    #     response_json["security"] = security_spec
-    #     solution = response_json
-    #     logger.info(solution)
-    # env.store_state_in_local(state)
-    # env.store_state_in_cloud(state)
+    payload: dict = file_content.get("spec").get("payload")
+    spec = dict()
+    spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
+    azure_token = get_azure_token("csm_api")
+    workspace_svc = WorkspaceService(
+        azure_token=azure_token, spec=spec, state=service_state
+    )
+    if not service_state["api"]["workspace_id"]:
+        response = workspace_svc.create()
+        solution = response.json()
+    else:
+        response = workspace_svc.update()
+        response_json = response.json()
+        old_security = response_json.get("security")
+        security_spec = workspace_svc.update_security(old_security=old_security)
+        response_json["security"] = security_spec
+        solution = response_json
+        logger.info(solution)
     sidecars = content.get("spec")["sidecars"]
     eventhub_section = sidecars["azure"].get("eventhub", {})
     adx_section = sidecars["azure"].get("adx", {})
