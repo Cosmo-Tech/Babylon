@@ -38,13 +38,14 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     # payload: dict = file_content.get("spec").get("payload")
     # azure_token = get_azure_token("cslm_api")
     state = env.retrieve_state_func()
-    content = env.fill_template(data=file_content, state=state)
+    ext_args = dict(azure_function_secret="")
+    content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     azure_credential = get_azure_credentials()
     service_state = state["services"]
     subscription_id = state["services"]["azure"]["subscription_id"]
-    service_state["api"]["organization_id"] = "o-2v54kow7wvz6"
+    service_state["api"]["organization_id"] = "o-qwy2y8eyz8k"
     service_state["api"]["workspace_key"] = "w-test"
-    service_state["adx"]["database_name"] = "o-2v54kow7wvz6-w-test"
+    service_state["adx"]["database_name"] = "o-qwy2y8eyz8k-w-test"
     # spec = dict()
     # spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     # workspace_svc = WorkspaceService(
@@ -142,7 +143,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
             credential=azure_credential, subscription_id=subscription_id
         )
         adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
-        state["services"]["api"]["organization_id"] = "o-2v54kow7wvz6"
+        state["services"]["api"]["organization_id"] = "o-qwy2y8eyz8k"
         state["services"]["api"]["workspace_key"] = "w-test"
         name = f"{state['services']['api']['organization_id']}-{state['services']['api']['workspace_key']}"
         available = adx_svc.check(name=name)
@@ -176,7 +177,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                         )
                 for s in existing_ids:
                     if s not in ids:
-                        if s != state["services"]["babylon"]["principal_id"]:
+                        if s != state["services"]["babylon"]["client_id"]:
                             permission_svc.delete(s, force_validation=True)
         if ok:
             scripts_svc = AdxScriptService(
@@ -202,6 +203,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
             credential=azure_credential, subscription_id=subscription_id
         )
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
+        service_state["api"]["organization_id"] = "o-qwy2y8eyz8k"
         adx_svc = ArmService(arm_client=arm_client, state=service_state)
         adx_svc.run(deployment_name="eventhubtestniabldo", file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=service_state)
