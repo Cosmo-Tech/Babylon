@@ -76,15 +76,16 @@ class Environment(metaclass=SingletonMeta):
         flattenstate = flatten(state['services'], separator=".")
         if ext_args:
             vars.update(ext_args)
-        payload = t.render(**vars, services=flattenstate)        
+        payload = t.render(**vars, services=flattenstate)
         payload_json = yaml_to_json(payload)
         payload_dict = json.loads(payload_json)
         return payload_dict
 
     def convert_template_path(self, query) -> str:
-        check_regex = re.compile(
-            f"{PATH_SYMBOL}" f"({TEMPLATES_STRING})" f"{PATH_SYMBOL}" f"(.+)"
-        )
+        check_regex = re.compile(f"{PATH_SYMBOL}"
+                                 f"({TEMPLATES_STRING})"
+                                 f"{PATH_SYMBOL}"
+                                 f"(.+)")
         match_content = check_regex.match(query)
         if not match_content:
             return None
@@ -121,9 +122,7 @@ class Environment(metaclass=SingletonMeta):
     def set_server_id(self):
         self.server_id = os.environ.get("BABYLON_SERVICE")
         try:
-            client = Client(
-                url=f"{self.server_id}", token=os.environ.get("BABYLON_TOKEN")
-            )
+            client = Client(url=f"{self.server_id}", token=os.environ.get("BABYLON_TOKEN"))
             self.hvac_client = client
         except Exception as e:
             logger.error(e)
@@ -149,25 +148,19 @@ class Environment(metaclass=SingletonMeta):
 
     def get_env_babylon(self, name: str, environ_id: str = ""):
         env_id = environ_id or self.environ_id
-        data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}"
-        )
+        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}")
         if data is None:
             return None
         return data["data"]["secret"]
 
     def get_global_secret(self, resource: str, name: str):
-        data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}"
-        )
+        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
         if data is None:
             return None
         return data["data"]["secret"]
 
     def get_users_secrets(self, email: str, scope: str):
-        data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}"
-        )
+        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}")
         if data:
             return data["data"]
         return None
@@ -180,8 +173,7 @@ class Environment(metaclass=SingletonMeta):
 
     def get_platform_secret(self, platform: str, resource: str, name: str):
         data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}"
-        )
+            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
         if data is None:
             return None
         return data["data"]["secret"]
@@ -205,9 +197,7 @@ class Environment(metaclass=SingletonMeta):
             return b""
         return data
 
-    def get_access_token_with_refresh_token(
-        self, username: str = None, internal_scope: str = None
-    ):
+    def get_access_token_with_refresh_token(self, username: str = None, internal_scope: str = None):
         state = self.get_state_from_vault_by_platform(self.environ_id)
         cli_client_id = state["azure"]["cli_client_id"]
         data = self.get_users_secrets(username, internal_scope)
@@ -235,9 +225,7 @@ class Environment(metaclass=SingletonMeta):
             encoding_key=encoding_key,
             content=bytes(response_json["refresh_token"], encoding="utf-8"),
         )
-        self.set_users_secrets(
-            username, internal_scope, dict(token=token_encrypt.decode("utf-8"))
-        )
+        self.set_users_secrets(username, internal_scope, dict(token=token_encrypt.decode("utf-8")))
         return response_json["access_token"]
 
     def get_state_from_vault_by_platform(self, platform: str):
@@ -246,13 +234,9 @@ class Environment(metaclass=SingletonMeta):
         tenant_id = self.tenant_id
         response_parsed = dict()
         for r in resources:
-            response = self.hvac_client.read(
-                path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}"
-            )
+            response = self.hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}")
             if not response:
-                logger.info(
-                    f"{organization_name}/{tenant_id}/babylon/config/babylon/{platform} not found"
-                )
+                logger.info(f"{organization_name}/{tenant_id}/babylon/config/babylon/{platform} not found")
                 sys.exit(1)
             response_parsed.setdefault(r, dict(response["data"].items()))
         return response_parsed
@@ -287,9 +271,7 @@ class Environment(metaclass=SingletonMeta):
         if not state_blob.exists():
             return state
         if state_blob.exists():
-            data = yaml.load(
-                state_blob.download_blob().readall(), Loader=yaml.SafeLoader
-            )
+            data = yaml.load(state_blob.download_blob().readall(), Loader=yaml.SafeLoader)
         return data
 
     def get_state_id(self):
@@ -320,10 +302,8 @@ class Environment(metaclass=SingletonMeta):
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
-            logger.error(
-                "The context and the platform are not set. \
-                         Please set the platform using the 'namespace use' command."
-            )
+            logger.error("The context and the platform are not set. \
+                         Please set the platform using the 'namespace use' command.")
             sys.exit(1)
 
         ns_data = yaml.load(ns_file.open("r"), Loader=yaml.SafeLoader)
@@ -347,13 +327,9 @@ class Environment(metaclass=SingletonMeta):
         for section, keys in state_cloud.get("services").items():
             final_state["services"][section] = dict()
             for key, _ in keys.items():
-                final_state["services"][section].update(
-                    {key: state_cloud["services"][section][key]}
-                )
+                final_state["services"][section].update({key: state_cloud["services"][section][key]})
                 if key in data_vault[section] and data_vault[section][key]:
-                    final_state["services"][section].update(
-                        {key: data_vault[section][key]}
-                    )
+                    final_state["services"][section].update({key: data_vault[section][key]})
         final_state["id"] = init_state.get("id") or state_cloud.get("id")
         final_state["context"] = self.context_id
         final_state["platform"] = self.environ_id

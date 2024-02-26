@@ -32,9 +32,7 @@ class AzurePowerBIWorkspaceUserService:
     def delete(self, workspace_id, force_validation: bool, email: str):
         logger.info(f"Deleting {email}")
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        url_users = (
-            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{email}"
-        )
+        url_users = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{email}")
         if not force_validation and not confirm_deletion("user", email):
             return CommandResponse.fail()
         response = oauth_request(url_users, self.powerbi_token, type="DELETE")

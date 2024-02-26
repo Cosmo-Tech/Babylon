@@ -32,7 +32,5 @@ def run(
     """
     service_state = state["services"]
     service = ArmService(arm_client=arm_client, state=service_state)
-    service.run(
-        deployment_name=deployment_name, deploy_mode_complete=deploy_mode_complete
-    )
+    service.run(deployment_name=deployment_name, deploy_mode_complete=deploy_mode_complete)
     return CommandResponse.success()

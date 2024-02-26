@@ -17,10 +17,12 @@ env = Environment()
 
 
 def deploy_dataset(file_content: str) -> bool:
-    print("Dataset deployment")
-    azure_token = get_azure_token("csm_api")
+    logger.info("Dataset deployment")
     state = env.retrieve_state_func()
+    azure_token = get_azure_token("csm_api")
     ext_args = dict(azure_function_secret="")
+    # state['services']["api"]["organization_id"] = "o-2v54kow7wvz6"
+    service_state = state["services"]
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     payload: dict = content.get("spec").get("sidecars").get("payload")
     azure: dict = content.get("spec").get("sidecars").get("azure")
@@ -89,7 +91,6 @@ def deploy_dataset(file_content: str) -> bool:
             elif source_type == "File":
                 dataset_zip = pathlib.Path(azure["dataset"]["file"]["local_path"])
                 dataset_service.upload(dataset_id=dataset_id, zip_file=dataset_zip)
-
             status = dataset_service.get_status(dataset_id=dataset_id)
             status_text = str(status.text)
             while "PENDING" in status_text:
@@ -133,4 +134,5 @@ def deploy_dataset(file_content: str) -> bool:
             else:
                 logger.info("Twingraph successfully refreshed")
         logger.info("Dataset successfully updated")
-    return dataset_id != ""
+    if not dataset_id:
+        sys.exit(1)

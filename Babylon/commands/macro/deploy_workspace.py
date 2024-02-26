@@ -1,68 +1,65 @@
 import json
-import sys
 import pathlib
 
 from logging import getLogger
-
+import sys
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
-
 from azure.mgmt.resource import ResourceManagementClient
 from Babylon.commands.azure.arm.service.api import ArmService
 from azure.mgmt.authorization import AuthorizationManagementClient
+from Babylon.commands.api.workspaces.service.api import WorkspaceService
 from Babylon.commands.azure.permission.service.api import AzureIamService
 from Babylon.commands.azure.adx.script.service.api import AdxScriptService
+from Babylon.utils.credentials import get_azure_credentials, get_azure_token, get_powerbi_token
 from Babylon.commands.azure.adx.consumer.service.api import AdxConsumerService
 from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
-from Babylon.utils.credentials import get_azure_credentials, get_azure_token, get_powerbi_token
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
 from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.commands.powerbi.workspace.user.service.api import (
-    AzurePowerBIWorkspaceUserService,
-)
-
-# from posixpath import basename
-# from azure.mgmt.kusto import KustoManagementClient
-# from Babylon.commands.api.solutions.service.api import SolutionService
-from Babylon.commands.api.workspaces.service.api import WorkspaceService
-# from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
-# from Babylon.commands.api.solutions.handler.service.api import SolutionHandleService
+    AzurePowerBIWorkspaceUserService, )
 
 logger = getLogger("Babylon")
 env = Environment()
 
 
 def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
-    print("Workspace deployment")
+    logger.info("Workspace deployment")
     state = env.retrieve_state_func()
+    azure_credential = get_azure_credentials()
+    subscription_id = state["services"]["azure"]["subscription_id"]
+    # state['services']["api"]["organization_id"] = "o-gdzqj12en29"
+    # state['services']["api"]["solution_id"] = "sol-vow6wglellj"
+    state['services']["api"]["workspace_key"] = "w-test"
+    state['services']["adx"]["database_name"] = f"{state['services']['api']['organization_id']}-w-test"
+    # state['services']["api"]["workspace_id"] = "w-g29w39ojky3"
     ext_args = dict(azure_function_secret="")
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
-    azure_credential = get_azure_credentials()
     service_state = state["services"]
-    subscription_id = state["services"]["azure"]["subscription_id"]
-    service_state["api"]["organization_id"] = "o-qwy2y8eyz8k"
-    service_state["api"]["workspace_key"] = "w-test"
-    service_state["adx"]["database_name"] = "o-qwy2y8eyz8k-w-test"
-    payload: dict = file_content.get("spec").get("payload")
+    payload: dict = content.get("spec").get("payload")
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     azure_token = get_azure_token("csm_api")
-    workspace_svc = WorkspaceService(
-        azure_token=azure_token, spec=spec, state=service_state
-    )
+    workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=service_state)
+    workspace = dict()
     if not service_state["api"]["workspace_id"]:
         response = workspace_svc.create()
-        solution = response.json()
+        workspace = response.json()
+        logger.info(json.dumps(workspace, indent=2))
     else:
         response = workspace_svc.update()
         response_json = response.json()
         old_security = response_json.get("security")
         security_spec = workspace_svc.update_security(old_security=old_security)
         response_json["security"] = security_spec
-        solution = response_json
-        logger.info(solution)
+        workspace = response_json
+        logger.info(json.dumps(workspace, indent=2))
+    state["services"]["api"]["workspace_id"] = workspace.get("id")
+    env.store_state_in_local(state)
+    env.store_state_in_cloud(state)
+    # update sidecars
     sidecars = content.get("spec")["sidecars"]
     eventhub_section = sidecars["azure"].get("eventhub", {})
     adx_section = sidecars["azure"].get("adx", {})
@@ -71,24 +68,25 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         workspace_powerbi = powerbi_section.get("workspace", {})
         if workspace_powerbi:
             po_token = get_powerbi_token()
-            powerbi_svc = AzurePowerBIWorkspaceService(
-                powerbi_token=po_token, state=service_state
-            )
+            powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=service_state)
             name = workspace_powerbi.get("name", "")
             if not name:
                 logger.error("name not found")
                 sys.exit(1)
             workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
             if name not in workspaceli_list_name:
-                powerbi_svc.create(name=name)
+                w = powerbi_svc.create(name=name)
+                print(w)
+                # state['services']['powerbi']['workspace.id'] = w.get('id')
+                # env.store_state_in_local(state)
+                # env.store_state_in_cloud(state)
             logger.info(f"workspace '{name}' already exists")
             work_obj = powerbi_svc.get_by_name_or_id(name=name)
-            user_svc = AzurePowerBIWorkspaceUserService(
-                powerbi_token=po_token, state=service_state
-            )
-            existing_permissions = user_svc.get_all(
-                workspace_id=work_obj.get("id"), filter="[].identifier"
-            )
+            state['services']['powerbi']['workspace.id'] = work_obj.get('id')
+            env.store_state_in_local(state)
+            env.store_state_in_cloud(state)
+            user_svc = AzurePowerBIWorkspaceUserService(powerbi_token=po_token, state=service_state)
+            existing_permissions = user_svc.get_all(workspace_id=work_obj.get("id"), filter="[].identifier")
             spec_permissions = workspace_powerbi.get("permissions", [])
             if len(spec_permissions):
                 ids = [i.get("identifier") for i in spec_permissions]
@@ -125,9 +123,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     if not path_report.exists():
                         logger.error(f"report '{path_report}' not found")
                     if path_report.exists():
-                        report_svc = AzurePowerBIReportService(
-                            powerbi_token=po_token, state=service_state
-                        )
+                        report_svc = AzurePowerBIReportService(powerbi_token=po_token, state=service_state)
                         report_svc.upload(
                             workspace_id=work_obj.get("id"),
                             pbix_filename=path_report,
@@ -138,24 +134,18 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     if adx_section:
         created = False
         ok = True
-        kusto_client = KustoManagementClient(
-            credential=azure_credential, subscription_id=subscription_id
-        )
+        kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
-        state["services"]["api"]["organization_id"] = "o-qwy2y8eyz8k"
+        # state["services"]["api"]["organization_id"] = "o-qwy2y8eyz8k"
         state["services"]["api"]["workspace_key"] = "w-test"
         name = f"{state['services']['api']['organization_id']}-{state['services']['api']['workspace_key']}"
         available = adx_svc.check(name=name)
         if available:
-            created = adx_svc.create(
-                name=name, retention=adx_section.get("database").get("retention", 365)
-            )
+            created = adx_svc.create(name=name, retention=adx_section.get("database").get("retention", 365))
             if created:
                 available = False
         if not available:
-            permission_svc = AdxPermissionService(
-                kusto_client=kusto_client, state=service_state
-            )
+            permission_svc = AdxPermissionService(kusto_client=kusto_client, state=service_state)
             existing_permissions = permission_svc.get_all()
             existing_ids = [ent.get("principal_id") for ent in existing_permissions]
             spec_permissions: list = adx_section["database"].get("permissions", [])
@@ -163,46 +153,32 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                 ids = [i.get("principal_id") for i in spec_permissions]
                 for g in spec_permissions:
                     if g.get("principal_id") in existing_ids:
-                        deleted = permission_svc.delete(
-                            g.get("principal_id"), force_validation=True
-                        )
+                        deleted = permission_svc.delete(g.get("principal_id"), force_validation=True)
                         if deleted:
-                            permission_svc.set(
-                                g.get("principal_id"), g.get("type"), role=g.get("role")
-                            )
+                            permission_svc.set(g.get("principal_id"), g.get("type"), role=g.get("role"))
                     if g.get("principal_id") not in existing_ids:
-                        permission_svc.set(
-                            g.get("principal_id"), g.get("type"), role=g.get("role")
-                        )
+                        permission_svc.set(g.get("principal_id"), g.get("type"), role=g.get("role"))
                 for s in existing_ids:
                     if s not in ids:
                         if s != state["services"]["babylon"]["client_id"]:
                             permission_svc.delete(s, force_validation=True)
         if ok:
-            scripts_svc = AdxScriptService(
-                kusto_client=kusto_client, state=service_state
-            )
+            scripts_svc = AdxScriptService(kusto_client=kusto_client, state=service_state)
             script_list = scripts_svc.get_all()
             scripts_spec: list[dict] = adx_section.get("database").get("scripts", [])
             if len(scripts_spec):
                 for s in scripts_spec:
-                    t = list(
-                        filter(lambda x: s.get("id") in str(x.get("id")), script_list)
-                    )
+                    t = list(filter(lambda x: s.get("id") in str(x.get("id")), script_list))
                     if not len(t):
                         name = s.get("name")
                         path_end = s.get("path")
                         path_abs = pathlib.Path(deploy_dir) / f"{path_end}/{name}"
                         scripts_svc.run(path_abs.absolute(), script_id=s.get("id"))
     if eventhub_section:
-        kusto_client = KustoManagementClient(
-            credential=azure_credential, subscription_id=subscription_id
-        )
-        arm_client = ResourceManagementClient(
-            credential=azure_credential, subscription_id=subscription_id
-        )
+        kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
+        arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
-        service_state["api"]["organization_id"] = "o-qwy2y8eyz8k"
+        # service_state["api"]["organization_id"] = "o-qwy2y8eyz8k"
         adx_svc = ArmService(arm_client=arm_client, state=service_state)
         adx_svc.run(deployment_name="eventhubtestniabldo", file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=service_state)
@@ -210,32 +186,26 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         resource_type = "Microsoft.EventHub/Namespaces"
         resource_name = f"{service_state['api']['organization_id']}-{service_state['api']['workspace_key']}"
         role_id = service_state['azure']['eventhub_built_data_receiver']
-        arm_svc.set(
-            principal_id=principal_id,
-            resource_name=resource_name,
-            resource_type=resource_type,
-            role_id=role_id
-        )
+        arm_svc.set(principal_id=principal_id,
+                    resource_name=resource_name,
+                    resource_type=resource_type,
+                    role_id=role_id)
         principal_id = service_state['platform']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
         resource_name = f"{service_state['api']['organization_id']}-{service_state['api']['workspace_key']}"
         role_id = service_state['azure']['eventhub_built_data_sender']
-        arm_svc.set(
-            principal_id=principal_id,
-            resource_name=resource_name,
-            resource_type=resource_type,
-            role_id=role_id
-        )
+        arm_svc.set(principal_id=principal_id,
+                    resource_name=resource_name,
+                    resource_type=resource_type,
+                    role_id=role_id)
         principal_id = service_state['babylon']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
         resource_name = f"{service_state['api']['organization_id']}-{service_state['api']['workspace_key']}"
         role_id = service_state['azure']['eventhub_built_data_sender']
-        arm_svc.set(
-            principal_id=principal_id,
-            resource_name=resource_name,
-            resource_type=resource_type,
-            role_id=role_id
-        )
+        arm_svc.set(principal_id=principal_id,
+                    resource_name=resource_name,
+                    resource_type=resource_type,
+                    role_id=role_id)
         consumers = eventhub_section.get("consumers", [])
         ent_accepted = [
             "ProbesMeasures",
@@ -246,10 +216,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         if len(consumers):
             service_event = AdxConsumerService(state=service_state)
             for ent in ent_accepted:
-                spec_listing = [
-                    k.get("displayName")
-                    for k in list(filter(lambda x: x.get("entity") == ent, consumers))
-                ]
+                spec_listing = [k.get("displayName") for k in list(filter(lambda x: x.get("entity") == ent, consumers))]
                 existing_consumers = service_event.get_all(event_hub_name=ent)
                 for t in spec_listing:
                     if t not in existing_consumers:
@@ -259,9 +226,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                         service_event.delete(name=s, event_hub_name=ent)
         connectors = eventhub_section.get("connectors", [])
         if len(connectors):
-            service_conn = AdxConnectionService(
-                kusto_client=kusto_client, state=service_state
-            )
+            service_conn = AdxConnectionService(kusto_client=kusto_client, state=service_state)
             spec_databases = list(set([k.get("database_target") for k in connectors]))
             for db in spec_databases:
                 existing_connectors = service_conn.get_all(database_name=db)
@@ -269,16 +234,14 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     dict(
                         table=k.get("table_name"),
                         database=k.get("name").split("/")[-2],
-                    )
-                    for k in existing_connectors
+                    ) for k in existing_connectors
                 ]
                 spec_conn = [
                     dict(
                         table=k.get("table_name"),
                         database=k.get("database_target"),
                         data=k,
-                    )
-                    for k in connectors
+                    ) for k in connectors
                 ]
                 for ch in spec_conn:
                     t = dict(table=ch.get("table"), database=ch.get("database"))
@@ -302,13 +265,12 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                         )
                 for hc in existing_conn_names:
                     if hc.get("table") not in [k.get("table") for k in spec_conn]:
-                        to_delete = list(
-                            filter(
-                                lambda x: x.get("table_name") == hc.get("table"),
-                                existing_connectors,
-                            )
-                        )
+                        to_delete = list(filter(
+                            lambda x: x.get("table_name") == hc.get("table"),
+                            existing_connectors,
+                        ))
                         if to_delete:
                             connection_name = to_delete[-1]['name'].split("/")[-1]
                             service_conn.delete(database_name=db, connection_name=connection_name)
-    return True
+    if not workspace.get("id"):
+        sys.exit(1)
