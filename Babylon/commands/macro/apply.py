@@ -38,10 +38,10 @@ def iter_files_to_deploy(files: list[pathlib.Path], deploy_dir: Path):
         case "WebApp":
             deploy_swa(content)
         case "Workspace":
-            deploy_workspace(payload, deploy_dir)
+            deploy_workspace(content, deploy_dir)
         case "Solution":
-            deploy_solution(payload, deploy_dir)
+            deploy_solution(content, deploy_dir)
         case "Organization":
-            deploy_organization(payload)
+            deploy_organization(content)
     files.pop()
     iter_files_to_deploy(files=files, deploy_dir=deploy_dir)
