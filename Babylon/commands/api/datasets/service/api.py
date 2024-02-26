@@ -173,9 +173,7 @@ class DatasetService:
         if not dataset_id:
             logger.error("dataset_id not found")
             sys.exit(1)
-        details = dict()
         workspace_id = self.state["api"]["workspace_id"]
-        details["workspaceId"] = workspace_id
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/link?workspaceId={workspace_id}",
             self.azure_token,
