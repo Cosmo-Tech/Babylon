@@ -25,7 +25,7 @@ class ArmService:
         self,
         deployment_name: str,
         file: str,
-        ext_args: dict,
+        ext_args: dict = None,
         deploy_mode_complete: bool = False,
     ):
         resource_group_name = self.state["azure"]["resource_group_name"]
