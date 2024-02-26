@@ -4,6 +4,7 @@ import pathlib
 
 from logging import getLogger
 from click import Path, argument, command
+from Babylon.commands.macro.deploy_dataset import deploy_dataset
 from Babylon.commands.macro.deploy_webapp import deploy_swa
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.utils.environment import Environment
@@ -35,6 +36,8 @@ def iter_files_to_deploy(files: list[pathlib.Path], deploy_dir: Path):
     payload = yaml.safe_load(content)
     kind = payload.get("kind")
     match kind:
+        case "Dataset":
+            deploy_dataset(content)
         case "WebApp":
             deploy_swa(content)
         case "Workspace":
