@@ -2,7 +2,7 @@ import pathlib
 
 from logging import getLogger
 from typing import Any
-from click import Path
+from click import Path, argument
 from click import command
 from click import option
 from Babylon.commands.api.workspaces.service.api import WorkspaceService
