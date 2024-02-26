@@ -16,21 +16,19 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_dataset(file_content: dict) -> bool:
+def deploy_dataset(file_content: str) -> bool:
     print("Dataset deployment")
-    payload: dict = file_content.get("spec").get("sidecars").get("payload")
-    azure: dict = file_content.get("spec").get("sidecars").get("azure")
+    azure_token = get_azure_token("csm_api")
+    state = env.retrieve_state_func()
+    ext_args = dict(azure_function_secret="")
+    content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
+    payload: dict = content.get("spec").get("sidecars").get("payload")
+    azure: dict = content.get("spec").get("sidecars").get("azure")
     source_type = payload["sourceType"]
     dataset_id = payload.get("id")
-
-    azure_token = get_azure_token("csm_api")
-
-    state = env.retrieve_state_func()
     service_state = state["services"]
     service_state["api"]["dataset_id"] = dataset_id
-
     spec = dict()
-
     if source_type == "File":
         dataset_zip = pathlib.Path(azure["dataset"]["file"]["local_path"])
         if not dataset_zip:
