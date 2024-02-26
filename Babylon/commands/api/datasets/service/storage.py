@@ -1,7 +1,6 @@
 import logging
-from pathlib import Path
 
-from Babylon.services.blob import blob_client
+from pathlib import Path
 from Babylon.utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -18,13 +17,11 @@ class DatasetStorageService:
 
     def upload_csv_to_storage(self, path: Path, dataset_dir_name: str, dataset_name: str, override: bool):
         workspace_id = self.state["api"]["workspace_id"]
-        storage_name = self.state["azure"]["storage_account_name"]
-        check = blob_client(storage_name=storage_name,
-                            account_secret=self.account_secret).get_container_client(container=self.organization_id)
+        check = env.blob_client.get_container_client(container=self.organization_id)
         if not check.exists():
             logger.info(f"Container '{self.organization_id}' not found")
             return None
-        client = blob_client(storage_name=storage_name, account_secret=self.account_secret).get_blob_client(
+        client = env.blob_client.get_blob_client(
             container=self.organization_id,
             blob=f"{workspace_id}/datasets/{dataset_dir_name}/{dataset_name}.csv",
         )
