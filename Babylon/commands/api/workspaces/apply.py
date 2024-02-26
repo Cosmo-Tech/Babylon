@@ -35,6 +35,9 @@ def apply(
     workspace_id: str,
     payload_file: Path,
 ):
+    """
+    Apply workspace deployment
+    """
     service_state = state["services"]
     data = None
     if select(
