@@ -43,9 +43,7 @@ class AdxScriptService:
         adx_cluster_name = self.state["adx"]["cluster_name"]
         database_name = self.state["adx"]["database_name"]
         if script_file.suffix != ".kql":
-            logger.warning(
-                f"File {script_file.name} is not a kql file. Errors could happen."
-            )
+            logger.warning(f"File {script_file.name} is not a kql file. Errors could happen.")
         script_name = script_id
         with open(script_file) as _script_file:
             logger.info(f"Reading {script_file}")

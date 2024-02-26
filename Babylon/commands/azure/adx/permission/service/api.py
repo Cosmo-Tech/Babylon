@@ -29,15 +29,13 @@ class AdxPermissionService:
         parameters = DatabasePrincipalAssignment(principal_id=principal_id, principal_type=principal_type, role=role)
         principal_assignment_name = str(uuid4())
         logger.info("Creating assignment...")
-        poller = (
-            self.kusto_client.database_principal_assignments.begin_create_or_update(
-                resource_group_name,
-                adx_cluster_name,
-                database_name,
-                principal_assignment_name,
-                parameters,
-            )
-        )
+        poller = (self.kusto_client.database_principal_assignments.begin_create_or_update(
+            resource_group_name,
+            adx_cluster_name,
+            database_name,
+            principal_assignment_name,
+            parameters,
+        ))
         if poller.done():
             logger.info("Successfully created")
 
@@ -85,9 +83,7 @@ class AdxPermissionService:
         if not entity_assignments:
             logger.info(f"No assignment found for principal ID {principal_id}")
             return False
-        logger.info(
-            f"Found {len(entity_assignments)} assignments for principal ID {principal_id}"
-        )
+        logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
         for ent in entity_assignments:
             logger.info(f"{pformat(ent.__dict__)}")
         return entity_assignments
@@ -97,9 +93,8 @@ class AdxPermissionService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
         database_name = self.state["adx"]["database_name"]
-        assignments = self.kusto_client.database_principal_assignments.list(
-            resource_group_name, adx_cluster_name, database_name
-        )
+        assignments = self.kusto_client.database_principal_assignments.list(resource_group_name, adx_cluster_name,
+                                                                            database_name)
         result = list()
         for ent in assignments:
             result.append(ent.__dict__)

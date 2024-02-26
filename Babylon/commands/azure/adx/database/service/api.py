@@ -21,9 +21,7 @@ class AdxDatabaseService:
     def check(self, name: str) -> bool:
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
-        name_request = CheckNameRequest(
-            name=name, type="Microsoft.Kusto/clusters/databases"
-        )
+        name_request = CheckNameRequest(name=name, type="Microsoft.Kusto/clusters/databases")
         name_result = self.kusto_client.databases.check_name_availability(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,

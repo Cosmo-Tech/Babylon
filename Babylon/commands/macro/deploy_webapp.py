@@ -1,53 +1,50 @@
+import sys
 import json
 
 from logging import getLogger
-from Babylon.commands.azure.ad.app.password.service.api import AzureDirectoyPasswordService
-from Babylon.commands.azure.ad.app.service.api import AzureDirectoyAppService
 from Babylon.utils.environment import Environment
 from azure.mgmt.resource import ResourceManagementClient
 from Babylon.commands.azure.arm.service.api import ArmService
 from Babylon.commands.azure.staticwebapp.service.api import AzureSWAService
 from Babylon.utils.credentials import get_azure_credentials, get_azure_token
+from Babylon.commands.azure.ad.app.service.api import AzureDirectoyAppService
+from Babylon.commands.azure.ad.app.password.service.api import AzureDirectoyPasswordService
 from Babylon.commands.azure.staticwebapp.app_settings.service.api import AzureSWASettingsAppService
 
 logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_swa(file_content: str) -> bool:
-    print("webapp deployment")
+def deploy_swa(file_content: str):
+    logger.info("webapp deployment")
     state = env.retrieve_state_func()
+    subscription_id = state["services"]["azure"]["subscription_id"]
     state['services']['app']["client_id"] = ""
     state['services']['app']["appDisplayName"] = ""
     state['services']['app']["appDisplayName"] = ""
     state['services']['app']["principal_id"] = ""
     state['services']['app']["object_id"] = ""
-
-    subscription_id = state["services"]["azure"]["subscription_id"]
     service_state = state["services"]
     service_state["api"]["organization_id"] = "o-2v54kow7wvz6"
     service_state["api"]["workspace_key"] = "w-test"
     service_state['azure']['tenant_id'] = "tenantid"
-
     github_secret = env.get_global_secret(resource="github", name="token")
     ext_args = dict(github_secret=github_secret, secret_powerbi="")
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     sidecars = content.get("spec").get("sidecars", {})
     payload: dict = content.get("spec").get("payload", {})
     swa_name = payload.get('name', "")
+    swa = dict()
     if payload:
         azure_token = get_azure_token()
         del payload['name']
         swa_svc = AzureSWAService(azure_token=azure_token, state=service_state)
         swas = swa_svc.get_all(filter="[].name")
         if swa_name in swas:
-            s = sidecars.get('run_scripts', {}).items()
-            for i, data in s:
-                match i:
-                    case "init.sh":
-                        print(data)
+            # s = sidecars.get('run_scripts', {}).items()
+            # for i, data print(data)
             payload_str = json.dumps(obj=payload, indent=4, ensure_ascii=True)
-            swa_svc.create(webapp_name=swa_name, details=payload_str)
+            swa = swa_svc.create(webapp_name=swa_name, details=payload_str)
             service_state['webapp']['static_domain'] = "white-island-0e39f3f03.4.azurestaticapps.net"
     app = sidecars.get('azure').get('app', {})
     if app:
@@ -76,9 +73,9 @@ def deploy_swa(file_content: str) -> bool:
         swa_settings = AzureSWASettingsAppService(azure_token=azure_token, state=service_state)
         organization_id = service_state['api']['organization_id']
         workspace_key = service_state['api']['workspace_key']
-        secret_powerbi = env.get_project_secret(
-            organization_id=organization_id, workspace_key=workspace_key, name="pbi"
-        )
+        secret_powerbi = env.get_project_secret(organization_id=organization_id,
+                                                workspace_key=workspace_key,
+                                                name="pbi")
         ext_args = dict(github_secret=github_secret, secret_powerbi=secret_powerbi)
         content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
         powerbi = content.get("spec").get("sidecars").get('powerbi', {})
@@ -89,13 +86,10 @@ def deploy_swa(file_content: str) -> bool:
     if function_spec:
         url_zip = function_spec.get('url_zip')
         azure_credential = get_azure_credentials()
-        arm_client = ResourceManagementClient(
-            credential=azure_credential, subscription_id=subscription_id
-        )
-        azf_secret = env.get_project_secret(
-            organization_id=organization_id, workspace_key=workspace_key, name="azf"
-        )
+        arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
+        azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
         arm_svc = ArmService(arm_client=arm_client, state=service_state)
         ext_args = dict(azure_app_client_secret=azf_secret, url_zip=url_zip)
         arm_svc.run(deployment_name="funcappmyde", file="azf_deploy.json", ext_args=ext_args)
-    return True
+    if not swa.get('id'):
+        sys.exit(1)

@@ -1,14 +1,14 @@
 import json
 import sys
+import click
+import yaml
+
 from logging import getLogger
 from pathlib import Path
 from select import select
-
-import click
-import yaml
+from flatten_json import flatten
 from click import command, option
 from mako.template import Template
-
 from Babylon.commands.api.workspaces.service.api import WorkspaceService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
@@ -56,10 +56,11 @@ def apply(
     result = data.replace("{{", "${").replace("}}", "}")
     t = Template(text=result, strict_undefined=True)
     variables_file = Path().cwd() / "variables.yaml"
-    babyvars = dict()
+    vars = dict()
     if variables_file.exists():
-        babyvars = yaml.safe_load(variables_file.open())
-    payload = t.render(**babyvars)
+        vars = yaml.safe_load(variables_file.open())
+    flattenstate = flatten(state.get("services"), separator=".")
+    payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)
     payload_dict: dict = json.loads(payload_json)
     organization_id = payload_dict.get("organization_id") or (organization_id
