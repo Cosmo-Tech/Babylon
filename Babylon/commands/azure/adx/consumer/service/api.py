@@ -19,9 +19,7 @@ class AdxConsumerService:
         subscription_id = self.state["azure"]["subscription_id"]
         org_id = self.state["api"]["organization_id"].lower()
         work_id = self.state["api"]["workspace_key"].lower()
-        client = EventHubManagementClient(
-            credential=get_azure_credentials(), subscription_id=subscription_id
-        )
+        client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         try:
             res = client.consumer_groups.get(
                 resource_group_name=rg,
@@ -43,9 +41,7 @@ class AdxConsumerService:
         org_id = self.state["api"]["organization_id"].lower()
         work_id = self.state["api"]["workspace_key"].lower()
         location = self.state["azure"]["resource_location"]
-        client = EventHubManagementClient(
-            credential=get_azure_credentials(), subscription_id=subscription_id
-        )
+        client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         res = client.consumer_groups.create_or_update(
             resource_group_name=rg,
             namespace_name=f"{org_id}-{work_id}",
@@ -61,9 +57,7 @@ class AdxConsumerService:
         subscription_id = self.state["azure"]["subscription_id"]
         org_id = self.state["api"]["organization_id"].lower()
         work_id = self.state["api"]["workspace_key"].lower()
-        client = EventHubManagementClient(
-            credential=get_azure_credentials(), subscription_id=subscription_id
-        )
+        client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         try:
             client.consumer_groups.delete(
                 resource_group_name=rg,
@@ -82,9 +76,7 @@ class AdxConsumerService:
         subscription_id = self.state["azure"]["subscription_id"]
         org_id = self.state["api"]["organization_id"].lower()
         work_id = self.state["api"]["workspace_key"].lower()
-        client = EventHubManagementClient(
-            credential=get_azure_credentials(), subscription_id=subscription_id
-        )
+        client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         res = client.consumer_groups.list_by_event_hub(
             resource_group_name=rg,
             namespace_name=f"{org_id}-{work_id}",

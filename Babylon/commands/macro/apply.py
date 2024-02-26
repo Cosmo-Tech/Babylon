@@ -1,11 +1,10 @@
-import sys
 import yaml
 import pathlib
 
 from logging import getLogger
 from click import Path, argument, command
 from Babylon.commands.macro.deploy_dataset import deploy_dataset
-from Babylon.commands.macro.deploy_webapp import deploy_swa
+# from Babylon.commands.macro.deploy_webapp import deploy_swa
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import injectcontext
@@ -24,27 +23,35 @@ def apply(deploy_dir: pathlib.Path):
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
     files = list(pathlib.Path(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
-    iter_files_to_deploy(files_to_deploy, deploy_dir)
+    kinds = [{'path': f, 'kind': yaml.safe_load(f.open().readline().strip())['kind']} for f in files_to_deploy]
 
+    organizations = list(filter(lambda x: x.get('kind') == "Organization", kinds))
+    solutions = list(filter(lambda x: x.get('kind') == "Solution", kinds))
+    workspaces = list(filter(lambda x: x.get('kind') == "Workspace", kinds))
+    webapps = list(filter(lambda x: x.get('kind') == "WebApp", kinds))
+    datasets = list(filter(lambda x: x.get('kind') == "Dataset", kinds))
 
-def iter_files_to_deploy(files: list[pathlib.Path], deploy_dir: Path):
+    for o in organizations:
+        p = pathlib.Path(o.get('path'))
+        content = p.open().read()
+        deploy_organization(content)
 
-    if not len(files):
-        logger.info("Deployment completed")
-        sys.exit(1)
-    content = files[-1].open().read()
-    payload = yaml.safe_load(content)
-    kind = payload.get("kind")
-    match kind:
-        case "Dataset":
-            deploy_dataset(content)
-        case "WebApp":
-            deploy_swa(content)
-        case "Workspace":
-            deploy_workspace(content, deploy_dir)
-        case "Solution":
-            deploy_solution(content, deploy_dir)
-        case "Organization":
-            deploy_organization(content)
-    files.pop()
-    iter_files_to_deploy(files=files, deploy_dir=deploy_dir)
+    for s in solutions:
+        p = pathlib.Path(s.get('path'))
+        content = p.open().read()
+        deploy_solution(content, deploy_dir)
+
+    for w in workspaces:
+        p = pathlib.Path(w.get('path'))
+        content = p.open().read()
+        deploy_workspace(content, deploy_dir)
+
+    for swa in webapps:
+        p = pathlib.Path(swa.get('path'))
+        content = p.open().read()
+        # deploy_swa(content)
+
+    for d in datasets:
+        p = pathlib.Path(d.get('path'))
+        content = p.open().read()
+        deploy_dataset(content)

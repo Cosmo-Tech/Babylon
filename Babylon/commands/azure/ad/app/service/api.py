@@ -2,7 +2,6 @@ import logging
 import jmespath
 import polling2
 
-from Babylon.utils.checkers import check_ascii
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
