@@ -21,7 +21,7 @@ env = Environment()
 @retrieve_state
 def get_all(state: Any, azure_token: str) -> CommandResponse:
     """
-    Get organization users RBAC access
+    Get all RBAC access to the organization
     """
     service_state = state["services"]
     service = OrganizationSecurityService(azure_token=azure_token, state=service_state)
