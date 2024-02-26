@@ -32,7 +32,7 @@ def get_all(
     workspace_id: str,
 ) -> CommandResponse:
     """
-    Get all scenario RBAC access
+    Get all RBAC access for the workspace
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]

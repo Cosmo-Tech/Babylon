@@ -41,7 +41,7 @@ def set_default(
     role: str = None,
 ) -> CommandResponse:
     """
-    Add scenario users RBAC access
+    Set default RBAC access to workspace
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]

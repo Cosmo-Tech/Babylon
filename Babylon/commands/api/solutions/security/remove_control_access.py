@@ -15,7 +15,7 @@ from Babylon.services.security.solution_security_service import SolutionSecurity
 @retrieve_state
 def remove_control_access(state: dict, azure_token: str, identity_id: str) -> CommandResponse:
     """
-    Remove the specified access from the given Organization Solution
+    Remove the specified access from the Solution
     """
     service_state = state["services"]
     service = SolutionSecurityService(azure_token=azure_token, state=service_state)

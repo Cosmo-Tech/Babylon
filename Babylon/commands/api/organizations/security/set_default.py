@@ -39,7 +39,7 @@ def set_default(
     role: str = None,
 ) -> CommandResponse:
     """
-    Add organization users RBAC access
+    Set default RBAC access to organization
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]

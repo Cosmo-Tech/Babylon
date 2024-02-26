@@ -33,7 +33,7 @@ env = Environment()
 def update(state: Any, azure_token: str, organization_id: str, dataset_id: str,
            payload_file: pathlib.Path) -> CommandResponse:
     """
-    update a registered dataset
+    Update a registered dataset
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
