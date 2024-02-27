@@ -1,12 +1,13 @@
 import json
 import pandas as pd
+import plotly.offline as pyo
+import plotly.graph_objs as go
 import plotly.express as px
-from pathlib import Path
 from logging import getLogger
 from typing import Any
-from click import argument, command, option, File
+from click import argument, command, File
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import retrieve_state, injectcontext, timing_decorator
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.commands.api.scenarios.service.api import ScenarioService
@@ -109,7 +110,7 @@ def run(state: Any, azure_token: str, input: str, var_types: str) -> CommandResp
 @argument("input", type=File('r'))
 @argument("var_types", type=File('r'))
 def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandResponse:
-    """Check the status of running simulations
+    """Check the status of running simulations and save results to disk.
 
     Args:
         input (Any): Table with details of the simulations
@@ -120,6 +121,7 @@ def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandRe
     df = pd.read_csv(input, sep='\t')
     rows = dataframe_to_dict(df, input_types)
     service_state = state["services"]
+    detailed_data = []
     if 'duration' not in df.columns:
       df['duration'] = ""
     for i, entry in enumerate(rows):
@@ -131,11 +133,10 @@ def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandRe
       end_time = pd.to_datetime(response['endTime'])
       df.loc[i, 'duration'] = (end_time - start_time).total_seconds()
       if response.get('phase') == "Succeeded":
-        summarize(response, i)
+        detailed_data.append(summarize(response, i))
       else:
         logger.info(f"Scenariorun {entry.get('scenariorunId')} has phase {response.get('phase')}")
-    fig = px.bar(df, x='duration', y='scenariorunId', orientation='h', title='Scenariorun Durations')
-    fig.write_html("report.html")
+    generate_report(df, detailed_data)
     return CommandResponse.success()
 
 
@@ -153,13 +154,40 @@ def summarize(data: dict, i: int):
     df['startTime'] = pd.to_datetime(df['startTime'])
     df['endTime'] = pd.to_datetime(df['endTime'])
     df['duration'] = (df['endTime'] - df['startTime']).dt.total_seconds()
-    fig = px.timeline(df,
-                      title=f"Detailed report for {data.get('id')}",
+    logger.info(f"Report {i} generated")
+    return(df)
+
+def generate_report(summary_df, detailed):
+  """Generate summary report from simulation run data."""
+  overall_plot = go.Figure(data=[go.Bar(x=summary_df['duration'], y=summary_df['scenariorunId'], orientation='h')])
+  overall_plot.update_layout(title='Scenariorun Durations')
+  top = pyo.plot(overall_plot, include_plotlyjs=False, output_type='div')
+  fig_list = []
+  for i, detailed_data in enumerate(detailed):
+      fig = px.timeline(detailed_data,
+                      title=f"Detailed report for {'i'}",
                       x_start="startTime",
                       x_end="endTime",
                       y="containerName")
-    fig.update_traces(text=df['duration'], textposition='outside')
-    fig.update_layout(title="Execution time by step (seconds)", xaxis_title="Time", yaxis_title="Step")
-    fig.show()
-    fig.write_html(f"report_{i}.html")
-    logger.info(f"Report {i} generated")
+      fig.update_traces(text=detailed_data['duration'], textposition='outside')
+      fig.update_layout(title="Execution time by step (seconds)", xaxis_title="Time", yaxis_title="Step")
+      fig_list.append(pyo.plot(fig, include_plotlyjs=False, output_type='div'))
+  # Generate static HTML page (does needs to be viewed online)
+  html_content = f"""
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Simulation Report</title>
+  </head>
+  <body>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <h1>Total execution time</h1>
+    {top}
+    <h1>Execution time by step</h1>
+    {"".join(fig_list)}
+  </body>
+  </html>
+  """
+
+  with open("simulation_report.html", "w") as file:
+    file.write(html_content)
