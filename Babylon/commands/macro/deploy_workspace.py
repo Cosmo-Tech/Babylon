@@ -30,15 +30,12 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     state = env.retrieve_state_func()
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
-    # state['services']["api"]["organization_id"] = "o-gdzqj12en29"
-    # state['services']["api"]["solution_id"] = "sol-vow6wglellj"
-    state['services']["api"]["workspace_key"] = "w-test"
-    state['services']["adx"]["database_name"] = f"{state['services']['api']['organization_id']}-w-test"
-    # state['services']["api"]["workspace_id"] = "w-g29w39ojky3"
     ext_args = dict(azure_function_secret="")
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     service_state = state["services"]
     payload: dict = content.get("spec").get("payload")
+    work_key = payload.get('key')
+    state['services']["adx"]["database_name"] = f"{state['services']['api']['organization_id']}-{work_key}"
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     azure_token = get_azure_token("csm_api")
@@ -76,10 +73,9 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
             workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
             if name not in workspaceli_list_name:
                 w = powerbi_svc.create(name=name)
-                print(w)
-                # state['services']['powerbi']['workspace.id'] = w.get('id')
-                # env.store_state_in_local(state)
-                # env.store_state_in_cloud(state)
+                state['services']['powerbi']['workspace.id'] = w.get('id')
+                env.store_state_in_local(state)
+                env.store_state_in_cloud(state)
             logger.info(f"workspace '{name}' already exists")
             work_obj = powerbi_svc.get_by_name_or_id(name=name)
             state['services']['powerbi']['workspace.id'] = work_obj.get('id')
@@ -136,8 +132,6 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         ok = True
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
-        # state["services"]["api"]["organization_id"] = "o-qwy2y8eyz8k"
-        state["services"]["api"]["workspace_key"] = "w-test"
         name = f"{state['services']['api']['organization_id']}-{state['services']['api']['workspace_key']}"
         available = adx_svc.check(name=name)
         if available:
@@ -178,7 +172,6 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
-        # service_state["api"]["organization_id"] = "o-qwy2y8eyz8k"
         adx_svc = ArmService(arm_client=arm_client, state=service_state)
         adx_svc.run(deployment_name="eventhubtestniabldo", file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=service_state)

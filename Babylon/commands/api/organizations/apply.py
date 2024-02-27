@@ -1,9 +1,9 @@
 import sys
 import json
-import click
 import yaml
+import click
+import pathlib
 
-from pathlib import Path
 from select import select
 from logging import getLogger
 from flatten_json import flatten
@@ -25,33 +25,33 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
-@option("--payload-file", "payload_file", type=Path)
+@option("--payload-file", "payload_file", type=pathlib.Path)
 @retrieve_state
-def apply(state: dict, azure_token: str, organization_id: str, payload_file: Path):
+def apply(state: dict, azure_token: str, organization_id: str, payload_file: pathlib.Path):
     """Apply organization deployment"""
-    service_state = state["services"]
     data = None
-    if select([
-            sys.stdin,
-    ], [], [], 0.0)[0]:
+    if len(select([sys.stdin], [], [], 0.0)[0]):
         stream = click.get_text_stream("stdin")
+        print("reading stdin...")
         data = stream.read()
-    else:
+    if not data:
         if payload_file and not payload_file.exists():
             logger.error(f"{payload_file} not found")
             sys.exit(1)
         elif payload_file:
+            print("reading file...")
             data = payload_file.open().read()
     result = data.replace("{{", "${").replace("}}", "}")
     t = Template(text=result, strict_undefined=True)
-    values_file = Path().cwd() / "variables.yaml"
+    values_file = pathlib.Path().cwd() / "variables.yaml"
     vars = dict()
     if values_file.exists():
         vars = yaml.safe_load(values_file.open())
-    flattenstate = flatten(state.get("services"), separator=".")
+    flattenstate = flatten(state.get("services", {}), separator=".")
     payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)
     payload_dict: dict = json.loads(payload_json)
+    service_state = state["services"]
     id = payload_dict.get("id") or (organization_id or service_state["api"].get("organization_id"))
 
     spec = dict()
@@ -60,9 +60,13 @@ def apply(state: dict, azure_token: str, organization_id: str, payload_file: Pat
     organization_service = OrganizationService(azure_token=azure_token, spec=spec, state=service_state)
     if not id:
         response = organization_service.create()
+        if not response:
+            return CommandResponse.fail()
         organization = response.json()
     else:
         response = organization_service.update()
+        if not response:
+            return CommandResponse.fail()
         response_json = response.json()
         old_security = response_json.get("security")
         security_spec = organization_service.update_security(old_security=old_security)
