@@ -1,6 +1,7 @@
 from logging import getLogger
 from click import command
 from typing import Any
+import json
 from Babylon.services.organizations_service import OrganizationService
 from Babylon.commands.api.connectors.service.api import ConnectorService
 from Babylon.commands.api.datasets.service.api import DatasetService
@@ -30,37 +31,44 @@ def destroy(state: Any, azure_token: str):
     """Macro Destroy"""
     api_state = state["services"]["api"]
 
-    if api_state["scenario_id"]:
-        scenario_service = ScenarioService(state, azure_token)
+    account_secret = env.get_platform_secret(
+        platform=env.environ_id, resource="storage", name="account"
+    )
+    storage_name = state["services"]["azure"]["storage_account_name"]
+    blob = blob_client(storage_name=storage_name, account_secret=account_secret, container=api_state["organization_id"])
+    azure_service = AzureStorageContainerService(state=state, blob_client=blob)
+
+    scenario_service = ScenarioService(state, azure_token)
+    workspace_service = WorkspaceService(state, azure_token)
+    solution_service = SolutionService(state, azure_token)
+
+    scenarios_json = scenario_service.get_all()
+    scenarios = json.loads(scenarios_json)
+    for s in scenarios:
         scenario_service.delete(True)
-        api_state["scenario_id"] = ""
-    if api_state["workspace_id"]:
-        workspace_service = WorkspaceService(state, azure_token)
-        workspace_service.delete(True)
-        api_state["workspace_id"] = ""
-    if api_state["dataset_id"]:
+    api_state["scenario_id"] = ""
+
+    workspace_json = workspace_service.get()
+    workspace = json.loads(workspace_json)
+    datasets = workspace.get("linkedDatasetIdList")
+    for d in datasets:
+        state["services"]["api"]["dataset_id"] = d
+        azure_service.delete(api_state["dataset_id"])
         dataset_service = DatasetService(state, azure_token)
         dataset_service.delete(True)
-        account_secret = env.get_platform_secret(
-            platform=env.environ_id, resource="storage", name="account"
-        )
-        storage_name = state["services"]["azure"]["storage_account_name"]
-        blob = blob_client(storage_name=storage_name, account_secret=account_secret)
-        service = AzureStorageContainerService(state=state, blob_client=blob)
-        service.delete(api_state["dataset_id"])
-        api_state["dataset_id"] = ""
-    if api_state["solution_id"]:
-        solution_service = SolutionService(state, azure_token)
-        solution_service.delete(True)
-        api_state["solution_id"] = ""
-    if api_state["connector_id"]:
-        connector_service = ConnectorService(state, azure_token)
-        connector_service.delete(True)
-        api_state["connector_id"] = ""
-    if api_state["organization_id"]:
-        organization_service = OrganizationService(state, azure_token)
-        organization_service.delete(True)
-        api_state["organization_id"] = ""
+    api_state["dataset_id"] = ""
+
+    # webapp
+    # webapp
+    # webapp
+    # webapp
+
+    workspace_service.delete(True)
+    api_state["workspace_id"] = ""
+
+    solution_service.delete(True)
+    azure_service.delete(api_state["solution_id"])
+    api_state["solution_id"] = ""
 
     state["services"]["api"] = api_state
     env.store_state_in_local(state=state)
