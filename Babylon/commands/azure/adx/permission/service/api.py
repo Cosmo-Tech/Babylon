@@ -61,7 +61,7 @@ class AdxPermissionService:
             if not force_validation and not confirm_deletion("permission", str(assign.role)):
                 return CommandResponse.fail()
 
-            logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}:{assign.principal_id}")
+            logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}: {assign.principal_id}")
             assign_name: str = str(assign.name).split("/")[-1]
             poller = self.kusto_client.database_principal_assignments.begin_delete(
                 resource_group_name,
