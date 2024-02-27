@@ -17,13 +17,7 @@ logger = logging.getLogger("Babylon")
 @require_deployment_key("webapp_repository_branch")
 @argument(
     "file",
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
-        path_type=pathlib.Path,
-    ),
+    type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
 )
 def upload_file(webapp_repository_branch: str, file: pathlib.Path) -> CommandResponse:
     """Upload a file to the webapp github repository"""

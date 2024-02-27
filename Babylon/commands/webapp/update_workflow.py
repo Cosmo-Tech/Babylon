@@ -36,13 +36,7 @@ def update_file(workflow_file: pathlib.Path):
 @command()
 @argument(
     "workflow_file",
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
-        path_type=pathlib.Path,
-    ),
+    type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
 )
 def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
     """Update a github workflow file to read environment from a config.json file during deployment"""

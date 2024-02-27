@@ -25,13 +25,7 @@ logger = logging.getLogger("Babylon")
 @describe_dry_run("Would send a workspace creation payload to terraform")
 @argument(
     "workspace_data_file",
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
-        path_type=pathlib.Path,
-    ),
+    type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
 )
 @option("--select", "select", is_flag=True, help="Select the created workspace")
 @timing_decorator
@@ -47,16 +41,9 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool) -> 
     """
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
-    workspace_keys = {
-        "workspace_name",
-        "working_directory",
-        "vcs_branch",
-        "vcs_identifier",
-    }
+    workspace_keys = {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier"}
     if any(key not in workspace_data.keys() for key in workspace_keys):
-        logger.error(
-            f"Workspace data file should contain keys: {','.join(workspace_keys)}"
-        )
+        logger.error(f"Workspace data file should contain keys: {','.join(workspace_keys)}")
         return CommandResponse.fail()
 
     payload_template = env.working_dir.payload_path / "tfc/workspace_create.json"
