@@ -15,9 +15,16 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @require_deployment_key("webapp_repository_branch")
-@argument("file",
-          type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
-                    exists=True))
+@argument(
+    "file",
+    type=Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        path_type=pathlib.Path,
+    ),
+)
 def upload_file(webapp_repository_branch: str, file: pathlib.Path) -> CommandResponse:
     """Upload a file to the webapp github repository"""
     # Get parent git repository of the workflow file
@@ -27,7 +34,7 @@ def upload_file(webapp_repository_branch: str, file: pathlib.Path) -> CommandRes
             parent_repo = parent
             break
     repo = git.Repo(parent_repo)
-    if not repo.active_branch == webapp_repository_branch:
+    if repo.active_branch != webapp_repository_branch:
         logger.info(f"Checking out to branch {webapp_repository_branch}")
         repo.git.checkout(webapp_repository_branch)
     # Committing file

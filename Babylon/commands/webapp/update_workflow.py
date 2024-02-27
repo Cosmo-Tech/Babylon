@@ -14,7 +14,7 @@ READ_JSON_WORKFLOW = {
     "name": "Import environment variables from a file",
     "id": "import-env",
     "shell": "bash",
-    "run": r"""jq -r 'keys[] as $k | "\($k)=\(.[$k])"' config.json >> $GITHUB_ENV"""
+    "run": r"""jq -r 'keys[] as $k | "\($k)=\(.[$k])"' config.json >> $GITHUB_ENV""",
 }
 
 
@@ -23,7 +23,11 @@ def update_file(workflow_file: pathlib.Path):
     with open(workflow_file, "r") as _f:
         data = yaml_loader.load(_f)
     logger.info(f"Updating github workflow {workflow_file}...")
-    find = [step for step in data["jobs"]["build_and_deploy_job"]["steps"] if step.get("id") == "import-env"]
+    find = [
+        step
+        for step in data["jobs"]["build_and_deploy_job"]["steps"]
+        if step.get("id") == "import-env"
+    ]
     if find:
         logger.warning(f"Workflow {workflow_file} already has the import-env step")
         return
@@ -34,8 +38,16 @@ def update_file(workflow_file: pathlib.Path):
 
 
 @command()
-@argument("workflow_file",
-          type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path)))
+@argument(
+    "workflow_file",
+    type=Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        path_type=pathlib.Path,
+    ),
+)
 def update_workflow(workflow_file: pathlib.Path) -> CommandResponse:
     """Update a github workflow file to read environment from a config.json file during deployment"""
     if not workflow_file.is_dir():
