@@ -49,6 +49,7 @@ class AdxConsumerService:
             event_hub_name=event_hub_name.lower(),
             parameters=ConsumerGroupCreateOrUpdateParameters(location=location, ),
         )
+<<<<<<< HEAD
         return res.as_dict()
 
     def delete(self, name: str, event_hub_name: str) -> bool:
@@ -88,3 +89,12 @@ class AdxConsumerService:
             if item.get("name") != "$Default":
                 result.append(item.get('name'))
         return result
+=======
+
+    def delete(self):
+        subscription_id = self.state["azure"]["subscription_id"]
+        client = EventHubManagementClient(
+            credential=get_azure_credentials(), subscription_id=subscription_id
+        )
+        client.
+>>>>>>> dee7b14 (add basics destroy)
