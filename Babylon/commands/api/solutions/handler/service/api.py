@@ -36,7 +36,7 @@ class SolutionHandleService:
         if not check.exists():
             logger.info(f"Container '{self.organization_id}' not found")
             sys.exit(1)
-        client = self.blob_client.get_blob_client(
+        client = env.blob_client.get_blob_client(
             container=self.organization_id,
             blob=f"{self.solution_id}/{run_template_id}/{handler_id}.zip",
         )
@@ -65,7 +65,7 @@ class SolutionHandleService:
         if not check.exists():
             logger.info(f"Container '{self.organization_id}' not found")
             return None
-        client = self.blob_client.get_blob_client(
+        client = env.blob_client.get_blob_client(
             container=self.organization_id,
             blob=f"{self.solution_id}/{run_template_id}/{handler_id}.zip",
         )
