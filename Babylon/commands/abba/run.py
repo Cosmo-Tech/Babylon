@@ -120,15 +120,22 @@ def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandRe
     df = pd.read_csv(input, sep='\t')
     rows = dataframe_to_dict(df, input_types)
     service_state = state["services"]
+    if 'duration' not in df.columns:
+      df['duration'] = ""
     for i, entry in enumerate(rows):
-        service_state["api"]["organization_id"] = entry.get('organizationId')
-        service_state["api"]["workspace_id"] = entry.get("workspaceId")
-        service_state["api"]["scenariorun_id"] = entry.get("scenariorunId")
-        response = get_scenariorun_status(service_state, azure_token)
-        if response.get('phase') == "Succeeded":
-            summarize(response)
-        else:
-            logger.info(f"Scenariorun {entry.get('scenariorunId')} has phase {response.get('phase')}")
+      service_state["api"]["organization_id"] = entry.get('organizationId')
+      service_state["api"]["workspace_id"] = entry.get("workspaceId")
+      service_state["api"]["scenariorun_id"] = entry.get("scenariorunId")
+      response = get_scenariorun_status(service_state, azure_token)
+      start_time = pd.to_datetime(response['startTime'])
+      end_time = pd.to_datetime(response['endTime'])
+      df.loc[i, 'duration'] = (end_time - start_time).total_seconds()
+      if response.get('phase') == "Succeeded":
+        summarize(response, i)
+      else:
+        logger.info(f"Scenariorun {entry.get('scenariorunId')} has phase {response.get('phase')}")
+    fig = px.bar(df, x='duration', y='scenariorunId', orientation='h', title='Scenariorun Durations')
+    fig.write_html("report.html")
     return CommandResponse.success()
 
 
@@ -141,10 +148,8 @@ def get_scenariorun_status(service_state, azure_token):
     return response.json()
 
 
-def summarize(data: dict):
+def summarize(data: dict, i: int):
     df = pd.DataFrame.from_records(data['nodes'])[['containerName', 'startTime', 'endTime']]
-    if df.get('phase') != "Succeeded":
-        return
     df['startTime'] = pd.to_datetime(df['startTime'])
     df['endTime'] = pd.to_datetime(df['endTime'])
     df['duration'] = (df['endTime'] - df['startTime']).dt.total_seconds()
@@ -156,4 +161,5 @@ def summarize(data: dict):
     fig.update_traces(text=df['duration'], textposition='outside')
     fig.update_layout(title="Execution time by step (seconds)", xaxis_title="Time", yaxis_title="Step")
     fig.show()
-    fig.write_html('report.html')
+    fig.write_html(f"report_{i}.html")
+    logger.info(f"Report {i} generated")
