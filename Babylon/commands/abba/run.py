@@ -58,16 +58,19 @@ def dataframe_to_dict(df: pd.DataFrame, input_types: dict) -> list:
 @pass_azure_token("csm_api")
 @output_to_file
 @argument("input", type=File('r'))
+@argument("var_types", type=File('r'))
 @retrieve_state
-def run(state: Any, azure_token: str, input: str) -> CommandResponse:
+def run(state: Any, azure_token: str, input: str, var_types: str) -> CommandResponse:
     """Run a series of simulations
 
     Args:
-        input (Any): Table with details of the simulations
+      input (str): Table with details of the simulations
+      var_types (str): A table declaring the variable types of columns in input
     """
-    input_types = {'scenario_name': 'string', 'start_date': 'date', 'end_date': 'date'}
     rows = []  # an array of dicts one for each input row
     df = pd.read_csv(input, sep='\t')
+    input_types = dict()
+    input_types = {k: v for k, v in (line.rstrip().split("\t") for line in var_types)}
     df['scenarioId'] = ""
     df['scenariorunId'] = ""
     rows = dataframe_to_dict(df, input_types)
@@ -104,14 +107,16 @@ def run(state: Any, azure_token: str, input: str) -> CommandResponse:
 @pass_azure_token("csm_api")
 @retrieve_state
 @argument("input", type=File('r'))
-def check(state: Any, azure_token: str, input: str) -> CommandResponse:
+@argument("var_types", type=File('r'))
+def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandResponse:
     """Check the status of running simulations
 
     Args:
         input (Any): Table with details of the simulations
     """
     # read file provided as argument and run api calls
-    input_types = {'scenario_name': 'string', 'start_date': 'date', 'end_date': 'date'}  #TBD move to user input file(s)
+    input_types = dict()
+    input_types = {k: v for k, v in (line.rstrip().split("\t") for line in var_types)}
     df = pd.read_csv(input, sep='\t')
     rows = dataframe_to_dict(df, input_types)
     service_state = state["services"]
@@ -132,7 +137,7 @@ def get_scenariorun_status(service_state, azure_token):
     service = ScenarioRunService(state=service_state, azure_token=azure_token)
     response = service.status()
     if response is None:
-        logger.error(f"Failed to get status of {scenario_run['id']}")
+        logger.error(f"Failed to get status of {service_state['api']['scenariorun_id']}")
     return response.json()
 
 
