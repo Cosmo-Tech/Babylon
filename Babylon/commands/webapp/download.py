@@ -19,13 +19,7 @@ logger = logging.getLogger("Babylon")
 @working_dir_requires_yaml_key(".secrets.yaml.encrypt", "github.token", "github_token")
 @argument(
     "destination_folder",
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
-        path_type=pathlib.Path,
-    ),
+    type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
 )
 def download(
     webapp_repository: str,
@@ -44,9 +38,7 @@ def download(
     try:
         repo_suffix = webapp_repository.split("github.com/")[1]
     except Exception:
-        logger.error(
-            "webapp_repository should be of the form `https://github.com/my_org/my_repo`"
-        )
+        logger.error("webapp_repository should be of the form `https://github.com/my_org/my_repo`")
         return CommandResponse.fail()
     repo_w_token = f"https://oauth2:{github_token}@github.com/{repo_suffix}.git"
     git.Repo.clone_from(repo_w_token, destination_folder, branch=webapp_repository_branch)

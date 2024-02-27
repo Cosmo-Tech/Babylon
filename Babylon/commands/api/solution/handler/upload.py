@@ -35,16 +35,7 @@ logger = getLogger("Babylon")
 )
 @argument(
     "handler_id",
-    type=Choice(
-        [
-            "parameters_handler",
-            "validator",
-            "prerun",
-            "engine",
-            "postrun",
-            "scenariosdata_transform",
-        ]
-    ),
+    type=Choice(["parameters_handler", "validator", "prerun", "engine", "postrun", "scenariosdata_transform"]),
 )
 @option(
     "-r",
