@@ -23,14 +23,22 @@ logger = logging.getLogger("Babylon")
 @command()
 @pass_tfc_client
 @describe_dry_run("Would send a workspace creation payload to terraform")
-@argument("workspace_data_file",
-          type=Path(path_type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
-                    exists=True,
-                    dir_okay=False))
+@argument(
+    "workspace_data_file",
+    type=Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        path_type=pathlib.Path,
+    ),
+)
 @option("--select", "select", is_flag=True, help="Select the created workspace")
 @timing_decorator
 @output_to_file
-def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool) -> CommandResponse:
+def create(
+    tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool
+) -> CommandResponse:
     """
     Use given parameters to create a workspace in the organization
     Takes a workspace_data_file as input, which should contain the following keys:
@@ -41,9 +49,16 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool) -> 
     """
     env = Environment()
     workspace_data = env.working_dir.get_file_content(workspace_data_file)
-    workspace_keys = {"workspace_name", "working_directory", "vcs_branch", "vcs_identifier"}
+    workspace_keys = {
+        "workspace_name",
+        "working_directory",
+        "vcs_branch",
+        "vcs_identifier",
+    }
     if any(key not in workspace_data.keys() for key in workspace_keys):
-        logger.error(f"Workspace data file should contain keys: {','.join(workspace_keys)}")
+        logger.error(
+            f"Workspace data file should contain keys: {','.join(workspace_keys)}"
+        )
         return CommandResponse.fail()
 
     payload_template = env.working_dir.payload_path / "tfc/workspace_create.json"
@@ -52,11 +67,16 @@ def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool) -> 
     try:
         ws = tfc_client.workspaces.create(payload_data)
     except TFCHTTPUnprocessableEntity as _error:
-        logger.error(f"An issue appeared while processing workspace {workspace_data['workspace_name']}:")
+        logger.error(
+            f"An issue appeared while processing workspace {workspace_data['workspace_name']}:"
+        )
         logger.error(pprint.pformat(_error.args))
         return CommandResponse.fail()
     if select:
-        env.configuration.set_deploy_var("terraform_cloud_workspace_id", ws['data']['id'])
+        env.configuration.set_deploy_var(
+            "terraform_cloud_workspace_id", ws["data"]["id"]
+        )
         logger.info(
-            f"terraform_cloud_workspace_id: {ws['data']['id']} was successfully set in the deploy configuration")
+            f"terraform_cloud_workspace_id: {ws['data']['id']} was successfully set in the deploy configuration"
+        )
     return CommandResponse.success(ws.get("data"), verbose=True)
