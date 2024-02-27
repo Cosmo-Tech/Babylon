@@ -24,7 +24,7 @@ def deploy_dataset(file_content: str) -> bool:
     # state['services']["api"]["organization_id"] = "o-2v54kow7wvz6"
     service_state = state["services"]
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
-    payload: dict = content.get("spec").get("sidecars").get("payload")
+    payload: dict = content.get("spec").get("payload")
     azure: dict = content.get("spec").get("sidecars").get("azure")
     source_type = payload["sourceType"]
     dataset_id = payload.get("id")
