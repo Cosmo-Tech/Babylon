@@ -69,7 +69,8 @@ def apply(
     flattenstate = flatten(state.get("services"), separator=".")
     payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)
-    payload_dict: dict = json.loads(payload_json)
+    payload_full: dict = json.loads(payload_json)
+    payload_dict = payload_full["spec"]["payload"]
     organization_id = payload_dict.get("organization_id") or (organization_id
                                                               or service_state["api"].get("organization_id"))
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
@@ -77,7 +78,7 @@ def apply(
     dataset_id = payload_dict.get("id") or (dataset_id or service_state["api"].get("dataset_id"))
 
     spec = dict()
-    spec["payload"] = payload_json
+    spec["payload"] = json.dumps(payload_dict)
     service_state["api"]["organization_id"] = organization_id
     service_state["api"]["dataset_id"] = dataset_id
     dataset_service = DatasetService(azure_token=azure_token, spec=spec, state=service_state)
@@ -121,8 +122,8 @@ def apply(
                 logger.error(
                     f"Failed to link dataset {dataset['id']} to workspace {service_state['api']['workspace_id']}")
             else:
-                logger.error(f"Dataset {dataset['id']} successfully linked "
-                             f"to workspace {service_state['api']['workspace_id']}")
+                logger.info(f"Dataset {dataset['id']} successfully linked "
+                            f"to workspace {service_state['api']['workspace_id']}")
 
     else:
         response = dataset_service.update()

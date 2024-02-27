@@ -54,7 +54,8 @@ def create(
 
     file_content = payload_file.open().read()
     payload_json = yaml_to_json(file_content)
-    payload_dict: dict = json.loads(payload_json)
+    payload_full: dict = json.loads(payload_json)
+    payload_dict = payload_full["spec"]["payload"]
     source_type = payload_dict.get("sourceType")
 
     if source_type == "File":
@@ -69,7 +70,7 @@ def create(
             sys.exit(1)
 
     spec = dict()
-    spec["payload"] = env.fill_template(payload_file)
+    spec["payload"] = json.dumps(payload_dict)
     service = DatasetService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.create()
     if response is None:
@@ -98,7 +99,7 @@ def create(
         if linked_dataset_response is None:
             logger.error(f"Failed to link dataset {dataset['id']} to workspace {service_state['api']['workspace_id']}")
         else:
-            logger.error(f"Dataset {dataset['id']} successfully linked "
-                         f"to workspace {service_state['api']['workspace_id']}")
+            logger.info(f"Dataset {dataset['id']} successfully linked "
+                        f"to workspace {service_state['api']['workspace_id']}")
 
     return CommandResponse.success()
