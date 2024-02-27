@@ -49,10 +49,6 @@ def download(
         )
         return CommandResponse.fail()
     repo_w_token = f"https://oauth2:{github_token}@github.com/{repo_suffix}.git"
-    git.Repo.clone_from(
-        repo_w_token, destination_folder, branch=webapp_repository_branch
-    )
-    logger.info(
-        f"Successfully cloned repository {webapp_repository} in folder {destination_folder}"
-    )
+    git.Repo.clone_from(repo_w_token, destination_folder, branch=webapp_repository_branch)
+    logger.info(f"Successfully cloned repository {webapp_repository} in folder {destination_folder}")
     return CommandResponse.success()

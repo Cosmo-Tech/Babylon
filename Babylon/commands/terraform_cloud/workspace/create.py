@@ -36,9 +36,7 @@ logger = logging.getLogger("Babylon")
 @option("--select", "select", is_flag=True, help="Select the created workspace")
 @timing_decorator
 @output_to_file
-def create(
-    tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool
-) -> CommandResponse:
+def create(tfc_client: TFC, workspace_data_file: pathlib.Path, select: bool) -> CommandResponse:
     """
     Use given parameters to create a workspace in the organization
     Takes a workspace_data_file as input, which should contain the following keys:
@@ -67,16 +65,11 @@ def create(
     try:
         ws = tfc_client.workspaces.create(payload_data)
     except TFCHTTPUnprocessableEntity as _error:
-        logger.error(
-            f"An issue appeared while processing workspace {workspace_data['workspace_name']}:"
-        )
+        logger.error(f"An issue appeared while processing workspace {workspace_data['workspace_name']}:")
         logger.error(pprint.pformat(_error.args))
         return CommandResponse.fail()
     if select:
-        env.configuration.set_deploy_var(
-            "terraform_cloud_workspace_id", ws["data"]["id"]
-        )
+        env.configuration.set_deploy_var("terraform_cloud_workspace_id", ws['data']['id'])
         logger.info(
-            f"terraform_cloud_workspace_id: {ws['data']['id']} was successfully set in the deploy configuration"
-        )
+            f"terraform_cloud_workspace_id: {ws['data']['id']} was successfully set in the deploy configuration")
     return CommandResponse.success(ws.get("data"), verbose=True)
