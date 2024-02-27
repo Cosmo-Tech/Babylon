@@ -21,12 +21,8 @@ logger = logging.getLogger("Babylon")
     "destination_folder",
     type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
 )
-def download(
-    webapp_repository: str,
-    webapp_repository_branch: str,
-    github_token: str,
-    destination_folder: pathlib.Path,
-) -> CommandResponse:
+def download(webapp_repository: str, webapp_repository_branch: str, github_token: str,
+             destination_folder: pathlib.Path) -> CommandResponse:
     """Download the github repository locally"""
     if destination_folder.exists():
         logger.warning(f"Local folder {destination_folder} already exists, pulling...")

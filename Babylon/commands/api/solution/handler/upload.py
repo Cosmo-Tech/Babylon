@@ -25,17 +25,18 @@ logger = getLogger("Babylon")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @argument(
     "handler_path",
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
-        path_type=pathlib.Path,
-    ),
+    type=Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=pathlib.Path),
 )
 @argument(
     "handler_id",
-    type=Choice(["parameters_handler", "validator", "prerun", "engine", "postrun", "scenariosdata_transform"]),
+    type=Choice([
+        "parameters_handler",
+        "validator",
+        "prerun",
+        "engine",
+        "postrun",
+        "scenariosdata_transform",
+    ]),
 )
 @option(
     "-r",
@@ -46,16 +47,14 @@ logger = getLogger("Babylon")
     required=True,
 )
 @option("-o", "--override", "override", is_flag=True)
-def upload(
-    api_url: str,
-    azure_token: str,
-    organization_id: str,
-    solution_id: str,
-    handler_path: pathlib.Path,
-    handler_id: str,
-    run_template_id: str,
-    override: bool = False,
-) -> CommandResponse:
+def upload(api_url: str,
+           azure_token: str,
+           organization_id: str,
+           solution_id: str,
+           handler_path: pathlib.Path,
+           handler_id: str,
+           run_template_id: str,
+           override: bool = False) -> CommandResponse:
     """Upload a solution handler zip to the solution"""
     if not handler_path.name.endswith(".zip"):
         logger.error("solution handler upload only supports zip files")
