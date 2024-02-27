@@ -21,12 +21,7 @@ logger = getLogger("Babylon")
 @timing_decorator
 @require_platform_key("api_url")
 @pass_azure_token("csm_api")
-@option(
-    "--organization",
-    "organization_id",
-    type=QueryType(),
-    default="%deploy%organization_id",
-)
+@option("--organization", "organization_id", type=QueryType(), default="%deploy%organization_id")
 @option("--solution", "solution_id", type=QueryType(), default="%deploy%solution_id")
 @argument(
     "handler_path",
@@ -82,11 +77,8 @@ def upload(
         data=handler.read(),
         params={"overwrite": override},
         headers={"Content-Type": "application/octet-stream"},
-        type="POST",
-    )
+        type="POST")
     if response is None:
         return CommandResponse.fail()
-    logger.info(
-        f"Successfully sent handler file {handler_path} to solution {solution_id}"
-    )
+    logger.info(f"Successfully sent handler file {handler_path} to solution {solution_id}")
     return CommandResponse.success()
