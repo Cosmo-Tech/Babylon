@@ -18,8 +18,8 @@ azure-mgmt-eventhub>=11.0.0
 hvac>=1.1.1
 
 # ABBA requiremetns
-pandas
-plotly
+pandas>=2.2.0
+plotly>=5.19.0
 
 # Click requirements
 click>=8.1.3
