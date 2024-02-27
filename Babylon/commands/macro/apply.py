@@ -3,11 +3,11 @@ import pathlib
 
 from logging import getLogger
 from click import Path, argument, command
-from Babylon.commands.macro.deploy_dataset import deploy_dataset
-# from Babylon.commands.macro.deploy_webapp import deploy_swa
-from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import injectcontext
+from Babylon.commands.macro.deploy_webapp import deploy_swa
+from Babylon.commands.macro.deploy_dataset import deploy_dataset
+from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_organization import deploy_organization
 
@@ -49,7 +49,7 @@ def apply(deploy_dir: pathlib.Path):
     for swa in webapps:
         p = pathlib.Path(swa.get('path'))
         content = p.open().read()
-        # deploy_swa(content)
+        deploy_swa(content)
 
     for d in datasets:
         p = pathlib.Path(d.get('path'))

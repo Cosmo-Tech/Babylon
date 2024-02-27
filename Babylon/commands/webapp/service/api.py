@@ -1,15 +1,38 @@
 import os
 import git
-import yaml
+import json
 import logging
 
 from pathlib import Path
+from ruamel.yaml import YAML
 from typing import Iterable
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 env = Environment()
+
+READ_JSON_WORKFLOW = {
+    "name": "Import environment variables from a file",
+    "id": "import-env",
+    "shell": "bash",
+    "run": r"""jq -r 'keys[] as $k | "\($k)=\(.[$k])"' config.json >> $GITHUB_ENV"""
+}
+
+
+def ext_update_file(workflow_file: Path):
+    yaml_loader = YAML()
+    with open(workflow_file, "r") as _f:
+        data = yaml_loader.load(_f)
+    logger.info(f"Updating github workflow {workflow_file}...")
+    find = [step for step in data["jobs"]["build_and_deploy_job"]["steps"] if step.get("id") == "import-env"]
+    if find:
+        logger.warning(f"Workflow {workflow_file} already has the import-env step")
+        return
+    data["jobs"]["build_and_deploy_job"]["steps"].insert(1, READ_JSON_WORKFLOW)
+    with open(workflow_file, "w") as _f:
+        yaml_loader.dump(data, _f)
+    logger.info(f"Successfully updated workflow file {workflow_file}")
 
 
 class AzureWebAppService:
@@ -33,21 +56,22 @@ class AzureWebAppService:
         git.Repo.clone_from(repo_w_token, destination_folder, branch=repo_branch)
         logger.info("Successfully cloned")
 
-    def expor_config(self, config_file: Path):
-        config_file = config_file or env.working_dir.original_template_path / "webapp/webapp_config.json"
-        config_data = env.fill_template(config_file)
+    def export_config(self, data: str, config_path: Path):
+        config_data = env.fill_template(data=data, state=dict(services=self.state))
+        data_json = json.dumps(config_data, indent=2).encode("utf-8")
+        config_path.write_bytes(data_json)
         logger.info("Successfully exported")
         return config_data
 
     def update_workflow(self, workflow_file: Path):
         if not workflow_file.is_dir():
             try:
-                update_file(workflow_file)
+                ext_update_file(workflow_file)
             except Exception:
                 return CommandResponse.fail()
         for file in workflow_file.glob("azure-static-web-apps-*.yml"):
             try:
-                update_file(file)
+                ext_update_file(file)
             except Exception:
                 return CommandResponse.fail()
 
@@ -96,25 +120,3 @@ class AzureWebAppService:
         # Pushing commit
         repo.remotes.origin.push()
         logger.info("Successfully uploaded")
-
-
-READ_JSON_WORKFLOW = {
-    "name": "Import environment variables from a file",
-    "id": "import-env",
-    "shell": "bash",
-    "run": r"""jq -r 'keys[] as $k | "\($k)=\(.[$k])"' config.json >> $GITHUB_ENV"""
-}
-
-
-def update_file(workflow_file: Path):
-    with open(workflow_file, "r") as _f:
-        data = yaml.load(_f, Loader=yaml.SafeLoader)
-    logger.info(f"Updating github workflow {workflow_file}...")
-    find = [step for step in data["jobs"]["build_and_deploy_job"]["steps"] if step.get("id") == "import-env"]
-    if find:
-        logger.warning(f"Workflow {workflow_file} already has the import-env step")
-        return
-    data["jobs"]["build_and_deploy_job"]["steps"].insert(1, READ_JSON_WORKFLOW)
-    with open(workflow_file, "w") as _f:
-        yaml.dump(data, _f)
-    logger.info(f"Successfully updated workflow file {workflow_file}")
