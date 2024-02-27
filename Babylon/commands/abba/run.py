@@ -22,7 +22,7 @@ env = Environment()
 def dataframe_to_dict(df: pd.DataFrame, input_types: dict) -> list:
     """
     Convert a pandas DataFrame to a list of dictionaries.
-  
+
     Args:
       df (pandas.DataFrame): The DataFrame to convert.
       input_types (dict): A dictionary mapping parameter names to their types.
@@ -103,6 +103,7 @@ def run(state: Any, azure_token: str, input: str, var_types: str) -> CommandResp
     df.to_csv("back.csv", sep="\t")
     return CommandResponse.success({'rows': rows})
 
+
 @command()
 @injectcontext()
 @pass_azure_token("csm_api")
@@ -123,19 +124,19 @@ def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandRe
     service_state = state["services"]
     detailed_data = []
     if 'duration' not in df.columns:
-      df['duration'] = ""
+        df['duration'] = ""
     for i, entry in enumerate(rows):
-      service_state["api"]["organization_id"] = entry.get('organizationId')
-      service_state["api"]["workspace_id"] = entry.get("workspaceId")
-      service_state["api"]["scenariorun_id"] = entry.get("scenariorunId")
-      response = get_scenariorun_status(service_state, azure_token)
-      start_time = pd.to_datetime(response['startTime'])
-      end_time = pd.to_datetime(response['endTime'])
-      df.loc[i, 'duration'] = (end_time - start_time).total_seconds()
-      if response.get('phase') == "Succeeded":
-        detailed_data.append(summarize(response, i))
-      else:
-        logger.info(f"Scenariorun {entry.get('scenariorunId')} has phase {response.get('phase')}")
+        service_state["api"]["organization_id"] = entry.get('organizationId')
+        service_state["api"]["workspace_id"] = entry.get("workspaceId")
+        service_state["api"]["scenariorun_id"] = entry.get("scenariorunId")
+        response = get_scenariorun_status(service_state, azure_token)
+        start_time = pd.to_datetime(response['startTime'])
+        end_time = pd.to_datetime(response['endTime'])
+        df.loc[i, 'duration'] = (end_time - start_time).total_seconds()
+        if response.get('phase') == "Succeeded":
+            detailed_data.append(summarize(response, i))
+        else:
+            logger.info(f"Scenariorun {entry.get('scenariorunId')} has phase {response.get('phase')}")
     generate_report(df, detailed_data)
     return CommandResponse.success()
 
@@ -155,25 +156,26 @@ def summarize(data: dict, i: int):
     df['endTime'] = pd.to_datetime(df['endTime'])
     df['duration'] = (df['endTime'] - df['startTime']).dt.total_seconds()
     logger.info(f"Report {i} generated")
-    return(df)
+    return (df)
+
 
 def generate_report(summary_df, detailed):
-  """Generate summary report from simulation run data."""
-  overall_plot = go.Figure(data=[go.Bar(x=summary_df['duration'], y=summary_df['scenariorunId'], orientation='h')])
-  overall_plot.update_layout(title='Scenariorun Durations')
-  top = pyo.plot(overall_plot, include_plotlyjs=False, output_type='div')
-  fig_list = []
-  for i, detailed_data in enumerate(detailed):
-      fig = px.timeline(detailed_data,
-                      title=f"Detailed report for {'i'}",
-                      x_start="startTime",
-                      x_end="endTime",
-                      y="containerName")
-      fig.update_traces(text=detailed_data['duration'], textposition='outside')
-      fig.update_layout(title="Execution time by step (seconds)", xaxis_title="Time", yaxis_title="Step")
-      fig_list.append(pyo.plot(fig, include_plotlyjs=False, output_type='div'))
-  # Generate static HTML page (does needs to be viewed online)
-  html_content = f"""
+    """Generate summary report from simulation run data."""
+    overall_plot = go.Figure(data=[go.Bar(x=summary_df['duration'], y=summary_df['scenariorunId'], orientation='h')])
+    overall_plot.update_layout(title='Scenariorun Durations')
+    top = pyo.plot(overall_plot, include_plotlyjs=False, output_type='div')
+    fig_list = []
+    for i, detailed_data in enumerate(detailed):
+        fig = px.timeline(detailed_data,
+                          title=f"Detailed report for {'i'}",
+                          x_start="startTime",
+                          x_end="endTime",
+                          y="containerName")
+        fig.update_traces(text=detailed_data['duration'], textposition='outside')
+        fig.update_layout(title="Execution time by step (seconds)", xaxis_title="Time", yaxis_title="Step")
+        fig_list.append(pyo.plot(fig, include_plotlyjs=False, output_type='div'))
+    # Generate static HTML page (does needs to be viewed online)
+    html_content = f"""
   <!DOCTYPE html>
   <html>
   <head>
@@ -189,5 +191,5 @@ def generate_report(summary_df, detailed):
   </html>
   """
 
-  with open("simulation_report.html", "w") as file:
-    file.write(html_content)
+    with open("simulation_report.html", "w") as file:
+        file.write(html_content)
