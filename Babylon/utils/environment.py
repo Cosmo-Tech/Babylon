@@ -247,6 +247,7 @@ class Environment(metaclass=SingletonMeta):
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
+        logger.info("state saved")
 
     def store_state_in_cloud(self, state: dict):
         s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
@@ -259,7 +260,8 @@ class Environment(metaclass=SingletonMeta):
         state_dir = Path().home() / ".config/cosmotech/babylon"
         state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
         if not state_file.exists():
-            return None
+            logger.info("state file not found")
+            return dict()
         state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
         return state_data
 
@@ -275,18 +277,19 @@ class Environment(metaclass=SingletonMeta):
         return data
 
     def get_state_id(self):
+        id = str(uuid.uuid4())
         state_local = self.get_state_from_local()
         if not state_local:
-            state_local = dict()
-        if not state_local.get("id"):
-            state_local.setdefault("id", str(uuid.uuid4()))
-            self.store_state_in_local(state_local)
+            state_local = dict(id='')
+        if not state_local.get("id", ""):
+            state_local["id"] = id
+            # self.store_state_in_local(state_local)
             return state_local.get("id")
         state_cloud = self.get_state_from_cloud(state_local)
         if not state_cloud:
-            state_cloud = dict()
-        if not state_cloud.get("id"):
-            state_cloud.setdefault("id", state_local.get("id"))
+            state_cloud = dict(id="")
+        if state_local and not state_cloud.get("id", ""):
+            state_cloud["id"] = state_local.get("id", "") or id
         return state_cloud.get("id")
 
     def store_namespace_in_local(self):
@@ -306,13 +309,13 @@ class Environment(metaclass=SingletonMeta):
                          Please set the platform using the 'namespace use' command.")
             sys.exit(1)
 
-        ns_data = yaml.load(ns_file.open("r"), Loader=yaml.SafeLoader)
-        self.context_id = ns_data.get("context")
-        self.environ_id = ns_data.get("platform")
-        self.set_server_id()
-        self.set_org_name()
-        self.set_blob_client()
-        return ns_data
+        ns_data = yaml.safe_load(ns_file.open("r").read())
+        if ns_data:
+            self.context_id = ns_data.get("context", "")
+            self.environ_id = ns_data.get("platform", "")
+            self.set_server_id()
+            self.set_org_name()
+            self.set_blob_client()
 
     def retrieve_state_func(self):
         init_state = dict()

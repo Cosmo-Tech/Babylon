@@ -19,7 +19,6 @@ def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
     logger.info("Solution deployment")
     state = env.retrieve_state_func()
     azure_token = get_azure_token("csm_api")
-    # state['services']["api"]["organization_id"] = "o-2v54kow7wvz6"
     content = env.fill_template(data=file_content, state=state)
     service_state = state["services"]
     payload: dict = content.get("spec").get("payload")

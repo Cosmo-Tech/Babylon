@@ -21,7 +21,6 @@ def deploy_dataset(file_content: str) -> bool:
     state = env.retrieve_state_func()
     azure_token = get_azure_token("csm_api")
     ext_args = dict(azure_function_secret="")
-    # state['services']["api"]["organization_id"] = "o-2v54kow7wvz6"
     service_state = state["services"]
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     payload: dict = content.get("spec").get("payload")

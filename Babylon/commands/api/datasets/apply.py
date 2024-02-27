@@ -42,23 +42,17 @@ def apply(
     dataset_zip: Path,
 ):
     """Apply dataset deployment"""
-    service_state = state["services"]
     data = None
-    if select(
-        [
-            sys.stdin,
-        ],
-        [],
-        [],
-            0.0,
-    )[0]:
+    if len(select([sys.stdin], [], [], 0.0)[0]):
         stream = click.get_text_stream("stdin")
+        print("reading stdin...")
         data = stream.read()
-    else:
+    if not data:
         if payload_file and not payload_file.exists():
             logger.error(f"{payload_file} not found")
             sys.exit(1)
         elif payload_file:
+            print("reading file...")
             data = payload_file.open().read()
     result = data.replace("{{", "${").replace("}}", "}")
     t = Template(text=result, strict_undefined=True)
@@ -70,6 +64,7 @@ def apply(
     payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)
     payload_dict: dict = json.loads(payload_json)
+    service_state = state["services"]
     organization_id = payload_dict.get("organization_id") or (organization_id
                                                               or service_state["api"].get("organization_id"))
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
