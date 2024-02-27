@@ -30,6 +30,9 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     state = env.retrieve_state_func()
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
+    # Do we keep this ?
+    state['services']["api"]["workspace_key"] = "w-test"
+    state['services']["adx"]["database_name"] = f"{state['services']['api']['organization_id']}-w-test"
     ext_args = dict(azure_function_secret="")
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     service_state = state["services"]
@@ -133,6 +136,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         ok = True
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
+        state["services"]["api"]["workspace_key"] = "w-test"
         name = f"{state['services']['api']['organization_id']}-{state['services']['api']['workspace_key']}"
         available = adx_svc.check(name=name)
         if available:
