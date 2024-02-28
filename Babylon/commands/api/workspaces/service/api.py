@@ -7,6 +7,7 @@ from typing import Optional
 from Babylon.commands.api.workspaces.security.service.api import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.environment import Environment
+from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 
 logger = getLogger("Babylon")
@@ -70,11 +71,14 @@ class WorkspaceService:
         )
         return response
 
-    def delete(self):
+    def delete(self, force_validation: bool):
         workspace_id = self.state["api"]["workspace_id"]
         if not workspace_id:
             logger.error("workspace id not found")
             sys.exit(1)
+        if not force_validation and not confirm_deletion("workspace", workspace_id):
+            return None
+
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
             self.azure_token,
