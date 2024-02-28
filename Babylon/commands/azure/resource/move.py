@@ -144,7 +144,7 @@ def remove_contributor_role(azure_subscription: str, resource_group_id: str, rol
         subscription_id=azure_subscription,
     )
     try:
-        authorization_client.role_assignments.delete(resource_group_id, role_assign_id)
+        authorization_client.role_assignments.delete(resource_group_id)
     except Exception as e:
         logger.error(f"Failed to assign a new role: {e}")
     return True
