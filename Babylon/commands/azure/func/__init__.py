@@ -1,9 +1,8 @@
 from click import group
 from .deploy import deploy
+from .delete import delete
 
-list_commands = [
-    deploy,
-]
+list_commands = [deploy, delete]
 
 
 @group()
