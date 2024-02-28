@@ -80,7 +80,8 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                 state['services']['powerbi']['workspace.id'] = w.get('id')
                 env.store_state_in_local(state)
                 env.store_state_in_cloud(state)
-            logger.info(f"workspace '{name}' already exists")
+            else:
+                logger.info(f"workspace '{name}' already exists")
             work_obj = powerbi_svc.get_by_name_or_id(name=name)
             state['services']['powerbi']['workspace.id'] = work_obj.get('id')
             env.store_state_in_local(state)
