@@ -63,3 +63,23 @@ class ArmService:
             return CommandResponse.fail()
         logger.info("Provisioning state: successful")
         return CommandResponse.success()
+
+    def delete_event_hub(self):
+        subscription_id = self.state["azure"]["subscription_id"]
+        resource_group_name = self.state["azure"]["resource_group_name"]
+        organization_id = self.state["api"]["organization_id"]
+        workspace_key = self.state["api"]["workspace_key"]
+        try:
+            poller = self.arm_client.resources.begin_delete_by_id(
+                resource_id=f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}"
+                f"/providers/Microsoft.EventHub/namespaces/{organization_id}-{workspace_key}",
+                api_version="2019-08-01",
+            )
+            poller.wait()
+            # check if done
+            if not poller.done():
+                return False
+            return True
+        except HttpResponseError as _e:
+            logger.error(f"An error occurred : {_e.message}")
+            return False

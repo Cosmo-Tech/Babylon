@@ -59,12 +59,7 @@ class AdxConsumerService:
         work_id = self.state["api"]["workspace_key"].lower()
         client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         try:
-            client.consumer_groups.delete(
-                resource_group_name=rg,
-                consumer_group_name=name.lower(),
-                event_hub_name=event_hub_name,
-                namespace_name=f"{org_id}-{work_id}",
-            )
+            client.consumer_groups.delete()
         except Exception as exp:
             logger.debug(exp)
             return False

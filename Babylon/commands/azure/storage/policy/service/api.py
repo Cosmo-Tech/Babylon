@@ -58,7 +58,7 @@ class AzureStoragePolicyService:
     def delete(self, account_name: str):
         resource_group = self.state["azure"]["resource_group_name"]
         try:
-            self.storage_mgmt_client.management_policies.delete(resource_group, account_name, "default")
+            self.storage_mgmt_client.management_policies.delete(resource_group)
         except Exception as exp:
             logger.error(exp)
             return CommandResponse.fail()

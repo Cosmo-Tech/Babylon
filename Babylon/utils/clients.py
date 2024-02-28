@@ -131,9 +131,10 @@ def pass_arm_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
+        state = env.get_state_from_vault_by_platform(env.environ_id)
+        azure_subscription_id = state["azure"]["subscription_id"]
         azure_credential = get_azure_credentials()
-        kwargs["arm_client"] = ResourceManagementClient(azure_credential, azure_subscription)
+        kwargs["arm_client"] = ResourceManagementClient(azure_credential, azure_subscription_id)
         return func(*args, **kwargs)
 
     return wrapper
