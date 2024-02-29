@@ -1,0 +1,3 @@
+scenario_name	string
+start_date	date
+end_date	date
