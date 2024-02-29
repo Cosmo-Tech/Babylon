@@ -41,12 +41,14 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     azure_token = get_azure_token("csm_api")
     workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=service_state)
-    workspace = dict()
     if not service_state["api"]["workspace_id"]:
+        logger.info("Creating workspace...")
         response = workspace_svc.create()
         workspace = response.json()
+        logger.info(f"Workspace {workspace['id']} successfully created...")
         logger.info(json.dumps(workspace, indent=2))
     else:
+        logger.info(f"Updating workspace {service_state['api']['workspace_id']}...")
         response = workspace_svc.update()
         response_json = response.json()
         old_security = response_json.get("security")
@@ -69,16 +71,17 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
             powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=service_state)
             name = workspace_powerbi.get("name", "")
             if not name:
-                logger.error("name not found")
+                logger.error("Name of powerBI workspace not found")
                 sys.exit(1)
             workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
             if name not in workspaceli_list_name:
+                logger.info(f"creating powerBI workspace... {name}")
                 w = powerbi_svc.create(name=name)
                 state['services']['powerbi']['workspace.id'] = w.get('id')
                 env.store_state_in_local(state)
                 env.store_state_in_cloud(state)
             else:
-                logger.info(f"workspace '{name}' already exists")
+                logger.info(f"PowerBI workspace '{name}' already exists")
             work_obj = powerbi_svc.get_by_name_or_id(name=name)
             state['services']['powerbi']['workspace.id'] = work_obj.get('id')
             env.store_state_in_local(state)
@@ -90,6 +93,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                 ids = [i.get("identifier") for i in spec_permissions]
                 for g in spec_permissions:
                     if g.get("identifier") in existing_permissions:
+                        logger.info(f"Updating permissions for {g.get('identifier')}")
                         user_svc.update(
                             workspace_id=work_obj.get("id"),
                             right=g.get("rights"),
@@ -97,6 +101,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                             type=g.get("type"),
                         )
                     if g.get("identifier") not in existing_permissions:
+                        logger.info(f"Creating permissions for {g.get('identifier')}")
                         user_svc.add(
                             workspace_id=work_obj.get("id"),
                             right=g.get("rights"),
@@ -106,6 +111,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                 for s in existing_permissions:
                     if s not in ids:
                         if s != state["services"]["babylon"]["principal_id"]:
+                            logger.info(f"Deleting permissions for {g.get('identifier')}")
                             user_svc.delete(
                                 workspace_id=work_obj.get("id"),
                                 email=s,
@@ -119,7 +125,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     path = r.get("path")
                     path_report = pathlib.Path(deploy_dir) / f"{path}"
                     if not path_report.exists():
-                        logger.error(f"report '{path_report}' not found")
+                        logger.error(f"Report '{path_report}' not found")
                     if path_report.exists():
                         report_svc = AzurePowerBIReportService(powerbi_token=po_token, state=service_state)
                         report_svc.upload(
@@ -129,8 +135,8 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                             report_type=rtype,
                             override=True,
                         )
+                        logger.info(f"Report {name} successfully imported")
     if adx_section:
-        created = False
         ok = True
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
@@ -175,6 +181,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = ArmService(arm_client=arm_client, state=service_state)
+        logger.info("Starting deployment of event hub...")
         adx_svc.run(deployment_name="eventhubtestniabldo", file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=service_state)
         principal_id = service_state['adx']['cluster_principal_id']

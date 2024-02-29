@@ -13,7 +13,7 @@ env = Environment()
 
 
 def deploy_organization(file_content: str):
-    logger.info("organization deployment")
+    logger.info("Organization deployment")
     state = env.retrieve_state_func()
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
@@ -23,15 +23,16 @@ def deploy_organization(file_content: str):
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     organization_service = OrganizationService(azure_token=azure_token, spec=spec, state=service_state)
-    organization = dict()
     if not service_state["api"]["organization_id"]:
+        logger.info("Creating organization...")
         response = organization_service.create()
         organization = response.json()
-        service = AzureStorageContainerService(state=state, blob_client=env.blob_client)
+        logger.info(f"Organization {organization['id']} successfully created...")
         logger.info(json.dumps(organization, indent=2))
-        logger.info("creating container ...")
-        response = service.create(name=organization.get("id"))
+        service = AzureStorageContainerService(state=state, blob_client=env.blob_client)
+        service.create(name=organization.get("id"))
     else:
+        logger.info(f"Updating organization {service_state['api']['organization_id']}...")
         response = organization_service.update()
         response_json = response.json()
         old_security = response_json.get("security")

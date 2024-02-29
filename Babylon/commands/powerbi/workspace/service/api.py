@@ -17,7 +17,6 @@ class AzurePowerBIWorkspaceService:
         self.state = state
 
     def create(self, name: str):
-        logger.info(f"creating workspace... {name}")
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups?$workspaceV2=True"
         response = oauth_request(
             url=url_groups,
@@ -46,7 +45,6 @@ class AzurePowerBIWorkspaceService:
         return response
 
     def get_all(self, filter: bool = False):
-        logger.info("Getting all workspaces...")
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:

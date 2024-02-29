@@ -26,12 +26,14 @@ def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=service_state)
-    solution = dict()
     if not service_state["api"]["solution_id"]:
+        logger.info("Creating solution...")
         response = solution_svc.create()
         solution = response.json()
+        logger.info(f"Solution {solution['id']} successfully created...")
         logger.info(json.dumps(solution, indent=2))
     else:
+        logger.info("Updating solution...")
         response = solution_svc.update()
         response_json = response.json()
         old_security = response_json.get("security")
@@ -43,6 +45,7 @@ def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
     env.store_state_in_local(state)
     env.store_state_in_cloud(state)
     # update run_templates
+    logger.info("Uploading run templates...")
     sidecars = content.get("spec")["sidecars"]
     run_templates = sidecars["azure"]["run_templates"]
     for run_item in run_templates:

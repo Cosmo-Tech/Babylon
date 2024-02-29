@@ -47,7 +47,6 @@ class ArmService:
             ext_args=ext_args,
         )
         parameters = {k: {"value": v["defaultValue"]} for k, v in dict(arm_template["parameters"]).items()}
-        logger.info("Starting deployment")
         try:
             poller = self.arm_client.deployments.begin_create_or_update(
                 resource_group_name=resource_group_name,
