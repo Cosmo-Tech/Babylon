@@ -75,7 +75,6 @@ def run(state: Any, azure_token: str, input: str, var_types: str) -> CommandResp
     df['scenarioId'] = ""
     df['scenariorunId'] = ""
     rows = dataframe_to_dict(df, input_types)
-    # TBD read organizationId workspaceId solutionid from csv (if provided) otherwise from babylon state
     for i, entry in enumerate(rows):
         # create scenario
         service_state = state["services"]
@@ -174,7 +173,7 @@ def generate_report(summary_df, detailed):
         fig.update_traces(text=detailed_data['duration'], textposition='outside')
         fig.update_layout(title="Execution time by step (seconds)", xaxis_title="Time", yaxis_title="Step")
         fig_list.append(pyo.plot(fig, include_plotlyjs=False, output_type='div'))
-    # Generate static HTML page (does needs to be viewed online)
+    # Generate static HTML page (should be viewed online)
     html_content = f"""
   <!DOCTYPE html>
   <html>
