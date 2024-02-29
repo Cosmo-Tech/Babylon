@@ -1,0 +1,32 @@
+{
+  "name": "Brewery Master Analysis",
+  "description": "Brewery master reference analysis",
+  "tags": [
+    "Brewery",
+    "reference"
+  ],
+  "worskspaceId": "1",
+  "solutionId": "1",
+  "solutionName": "Brewery Solution",
+  "runTemplateId": "hundred",
+  "runTemplateName": "Full simulation 100 steps",
+  "datasetList": [
+    "1"
+  ],
+  "parametersValues": [
+    {
+      "parameterId": "prefix",
+      "varType": "string",
+      "value": ""
+    }
+  ],
+  "security": {
+    "default": "viewer",
+    "accessControlList": [
+      {
+        "id": "alice.doe@cosmotech.com",
+        "role": "admin"
+      }
+    ]
+  }
+}

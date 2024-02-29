@@ -1,17 +1,11 @@
-import mock
 import unittest
-from click.testing import CliRunner
-from Babylon.commands.api.organizations.create import create
-from Babylon.commands.api.organizations.get import get
-from Babylon.services.organizations_service import OrganizationService
 from Babylon.utils.environment import Environment
-from requests.models import Response
-from click import Path
 
 env = Environment()
 
 
 class OrganizationServiceTestCase(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
@@ -38,5 +32,7 @@ class OrganizationServiceTestCase(unittest.TestCase):
     #     result = CliRunner().invoke(get, standalone_mode=False)
     #     states = env.get_state_from_local()
     #     assert states["services"]["api"]["organization_id"] == '1'
+
+
 if __name__ == "__main__":
     unittest.main()
