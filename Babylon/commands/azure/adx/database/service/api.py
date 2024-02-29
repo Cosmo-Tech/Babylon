@@ -109,12 +109,11 @@ class AdxDatabaseService:
 
     def delete(
         self,
-        current: bool,
         name: str,
     ):
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
-        database_name = self.state["adx"]["database_name"] if current else name
+        database_name = name or self.state["adx"]["database_name"]
         try:
             self.kusto_client.databases.get(
                 resource_group_name=resource_group_name,

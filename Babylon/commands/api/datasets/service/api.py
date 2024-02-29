@@ -41,8 +41,7 @@ class DatasetService:
         )
         return response
 
-    def delete(self, force_validation: bool):
-        dataset_id = self.state["api"]["dataset_id"]
+    def delete(self, dataset_id: str, force_validation: bool):
         if not force_validation and not confirm_deletion("dataset", dataset_id):
             return None
         response = oauth_request(
@@ -59,8 +58,7 @@ class DatasetService:
         )
         return response
 
-    def get(self):
-        dataset_id = self.state["api"]["dataset_id"]
+    def get(self, dataset_id: str):
         if not dataset_id:
             logger.error("dataset_id not found")
             sys.exit(1)
