@@ -300,7 +300,7 @@ class Environment(metaclass=SingletonMeta):
         ns = dict(context=self.context_id, platform=self.environ_id)
         s.write_bytes(data=yaml.dump(ns).encode("utf-8"))
 
-    def get_namespace_from_local(self):
+    def get_namespace_from_local(self, context: str = "", platform: str = ""):
         ns_dir = Path().home() / ".config/cosmotech/babylon"
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
@@ -311,8 +311,8 @@ class Environment(metaclass=SingletonMeta):
 
         ns_data = yaml.safe_load(ns_file.open("r").read())
         if ns_data:
-            self.context_id = ns_data.get("context", "")
-            self.environ_id = ns_data.get("platform", "")
+            self.context_id = context or ns_data.get("context", "")
+            self.environ_id = platform or ns_data.get("platform", "")
             self.set_server_id()
             self.set_org_name()
             self.set_blob_client()
