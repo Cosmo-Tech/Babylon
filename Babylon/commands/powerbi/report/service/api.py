@@ -175,7 +175,6 @@ class AzurePowerBIReportService:
             },
             "pageName": None,
         }
-        logger.info("Successfully imported")
         return CommandResponse.success(new_report, verbose=True)
 
 

@@ -89,7 +89,6 @@ class AdxPermissionService:
         return entity_assignments
 
     def get_all(self) -> Iterable[DatabasePrincipalAssignment]:
-        logger.info("Getting assignments...")
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
         database_name = self.state["adx"]["database_name"]

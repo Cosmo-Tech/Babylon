@@ -15,7 +15,6 @@ class AzurePowerBIWorkspaceUserService:
         self.powerbi_token = powerbi_token
 
     def add(self, workspace_id: str, right: str, type: str, email: str):
-        logger.info(f"Adding {email}")
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         identifier = email or self.state["azure"]["email"]
         url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users"
@@ -30,7 +29,6 @@ class AzurePowerBIWorkspaceUserService:
         logger.info("Successfully added")
 
     def delete(self, workspace_id, force_validation: bool, email: str):
-        logger.info(f"Deleting {email}")
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url_users = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{email}")
         if not force_validation and not confirm_deletion("user", email):
@@ -41,7 +39,6 @@ class AzurePowerBIWorkspaceUserService:
         logger.info("Successfully removed")
 
     def get_all(self, workspace_id: str, filter: bool = False):
-        logger.info("Getting all")
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users"
         response = oauth_request(url_users, self.powerbi_token)
@@ -53,7 +50,6 @@ class AzurePowerBIWorkspaceUserService:
         return output_data
 
     def update(self, workspace_id: str, right: str, type: str, email: str):
-        logger.info(f"Updating {email}")
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users"
         body = {

@@ -28,7 +28,7 @@ class AzureStorageContainerService:
         name = name.lower()
         try:
             container = self.blob_client.create_container(name)
-            logger.info("Successfully created")
+            logger.info("Container successfully created")
             return container
         except HttpResponseError as e:
             error_message = e.message.split("\n")
