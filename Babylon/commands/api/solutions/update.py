@@ -43,7 +43,8 @@ def update(
         print(f"file {payload_file} not found in directory")
         return CommandResponse.fail()
     spec = dict()
-    spec["payload"] = env.fill_template(payload_file)
+    with open(payload_file, 'r') as f:
+        spec["payload"] = env.fill_template(f.read(), state)
     service = SolutionService(state=service_state, azure_token=azure_token, spec=spec)
     response = service.update()
     if response is None:
