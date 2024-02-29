@@ -32,7 +32,7 @@ class DatasetServiceTestCase(unittest.TestCase):
         mock_create.return_value = create_response
 
         # getstatus_response = Response()
-        # getstatus_response._content = b'{"success"}'
+        # getstatus_response._content = b'{"description": "successful"}'
         # mock_get_status.return_value = getstatus_response
 
         # link_to_workspace_response = Response()
@@ -40,13 +40,13 @@ class DatasetServiceTestCase(unittest.TestCase):
         # mock_link_to_workspace.return_value = link_to_workspace_response
 
         # refresh_response = Response()
-        # refresh_response._content = b'{"successful"}'
+        # refresh_response._content = b'{"description": "successful"}'
         # mock_refresh.return_value = refresh_response
 
         result = CliRunner().invoke(
             create,
             ["--organization-id", "my_organization_id",
-             str(env.pwd / "Babylon/tests/api/datasets/payload.json")],
+             str(env.pwd / "Babylon/test/api/datasets/payload.json")],
             standalone_mode=False)
 
         assert result.exit_code == 0
@@ -102,7 +102,7 @@ class DatasetServiceTestCase(unittest.TestCase):
         the_response.status_code = 200
         the_response._content = b'{"id": "1", "name": "ADT Dataset"}'
         datasetservice_update.return_value = the_response
-        payload_file = str(env.pwd / "Babylon/tests/api/datasets/payload.json")
+        payload_file = str(env.pwd / "Babylon/test/api/datasets/payload.json")
         result = CliRunner().invoke(update,
                                     ["--organization-id", "my_organization_id", "--dataset-id", "1", payload_file],
                                     standalone_mode=False)

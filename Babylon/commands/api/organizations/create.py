@@ -32,7 +32,8 @@ def create(
     Register new organization
     """
     spec = dict()
-    spec["payload"] = env.fill_template(payload_file)
+    with open(payload_file, 'r') as f:
+        spec["payload"] = env.fill_template(f.read(), state)
     organizations_service = OrganizationService(state['services'], azure_token, spec=spec)
     response = organizations_service.create()
     if response is None:

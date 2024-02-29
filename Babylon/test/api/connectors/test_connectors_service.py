@@ -26,7 +26,7 @@ class ConnectorServiceTestCase(unittest.TestCase):
         connectorservice_create.return_value = the_response
 
         runner = CliRunner()
-        runner.invoke(create, [str(env.pwd / "Babylon/tests/api/connectors/payload.json")], standalone_mode=False)
+        runner.invoke(create, [str(env.pwd / "Babylon/test/api/connectors/payload.json")], standalone_mode=False)
         states = env.get_state_from_local()
         assert states["services"]["api"]["connector_id"] == '1'
 
