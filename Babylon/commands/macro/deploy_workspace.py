@@ -30,14 +30,12 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     state = env.retrieve_state_func()
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
-    # Do we keep this ?
-    state['services']["api"]["workspace_key"] = "w-test"
-    state['services']["adx"]["database_name"] = f"{state['services']['api']['organization_id']}-w-test"
     ext_args = dict(azure_function_secret="")
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     service_state = state["services"]
     payload: dict = content.get("spec").get("payload")
     work_key = payload.get('key')
+    state["services"]["api"]["workspace_key"] = work_key
     state['services']["adx"]["database_name"] = f"{state['services']['api']['organization_id']}-{work_key}"
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
@@ -136,8 +134,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         ok = True
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
-        state["services"]["api"]["workspace_key"] = "w-test"
-        name = f"{state['services']['api']['organization_id']}-{state['services']['api']['workspace_key']}"
+        name = f"{state['services']['api']['organization_id']}-{work_key}"
         available = adx_svc.check(name=name)
         if available:
             created = adx_svc.create(name=name, retention=adx_section.get("database").get("retention", 365))
@@ -182,7 +179,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         arm_svc = AzureIamService(iam_client=iam_client, state=service_state)
         principal_id = service_state['adx']['cluster_principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
-        resource_name = f"{service_state['api']['organization_id']}-{service_state['api']['workspace_key']}"
+        resource_name = f"{service_state['api']['organization_id']}-{work_key}"
         role_id = service_state['azure']['eventhub_built_data_receiver']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
@@ -190,7 +187,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     role_id=role_id)
         principal_id = service_state['platform']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
-        resource_name = f"{service_state['api']['organization_id']}-{service_state['api']['workspace_key']}"
+        resource_name = f"{service_state['api']['organization_id']}-{work_key}"
         role_id = service_state['azure']['eventhub_built_data_sender']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
@@ -198,7 +195,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     role_id=role_id)
         principal_id = service_state['babylon']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
-        resource_name = f"{service_state['api']['organization_id']}-{service_state['api']['workspace_key']}"
+        resource_name = f"{service_state['api']['organization_id']}-{work_key}"
         role_id = service_state['azure']['eventhub_built_data_sender']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
