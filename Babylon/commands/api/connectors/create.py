@@ -33,7 +33,8 @@ def create(state: Any, azure_token: str, payload_file: pathlib.Path) -> CommandR
         print(f"file {payload_file} not found in directory")
         return CommandResponse.fail()
     spec = dict()
-    spec["payload"] = env.fill_template(payload_file)
+    with open(payload_file, 'r') as f:
+        spec["payload"] = env.fill_template(f.read(), state)
     service = ConnectorService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.create()
     if response is None:

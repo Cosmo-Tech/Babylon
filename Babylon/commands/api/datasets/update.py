@@ -42,7 +42,8 @@ def update(state: Any, azure_token: str, organization_id: str, dataset_id: str,
         print(f"file {payload_file} not found in directory")
         return CommandResponse.fail()
     spec = dict()
-    spec["payload"] = env.fill_template(payload_file)
+    with open(payload_file, 'r') as f:
+        spec["payload"] = env.fill_template(f.read(), state)
     service = DatasetService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.update()
     if response is None:
