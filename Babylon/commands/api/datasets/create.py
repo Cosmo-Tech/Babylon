@@ -69,7 +69,8 @@ def create(
             sys.exit(1)
 
     spec = dict()
-    spec["payload"] = env.fill_template(payload_file)
+    with open(payload_file, 'r') as f:
+        spec["payload"] = env.fill_template(f.read(), state)
     service = DatasetService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.create()
     if response is None:
