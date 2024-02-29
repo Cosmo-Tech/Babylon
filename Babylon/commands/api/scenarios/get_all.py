@@ -24,8 +24,8 @@ logger = getLogger("Babylon")
 @pass_azure_token("csm_api")
 @timing_decorator
 @output_to_file
-@option("--organization_id", "organization_id", type=str)
-@option("--workspace_id", "workspace_id", type=str)
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
 def get_all(
