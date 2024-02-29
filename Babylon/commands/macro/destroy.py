@@ -1,18 +1,17 @@
-import pathlib
-from logging import getLogger
-
-from azure.mgmt.resource import ResourceManagementClient
-from click import command, option
 import json
-from azure.mgmt.kusto import KustoManagementClient
+import pathlib
 
+from logging import getLogger
+from click import command, option
+from azure.mgmt.kusto import KustoManagementClient
+from azure.mgmt.resource import ResourceManagementClient
 from Babylon.commands.azure.arm.service.api import ArmService
-from Babylon.commands.azure.func.service.api import AzureAppFunctionService
 from Babylon.commands.api.datasets.service.api import DatasetService
-from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
 from Babylon.commands.api.scenarios.service.api import ScenarioService
 from Babylon.commands.api.solutions.service.api import SolutionService
 from Babylon.commands.api.workspaces.service.api import WorkspaceService
+from Babylon.commands.azure.func.service.api import AzureAppFunctionService
+from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
