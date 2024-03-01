@@ -3,7 +3,7 @@ from typing import Any
 from click import command
 from click import option
 
-from Babylon.commands.api.workspaces.service.api import WorkspaceService
+from Babylon.commands.api.workspaces.services.api import WorkspaceService
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.decorators import (
     injectcontext,

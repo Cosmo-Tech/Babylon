@@ -3,7 +3,7 @@ from typing import Any
 
 from click import Path, command, pass_context, argument
 from azure.mgmt.kusto import KustoManagementClient
-from Babylon.commands.azure.adx.script.service.api import AdxScriptService
+from Babylon.commands.azure.adx.services.script import AdxScriptService
 from Babylon.utils.decorators import (
     retrieve_state,
     timing_decorator,

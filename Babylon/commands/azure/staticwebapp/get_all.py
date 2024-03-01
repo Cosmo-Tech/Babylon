@@ -2,7 +2,7 @@ import logging
 
 from typing import Any, Optional
 from click import command, option
-from Babylon.commands.azure.staticwebapp.service.api import AzureSWAService
+from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment

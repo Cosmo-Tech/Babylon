@@ -3,7 +3,7 @@ import pathlib
 
 from typing import Any, Optional
 from click import command, argument, option, Path
-from Babylon.commands.azure.appinsight.service.api import AzureAppInsightService
+from Babylon.commands.azure.appinsight.services.api import AzureAppInsightService
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, wrapcontext

@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Any
 from click import option
 from click import command
-from Babylon.commands.api.workspaces.security.service.api import ApiWorkspaceSecurityService
+from Babylon.commands.api.workspaces.services.security import ApiWorkspaceSecurityService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file

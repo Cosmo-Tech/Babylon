@@ -6,7 +6,7 @@ from Babylon.utils.decorators import injectcontext, retrieve_state, timing_decor
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
-from Babylon.services.organizations_service import OrganizationService
+from Babylon.commands.api.organizations.services.api import OrganizationService
 
 logger = getLogger("Babylon")
 env = Environment()

@@ -9,7 +9,7 @@ from Babylon.utils.response import CommandResponse
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.clients import pass_kusto_client
 from Babylon.utils.decorators import timing_decorator
-from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
+from Babylon.commands.azure.adx.services.permission import AdxPermissionService
 from Babylon.utils.decorators import (
     retrieve_state,
     wrapcontext,

@@ -2,7 +2,7 @@ import logging
 
 from click import argument, command, option
 
-from Babylon.commands.api.datasets.security.service.api import DatasetSecurityService
+from Babylon.commands.api.datasets.services.security import DatasetSecurityService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, timing_decorator
 from Babylon.utils.decorators import injectcontext

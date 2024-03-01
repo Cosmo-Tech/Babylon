@@ -5,7 +5,7 @@ from typing import Any
 from click import argument, command
 from click import option
 from click import Path
-from Babylon.commands.api.workspaces.service.api import WorkspaceService
+from Babylon.commands.api.workspaces.services.api import WorkspaceService
 from Babylon.utils.decorators import (
     injectcontext,
     retrieve_state,

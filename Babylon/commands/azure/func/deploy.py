@@ -4,7 +4,7 @@ from typing import Any
 from azure.mgmt.resource import ResourceManagementClient
 from click import argument, option
 from click import command
-from Babylon.commands.azure.func.service.api import AzureAppFunctionService
+from Babylon.commands.azure.func.services.api import AzureAppFunctionService
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import retrieve_state, wrapcontext

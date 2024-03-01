@@ -2,7 +2,7 @@ import logging
 
 from click import command
 from click import argument
-from Babylon.commands.azure.ad.group.member.service.api import AzureDirectoyMemberService
+from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file, wrapcontext
 from Babylon.utils.credentials import pass_azure_token

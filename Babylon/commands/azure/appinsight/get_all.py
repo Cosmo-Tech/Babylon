@@ -2,7 +2,7 @@ import logging
 
 from typing import Any, Optional
 from click import command, option
-from Babylon.commands.azure.appinsight.service.api import AzureAppInsightService
+from Babylon.commands.azure.appinsight.services.api import AzureAppInsightService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.credentials import pass_azure_token

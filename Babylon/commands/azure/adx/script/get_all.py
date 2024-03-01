@@ -3,7 +3,7 @@ import logging
 from typing import Any
 from azure.mgmt.kusto import KustoManagementClient
 from click import command
-from Babylon.commands.azure.adx.script.service.api import AdxScriptService
+from Babylon.commands.azure.adx.services.script import AdxScriptService
 from Babylon.utils.decorators import (
     retrieve_state,
     wrapcontext,

@@ -4,8 +4,8 @@ from logging import getLogger
 import sys
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
-from Babylon.services.organizations_service import OrganizationService
-from Babylon.commands.azure.storage.container.service.api import (
+from Babylon.commands.api.organizations.services.api import OrganizationService
+from Babylon.commands.azure.storage.services.container import (
     AzureStorageContainerService, )
 
 logger = getLogger("Babylon")

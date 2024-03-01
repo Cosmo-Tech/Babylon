@@ -6,7 +6,7 @@ from click import Path, argument
 from click import command
 from click import option
 
-from Babylon.commands.api.datasets.service.api import DatasetService
+from Babylon.commands.api.datasets.services.api import DatasetService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     output_to_file,

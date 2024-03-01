@@ -8,15 +8,14 @@ from pathlib import Path
 from logging import getLogger
 from Babylon.utils.environment import Environment
 from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.service.api import ArmService
+from Babylon.commands.azure.arm.services.api import ArmService
 from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.commands.git_hub.runs.service.api import GitHubRunsService
-from Babylon.commands.azure.staticwebapp.service.api import AzureSWAService
+from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
+from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
 from Babylon.utils.credentials import get_azure_credentials, get_azure_token
-from Babylon.commands.azure.ad.app.service.api import AzureDirectoyAppService
-# from Babylon.commands.azure.ad.group.member.service.api import AzureDirectoyMemberService
-from Babylon.commands.azure.ad.app.password.service.api import AzureDirectoyPasswordService
-from Babylon.commands.azure.staticwebapp.app_settings.service.api import AzureSWASettingsAppService
+from Babylon.commands.azure.ad.services.password import AzureDirectoyPasswordService
+from Babylon.commands.azure.staticwebapp.services.app_settings import AzureSWASettingsAppService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -27,7 +26,13 @@ def deploy_swa(file_content: str):
     state = env.retrieve_state_func()
     subscription_id = state["services"]["azure"]["subscription_id"]
     github_secret = env.get_global_secret(resource="github", name="token")
-    ext_args = dict(github_secret=github_secret, secret_powerbi="")
+    organization_id = state['services']['api']['organization_id']
+    workspace_key = state['services']['api']['workspace_key']
+    obi_secret = env.get_project_secret(
+        organization_id=organization_id,
+        workspace_key=workspace_key,
+        name="pbi")
+    ext_args = dict(github_secret=github_secret, secret_powerbi=obi_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     sidecars = content.get("spec").get("sidecars", {})
     payload: dict = content.get("spec").get("payload", {})

@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Any, Optional
 from click import command
 from click import option
-from Babylon.commands.api.solutions.service.api import SolutionService
+from Babylon.commands.api.solutions.services.api import SolutionService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import timing_decorator
