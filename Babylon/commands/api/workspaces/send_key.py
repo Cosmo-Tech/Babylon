@@ -35,6 +35,9 @@ def send_key(
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
-    workspace_service.send_key()
+    response = workspace_service.send_key()
+    if response is None:
+        return CommandResponse.fail()
+    workspace = response.json()    
     logger.info(f'Successfully update key in workspace {service_state["api"]["workspace_id"]}')
-    return CommandResponse.success()
+    return CommandResponse.success(workspace, verbose=True)
