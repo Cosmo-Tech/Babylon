@@ -181,8 +181,8 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = ArmService(arm_client=arm_client, state=service_state)
-        logger.info("Starting deployment of event hub...")
-        adx_svc.run(deployment_name="eventhubtestniabldo", file="eventhub_deploy.json")
+        deployment_name = f"{service_state['api']['organization_id']}-{work_key}"
+        adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=service_state)
         principal_id = service_state['adx']['cluster_principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"

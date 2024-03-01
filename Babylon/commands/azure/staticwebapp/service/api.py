@@ -80,8 +80,7 @@ class AzureSWAService:
         if response is None:
             return CommandResponse.fail()
         logger.info(
-            f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}"
-        )
+            f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}")
         response_polling = polling2.poll(
             lambda: oauth_request(
                 f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
