@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 
 from azure.core.exceptions import HttpResponseError
 from Babylon.utils.environment import Environment
