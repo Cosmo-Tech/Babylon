@@ -9,7 +9,7 @@ from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
-from Babylon.utils.decorators import describe_dry_run, wrapcontext
+from Babylon.utils.decorators import describe_dry_run, injectcontext
 from Babylon.utils.decorators import retrieve_state, timing_decorator
 from Babylon.commands.azure.adx.services.permission import AdxPermissionService
 
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_kusto_client
 @describe_dry_run("Would go through each role of given principal and delete them.")

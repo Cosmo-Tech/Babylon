@@ -5,7 +5,7 @@ from click import command
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_powerbi_token()
 @retrieve_state
 def get_current(

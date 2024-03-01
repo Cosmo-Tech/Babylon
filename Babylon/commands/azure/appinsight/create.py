@@ -6,7 +6,7 @@ from click import command, argument, option, Path
 from Babylon.commands.azure.appinsight.services.api import AzureAppInsightService
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
 
@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @option(
     "--file",

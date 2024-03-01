@@ -3,7 +3,7 @@ import logging
 from click import command
 from click import argument
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
-from Babylon.utils.decorators import output_to_file, wrapcontext
+from Babylon.utils.decorators import output_to_file, injectcontext
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @pass_powerbi_token()
 @argument("name", type=QueryType())

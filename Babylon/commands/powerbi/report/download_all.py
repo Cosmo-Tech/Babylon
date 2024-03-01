@@ -7,7 +7,7 @@ from click import option
 from click import Path
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option(

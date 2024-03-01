@@ -7,7 +7,7 @@ from Babylon.commands.azure.staticwebapp.services.app_settings import (
     AzureSWASettingsAppService, )
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @argument("webapp_name", type=QueryType())
 @retrieve_state

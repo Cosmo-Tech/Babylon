@@ -9,7 +9,7 @@ from click import option
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.utils.macro import Macro
 
@@ -21,7 +21,7 @@ prefixApp = "App"
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @option(
     "--arm-path",
     "arm_path",

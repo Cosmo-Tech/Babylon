@@ -3,7 +3,7 @@ import logging
 from typing import Any, Optional
 from click import command, option
 from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
@@ -13,7 +13,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state

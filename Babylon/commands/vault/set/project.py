@@ -4,7 +4,7 @@ from typing import Any
 from click import Choice, argument, command
 from hvac import Client
 from Babylon.utils.clients import pass_hvac_client
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import inject_context_with_resource, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_hvac_client
 @argument("resource", type=Choice(['azf', 'powerbi', 'eventhub', 'func']))
 @argument("value", type=QueryType())

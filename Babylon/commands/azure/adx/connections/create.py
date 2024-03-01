@@ -7,7 +7,7 @@ from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
 from click import Choice, argument, command, option
-from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
+from Babylon.utils.decorators import retrieve_state, timing_decorator, injectcontext
 from Babylon.commands.azure.adx.services.connection import AdxConnectionService
 
 logger = logging.getLogger("Babylon")
@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_kusto_client
 @option("--mapping", "mapping", type=QueryType(), help="ADX mapping name")

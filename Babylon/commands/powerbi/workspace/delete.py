@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 
 logger = logging.getLogger("Babylon")
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_powerbi_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")

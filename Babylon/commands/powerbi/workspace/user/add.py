@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.commands.powerbi.workspace.user.service.api import (
     AzurePowerBIWorkspaceUserService, )
@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")
 @argument("identifier", type=QueryType())

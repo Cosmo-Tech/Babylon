@@ -9,10 +9,8 @@ from functools import wraps
 from typing import Callable
 from Babylon.version import get_version
 from click import get_current_context, option
-from Babylon.utils.checkers import check_exists
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.config import config_files, get_settings_by_context
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -131,81 +129,6 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
 
         doc = wrapper.__doc__ or ""
         wrapper.__doc__ = "\n\n".join([doc, f"Requires the program `{program_name}` to run"])
-        return wrapper
-
-    return wrap_function
-
-
-def inject_context(func):
-    """
-    Inject a dictionary of context to a command
-    :param func: The function being decorated
-    """
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any):
-        context = dict()
-        config_dir = env.configuration.config_dir
-        for k in config_files:
-            context[k] = get_settings_by_context(
-                config_dir=config_dir,
-                resource=k,
-                context_id=env.context_id,
-                environ_id=env.environ_id,
-            )
-        kwargs["context"] = context
-        func(*args, **kwargs)
-        return wrapper
-
-    return wrapper
-
-
-def inject_context_with_resource(scope, required: bool = True) -> Callable[..., Any]:
-    """
-    Inject a dictionary of context to a command from a specific resource
-    """
-
-    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            context = dict()
-            _context = dict()
-            config_dir = env.configuration.config_dir
-            for i, k in scope.items():
-                env.configuration.get_path(resource_id=i)
-                context[i] = get_settings_by_context(
-                    config_dir=config_dir,
-                    resource=i,
-                    context_id=env.context_id,
-                    environ_id=env.environ_id,
-                )
-                for j in k:
-                    _context.update({f"{i}_{j}": context[i][j]})
-                    if required:
-                        check_exists(i, j, _context)
-            kwargs["context"] = _context
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return wrap_function
-
-
-def wrapcontext() -> Callable[..., Any]:
-
-    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
-        @option("-c", "--context", "context", required=True, help="Context Name")
-        @option("-p", "--platform", "platform", required=True, help="Platform Name")
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            project = kwargs.pop("context", None)
-            env.set_context(project)
-            platform = kwargs.pop("platform", None)
-            env.set_environ(platform)
-            return func(*args, **kwargs)
-
         return wrapper
 
     return wrap_function

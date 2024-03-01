@@ -7,14 +7,14 @@ import pathlib
 from Babylon.utils.clients import pass_arm_client
 from click import Path, argument, command, option
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import timing_decorator, wrapcontext
+from Babylon.utils.decorators import timing_decorator, injectcontext
 from azure.mgmt.resource import ResourceManagementClient
 
 logger = logging.getLogger('Babylon')
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_arm_client
 @argument("resource_group")
 @option("--item", "items", multiple=True)

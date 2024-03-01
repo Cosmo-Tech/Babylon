@@ -9,14 +9,14 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_arm_client
 from Babylon.utils.response import CommandResponse
 from azure.mgmt.resource import ResourceManagementClient
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_arm_client
 @argument("deployment_name", type=QueryType())
 @option("--complete-mode", "deploy_mode_complete", is_flag=True, help="Mode deployment")

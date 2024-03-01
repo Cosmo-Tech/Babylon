@@ -4,7 +4,7 @@ from click import command
 from click import argument
 from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file, wrapcontext
+from Babylon.utils.decorators import output_to_file, injectcontext
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
 
@@ -12,7 +12,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @pass_azure_token("graph")
 @argument("group_id", type=QueryType())

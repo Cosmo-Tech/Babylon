@@ -10,7 +10,7 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 
 logger = logging.getLogger("Babylon")
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--name", "name", help="PowerBI workspace name", type=QueryType())
