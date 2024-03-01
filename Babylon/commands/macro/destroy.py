@@ -107,12 +107,12 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     subscription_id = state["services"]["azure"]["subscription_id"]
     arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
     azure_func_service = AzureAppFunctionService(arm_client=arm_client, state=service_state)
-    logger.info(f"Deleting azure function....")
+    logger.info("Deleting azure function....")
     azure_func_service.delete()
 
     # deleting EventHub
     arm_service = ArmService(arm_client=arm_client, state=service_state)
-    logger.info(f"Deleting event hub....")
+    logger.info("Deleting event hub....")
     arm_service.delete_event_hub()
 
     # deleting adx database
