@@ -14,7 +14,7 @@ from Babylon.commands.git_hub.runs.service.api import GitHubRunsService
 from Babylon.commands.azure.staticwebapp.service.api import AzureSWAService
 from Babylon.utils.credentials import get_azure_credentials, get_azure_token
 from Babylon.commands.azure.ad.app.service.api import AzureDirectoyAppService
-from Babylon.commands.azure.ad.group.member.service.api import AzureDirectoyMemberService
+# from Babylon.commands.azure.ad.group.member.service.api import AzureDirectoyMemberService
 from Babylon.commands.azure.ad.app.password.service.api import AzureDirectoyPasswordService
 from Babylon.commands.azure.staticwebapp.app_settings.service.api import AzureSWASettingsAppService
 
@@ -33,9 +33,9 @@ def deploy_swa(file_content: str):
     payload: dict = content.get("spec").get("payload", {})
     github_section = sidecars.get('github', {})
     if github_section:
-        state['github']['organization'] = github_section.get('organization', "")
-        state['github']['repository'] = github_section.get('repository', "")
-        state["github"]["branch"] = github_section.get('branch', "")
+        state['services']['github']['organization'] = github_section.get('organization_name', "")
+        state['services']['github']['repository'] = github_section.get('repository_name', "")
+        state['services']["github"]["branch"] = github_section.get('branch', "")
     app = sidecars.get('azure').get('app', {})
     if app:
         azure_token = get_azure_token("graph")
@@ -44,6 +44,7 @@ def deploy_swa(file_content: str):
         object_id = state['services']['app']["object_id"]
         get_app = app_svc.get(object_id=object_id)
         if not get_app:
+            print("app not found")
             app_created, sp = app_svc.create(details=details)
             state['services']['app']["client_id"] = app_created["appId"]
             state['services']['app']["name"] = app_created["appDisplayName"]
@@ -55,10 +56,11 @@ def deploy_swa(file_content: str):
             app_secrets.create(object_id=sp["id"], password_name="pbi")
             app_secrets.create(object_id=sp["id"], password_name="azf")
             # add this app to powerbi group (az)
-            group_id = sidecars.get('powerbi').get('group_id')
-            if group_id:
-                group_svc = AzureDirectoyMemberService(azure_token=azure_token)
-                group_svc.add(group_id=group_id, principal_id=app_created["id"])
+            # group_id = sidecars.get('powerbi').get('group_id')
+            # if group_id:
+            #     group_svc = AzureDirectoyMemberService(azure_token=azure_token)
+            #     group_svc.add(group_id=group_id, principal_id=app_created["id"])
+            #     print("add app ")
         else:
             app_svc.update(object_id=object_id, details=details)
     swa_name = payload.get('name', "")
@@ -69,6 +71,7 @@ def deploy_swa(file_content: str):
         swa_svc = AzureSWAService(azure_token=azure_token, state=state.get('services'))
         swas = swa_svc.get_all(filter="[].name")
         if swa_name not in swas:
+            print("webapp not found")
             payload_str = json.dumps(obj=payload, indent=4, ensure_ascii=True)
             swa = swa_svc.create(webapp_name=swa_name, details=payload_str)
             state['services']['webapp']['static_domain'] = swa["properties"]['defaultHostname']
@@ -110,7 +113,7 @@ def deploy_swa(file_content: str):
         settings = powerbi.get('settings')
         settings_str = json.dumps(obj=settings, indent=4, ensure_ascii=True)
         swa_settings.update(webapp_name=swa_name, details=settings_str)
-    function_spec = sidecars.get("azure").get("function")
+    function_spec = sidecars.get("azure").get("function", {})
     if function_spec:
         url_zip = function_spec.get('url_zip')
         azure_credential = get_azure_credentials()
