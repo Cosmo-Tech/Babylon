@@ -5,13 +5,13 @@ from logging import getLogger
 from click import command, option
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.service.api import ArmService
-from Babylon.commands.api.datasets.service.api import DatasetService
-from Babylon.commands.api.scenarios.service.api import ScenarioService
-from Babylon.commands.api.solutions.service.api import SolutionService
-from Babylon.commands.api.workspaces.service.api import WorkspaceService
-from Babylon.commands.azure.func.service.api import AzureAppFunctionService
-from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
+from Babylon.commands.azure.arm.services.api import ArmService
+from Babylon.commands.api.datasets.services.api import DatasetService
+from Babylon.commands.api.scenarios.services.api import ScenarioService
+from Babylon.commands.api.solutions.services.api import SolutionService
+from Babylon.commands.api.workspaces.services.api import WorkspaceService
+from Babylon.commands.azure.func.services.api import AzureAppFunctionService
+from Babylon.commands.azure.adx.services.database import AdxDatabaseService
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (

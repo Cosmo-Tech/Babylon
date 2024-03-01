@@ -3,7 +3,7 @@ from typing import Any
 from Babylon.utils.environment import Environment
 from click import command
 from click import option
-from Babylon.commands.api.solutions.service.api import SolutionService
+from Babylon.commands.api.solutions.services.api import SolutionService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.decorators import injectcontext, retrieve_state

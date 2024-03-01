@@ -7,7 +7,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
-from Babylon.services.security.solution_security_service import SolutionSecurityService
+from Babylon.commands.api.solutions.services.security import SolutionSecurityService
 
 
 @command()

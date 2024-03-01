@@ -3,7 +3,7 @@ from typing import Any
 
 from click import command, option
 
-from Babylon.commands.api.scenarioruns.service.api import ScenarioRunService
+from Babylon.commands.api.scenarioruns.services.api import ScenarioRunService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import timing_decorator, injectcontext, retrieve_state, output_to_file
 from Babylon.utils.response import CommandResponse

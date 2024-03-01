@@ -1,7 +1,7 @@
 import mock
 import unittest
 from click.testing import CliRunner
-from Babylon.commands.api.datasets.service.api import DatasetService
+from Babylon.commands.api.datasets.services.api import DatasetService
 from Babylon.commands.api.datasets.create import create
 from Babylon.commands.api.datasets.get import get
 from Babylon.commands.api.datasets.get_all import get_all

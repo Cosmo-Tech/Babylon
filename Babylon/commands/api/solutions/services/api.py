@@ -3,7 +3,7 @@ import sys
 import logging
 
 from typing import Optional
-from Babylon.services.security.solution_security_service import SolutionSecurityService
+from Babylon.commands.api.solutions.services.security import SolutionSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request

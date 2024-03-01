@@ -1,24 +1,24 @@
-import json
 import os
+import sys
+import json
 import pathlib
 
 from logging import getLogger
-import sys
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.service.api import ArmService
+from Babylon.commands.azure.arm.services.api import ArmService
 from azure.mgmt.authorization import AuthorizationManagementClient
-from Babylon.commands.api.workspaces.service.api import WorkspaceService
-from Babylon.commands.azure.permission.service.api import AzureIamService
-from Babylon.commands.azure.adx.script.service.api import AdxScriptService
-from Babylon.utils.credentials import get_azure_credentials, get_azure_token, get_powerbi_token
-from Babylon.commands.azure.adx.consumer.service.api import AdxConsumerService
-from Babylon.commands.azure.adx.database.service.api import AdxDatabaseService
+from Babylon.commands.azure.adx.services.script import AdxScriptService
+from Babylon.commands.api.workspaces.services.api import WorkspaceService
+from Babylon.commands.azure.permission.services.api import AzureIamService
+from Babylon.commands.azure.adx.services.consumer import AdxConsumerService
+from Babylon.commands.azure.adx.services.database import AdxDatabaseService
+from Babylon.commands.azure.adx.services.connection import AdxConnectionService
+from Babylon.commands.azure.adx.services.permission import AdxPermissionService
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
-from Babylon.commands.azure.adx.permission.service.api import AdxPermissionService
-from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
+from Babylon.utils.credentials import get_azure_credentials, get_azure_token, get_powerbi_token
 from Babylon.commands.powerbi.workspace.user.service.api import (
     AzurePowerBIWorkspaceUserService, )
 
@@ -31,13 +31,19 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     state = env.retrieve_state_func()
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
-    ext_args = dict(azure_function_secret="")
+    organization_id = state['services']['api']['organization_id']
+    workspace_key = state['services']['api']['workspace_key']
+    azf_secret = env.get_project_secret(
+        organization_id=organization_id,
+        workspace_key=workspace_key,
+        name="azf")
+    ext_args = dict(azure_function_secret=azf_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     service_state = state["services"]
     payload: dict = content.get("spec").get("payload")
     work_key = payload.get('key')
     state["services"]["api"]["workspace_key"] = work_key
-    state['services']["adx"]["database_name"] = f"{state['services']['api']['organization_id']}-{work_key}"
+    state['services']["adx"]["database_name"] = f"{organization_id}-{work_key}"
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     azure_token = get_azure_token("csm_api")
@@ -182,12 +188,12 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = ArmService(arm_client=arm_client, state=service_state)
-        deployment_name = f"{service_state['api']['organization_id']}-{work_key}"
+        deployment_name = f"{organization_id}-{work_key}"
         adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=service_state)
         principal_id = service_state['adx']['cluster_principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
-        resource_name = f"{service_state['api']['organization_id']}-{work_key}"
+        resource_name = f"{organization_id}-{work_key}"
         role_id = service_state['azure']['eventhub_built_data_receiver']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
@@ -195,7 +201,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     role_id=role_id)
         principal_id = service_state['platform']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
-        resource_name = f"{service_state['api']['organization_id']}-{work_key}"
+        resource_name = f"{organization_id}-{work_key}"
         role_id = service_state['azure']['eventhub_built_data_sender']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
@@ -203,7 +209,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     role_id=role_id)
         principal_id = service_state['babylon']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
-        resource_name = f"{service_state['api']['organization_id']}-{work_key}"
+        resource_name = f"{organization_id}-{work_key}"
         role_id = service_state['azure']['eventhub_built_data_sender']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,

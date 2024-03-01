@@ -4,10 +4,10 @@ from typing import Any
 from click import command
 from click import argument
 from Babylon.utils.typing import QueryType
-from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.commands.azure.ad.app.service.api import AzureDirectoyAppService
+from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
 
 logger = logging.getLogger("Babylon")
 

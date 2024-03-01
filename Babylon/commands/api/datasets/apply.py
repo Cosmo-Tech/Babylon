@@ -11,7 +11,7 @@ from pathlib import Path
 from select import select
 from click import command, option
 from mako.template import Template
-from Babylon.commands.api.datasets.service.api import DatasetService
+from Babylon.commands.api.datasets.services.api import DatasetService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 from Babylon.utils.environment import Environment

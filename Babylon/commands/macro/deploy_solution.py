@@ -8,8 +8,8 @@ from logging import getLogger
 from posixpath import basename
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
-from Babylon.commands.api.solutions.service.api import SolutionService
-from Babylon.commands.api.solutions.handler.service.api import SolutionHandleService
+from Babylon.commands.api.solutions.services.api import SolutionService
+from Babylon.commands.api.solutions.services.handler import SolutionHandleService
 
 logger = getLogger("Babylon")
 env = Environment()

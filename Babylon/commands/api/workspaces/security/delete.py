@@ -1,7 +1,7 @@
 import logging
 
 from click import argument, command
-from Babylon.commands.api.workspaces.security.service.api import ApiWorkspaceSecurityService
+from Babylon.commands.api.workspaces.services.security import ApiWorkspaceSecurityService
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse

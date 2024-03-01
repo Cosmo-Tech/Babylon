@@ -3,14 +3,12 @@ import logging
 from click import option
 from click import command
 from typing import Any, Optional
+from Babylon.commands.azure.ad.services.password import AzureDirectoyPasswordService
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, wrapcontext
-from Babylon.commands.azure.ad.app.password.service.api import (
-    AzureDirectoyPasswordService, )
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 

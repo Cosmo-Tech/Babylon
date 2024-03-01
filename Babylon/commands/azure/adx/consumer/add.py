@@ -6,7 +6,7 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, wrapcontext
-from Babylon.commands.azure.adx.consumer.service.api import AdxConsumerService
+from Babylon.commands.azure.adx.services.consumer import AdxConsumerService
 
 logger = logging.getLogger("Babylon")
 env = Environment()

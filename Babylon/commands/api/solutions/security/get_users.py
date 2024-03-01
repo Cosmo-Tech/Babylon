@@ -3,7 +3,7 @@ from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, timing_decorator
-from Babylon.services.security.solution_security_service import SolutionSecurityService
+from Babylon.commands.api.solutions.services.security import SolutionSecurityService
 
 
 @command()

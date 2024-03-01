@@ -9,8 +9,8 @@ from logging import getLogger
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import get_azure_token
-from Babylon.commands.api.datasets.service.api import DatasetService
-from Babylon.commands.api.datasets.service.storage import DatasetStorageService
+from Babylon.commands.api.datasets.services.api import DatasetService
+from Babylon.commands.api.datasets.services.storage import DatasetStorageService
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -20,9 +20,8 @@ def deploy_dataset(file_content: str) -> bool:
     logger.info("Dataset deployment")
     state = env.retrieve_state_func()
     azure_token = get_azure_token("csm_api")
-    ext_args = dict(azure_function_secret="")
     service_state = state["services"]
-    content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
+    content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     azure: dict = content.get("spec").get("sidecars").get("azure")
     source_type = payload["sourceType"]

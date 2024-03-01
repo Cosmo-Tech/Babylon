@@ -2,7 +2,7 @@ import json
 import sys
 
 from logging import getLogger
-from Babylon.commands.api.organizations.security.service.api import (
+from Babylon.commands.api.organizations.services.security import (
     OrganizationSecurityService, )
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
