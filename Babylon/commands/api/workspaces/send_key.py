@@ -38,6 +38,6 @@ def send_key(
     response = workspace_service.send_key()
     if response is None:
         return CommandResponse.fail()
-    workspace = response.json()    
+    workspace = response.json()
     logger.info(f'Successfully update key in workspace {service_state["api"]["workspace_id"]}')
     return CommandResponse.success(workspace, verbose=True)
