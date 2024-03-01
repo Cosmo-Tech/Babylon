@@ -7,7 +7,7 @@ from click import argument
 from click import Path
 from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -15,7 +15,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @argument("destination_folder", type=Path(path_type=pathlib.Path))
 @retrieve_state
 def download(state: Any, destination_folder: pathlib.Path) -> CommandResponse:

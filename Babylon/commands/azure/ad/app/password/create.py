@@ -8,13 +8,13 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token("graph")
 @option("--name", "password_name", type=QueryType(), help="Password display name")
 @option(

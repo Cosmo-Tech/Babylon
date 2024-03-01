@@ -9,14 +9,14 @@ from click import Path
 from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file, retrieve_state, wrapcontext
+from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @option("--file",
         "config_file",

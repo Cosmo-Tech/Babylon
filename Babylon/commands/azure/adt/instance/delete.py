@@ -6,7 +6,7 @@ from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument
 from click import command
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import inject_context_with_resource, injectcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_adt_management_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")

@@ -3,7 +3,7 @@ import logging
 from click import command
 from click import argument
 from click import Choice
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @argument("resource", type=Choice(config_files))
 @argument("key", type=QueryType())
 def get(resource: str, key: str) -> CommandResponse:

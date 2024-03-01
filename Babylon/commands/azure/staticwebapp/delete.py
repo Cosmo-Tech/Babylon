@@ -6,7 +6,7 @@ from click import argument
 from click import option
 from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
 
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("webapp_name", type=QueryType())

@@ -7,7 +7,7 @@ from click import command
 from Babylon.commands.azure.func.services.api import AzureAppFunctionService
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_arm_client
 
@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_arm_client
 @option(
     "--complete-mode",

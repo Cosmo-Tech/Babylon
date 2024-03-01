@@ -5,7 +5,7 @@ from click import argument, command
 from Babylon.utils.typing import QueryType
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.commands.azure.adx.services.consumer import AdxConsumerService
 
 logger = logging.getLogger("Babylon")
@@ -13,7 +13,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @argument("name", type=QueryType())
 @argument("event_hub_name", type=QueryType())
 @retrieve_state

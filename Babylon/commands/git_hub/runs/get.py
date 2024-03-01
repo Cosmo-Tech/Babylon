@@ -3,7 +3,7 @@ import logging
 from typing import Any, Optional
 from click import argument, command
 from Babylon.commands.git_hub.runs.service.api import GitHubRunsService
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -13,7 +13,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @argument("workflow_name", type=QueryType())
 @retrieve_state
 def get(state: Any, workflow_name: Optional[str] = None) -> CommandResponse:

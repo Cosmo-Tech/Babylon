@@ -8,7 +8,7 @@ from typing import Any
 from click import argument, command
 from azure.storage.blob import BlobServiceClient
 from Babylon.utils.clients import pass_blob_client
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import inject_context_with_resource
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_blob_client
 @argument("id", type=QueryType())
 @inject_context_with_resource({"api": ["workspace_key"]})

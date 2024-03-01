@@ -5,7 +5,7 @@ from click import command
 from click import argument
 from click import option
 from Babylon.commands.powerbi.dataset.parameters.service.api import AzurePowerBIParamsService
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.credentials import pass_powerbi_token
@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_powerbi_token()
 @option(
     "--parameter",

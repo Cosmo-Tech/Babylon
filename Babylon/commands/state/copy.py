@@ -9,7 +9,7 @@ from typing import Any
 from hvac import Client
 from pathlib import Path
 from click import command, option
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import inject_context_with_resource
 from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.environment import Environment
@@ -21,7 +21,7 @@ env = Environment()
 
 @command()
 @pass_hvac_client
-@wrapcontext()
+@injectcontext()
 @option("--to", "to", help="Platform target", required=True)
 @inject_context_with_resource({"api": ["workspace_key"]})
 def copy(context: Any, hvac_client: Client, to: str) -> CommandResponse:

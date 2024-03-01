@@ -5,14 +5,14 @@ from click import Choice, command, option
 from Babylon.commands.azure.token.services.api import AzureTokenService
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @option("--email", "email", help="User email")
 @option(
     "--scope",

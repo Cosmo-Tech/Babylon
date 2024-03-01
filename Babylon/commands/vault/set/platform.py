@@ -4,7 +4,7 @@ from click import argument, command
 from hvac import Client
 from Babylon.utils.checkers import check_ascii
 from Babylon.utils.clients import pass_hvac_client
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_hvac_client
 @argument("resource", type=QueryType())
 @argument("name", type=QueryType())

@@ -7,7 +7,7 @@ from click import argument
 from click import option
 from click import Path
 from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.response import CommandResponse
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @option(
     "--file",

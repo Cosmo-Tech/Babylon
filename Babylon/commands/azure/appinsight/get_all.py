@@ -4,7 +4,7 @@ from typing import Any, Optional
 from click import command, option
 from Babylon.commands.azure.appinsight.services.api import AzureAppInsightService
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import output_to_file
@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @pass_azure_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")

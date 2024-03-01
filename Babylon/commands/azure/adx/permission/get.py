@@ -12,7 +12,7 @@ from Babylon.utils.decorators import timing_decorator
 from Babylon.commands.azure.adx.services.permission import AdxPermissionService
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 
 logger = logging.getLogger("Babylon")
@@ -20,7 +20,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_kusto_client
 @argument("principal_id", type=QueryType())

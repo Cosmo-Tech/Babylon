@@ -7,13 +7,13 @@ from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportServic
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import output_to_file, retrieve_state, wrapcontext
+from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())

@@ -12,7 +12,7 @@ from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportServic
 from Babylon.utils.decorators import (
     output_to_file,
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 
 logger = logging.getLogger("Babylon")
@@ -20,7 +20,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @pass_powerbi_token()
 @option(

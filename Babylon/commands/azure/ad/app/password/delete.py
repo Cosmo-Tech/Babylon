@@ -8,7 +8,7 @@ from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.commands.azure.ad.services.password import (
     AzureDirectoyPasswordService, )
 
@@ -16,7 +16,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token("graph")
 @option("--key", "key_id", help="Password Key ID", required=True, type=QueryType())
 @option("-D", "force_validation", is_flag=True, help="Force Delete")

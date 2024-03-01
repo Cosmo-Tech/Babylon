@@ -2,7 +2,7 @@ import logging
 
 from click import command, option
 from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.credentials import pass_azure_token
@@ -11,7 +11,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token("graph")
 @option(
     "--gi",
