@@ -135,8 +135,6 @@ class DatasetService:
             self.azure_token,
             type="POST",
         )
-        if response is None:
-            return None
         return response
 
     def get_status(self, dataset_id: str):
@@ -147,8 +145,6 @@ class DatasetService:
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/status",
             self.azure_token,
         )
-        if response is None:
-            return None
         return response
 
     def upload(self, dataset_id: str, zip_file: Path):
@@ -163,8 +159,6 @@ class DatasetService:
                 data=file,
                 content_type="application/octet-stream",
             )
-        if response is None:
-            return None
         return response
 
     def link_to_workspace(self, dataset_id: str):
@@ -177,6 +171,4 @@ class DatasetService:
             self.azure_token,
             type="POST",
         )
-        if response is None:
-            return None
         return response
