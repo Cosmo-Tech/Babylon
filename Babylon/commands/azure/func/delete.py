@@ -1,11 +1,11 @@
 from typing import Any
 
 from azure.mgmt.resource import ResourceManagementClient
-from click import command, option, argument
+from click import command
 
 from Babylon.commands.azure.func.service.api import AzureAppFunctionService
 from Babylon.utils.clients import pass_arm_client
-from Babylon.utils.decorators import wrapcontext, retrieve_state, injectcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 
 

@@ -53,10 +53,7 @@ class AdxConsumerService:
 
     def delete(self, name: str, event_hub_name: str) -> bool:
         logger.info(f"deleting consumer {name}")
-        rg = self.state["azure"]["resource_group_name"]
         subscription_id = self.state["azure"]["subscription_id"]
-        org_id = self.state["api"]["organization_id"].lower()
-        work_id = self.state["api"]["workspace_key"].lower()
         client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         try:
             client.consumer_groups.delete()
