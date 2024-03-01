@@ -6,13 +6,13 @@ from typing import Any, Iterable
 from click import command, option
 from Babylon.utils.response import CommandResponse
 from Babylon.commands.webapp.service.api import AzureWebAppService
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @option("--file",
         "files",
         type=(pathlib.Path),

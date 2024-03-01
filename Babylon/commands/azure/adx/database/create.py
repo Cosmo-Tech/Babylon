@@ -3,7 +3,7 @@ import logging
 from typing import Any, Optional
 from Babylon.utils.typing import QueryType
 from click import argument, command, option
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_kusto_client
 @timing_decorator
 @argument("name", type=QueryType(), required=False)

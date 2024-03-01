@@ -13,7 +13,7 @@ from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
     timing_decorator,
-    wrapcontext,
+    injectcontext,
 )
 
 logger = logging.getLogger("Babylon")
@@ -21,7 +21,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_powerbi_token()
 @option(

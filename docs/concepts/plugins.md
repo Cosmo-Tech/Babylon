@@ -24,7 +24,7 @@ import click
 
 
 @click.command()
-@wrapcontext()
+@injectcontext()
 def MyPlugin():
     print("This is my awesome Plugin")
 ```

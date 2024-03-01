@@ -4,7 +4,7 @@ from typing import Any
 from click import command, argument
 from Babylon.commands.azure.appinsight.services.api import AzureAppInsightService
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
@@ -14,7 +14,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @argument("name", type=QueryType())
 @retrieve_state

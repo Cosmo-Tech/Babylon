@@ -6,7 +6,7 @@ from click import command
 from Babylon.commands.azure.adx.services.script import AdxScriptService
 from Babylon.utils.decorators import (
     retrieve_state,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import timing_decorator
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_kusto_client
 @retrieve_state

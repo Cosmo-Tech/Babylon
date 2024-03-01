@@ -9,7 +9,7 @@ from click import argument
 from click import command
 from click import option
 from Babylon.utils.checkers import check_email, check_encoding_key
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.typing import QueryType
 from Babylon.utils.macro import Macro
@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @option("--folder",
         "report_folder",
         type=Path(exists=True, dir_okay=True, file_okay=False, readable=True, path_type=pathlib.Path),

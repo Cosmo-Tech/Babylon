@@ -8,7 +8,7 @@ from click import option
 from click import Path
 
 from Babylon.commands.azure.staticwebapp.services.custom_domain import AzureSWACustomDomainService
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @option("--file",
         "create_file",

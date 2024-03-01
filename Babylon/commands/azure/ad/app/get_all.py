@@ -6,13 +6,13 @@ from typing import Any, Optional
 from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import output_to_file, retrieve_state, wrapcontext
+from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @pass_azure_token("graph")
 @option("--filter", "filter", help="Filter response with a jmespath query")

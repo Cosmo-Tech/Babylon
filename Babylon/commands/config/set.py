@@ -4,7 +4,7 @@ from typing import Any
 from click import command, option
 from click import argument
 from click import Choice
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
@@ -17,7 +17,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @option("--item", "items", multiple=True, type=str, help="Item <Key Value>")
 @argument("resource", type=Choice(config_files))
 @argument("key", type=QueryType())

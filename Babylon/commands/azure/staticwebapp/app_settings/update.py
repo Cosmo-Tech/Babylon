@@ -9,7 +9,7 @@ from click import option
 from Babylon.commands.azure.staticwebapp.services.app_settings import (
     AzureSWASettingsAppService, )
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.typing import QueryType
@@ -19,7 +19,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @option(
     "--file",

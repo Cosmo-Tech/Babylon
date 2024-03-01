@@ -5,7 +5,7 @@ from click import argument
 from click import command
 from click import option
 from Babylon.commands.azure.storage.services.container import AzureStorageContainerService
-from Babylon.utils.decorators import timing_decorator, wrapcontext
+from Babylon.utils.decorators import timing_decorator, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.typing import QueryType
 from Babylon.utils.clients import pass_blob_client
@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_blob_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")

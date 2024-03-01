@@ -5,7 +5,7 @@ from click import command
 from click import argument
 from Babylon.commands.azure.staticwebapp.services.custom_domain import (
     AzureSWACustomDomainService, )
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -16,7 +16,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_azure_token()
 @argument("webapp_name", type=QueryType())
 @argument("domain_name", type=QueryType())

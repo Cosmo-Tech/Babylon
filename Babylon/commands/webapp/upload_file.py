@@ -7,13 +7,13 @@ from click import argument
 from click import Path
 from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @argument("file", type=Path(path_type=pathlib.Path, exists=True))
 @retrieve_state
 def upload_file(state: Any, file: pathlib.Path) -> CommandResponse:

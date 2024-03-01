@@ -11,7 +11,7 @@ from posixpath import basename
 from click import command, option
 from azure.storage.blob import BlobServiceClient
 from Babylon.utils.clients import pass_blob_client
-from Babylon.utils.decorators import wrapcontext
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import inject_context_with_resource
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -21,7 +21,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_blob_client
 @option("--id", "id")
 @inject_context_with_resource({"api": ["workspace_key"]})

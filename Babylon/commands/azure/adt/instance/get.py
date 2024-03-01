@@ -5,7 +5,7 @@ from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
+from Babylon.utils.decorators import inject_context_with_resource, injectcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
@@ -18,7 +18,7 @@ env = Environment()
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @output_to_file
 @pass_adt_management_client

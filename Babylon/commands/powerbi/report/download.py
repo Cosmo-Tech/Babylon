@@ -8,7 +8,7 @@ from click import option
 from click import Path
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import retrieve_state, wrapcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.typing import QueryType
 
@@ -16,7 +16,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @pass_powerbi_token()
 @option(
     "-o",

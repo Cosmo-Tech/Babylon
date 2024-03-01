@@ -7,14 +7,14 @@ from Babylon.commands.azure.adx.services.script import AdxScriptService
 from Babylon.utils.decorators import (
     retrieve_state,
     timing_decorator,
-    wrapcontext,
+    injectcontext,
 )
 from Babylon.utils.clients import pass_kusto_client
 from Babylon.utils.response import CommandResponse
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @timing_decorator
 @pass_context
 @pass_kusto_client

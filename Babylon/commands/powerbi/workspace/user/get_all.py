@@ -5,7 +5,7 @@ from click import command
 from click import option
 from Babylon.commands.powerbi.workspace.user.service.api import (
     AzurePowerBIWorkspaceUserService, )
-from Babylon.utils.decorators import output_to_file, retrieve_state, wrapcontext
+from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 
 
 @command()
-@wrapcontext()
+@injectcontext()
 @output_to_file
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")
