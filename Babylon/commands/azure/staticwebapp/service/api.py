@@ -4,11 +4,7 @@ import polling2
 
 from pathlib import Path
 
-from azure.core.exceptions import HttpResponseError
-from azure.mgmt.resource import ResourceManagementClient
-
 from Babylon.utils.checkers import check_ascii
-from Babylon.utils.credentials import get_azure_credentials
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
@@ -43,27 +39,11 @@ class AzureSWAService:
         return output_data
 
     def delete(self, webapp_name: str, force_validation: bool):
-        azure_credential = get_azure_credentials()
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=azure_subscription)
         if not force_validation and not confirm_deletion("webapp", webapp_name):
             return CommandResponse.fail()
         logger.info(f"Deleting static webapp {webapp_name} from resource group {resource_group_name}")
-        # try:
-        #     poller = arm_client.resources.begin_delete_by_id(
-        #         resource_id=f"/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
-        #         f"/providers/Microsoft.Web/staticSites/{webapp_name}",
-        #         api_version="2022-09-01",
-        #     )
-        #     poller.wait()
-        #     # check if done
-        #     if not poller.done():
-        #         return False
-        #     return True
-        # except HttpResponseError as _e:
-        #     logger.error(f"An error occurred : {_e.message}")
-        #     return False
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
@@ -83,6 +63,8 @@ class AzureSWAService:
             step=1,
             timeout=60,
         )
+        if response_polling is None:
+            return CommandResponse.fail(verbose=False)
 
     def get_all(self, filter: str):
         azure_subscription = self.state["azure"]["subscription_id"]
