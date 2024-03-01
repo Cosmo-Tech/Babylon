@@ -89,18 +89,6 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                 logger.info(f"Deleting dataset {dataset_id}....")
                 dataset_service.delete(dataset_id=dataset_id, force_validation=True)
 
-    # # deleting web app
-    # webapp_id = "babylouTestdestroy4"
-    # logger.info(f"Deleting webapp {webapp_id} ....")
-    # azure_token = get_azure_token()
-    # subscription_id = service_state["azure"]["subscription_id"]
-    #
-    # swa_svc = AzureSWAService(
-    #     azure_token=azure_token, state=service_state
-    # )
-    # swa_svc.delete(webapp_name=webapp_id, force_validation=True)
-    # service_state["app"]["object_id"] = ""
-
     # deleting azure function
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]

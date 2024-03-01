@@ -1,4 +1,5 @@
 import json
+import os
 import pathlib
 
 from logging import getLogger
@@ -274,5 +275,10 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                         if to_delete:
                             connection_name = to_delete[-1]['name'].split("/")[-1]
                             service_conn.delete(database_name=db, connection_name=connection_name)
+    run_scripts = sidecars.get("run_scripts")
+    if run_scripts:
+        data = run_scripts.get("post_deploy.sh", "")
+        if data:
+            os.system(data)
     if not workspace.get("id"):
         sys.exit(1)
