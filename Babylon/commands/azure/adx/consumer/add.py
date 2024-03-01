@@ -14,8 +14,13 @@ env = Environment()
 
 @command()
 @injectcontext()
+<<<<<<< HEAD
 @argument("name", type=str)
 @argument("event_hub_name", type=str)
+=======
+@argument("name", type=QueryType())
+@argument("event_hub_name", type=QueryType())
+>>>>>>> 53b0a6f8 (add injectcontext)
 @retrieve_state
 def add(state: Any, name: str, event_hub_name: str) -> CommandResponse:
     """

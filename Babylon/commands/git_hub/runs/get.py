@@ -13,7 +13,11 @@ env = Environment()
 
 @command()
 @injectcontext()
+<<<<<<< HEAD
 @argument("workflow_name", type=str)
+=======
+@argument("workflow_name", type=QueryType())
+>>>>>>> 53b0a6f8 (add injectcontext)
 @retrieve_state
 def get(state: Any, workflow_name: Optional[str] = None) -> CommandResponse:
     """

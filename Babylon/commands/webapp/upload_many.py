@@ -7,10 +7,14 @@ from click import command, option
 from Babylon.utils.response import CommandResponse
 from Babylon.commands.webapp.service.api import AzureWebAppService
 <<<<<<< HEAD
+<<<<<<< HEAD
 from Babylon.utils.decorators import retrieve_state, injectcontext
 =======
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+from Babylon.utils.decorators import retrieve_state, injectcontext
+>>>>>>> 53b0a6f8 (add injectcontext)
 
 logger = logging.getLogger("Babylon")
 

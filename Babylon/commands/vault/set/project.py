@@ -3,7 +3,11 @@ import logging
 from hvac import Client
 from click import Choice, argument, command
 from Babylon.utils.clients import pass_hvac_client
+<<<<<<< HEAD
 from Babylon.utils.decorators import injectcontext, retrieve_state
+=======
+from Babylon.utils.decorators import inject_context_with_resource, injectcontext
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 

@@ -7,10 +7,13 @@ from click import command
 <<<<<<< HEAD
 from Babylon.commands.azure.permission.services.api import AzureIamService
 from Babylon.utils.decorators import retrieve_state, injectcontext
+<<<<<<< HEAD
 =======
 from Babylon.commands.azure.permission.service.api import AzureIamService
 from Babylon.utils.decorators import inject_context_with_resource, wrapcontext
 >>>>>>> cb5ca162 (add iam service)
+=======
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 

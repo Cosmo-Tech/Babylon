@@ -8,10 +8,14 @@ from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportServic
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 <<<<<<< HEAD
+<<<<<<< HEAD
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 =======
 from Babylon.utils.decorators import output_to_file, retrieve_state, wrapcontext
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
+>>>>>>> 53b0a6f8 (add injectcontext)
 
 logger = logging.getLogger("Babylon")
 

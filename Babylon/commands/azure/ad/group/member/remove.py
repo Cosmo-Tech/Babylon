@@ -2,7 +2,11 @@ import logging
 
 from click import option
 from click import command
+<<<<<<< HEAD
 
+=======
+from Babylon.utils.typing import QueryType
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion

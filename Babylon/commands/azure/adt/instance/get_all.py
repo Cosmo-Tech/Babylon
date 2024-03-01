@@ -3,10 +3,15 @@ import jmespath
 
 from click import command
 from click import option
+<<<<<<< HEAD
 from typing import Optional
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from Babylon.utils.decorators import output_to_file, injectcontext, retrieve_state
+=======
+from Babylon.utils.decorators import output_to_file, injectcontext
+from Babylon.utils.decorators import inject_context_with_resource
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment

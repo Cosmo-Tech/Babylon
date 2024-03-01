@@ -135,6 +135,7 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
     return wrap_function
 
 
+<<<<<<< HEAD
 def injectcontext() -> Callable[..., Any]:
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -212,6 +213,8 @@ def wrapcontext() -> Callable[..., Any]:
     return wrap_function
 
 
+=======
+>>>>>>> 53b0a6f8 (add injectcontext)
 def injectcontext() -> Callable[..., Any]:
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:

@@ -5,7 +5,13 @@ from click import command
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
+<<<<<<< HEAD
 from Babylon.utils.decorators import retrieve_state, injectcontext
+=======
+from click import Context, option, pass_context
+from click import command
+from Babylon.utils.decorators import inject_context_with_resource, injectcontext
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -20,6 +26,10 @@ env = Environment()
 
 @command()
 @injectcontext()
+<<<<<<< HEAD
+=======
+@pass_context
+>>>>>>> 53b0a6f8 (add injectcontext)
 @timing_decorator
 @pass_adt_management_client
 @retrieve_state

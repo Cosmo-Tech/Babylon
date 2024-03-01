@@ -8,11 +8,14 @@ from Babylon.commands.powerbi.workspace.user.service.api import (
 <<<<<<< HEAD
     AzurePowerBIWorkspaceUserService, )
 from Babylon.utils.decorators import retrieve_state, injectcontext
+<<<<<<< HEAD
 
 =======
     AzurePowerBIWorkspaceUserService,
 )
 from Babylon.utils.decorators import retrieve_state, wrapcontext
+=======
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.typing import QueryType
 >>>>>>> cc0b634d (add new state to powerbi)
 from Babylon.utils.response import CommandResponse

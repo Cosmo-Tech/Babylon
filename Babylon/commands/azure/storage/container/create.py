@@ -5,7 +5,11 @@ from click import argument
 from click import command
 from Babylon.commands.azure.storage.services.container import AzureStorageContainerService
 from Babylon.utils.decorators import timing_decorator, injectcontext
+<<<<<<< HEAD
 
+=======
+from Babylon.utils.typing import QueryType
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_blob_client
 

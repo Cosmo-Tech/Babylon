@@ -11,9 +11,13 @@ from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
 <<<<<<< HEAD
+<<<<<<< HEAD
     injectcontext,
 =======
     wrapcontext,
+=======
+    injectcontext,
+>>>>>>> 53b0a6f8 (add injectcontext)
 )
 from Babylon.commands.powerbi.workspace.user.service.api import (
     AzurePowerBIWorkspaceUserService,

@@ -9,8 +9,12 @@ from click import command
 =======
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.utils.credentials import pass_powerbi_token
+<<<<<<< HEAD
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+from Babylon.utils.decorators import retrieve_state, injectcontext
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token

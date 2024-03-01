@@ -11,10 +11,14 @@ from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
 <<<<<<< HEAD
+<<<<<<< HEAD
     injectcontext,
 =======
     wrapcontext,
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+    injectcontext,
+>>>>>>> 53b0a6f8 (add injectcontext)
 )
 
 logger = logging.getLogger("Babylon")

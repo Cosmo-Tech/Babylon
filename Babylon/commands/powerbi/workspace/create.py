@@ -4,7 +4,11 @@ from click import command
 from click import argument
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.decorators import output_to_file, injectcontext
+<<<<<<< HEAD
 
+=======
+from Babylon.utils.typing import QueryType
+>>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_powerbi_token
