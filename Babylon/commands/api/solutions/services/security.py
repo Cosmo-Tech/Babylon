@@ -26,7 +26,7 @@ class SolutionSecurityService:
             logger.error("workspace id is missing")
             sys.exit(1)
 
-    def add_control_access(self, details: str):
+    def add(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security/access",
             self.azure_token,
@@ -35,14 +35,14 @@ class SolutionSecurityService:
         )
         return response
 
-    def get_control_access(self, idendity_id: str):
+    def get(self, idendity_id: str):
         response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/ \
                 {self.solution_id}/security/access/{idendity_id}",
                                  self.azure_token,
                                  type="GET")
         return response
 
-    def get_security(self):
+    def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security",
             self.azure_token,
@@ -59,7 +59,7 @@ class SolutionSecurityService:
         )
         return response
 
-    def remove_control_access(self, identity_id: str):
+    def remove(self, identity_id: str):
         response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/ \
                 {self.solution_id}/security/access/{identity_id}",
                                  self.azure_token,
@@ -73,7 +73,7 @@ class SolutionSecurityService:
             type="GET")
         return response
 
-    def update_control_access(self, id: str, details: str):
+    def update(self, id: str, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/ \
                 {self.solution_id}/security/access/{id}",

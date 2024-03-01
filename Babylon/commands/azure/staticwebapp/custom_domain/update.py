@@ -7,7 +7,7 @@ from click import argument
 from click import option
 from click import Path
 
-from Babylon.commands.azure.staticwebapp.custom_domain.service.api import AzureSWACustomDomainService
+from Babylon.commands.azure.staticwebapp.services.custom_domain import AzureSWACustomDomainService
 from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token

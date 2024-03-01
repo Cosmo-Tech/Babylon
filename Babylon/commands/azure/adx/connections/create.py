@@ -8,7 +8,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
 from click import Choice, argument, command, option
 from Babylon.utils.decorators import retrieve_state, timing_decorator, wrapcontext
-from Babylon.commands.azure.adx.connections.service.api import AdxConnectionService
+from Babylon.commands.azure.adx.services.connection import AdxConnectionService
 
 logger = logging.getLogger("Babylon")
 env = Environment()

@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 from click import command, option
-from Babylon.commands.api.workspaces.service.api import WorkspaceService
+from Babylon.commands.api.workspaces.services.api import WorkspaceService
 from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,

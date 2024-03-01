@@ -6,7 +6,7 @@ from typing import Optional
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, wrapcontext
-from Babylon.commands.azure.ad.group.service.api import AzureDirectoyGroupService
+from Babylon.commands.azure.ad.services.group import AzureDirectoyGroupService
 
 logger = logging.getLogger("Babylon")
 

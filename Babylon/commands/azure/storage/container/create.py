@@ -3,7 +3,7 @@ import logging
 from azure.storage.blob import BlobServiceClient
 from click import argument
 from click import command
-from Babylon.commands.azure.storage.container.service.api import AzureStorageContainerService
+from Babylon.commands.azure.storage.services.container import AzureStorageContainerService
 from Babylon.utils.decorators import timing_decorator, wrapcontext
 from Babylon.utils.typing import QueryType
 from Babylon.utils.response import CommandResponse

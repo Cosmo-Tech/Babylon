@@ -1,7 +1,7 @@
 import mock
 import unittest
 from click.testing import CliRunner
-from Babylon.commands.api.scenarios.service.api import ScenarioService
+from Babylon.commands.api.scenarios.services.api import ScenarioService
 from Babylon.commands.api.scenarios.get_all import get_all
 from Babylon.commands.api.scenarios.get import get
 from Babylon.commands.api.scenarios.update import update

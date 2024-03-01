@@ -6,7 +6,7 @@ from click import Choice, command
 from click import option
 from click import argument
 from click import Path
-from Babylon.commands.api.solutions.handler.service.api import SolutionHandleService
+from Babylon.commands.api.solutions.services.handler import SolutionHandleService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     retrieve_state,

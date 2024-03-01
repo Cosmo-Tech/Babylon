@@ -1,5 +1,6 @@
 import mock
 import unittest
+
 from click.testing import CliRunner
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.organizations.create import create
@@ -7,7 +8,7 @@ from Babylon.commands.api.organizations.delete import delete
 from Babylon.commands.api.organizations.get_all import get_all
 from Babylon.commands.api.organizations.get import get
 from Babylon.commands.api.organizations.update import update
-from Babylon.services.organizations_service import OrganizationService
+from Babylon.commands.api.organizations.services.api import OrganizationService
 from requests.models import Response
 
 env = Environment()

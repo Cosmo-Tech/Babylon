@@ -1,11 +1,11 @@
+from .get import get
+from .add import add
 from click import group
-from .get_control_access import get_control_access
-from .add_control_access import add_control_access
-from .set_default import set_default
-from .update_control_access import update_control_access
-from .remove_control_access import remove_control_access
-from .get_security import get_security
+from .update import update
+from .remove import remove
+from .get_all import get_all
 from .get_users import get_users
+from .set_default import set_default
 
 
 @group()
@@ -15,8 +15,8 @@ def security():
 
 
 list_commands = [
-    add_control_access, get_control_access, get_security, get_users, remove_control_access, set_default,
-    update_control_access
+    add, get, get_all, get_users, remove, set_default,
+    update
 ]
 
 for _command in list_commands:

@@ -7,7 +7,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import injectcontext, timing_decorator
 from Babylon.utils.decorators import retrieve_state
-from Babylon.commands.azure.acr.service.api import AzureContainerRegistryService
+from Babylon.commands.azure.acr.services.api import AzureContainerRegistryService
 
 logger = logging.getLogger("Babylon")
 env = Environment()

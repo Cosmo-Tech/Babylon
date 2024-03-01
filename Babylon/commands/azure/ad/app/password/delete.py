@@ -9,7 +9,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, wrapcontext
-from Babylon.commands.azure.ad.app.password.service.api import (
+from Babylon.commands.azure.ad.services.password import (
     AzureDirectoyPasswordService, )
 
 logger = logging.getLogger("Babylon")
