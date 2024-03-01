@@ -1,14 +1,14 @@
 {
-  "name": "Brewery ADT reference",
+  "name": "Dataset Name",
   "description": "Brewery reference model in ADT",
   "ownerId": "ownerId",
   "ownerName": "Bob",
   "parentId": "null",
   "twingraphId": "null",
-  "main": "null",
+  "main": "main",
   "creationDate": "null",
   "refreshDate": "null",
-  "sourceType": "StorageAzure",
+  "sourceType": "None",
   "source": {
     "sourceInfo": [
       {
