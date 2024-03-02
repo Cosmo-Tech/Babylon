@@ -246,3 +246,24 @@ def retrieve_state(func) -> Callable[..., Any]:
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def wrapcontext() -> Callable[..., Any]:
+
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
+        @option("-c", "--context", "context", required=True, help="Context Name")
+        @option("-p", "--platform", "platform", required=True, help="Platform Name")
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            context = kwargs.pop("context", None)
+            if check_special_char(string=context):
+                env.set_context(context)
+            platform = kwargs.pop("platform", None)
+            if check_special_char(string=platform):
+                env.set_environ(platform)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return wrap_function
