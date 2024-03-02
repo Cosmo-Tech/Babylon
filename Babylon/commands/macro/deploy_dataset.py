@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import time
@@ -5,7 +6,6 @@ import pathlib
 
 from os.path import basename
 from logging import getLogger
-
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import get_azure_token
@@ -24,7 +24,8 @@ def deploy_dataset(file_content: str) -> bool:
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
-    azure: dict = content.get("spec").get("sidecars").get("azure")
+    sidecars = content.get("spec").get("sidecars", {})
+    azure: dict = sidecars.get("azure")
     source_type = payload["sourceType"]
     dataset_id = payload.get("id")
     state["services"]["api"]["dataset_id"] = dataset_id
@@ -163,5 +164,10 @@ def deploy_dataset(file_content: str) -> bool:
             else:
                 logger.info("Twingraph successfully refreshed")
         logger.info("Dataset successfully updated")
+    run_scripts = sidecars.get("run_scripts")
+    if run_scripts:
+        data = run_scripts.get("post_deploy.sh", "")
+        if data:
+            os.system(data)
     if not dataset_id:
         sys.exit(1)
