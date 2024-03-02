@@ -6,7 +6,6 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.request import oauth_request
 from Babylon.utils.credentials import pass_azure_token
 
-
 logger = logging.getLogger('Babylon')
 
 

@@ -7,7 +7,6 @@ from Babylon.utils.request import oauth_request
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.credentials import pass_azure_token
 
-
 logger = logging.getLogger('Babylon')
 
 

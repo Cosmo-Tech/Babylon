@@ -11,7 +11,6 @@ from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
 
-
 logger = logging.getLogger("Babylon")
 
 

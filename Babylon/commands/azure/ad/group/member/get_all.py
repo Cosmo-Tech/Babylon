@@ -7,7 +7,6 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file, injectcontext
 from Babylon.utils.credentials import pass_azure_token
 
-
 logger = logging.getLogger("Babylon")
 
 

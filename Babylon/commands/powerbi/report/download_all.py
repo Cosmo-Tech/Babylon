@@ -11,7 +11,6 @@ from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 

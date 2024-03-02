@@ -9,7 +9,6 @@ from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
 
-
 logger = logging.getLogger("Babylon")
 
 

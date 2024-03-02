@@ -68,9 +68,7 @@ class DatasetServiceTestCase(unittest.TestCase):
         the_response._content = b'[{"id": "1", "name": "ADT Dataset"}, {"id" : "2", "name": "ADT Dataset2"}]'
         datasetservice_get_all.return_value = the_response
 
-        result = CliRunner().invoke(
-            get_all, ["--organization-id", "my_organization_id"], standalone_mode=False
-        )
+        result = CliRunner().invoke(get_all, ["--organization-id", "my_organization_id"], standalone_mode=False)
         assert len(result.return_value.data) == 2
 
     @mock.patch.object(DatasetService, "delete")

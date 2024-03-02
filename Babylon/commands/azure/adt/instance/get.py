@@ -11,7 +11,6 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_adt_management_client
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 
