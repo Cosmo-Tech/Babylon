@@ -239,7 +239,7 @@ class Environment(metaclass=SingletonMeta):
         for r in resources:
             response = self.hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}")
             if not response:
-                logger.info(f"{organization_name}/{tenant_id}/babylon/config/babylon/{platform} not found")
+                logger.error(f"platform id '{platform}' not found in vault service")
                 sys.exit(1)
             response_parsed.setdefault(r, dict(response["data"].items()))
         return response_parsed
