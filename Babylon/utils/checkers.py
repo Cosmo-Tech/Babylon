@@ -54,3 +54,11 @@ def check_encoding_key():
     if not os.environ.get("BABYLON_ENCODING_KEY"):
         logger.error("BABYLON_ENCODING_KEY environment variable is missing")
         sys.exit(1)
+
+
+def check_special_char(string: str):
+    regex = re.compile('[@_!#$%^&*()<>?/\\|}{~:|\\.]')
+    if not regex.search(string):
+        return string
+    logger.error(f"{string} is not accepted")
+    sys.exit()
