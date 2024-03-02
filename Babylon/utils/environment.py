@@ -48,9 +48,10 @@ class SingletonMeta(type):
 class Environment(metaclass=SingletonMeta):
 
     def __init__(self):
+        self.pwd = Path.cwd()
         self.hvac_client = None
         self.blob_client = None
-        self.pwd = Path.cwd()
+        self.state_id: str = ""
         self.context_id: str = ""
         self.environ_id: str = ""
         self.server_id: str = ""
@@ -249,7 +250,7 @@ class Environment(metaclass=SingletonMeta):
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
-        logger.info("state saved in local")
+        logger.info(f"state saved in local with id: {self.state_id}")
 
     def store_state_in_cloud(self, state: dict):
         s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
@@ -318,13 +319,13 @@ class Environment(metaclass=SingletonMeta):
             self.set_org_name()
             self.set_blob_client()
 
-    def retrieve_state_func(self):
+    def retrieve_state_func(self, state_id: str = ""):
         init_state = dict()
         final_state = dict()
         final_state["services"] = dict()
         data_vault = self.get_state_from_vault_by_platform(self.environ_id)
         init_state["services"] = data_vault
-        state_id = self.get_state_id()
+        state_id = state_id or self.get_state_id()
         init_state["id"] = state_id
         state_cloud = self.get_state_from_cloud(init_state)
         self.store_state_in_local(state_cloud)
@@ -342,6 +343,7 @@ class Environment(metaclass=SingletonMeta):
     def set_ns_from_yaml(self, content: str):
         ns = self.fill_template(data=content).get('namespace')
         context_id = ns.get('context', '')
+        state_id = ns.get('state_id', '')
         plt_obj = ns.get('platform', {})
         platform_id = plt_obj.get('id', '')
         if not platform_id:
@@ -356,6 +358,7 @@ class Environment(metaclass=SingletonMeta):
         if not match_content:
             logger.error('url not match')
             sys.exit(1)
+        self.state_id = state_id
         self.set_context(context_id=context_id)
         self.set_environ(environ_id=platform_id)
         self.set_server_id()
