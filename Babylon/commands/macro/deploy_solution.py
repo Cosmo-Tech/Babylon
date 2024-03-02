@@ -48,7 +48,7 @@ def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
     env.store_state_in_cloud(state)
     # update run_templates
     logger.info("Uploading run templates...")
-    sidecars = content.get("spec")["sidecars"]
+    sidecars = content.get("spec").get("sidecars", {})
     run_templates = sidecars["azure"]["run_templates"]
     for run_item in run_templates:
         run_id = run_item.get("id")
@@ -69,5 +69,10 @@ def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     override=True,
                 )
                 os.remove(handler_zip_path)
+    run_scripts = sidecars.get("run_scripts")
+    if run_scripts:
+        data = run_scripts.get("post_deploy.sh", "")
+        if data:
+            os.system(data)
     if not solution.get("id"):
         sys.exit(1)
