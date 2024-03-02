@@ -15,9 +15,8 @@ env = Environment()
 def deploy_organization(file_content: str):
     logger.info("Organization deployment")
     platform_url = env.set_ns_from_yaml(content=file_content)
-    state = env.retrieve_state_func()
+    state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
-    sys.exit(1)
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload", {})
