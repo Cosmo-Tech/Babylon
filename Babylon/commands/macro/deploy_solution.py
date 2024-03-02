@@ -15,10 +15,10 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
+def deploy_solution(head: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
     logger.info("Solution deployment")
-    platform_url = env.set_ns_from_yaml(content=file_content)
-    state = env.retrieve_state_func()
+    platform_url = env.get_ns_from_text(content=head)
+    state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     state = env.retrieve_state_func()
     azure_token = get_azure_token("csm_api")

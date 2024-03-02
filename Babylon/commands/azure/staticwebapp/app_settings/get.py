@@ -13,7 +13,6 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 

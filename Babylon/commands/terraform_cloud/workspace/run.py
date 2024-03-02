@@ -22,11 +22,7 @@ logger = logging.getLogger("Babylon")
 @output_to_file
 @pass_tfc_client
 @describe_dry_run("Would check if WORKSPACE_ID exists Then create a run for it sending a creation payload")
-@option("--message",
-        "run_message",
-        help="Message added to the run.",
-        default="Run started with Babylon",
-        type=str)
+@option("--message", "run_message", help="Message added to the run.", default="Run started with Babylon", type=str)
 @option("--allow-empty-apply", "allow_empty_apply", is_flag=True, help="Can this run have an empty apply ?")
 @argument("workspace_id", type=str)
 def run(tfc_client: TFC, workspace_id: str, run_message: str, allow_empty_apply: bool) -> CommandResponse:

@@ -16,10 +16,10 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_dataset(file_content: str) -> bool:
+def deploy_dataset(head: str, file_content: str) -> bool:
     logger.info("Dataset deployment")
-    platform_url = env.set_ns_from_yaml(content=file_content)
-    state = env.retrieve_state_func()
+    platform_url = env.get_ns_from_text(content=head)
+    state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
@@ -33,9 +33,7 @@ def deploy_dataset(file_content: str) -> bool:
     if source_type == "File":
         dataset_zip = pathlib.Path(azure["dataset"]["file"]["local_path"])
         if not dataset_zip:
-            logger.error(
-                "Zip archive is mandatory to create a dataset with sourceType File"
-            )
+            logger.error("Zip archive is mandatory to create a dataset with sourceType File")
             sys.exit(1)
         elif not dataset_zip.exists():
             logger.error(f"File {dataset_zip} not found in directory")
@@ -45,33 +43,20 @@ def deploy_dataset(file_content: str) -> bool:
             sys.exit(1)
     if source_type == "AzureStorage":
         if not azure.get("dataset").get("storage").get("local_path"):
-            if (
-                type(payload["source"]) is not dict
-                or "path" not in payload["source"].keys()
-            ):
-                logger.error(
-                    "Path attribute is mandatory to create a dataset of type storage"
-                )
+            if (type(payload["source"]) is not dict or "path" not in payload["source"].keys()):
+                logger.error("Path attribute is mandatory to create a dataset of type storage")
                 sys.exit(1)
             if not payload["source"].get("name"):
-                payload["source"]["name"] = state["services"]["azure"][
-                    "storage_account_name"
-                ]
+                payload["source"]["name"] = state["services"]["azure"]["storage_account_name"]
             if not payload["source"].get("location"):
-                payload["source"]["location"] = state["services"]["api"][
-                    "organization_id"
-                ]
+                payload["source"]["location"] = state["services"]["api"]["organization_id"]
         else:
-            datasets_csv_dir_path = pathlib.Path(
-                azure["dataset"]["storage"]["local_path"]
-            )
+            datasets_csv_dir_path = pathlib.Path(azure["dataset"]["storage"]["local_path"])
             if datasets_csv_dir_path.is_dir():
                 files = list(pathlib.Path(datasets_csv_dir_path).iterdir())
                 datasets = list(filter(lambda x: x.suffix == ".csv", files))
                 dataset_dir_name = payload["name"].replace(" ", "_").lower()
-                storage_service = DatasetStorageService(
-                    azure_token=azure_token, state=state["services"]
-                )
+                storage_service = DatasetStorageService(azure_token=azure_token, state=state["services"])
                 for dataset in datasets:
                     dataset_name = basename(dataset)
                     storage_service.upload_csv_to_storage(
@@ -83,25 +68,16 @@ def deploy_dataset(file_content: str) -> bool:
                 source = dict()
                 source["name"] = state["services"]["azure"]["storage_account_name"]
                 source["location"] = state["services"]["api"]["organization_id"]
-                source["path"] = (
-                    f"{state['services']['api']['workspace_id']}/datasets/{dataset_dir_name}"
-                )
+                source["path"] = (f"{state['services']['api']['workspace_id']}/datasets/{dataset_dir_name}")
                 payload["source"] = source
     if source_type == "ADT":
-        if (
-            "source" not in payload.keys()
-            or type(payload["source"]) is not dict
-            or "location" not in payload["source"].keys()
-        ):
-            logger.error(
-                "Location attribute is mandatory to create a dataset of type ADT"
-            )
+        if ("source" not in payload.keys() or type(payload["source"]) is not dict
+                or "location" not in payload["source"].keys()):
+            logger.error("Location attribute is mandatory to create a dataset of type ADT")
             sys.exit(1)
     payload["main"] = True
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    dataset_service = DatasetService(
-        azure_token=azure_token, spec=spec, state=state["services"]
-    )
+    dataset_service = DatasetService(azure_token=azure_token, spec=spec, state=state["services"])
     if not state["services"]["api"]["dataset_id"]:
         response = dataset_service.create()
         if response is None:
@@ -122,25 +98,18 @@ def deploy_dataset(file_content: str) -> bool:
                 status = dataset_service.get_status(dataset_id=dataset_id)
                 status_text = str(status.text)
             if "SUCCESS" not in status_text:
-                logger.error(
-                    f"Dataset {dataset['id']} has been created but the creation of a twingraph has failed"
-                )
+                logger.error(f"Dataset {dataset['id']} has been created but the creation of a twingraph has failed")
             else:
                 logger.info("Twingraph successfully created")
         logger.info(f"Successfully created dataset {dataset['id']}")
         if state["services"]["api"]["workspace_id"]:
-            linked_dataset_response = dataset_service.link_to_workspace(
-                dataset_id=dataset_id
-            )
+            linked_dataset_response = dataset_service.link_to_workspace(dataset_id=dataset_id)
             if linked_dataset_response is None:
                 logger.error(
-                    f"Failed to link dataset {dataset['id']} to workspace {state['services']['api']['workspace_id']}"
-                )
+                    f"Failed to link dataset {dataset['id']} to workspace {state['services']['api']['workspace_id']}")
             else:
-                logger.info(
-                    f"Dataset {dataset['id']} successfully linked "
-                    f"to workspace {state['services']['api']['workspace_id']}"
-                )
+                logger.info(f"Dataset {dataset['id']} successfully linked "
+                            f"to workspace {state['services']['api']['workspace_id']}")
     else:
         response = dataset_service.update()
         response_json = response.json()

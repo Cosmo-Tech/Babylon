@@ -20,19 +20,16 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_swa(file_content: str):
+def deploy_swa(head: str, file_content: str):
     logger.info("webapp deployment")
-    platform_url = env.set_ns_from_yaml(content=file_content)
-    state = env.retrieve_state_func()
+    platform_url = env.get_ns_from_text(content=head)
+    state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     subscription_id = state["services"]["azure"]["subscription_id"]
     github_secret = env.get_global_secret(resource="github", name="token")
     organization_id = state['services']['api']['organization_id']
     workspace_key = state['services']['api']['workspace_key']
-    obi_secret = env.get_project_secret(
-        organization_id=organization_id,
-        workspace_key=workspace_key,
-        name="pbi")
+    obi_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="pbi")
     ext_args = dict(github_secret=github_secret, secret_powerbi=obi_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     sidecars = content.get("spec").get("sidecars", {})

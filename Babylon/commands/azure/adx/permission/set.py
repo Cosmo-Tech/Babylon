@@ -33,17 +33,12 @@ env = Environment()
 @option("--tenant-id", type=str)
 @argument("principal_id", type=str, required=True)
 @retrieve_state
-def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role: str,
-        principal_type: str, tenant_id: str) -> CommandResponse:
+def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role: str, principal_type: str,
+        tenant_id: str) -> CommandResponse:
     """
     Set permission assignments applied to the given principal id
     """
     service_state = state['services']
     service = AdxPermissionService(kusto_client=kusto_client, state=service_state)
-    service.set(
-        principal_id=principal_id,
-        principal_type=principal_type,
-        role=role,
-        tenant_id=tenant_id
-    )
+    service.set(principal_id=principal_id, principal_type=principal_type, role=role, tenant_id=tenant_id)
     return CommandResponse.success()

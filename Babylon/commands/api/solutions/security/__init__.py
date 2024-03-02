@@ -14,10 +14,7 @@ def security():
     pass
 
 
-list_commands = [
-    add, get, get_all, get_users, remove, set_default,
-    update
-]
+list_commands = [add, get, get_all, get_users, remove, set_default, update]
 
 for _command in list_commands:
     security.add_command(_command)

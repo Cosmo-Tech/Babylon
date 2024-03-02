@@ -16,6 +16,7 @@ from Babylon.config import config_files
 from azure.storage.blob import BlobServiceClient
 
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
+from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
 logger = logging.getLogger("Babylon")
@@ -57,7 +58,7 @@ class Environment(metaclass=SingletonMeta):
         self.server_id: str = ""
         self.tenant_id: str = ""
         self.organization_name: str = ""
-        self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir/.templates"
+        self.original_template_path = (ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir/.templates")
         self.dry_run = False
         self.is_verbose = True
         self.AZURE_SCOPES = {
@@ -66,6 +67,42 @@ class Environment(metaclass=SingletonMeta):
             "powerbi": "https://analysis.windows.net/powerbi/api/.default",
             "csm_api": "",
         }
+        self.working_dir = WorkingDir(working_dir_path=self.pwd)
+
+    def get_ns_from_text(self, content: str):
+        result = content.replace("{{", "${").replace("}}", "}")
+        result = result.replace("services", "")
+        t = Template(text=result, strict_undefined=True)
+        values_file = Path().cwd() / "variables.yaml"
+        vars = dict()
+        if values_file.exists():
+            vars = yaml.safe_load(values_file.open())
+        payload = t.render(**vars)
+        payload_dict = yaml.safe_load(payload)
+        ns = payload_dict.get("namespace")
+        context_id = ns.get("context", "")
+        state_id = ns.get("state_id", "")
+        plt_obj = ns.get("platform", {})
+        platform_id = plt_obj.get("id", "")
+        if not platform_id:
+            logger.error("platform id is mandatory")
+            sys.exit(1)
+        platform_url = plt_obj.get("url", "")
+        if not platform_url:
+            logger.error("url is mandatory")
+            sys.exit(1)
+        url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
+        match_content = url_.match(platform_url)
+        if not match_content:
+            logger.error("url not match")
+            sys.exit(1)
+        self.state_id = state_id
+        self.set_context(context_id=context_id)
+        self.set_environ(environ_id=platform_id)
+        self.set_server_id()
+        self.set_org_name()
+        self.set_blob_client()
+        return platform_url
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -78,7 +115,7 @@ class Environment(metaclass=SingletonMeta):
         if ext_args:
             vars.update(ext_args)
         if state:
-            flattenstate = flatten(state.get('services', {}), separator=".")
+            flattenstate = flatten(state.get("services", {}), separator=".")
         payload = t.render(**vars, services=flattenstate)
         payload_json = yaml_to_json(payload)
         payload_dict = json.loads(payload_json)
@@ -133,7 +170,7 @@ class Environment(metaclass=SingletonMeta):
     def set_blob_client(self):
         try:
             state = self.get_state_from_vault_by_platform(self.environ_id)
-            storage_name = state['azure']['storage_account_name']
+            storage_name = state["azure"]["storage_account_name"]
             account_secret = self.get_platform_secret(self.environ_id, resource="storage", name="account")
             prefix = f"DefaultEndpointsProtocol=https;AccountName={storage_name}"
             connection_str = (f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net")
@@ -244,11 +281,16 @@ class Environment(metaclass=SingletonMeta):
             response_parsed.setdefault(r, dict(response["data"].items()))
         return response_parsed
 
+    def store_mtime_in_state(self, state: dict):
+        state['files'] = self.working_dir.files_to_deploy
+        return state
+
     def store_state_in_local(self, state: dict):
         state_dir = Path().home() / ".config/cosmotech/babylon"
         if not state_dir.exists():
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
+        state = self.store_mtime_in_state(state)
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
         logger.info(f"state saved in local with id: {self.state_id}")
 
@@ -283,7 +325,7 @@ class Environment(metaclass=SingletonMeta):
         id = str(uuid.uuid4())
         state_local = self.get_state_from_local()
         if not state_local:
-            state_local = dict(id='')
+            state_local = dict(id="")
         if not state_local.get("id", ""):
             state_local["id"] = id
             return state_local.get("id")
@@ -325,8 +367,7 @@ class Environment(metaclass=SingletonMeta):
         final_state["services"] = dict()
         data_vault = self.get_state_from_vault_by_platform(self.environ_id)
         init_state["services"] = data_vault
-        state_id = state_id or self.get_state_id()
-        init_state["id"] = state_id
+        init_state["id"] = state_id or self.get_state_id()
         state_cloud = self.get_state_from_cloud(init_state)
         self.store_state_in_local(state_cloud)
         for section, keys in state_cloud.get("services").items():
@@ -340,23 +381,23 @@ class Environment(metaclass=SingletonMeta):
         final_state["platform"] = self.environ_id
         return final_state
 
-    def set_ns_from_yaml(self, content: str):
-        ns = self.fill_template(data=content).get('namespace')
-        context_id = ns.get('context', '')
-        state_id = ns.get('state_id', '')
-        plt_obj = ns.get('platform', {})
-        platform_id = plt_obj.get('id', '')
+    def set_ns_from_yaml(self, content: str, state: dict = None, ext_args: dict = None):
+        ns = self.fill_template(data=content, state=state, ext_args=ext_args).get("namespace")
+        context_id = ns.get("context", "")
+        state_id = ns.get("state_id", "")
+        plt_obj = ns.get("platform", {})
+        platform_id = plt_obj.get("id", "")
         if not platform_id:
-            logger.error('platform id is mandatory')
+            logger.error("platform id is mandatory")
             sys.exit(1)
-        platform_url = plt_obj.get('url', '')
+        platform_url = plt_obj.get("url", "")
         if not platform_url:
-            logger.error('url is mandatory')
+            logger.error("url is mandatory")
             sys.exit(1)
         url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
         match_content = url_.match(platform_url)
         if not match_content:
-            logger.error('url not match')
+            logger.error("url not match")
             sys.exit(1)
         self.state_id = state_id
         self.set_context(context_id=context_id)

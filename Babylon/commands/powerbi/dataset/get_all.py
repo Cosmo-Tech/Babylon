@@ -9,7 +9,6 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 
-
 logger = logging.getLogger("Babylon")
 
 
