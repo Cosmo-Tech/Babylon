@@ -20,15 +20,15 @@ def deploy_solution(file_content: str, deploy_dir: pathlib.Path) -> bool:
     platform_url = env.set_ns_from_yaml(content=file_content)
     state = env.retrieve_state_func()
     state['services']['api']['url'] = platform_url
+    state = env.retrieve_state_func()
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
-    service_state = state["services"]
     payload: dict = content.get("spec").get("payload")
-    state['services']["api"]["solution_id"] = (payload.get("id") or service_state["api"]["solution_id"])
+    state['services']["api"]["solution_id"] = (payload.get("id") or state['services']["api"]["solution_id"])
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=service_state)
-    if not service_state["api"]["solution_id"]:
+    solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=state['services'])
+    if not state['services']["api"]["solution_id"]:
         logger.info("Creating solution...")
         response = solution_svc.create()
         solution = response.json()

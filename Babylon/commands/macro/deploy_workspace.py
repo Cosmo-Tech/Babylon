@@ -41,7 +41,6 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         name="azf")
     ext_args = dict(azure_function_secret=azf_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
-    service_state = state["services"]
     payload: dict = content.get("spec").get("payload")
     work_key = payload.get('key')
     state["services"]["api"]["workspace_key"] = work_key
@@ -49,15 +48,15 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     azure_token = get_azure_token("csm_api")
-    workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=service_state)
-    if not service_state["api"]["workspace_id"]:
+    workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=state.get('services'))
+    if not state['services']["api"]["workspace_id"]:
         logger.info("Creating workspace...")
         response = workspace_svc.create()
         workspace = response.json()
-        logger.info(f"Workspace {workspace['id']} successfully created...")
+        logger.info(f"Workspace {workspace.get('id')} successfully created...")
         logger.info(json.dumps(workspace, indent=2))
     else:
-        logger.info(f"Updating workspace {service_state['api']['workspace_id']}...")
+        logger.info(f"Updating workspace {state['services']['api']['workspace_id']}...")
         response = workspace_svc.update()
         response_json = response.json()
         old_security = response_json.get("security")
@@ -77,7 +76,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         workspace_powerbi = powerbi_section.get("workspace", {})
         if workspace_powerbi:
             po_token = get_powerbi_token()
-            powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=service_state)
+            powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=state.get('services'))
             name = workspace_powerbi.get("name", "")
             if not name:
                 logger.error("Name of powerBI workspace not found")
@@ -95,7 +94,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
             state['services']['powerbi']['workspace.id'] = work_obj.get('id')
             env.store_state_in_local(state)
             env.store_state_in_cloud(state)
-            user_svc = AzurePowerBIWorkspaceUserService(powerbi_token=po_token, state=service_state)
+            user_svc = AzurePowerBIWorkspaceUserService(powerbi_token=po_token, state=state.get('services'))
             existing_permissions = user_svc.get_all(workspace_id=work_obj.get("id"), filter="[].identifier")
             spec_permissions = workspace_powerbi.get("permissions", [])
             if len(spec_permissions):
@@ -136,7 +135,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     if not path_report.exists():
                         logger.error(f"Report '{path_report}' not found")
                     if path_report.exists():
-                        report_svc = AzurePowerBIReportService(powerbi_token=po_token, state=service_state)
+                        report_svc = AzurePowerBIReportService(powerbi_token=po_token, state=state.get('services'))
                         report_svc.upload(
                             workspace_id=work_obj.get("id"),
                             pbix_filename=path_report,
@@ -149,14 +148,15 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         ok = True
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
-        name = f"{state['services']['api']['organization_id']}-{work_key}"
+        name = f"{organization_id}-{work_key}"
         available = adx_svc.check(name=name)
-        if available:
+        to_create = adx_section.get('database').get('create', True)
+        if available and to_create:
             created = adx_svc.create(name=name, retention=adx_section.get("database").get("retention", 365))
             if created:
                 available = False
         if not available:
-            permission_svc = AdxPermissionService(kusto_client=kusto_client, state=service_state)
+            permission_svc = AdxPermissionService(kusto_client=kusto_client, state=state.get('services'))
             existing_permissions = permission_svc.get_all()
             existing_ids = [ent.get("principal_id") for ent in existing_permissions]
             spec_permissions: list = adx_section["database"].get("permissions", [])
@@ -174,7 +174,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                         if s != state["services"]["babylon"]["client_id"]:
                             permission_svc.delete(s, force_validation=True)
         if ok:
-            scripts_svc = AdxScriptService(kusto_client=kusto_client, state=service_state)
+            scripts_svc = AdxScriptService(kusto_client=kusto_client, state=state.get('services'))
             script_list = scripts_svc.get_all()
             scripts_spec: list[dict] = adx_section.get("database").get("scripts", [])
             if len(scripts_spec):
@@ -189,30 +189,30 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
-        adx_svc = ArmService(arm_client=arm_client, state=service_state)
+        adx_svc = ArmService(arm_client=arm_client, state=state.get('services'))
         deployment_name = f"{organization_id}-{work_key}"
         adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")
-        arm_svc = AzureIamService(iam_client=iam_client, state=service_state)
-        principal_id = service_state['adx']['cluster_principal_id']
+        arm_svc = AzureIamService(iam_client=iam_client, state=state.get('services'))
+        principal_id = state['services']['adx']['cluster_principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
         resource_name = f"{organization_id}-{work_key}"
-        role_id = service_state['azure']['eventhub_built_data_receiver']
+        role_id = state['services']['azure']['eventhub_built_data_receiver']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
                     resource_type=resource_type,
                     role_id=role_id)
-        principal_id = service_state['platform']['principal_id']
+        principal_id = state['services']['platform']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
         resource_name = f"{organization_id}-{work_key}"
-        role_id = service_state['azure']['eventhub_built_data_sender']
+        role_id = state['services']['azure']['eventhub_built_data_sender']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
                     resource_type=resource_type,
                     role_id=role_id)
-        principal_id = service_state['babylon']['principal_id']
+        principal_id = state['services']['babylon']['principal_id']
         resource_type = "Microsoft.EventHub/Namespaces"
         resource_name = f"{organization_id}-{work_key}"
-        role_id = service_state['azure']['eventhub_built_data_sender']
+        role_id = state['services']['azure']['eventhub_built_data_sender']
         arm_svc.set(principal_id=principal_id,
                     resource_name=resource_name,
                     resource_type=resource_type,
@@ -225,7 +225,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
             "ScenarioRunMetadata",
         ]
         if len(consumers):
-            service_event = AdxConsumerService(state=service_state)
+            service_event = AdxConsumerService(state=state.get('services'))
             for ent in ent_accepted:
                 spec_listing = [k.get("displayName") for k in list(filter(lambda x: x.get("entity") == ent, consumers))]
                 existing_consumers = service_event.get_all(event_hub_name=ent)
@@ -237,7 +237,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                         service_event.delete(name=s, event_hub_name=ent)
         connectors = eventhub_section.get("connectors", [])
         if len(connectors):
-            service_conn = AdxConnectionService(kusto_client=kusto_client, state=service_state)
+            service_conn = AdxConnectionService(kusto_client=kusto_client, state=state.get('services'))
             spec_databases = list(set([k.get("database_target") for k in connectors]))
             for db in spec_databases:
                 existing_connectors = service_conn.get_all(database_name=db)
