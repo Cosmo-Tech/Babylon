@@ -2,15 +2,15 @@ import logging
 import pathlib
 
 from typing import Any
-from click import command
-from click import option
 from click import Path
-from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
-from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.decorators import retrieve_state, injectcontext
+from click import option
+from click import command
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+from Babylon.utils.credentials import pass_powerbi_token
+from Babylon.utils.decorators import retrieve_state, injectcontext
+from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -19,7 +19,7 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option(
     "-o",
     "--output",

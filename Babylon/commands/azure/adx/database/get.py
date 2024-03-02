@@ -2,7 +2,7 @@ import logging
 
 from typing import Any, Optional
 from click import argument, command
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
@@ -19,7 +19,7 @@ env = Environment()
 @injectcontext()
 @timing_decorator
 @pass_kusto_client
-@argument("name", type=QueryType(), required=False)
+@argument("name", type=str, required=False)
 @retrieve_state
 def get(
     state: Any,

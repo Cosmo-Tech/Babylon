@@ -4,7 +4,7 @@ from typing import Any
 from click import command
 from click import argument, option
 from Babylon.commands.azure.arm.services.api import ArmService
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_arm_client
 from Babylon.utils.response import CommandResponse
@@ -18,7 +18,7 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_arm_client
-@argument("deployment_name", type=QueryType())
+@argument("deployment_name", type=str)
 @option("--complete-mode", "deploy_mode_complete", is_flag=True, help="Mode deployment")
 @retrieve_state
 def run(

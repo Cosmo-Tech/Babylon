@@ -1,7 +1,7 @@
 import logging
 
 from typing import Any, Optional
-from Babylon.utils.typing import QueryType
+
 from click import argument, command, option
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
@@ -19,7 +19,7 @@ env = Environment()
 @injectcontext()
 @pass_kusto_client
 @timing_decorator
-@argument("name", type=QueryType(), required=False)
+@argument("name", type=str, required=False)
 @option("--retention", "retention", default=365, help="Retention days", show_default=True)
 @retrieve_state
 def create(

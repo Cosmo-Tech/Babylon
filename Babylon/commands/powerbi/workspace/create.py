@@ -4,7 +4,7 @@ from click import command
 from click import argument
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.decorators import output_to_file, injectcontext
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_powerbi_token
@@ -17,7 +17,7 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_powerbi_token()
-@argument("name", type=QueryType())
+@argument("name", type=str)
 def create(powerbi_token: str, name: str) -> CommandResponse:
     """
     Create workspace named WORKSPACE_NAME into Power Bi App

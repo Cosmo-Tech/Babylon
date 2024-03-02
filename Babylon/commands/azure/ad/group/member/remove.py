@@ -2,7 +2,7 @@ import logging
 
 from click import option
 from click import command
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
@@ -16,8 +16,8 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_azure_token("graph")
-@option("--gi", "--group-id", "group_id", type=QueryType(), required=True, help="Group Id Azure Directory")
-@option("--pi", "--principal-id", "principal_id", type=QueryType(), required=True, help="Principal Id Azure Directory")
+@option("--gi", "--group-id", "group_id", type=str, required=True, help="Group Id Azure Directory")
+@option("--pi", "--principal-id", "principal_id", type=str, required=True, help="Principal Id Azure Directory")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 def remove(azure_token: str, group_id: str, principal_id: str, force_validation: bool = False) -> CommandResponse:
     """

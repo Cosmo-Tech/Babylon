@@ -6,7 +6,7 @@ from click import argument, command
 from terrasnek.api import TFC
 from .list_all_vars import list_all_vars
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
 from Babylon.utils.decorators import output_to_file
@@ -18,7 +18,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @output_to_file
 @pass_tfc_client
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=str)
 def get_all(tfc_client: TFC, workspace_id: Optional[str]) -> CommandResponse:
     """
     Get all available variables in the workspace

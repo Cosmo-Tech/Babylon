@@ -9,7 +9,7 @@ from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 from Babylon.utils.decorators import describe_dry_run
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
 
@@ -22,10 +22,10 @@ logger = logging.getLogger("Babylon")
 @describe_dry_run("Sending a variable creation payload to terraform")
 @option("--hcl", "var_hcl", is_flag=True, help="Should the var be evaluated as a HCL string")
 @option("--sensitive", "var_sensitive", is_flag=True, help="Is the var sensitive")
-@argument("workspace_id", type=QueryType())
-@argument("var_key", type=QueryType())
-@argument("var_value", type=QueryType())
-@argument("var_description", type=QueryType())
+@argument("workspace_id", type=str)
+@argument("var_key", type=str)
+@argument("var_value", type=str)
+@argument("var_description", type=str)
 @argument("var_category", type=click.Choice(['terraform', 'env'], case_sensitive=False), default='terraform')
 def create(tfc_client: TFC, workspace_id: str, var_key: str, var_value: str, var_description: str, var_category: str,
            var_hcl: bool, var_sensitive: bool) -> CommandResponse:

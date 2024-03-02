@@ -11,7 +11,7 @@ from click import option
 from Babylon.utils.checkers import check_email, check_encoding_key
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.macro import Macro
 
 logger = logging.getLogger("Babylon")
@@ -27,12 +27,12 @@ env = Environment()
         help="Override folder containing your .pbix files")
 @option("--parameter",
         "report_parameters",
-        type=(QueryType(), QueryType()),
+        type=(str, str),
         multiple=True,
         help="Add a combination <Key Value> that will be sent as parameter to all your datasets")
 @option("--override", "override", is_flag=True, help="override reports in case of name conflict ?")
 @option("--type", "report_type", type=Choice(["scenario_view", "dashboard_view"]), required=True, help="Report type")
-@argument("workspace_name", type=QueryType())
+@argument("workspace_name", type=str)
 @retrieve_state
 def deploy(state: Any,
            workspace_name: str,
