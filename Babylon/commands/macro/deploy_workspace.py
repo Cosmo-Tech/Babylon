@@ -166,7 +166,11 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     if g.get("principal_id") in existing_ids:
                         deleted = permission_svc.delete(g.get("principal_id"), force_validation=True)
                         if deleted:
-                            permission_svc.set(g.get("principal_id"), g.get("type"), role=g.get("role"))
+                            permission_svc.set(
+                                principal_id=g.get("principal_id"),
+                                principal_type=g.get("type"),
+                                role=g.get("role"),
+                                tenant_id=g.get('tenant_id', env.tenant_id))
                     if g.get("principal_id") not in existing_ids:
                         permission_svc.set(g.get("principal_id"), g.get("type"), role=g.get("role"))
                 for s in existing_ids:
