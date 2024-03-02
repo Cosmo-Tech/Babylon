@@ -1,12 +1,12 @@
 import logging
 
-from typing import Any, Optional
-from azure.core.exceptions import HttpResponseError
-from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument
 from click import command
 from click import option
-from Babylon.utils.decorators import inject_context_with_resource, injectcontext
+from typing import Optional
+from azure.core.exceptions import HttpResponseError
+from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
@@ -24,15 +24,15 @@ env = Environment()
 @pass_adt_management_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("name", type=QueryType())
-@inject_context_with_resource({'azure': ['resource_group_name']})
-def delete(context: Any,
+@retrieve_state
+def delete(state: dict,
            adt_management_client: AzureDigitalTwinsManagementClient,
            name: str,
            force_validation: Optional[bool] = False) -> CommandResponse:
     """
     Delete a ADT instance in current platform resource group
     """
-    resource_group_name = context['azure_resource_group_name']
+    resource_group_name = state['services']['azure']['resource_group_name']
     if not force_validation and not confirm_deletion("instance", name):
         return CommandResponse.fail()
 
