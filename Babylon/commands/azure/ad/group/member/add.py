@@ -4,7 +4,7 @@ from click import command, option
 from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.credentials import pass_azure_token
 
 logger = logging.getLogger("Babylon")
@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
     "--gi",
     "--group-id",
     "group_id",
-    type=QueryType(),
+    type=str,
     required=True,
     help="Group Id Azure Directory",
 )
@@ -25,7 +25,7 @@ logger = logging.getLogger("Babylon")
     "--pi",
     "--principal-id",
     "principal_id",
-    type=QueryType(),
+    type=str,
     required=True,
     help="Principal Id Azure Directory",
 )

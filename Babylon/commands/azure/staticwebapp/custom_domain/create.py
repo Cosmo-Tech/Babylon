@@ -12,7 +12,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -27,8 +27,8 @@ env = Environment()
     type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
     help="Your custom custom-domain description file yaml",
 )
-@argument("webapp_name", type=QueryType())
-@argument("domain_name", type=QueryType())
+@argument("webapp_name", type=str)
+@argument("domain_name", type=str)
 @retrieve_state
 def create(
     state: Any,

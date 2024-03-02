@@ -5,7 +5,7 @@ from azure.mgmt.resource import ResourceManagementClient
 from click import argument, option
 from click import command
 from Babylon.commands.azure.func.services.api import AzureAppFunctionService
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
@@ -24,7 +24,7 @@ env = Environment()
     is_flag=True,
     help="Flag to run on complete mode",
 )
-@argument("deployment_name", type=QueryType())
+@argument("deployment_name", type=str)
 @retrieve_state
 def deploy(
     state: Any,

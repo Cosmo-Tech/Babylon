@@ -4,7 +4,7 @@ from typing import Any
 from click import option
 from click import command
 from click import argument
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -23,8 +23,8 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@argument("report_id", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@argument("report_id", type=str)
 @retrieve_state
 def get(
     state: Any,

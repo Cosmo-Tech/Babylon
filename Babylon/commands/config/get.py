@@ -6,7 +6,7 @@ from click import Choice
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 from Babylon.config import config_files
 from ruamel.yaml import YAML
 from flatten_json import flatten
@@ -18,7 +18,7 @@ env = Environment()
 @command()
 @injectcontext()
 @argument("resource", type=Choice(config_files))
-@argument("key", type=QueryType())
+@argument("key", type=str)
 def get(resource: str, key: str) -> CommandResponse:
     """
     Get a variable

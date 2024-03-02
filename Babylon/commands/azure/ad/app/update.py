@@ -6,7 +6,7 @@ from click import Path
 from click import option
 from click import command
 from click import argument
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -27,7 +27,7 @@ env = Environment()
     required=True,
     help="Your custom app description file yaml",
 )
-@argument("object_id", type=QueryType())
+@argument("object_id", type=str)
 @retrieve_state
 def update(state: Any, azure_token: str, object_id: str, registration_file: str) -> CommandResponse:
     """

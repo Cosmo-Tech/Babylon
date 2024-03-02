@@ -6,7 +6,7 @@ from click import Path
 from click import option
 from click import argument
 from click import command, pass_context
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -28,7 +28,7 @@ env = Environment()
     type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
     help="path file payload",
 )
-@argument("name", type=QueryType())
+@argument("name", type=str)
 @retrieve_state
 def create(state: Any, azure_token: str, name: str, registration_file: pathlib.Path) -> CommandResponse:
     """

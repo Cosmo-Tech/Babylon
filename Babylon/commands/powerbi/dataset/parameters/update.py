@@ -7,7 +7,7 @@ from click import option
 from Babylon.commands.powerbi.dataset.parameters.service.api import AzurePowerBIParamsService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.credentials import pass_powerbi_token
 
 logger = logging.getLogger("Babylon")
@@ -19,13 +19,13 @@ logger = logging.getLogger("Babylon")
 @option(
     "--parameter",
     "params",
-    type=(QueryType(), QueryType()),
+    type=(str, str),
     multiple=True,
     required=True,
     help="Report parameter",
 )
-@option("--workspace-id", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
-@argument("dataset_id", type=QueryType())
+@option("--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
+@argument("dataset_id", type=str)
 @retrieve_state
 def update(
     state: Any,

@@ -6,7 +6,7 @@ from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file, injectcontext
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 
@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 @injectcontext()
 @output_to_file
 @pass_azure_token("graph")
-@argument("group_id", type=QueryType())
+@argument("group_id", type=str)
 def get_all(azure_token: str, group_id: str) -> CommandResponse:
     """
     Get members of a group in active directory

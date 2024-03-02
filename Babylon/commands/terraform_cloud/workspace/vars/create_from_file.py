@@ -10,7 +10,7 @@ from terrasnek.api import TFC
 from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 from Babylon.utils.decorators import describe_dry_run
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
 from Babylon.utils.environment import Environment
@@ -23,7 +23,7 @@ env = Environment()
 @timing_decorator
 @pass_tfc_client
 @describe_dry_run("Sending multiple variable creation payloads to terraform")
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=str)
 @argument("variable_file", type=Path(readable=True, dir_okay=False, path_type=pathlib.Path))
 def create_from_file(tfc_client: TFC, workspace_id: str, variable_file: pathlib.Path) -> CommandResponse:
     """

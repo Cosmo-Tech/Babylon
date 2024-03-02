@@ -4,7 +4,7 @@ from click import option
 from click import command
 from typing import Any, Optional
 from Babylon.commands.azure.ad.services.password import AzureDirectoyPasswordService
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -16,11 +16,11 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_azure_token("graph")
-@option("--name", "password_name", type=QueryType(), help="Password display name")
+@option("--name", "password_name", type=str, help="Password display name")
 @option(
     "--object-id",
     "object_id",
-    type=QueryType(),
+    type=str,
     help="Object Id Azure App Registration",
 )
 @retrieve_state

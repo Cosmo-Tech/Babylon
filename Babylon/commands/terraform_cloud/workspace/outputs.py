@@ -9,7 +9,7 @@ from terrasnek.exceptions import TFCHTTPNotFound
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
@@ -23,7 +23,7 @@ logger = logging.getLogger("Babylon")
         "states_webpage_open",
         is_flag=True,
         help="Add this option to open the webapp page to the states of the workspace")
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=str)
 def outputs(tfc_client: TFC, workspace_id: str, states_webpage_open: bool) -> CommandResponse:
     """
     List outputs of a workspace

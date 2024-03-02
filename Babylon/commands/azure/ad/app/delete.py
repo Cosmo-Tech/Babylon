@@ -3,7 +3,7 @@ from typing import Any
 
 from click import command
 from click import argument
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_azure_token("graph")
-@argument("object_id", type=QueryType(), required=False)
+@argument("object_id", type=str, required=False)
 @retrieve_state
 def delete(state: Any, object_id: str, azure_token: str) -> CommandResponse:
     """

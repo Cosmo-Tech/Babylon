@@ -10,7 +10,7 @@ from terrasnek.exceptions import TFCHTTPUnprocessableEntity
 from .list_all_vars import list_all_vars
 from Babylon.utils.decorators import describe_dry_run
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
 
@@ -21,10 +21,10 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @pass_tfc_client
 @describe_dry_run("Would send a variable update payload to terraform")
-@option("--workspace-id", "workspace_id", help="Id of the workspace to use", type=QueryType())
-@option("--value", "var_value", help="A new value to apply to the variable", type=QueryType())
-@option("--description", "var_description", help="A new description to apply to the variable", type=QueryType())
-@argument("var_key", type=QueryType())
+@option("--workspace-id", "workspace_id", help="Id of the workspace to use", type=str)
+@option("--value", "var_value", help="A new value to apply to the variable", type=str)
+@option("--description", "var_description", help="A new description to apply to the variable", type=str)
+@argument("var_key", type=str)
 def update(tfc_client: TFC, workspace_id: str, var_key: str, var_value: Optional[str],
            var_description: Optional[str]) -> CommandResponse:
     """

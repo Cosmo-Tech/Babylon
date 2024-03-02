@@ -6,7 +6,7 @@ from click import option
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
@@ -20,8 +20,8 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@option("--name", "name", help="PowerBI workspace name", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("--name", "name", help="PowerBI workspace name", type=str)
 @retrieve_state
 def get(
     state: Any,

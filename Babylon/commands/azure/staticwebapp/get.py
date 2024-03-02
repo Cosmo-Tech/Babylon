@@ -3,7 +3,7 @@ import logging
 from typing import Any
 from click import command
 from click import argument
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -17,7 +17,7 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_azure_token()
-@argument("webapp_name", type=QueryType())
+@argument("webapp_name", type=str)
 @retrieve_state
 def get(state: Any, azure_token: str, webapp_name: str) -> CommandResponse:
     """

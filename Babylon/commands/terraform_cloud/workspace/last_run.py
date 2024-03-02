@@ -7,7 +7,7 @@ from terrasnek.exceptions import TFCHTTPNotFound
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.decorators import output_to_file
 
 logger = logging.getLogger("Babylon")
@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @output_to_file
 @pass_tfc_client
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=str)
 def last_run(tfc_client: TFC, workspace_id: str) -> CommandResponse:
     """
     Get state of the last run of a workspace

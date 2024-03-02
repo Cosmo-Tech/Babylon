@@ -1,7 +1,7 @@
 import logging
 
 from typing import Any, Optional
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
@@ -18,7 +18,7 @@ env = Environment()
 @injectcontext()
 @timing_decorator
 @pass_kusto_client
-@option("--mapping", "mapping", type=QueryType(), help="ADX mapping name")
+@option("--mapping", "mapping", type=str, help="ADX mapping name")
 @option(
     "--compression",
     "compression_value",
@@ -29,11 +29,11 @@ env = Environment()
 @option(
     "--consumer-group",
     "consumer_group",
-    type=QueryType(),
+    type=str,
     default="$Default",
     help="Consumer group name",
 )
-@option("--table-name", "table_name", type=QueryType(), help="ADX table name")
+@option("--table-name", "table_name", type=str, help="ADX table name")
 @option(
     "--data-format",
     "data_format",
@@ -41,8 +41,8 @@ env = Environment()
     required=True,
     help="Data format",
 )
-@argument("connection_name", type=QueryType())
-@argument("database_name", type=QueryType())
+@argument("connection_name", type=str)
+@argument("database_name", type=str)
 @retrieve_state
 def create(
     state: Any,

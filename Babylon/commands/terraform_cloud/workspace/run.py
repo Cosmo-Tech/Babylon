@@ -10,7 +10,7 @@ from Babylon.utils.decorators import describe_dry_run
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import output_to_file
 
@@ -26,9 +26,9 @@ logger = logging.getLogger("Babylon")
         "run_message",
         help="Message added to the run.",
         default="Run started with Babylon",
-        type=QueryType())
+        type=str)
 @option("--allow-empty-apply", "allow_empty_apply", is_flag=True, help="Can this run have an empty apply ?")
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=str)
 def run(tfc_client: TFC, workspace_id: str, run_message: str, allow_empty_apply: bool) -> CommandResponse:
     """
     Start the run of a workspace

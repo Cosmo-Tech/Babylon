@@ -6,7 +6,7 @@ from click import command
 from terrasnek.api import TFC
 from .list_all_vars import list_all_vars
 from Babylon.utils.decorators import timing_decorator
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
 from Babylon.utils.decorators import output_to_file
@@ -18,8 +18,8 @@ logger = logging.getLogger("Babylon")
 @timing_decorator
 @output_to_file
 @pass_tfc_client
-@argument("workspace_id", type=QueryType())
-@argument("var_key", type=QueryType())
+@argument("workspace_id", type=str)
+@argument("var_key", type=str)
 def get(tfc_client: TFC, workspace_id: str, var_key: str) -> CommandResponse:
     """
     Get VAR_KEY variable in a workspace

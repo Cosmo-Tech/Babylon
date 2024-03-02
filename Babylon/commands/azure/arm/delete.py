@@ -10,7 +10,7 @@ from Babylon.utils.decorators import retrieve_state, timing_decorator, injectcon
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_arm_client
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -22,7 +22,7 @@ env = Environment()
 @timing_decorator
 @pass_arm_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("deployment_name", type=QueryType())
+@argument("deployment_name", type=str)
 @retrieve_state
 def delete(
     state: Any,

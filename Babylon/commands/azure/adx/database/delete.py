@@ -1,7 +1,7 @@
 import logging
 
 from typing import Any, Optional
-from Babylon.utils.typing import QueryType
+
 from click import argument, command, option
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
@@ -22,11 +22,11 @@ env = Environment()
 @option(
     "--current",
     "current",
-    type=QueryType(),
+    type=str,
     is_flag=True,
     help="Delete database adx referenced in configuration",
 )
-@argument("name", type=QueryType())
+@argument("name", type=str)
 @retrieve_state
 def delete(
     state: Any,

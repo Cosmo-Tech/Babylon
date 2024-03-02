@@ -5,7 +5,7 @@ from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.request import oauth_request
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger('Babylon')
 
@@ -13,7 +13,7 @@ logger = logging.getLogger('Babylon')
 @command()
 @injectcontext()
 @pass_azure_token()
-@argument('powerbi_name', type=QueryType())
+@argument('powerbi_name', type=str)
 @retrieve_state
 def resume(state: dict, azure_token: str, powerbi_name: str) -> CommandResponse:
     """

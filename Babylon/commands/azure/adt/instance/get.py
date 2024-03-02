@@ -10,7 +10,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_adt_management_client
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -21,7 +21,7 @@ env = Environment()
 @timing_decorator
 @output_to_file
 @pass_adt_management_client
-@argument("name", type=QueryType())
+@argument("name", type=str)
 @retrieve_state
 def get(state: dict, adt_management_client: AzureDigitalTwinsManagementClient, name: str) -> CommandResponse:
     """

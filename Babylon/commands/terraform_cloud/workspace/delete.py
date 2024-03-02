@@ -10,7 +10,7 @@ from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 
@@ -20,7 +20,7 @@ logger = logging.getLogger("Babylon")
 @pass_tfc_client
 @describe_dry_run("Would send query to delete WORKSPACE_ID to terraform")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("workspace_id", type=QueryType())
+@argument("workspace_id", type=str)
 def delete(tfc_client: TFC, workspace_id: str, force_validation: bool) -> CommandResponse:
     """
     Delete a workspace from the organization

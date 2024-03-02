@@ -4,7 +4,7 @@ from typing import Any
 from click import option
 from click import command
 from click import argument
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.credentials import pass_azure_token
@@ -18,9 +18,9 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_azure_token("graph")
-@option("--key", "key_id", help="Password Key ID", required=True, type=QueryType())
+@option("--key", "key_id", help="Password Key ID", required=True, type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("object_id", type=QueryType())
+@argument("object_id", type=str)
 @retrieve_state
 def delete(
     state: Any,
