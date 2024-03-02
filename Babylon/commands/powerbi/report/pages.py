@@ -38,12 +38,17 @@ env = Environment()
     help="Report Type",
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @argument("report_id", type=str)
 =======
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@argument("report_id", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def pages(
     state: Any,

@@ -9,6 +9,10 @@ from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.decorators import describe_dry_run, injectcontext
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 

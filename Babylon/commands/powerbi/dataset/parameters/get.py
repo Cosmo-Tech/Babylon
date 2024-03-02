@@ -27,12 +27,17 @@ logger = logging.getLogger("Babylon")
 @output_to_file
 @pass_powerbi_token()
 <<<<<<< HEAD
+<<<<<<< HEAD
 @option("--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
 @argument("dataset_id", type=str)
 =======
 @option("--workspace-id", "workspace_id", type=QueryType(), help="PowerBI workspace ID")
 @argument("dataset_id", type=QueryType())
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+@option("--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
+@argument("dataset_id", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def get(
     state: Any,

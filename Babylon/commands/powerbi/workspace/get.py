@@ -29,12 +29,17 @@ env = Environment()
 @injectcontext()
 @pass_powerbi_token()
 <<<<<<< HEAD
+<<<<<<< HEAD
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option("--name", "name", help="PowerBI workspace name", type=str)
 =======
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @option("--name", "name", help="PowerBI workspace name", type=QueryType())
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("--name", "name", help="PowerBI workspace name", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def get(
     state: Any,

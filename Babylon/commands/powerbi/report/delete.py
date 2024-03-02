@@ -27,10 +27,14 @@ logger = logging.getLogger("Babylon")
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 <<<<<<< HEAD
+<<<<<<< HEAD
 @argument("report_id", type=str)
 =======
 @argument("report_id", type=QueryType())
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+@argument("report_id", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def delete(
     state: Any,

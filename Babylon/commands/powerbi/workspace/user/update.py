@@ -21,8 +21,12 @@ from Babylon.utils.decorators import (
 =======
 >>>>>>> 53b0a6f8 (add injectcontext)
 )
+<<<<<<< HEAD
 from Babylon.utils.typing import QueryType
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 

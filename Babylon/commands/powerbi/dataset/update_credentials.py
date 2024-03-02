@@ -7,6 +7,9 @@ from click import option
 from Babylon.commands.powerbi.dataset.service.api import AzurePowerBIDatasetService
 from Babylon.utils.response import CommandResponse
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> cb4637b4 (remove querytype)
 
 from Babylon.utils.decorators import retrieve_state, injectcontext
 =======
@@ -26,12 +29,17 @@ logger = logging.getLogger("Babylon")
 @injectcontext()
 @pass_powerbi_token()
 <<<<<<< HEAD
+<<<<<<< HEAD
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @argument("dataset_id", type=str)
 =======
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("dataset_id", type=QueryType())
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@argument("dataset_id", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def update_credentials(
     state: Any,

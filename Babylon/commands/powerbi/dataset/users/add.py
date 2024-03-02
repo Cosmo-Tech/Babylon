@@ -26,6 +26,7 @@ env = Environment()
 @injectcontext()
 @pass_powerbi_token()
 <<<<<<< HEAD
+<<<<<<< HEAD
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option("--email", "email", type=str, help="Email valid")
 @argument("dataset_id", type=str)
@@ -34,6 +35,11 @@ env = Environment()
 @option("--email", "email", type=QueryType(), help="Email valid")
 @argument("dataset_id", type=QueryType())
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("--email", "email", type=str, help="Email valid")
+@argument("dataset_id", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def add(
     state: Any,

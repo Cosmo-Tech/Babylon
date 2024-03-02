@@ -29,6 +29,7 @@ env = Environment()
 @injectcontext()
 @pass_iam_client
 <<<<<<< HEAD
+<<<<<<< HEAD
 @option("--resource-type", "resource_type", type=str, help="Ressource Type Id Azure")
 @option("--resource-name", "resource_name", type=str, help="Ressource Name Azure")
 =======
@@ -39,6 +40,10 @@ env = Environment()
     "--resource-name", "resource_name", type=QueryType(), help="Ressource Name Azure"
 )
 >>>>>>> cb5ca162 (add iam service)
+=======
+@option("--resource-type", "resource_type", type=str, help="Ressource Type Id Azure")
+@option("--resource-name", "resource_name", type=str, help="Ressource Name Azure")
+>>>>>>> cb4637b4 (remove querytype)
 @option(
     "--principal-type",
     "principal_type",
@@ -49,6 +54,7 @@ env = Environment()
 @option(
     "--principal-id",
     "principal_id",
+<<<<<<< HEAD
 <<<<<<< HEAD
     type=str,
     required=True,
@@ -72,6 +78,14 @@ env = Environment()
     }
 )
 >>>>>>> cb5ca162 (add iam service)
+=======
+    type=str,
+    required=True,
+    help="Principal Id Ressource",
+)
+@option("--role-id", "role_id", type=str, required=True, help="Role Id Ressource")
+@retrieve_state
+>>>>>>> cb4637b4 (remove querytype)
 def set(
     state: Any,
     iam_client: AuthorizationManagementClient,

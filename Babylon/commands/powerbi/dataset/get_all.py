@@ -16,6 +16,10 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 

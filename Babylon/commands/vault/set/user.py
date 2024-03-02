@@ -5,6 +5,10 @@ from Babylon.utils.checkers import check_ascii, check_email
 from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 env = Environment()

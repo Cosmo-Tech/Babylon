@@ -9,6 +9,10 @@ from Babylon.utils.decorators import inject_context_with_resource, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.request import oauth_request
 from Babylon.utils.credentials import pass_azure_token
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger('Babylon')
 

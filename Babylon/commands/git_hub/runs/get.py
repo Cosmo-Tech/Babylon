@@ -6,6 +6,10 @@ from Babylon.commands.git_hub.runs.service.api import GitHubRunsService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -14,10 +18,14 @@ env = Environment()
 @command()
 @injectcontext()
 <<<<<<< HEAD
+<<<<<<< HEAD
 @argument("workflow_name", type=str)
 =======
 @argument("workflow_name", type=QueryType())
 >>>>>>> 53b0a6f8 (add injectcontext)
+=======
+@argument("workflow_name", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def get(state: Any, workflow_name: Optional[str] = None) -> CommandResponse:
     """

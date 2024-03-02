@@ -7,7 +7,7 @@ from click import Choice
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 from Babylon.config import config_files
 from ruamel.yaml import YAML
 from flatten_json import flatten, unflatten_list
@@ -20,8 +20,8 @@ env = Environment()
 @injectcontext()
 @option("--item", "items", multiple=True, type=str, help="Item <Key Value>")
 @argument("resource", type=Choice(config_files))
-@argument("key", type=QueryType())
-@argument("value", type=QueryType(), required=False)
+@argument("key", type=str)
+@argument("value", type=str, required=False)
 def set(resource: str, key: str, value: Any, items: list) -> CommandResponse:
     """
     Set a variable

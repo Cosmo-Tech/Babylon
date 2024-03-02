@@ -18,6 +18,10 @@ from Babylon.utils.decorators import retrieve_state, wrapcontext
 from Babylon.utils.decorators import retrieve_state, injectcontext
 >>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.credentials import pass_powerbi_token
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 
@@ -34,12 +38,17 @@ logger = logging.getLogger("Babylon")
     help="Output folder",
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @argument("report_id", type=str)
 =======
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
 @argument("report_id", type=QueryType())
 >>>>>>> cc0b634d (add new state to powerbi)
+=======
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@argument("report_id", type=str)
+>>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def download(
     state: Any,

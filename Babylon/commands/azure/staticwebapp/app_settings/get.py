@@ -12,6 +12,10 @@ from Babylon.utils.decorators import (
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 env = Environment()
