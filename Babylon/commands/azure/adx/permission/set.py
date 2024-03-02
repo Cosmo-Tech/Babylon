@@ -30,10 +30,11 @@ env = Environment()
         type=Choice(["User", "Group", "App"], case_sensitive=False),
         required=True,
         help="Principal type of the given ID")
+@option("--tenant-id", "tenant_id", type=str)
 @argument("principal_id", type=str, required=True)
 @retrieve_state
 def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role: str,
-        principal_type: str) -> CommandResponse:
+        principal_type: str, tenant_id: str) -> CommandResponse:
     """
     Set permission assignments applied to the given principal id
     """
@@ -43,5 +44,6 @@ def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role
         principal_id=principal_id,
         principal_type=principal_type,
         role=role,
+        tenant_id=tenant_id
     )
     return CommandResponse.success()
