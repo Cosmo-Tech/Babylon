@@ -26,32 +26,35 @@ def apply(deploy_dir: pathlib.Path):
     kinds = [{'path': f, 'kind': yaml.safe_load(f.open().readline().strip())['kind']} for f in files_to_deploy]
 
     organizations = list(filter(lambda x: x.get('kind') == "Organization", kinds))
-    solutions = list(filter(lambda x: x.get('kind') == "Solution", kinds))
-    workspaces = list(filter(lambda x: x.get('kind') == "Workspace", kinds))
-    webapps = list(filter(lambda x: x.get('kind') == "WebApp", kinds))
-    datasets = list(filter(lambda x: x.get('kind') == "Dataset", kinds))
+    # solutions = list(filter(lambda x: x.get('kind') == "Solution", kinds))
+    # workspaces = list(filter(lambda x: x.get('kind') == "Workspace", kinds))
+    # webapps = list(filter(lambda x: x.get('kind') == "WebApp", kinds))
+    # datasets = list(filter(lambda x: x.get('kind') == "Dataset", kinds))
 
     for o in organizations:
         p = pathlib.Path(o.get('path'))
-        content = p.open().read()
-        deploy_organization(content)
+        print(p)
+        # stat = p.stat()
+        # print(stat)
+        # content = p.open().read()
+        # deploy_organization(content)
 
-    for s in solutions:
-        p = pathlib.Path(s.get('path'))
-        content = p.open().read()
-        deploy_solution(content, deploy_dir)
+    # for s in solutions:
+    #     p = pathlib.Path(s.get('path'))
+    #     content = p.open().read()
+    #     deploy_solution(content, deploy_dir)
 
-    for w in workspaces:
-        p = pathlib.Path(w.get('path'))
-        content = p.open().read()
-        deploy_workspace(content, deploy_dir)
+    # for w in workspaces:
+    #     p = pathlib.Path(w.get('path'))
+    #     content = p.open().read()
+    #     deploy_workspace(content, deploy_dir)
 
-    for swa in webapps:
-        p = pathlib.Path(swa.get('path'))
-        content = p.open().read()
-        deploy_swa(content)
+    # for swa in webapps:
+    #     p = pathlib.Path(swa.get('path'))
+    #     content = p.open().read()
+    #     deploy_swa(content)
 
-    for d in datasets:
-        p = pathlib.Path(d.get('path'))
-        content = p.open().read()
-        deploy_dataset(content)
+    # for d in datasets:
+    #     p = pathlib.Path(d.get('path'))
+    #     content = p.open().read()
+    #     deploy_dataset(content)
