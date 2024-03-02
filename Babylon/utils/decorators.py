@@ -219,14 +219,16 @@ def injectcontext() -> Callable[..., Any]:
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
-        @option("-c", "--context", "context", help="Context Name")
-        @option("-p", "--platform", "platform", help="Platform Name")
+        @option("-c", "--context", "context", help="Context Name without any special character")
+        @option("-p", "--platform", "platform", help="Platform Id without any special character")
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
-            env.set_context(context)
+            if check_special_char(string=context):
+                env.set_context(context)
             platform = kwargs.pop("platform", None)
-            env.set_environ(platform)
+            if check_special_char(string=platform):
+                env.set_environ(platform)
             env.get_namespace_from_local(context=context, platform=platform)
             return func(*args, **kwargs)
 
