@@ -23,7 +23,9 @@ env = Environment()
 
 def deploy_swa(file_content: str):
     logger.info("webapp deployment")
+    platform_url = env.set_ns_from_yaml(content=file_content)
     state = env.retrieve_state_func()
+    state['services']['api']['url'] = platform_url
     subscription_id = state["services"]["azure"]["subscription_id"]
     github_secret = env.get_global_secret(resource="github", name="token")
     organization_id = state['services']['api']['organization_id']

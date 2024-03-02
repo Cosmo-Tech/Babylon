@@ -66,16 +66,18 @@ class Environment(metaclass=SingletonMeta):
             "csm_api": "",
         }
 
-    def fill_template(self, data: str, state: dict, ext_args: dict = None):
+    def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
         values_file = Path().cwd() / "variables.yaml"
         vars = dict()
+        flattenstate = dict()
         if values_file.exists():
             vars = yaml.safe_load(values_file.open())
-        flattenstate = flatten(state['services'], separator=".")
         if ext_args:
             vars.update(ext_args)
+        if state:
+            flattenstate = flatten(state.get('services', {}), separator=".")
         payload = t.render(**vars, services=flattenstate)
         payload_json = yaml_to_json(payload)
         payload_dict = json.loads(payload_json)
@@ -247,7 +249,7 @@ class Environment(metaclass=SingletonMeta):
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
-        logger.info("state saved")
+        logger.info("state saved in local")
 
     def store_state_in_cloud(self, state: dict):
         s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
@@ -283,7 +285,6 @@ class Environment(metaclass=SingletonMeta):
             state_local = dict(id='')
         if not state_local.get("id", ""):
             state_local["id"] = id
-            # self.store_state_in_local(state_local)
             return state_local.get("id")
         state_cloud = self.get_state_from_cloud(state_local)
         if not state_cloud:
@@ -337,3 +338,27 @@ class Environment(metaclass=SingletonMeta):
         final_state["context"] = self.context_id
         final_state["platform"] = self.environ_id
         return final_state
+
+    def set_ns_from_yaml(self, content: str):
+        ns = self.fill_template(data=content).get('namespace')
+        context_id = ns.get('context', '')
+        plt_obj = ns.get('platform', {})
+        platform_id = plt_obj.get('id', '')
+        if not platform_id:
+            logger.error('platform id is mandatory')
+            sys.exit(1)
+        platform_url = plt_obj.get('url', '')
+        if not platform_url:
+            logger.error('url is mandatory')
+            sys.exit(1)
+        url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
+        match_content = url_.match(platform_url)
+        if not match_content:
+            logger.error('url not match')
+            sys.exit(1)
+        self.set_context(context_id=context_id)
+        self.set_environ(environ_id=platform_id)
+        self.set_server_id()
+        self.set_org_name()
+        self.set_blob_client()
+        return platform_url
