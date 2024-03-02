@@ -8,7 +8,7 @@ from .list_all_vars import list_all_vars
 from Babylon.utils.decorators import describe_dry_run
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import confirm_deletion
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_tfc_client
 
@@ -20,8 +20,8 @@ logger = logging.getLogger("Babylon")
 @pass_tfc_client
 @describe_dry_run("Would look up id for VAR_KEY in WORKSPACE_ID Then would send delete query to the API for it")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("workspace_id", type=QueryType())
-@argument("var_key", type=QueryType())
+@argument("workspace_id", type=str)
+@argument("var_key", type=str)
 def delete(tfc_client: TFC, workspace_id: str, var_key: str, force_validation: bool) -> CommandResponse:
     """
     Delete VAR_KEY variable in a workspace

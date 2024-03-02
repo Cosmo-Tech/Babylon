@@ -7,7 +7,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from azure.mgmt.storage import StorageManagementClient
 
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 
@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_storage_mgmt_client
-@argument("account_name", type=QueryType())
+@argument("account_name", type=str)
 @option(
     "--days",
     type=int,

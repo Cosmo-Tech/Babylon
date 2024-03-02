@@ -5,7 +5,7 @@ from Babylon.utils.checkers import check_ascii, check_email
 from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -13,10 +13,10 @@ env = Environment()
 
 @command(name="user")
 @pass_hvac_client
-@argument("email", type=QueryType())
-@argument("resource", type=QueryType())
-@argument("name", type=QueryType())
-@argument("value", type=QueryType())
+@argument("email", type=str)
+@argument("resource", type=str)
+@argument("name", type=str)
+@argument("value", type=str)
 def set_user_secrets(
     hvac_client: Client,
     email: str,

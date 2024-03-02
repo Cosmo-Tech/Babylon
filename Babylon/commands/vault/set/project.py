@@ -6,7 +6,7 @@ from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -16,7 +16,7 @@ env = Environment()
 @injectcontext()
 @pass_hvac_client
 @argument("resource", type=Choice(['azf', 'powerbi', 'eventhub', 'func']))
-@argument("value", type=QueryType())
+@argument("value", type=str)
 @retrieve_state
 def project(state: dict, hvac_client: Client, resource: str, value: str) -> CommandResponse:
     """

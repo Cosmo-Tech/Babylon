@@ -2,7 +2,7 @@ import logging
 
 from typing import Any
 from click import argument, command
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, injectcontext
@@ -14,8 +14,8 @@ env = Environment()
 
 @command()
 @injectcontext()
-@argument("name", type=QueryType())
-@argument("event_hub_name", type=QueryType())
+@argument("name", type=str)
+@argument("event_hub_name", type=str)
 @retrieve_state
 def add(state: Any, name: str, event_hub_name: str) -> CommandResponse:
     """

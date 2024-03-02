@@ -6,7 +6,7 @@ from Babylon.utils.checkers import check_ascii
 from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -14,9 +14,9 @@ env = Environment()
 
 @command(name="global")
 @pass_hvac_client
-@argument("resource", type=QueryType())
-@argument("name", type=QueryType())
-@argument("value", type=QueryType())
+@argument("resource", type=str)
+@argument("name", type=str)
+@argument("value", type=str)
 def set_global(hvac_client: Client, resource: str, name: str, value: str) -> CommandResponse:
     """
     Set a secret in global scope

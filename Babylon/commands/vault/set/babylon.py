@@ -7,7 +7,7 @@ from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -16,8 +16,8 @@ env = Environment()
 @command(name="babylon")
 @injectcontext()
 @pass_hvac_client
-@argument("name", type=QueryType())
-@argument("value", type=QueryType())
+@argument("name", type=str)
+@argument("value", type=str)
 def set_babylon(hvac_client: Client, name: str, value: str) -> CommandResponse:
     """
     Set a secret in babylon scope

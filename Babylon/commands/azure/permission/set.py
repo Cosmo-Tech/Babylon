@@ -8,7 +8,7 @@ from Babylon.commands.azure.permission.services.api import AzureIamService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.clients import (
     pass_iam_client, )
 
@@ -19,8 +19,8 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_iam_client
-@option("--resource-type", "resource_type", type=QueryType(), help="Ressource Type Id Azure")
-@option("--resource-name", "resource_name", type=QueryType(), help="Ressource Name Azure")
+@option("--resource-type", "resource_type", type=str, help="Ressource Type Id Azure")
+@option("--resource-name", "resource_name", type=str, help="Ressource Name Azure")
 @option(
     "--principal-type",
     "principal_type",
@@ -31,11 +31,11 @@ env = Environment()
 @option(
     "--principal-id",
     "principal_id",
-    type=QueryType(),
+    type=str,
     required=True,
     help="Principal Id Ressource",
 )
-@option("--role-id", "role_id", type=QueryType(), required=True, help="Role Id Ressource")
+@option("--role-id", "role_id", type=str, required=True, help="Role Id Ressource")
 @retrieve_state
 def set(
     state: Any,

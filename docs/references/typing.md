@@ -8,11 +8,11 @@ This type adds a capacity to easily use file content as parameter to function.
 
 The following code is an example of use of the type:
 ```python
-from Babylon.utils.typing import QueryType
+
 import click
 
 @click.command()
-@click.argument("my_arg", type=QueryType())
+@click.argument("my_arg", type=str)
 def my_call(my_arg):
     print("The value of my arg is :")
     print(my_arg)

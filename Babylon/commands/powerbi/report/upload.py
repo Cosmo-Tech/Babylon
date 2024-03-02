@@ -5,7 +5,7 @@ from typing import Any
 from click import Path
 from click import option
 from click import Choice, command
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
@@ -31,14 +31,14 @@ env = Environment()
     required=True,
     help="Your report file",
 )
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option(
     "--override",
     "override",
     is_flag=True,
     help="override reports in case of name conflict",
 )
-@option("--name", "report_name", type=QueryType(), help="Report name")
+@option("--name", "report_name", type=str, help="Report name")
 @option(
     "--type",
     "report_type",

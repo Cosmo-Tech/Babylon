@@ -6,7 +6,7 @@ from click import option
 from click import command
 from click import argument
 from typing import Any, Optional
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
@@ -26,7 +26,7 @@ env = Environment()
     type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
     help="Your custom staticwebapp description file yaml",
 )
-@argument("webapp_name", type=QueryType())
+@argument("webapp_name", type=str)
 @retrieve_state
 def create(
     state: Any,

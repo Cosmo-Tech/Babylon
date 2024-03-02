@@ -5,7 +5,7 @@ from click import option
 from click import Choice
 from click import command
 from click import argument
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
@@ -30,7 +30,7 @@ env = Environment()
         type=Choice(["User", "Group", "App"], case_sensitive=False),
         required=True,
         help="Principal type of the given ID")
-@argument("principal_id", type=QueryType(), required=True)
+@argument("principal_id", type=str, required=True)
 @retrieve_state
 def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role: str,
         principal_type: str) -> CommandResponse:

@@ -11,7 +11,7 @@ from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,
 )
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 
@@ -21,8 +21,8 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", type=QueryType(), help="Workspace Id PowerBI")
-@argument("email", type=QueryType())
+@option("--workspace-id", "workspace_id", type=str, help="Workspace Id PowerBI")
+@argument("email", type=str)
 @argument("type", type=Choice(["App", "Group", "User", "None"], case_sensitive=False))
 @argument(
     "right",

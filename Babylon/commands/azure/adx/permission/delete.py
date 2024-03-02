@@ -4,7 +4,7 @@ from typing import Any
 from click import option
 from click import command
 from click import argument
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
@@ -23,7 +23,7 @@ env = Environment()
 @pass_kusto_client
 @describe_dry_run("Would go through each role of given principal and delete them.")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("principal_id", type=QueryType())
+@argument("principal_id", type=str)
 @retrieve_state
 def delete(state: Any,
            kusto_client: KustoManagementClient,

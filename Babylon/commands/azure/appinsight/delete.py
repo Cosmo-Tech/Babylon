@@ -7,7 +7,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -17,7 +17,7 @@ env = Environment()
 @injectcontext()
 @pass_azure_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("name", type=QueryType())
+@argument("name", type=str)
 @retrieve_state
 def delete(state: Any, azure_token: str, name: str, force_validation: str) -> CommandResponse:
     """

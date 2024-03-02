@@ -12,7 +12,7 @@ from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_adt_management_client
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -23,7 +23,7 @@ env = Environment()
 @timing_decorator
 @pass_adt_management_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("name", type=QueryType())
+@argument("name", type=str)
 @retrieve_state
 def delete(state: dict,
            adt_management_client: AzureDigitalTwinsManagementClient,

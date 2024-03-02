@@ -7,7 +7,7 @@ from click import option
 from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.typing import QueryType
+
 from Babylon.utils.credentials import pass_powerbi_token
 
 logger = logging.getLogger("Babylon")
@@ -16,9 +16,9 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@argument("report_id", type=QueryType())
+@argument("report_id", type=str)
 @retrieve_state
 def delete(
     state: Any,

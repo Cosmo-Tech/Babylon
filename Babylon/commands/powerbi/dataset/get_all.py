@@ -8,7 +8,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 
@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 @injectcontext()
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
 def get_all(state: Any, powerbi_token: str, workspace_id: str, filter: Optional[str] = None) -> CommandResponse:

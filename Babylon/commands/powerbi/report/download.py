@@ -10,7 +10,7 @@ from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportServic
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.credentials import pass_powerbi_token
-from Babylon.utils.typing import QueryType
+
 
 logger = logging.getLogger("Babylon")
 
@@ -26,8 +26,8 @@ logger = logging.getLogger("Babylon")
     default="powerbi",
     help="Output folder",
 )
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@argument("report_id", type=QueryType())
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@argument("report_id", type=str)
 @retrieve_state
 def download(
     state: Any,
