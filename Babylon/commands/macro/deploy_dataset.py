@@ -18,7 +18,9 @@ env = Environment()
 
 def deploy_dataset(file_content: str) -> bool:
     logger.info("Dataset deployment")
+    platform_url = env.set_ns_from_yaml(content=file_content)
     state = env.retrieve_state_func()
+    state['services']['api']['url'] = platform_url
     azure_token = get_azure_token("csm_api")
     service_state = state["services"]
     content = env.fill_template(data=file_content, state=state)

@@ -1,6 +1,6 @@
 from click import group
+from Babylon.commands.namespace.use import use
 from Babylon.utils.environment import Environment
-from .use import use
 
 env = Environment()
 

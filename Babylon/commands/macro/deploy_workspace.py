@@ -28,7 +28,9 @@ env = Environment()
 
 def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
     logger.info("Workspace deployment")
+    platform_url = env.set_ns_from_yaml(content=file_content)
     state = env.retrieve_state_func()
+    state['services']['api']['url'] = platform_url
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state['services']['api']['organization_id']
