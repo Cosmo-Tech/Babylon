@@ -7,8 +7,6 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from azure.mgmt.storage import StorageManagementClient
 
-
-
 logger = logging.getLogger("Babylon")
 
 

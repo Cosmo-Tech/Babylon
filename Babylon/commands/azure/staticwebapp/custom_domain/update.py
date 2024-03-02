@@ -12,7 +12,6 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 
-
 logger = logging.getLogger("Babylon")
 
 

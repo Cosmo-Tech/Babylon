@@ -7,7 +7,6 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 

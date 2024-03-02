@@ -26,19 +26,16 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
+def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
     logger.info("Workspace deployment")
-    platform_url = env.set_ns_from_yaml(content=file_content)
+    platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func()
     state['services']['api']['url'] = platform_url
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state['services']['api']['organization_id']
     workspace_key = state['services']['api']['workspace_key']
-    azf_secret = env.get_project_secret(
-        organization_id=organization_id,
-        workspace_key=workspace_key,
-        name="azf")
+    azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
     ext_args = dict(azure_function_secret=azf_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     payload: dict = content.get("spec").get("payload")
@@ -166,11 +163,10 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path) -> bool:
                     if g.get("principal_id") in existing_ids:
                         deleted = permission_svc.delete(g.get("principal_id"), force_validation=True)
                         if deleted:
-                            permission_svc.set(
-                                principal_id=g.get("principal_id"),
-                                principal_type=g.get("type"),
-                                role=g.get("role"),
-                                tenant_id=g.get('tenant_id', env.tenant_id))
+                            permission_svc.set(principal_id=g.get("principal_id"),
+                                               principal_type=g.get("type"),
+                                               role=g.get("role"),
+                                               tenant_id=g.get('tenant_id', env.tenant_id))
                     if g.get("principal_id") not in existing_ids:
                         permission_svc.set(g.get("principal_id"), g.get("type"), role=g.get("role"))
                 for s in existing_ids:
