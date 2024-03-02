@@ -18,6 +18,12 @@ class AdxPermissionService:
         self.kusto_client = kusto_client
 
     def set(self, principal_id: str, principal_type: str, role: str, tenant_id: str):
+        if role not in ["User", "Viewer", "Admin"]:
+            logger.error('Only values accepted: "User", "Viewer", "Admin"')
+            return False
+        if principal_type not in ["User", "Group", "App"]:
+            logger.error('Only values accepted: "User", "Group", "App"')
+            return False
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
         database_name = self.state["adx"]["database_name"]
