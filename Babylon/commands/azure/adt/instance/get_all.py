@@ -1,13 +1,12 @@
 import logging
 import jmespath
 
-from typing import Any, Optional
-from azure.core.exceptions import HttpResponseError
-from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import command
 from click import option
-from Babylon.utils.decorators import output_to_file, injectcontext
-from Babylon.utils.decorators import inject_context_with_resource
+from typing import Optional
+from azure.core.exceptions import HttpResponseError
+from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
+from Babylon.utils.decorators import output_to_file, injectcontext, retrieve_state
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -23,16 +22,16 @@ env = Environment()
 @output_to_file
 @pass_adt_management_client
 @option("--filter", "filter", help="Filter response with a jmespath query")
-@inject_context_with_resource({'azure': ['resource_group_name']})
+@retrieve_state
 def get_all(
-    context: Any,
+    state: dict,
     adt_management_client: AzureDigitalTwinsManagementClient,
     filter: Optional[str] = None,
 ) -> CommandResponse:
     """
     Get all azure digital twins instances
     """
-    resource_group_name = context['azure_resource_group_name']
+    resource_group_name = state['services']['azure']['resource_group_name']
     try:
         instances = adt_management_client.digital_twins.list_by_resource_group(resource_group_name)
     except HttpResponseError as _http_error:

@@ -1,11 +1,10 @@
 import logging
 
-from typing import Any
-from azure.core.exceptions import HttpResponseError
-from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from click import argument
 from click import command
-from Babylon.utils.decorators import inject_context_with_resource, injectcontext
+from azure.core.exceptions import HttpResponseError
+from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
@@ -23,13 +22,13 @@ env = Environment()
 @output_to_file
 @pass_adt_management_client
 @argument("name", type=QueryType())
-@inject_context_with_resource({'azure': ['resource_group_name']})
-def get(context: Any, adt_management_client: AzureDigitalTwinsManagementClient, name: str) -> CommandResponse:
+@retrieve_state
+def get(state: dict, adt_management_client: AzureDigitalTwinsManagementClient, name: str) -> CommandResponse:
     """
     Get an azure digital twins instance details
     """
     try:
-        instance = adt_management_client.digital_twins.get(context['azure_resource_group_name'], name)
+        instance = adt_management_client.digital_twins.get(state['services']['azure']['resource_group_name'], name)
     except HttpResponseError as _http_error:
         error_message = _http_error.message.split("\n")
         logger.error(f"Failed to get ADT instance '{name}': {error_message[0]}")

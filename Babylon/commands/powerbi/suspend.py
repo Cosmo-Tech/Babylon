@@ -1,13 +1,12 @@
 import logging
-from typing import Any
 
 from click import command, argument
 
-from ...utils.response import CommandResponse
-from ...utils.request import oauth_request
-from ...utils.decorators import inject_context_with_resource, injectcontext
-from ...utils.credentials import pass_azure_token
-from ...utils.typing import QueryType
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.request import oauth_request
+from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.typing import QueryType
 
 logger = logging.getLogger('Babylon')
 
@@ -16,13 +15,13 @@ logger = logging.getLogger('Babylon')
 @injectcontext()
 @pass_azure_token()
 @argument('powerbi_name', type=QueryType())
-@inject_context_with_resource({'azure': ['subscription_id', 'resource_group_name']})
-def suspend(context: Any, azure_token: str, powerbi_name: str) -> CommandResponse:
+@retrieve_state
+def suspend(state: dict, azure_token: str, powerbi_name: str) -> CommandResponse:
     """
     Suspend a PowerBI Service
     """
-    subscription_id = context['azure_subscription_id']
-    resource_group_name = context['azure_resource_group_name']
+    subscription_id = state['services']['azure']['subscription_id']
+    resource_group_name = state['services']['azure']['resource_group_name']
     route = (f'https://management.azure.com/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/'
              f'providers/Microsoft.PowerBIDedicated/capacities/{powerbi_name}/suspend?api-version=2021-01-01')
 
