@@ -219,15 +219,25 @@ def injectcontext() -> Callable[..., Any]:
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
-        @option("-c", "--context", "context", help="Context Name without any special character")
-        @option("-p", "--platform", "platform", help="Platform Id without any special character")
+        @option(
+            "-c",
+            "--context",
+            "context",
+            help="Context Name without any special character",
+        )
+        @option(
+            "-p",
+            "--platform",
+            "platform",
+            help="Platform Id without any special character",
+        )
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
-            if check_special_char(string=context):
+            if context and check_special_char(string=context):
                 env.set_context(context)
             platform = kwargs.pop("platform", None)
-            if check_special_char(string=platform):
+            if platform and check_special_char(string=platform):
                 env.set_environ(platform)
             env.get_namespace_from_local(context=context, platform=platform)
             return func(*args, **kwargs)
@@ -241,7 +251,7 @@ def retrieve_state(func) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        state = env.retrieve_state_func()
+        state = env.retrieve_state_func(state_id=env.state_id)
         kwargs["state"] = state
         return func(*args, **kwargs)
 
@@ -257,10 +267,10 @@ def wrapcontext() -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
-            if check_special_char(string=context):
+            if context and check_special_char(string=context):
                 env.set_context(context)
             platform = kwargs.pop("platform", None)
-            if check_special_char(string=platform):
+            if platform and check_special_char(string=platform):
                 env.set_environ(platform)
             return func(*args, **kwargs)
 
