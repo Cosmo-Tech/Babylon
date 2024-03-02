@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import time
@@ -101,7 +102,7 @@ def deploy_swa(file_content: str):
             shutil.rmtree(path=webapp_path)
             env.store_state_in_local(state)
             env.store_state_in_cloud(state)
-    powerbi = content.get("spec").get("sidecars").get('powerbi', {})
+    powerbi = sidecars.get('powerbi', {})
     if powerbi:
         azure_token = get_azure_token()
         swa_settings = AzureSWASettingsAppService(azure_token=azure_token, state=state.get('services'))
@@ -125,5 +126,10 @@ def deploy_swa(file_content: str):
         arm_svc = ArmService(arm_client=arm_client, state=state.get('services'))
         ext_args = dict(azure_app_client_secret=azf_secret, url_zip=url_zip)
         arm_svc.run(deployment_name="funcappmyde", file="azf_deploy.json", ext_args=ext_args)
+    run_scripts = sidecars.get("run_scripts")
+    if run_scripts:
+        data = run_scripts.get("post_deploy.sh", "")
+        if data:
+            os.system(data)
     if not swa.get('id'):
         sys.exit(1)

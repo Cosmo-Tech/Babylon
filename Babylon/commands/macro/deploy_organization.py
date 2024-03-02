@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 
@@ -29,6 +30,7 @@ def deploy_organization(file_content: str):
     organization_service = OrganizationService(
         azure_token=azure_token, spec=spec, state=state["services"]
     )
+    sidecars = content.get("spec").get("sidecars", {})
     if not state["services"]["api"]["organization_id"]:
         logger.info("Creating organization...")
         response = organization_service.create()
@@ -51,5 +53,10 @@ def deploy_organization(file_content: str):
     state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
     env.store_state_in_cloud(state)
+    run_scripts = sidecars.get("run_scripts")
+    if run_scripts:
+        data = run_scripts.get("post_deploy.sh", "")
+        if data:
+            os.system(data)
     if not organization.get("id"):
         sys.exit(1)
