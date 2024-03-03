@@ -7,6 +7,9 @@ import shutil
 
 from pathlib import Path
 from logging import getLogger
+from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
+from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
+from Babylon.commands.azure.ad.services.password import AzureDirectoyPasswordService
 from Babylon.utils.environment import Environment
 from azure.mgmt.resource import ResourceManagementClient
 from Babylon.commands.azure.arm.services.api import ArmService
@@ -39,31 +42,35 @@ def deploy_swa(head: str, file_content: str):
         state['services']['github']['organization'] = github_section.get('organization_name', "")
         state['services']['github']['repository'] = github_section.get('repository_name', "")
         state['services']["github"]["branch"] = github_section.get('branch', "")
-    # app = sidecars.get('azure').get('app', {})
-    # if app:
-    #     azure_token = get_azure_token("graph")
-    #     app_svc = AzureDirectoyAppService(azure_token=azure_token, state=state.get('services'))
-    #     details = json.dumps(obj=app.get('payload'), indent=4, ensure_ascii=True)
-    #     object_id = state['services']['app']["object_id"]
-    #     get_app = app_svc.get(object_id=object_id)
-    #     if not get_app:
-    #       app_created, sp = app_svc.create(details=details)
-    #       state['services']['app']["client_id"] = app_created["appId"]
-    #       state['services']['app']["name"] = app_created["appDisplayName"]
-    #       state['services']['app']["principal_id"] = app_created["id"]
-    #       state['services']['app']["object_id"] = sp["id"]
-    #       env.store_state_in_local(state)
-    #       env.store_state_in_cloud(state)
-    #       app_secrets = AzureDirectoyPasswordService(azure_token=azure_token, state=state.get('services'))
-    #       app_secrets.create(object_id=sp["id"], password_name="pbi")
-    #       app_secrets.create(object_id=sp["id"], password_name="azf")
-    #       add this app to powerbi group (az)
-    #       if group_id:
-    #           group_svc = AzureDirectoyMemberService(azure_token=azure_token)
-    #           group_svc.add(group_id=group_id, principal_id=app_created["id"])
-    #           print("add app ")
-    #       else:
-    #           app_svc.update(object_id=object_id, details=details)
+    app_section = sidecars.get('azure').get('app', {})
+    if app_section:
+        to_create = app_section.get('create', False)
+        if not to_create:
+            state['services']['app']['app_id'] = app_section.get('use').get('client_id')
+            state['services']['app']["name"] = app_section.get('use').get("displayName")
+        if to_create:
+            azure_token = get_azure_token("graph")
+            app_svc = AzureDirectoyAppService(azure_token=azure_token, state=state.get('services'))
+            details = json.dumps(obj=app_section.get('payload', {}), indent=4, ensure_ascii=True)
+            object_id = state['services']['app']["object_id"]
+            get_app = app_svc.get(object_id=object_id)
+            if not get_app:
+                app_created, sp = app_svc.create(details=details)
+                state['services']['app']["client_id"] = app_created.get("appId")
+                state['services']['app']["name"] = app_created.get("appDisplayName")
+                state['services']['app']["principal_id"] = app_created.get("id")
+                state['services']['app']["object_id"] = sp.get("id")
+                env.store_state_in_local(state)
+                env.store_state_in_cloud(state)
+                app_secrets = AzureDirectoyPasswordService(azure_token=azure_token, state=state.get('services'))
+                app_secrets.create(object_id=sp["id"], password_name="pbi")
+                app_secrets.create(object_id=sp["id"], password_name="azf")
+                group_id = sidecars.get('group_id', '')
+                if group_id:
+                    group_svc = AzureDirectoyMemberService(azure_token=azure_token)
+                    group_svc.add(group_id=group_id, principal_id=app_created.get("id"))
+                else:
+                    app_svc.update(object_id=object_id, details=details)
     swa_name = payload.get('name', "")
     swa = dict()
     if payload:
