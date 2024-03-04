@@ -1,4 +1,5 @@
 import os
+from posixpath import basename
 import git
 import json
 import logging
@@ -27,7 +28,7 @@ def ext_update_file(workflow_file: Path):
     logger.info(f"Updating github workflow {workflow_file}...")
     find = [step for step in data["jobs"]["build_and_deploy_job"]["steps"] if step.get("id") == "import-env"]
     if find:
-        logger.warning(f"Workflow {workflow_file} already has the import-env step")
+        logger.info(f"Workflow {basename(workflow_file)} already has the import-env step")
         return
     data["jobs"]["build_and_deploy_job"]["steps"].insert(1, READ_JSON_WORKFLOW)
     with open(workflow_file, "w") as _f:

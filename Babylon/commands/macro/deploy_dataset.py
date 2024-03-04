@@ -113,6 +113,8 @@ def deploy_dataset(head: str, file_content: str) -> bool:
                             f"to workspace {state['services']['api']['workspace_id']}")
     else:
         response = dataset_service.update()
+        if not response:
+            return CommandResponse.fail()
         response_json = response.json()
         old_security = response_json.get("security")
         dataset_service.update_security(old_security=old_security)
