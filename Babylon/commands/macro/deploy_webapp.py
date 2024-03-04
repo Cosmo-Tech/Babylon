@@ -48,6 +48,8 @@ def deploy_swa(head: str, file_content: str):
         if not to_create:
             state['services']['app']['app_id'] = app_section.get('use').get('client_id')
             state['services']['app']["name"] = app_section.get('use').get("displayName")
+            env.store_state_in_local(state)
+            env.store_state_in_cloud(state)
         if to_create:
             azure_token = get_azure_token("graph")
             app_svc = AzureDirectoyAppService(azure_token=azure_token, state=state.get('services'))
@@ -74,6 +76,7 @@ def deploy_swa(head: str, file_content: str):
     swa_name = payload.get('name', "")
     swa = dict()
     if payload:
+        webapp_path = Path().cwd() / "webapp_src"
         azure_token = get_azure_token()
         del payload['name']
         swa_svc = AzureSWAService(azure_token=azure_token, state=state.get('services'))
@@ -90,22 +93,22 @@ def deploy_swa(head: str, file_content: str):
             if workflow_github:
                 github_svc.cancel(run_url=workflow_github)
             time.sleep(5)
-            webapp_svc = AzureWebAppService(state=state.get('services'))
-            webapp_path = Path().cwd() / "webapp_src"
-            webapp_svc.download(webapp_path)
-            config = yaml.dump(sidecars.get('config', {}))
-            c_path = Path().cwd() / "webapp_src/config.json"
-            webapp_svc.export_config(data=config, config_path=c_path)
-            time.sleep(5)
-            workflow_name_full = f"azure-static-web-apps-{workflow_name}.yml"
-            workflow_file = Path().cwd() / f"webapp_src/.github/workflows/{workflow_name_full}"
-            webapp_svc.update_workflow(workflow_file=workflow_file)
-            config_file = Path().cwd() / "webapp_src/config.json"
-            webapp_svc.upload_many([workflow_file, config_file])
-            time.sleep(5)
-            shutil.rmtree(path=webapp_path)
-            env.store_state_in_local(state)
-            env.store_state_in_cloud(state)
+        workflow_name = state['services']['webapp']['static_domain'].split(".")[0]
+        webapp_svc = AzureWebAppService(state=state.get('services'))
+        webapp_svc.download(webapp_path)
+        config = yaml.dump(sidecars.get('config', {}))
+        c_path = Path().cwd() / "webapp_src/config.json"
+        webapp_svc.export_config(data=config, config_path=c_path)
+        time.sleep(5)
+        workflow_name_full = f"azure-static-web-apps-{workflow_name}.yml"
+        workflow_file = Path().cwd() / f"webapp_src/.github/workflows/{workflow_name_full}"
+        webapp_svc.update_workflow(workflow_file=workflow_file)
+        config_file = Path().cwd() / "webapp_src/config.json"
+        webapp_svc.upload_many([workflow_file, config_file])
+        time.sleep(5)
+        shutil.rmtree(path=webapp_path)
+        env.store_state_in_local(state)
+        env.store_state_in_cloud(state)
     powerbi = sidecars.get('powerbi', {})
     if powerbi:
         azure_token = get_azure_token()
@@ -124,13 +127,14 @@ def deploy_swa(head: str, file_content: str):
     function_spec = sidecars.get("azure").get("function", {})
     if function_spec:
         url_zip = function_spec.get('url_zip', '')
-        instance_name = function_spec.get('name', '')
         azure_credential = get_azure_credentials()
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
         arm_svc = ArmService(arm_client=arm_client, state=state.get('services'))
+        instance_name = function_spec.get('name', f"{organization_id}-{workspace_key}")
+        deployment_name = function_spec.get('name', f"{organization_id}-azf-{workspace_key}")
         ext_args = dict(azure_app_client_secret=azf_secret, url_zip=url_zip, instance_name=instance_name)
-        arm_svc.run(deployment_name=instance_name, file="azf_deploy.json", ext_args=ext_args)
+        arm_svc.run(deployment_name=deployment_name, file="azf_deploy.json", ext_args=ext_args)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
         data = run_scripts.get("post_deploy.sh", "")
