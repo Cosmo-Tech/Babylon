@@ -33,7 +33,7 @@ def create(
     """
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(f.read(), state)
+        spec["payload"] = env.fill_template(data=f.read(), state=state)
     organizations_service = OrganizationService(state['services'], azure_token, spec=spec)
     response = organizations_service.create()
     if response is None:

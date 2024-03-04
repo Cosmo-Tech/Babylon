@@ -2,24 +2,23 @@ import logging
 
 from click import group
 from Babylon.utils.environment import Environment
-from .ad import ad
-from .staticwebapp import staticwebapp
-from .arm import arm
-from .acr import acr
-from .adt import adt
-from .adx import adx
-from .storage import storage
-from .appinsight import appinsight
-from .permission import permission
-from .func import func
-from .token import token
-from .resource import resource_group
+from Babylon.commands.azure.ad import ad
+from Babylon.commands.azure.staticwebapp import staticwebapp
+from Babylon.commands.azure.arm import arm
+from Babylon.commands.azure.acr import acr
+from Babylon.commands.azure.adt import adt
+from Babylon.commands.azure.adx import adx
+from Babylon.commands.azure.storage import storage
+from Babylon.commands.azure.appinsight import appinsight
+from Babylon.commands.azure.permission import permission
+from Babylon.commands.azure.func import func
+from Babylon.commands.azure.token import token
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 list_commands = []
-list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight, permission, func, token, resource_group]
+list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight, permission, func, token]
 
 
 @group()

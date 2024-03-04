@@ -6,7 +6,6 @@ from .delete import delete
 from .get import get
 from .get_all import get_all
 from .user import user
-from .deploy import deploy
 
 list_groups = [
     user,
@@ -17,7 +16,6 @@ list_commands = [
     get_all,
     create,
     delete,
-    deploy,
 ]
 
 

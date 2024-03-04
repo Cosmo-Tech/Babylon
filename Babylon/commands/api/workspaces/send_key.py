@@ -21,23 +21,25 @@ env = Environment()
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
+@option("--workspace-key", "workspace_key", type=str)
 @retrieve_state
 def send_key(
     state: Any,
     azure_token: str,
     organization_id: str,
     workspace_id: str,
+    workspace_key: str,
 ) -> CommandResponse:
     """
     Send Event Hub key to given workspace
     """
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
-    service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
+    state["services"]["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
+    state["services"]["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
+    state["services"]["api"]["workspace_key"] = workspace_key or state["services"]["api"]["workspace_key"]
+    service_state = state['services']
     workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
-    response = workspace_service.send_key()
+    response = workspace_service.send_key(workspace_id=workspace_id, workspace_key=workspace_key)
     if response is None:
         return CommandResponse.fail()
-    workspace = response.json()
     logger.info(f'Successfully update key in workspace {service_state["api"]["workspace_id"]}')
-    return CommandResponse.success(workspace, verbose=True)
+    return CommandResponse.success()

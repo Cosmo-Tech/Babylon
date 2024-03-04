@@ -32,8 +32,6 @@ class AzurePowerBIWorkspaceService:
     def delete(self, workspace_id: str, force_validation: bool):
         logger.info(f"Deleting workspace... {workspace_id}")
         if not workspace_id:
-            logger.warning(
-                f"You trying to use workspace referenced in '{env.context_id}.{env.environ_id}.powerbi.yaml'")
             logger.warning(f'Current value: {self.state["powerbi"]["workspace"]["id"]}')
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):

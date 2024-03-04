@@ -1,14 +1,12 @@
 import logging
 
 from typing import Any
-from typing import List
 from typing import Optional
 from click import Context
 from click import ParamType
 from click import Parameter
-from click.shell_completion import CompletionItem
 from .environment import Environment
-from .environment import PATH_SYMBOL
+
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -16,21 +14,6 @@ env = Environment()
 
 class QueryType(ParamType):
     name = "QueryString"
-
-    def shell_complete(self, ctx: "Context", param: "Parameter", incomplete: str) -> List["CompletionItem"]:
-        """
-        Allow auto-completion of the parameter
-        :param ctx: click context used to send this parameter value
-        :param param: name of the parameter to be completed
-        :param incomplete: actual value to complete
-        :return: a list of item that could be the completed version of the parameter
-        """
-        if not incomplete.startswith(PATH_SYMBOL):
-            return []
-
-        base_names = env.auto_completion_guide()
-
-        return [CompletionItem(_b) for _b in base_names if _b.startswith(incomplete)]
 
     def convert(self, value: Any, param: Optional["Parameter"], ctx: Optional["Context"]) -> Any:
         """
@@ -43,7 +26,8 @@ class QueryType(ParamType):
 
         logger.debug(f"Converting '{value}' for parameter '{param.name}'")
         try:
-            r = env.convert_data_query(query=value, params=ctx.params)
+            print("convert str")
+            r = ""
         except KeyError as _ke:
             self.fail(str(_ke), param, ctx)
         if r is None:

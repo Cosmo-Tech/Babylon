@@ -92,7 +92,8 @@ def pass_kusto_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
+        state = env.get_state_from_vault_by_platform(env.environ_id)
+        azure_subscription = state['azure']["subscription_id"]
         azure_credential = get_azure_credentials()
         kwargs["kusto_client"] = KustoManagementClient(credential=azure_credential, subscription_id=azure_subscription)
         return func(*args, **kwargs)
@@ -105,7 +106,8 @@ def pass_adt_management_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
+        state = env.get_state_from_vault_by_platform(env.environ_id)
+        azure_subscription = state['azure']["subscription_id"]
         azure_credential = get_azure_credentials()
         kwargs["adt_management_client"] = AzureDigitalTwinsManagementClient(azure_credential, azure_subscription)
         return func(*args, **kwargs)
@@ -118,7 +120,8 @@ def pass_adt_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        digital_twin_url = env.configuration.get_var(resource_id='adt', var_name="digital_twin_url")
+        state = env.get_state_from_vault_by_platform(env.environ_id)
+        digital_twin_url = state["adt"]["digital_twin_url"]
         azure_credential = get_azure_credentials()
         kwargs["adt_client"] = DigitalTwinsClient(credential=azure_credential, endpoint=digital_twin_url)
         return func(*args, **kwargs)
@@ -145,7 +148,8 @@ def pass_blob_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        account_name = env.configuration.get_var(resource_id='azure', var_name="storage_account_name")
+        state = env.get_state_from_vault_by_platform(env.environ_id)
+        account_name = state["azure"]["storage_account_name"]
         account_secret = env.get_platform_secret(platform=env.environ_id, resource="storage", name="account")
         prefix = f"DefaultEndpointsProtocol=https;AccountName={account_name}"
         connection_str = f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net"
@@ -176,7 +180,8 @@ def pass_iam_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
+        state = env.get_state_from_vault_by_platform(env.environ_id)
+        azure_subscription = state['azure']["subscription_id"]
         authorization_client = AuthorizationManagementClient(
             credential=get_azure_credentials(),
             subscription_id=azure_subscription,
@@ -192,7 +197,8 @@ def pass_storage_mgmt_client(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        azure_subscription = env.configuration.get_var(resource_id="azure", var_name="subscription_id")
+        state = env.get_state_from_vault_by_platform(env.environ_id)
+        azure_subscription = state['azure']["subscription_id"]
         authorization_client = StorageManagementClient(
             credential=get_azure_credentials(),
             base_url="https://management.azure.com",
