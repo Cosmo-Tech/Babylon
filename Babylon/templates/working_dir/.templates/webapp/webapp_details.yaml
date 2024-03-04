@@ -1,0 +1,13 @@
+name: "{{webapp_name}}"
+location: "{{webapp_location}}"
+properties:
+  repositoryUrl: "{{webapp_repository}}"
+  branch: "{{webapp_branch}}"
+  repositoryToken: "{{github_secret}}"
+  buildProperties:
+    appLocation: "/"
+    apiLocation: api
+    appArtifactLocation: build
+sku:
+  name: Standard
+  tier: Standard

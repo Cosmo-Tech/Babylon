@@ -7,7 +7,6 @@ from click import ParamType
 from click import Parameter
 from .environment import Environment
 
-
 logger = logging.getLogger("Babylon")
 env = Environment()
 

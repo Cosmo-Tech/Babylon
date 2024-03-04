@@ -32,7 +32,13 @@ class AzurePowerBIReportService:
 
     def download_all(self, workspace_id: str, output_folder: Path):
         logger.info('download all reports')
-        return []
+        if not output_folder.exists():
+            output_folder.mkdir()
+        reports = self.get_all(workspace_id=workspace_id)
+        for r in reports:
+            self.download(workspace_id=workspace_id, report_id=r.get('id'), output_folder=output_folder)
+            logger.info("Successfully saved the following reports:")
+        logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))
 
     def download(self, workspace_id: str, report_id: str, output_folder: Path):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
@@ -48,7 +54,7 @@ class AzurePowerBIReportService:
         logger.info(f"Report {report_id} was saved as {output_path}")
         return output_path
 
-    def get_all(self, workspace_id: str, filter: bool):
+    def get_all(self, workspace_id: str, filter: str = ""):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         urls_reports = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports")
         response = oauth_request(urls_reports, self.powerbi_token)
