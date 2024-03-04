@@ -72,7 +72,7 @@ class ArmService:
             poller = self.arm_client.resources.begin_delete_by_id(
                 resource_id=f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}"
                 f"/providers/Microsoft.EventHub/namespaces/{organization_id}-{workspace_key}",
-                api_version="2019-08-01",
+                api_version="2017-04-01",
             )
             poller.wait()
             # check if done
