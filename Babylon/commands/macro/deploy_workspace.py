@@ -194,7 +194,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = ArmService(arm_client=arm_client, state=state.get('services'))
-        deployment_name = f"{organization_id}-{work_key}"
+        deployment_name = f"{organization_id}-evn-{work_key}"
         adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=state.get('services'))
         principal_id = state['services']['adx']['cluster_principal_id']
