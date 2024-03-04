@@ -82,6 +82,9 @@ class Environment(metaclass=SingletonMeta):
         ns = payload_dict.get("namespace")
         context_id = ns.get("context", "")
         state_id = ns.get("state_id", "")
+        if not state_id:
+            logger.error("state id is mandatory")
+            sys.exit(1)
         plt_obj = ns.get("platform", {})
         platform_id = plt_obj.get("id", "")
         if not platform_id:
@@ -282,7 +285,7 @@ class Environment(metaclass=SingletonMeta):
         return response_parsed
 
     def store_mtime_in_state(self, state: dict):
-        state['files'] = self.working_dir.files_to_deploy
+        state["files"] = self.working_dir.files_to_deploy
         return state
 
     def store_state_in_local(self, state: dict):

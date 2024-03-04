@@ -31,6 +31,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func()
     state['services']['api']['url'] = platform_url
+    state['services']['azure']['tenant_id'] = env.tenant_id
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state['services']['api']['organization_id']
@@ -52,6 +53,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
         workspace = response.json()
         logger.info(f"Workspace {workspace.get('id')} successfully created...")
         logger.info(json.dumps(workspace, indent=2))
+        state["services"]["api"]["workspace_id"] = workspace.get("id")
     else:
         logger.info(f"Updating workspace {state['services']['api']['workspace_id']}...")
         response = workspace_svc.update()
@@ -61,7 +63,6 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
         response_json["security"] = security_spec
         workspace = response_json
         logger.info(json.dumps(workspace, indent=2))
-    state["services"]["api"]["workspace_id"] = workspace.get("id")
     env.store_state_in_local(state)
     env.store_state_in_cloud(state)
     # update sidecars
@@ -168,7 +169,10 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
                                                role=g.get("role"),
                                                tenant_id=g.get('tenant_id', env.tenant_id))
                     if g.get("principal_id") not in existing_ids:
-                        permission_svc.set(g.get("principal_id"), g.get("type"), role=g.get("role"))
+                        permission_svc.set(principal_id=g.get("principal_id"),
+                                           principal_type=g.get("type"),
+                                           role=g.get("role"),
+                                           tenant_id=g.get('tenant_id', env.tenant_id))
                 for s in existing_ids:
                     if s not in ids:
                         if s != state["services"]["babylon"]["client_id"]:

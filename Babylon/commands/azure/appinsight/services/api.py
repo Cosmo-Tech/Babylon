@@ -22,8 +22,8 @@ class AzureAppInsightService:
         check_ascii(name)
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        create_file = (file or env.working_dir.original_template_path / "webapp/app_insight.json")
-        details = env.fill_template(create_file)
+        create_file = (file or env.original_template_path / "webapp/app_insight.json")
+        details = env.fill_template(data=create_file.open().read(), state=self.state)
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Insights/components/{name}?api-version=2015-05-01")

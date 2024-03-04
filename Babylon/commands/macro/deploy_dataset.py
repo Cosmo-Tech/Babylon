@@ -21,6 +21,7 @@ def deploy_dataset(head: str, file_content: str) -> bool:
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
+    state['services']['azure']['tenant_id'] = env.tenant_id
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")

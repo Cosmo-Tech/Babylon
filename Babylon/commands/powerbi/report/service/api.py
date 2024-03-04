@@ -5,7 +5,6 @@ import requests
 import polling2
 
 from pathlib import Path
-from Babylon.utils.macro import Macro
 from Babylon.utils.request import oauth_request
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -32,44 +31,8 @@ class AzurePowerBIReportService:
         return response
 
     def download_all(self, workspace_id: str, output_folder: Path):
-        workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        logger.info(f"Downloading reports from workspace {workspace_id}...")
-        if not output_folder.exists():
-            output_folder.mkdir()
-        m = (Macro("PowerBI download all", "powerbi").step(
-            [
-                "powerbi",
-                "report",
-                "get-all",
-                "-c",
-                env.context_id,
-                "-p",
-                env.environ_id,
-                "--workspace-id",
-                workspace_id,
-            ],
-            store_at="reports",
-        ).iterate(
-            "datastore.reports.data",
-            [
-                "powerbi",
-                "report",
-                "download",
-                "-c",
-                env.context_id,
-                "-p",
-                env.environ_id,
-                "--workspace-id",
-                workspace_id,
-                "%datastore%item.id",
-                "--override",
-                str(output_folder),
-            ],
-        ))
-        reports = m.env.get_data(["reports", "data"])
-        logger.info("Successfully saved the following reports:")
-        logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))
-        return m
+        logger.info('download all reports')
+        return []
 
     def download(self, workspace_id: str, report_id: str, output_folder: Path):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
@@ -175,7 +138,7 @@ class AzurePowerBIReportService:
             },
             "pageName": None,
         }
-        return CommandResponse.success(new_report, verbose=True)
+        return new_report
 
 
 def is_correct_response_app(response):

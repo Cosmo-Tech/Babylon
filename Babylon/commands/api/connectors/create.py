@@ -34,7 +34,7 @@ def create(state: Any, azure_token: str, payload_file: pathlib.Path) -> CommandR
         return CommandResponse.fail()
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(f.read(), state)
+        spec["payload"] = env.fill_template(data=f.read(), state=state)
     service = ConnectorService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.create()
     if response is None:

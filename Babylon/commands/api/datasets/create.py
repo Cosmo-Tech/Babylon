@@ -52,7 +52,7 @@ def create(
     source_type = payload_dict.get("sourceType")
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(f.read(), state)
+        spec["payload"] = env.fill_template(data=f.read(), state=state)
     service = DatasetService(azure_token=azure_token, state=service_state, spec=spec)
     response = service.create()
     if response is None:

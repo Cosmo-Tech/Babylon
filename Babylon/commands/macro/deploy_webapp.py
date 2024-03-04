@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import time
 import yaml
@@ -28,6 +27,7 @@ def deploy_swa(head: str, file_content: str):
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
+    state['services']['azure']['tenant_id'] = env.tenant_id
     subscription_id = state["services"]["azure"]["subscription_id"]
     github_secret = env.get_global_secret(resource="github", name="token")
     organization_id = state['services']['api']['organization_id']
@@ -56,7 +56,7 @@ def deploy_swa(head: str, file_content: str):
             get_app = app_svc.get(object_id=object_id)
             if not get_app:
                 app_created, sp = app_svc.create(details=details)
-                state['services']['app']["client_id"] = app_created.get("appId")
+                state['services']['app']["app_id"] = app_created.get("appId")
                 state['services']['app']["name"] = app_created.get("appDisplayName")
                 state['services']['app']["principal_id"] = app_created.get("id")
                 state['services']['app']["object_id"] = sp.get("id")
@@ -123,17 +123,16 @@ def deploy_swa(head: str, file_content: str):
         swa_settings.update(webapp_name=swa_name, details=settings_str)
     function_spec = sidecars.get("azure").get("function", {})
     if function_spec:
-        url_zip = function_spec.get('url_zip')
+        url_zip = function_spec.get('url_zip', '')
+        instance_name = function_spec.get('name', '')
         azure_credential = get_azure_credentials()
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
         arm_svc = ArmService(arm_client=arm_client, state=state.get('services'))
-        ext_args = dict(azure_app_client_secret=azf_secret, url_zip=url_zip)
-        arm_svc.run(deployment_name="funcappmyde", file="azf_deploy.json", ext_args=ext_args)
+        ext_args = dict(azure_app_client_secret=azf_secret, url_zip=url_zip, instance_name=instance_name)
+        arm_svc.run(deployment_name=instance_name, file="azf_deploy.json", ext_args=ext_args)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
         data = run_scripts.get("post_deploy.sh", "")
         if data:
             os.system(data)
-    if not swa.get('id'):
-        sys.exit(1)

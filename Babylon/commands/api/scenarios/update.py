@@ -50,7 +50,7 @@ def update(
         return CommandResponse.fail()
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(f.read(), state)
+        spec["payload"] = env.fill_template(data=f.read(), state=state)
 
     scenario_service = ScenarioService(state=service_state, spec=spec, azure_token=azure_token)
     response = scenario_service.update()

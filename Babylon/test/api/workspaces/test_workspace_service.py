@@ -4,7 +4,6 @@ from click.testing import CliRunner
 from Babylon.commands.api.workspaces.services.api import WorkspaceService
 from Babylon.commands.api.workspaces.get import get
 from Babylon.commands.api.workspaces.get_all import get_all
-from Babylon.commands.api.workspaces.send_key import send_key
 from Babylon.commands.api.workspaces.update import update
 from Babylon.commands.api.workspaces.delete import delete
 from Babylon.commands.api.workspaces.create import create
@@ -51,16 +50,6 @@ class SolutionServiceTestCase(unittest.TestCase):
         result = CliRunner().invoke(get_all, ["--organization-id", "1"], standalone_mode=False)
 
         assert len(result.return_value.data) == 2
-
-    @mock.patch.object(WorkspaceService, 'send_key')
-    def test_send_key(self, mock_send_key):
-        the_response = Response()
-        the_response._content = b'{"code": "201", "description": "Request succeeded"}'
-        mock_send_key.return_value = the_response
-
-        result = CliRunner().invoke(send_key, ["--organization-id", "1", "--workspace-id", "1"], standalone_mode=False)
-
-        assert result.return_value.data == {"code": "201", "description": "Request succeeded"}
 
     @mock.patch.object(WorkspaceService, 'update')
     def test_update(self, mock_update):

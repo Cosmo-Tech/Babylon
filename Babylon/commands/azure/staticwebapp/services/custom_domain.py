@@ -33,7 +33,7 @@ class AzureSWACustomDomainService:
             f"providers/Microsoft.Web/staticSites/{webapp_name}/customDomains/{domain_name}?api-version=2022-03-01")
         details = '{"properties":{}}'
         if create_file:
-            details = env.fill_template(create_file)
+            details = env.fill_template(data=create_file.open().read(), state=self.state)
         response = oauth_request(create_route, self.azure_token, type="PUT", data=details)
         if response is None:
             return CommandResponse.fail()

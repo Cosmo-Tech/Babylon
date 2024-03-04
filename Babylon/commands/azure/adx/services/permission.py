@@ -37,8 +37,8 @@ class AdxPermissionService:
         logger.info("Creating assignment...")
         poller = (self.kusto_client.database_principal_assignments.begin_create_or_update(
             principal_assignment_name=principal_assignment_name,
+            cluster_name=adx_cluster_name,
             resource_group_name=resource_group_name,
-            adx_cluster_name=adx_cluster_name,
             database_name=database_name,
             parameters=parameters,
         ))

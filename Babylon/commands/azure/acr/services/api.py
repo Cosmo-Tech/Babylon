@@ -59,8 +59,6 @@ class AzureContainerRegistryService:
             return CommandResponse.fail()
         except Exception as e:
             logger.error(str(e))
-        # env.configuration.set_var(resource_id="acr", var_name="simulator_repository", var_value=image.split(":")[0])
-        # env.configuration.set_var(resource_id="acr", var_name="simulator_version", var_value=image.split(":")[1])
         logger.info(f"Successfully pulled image {image} from registry {registry_server}")
 
     def push(self, image_tag: str):
@@ -101,7 +99,6 @@ class AzureContainerRegistryService:
         cr_client = get_registry_client(registry_server)
         image = image_tag or f"{simulator_repository}:{simulator_version}"
         if not image:
-            logger.info(f"You trying to use the image in {env.context_id}.{env.environ_id}.acr.yaml")
             logger.info(f"Current value: {simulator_repository}:{simulator_version}")
             return CommandResponse.fail()
         image = f"{image}:latest" if ":" not in image else image
