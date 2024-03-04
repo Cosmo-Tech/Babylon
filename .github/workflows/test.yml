@@ -19,5 +19,11 @@ jobs:
       - uses: actions/setup-python@v3
         with:
           python-version: "3.11"
+
+      - name: install babylon and requirements
+        run: |
+          pip install -e .
+
       - name: run pytest
-        run: pytest . -v
+        run: |
+          pytest . -v
