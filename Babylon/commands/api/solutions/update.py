@@ -44,7 +44,7 @@ def update(
         return CommandResponse.fail()
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(f.read(), state)
+        spec["payload"] = env.fill_template(data=f.read(), state=state)
     service = SolutionService(state=service_state, azure_token=azure_token, spec=spec)
     response = service.update()
     if response is None:

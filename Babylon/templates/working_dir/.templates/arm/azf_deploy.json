@@ -4,7 +4,7 @@
   "parameters": {
     "functionName": {
       "type": "string",
-      "defaultValue": "{{services['api.organization_id']}}-{{services['api.workspace_key']}}",
+      "defaultValue": "{{instance_name}}",
       "metadata": {
         "description": "Name of the function app"
       }
@@ -39,7 +39,7 @@
     },
     "azCliID": {
       "type": "string",
-      "defaultValue": "{{services['app.client_id']}}",
+      "defaultValue": "{{services['app.app_id']}}",
       "metadata": {
         "description": "Client id of an app registration having access to the Cosmo Tech API"
       }
@@ -188,7 +188,7 @@
             "enabled": true,
             "registration": {
               "openIdIssuer": "[concat('https://sts.windows.net/',tenant().tenantId,'/v2.0')]",
-              "clientId": "{{services['app.client_id']}}",
+              "clientId": "{{services['app.app_id']}}",
               "clientSecretSettingName": "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
             },
             "login": {
@@ -199,7 +199,7 @@
               "allowedAudiences": [
                 "{{services['platform.app_id']}}",
                 "{{services['api.url']}}",
-                "{{services['app.client_id']}}"
+                "{{services['app.app_id']}}"
               ],
               "defaultAuthorizationPolicy": {
                 "allowedPrincipals": {}

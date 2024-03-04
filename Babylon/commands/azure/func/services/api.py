@@ -27,6 +27,7 @@ class AzureAppFunctionService:
     ):
         organization_id = self.state["api"]["organization_id"]
         workspace_key = self.state["api"]["workspace_key"]
+        workspace_key = self.state["azure"]["url_zip"]
         resource_group_name = self.state["azure"]["resource_group_name"]
 
         mode = DeploymentMode.INCREMENTAL
@@ -37,15 +38,11 @@ class AzureAppFunctionService:
             if confirm_deploy_arm_mode():
                 mode = DeploymentMode.COMPLETE
 
-        deploy_file = env.working_dir.original_template_path / "arm/azf_deploy.json"
+        deploy_file = env.original_template_path / "arm/azf_deploy.json"
         az_app_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
-        arm_template = env.fill_template(
-            deploy_file,
-            data={
-                "instance_name": f"{organization_id.lower()}-{workspace_key.lower()}",
-                "azure_app_client_secret": az_app_secret,
-            },
-        )
+        instance_name = f"{organization_id}-{workspace_key}"
+        ext_args = dict(azure_app_client_secret=az_app_secret, instance_name=instance_name)
+        arm_template = env.fill_template(data=deploy_file.open().read(), state=self.state, ext_args=ext_args)
         arm_template = json.loads(arm_template)
         parameters = {k: {"value": v["defaultValue"]} for k, v in dict(arm_template["parameters"]).items()}
         logger.info("Starting deployment")

@@ -89,17 +89,17 @@ class SolutionService:
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.update_control_access(id=g.get("id"), details=details)
+                response = self.security_svc.update(id=g.get("id"), details=details)
                 if response is None:
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
-                response = self.security_svc.add_control_access(details)
+                response = self.security_svc.add(details)
                 if response is None:
                     return None
         for s in ids_existing:
             if s not in ids_spec:
-                response = self.security_svc.remove_control_access(id=s)
+                response = self.security_svc.remove(id=s)
                 if response is None:
                     return None
         return security_spec

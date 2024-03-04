@@ -39,7 +39,7 @@ class WorkspaceService:
     def get(self):
         workspace_id = self.state["api"]["workspace_id"]
         if not workspace_id:
-            logger.error("workspace_id not found")
+            logger.error("workspace id not found")
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
@@ -86,9 +86,9 @@ class WorkspaceService:
         )
         return response
 
-    def send_key(self):
-        workspace = self.get().json()
-        workspace_key = workspace.get("key")
+    def send_key(self, workspace_id: str, workspace_key: str):
+        workspace_id = workspace_id or self.state['api']['workspace_id']
+        workspace_key = workspace_key or self.state['api']['workspace_key']
         secret_eventhub = env.get_project_secret(
             organization_id=self.organization_id,
             workspace_key=workspace_key,
@@ -99,7 +99,6 @@ class WorkspaceService:
             sys.exit(1)
         details = {"dedicatedEventHubKey": secret_eventhub.replace('"', "")}
         details_json = json.dumps(details, indent=4, default=str)
-        workspace_id = self.state["api"]["workspace_id"]
         if not workspace_id:
             logger.error("workspace id not found")
             sys.exit(1)

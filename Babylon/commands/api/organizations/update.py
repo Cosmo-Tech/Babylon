@@ -30,7 +30,7 @@ def update(state: Any, azure_token: str, organization_id: str, payload_file: pat
     service_state = state["services"]
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(f.read(), state)
+        spec["payload"] = env.fill_template(data=f.read(), state=state)
     organizations_service = OrganizationService(state=service_state, azure_token=azure_token, spec=spec)
     response = organizations_service.update()
     if response is None:

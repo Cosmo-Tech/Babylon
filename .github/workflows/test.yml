@@ -1,0 +1,23 @@
+name: Test Api commands babylon with pytest 
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+      - "**-dev"
+      - "feat**"
+jobs:
+  flake8-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout repository
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+      - name: run pytest
+        run: pytest . -v
