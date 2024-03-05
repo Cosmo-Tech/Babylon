@@ -1,4 +1,10 @@
 name: Test Api commands babylon with pytest 
+
+env:
+  BABYLON_SERVICE: ${{ vars.BABYLON_SERVICE }}
+  BABYLON_TOKEN: ${{ secrets.BABYLON_TOKEN }}
+  BABYLON_ORG_NAME: ${{ vars.BABYLON_ORG_NAME }}
+
 on:
   push:
     branches:
@@ -27,4 +33,5 @@ jobs:
 
       - name: run pytest
         run: |
+          babylon namespace use -c test -p dev -s testid
           pytest . -v
