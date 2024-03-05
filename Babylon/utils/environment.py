@@ -158,6 +158,9 @@ class Environment(metaclass=SingletonMeta):
     def set_environ(self, environ_id):
         self.environ_id = environ_id
 
+    def set_state_id(self, state_id: str):
+        self.state_id = state_id
+
     def set_org_name(self):
         self.organization_name = os.environ.get("BABYLON_ORG_NAME")
         self.tenant_id = self.get_organization_secret(self.organization_name, "tenant")
@@ -292,13 +295,13 @@ class Environment(metaclass=SingletonMeta):
         state_dir = Path().home() / ".config/cosmotech/babylon"
         if not state_dir.exists():
             state_dir.mkdir(parents=True, exist_ok=True)
-        s = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
+        s = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state = self.store_mtime_in_state(state)
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
         logger.info(f"state saved in local with id: {self.state_id}")
 
     def store_state_in_cloud(self, state: dict):
-        s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
+        s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
         if state_blob.exists():
             state_blob.delete_blob()
@@ -306,9 +309,8 @@ class Environment(metaclass=SingletonMeta):
 
     def get_state_from_local(self):
         state_dir = Path().home() / ".config/cosmotech/babylon"
-        state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
+        state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
-            logger.info("state file not found")
             return dict()
         state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
         return state_data
@@ -316,7 +318,7 @@ class Environment(metaclass=SingletonMeta):
     def get_state_from_cloud(self, state: dict) -> dict:
         if not state.get("id"):
             return state
-        s = f"{state['id']}/state.{self.context_id}.{self.environ_id}.yaml"
+        s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
         if not state_blob.exists():
             return state
@@ -344,10 +346,10 @@ class Environment(metaclass=SingletonMeta):
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
-        ns = dict(context=self.context_id, platform=self.environ_id)
+        ns = dict(state_id=self.state_id, context=self.context_id, platform=self.environ_id)
         s.write_bytes(data=yaml.dump(ns).encode("utf-8"))
 
-    def get_namespace_from_local(self, context: str = "", platform: str = ""):
+    def get_namespace_from_local(self, context: str = "", platform: str = "", state_id: str = ""):
         ns_dir = Path().home() / ".config/cosmotech/babylon"
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
@@ -360,6 +362,8 @@ class Environment(metaclass=SingletonMeta):
         if ns_data:
             self.context_id = context or ns_data.get("context", "")
             self.environ_id = platform or ns_data.get("platform", "")
+            self.state_id = state_id or ns_data.get("state_id", "")
+            self.set_state_id(state_id=state_id)
             self.set_server_id()
             self.set_org_name()
             self.set_blob_client()
