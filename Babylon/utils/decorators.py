@@ -151,6 +151,12 @@ def injectcontext() -> Callable[..., Any]:
             "platform",
             help="Platform Id without any special character",
         )
+        @option(
+            "-s",
+            "--state-id",
+            "state_id",
+            help="State Id",
+        )
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
@@ -159,7 +165,10 @@ def injectcontext() -> Callable[..., Any]:
             platform = kwargs.pop("platform", None)
             if platform and check_special_char(string=platform):
                 env.set_environ(platform)
-            env.get_namespace_from_local(context=context, platform=platform)
+            state_id = kwargs.pop("state_id", None)
+            if state_id and check_special_char(string=state_id):
+                env.set_state_id(state_id)
+            env.get_namespace_from_local(context=context, platform=platform, state_id=state_id)
             return func(*args, **kwargs)
 
         return wrapper
@@ -197,7 +206,6 @@ def wrapcontext() -> Callable[..., Any]:
             if state_id and check_special_char(string=state_id):
                 env.set_state_id(state_id)
             return func(*args, **kwargs)
-
         return wrapper
 
     return wrap_function
