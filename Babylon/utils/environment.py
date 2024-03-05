@@ -99,7 +99,7 @@ class Environment(metaclass=SingletonMeta):
         if not match_content:
             logger.error("url not match")
             sys.exit(1)
-        self.state_id = state_id
+        self.set_state_id(state_id=state_id)
         self.set_context(context_id=context_id)
         self.set_environ(environ_id=platform_id)
         self.set_server_id()
@@ -298,7 +298,6 @@ class Environment(metaclass=SingletonMeta):
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state = self.store_mtime_in_state(state)
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
-        logger.info(f"state saved in local with id: {self.state_id}")
 
     def store_state_in_cloud(self, state: dict):
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
@@ -318,6 +317,7 @@ class Environment(metaclass=SingletonMeta):
     def get_state_from_cloud(self, state: dict) -> dict:
         if not state.get("id"):
             return state
+        self.state_id = state.get("id")
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
         if not state_blob.exists():
@@ -363,7 +363,7 @@ class Environment(metaclass=SingletonMeta):
             self.context_id = context or ns_data.get("context", "")
             self.environ_id = platform or ns_data.get("platform", "")
             self.state_id = state_id or ns_data.get("state_id", "")
-            self.set_state_id(state_id=state_id)
+            self.set_state_id(state_id=self.state_id)
             self.set_server_id()
             self.set_org_name()
             self.set_blob_client()

@@ -16,7 +16,7 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_dataset(head: str, file_content: str) -> bool:
+def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
     logger.info("Dataset deployment")
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
@@ -32,7 +32,8 @@ def deploy_dataset(head: str, file_content: str) -> bool:
     state["services"]["api"]["dataset_id"] = dataset_id
     spec = dict()
     if source_type == "File":
-        dataset_zip = pathlib.Path(azure["dataset"]["file"]["local_path"])
+        local_path = azure["dataset"].get("file", {}).get("local_path", "")
+        dataset_zip: pathlib.Path = pathlib.Path(deploy_dir) / local_path
         if not dataset_zip:
             logger.error("Zip archive is mandatory to create a dataset with sourceType File")
             sys.exit(1)
@@ -52,25 +53,24 @@ def deploy_dataset(head: str, file_content: str) -> bool:
             if not payload["source"].get("location"):
                 payload["source"]["location"] = state["services"]["api"]["organization_id"]
         else:
-            datasets_csv_dir_path = pathlib.Path(azure["dataset"]["storage"]["local_path"])
-            if datasets_csv_dir_path.is_dir():
-                files = list(pathlib.Path(datasets_csv_dir_path).iterdir())
-                datasets = list(filter(lambda x: x.suffix == ".csv", files))
-                dataset_dir_name = payload["name"].replace(" ", "_").lower()
-                storage_service = DatasetStorageService(azure_token=azure_token, state=state["services"])
-                for dataset in datasets:
-                    dataset_name = basename(dataset)
-                    storage_service.upload_csv_to_storage(
-                        path=datasets_csv_dir_path / f"{dataset}",
-                        dataset_dir_name=dataset_dir_name,
-                        dataset_name=dataset_name,
-                        override=True,
-                    )
-                source = dict()
-                source["name"] = state["services"]["azure"]["storage_account_name"]
-                source["location"] = state["services"]["api"]["organization_id"]
-                source["path"] = (f"{state['services']['api']['workspace_id']}/datasets/{dataset_dir_name}")
-                payload["source"] = source
+            datasets_csv_dir_path = pathlib.Path(deploy_dir) / azure["dataset"]["storage"]["local_path"]
+            files = list(pathlib.Path(datasets_csv_dir_path).iterdir())
+            datasets = list(filter(lambda x: x.suffix == ".csv", files))
+            dataset_dir_name = payload["name"].replace(" ", "_").lower()
+            storage_service = DatasetStorageService(azure_token=azure_token, state=state["services"])
+            for dataset in datasets:
+                dataset_name = basename(dataset)
+                storage_service.upload_csv_to_storage(
+                    path=datasets_csv_dir_path / f"{dataset_name}",
+                    dataset_dir_name=dataset_dir_name,
+                    dataset_name=dataset_name,
+                    override=True,
+                )
+            source = dict()
+            source["name"] = state["services"]["azure"]["storage_account_name"]
+            source["location"] = state["services"]["api"]["organization_id"]
+            source["path"] = (f"{state['services']['api']['workspace_id']}/datasets/{dataset_dir_name}")
+            payload["source"] = source
     if source_type == "ADT":
         if ("source" not in payload.keys() or type(payload["source"]) is not dict
                 or "location" not in payload["source"].keys()):
