@@ -206,6 +206,7 @@ def wrapcontext() -> Callable[..., Any]:
             if state_id and check_special_char(string=state_id):
                 env.set_state_id(state_id)
             return func(*args, **kwargs)
+
         return wrapper
 
     return wrap_function

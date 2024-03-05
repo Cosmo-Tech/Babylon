@@ -131,21 +131,12 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         solution_json = solution.json()
         run_templates = solution_json.get("runTemplates", [])
         organization_id = state['services']["api"]["organization_id"]
-        handlers = [
-            'parameters_handler',
-            'preRun',
-            'run',
-            'engine',
-            'postRun',
-            'scenariodata_transform',
-            'validator'
-        ]
+        handlers = ['parameters_handler', 'preRun', 'run', 'engine', 'postRun', 'scenariodata_transform', 'validator']
         for run_template in run_templates:
             runtemplate_id = run_template.get('id', "")
             for h in handlers:
-                blob = env.blob_client.get_blob_client(
-                    container=organization_id, 
-                    blob=f"{solution_id}/{runtemplate_id}/{h}.zip")
+                blob = env.blob_client.get_blob_client(container=organization_id,
+                                                       blob=f"{solution_id}/{runtemplate_id}/{h}.zip")
                 if blob.exists():
                     blob.delete_blob()
         # deleting solution
