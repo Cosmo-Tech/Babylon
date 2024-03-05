@@ -29,7 +29,7 @@ env = Environment()
 def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
     logger.info("Workspace deployment")
     platform_url = env.get_ns_from_text(content=head)
-    state = env.retrieve_state_func()
+    state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
     azure_credential = get_azure_credentials()
@@ -131,7 +131,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
                     path = r.get("path")
                     path_report = pathlib.Path(deploy_dir) / f"{path}"
                     if not path_report.exists():
-                        logger.error(f"Report '{path_report}' not found")
+                        logger.warning(f"Report '{path_report}' not found")
                     if path_report.exists():
                         report_svc = AzurePowerBIReportService(powerbi_token=po_token, state=state.get('services'))
                         report_svc.upload(
@@ -291,6 +291,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
     if run_scripts:
         data = run_scripts.get("post_deploy.sh", "")
         if data:
+            print(data)
             os.system(data)
     if not workspace.get("id"):
         sys.exit(1)

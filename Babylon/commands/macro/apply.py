@@ -69,4 +69,4 @@ def apply(deploy_dir: pathlib.Path):
         p = pathlib.Path(d.get('path'))
         content = p.open().read()
         head = d.get('head')
-        deploy_dataset(head=head, file_content=content)
+        deploy_dataset(head=head, file_content=content, deploy_dir=deploy_dir)
