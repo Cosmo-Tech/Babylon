@@ -1,5 +1,6 @@
 from click import group
-from Babylon.commands.abba.run import run, check
+from Babylon.commands.abba.run import run
+from Babylon.commands.abba.check import check
 from Babylon.utils.environment import Environment
 
 env = Environment()
