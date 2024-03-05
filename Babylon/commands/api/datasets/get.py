@@ -29,7 +29,7 @@ def get(state: Any, azure_token: str, organization_id: str, dataset_id: str) -> 
     service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
     logger.info(f"Searching dataset: {service_state['api']['dataset_id']}")
     service = DatasetService(azure_token=azure_token, state=service_state)
-    response = service.get()
+    response = service.get(dataset_id=dataset_id)
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()
