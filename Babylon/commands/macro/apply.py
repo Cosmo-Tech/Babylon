@@ -50,23 +50,23 @@ def apply(deploy_dir: pathlib.Path):
     for s in solutions:
         p = pathlib.Path(s.get('path'))
         content = p.open().read()
-        head = o.get('head')
+        head = s.get('head')
         deploy_solution(head=head, file_content=content, deploy_dir=deploy_dir)
 
     for swa in webapps:
         p = pathlib.Path(swa.get('path'))
         content = p.open().read()
-        head = o.get('head')
+        head = swa.get('head')
         deploy_swa(head=head, file_content=content)
 
     for w in workspaces:
         p = pathlib.Path(w.get('path'))
         content = p.open().read()
-        head = o.get('head')
+        head = w.get('head')
         deploy_workspace(head=head, file_content=content, deploy_dir=deploy_dir)
 
     for d in datasets:
         p = pathlib.Path(d.get('path'))
         content = p.open().read()
-        head = o.get('head')
+        head = d.get('head')
         deploy_dataset(head=head, file_content=content)
