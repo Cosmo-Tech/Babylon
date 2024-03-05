@@ -6,16 +6,16 @@ import shutil
 
 from pathlib import Path
 from logging import getLogger
-from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
-from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
-from Babylon.commands.azure.ad.services.password import AzureDirectoyPasswordService
 from Babylon.utils.environment import Environment
 from azure.mgmt.resource import ResourceManagementClient
 from Babylon.commands.azure.arm.services.api import ArmService
 from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.commands.git_hub.runs.service.api import GitHubRunsService
-from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
+from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
 from Babylon.utils.credentials import get_azure_credentials, get_azure_token
+from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
+from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
+from Babylon.commands.azure.ad.services.password import AzureDirectoyPasswordService
 from Babylon.commands.azure.staticwebapp.services.app_settings import AzureSWASettingsAppService
 
 logger = getLogger("Babylon")
