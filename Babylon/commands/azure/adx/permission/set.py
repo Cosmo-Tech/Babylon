@@ -30,10 +30,7 @@ env = Environment()
         type=Choice(["User", "Group", "App"], case_sensitive=True),
         required=True,
         help="Principal type of the given ID")
-<<<<<<< HEAD
 @option("--tenant-id", type=str)
-=======
->>>>>>> cb4637b4 (remove querytype)
 @argument("principal_id", type=str, required=True)
 @retrieve_state
 def set(state: Any, kusto_client: KustoManagementClient, principal_id: str, role: str, principal_type: str,

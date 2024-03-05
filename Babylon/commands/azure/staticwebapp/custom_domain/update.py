@@ -11,10 +11,6 @@ from Babylon.commands.azure.staticwebapp.services.custom_domain import AzureSWAC
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
-<<<<<<< HEAD
-=======
-
->>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 

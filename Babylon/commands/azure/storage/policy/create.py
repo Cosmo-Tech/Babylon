@@ -7,11 +7,6 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from azure.mgmt.storage import StorageManagementClient
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> cb4637b4 (remove querytype)
 logger = logging.getLogger("Babylon")
 
 

@@ -2,22 +2,10 @@ import logging
 
 from click import command, argument
 
-<<<<<<< HEAD
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.request import oauth_request
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.credentials import pass_azure_token
-<<<<<<< HEAD
-=======
-from ...utils.response import CommandResponse
-from ...utils.request import oauth_request
-from ...utils.decorators import inject_context_with_resource, injectcontext
-from ...utils.credentials import pass_azure_token
-from ...utils.typing import QueryType
->>>>>>> 53b0a6f8 (add injectcontext)
-=======
-
->>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger('Babylon')
 

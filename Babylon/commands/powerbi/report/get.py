@@ -12,15 +12,7 @@ from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportServic
 from Babylon.utils.decorators import (
     output_to_file,
     retrieve_state,
-<<<<<<< HEAD
-<<<<<<< HEAD
     injectcontext,
-=======
-    wrapcontext,
->>>>>>> cc0b634d (add new state to powerbi)
-=======
-    injectcontext,
->>>>>>> 53b0a6f8 (add injectcontext)
 )
 
 logger = logging.getLogger("Babylon")
@@ -31,18 +23,8 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_powerbi_token()
-<<<<<<< HEAD
-<<<<<<< HEAD
 @option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @argument("report_id", type=str)
-=======
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=QueryType())
-@argument("report_id", type=QueryType())
->>>>>>> cc0b634d (add new state to powerbi)
-=======
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
-@argument("report_id", type=str)
->>>>>>> cb4637b4 (remove querytype)
 @retrieve_state
 def get(
     state: Any,
@@ -53,11 +35,7 @@ def get(
     """
     Get info from a powerbi report of a workspace
     """
-<<<<<<< HEAD
     service_state = state['services']
     service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=service_state)
-=======
-    service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=state)
->>>>>>> cc0b634d (add new state to powerbi)
     response = service.get(workspace_id=workspace_id, report_id=report_id)
     return CommandResponse.success(response, verbose=True)

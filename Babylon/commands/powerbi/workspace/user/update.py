@@ -10,23 +10,7 @@ from Babylon.commands.powerbi.workspace.user.service.api import (
 from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,
-<<<<<<< HEAD
 )
-<<<<<<< HEAD
-
-=======
-from Babylon.utils.decorators import (
-    retrieve_state,
-    wrapcontext,
-=======
->>>>>>> 53b0a6f8 (add injectcontext)
-)
-<<<<<<< HEAD
-from Babylon.utils.typing import QueryType
->>>>>>> cc0b634d (add new state to powerbi)
-=======
-
->>>>>>> cb4637b4 (remove querytype)
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 
@@ -55,15 +39,8 @@ def update(
     """
     Updates an existing user in the power bi workspace
     """
-<<<<<<< HEAD
     service_state = state['services']
     service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=service_state)
     response = service.update(workspace_id=workspace_id, right=right, type=type, email=email)
-=======
-    service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=state)
-    response = service.update(
-        workspace_id=workspace_id, right=right, type=type, email=email
-    )
->>>>>>> cc0b634d (add new state to powerbi)
     response = response.json()
     return CommandResponse.success(response)

@@ -86,7 +86,9 @@ def timing_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         resp: CommandResponse = func(*args, **kwargs)
         end_time = time.time()
         lapsed = end_time - start_time
-        logger.info(f"{func.__name__} - Total elapsed time: {datetime.timedelta(seconds = lapsed)}")
+        logger.info(
+            f"{func.__name__} - Total elapsed time: {datetime.timedelta(seconds = lapsed)}"
+        )
         return resp
 
     return wrapper
@@ -129,13 +131,14 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
             raise FileNotFoundError(f"{program_name} is not installed")
 
         doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join([doc, f"Requires the program `{program_name}` to run"])
+        wrapper.__doc__ = "\n\n".join(
+            [doc, f"Requires the program `{program_name}` to run"]
+        )
         return wrapper
 
     return wrap_function
 
 
-<<<<<<< HEAD
 def injectcontext() -> Callable[..., Any]:
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -169,7 +172,9 @@ def injectcontext() -> Callable[..., Any]:
             state_id = kwargs.pop("state_id", None)
             if state_id and check_special_char(string=state_id):
                 env.set_state_id(state_id)
-            env.get_namespace_from_local(context=context, platform=platform, state_id=state_id)
+            env.get_namespace_from_local(
+                context=context, platform=platform, state_id=state_id
+            )
             return func(*args, **kwargs)
 
         return wrapper
@@ -208,84 +213,6 @@ def wrapcontext() -> Callable[..., Any]:
                 env.set_state_id(state_id)
             return func(*args, **kwargs)
 
-        return wrapper
-
-    return wrap_function
-
-
-=======
->>>>>>> 53b0a6f8 (add injectcontext)
-def injectcontext() -> Callable[..., Any]:
-
-    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
-        @option(
-            "-c",
-            "--context",
-            "context",
-            help="Context Name without any special character",
-        )
-        @option(
-            "-p",
-            "--platform",
-            "platform",
-            help="Platform Id without any special character",
-        )
-        @option(
-            "-s",
-            "--state-id",
-            "state_id",
-            help="State Id",
-        )
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            context = kwargs.pop("context", None)
-            if context and check_special_char(string=context):
-                env.set_context(context)
-            platform = kwargs.pop("platform", None)
-            if platform and check_special_char(string=platform):
-                env.set_environ(platform)
-            state_id = kwargs.pop("state_id", None)
-            if state_id and check_special_char(string=state_id):
-                env.set_state_id(state_id)
-            env.get_namespace_from_local(context=context, platform=platform, state_id=state_id)
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return wrap_function
-
-
-def retrieve_state(func) -> Callable[..., Any]:
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any):
-        state = env.retrieve_state_func(state_id=env.state_id)
-        kwargs["state"] = state
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def wrapcontext() -> Callable[..., Any]:
-
-    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
-        @option("-c", "--context", "context", required=True, help="Context Name")
-        @option("-p", "--platform", "platform", required=True, help="Platform Name")
-        @option("-s", "--state-id", "state_id", required=True, help="State Id")
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            context = kwargs.pop("context", None)
-            if context and check_special_char(string=context):
-                env.set_context(context)
-            platform = kwargs.pop("platform", None)
-            if platform and check_special_char(string=platform):
-                env.set_environ(platform)
-            state_id = kwargs.pop("state_id", None)
-            if state_id and check_special_char(string=state_id):
-                env.set_state_id(state_id)
-            return func(*args, **kwargs)
         return wrapper
 
     return wrap_function

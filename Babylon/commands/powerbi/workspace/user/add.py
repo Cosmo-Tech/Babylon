@@ -10,22 +10,11 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
-<<<<<<< HEAD
-<<<<<<< HEAD
     injectcontext,
-=======
-    wrapcontext,
-=======
-    injectcontext,
->>>>>>> 53b0a6f8 (add injectcontext)
 )
 from Babylon.commands.powerbi.workspace.user.service.api import (
     AzurePowerBIWorkspaceUserService,
->>>>>>> cc0b634d (add new state to powerbi)
 )
-from Babylon.commands.powerbi.workspace.user.service.api import (
-    AzurePowerBIWorkspaceUserService, )
-
 logger = logging.getLogger("Babylon")
 
 
@@ -51,11 +40,7 @@ def add(
     """
     Adds a new user to the power bi workspace using the following information:
     """
-<<<<<<< HEAD
     service_state = state['services']
     service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=service_state)
-=======
-    service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=state)
->>>>>>> cc0b634d (add new state to powerbi)
     service.add(workspace_id=workspace_id, right=right, type=type, email=identifier)
     return CommandResponse.success()

@@ -9,15 +9,7 @@ from click import Path
 from Babylon.commands.webapp.service.api import AzureWebAppService
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-<<<<<<< HEAD
-<<<<<<< HEAD
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
-=======
-from Babylon.utils.decorators import output_to_file, retrieve_state, wrapcontext
->>>>>>> cc0b634d (add new state to powerbi)
-=======
-from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
->>>>>>> 53b0a6f8 (add injectcontext)
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -35,11 +27,7 @@ def export_config(state: Any, config_file: Optional[pathlib.Path] = None) -> Com
     """
     Export webapp configuration in a json file
     """
-<<<<<<< HEAD
     service_state = state['services']
     service = AzureWebAppService(state=service_state)
-=======
-    service = AzureWebAppService(state=state)
->>>>>>> cc0b634d (add new state to powerbi)
     response = service.expor_config(config_file=config_file)
     return CommandResponse.success(json.loads(response))

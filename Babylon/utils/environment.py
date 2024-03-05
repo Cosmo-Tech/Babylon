@@ -9,7 +9,6 @@ import requests
 
 from pathlib import Path
 from hvac import Client
-from pathlib import Path
 from mako.template import Template
 from cryptography.fernet import Fernet
 from flatten_json import flatten

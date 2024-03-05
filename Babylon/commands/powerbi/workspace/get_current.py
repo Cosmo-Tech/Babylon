@@ -5,15 +5,7 @@ from click import command
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.decorators import (
     retrieve_state,
-<<<<<<< HEAD
-<<<<<<< HEAD
     injectcontext,
-=======
-    wrapcontext,
->>>>>>> cc0b634d (add new state to powerbi)
-=======
-    injectcontext,
->>>>>>> 53b0a6f8 (add injectcontext)
 )
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
@@ -32,11 +24,7 @@ def get_current(
     """
     Get a specific workspace information
     """
-<<<<<<< HEAD
     service_state = state['services']
     service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=service_state)
-=======
-    service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=state)
->>>>>>> cc0b634d (add new state to powerbi)
     response = service.get_current()
     return CommandResponse(data=response, verbose=True)

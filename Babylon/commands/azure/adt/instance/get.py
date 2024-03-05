@@ -2,22 +2,14 @@ import logging
 
 from click import argument
 from click import command
-<<<<<<< HEAD
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from Babylon.utils.decorators import injectcontext, retrieve_state
-=======
-from Babylon.utils.decorators import inject_context_with_resource, injectcontext
->>>>>>> 53b0a6f8 (add injectcontext)
 from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_adt_management_client
-<<<<<<< HEAD
-=======
-
->>>>>>> cb4637b4 (remove querytype)
 
 logger = logging.getLogger("Babylon")
 env = Environment()
