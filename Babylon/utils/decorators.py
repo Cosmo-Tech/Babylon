@@ -184,6 +184,7 @@ def wrapcontext() -> Callable[..., Any]:
 
         @option("-c", "--context", "context", required=True, help="Context Name")
         @option("-p", "--platform", "platform", required=True, help="Platform Name")
+        @option("-s", "--state-id", "state_id", required=True, help="State Id")
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
@@ -192,6 +193,9 @@ def wrapcontext() -> Callable[..., Any]:
             platform = kwargs.pop("platform", None)
             if platform and check_special_char(string=platform):
                 env.set_environ(platform)
+            state_id = kwargs.pop("state_id", None)
+            if state_id and check_special_char(string=state_id):
+                env.set_state_id(state_id)
             return func(*args, **kwargs)
 
         return wrapper
