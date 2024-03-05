@@ -68,9 +68,7 @@ def run(state: Any, azure_token: str, input: str, var_types: str) -> CommandResp
       input (str): Table with details of the simulations
       var_types (str): A table declaring the variable types of columns in input
     """
-    rows = []  # an array of dicts one for each input row
     df = pd.read_csv(input, sep='\t')
-    input_types = dict()
     input_types = {k: v for k, v in (line.rstrip().split("\t") for line in var_types)}
     df['scenarioId'] = ""
     df['scenariorunId'] = ""
@@ -116,7 +114,6 @@ def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandRe
         input (Any): Table with details of the simulations
     """
     # read file provided as argument and run api calls
-    input_types = dict()
     input_types = {k: v for k, v in (line.rstrip().split("\t") for line in var_types)}
     df = pd.read_csv(input, sep='\t')
     rows = dataframe_to_dict(df, input_types)
@@ -182,9 +179,9 @@ def generate_report(summary_df, detailed):
   </head>
   <body>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <h1>Total execution time</h1>
+    <h2>Total execution time</h2>
     {top}
-    <h1>Execution time by step</h1>
+    <h2>Execution time by step</h2>
     {"".join(fig_list)}
   </body>
   </html>
