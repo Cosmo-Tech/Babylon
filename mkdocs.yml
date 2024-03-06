@@ -43,14 +43,11 @@ nav:
   - Concepts:
       - Contribute: 'concepts/contribute.md'
       - Environments: 'concepts/environment.md'
-      - Macro commands: 'concepts/macro.md'
       - Secrets management: 'concepts/secret_management.md'
   - References:
       - babylon: 'references/cli.md'
-      - typing: 'references/typing.md'
       - functions:
           - Decorators: 'references/decorators.md'
-          - Others: 'references/others.md'
 
 markdown_extensions:
   - mkdocs-click

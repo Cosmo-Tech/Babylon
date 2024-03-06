@@ -86,9 +86,7 @@ def timing_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         resp: CommandResponse = func(*args, **kwargs)
         end_time = time.time()
         lapsed = end_time - start_time
-        logger.info(
-            f"{func.__name__} - Total elapsed time: {datetime.timedelta(seconds = lapsed)}"
-        )
+        logger.info(f"{func.__name__} - Total elapsed time: {datetime.timedelta(seconds = lapsed)}")
         return resp
 
     return wrapper
@@ -131,9 +129,7 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
             raise FileNotFoundError(f"{program_name} is not installed")
 
         doc = wrapper.__doc__ or ""
-        wrapper.__doc__ = "\n\n".join(
-            [doc, f"Requires the program `{program_name}` to run"]
-        )
+        wrapper.__doc__ = "\n\n".join([doc, f"Requires the program `{program_name}` to run"])
         return wrapper
 
     return wrap_function
@@ -172,9 +168,7 @@ def injectcontext() -> Callable[..., Any]:
             state_id = kwargs.pop("state_id", None)
             if state_id and check_special_char(string=state_id):
                 env.set_state_id(state_id)
-            env.get_namespace_from_local(
-                context=context, platform=platform, state_id=state_id
-            )
+            env.get_namespace_from_local(context=context, platform=platform, state_id=state_id)
             return func(*args, **kwargs)
 
         return wrapper

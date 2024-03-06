@@ -21,25 +21,6 @@ And if you don't want to multiply versions of Babylon, you can also add it in a 
     pip install -e .           # Install Babylon in developer mode
     ```
 
-2. pyenv:
-
-    [https://github.com/pyenv/pyenv#installation](https://github.com/pyenv/pyenv#installation){:target="_blank"}
-
-
-## Autocompletion
-
-After install you can run the following commands to get autocompletion (in bash, and stays effective after restarts as you modify your `.bashrc`)
-
-```bash
-echo 'eval "$(_BABYLON_COMPLETE=bash_source babylon)"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-You can also only run the following command to have autocompletion until you close your current terminal :
-
-```bash
-eval "$(_BABYLON_COMPLETE=bash_source babylon)"
-```
 
 For other type of command line you can check [this link](https://click.palletsprojects.com/en/8.1.x/shell-completion/){:target="_blank"}
 for official click documentation

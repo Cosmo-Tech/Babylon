@@ -13,8 +13,8 @@ from Babylon.utils.decorators import (
     injectcontext,
 )
 from Babylon.commands.powerbi.workspace.user.service.api import (
-    AzurePowerBIWorkspaceUserService,
-)
+    AzurePowerBIWorkspaceUserService, )
+
 logger = logging.getLogger("Babylon")
 
 

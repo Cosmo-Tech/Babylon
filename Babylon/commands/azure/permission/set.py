@@ -10,8 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 
 from Babylon.utils.clients import (
-    pass_iam_client,
-)
+    pass_iam_client, )
 
 logger = logging.getLogger("Babylon")
 env = Environment()
