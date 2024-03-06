@@ -72,7 +72,8 @@ def apply(deploy_dir: pathlib.Path):
         content = p.open().read()
         head = d.get('head')
         deployed_id = deploy_dataset(head=head, file_content=content, deploy_dir=deploy_dir)
-        final_datasets.append(deployed_id)
+        if deployed_id:
+            final_datasets.append(deployed_id)
 
     final_state = env.get_state_from_local()
     services = final_state.get('services')

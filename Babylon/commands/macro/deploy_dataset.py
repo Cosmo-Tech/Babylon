@@ -7,7 +7,6 @@ import pathlib
 from os.path import basename
 from logging import getLogger
 from Babylon.utils.environment import Environment
-from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import get_azure_token
 from Babylon.commands.api.datasets.services.api import DatasetService
 from Babylon.commands.api.datasets.services.storage import DatasetStorageService
@@ -82,7 +81,7 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> st
     if not state["services"]["api"]["dataset_id"]:
         response = dataset_service.create()
         if response is None:
-            return CommandResponse.fail()
+            return str()
         dataset = response.json()
         dataset_id = dataset["id"]
         if source_type != "None":
@@ -114,7 +113,7 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> st
     else:
         response = dataset_service.update()
         if not response:
-            return CommandResponse.fail()
+            return str()
         response_json = response.json()
         old_security = response_json.get("security")
         dataset_service.update_security(old_security=old_security)

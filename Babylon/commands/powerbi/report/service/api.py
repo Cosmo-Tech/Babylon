@@ -144,7 +144,7 @@ class AzurePowerBIReportService:
             },
             "pageName": None,
         }
-        return new_report
+        return output_data, new_report
 
 
 def is_correct_response_app(response):
