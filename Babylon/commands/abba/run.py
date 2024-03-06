@@ -1,7 +1,7 @@
 import json
 import pandas as pd
+
 from logging import getLogger
-from typing import Any
 from click import argument, command, File
 from Babylon.commands.abba.common import dataframe_to_dict
 from Babylon.utils.environment import Environment
@@ -23,7 +23,7 @@ env = Environment()
 @argument("input", type=File('r'))
 @argument("var_types", type=File('r'))
 @retrieve_state
-def run(state: Any, azure_token: str, input: str, var_types: str) -> CommandResponse:
+def run(state: dict, azure_token: str, input: str, var_types: str) -> CommandResponse:
     """Run a series of simulations
 
     Args:
