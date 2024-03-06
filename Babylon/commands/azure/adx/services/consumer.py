@@ -42,14 +42,18 @@ class AdxConsumerService:
         work_id = self.state["api"]["workspace_key"].lower()
         location = self.state["azure"]["resource_location"]
         client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
-        res = client.consumer_groups.create_or_update(
-            resource_group_name=rg,
-            namespace_name=f"{org_id}-{work_id}",
-            consumer_group_name=name.lower(),
-            event_hub_name=event_hub_name.lower(),
-            parameters=ConsumerGroupCreateOrUpdateParameters(location=location, ),
-        )
-        return res.as_dict()
+        try:
+            res = client.consumer_groups.create_or_update(
+                resource_group_name=rg,
+                namespace_name=f"{org_id}-{work_id}",
+                consumer_group_name=name.lower(),
+                event_hub_name=event_hub_name.lower(),
+                parameters=ConsumerGroupCreateOrUpdateParameters(location=location, ),
+            )
+            return res.as_dict()
+        except Exception as exp:
+            logger.warning(exp)
+            return dict()
 
     def delete(self, name: str, event_hub_name: str) -> bool:
         logger.info(f"deleting consumer {name}")
@@ -69,14 +73,18 @@ class AdxConsumerService:
         org_id = self.state["api"]["organization_id"].lower()
         work_id = self.state["api"]["workspace_key"].lower()
         client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
-        res = client.consumer_groups.list_by_event_hub(
-            resource_group_name=rg,
-            namespace_name=f"{org_id}-{work_id}",
-            event_hub_name=event_hub_name.lower(),
-        )
-        result = []
-        for r in res:
-            item = r.as_dict()
-            if item.get("name") != "$Default":
-                result.append(item.get('name'))
-        return result
+        try:
+            res = client.consumer_groups.list_by_event_hub(
+                resource_group_name=rg,
+                namespace_name=f"{org_id}-{work_id}",
+                event_hub_name=event_hub_name.lower(),
+            )
+            result = []
+            for r in res:
+                item = r.as_dict()
+                if item.get("name") != "$Default":
+                    result.append(item.get('name'))
+            return result
+        except Exception as exp:
+            logger.warning(exp)
+            return list()

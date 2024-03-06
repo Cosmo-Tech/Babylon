@@ -20,13 +20,17 @@ class AdxScriptService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
         database_name = self.state["adx"]["database_name"]
-        response = self.kusto_client.scripts.list_by_database(
-            resource_group_name=resource_group_name,
-            cluster_name=adx_cluster_name,
-            database_name=database_name,
-        )
-        scripts = [item.as_dict() for item in response]
-        return scripts
+        try:
+            response = self.kusto_client.scripts.list_by_database(
+                resource_group_name=resource_group_name,
+                cluster_name=adx_cluster_name,
+                database_name=database_name,
+            )
+            scripts = [item.as_dict() for item in response]
+            return scripts
+        except Exception as exp:
+            logger.warning(exp)
+            return list()
 
     def run_folder(self, script_folder: Path):
         files = glob.glob(str(script_folder.absolute() / "*.kql"))
@@ -49,15 +53,15 @@ class AdxScriptService:
             logger.info(f"Reading {script_file}")
             script_content = _script_file.read()
             logger.info("Sending script to database.")
-            s = self.kusto_client.scripts.begin_create_or_update(
-                resource_group_name=resource_group_name,
-                cluster_name=adx_cluster_name,
-                database_name=database_name,
-                script_name=script_name,
-                parameters={"script_content": script_content},
-                polling_interval=1,
-            )
             try:
+                s = self.kusto_client.scripts.begin_create_or_update(
+                    resource_group_name=resource_group_name,
+                    cluster_name=adx_cluster_name,
+                    database_name=database_name,
+                    script_name=script_name,
+                    parameters={"script_content": script_content},
+                    polling_interval=1,
+                )
                 with progressbar(length=20, label="Waiting for script to finish") as bar:
                     for _ in bar:
                         if not s.done():
