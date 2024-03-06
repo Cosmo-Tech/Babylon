@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.11"
       - name: flake8 Lint Babylon
         uses: py-actions/flake8@v2
         with:
