@@ -81,7 +81,7 @@ def deploy_swa(head: str, file_content: str):
         del payload['name']
         swa_svc = AzureSWAService(azure_token=azure_token, state=state.get('services'))
         swas = swa_svc.get_all(filter="[].name")
-        if swa_name not in swas:
+        if swas and swa_name not in swas:
             print("webapp not found")
             payload_str = json.dumps(obj=payload, indent=4, ensure_ascii=True)
             swa = swa_svc.create(webapp_name=swa_name, details=payload_str)

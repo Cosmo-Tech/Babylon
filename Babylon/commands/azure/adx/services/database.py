@@ -21,13 +21,17 @@ class AdxDatabaseService:
     def check(self, name: str) -> bool:
         resource_group_name = self.state["azure"]["resource_group_name"]
         adx_cluster_name = self.state["adx"]["cluster_name"]
-        name_request = CheckNameRequest(name=name, type="Microsoft.Kusto/clusters/databases")
-        name_result = self.kusto_client.databases.check_name_availability(
-            resource_group_name=resource_group_name,
-            cluster_name=adx_cluster_name,
-            resource_name=name_request,
-            content_type="application/json",
-        )
+        try:
+            name_request = CheckNameRequest(name=name, type="Microsoft.Kusto/clusters/databases")
+            name_result = self.kusto_client.databases.check_name_availability(
+                resource_group_name=resource_group_name,
+                cluster_name=adx_cluster_name,
+                resource_name=name_request,
+                content_type="application/json",
+            )
+        except Exception as exp:
+            logger.warning(exp)
+            return None
         _ret: list[str] = []
         if not name_result.name_available:
             for k, v in name_result.as_dict().items():
@@ -66,7 +70,7 @@ class AdxDatabaseService:
         poller.wait()
         # check if done
         if not poller.done():
-            return CommandResponse.fail()
+            return None
         # batabase created
 
         # init bd with policies
@@ -77,16 +81,16 @@ class AdxDatabaseService:
         script_content += f".alter-merge database ['{name}'] policy retention softdelete = {retention}d"
         script_content += "//\n"
         script_content += (f".alter database ['{name}'] policy ingestionbatching '{batching_policy}'")
-        s = self.kusto_client.scripts.begin_create_or_update(
-            resource_group_name=resource_group_name,
-            cluster_name=adx_cluster_name,
-            database_name=name,
-            content_type="application/json",
-            script_name=script_name,
-            parameters={"script_content": script_content},
-            polling_interval=1,
-        )
         try:
+            s = self.kusto_client.scripts.begin_create_or_update(
+                resource_group_name=resource_group_name,
+                cluster_name=adx_cluster_name,
+                database_name=name,
+                content_type="application/json",
+                script_name=script_name,
+                parameters={"script_content": script_content},
+                polling_interval=1,
+            )
             with progressbar(length=20, label="Waiting for init script to finish") as bar:
                 for _ in bar:
                     if not s.done():
@@ -95,7 +99,7 @@ class AdxDatabaseService:
                     s.wait(1)
         except Exception as _resp_error:
             logger.error(_resp_error.message.split("\nMessage:")[1])
-            return CommandResponse.fail()
+            return None
         self.kusto_client.scripts.begin_delete(
             resource_group_name=resource_group_name,
             cluster_name=adx_cluster_name,
@@ -122,7 +126,7 @@ class AdxDatabaseService:
             )
         except Exception as ex:
             logger.error(ex)
-            return CommandResponse.fail()
+            return None
 
         poller = self.kusto_client.databases.begin_delete(
             resource_group_name=resource_group_name,
@@ -131,7 +135,7 @@ class AdxDatabaseService:
         )
         poller.wait()
         if not poller.done():
-            return CommandResponse.fail()
+            return None
         if poller.status() == "Succeeded":
             _ret: list[str] = ["Provisioning state: Deleted"]
         logger.info("\n".join(_ret))
@@ -146,7 +150,7 @@ class AdxDatabaseService:
         adx_database_name = name or self.state["adx"]["database_name"]
         if not adx_database_name:
             logger.error("Database name is missing")
-            return CommandResponse.fail()
+            return None
         resource_group_name = self.state["azure"]["resource_group_name"]
         try:
             database = self.kusto_client.databases.get(
@@ -161,4 +165,4 @@ class AdxDatabaseService:
             return CommandResponse.success()
         except Exception as ex:
             logger.info(ex)
-            return CommandResponse.fail()
+            return None

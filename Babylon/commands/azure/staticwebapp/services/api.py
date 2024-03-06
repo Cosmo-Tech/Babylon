@@ -36,7 +36,7 @@ class AzureSWAService:
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json()
         logger.info(f"Successfully launched of webapp {webapp_name} in resource group {resource_group_name}")
         return output_data
@@ -103,7 +103,7 @@ class AzureSWAService:
             self.azure_token,
         )
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json().get("value")
         if filter:
             output_data = jmespath.search(filter, output_data)
@@ -123,7 +123,7 @@ class AzureSWAService:
             timeout=60,
         )
         if response is None:
-            return CommandResponse.fail(verbose=False)
+            return None
         outputdata = response.json()
         return outputdata
 
@@ -140,7 +140,7 @@ class AzureSWAService:
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json()
         logger.info("Successfully launched")
         return output_data
