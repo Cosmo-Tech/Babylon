@@ -1,3 +1,4 @@
+import click
 import yaml
 import pathlib
 
@@ -65,8 +66,31 @@ def apply(deploy_dir: pathlib.Path):
         head = w.get('head')
         deploy_workspace(head=head, file_content=content, deploy_dir=deploy_dir)
 
+    final_datasets = []
     for d in datasets:
         p = pathlib.Path(d.get('path'))
         content = p.open().read()
         head = d.get('head')
-        deploy_dataset(head=head, file_content=content, deploy_dir=deploy_dir)
+        deployed_id = deploy_dataset(head=head, file_content=content, deploy_dir=deploy_dir)
+        final_datasets.append(deployed_id)
+
+    final_state = env.get_state_from_local()
+    services = final_state.get('services')
+
+    _ret = ['']
+    _ret.append(f"Project '{deploy_dir}' deployed")
+    _ret.append("")
+    _ret.append("")
+    _ret.append("Deployments: ")
+    _ret.append("")
+    _ret.append(f"   * Organization   : {services.get('api').get('organization_id', '')}")
+    _ret.append(f"   * Solution       : {services.get('api').get('solution_id', '')}")
+    _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
+    for d in final_datasets:
+        _ret.append(f"   * Dataset        : {d}")
+    _ret.append("   * WebApp         ")
+    _ret.append(f"      * hostname    : https://{services.get('webapp').get('static_domain', '')}")
+    _ret.append("      * Application :")
+    _ret.append(f"        * client_id : {services.get('app').get('app_id', '')}")
+
+    click.echo(click.style("\n".join(_ret), fg="green"))
