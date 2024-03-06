@@ -14,8 +14,16 @@ from Babylon.commands.api.scenarioruns.services.api import ScenarioRunService
 logger = getLogger("Babylon")
 
 
-def get_scenariorun_status(service_state, azure_token):
-    # get scenariorun status
+def get_scenariorun_status(service_state: dict, azure_token) -> dict:
+    """Use the babylon scenario run services to get the status of a scenario run.
+
+    Args:
+        service_state (dict): Dictionary of state
+        azure_token (dict): 
+
+    Returns:
+        dict: Request response
+    """
     service = ScenarioRunService(state=service_state, azure_token=azure_token)
     response = service.status()
     if response is None:
@@ -23,17 +31,31 @@ def get_scenariorun_status(service_state, azure_token):
     return response.json()
 
 
-def summarize(data: dict, i: int):
+def summarize(data: dict, report_number: int):
+    """Summarize the results of a simulation run
+  
+    Args:
+        data (dict): Dictionary with results.
+        report_number (int): An incremental id used to identify and name name the reports.
+  
+    Returns:
+        DataFrame: Dataframe with some descriptive statistics
+    """    
     df = pd.DataFrame.from_records(data['nodes'])[['containerName', 'startTime', 'endTime']]
     df['startTime'] = pd.to_datetime(df['startTime'])
     df['endTime'] = pd.to_datetime(df['endTime'])
     df['duration'] = (df['endTime'] - df['startTime']).dt.total_seconds()
-    logger.info(f"Report {i} generated")
+    logger.info(f"Report {report_number} generated")
     return df
 
 
-def generate_report(summary_df, detailed):
-    """Generate summary report from simulation run data."""
+def generate_report(summary_df: pd.DataFrame, detailed: list):
+    """Generate an html report from the status of a series of simulation runs
+  
+    Args:
+        summary_df (DataFrame): A dataframe with the summary statistics of runs
+        detailed (list): List of traces to create the plots
+    """
     overall_plot = go.Figure(data=[go.Bar(x=summary_df['duration'], y=summary_df['scenariorunId'], orientation='h')])
     overall_plot.update_layout(title='Scenariorun Durations')
     top = pyo.plot(overall_plot, include_plotlyjs=False, output_type='div')
