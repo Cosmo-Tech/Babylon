@@ -33,14 +33,14 @@ def get_scenariorun_status(service_state: dict, azure_token) -> dict:
 
 def summarize(data: dict, report_number: int):
     """Summarize the results of a simulation run
-  
+
     Args:
         data (dict): Dictionary with results.
         report_number (int): An incremental id used to identify and name name the reports.
-  
+
     Returns:
         DataFrame: Dataframe with some descriptive statistics
-    """    
+    """
     df = pd.DataFrame.from_records(data['nodes'])[['containerName', 'startTime', 'endTime']]
     df['startTime'] = pd.to_datetime(df['startTime'])
     df['endTime'] = pd.to_datetime(df['endTime'])
@@ -51,7 +51,7 @@ def summarize(data: dict, report_number: int):
 
 def generate_report(summary_df: pd.DataFrame, detailed: list):
     """Generate an html report from the status of a series of simulation runs
-  
+
     Args:
         summary_df (DataFrame): A dataframe with the summary statistics of runs
         detailed (list): List of traces to create the plots
