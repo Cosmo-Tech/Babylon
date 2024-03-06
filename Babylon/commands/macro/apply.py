@@ -90,8 +90,6 @@ def apply(deploy_dir: pathlib.Path):
     for d in final_datasets:
         _ret.append(f"   * Dataset        : {d}")
     _ret.append("   * WebApp         ")
-    _ret.append(f"      * hostname    : https://{services.get('webapp').get('static_domain', '')}")
-    _ret.append("      * Application :")
-    _ret.append(f"        * client_id : {services.get('app').get('app_id', '')}")
+    _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
 
     click.echo(click.style("\n".join(_ret), fg="green"))
