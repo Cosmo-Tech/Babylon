@@ -24,7 +24,7 @@ class AzurePowerBIParamsService:
     def update(self, workspace_id: str, params: list[tuple[str, str]], dataset_id: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         # Preparing parameter data
-        details = {"updateDetails": [{"name": param[0], "newValue": param[1]} for param in params]}
+        details = {"updateDetails": [{"name": param.get("id"), "newValue": param.get('value')} for param in params]}
         update_url = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
                       f"/datasets/{dataset_id}/Default.UpdateParameters")
         response = oauth_request(update_url, self.powerbi_token, json=details, type="POST")
