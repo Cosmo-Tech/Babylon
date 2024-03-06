@@ -16,7 +16,7 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
+def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> str:
     logger.info("Dataset deployment")
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
@@ -141,5 +141,4 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> bo
         data = run_scripts.get("post_deploy.sh", "")
         if data:
             os.system(data)
-    if not dataset_id:
-        sys.exit(1)
+    return dataset_id
