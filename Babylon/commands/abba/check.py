@@ -1,10 +1,10 @@
-from logging import getLogger
-from click import File, argument, command
 import pandas as pd
 import plotly.offline as pyo
 import plotly.graph_objs as go
 import plotly.express as px
-from pyparsing import Any
+
+from logging import getLogger
+from click import File, argument, command
 from Babylon.commands.abba.common import dataframe_to_dict
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
@@ -95,7 +95,7 @@ def generate_report(summary_df: pd.DataFrame, detailed: list):
 @retrieve_state
 @argument("input", type=File('r'))
 @argument("var_types", type=File('r'))
-def check(state: Any, azure_token: str, input: str, var_types: str) -> CommandResponse:
+def check(state: dict, azure_token: str, input: str, var_types: str) -> CommandResponse:
     """Check the status of running simulations and save results to disk.
 
     Args:
