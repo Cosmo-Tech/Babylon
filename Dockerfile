@@ -16,14 +16,8 @@ RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-20.10.9.t
 RUN tar xzvf docker.tgz
 RUN cp docker/* /usr/bin/
 
-# Install kubectl
-FROM s3 as s4
-RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-RUN echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
-RUN apt-get update;apt-get install -y kubectl
-
 # Install Babylon
-FROM s4
+FROM s3
 WORKDIR /app
 COPY . .
 RUN pip install .
