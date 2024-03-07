@@ -36,8 +36,9 @@ def update(state: Any, azure_token: str, object_id: str, registration_file: str)
     """
     service_state = state['services']
     service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
+    details = env.fill_template(registration_file.open().read(), state)
     service.update(
-        object_id=object_id,
-        registration_file=registration_file,
+        object_id,
+        details,
     )
     return CommandResponse.success(None, verbose=True)
