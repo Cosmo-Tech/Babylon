@@ -102,10 +102,11 @@ def deploy_swa(head: str, file_content: str):
         time.sleep(5)
         workflow_name_full = f"azure-static-web-apps-{workflow_name}.yml"
         workflow_file = Path().cwd() / f"webapp_src/.github/workflows/{workflow_name_full}"
-        webapp_svc.update_workflow(workflow_file=workflow_file)
-        config_file = Path().cwd() / "webapp_src/config.json"
-        webapp_svc.upload_many([workflow_file, config_file])
-        time.sleep(5)
+        if workflow_file.exists():
+            webapp_svc.update_workflow(workflow_file=workflow_file)
+            config_file = Path().cwd() / "webapp_src/config.json"
+            webapp_svc.upload_many([workflow_file, config_file])
+            time.sleep(5)
         shutil.rmtree(path=webapp_path)
         env.store_state_in_local(state)
         env.store_state_in_cloud(state)
