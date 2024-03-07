@@ -4,8 +4,7 @@ from typing import Any
 
 from click import Path
 from click import option
-from click import argument
-from click import command, pass_context
+from click import command
 
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -19,7 +18,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@pass_context
 @output_to_file
 @pass_azure_token("graph")
 @option(
@@ -28,14 +26,14 @@ env = Environment()
     type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
     help="path file payload",
 )
-@argument("name", type=str)
 @retrieve_state
-def create(state: Any, azure_token: str, name: str, registration_file: pathlib.Path) -> CommandResponse:
+def create(state: Any, azure_token: str, registration_file: pathlib.Path) -> CommandResponse:
     """
     Register an app in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-post-applications
     """
     service_state = state['services']
     service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
-    response = service.create(name=name, registration_file=registration_file)
+    details = env.fill_template(registration_file.open().read(), state)
+    response = service.create(details)
     return CommandResponse.success(response, verbose=True)
