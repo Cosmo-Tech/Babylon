@@ -69,17 +69,14 @@ The following environment variables are required:
     if not tests_mode:
         sys.tracebacklimit = 0
         fileHandler = logging.FileHandler("./info.log")
-        logging.basicConfig(
-            format="%(asctime)s | %(message)10s",
-            handlers=[
-                fileHandler,
-                RichHandler(
-                    show_time=False,
-                    rich_tracebacks=True, 
-                    tracebacks_suppress=click, 
-                    omit_repeated_times=False
-                )
-            ])
+        logging.basicConfig(format="%(asctime)s | %(message)10s",
+                            handlers=[
+                                fileHandler,
+                                RichHandler(show_time=False,
+                                            rich_tracebacks=True,
+                                            tracebacks_suppress=click,
+                                            omit_repeated_times=False)
+                            ])
 
 
 main.result_callback()(interactive_run)

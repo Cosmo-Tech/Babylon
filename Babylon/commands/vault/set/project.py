@@ -27,5 +27,5 @@ def project(state: dict, hvac_client: Client, resource: str, value: str) -> Comm
     prefix = f"{env.organization_name}/{env.tenant_id}/projects/{env.context_id}"
     schema = f"{prefix}/{env.environ_id}/{org_id}/{work_key}/{resource}".lower()
     hvac_client.write(path=schema, **d)
-    logger.info("Successfully created secret hvac in project")
+    logger.info("[vault] successfully created secret hvac in project")
     return CommandResponse.success()

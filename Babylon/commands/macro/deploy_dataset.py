@@ -3,6 +3,7 @@ import sys
 import json
 import time
 import pathlib
+import click
 
 from os.path import basename
 from logging import getLogger
@@ -16,11 +17,14 @@ env = Environment()
 
 
 def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> str:
-    logger.info("Dataset deployment")
+    _ret = [""]
+    _ret.append("Dataset deployment")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
-    state['services']['azure']['tenant_id'] = env.tenant_id
+    state["services"]["azure"]["tenant_id"] = env.tenant_id
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
@@ -34,25 +38,25 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> st
         local_path = azure["dataset"].get("file", {}).get("local_path", "")
         dataset_zip: pathlib.Path = pathlib.Path(deploy_dir) / local_path
         if not dataset_zip:
-            logger.error("Zip archive is mandatory to create a dataset with sourceType File")
+            logger.error("[api] zip archive is mandatory to create a dataset with sourceType File")
             sys.exit(1)
         elif not dataset_zip.exists():
-            logger.error(f"File {dataset_zip} not found in directory")
+            logger.error(f"[api] file {dataset_zip} not found in directory")
             sys.exit(1)
         elif dataset_zip.suffix != ".zip":
-            logger.error("File to create a dataset must be a zip")
+            logger.error("[api] file to create a dataset must be a zip")
             sys.exit(1)
     if source_type == "AzureStorage":
         if not azure.get("dataset").get("storage").get("local_path"):
             if (type(payload["source"]) is not dict or "path" not in payload["source"].keys()):
-                logger.error("Path attribute is mandatory to create a dataset of type storage")
+                logger.error("[api] path attribute is mandatory to create a dataset of type storage")
                 sys.exit(1)
             if not payload["source"].get("name"):
                 payload["source"]["name"] = state["services"]["azure"]["storage_account_name"]
             if not payload["source"].get("location"):
                 payload["source"]["location"] = state["services"]["api"]["organization_id"]
         else:
-            datasets_csv_dir_path = pathlib.Path(deploy_dir) / azure["dataset"]["storage"]["local_path"]
+            datasets_csv_dir_path = (pathlib.Path(deploy_dir) / azure["dataset"]["storage"]["local_path"])
             files = list(pathlib.Path(datasets_csv_dir_path).iterdir())
             datasets = list(filter(lambda x: x.suffix == ".csv", files))
             dataset_dir_name = payload["name"].replace(" ", "_").lower()
@@ -73,7 +77,7 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> st
     if source_type == "ADT":
         if ("source" not in payload.keys() or type(payload["source"]) is not dict
                 or "location" not in payload["source"].keys()):
-            logger.error("Location attribute is mandatory to create a dataset of type ADT")
+            logger.error("[api] location attribute is mandatory to create a dataset of type ADT")
             sys.exit(1)
     payload["main"] = True
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
@@ -93,22 +97,23 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> st
             status = dataset_service.get_status(dataset_id=dataset_id)
             status_text = str(status.text)
             while "PENDING" in status_text:
-                logger.info("Polling twingraph creation status...")
+                logger.info("[api] polling twingraph creation status...")
                 time.sleep(10)
                 status = dataset_service.get_status(dataset_id=dataset_id)
                 status_text = str(status.text)
             if "SUCCESS" not in status_text:
-                logger.error(f"Dataset {dataset['id']} has been created but the creation of a twingraph has failed")
+                logger.error(
+                    f"[api] dataset {dataset['id']} has been created but the creation of a twingraph has failed")
             else:
-                logger.info("Twingraph successfully created")
-        logger.info(f"Successfully created dataset {dataset['id']}")
+                logger.info("[api] twingraph successfully created")
+        logger.info(f"[api] successfully created dataset {dataset['id']}")
         if state["services"]["api"]["workspace_id"]:
             linked_dataset_response = dataset_service.link_to_workspace(dataset_id=dataset_id)
             if linked_dataset_response is None:
-                logger.error(
-                    f"Failed to link dataset {dataset['id']} to workspace {state['services']['api']['workspace_id']}")
+                logger.error(f"[api] failed to link dataset {dataset['id']}"
+                             f" to workspace {state['services']['api']['workspace_id']}")
             else:
-                logger.info(f"Dataset {dataset['id']} successfully linked "
+                logger.info(f"[api] dataset {dataset['id']} successfully linked "
                             f"to workspace {state['services']['api']['workspace_id']}")
     else:
         response = dataset_service.update()
@@ -126,15 +131,15 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> st
             status = dataset_service.get_status(dataset_id=dataset_id)
             status_text = str(status.text)
             while "PENDING" in status_text:
-                logger.info("Polling twingraph status...")
+                logger.info("[api] polling twingraph status...")
                 time.sleep(10)
                 status = dataset_service.get_status(dataset_id=dataset_id)
                 status_text = str(status.text)
             if "SUCCESS" not in status_text:
-                logger.error("A problem occurred while rewriting twingraph")
+                logger.error("[api] a problem occurred while rewriting twingraph")
             else:
-                logger.info("Twingraph successfully refreshed")
-        logger.info("Dataset successfully updated")
+                logger.info("[api] twingraph successfully refreshed")
+        logger.info("[api] dataset successfully updated")
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
         data = run_scripts.get("post_deploy.sh", "")

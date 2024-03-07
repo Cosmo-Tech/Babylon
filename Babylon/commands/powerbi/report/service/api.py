@@ -7,7 +7,6 @@ import polling2
 from pathlib import Path
 from Babylon.utils.request import oauth_request
 from Babylon.utils.environment import Environment
-from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
 
 logger = logging.getLogger("Babylon")
@@ -23,21 +22,21 @@ class AzurePowerBIReportService:
     def delete(self, workspace_id: str, report_id: str, force_validation: bool):
         report_id = report_id or self.state["powerbi"]["workspace"]["report_id"]
         if not force_validation and not confirm_deletion("report", report_id):
-            return CommandResponse.fail()
+            return None
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}"
         response = oauth_request(url=urls_reports, access_token=self.powerbi_token, type="DELETE")
         if response is None:
-            return CommandResponse.fail()
+            return None
         return response
 
     def download_all(self, workspace_id: str, output_folder: Path):
-        logger.info('download all reports')
+        logger.info('[powerbi] download all reports')
         if not output_folder.exists():
             output_folder.mkdir()
         reports = self.get_all(workspace_id=workspace_id)
         for r in reports:
             self.download(workspace_id=workspace_id, report_id=r.get('id'), output_folder=output_folder)
-            logger.info("Successfully saved the following reports:")
+            logger.info("[powerbi] successfully saved the following reports:")
         logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))
 
     def download(self, workspace_id: str, report_id: str, output_folder: Path):
@@ -45,13 +44,13 @@ class AzurePowerBIReportService:
         url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
         response = oauth_request(url_report, self.powerbi_token)
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_path = Path(response.headers.get("X-PowerBI-FileName"))
         if output_folder:
             output_path = output_folder / output_path
         with open(output_path, "wb") as file:
             file.write(response.content)
-        logger.info(f"Report {report_id} was saved as {output_path}")
+        logger.info(f"[powerbi] report {report_id} was saved as {output_path}")
         return output_path
 
     def get_all(self, workspace_id: str, filter: str = ""):
@@ -59,7 +58,7 @@ class AzurePowerBIReportService:
         urls_reports = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports")
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json().get("value")
         if filter:
             output_data = jmespath.search(filter, output_data)
@@ -69,7 +68,7 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json()
         return output_data
 
@@ -78,8 +77,8 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/pages"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
-            logger.info("Report id not found")
-            return CommandResponse.fail()
+            logger.info("[powerbi] report id not found")
+            return None
         output_data = response.json()
         pagesnames = jmespath.search("value[?order==`0`]", output_data)
         pagesname = pagesnames[0] if len(pagesnames) else "ReportSection"
@@ -108,17 +107,17 @@ class AzurePowerBIReportService:
             try:
                 response = session.post(url=route, headers=header, files={"file": _f})
             except Exception as e:
-                logger.error(f"Request failed: {e}")
-                return CommandResponse.fail()
+                logger.error(f"[powerbi] request failed: {e}")
+                return None
             if response.status_code >= 300:
                 logger.error(f"Request failed ({response.status_code}): {response.text}")
-                return CommandResponse.fail()
+                return None
         import_data = response.json()
         # Wait for import end
 
         route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports/{import_data.get('id')}"
         output_data = {}
-        logger.info(f"Waiting for import of file {pbix_filename} to end")
+        logger.info(f"[powerbi] waiting for import of file {pbix_filename} to end")
         handler = polling2.poll(
             lambda: oauth_request(route, self.powerbi_token),
             check_success=is_correct_response_app,

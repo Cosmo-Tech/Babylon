@@ -24,5 +24,5 @@ def set_babylon(hvac_client: Client, name: str, value: str) -> CommandResponse:
     check_ascii(name)
     d = dict(secret=value)
     hvac_client.write(path=f"{env.organization_name}/{env.tenant_id}/babylon/{env.environ_id}/{name}", **d)
-    logger.info("Successfully created")
+    logger.info("[vault] successfully created babylon secret")
     return CommandResponse.success()

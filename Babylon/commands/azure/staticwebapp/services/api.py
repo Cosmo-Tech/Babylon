@@ -38,7 +38,7 @@ class AzureSWAService:
         if response is None:
             return None
         output_data = response.json()
-        logger.info(f"Successfully launched of webapp {webapp_name} in resource group {resource_group_name}")
+        logger.info(f"[webapp] successfully launched of webapp {webapp_name} in resource group {resource_group_name}")
         return output_data
 
     def delete(self, webapp_name: str, force_validation: bool):
@@ -71,7 +71,7 @@ class AzureSWAService:
         resource_group_name = self.state["azure"]["resource_group_name"]
         if not force_validation and not confirm_deletion("webapp", webapp_name):
             return CommandResponse.fail()
-        logger.info(f"Deleting static webapp {webapp_name} from resource group {resource_group_name}")
+        logger.info(f"[webapp] deleting static webapp {webapp_name} from resource group {resource_group_name}")
 
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
@@ -142,7 +142,7 @@ class AzureSWAService:
         if response is None:
             return None
         output_data = response.json()
-        logger.info("Successfully launched")
+        logger.info("[webapp] update successfully launched")
         return output_data
 
 
@@ -155,6 +155,5 @@ def is_correct_response(response):
 
 
 def is_webapp_deleted(response):
-    print(response)
     if response is None:
         return " "

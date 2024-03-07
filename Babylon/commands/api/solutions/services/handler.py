@@ -24,17 +24,17 @@ class SolutionHandleService:
             sys.exit(1)
         self.organization_id = state["api"].get("organization_id")
         if not self.organization_id:
-            logger.error("organization id is missing")
+            logger.error("[api] organization id is missing")
             sys.exit(1)
         self.solution_id = state["api"].get("solution_id")
         if not self.solution_id:
-            logger.error("solution id is missing")
+            logger.error("[api] solution id is missing")
             sys.exit(1)
 
     def download(self, run_template_id: str, handler_id: str):
         check = env.blob_client.get_container_client(container=self.organization_id)
         if not check.exists():
-            logger.info(f"Container '{self.organization_id}' not found")
+            logger.info(f"[api] container '{self.organization_id}' not found")
             sys.exit(1)
         client = env.blob_client.get_blob_client(
             container=self.organization_id,
@@ -45,7 +45,7 @@ class SolutionHandleService:
         zf.writestr(basename(client.blob_name), data)
         zf.extractall(".")
         os.remove("data.zip")
-        logger.info("Successfully downloaded handler file")
+        logger.info("[api] successfully downloaded handler file")
 
     def upload(self, run_template_id: str, handler_id: str, handler_path: Path, override: bool):
         response = oauth_request(
@@ -56,14 +56,14 @@ class SolutionHandleService:
         solution = response.json()
         run_templates = list(map(lambda x: x["id"], solution["runTemplates"]))
         if run_template_id not in run_templates:
-            logger.info(f"Invalid runTemplateId: {run_template_id}. Must be one of: {run_templates}")
+            logger.info(f"[api] invalid runTemplateId: {run_template_id}. Must be one of: {run_templates}")
             return None
         if not handler_path.suffix == ".zip":
-            logger.error("solution handler upload only supports zip files")
+            logger.error("[api] solution handler upload only supports zip files")
             return None
         check = env.blob_client.get_container_client(container=self.organization_id)
         if not check.exists():
-            logger.info(f"Container '{self.organization_id}' not found")
+            logger.info(f"[azure] container '{self.organization_id}' not found")
             return None
         client = env.blob_client.get_blob_client(
             container=self.organization_id,
@@ -73,4 +73,5 @@ class SolutionHandleService:
             client.delete_blob()
         with open(handler_path, "rb") as data:
             client.upload_blob(data)
-        logger.info(f"Successfully sent handler file to solution {self.solution_id}")
+        logger.info(
+            f"[azure] successfully sent handler '{handler_id}' to '{run_template_id}' in solution '{self.solution_id}'")

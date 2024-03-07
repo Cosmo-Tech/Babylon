@@ -79,8 +79,6 @@ def apply(deploy_dir: pathlib.Path):
     services = final_state.get('services')
 
     _ret = ['']
-    _ret.append(f"Project '{deploy_dir}' deployed")
-    _ret.append("")
     _ret.append("")
     _ret.append("Deployments: ")
     _ret.append("")
@@ -89,7 +87,7 @@ def apply(deploy_dir: pathlib.Path):
     _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
     for d in final_datasets:
         _ret.append(f"   * Dataset        : {d}")
-    _ret.append("   * WebApp         ")
-    _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
-
+    if services.get('webapp').get('static_domain', ''):
+        _ret.append("   * WebApp         ")
+        _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
     click.echo(click.style("\n".join(_ret), fg="green"))

@@ -1,7 +1,6 @@
 import logging
 
 from Babylon.utils.request import oauth_request
-from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -17,7 +16,7 @@ class AzurePowerBIParamsService:
         update_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/parameters"
         response = oauth_request(update_url, self.powerbi_token)
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json().get("value")
         return output_data
 
@@ -29,5 +28,5 @@ class AzurePowerBIParamsService:
                       f"/datasets/{dataset_id}/Default.UpdateParameters")
         response = oauth_request(update_url, self.powerbi_token, json=details, type="POST")
         if response is None:
-            return CommandResponse.fail()
-        logger.info("Successfully updated")
+            return None
+        logger.info("[powerbi] parameters successfully updated")

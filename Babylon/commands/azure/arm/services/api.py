@@ -39,7 +39,7 @@ class ArmService:
                 mode = DeploymentMode.COMPLETE
 
         if not deploy_file:
-            logger.error("Deploy file not found")
+            logger.error("[arm] deploy file not found")
             return CommandResponse.fail()
         arm_template = env.fill_template(
             data=deploy_file.open().read(),
@@ -60,7 +60,7 @@ class ArmService:
         except HttpResponseError as _e:
             logger.error(f"An error occurred : {_e.message}")
             return CommandResponse.fail()
-        logger.info("Provisioning state: successful")
+        logger.info(f"[arm] provisioning state {file}: successful")
         return CommandResponse.success()
 
     def delete_event_hub(self):
@@ -80,5 +80,5 @@ class ArmService:
                 return False
             return True
         except HttpResponseError as _e:
-            logger.error(f"An error occurred : {_e.message}")
+            logger.error(f"[arm] an error occurred : {_e.message}")
             return False

@@ -34,7 +34,7 @@ class AdxConsumerService:
             return False
 
     def add(self, name: str, event_hub_name: str) -> bool:
-        logger.info(f"adding consumer {name}")
+        logger.info(f"[eventhub] adding consumer {name}")
         check_ascii(name)
         rg = self.state["azure"]["resource_group_name"]
         subscription_id = self.state["azure"]["subscription_id"]
@@ -56,7 +56,7 @@ class AdxConsumerService:
             return dict()
 
     def delete(self, name: str, event_hub_name: str) -> bool:
-        logger.info(f"deleting consumer {name}")
+        logger.info(f"[eventhub] deleting consumer {name}")
         subscription_id = self.state["azure"]["subscription_id"]
         client = EventHubManagementClient(credential=get_azure_credentials(), subscription_id=subscription_id)
         try:
@@ -67,7 +67,7 @@ class AdxConsumerService:
         return True
 
     def get_all(self, event_hub_name: str) -> bool:
-        logger.info(f"Reading all consumers {event_hub_name}")
+        logger.info(f"[eventhub] reading all consumers {event_hub_name}")
         rg = self.state["azure"]["resource_group_name"]
         subscription_id = self.state["azure"]["subscription_id"]
         org_id = self.state["api"]["organization_id"].lower()
