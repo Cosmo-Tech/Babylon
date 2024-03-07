@@ -25,15 +25,15 @@ def ext_update_file(workflow_file: Path):
     yaml_loader = YAML()
     with open(workflow_file, "r") as _f:
         data = yaml_loader.load(_f)
-    logger.info(f"Updating github workflow {workflow_file}...")
+    logger.info(f"[github] updating github workflow {basename(workflow_file)}")
     find = [step for step in data["jobs"]["build_and_deploy_job"]["steps"] if step.get("id") == "import-env"]
     if find:
-        logger.info(f"Workflow {basename(workflow_file)} already has the import-env step")
+        logger.info(f"[github] workflow {basename(workflow_file)} already has the import-env step")
         return
     data["jobs"]["build_and_deploy_job"]["steps"].insert(1, READ_JSON_WORKFLOW)
     with open(workflow_file, "w") as _f:
         yaml_loader.dump(data, _f)
-    logger.info(f"Successfully updated workflow file {workflow_file}")
+    logger.info(f"[github] successfully updated workflow file {workflow_file}")
 
 
 class AzureWebAppService:
@@ -47,7 +47,7 @@ class AzureWebAppService:
         repo_branch = self.state["github"]["branch"]
         github_secret = env.get_global_secret(resource="github", name="token")
         if destination_folder.exists():
-            logger.warning(f"Local folder {destination_folder} already exists, pulling...")
+            logger.warning(f"[github] local folder {destination_folder} already exists, pulling")
             repo = git.Repo(destination_folder)
             repo.git.checkout(repo_branch)
             repo.remotes.origin.pull()
@@ -55,13 +55,13 @@ class AzureWebAppService:
         # Will log using the given personal access token
         repo_w_token = f"https://oauth2:{github_secret}@github.com/{repo_org}/{repo_name}.git"
         git.Repo.clone_from(repo_w_token, destination_folder, branch=repo_branch)
-        logger.info("Successfully cloned")
+        logger.info("[github] repository successfully cloned")
 
     def export_config(self, data: str, config_path: Path):
         config_data = env.fill_template(data=data, state=dict(services=self.state))
         data_json = json.dumps(config_data, indent=2).encode("utf-8")
         config_path.write_bytes(data_json)
-        logger.info("Successfully exported")
+        logger.info("[github] config.json Successfully exported")
         return config_data
 
     def update_workflow(self, workflow_file: Path):
@@ -84,20 +84,20 @@ class AzureWebAppService:
                 break
         repo = git.Repo(parent_repo)
         if not repo.active_branch == self.state["github"]["branch"]:
-            logger.info(f'Checking out to branch {self.state["github"]["branch"]}')
+            logger.info(f'[github] checking out to branch {self.state["github"]["branch"]}')
             repo.git.checkout(self.state["github"]["branch"])
         # Committing file
         files = [file]
         if file.is_dir():
             files = [f for f in file.glob("*")]
         for file in files:
-            logger.info(f"Committing file {file}")
+            logger.info(f"[github] committing file {file}")
             rel_file = os.path.relpath(file, parent_repo)
             repo.index.add(rel_file)
             repo.index.commit(f"Babylon: updated file '{rel_file}'")
         # Pushing commit
         repo.remotes.origin.push()
-        logger.info("Successfully uploaded")
+        logger.info("[github] file successfully uploaded")
 
     def upload_many(self, files: Iterable[Path]):
         repo_branch = self.state["github"]["branch"]
@@ -111,7 +111,7 @@ class AzureWebAppService:
 
         repo = git.Repo(parent_repo)
         if not repo.active_branch == repo_branch:
-            logger.info(f"Checking out to branch {repo_branch}")
+            logger.info(f"[github] checking out to branch {repo_branch}")
             repo.git.checkout(repo_branch)
         # Getting files
         for file in files:
@@ -120,4 +120,4 @@ class AzureWebAppService:
             repo.index.commit(f"Babylon: updated file '{rel_file}'")
         # Pushing commit
         repo.remotes.origin.push()
-        logger.info("Successfully uploaded")
+        logger.info("[github] files successfully uploaded")

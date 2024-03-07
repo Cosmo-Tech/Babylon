@@ -19,7 +19,7 @@ class DatasetStorageService:
         workspace_id = self.state["api"]["workspace_id"]
         check = env.blob_client.get_container_client(container=self.organization_id)
         if not check.exists():
-            logger.info(f"Container '{self.organization_id}' not found")
+            logger.info(f"[azure] container '{self.organization_id}' not found")
             return None
         client = env.blob_client.get_blob_client(
             container=self.organization_id,
@@ -29,4 +29,4 @@ class DatasetStorageService:
             client.delete_blob()
         with open(path, "rb") as data:
             client.upload_blob(data)
-        logger.info(f"Successfully sent dataset file to workspace {workspace_id}")
+        logger.info(f"[azure] successfully sent dataset file to workspace {workspace_id}")

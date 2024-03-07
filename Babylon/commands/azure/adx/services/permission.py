@@ -34,7 +34,7 @@ class AdxPermissionService:
             tenant_id=tenant_id,
         )
         principal_assignment_name = str(uuid4())
-        logger.info("Creating assignment...")
+        logger.info("[adx] creating or updating role assignment")
         try:
             poller = (self.kusto_client.database_principal_assignments.begin_create_or_update(
                 principal_assignment_name=principal_assignment_name,
@@ -44,7 +44,7 @@ class AdxPermissionService:
                 parameters=parameters,
             ))
             if poller.done():
-                logger.info("Successfully created")
+                logger.info("[adx] successfully created role assignment")
         except Exception as exp:
             logger.warning(exp)
             return None
@@ -61,15 +61,16 @@ class AdxPermissionService:
                                                                             database_name)
         entity_assignments = [assign for assign in assignments if assign.principal_id == principal_id]
         if not entity_assignments:
-            logger.error(f"No assignment found for principal ID {principal_id}")
+            logger.error(f"[adx] No assignment found for principal ID {principal_id}")
             return CommandResponse.fail()
 
-        logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
+        logger.info(f"[adx] Found {len(entity_assignments)} assignments for principal ID {principal_id}")
         for assign in entity_assignments:
             if not force_validation and not confirm_deletion("permission", str(assign.role)):
                 return CommandResponse.fail()
 
-            logger.info(f"Deleting role {assign.role} to principal {assign.principal_type}: {assign.principal_id}")
+            logger.info(
+                f"[adx] Deleting role {assign.role} to principal {assign.principal_type}: {assign.principal_id}")
             assign_name: str = str(assign.name).split("/")[-1]
             poller = self.kusto_client.database_principal_assignments.begin_delete(
                 resource_group_name,
@@ -92,9 +93,9 @@ class AdxPermissionService:
                                                                                 database_name)
             entity_assignments = [assignment for assignment in assignments if assignment.principal_id == principal_id]
             if not entity_assignments:
-                logger.info(f"No assignment found for principal ID {principal_id}")
+                logger.info(f"[adx] No assignment found for principal ID {principal_id}")
                 return False
-            logger.info(f"Found {len(entity_assignments)} assignments for principal ID {principal_id}")
+            logger.info(f"[adx] Found {len(entity_assignments)} assignments for principal ID {principal_id}")
             for ent in entity_assignments:
                 logger.info(f"{pformat(ent.__dict__)}")
             return entity_assignments

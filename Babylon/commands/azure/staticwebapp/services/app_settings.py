@@ -47,7 +47,7 @@ class AzureSWASettingsAppService:
         if response is None:
             return CommandResponse.fail()
         output_data = response.json()
-        logger.info("Successfully updated")
+        logger.info("[webapp] app settings successfully updated")
         return output_data
 
 

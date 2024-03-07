@@ -6,6 +6,8 @@ import pathlib
 from zipfile import ZipFile
 from logging import getLogger
 from posixpath import basename
+
+import click
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
 from Babylon.commands.api.solutions.services.api import SolutionService
@@ -16,7 +18,10 @@ env = Environment()
 
 
 def deploy_solution(head: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
-    logger.info("Solution deployment")
+    _ret = [""]
+    _ret.append("Solution deployment")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
@@ -31,7 +36,7 @@ def deploy_solution(head: str, file_content: str, deploy_dir: pathlib.Path) -> b
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=state['services'])
     if not state['services']["api"]["solution_id"]:
-        logger.info("Creating solution...")
+        logger.info("[api] creating solution")
         response = solution_svc.create()
         solution = response.json()
         logger.info(f"Solution {solution['id']} successfully created...")
@@ -49,7 +54,7 @@ def deploy_solution(head: str, file_content: str, deploy_dir: pathlib.Path) -> b
     env.store_state_in_local(state)
     env.store_state_in_cloud(state)
     # update run_templates
-    logger.info("Uploading run templates...")
+    logger.info("[api] uploading run templates")
     sidecars = content.get("spec").get("sidecars", {})
     run_templates = sidecars["azure"]["run_templates"]
     for run_item in run_templates:

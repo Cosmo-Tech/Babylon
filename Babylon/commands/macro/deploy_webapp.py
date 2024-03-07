@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import click
 import yaml
 import shutil
 
@@ -23,7 +24,10 @@ env = Environment()
 
 
 def deploy_swa(head: str, file_content: str):
-    logger.info("webapp deployment")
+    _ret = [""]
+    _ret.append("Webapp deployment")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url

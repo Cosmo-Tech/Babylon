@@ -23,5 +23,5 @@ def set_global(hvac_client: Client, resource: str, name: str, value: str) -> Com
     check_ascii(name)
     d = dict(secret=value)
     hvac_client.write(path=f"{env.organization_name}/{env.tenant_id}/global/{resource}/{name}", **d)
-    logger.info("Successfully created")
+    logger.info("[vault] successfully created global secret")
     return CommandResponse.success()

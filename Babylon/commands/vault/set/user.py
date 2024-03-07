@@ -32,5 +32,5 @@ def set_user_secrets(
     d.update({f'{name}': value})
     schema = f"{env.organization_name}/{env.tenant_id}/users/{email}/{resource}"
     hvac_client.write(path=schema, **d)
-    logger.info("Successfully created")
+    logger.info("[vault] successfully created user secret")
     return CommandResponse.success()

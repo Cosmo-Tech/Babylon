@@ -95,12 +95,12 @@ class WorkspaceService:
             name="eventhub",
         )
         if not secret_eventhub:
-            logger.error("workspace secret key is missing in vault")
+            logger.error("[vault] workspace secret key is missing in vault")
             sys.exit(1)
         details = {"dedicatedEventHubKey": secret_eventhub.replace('"', "")}
         details_json = json.dumps(details, indent=4, default=str)
         if not workspace_id:
-            logger.error("workspace id not found")
+            logger.error("[api] workspace id not found")
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}/secret",

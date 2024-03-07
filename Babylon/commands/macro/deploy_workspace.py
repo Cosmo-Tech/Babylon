@@ -4,6 +4,8 @@ import json
 import pathlib
 
 from logging import getLogger
+
+import click
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
@@ -34,7 +36,10 @@ env = Environment()
 
 
 def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
-    logger.info("Workspace deployment")
+    _ret = [""]
+    _ret.append("Workspace deployment")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=head)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
@@ -55,14 +60,14 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
     azure_token = get_azure_token("csm_api")
     workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=state.get("services"))
     if not state["services"]["api"]["workspace_id"]:
-        logger.info("Creating workspace...")
+        logger.info("[api] creating workspace")
         response = workspace_svc.create()
         workspace = response.json()
-        logger.info(f"Workspace {workspace.get('id')} successfully created...")
+        logger.info(f"[api] workspace {workspace.get('id')} successfully created")
         logger.info(json.dumps(workspace, indent=2))
         state["services"]["api"]["workspace_id"] = workspace.get("id")
     else:
-        logger.info(f"Updating workspace {state['services']['api']['workspace_id']}...")
+        logger.info(f"[api] updating workspace {state['services']['api']['workspace_id']}")
         response = workspace_svc.update()
         response_json = response.json()
         old_security = response_json.get("security")
@@ -84,17 +89,17 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
             powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=state.get("services"))
             name = workspace_powerbi.get("name", "")
             if not name:
-                logger.error("Name of powerBI workspace not found")
+                logger.error("[powerbi] PowerBI workspace name is mandatory")
                 sys.exit(1)
             workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
             if name not in workspaceli_list_name:
-                logger.info(f"creating powerBI workspace... {name}")
+                logger.info(f"[powerbi] creating PowerBI Workspace {name}")
                 w = powerbi_svc.create(name=name)
                 state["services"]["powerbi"]["workspace.id"] = w.get("id")
                 env.store_state_in_local(state)
                 env.store_state_in_cloud(state)
             else:
-                logger.info(f"PowerBI workspace '{name}' already exists")
+                logger.info(f"[powerbi] PowerBI Workspace '{name}' already exists")
             work_obj = powerbi_svc.get_by_name_or_id(name=name)
             state["services"]["powerbi"]["workspace.id"] = work_obj.get("id")
             env.store_state_in_local(state)
@@ -106,7 +111,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
                 ids = [i.get("identifier") for i in spec_permissions]
                 for g in spec_permissions:
                     if g.get("identifier") in existing_permissions:
-                        logger.info(f"Updating permissions for {g.get('identifier')}")
+                        logger.info(f"[powerbi] updating permissions for {g.get('identifier')}")
                         user_svc.update(
                             workspace_id=work_obj.get("id"),
                             right=g.get("rights"),
@@ -114,7 +119,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
                             type=g.get("type"),
                         )
                     if g.get("identifier") not in existing_permissions:
-                        logger.info(f"Creating permissions for {g.get('identifier')}")
+                        logger.info(f"[powerbi] creating permissions for {g.get('identifier')}")
                         user_svc.add(
                             workspace_id=work_obj.get("id"),
                             right=g.get("rights"),
@@ -124,7 +129,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
                 for s in existing_permissions:
                     if s not in ids:
                         if s != state["services"]["babylon"]["principal_id"]:
-                            logger.info(f"Deleting permissions for {g.get('identifier')}")
+                            logger.info(f"[powerbi] deleting permissions for {g.get('identifier')}")
                             user_svc.delete(
                                 workspace_id=work_obj.get("id"),
                                 email=s,
@@ -139,7 +144,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
                     params = r.get("parameters", [])
                     path_report = pathlib.Path(deploy_dir) / f"{path}"
                     if not path_report.exists():
-                        logger.warning(f"Report '{path_report}' not found")
+                        logger.warning(f"[powerbi] report '{path_report}' not found")
                     if path_report.exists():
                         parameters_svc = AzurePowerBIParamsService(powerbi_token=po_token, state=state.get("services"))
                         report_svc = AzurePowerBIReportService(powerbi_token=po_token, state=state.get("services"))
@@ -164,7 +169,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
                                         dataset_id=d.get("id"),
                                         params=params,
                                     )
-                        logger.info(f"Report {name} successfully imported")
+                        logger.info(f"[powerbi] report {name} successfully imported")
     if adx_section:
         ok = True
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
@@ -173,6 +178,7 @@ def deploy_workspace(head: str, file_content: str, deploy_dir: pathlib.Path) -> 
         available = adx_svc.check(name=name)
         to_create = adx_section.get("database").get("create", True)
         if available and to_create:
+            logger.info("[adx] creating or updating adx database")
             created = adx_svc.create(name=name, retention=adx_section.get("database").get("retention", 365))
             if created:
                 available = False
