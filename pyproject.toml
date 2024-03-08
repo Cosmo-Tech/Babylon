@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[metadata]
+licence_files=["LICENSE.md"]
+
+[project]
+name = "Babylon"
+authors = [{ name = "Cosmo Tech", email = "platform@cosmotech.com" }]
+description = "A CLI made to simplify interaction between Cosmo solutions and Azure"
+urls.Homepage = "https://www.cosmotech.com"
+urls.Source = "https://github.com/Cosmo-Tech/Babylon"
+urls.Documentation = "https://cosmo-tech.github.io/Babylon/latest/"
+dynamic = ["version", "dependencies", "optional-dependencies"]
+readme = {file = "README.md", content-type = "text/markdown"}
+
+[project.scripts]
+babylon= "Babylon.main:main"
+
+[tool.setuptools]
+include-package-data = true
+package-data."*" = [
+  "requirements.txt",
+]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["Babylon.*"]
+
+[tool.setuptools.dynamic]
+version.attr = "Babylon.version.VERSION"
+dependencies.file = "requirements.txt"
