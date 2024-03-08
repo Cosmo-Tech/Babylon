@@ -4,7 +4,6 @@ from click import command
 from click import option
 
 from Babylon.commands.api.workspaces.services.api import WorkspaceService
-from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.decorators import (
     injectcontext,
     retrieve_state,
@@ -23,7 +22,7 @@ env = Environment()
 @timing_decorator
 @retrieve_state
 @pass_azure_token("csm_api")
-@option("-D", "force_validation", is_flag=True, default=True, help="Force Delete")
+@option("-D", "force_validation", is_flag=True, help="Force Delete")
 @option("--organization-id", type=str)
 @option("--workspace-id", type=str)
 def delete(
@@ -31,7 +30,7 @@ def delete(
     azure_token: str,
     organization_id: str,
     workspace_id: str,
-    force_validation: bool = True,
+    force_validation: bool,
 ) -> CommandResponse:
     """
     Delete a workspace
@@ -39,10 +38,8 @@ def delete(
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    if not force_validation and not confirm_deletion("workspace", workspace_id):
-        return CommandResponse.fail()
     workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
-    response = workspace_service.delete()
+    response = workspace_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
     if response:
