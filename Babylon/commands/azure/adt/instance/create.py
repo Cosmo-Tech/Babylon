@@ -31,7 +31,7 @@ def create(state: dict,
     workspace_key: str = state['services']['api']['workspace_key']
     organization_id: str = state['services']['api']['organization_id']
     resource_group_name = state['services']['azure']['resource_group_name']
-    resource_group_location = state['services']['azure']['location']
+    resource_group_location = state['services']['azure']['resource_location']
     name = f"{organization_id}-{workspace_key}".lower()
     availability_result = (adt_management_client.digital_twins.check_name_availability(
         digital_twins_instance_check_name={
@@ -68,7 +68,8 @@ def create(state: dict,
 
     logger.info(f"Adding role assignment to the created instance {adt_host_name}...")
     #  Integrated Azure role
-    adt_data_owner_role_id = env.azure['roles']['adt_owner']
+    # adt_data_owner_role_id = env.azure['roles']['adt_owner']
+    adt_data_owner_role_id = state['services']['adt']['built_owner_id']
     scope = ("/subscriptions/" + azure_subscription + "/resourceGroups/" + resource_group_name +
              "/providers/Microsoft.DigitalTwins/digitalTwinsInstances/" + name)
     authorization_client = AuthorizationManagementClient(
