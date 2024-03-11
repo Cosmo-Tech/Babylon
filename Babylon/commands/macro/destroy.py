@@ -39,10 +39,12 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         state_to_destroy_json = yaml_to_json(data)
         state_to_destroy_dict = json.loads(state_to_destroy_json)
         state = state_to_destroy_dict
+    organization_id = state['services']["api"]["organization_id"]
     workspace_id = state['services']["api"]["workspace_id"]
     solution_id = state['services']["api"]["solution_id"]
     workspace_service = WorkspaceService(state=state.get('services'), azure_token=azure_token)
     solution_service = SolutionService(state=state.get('services'), azure_token=azure_token)
+    logger.info(f"Starting deletion of solution deployed in organization : {organization_id}")
     # deleting scenarios
     if workspace_id:
         scenario_service = ScenarioService(state=state.get('services'), azure_token=azure_token)
@@ -67,10 +69,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                 dataset = response.json()
                 if dataset["sourceType"] == "AzureStorage":
                     dataset_name = dataset.get("name").replace(" ", "_").lower()
-                    blob = env.blob_client.get_blob_client(
-                        container=state['services']["api"]["organization_id"],
-                        blob=f"{workspace_id}/{dataset_name}",
-                    )
+                    blob = env.blob_client.get_blob_client(organization_id, blob=f"{workspace_id}/{dataset_name}", )
                     if blob.exists():
                         logger.info(f"Deleting dataset blob {dataset_id}....")
                         blob.delete_blob()
@@ -84,14 +83,15 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     subscription_id = state["services"]["azure"]["subscription_id"]
     arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
     azure_func_service = AzureAppFunctionService(arm_client=arm_client, state=state.get('services'))
-    logger.info("Deleting azure function....")
+    logger.info(f"Deleting azure function in workspace : {workspace_id} ....")
     azure_func_service.delete()
     env.store_state_in_local(state=state)
     env.store_state_in_cloud(state=state)
 
     # deleting EventHub
+    eventhub_key = organization_id - state["services"]["api"]["workspace_key"]
     arm_service = ArmService(arm_client=arm_client, state=state.get('services'))
-    logger.info("Deleting event hub....")
+    logger.info(f"Deleting event hub : {eventhub_key} ....")
     arm_service.delete_event_hub()
     env.store_state_in_local(state=state)
     env.store_state_in_cloud(state=state)
@@ -129,7 +129,6 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         solution = solution_service.get()
         solution_json = solution.json()
         run_templates = solution_json.get("runTemplates", [])
-        organization_id = state['services']["api"]["organization_id"]
         handlers = ['parameters_handler', 'preRun', 'run', 'engine', 'postRun', 'scenariodata_transform', 'validator']
         for run_template in run_templates:
             runtemplate_id = run_template.get('id', "")
@@ -137,6 +136,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                 blob = env.blob_client.get_blob_client(container=organization_id,
                                                        blob=f"{solution_id}/{runtemplate_id}/{h}.zip")
                 if blob.exists():
+                    logger.info(f"Deleting run template {run_template} in solution : {solution_id}")
                     blob.delete_blob()
         # deleting solution
         logger.info(f"Deleting solution {solution_id} ....")
