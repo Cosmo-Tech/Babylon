@@ -9,7 +9,6 @@ from Babylon.utils.decorators import (
     injectcontext,
 )
 from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
 
@@ -19,7 +18,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_kusto_client
 @retrieve_state
 def get_all(state: Any, kusto_client: KustoManagementClient) -> CommandResponse:

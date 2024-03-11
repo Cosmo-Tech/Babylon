@@ -12,7 +12,6 @@ from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,
 )
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 
@@ -23,7 +22,6 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_azure_token("csm_api")
-@timing_decorator
 @option(
     "--organization-id",
     "organization_id",

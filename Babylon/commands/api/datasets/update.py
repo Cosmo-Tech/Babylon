@@ -11,7 +11,6 @@ from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     output_to_file,
     retrieve_state,
-    timing_decorator,
     injectcontext,
 )
 from Babylon.utils.environment import Environment
@@ -23,7 +22,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)

@@ -6,7 +6,6 @@ from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
 from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import (
@@ -20,7 +19,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_adt_management_client
 @retrieve_state
 def create(state: dict,

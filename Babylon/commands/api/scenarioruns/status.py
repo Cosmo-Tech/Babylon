@@ -1,11 +1,9 @@
 from logging import getLogger
 from typing import Any
-
 from click import command, option
-
 from Babylon.commands.api.scenarioruns.services.api import ScenarioRunService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import timing_decorator, injectcontext, retrieve_state, output_to_file
+from Babylon.utils.decorators import injectcontext, retrieve_state, output_to_file
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
@@ -13,7 +11,6 @@ logger = getLogger("Babylon")
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)

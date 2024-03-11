@@ -8,7 +8,6 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.clients import pass_kusto_client
-from Babylon.utils.decorators import timing_decorator
 from Babylon.commands.azure.adx.services.permission import AdxPermissionService
 from Babylon.utils.decorators import (
     retrieve_state,
@@ -21,7 +20,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_kusto_client
 @argument("principal_id", type=str)
 @retrieve_state

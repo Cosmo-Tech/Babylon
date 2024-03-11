@@ -12,7 +12,6 @@ from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportServic
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
     retrieve_state,
-    timing_decorator,
     injectcontext,
 )
 
@@ -22,7 +21,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_powerbi_token()
 @option(
     "--file",

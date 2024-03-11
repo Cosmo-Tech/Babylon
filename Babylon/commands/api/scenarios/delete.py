@@ -5,7 +5,8 @@ from click import command, option
 
 from Babylon.commands.api.scenarios.services.api import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.utils.decorators import timing_decorator, injectcontext, retrieve_state
+from Babylon.utils.decorators import injectcontext
+from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -16,7 +17,6 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_azure_token("csm_api")
-@timing_decorator
 @retrieve_state
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)

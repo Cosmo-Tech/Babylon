@@ -7,7 +7,6 @@ from click import option
 from ruamel.yaml import YAML
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.decorators import describe_dry_run, injectcontext
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -15,7 +14,6 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @injectcontext()
-@timing_decorator
 @describe_dry_run("Would create a yaml file with an arm deployment config: deployment name, template link, parameters")
 @option("--template-uri", "template_uri", type=str)
 @argument("deployment_name", type=str)

@@ -5,7 +5,7 @@ from click import command
 from typing import Any, Optional
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import injectcontext, timing_decorator
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import retrieve_state
 from Babylon.commands.azure.acr.services.api import AzureContainerRegistryService
 
@@ -15,7 +15,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @option("--image", type=str, help="Remote docker image to pull, example hello-world:latest")
 @retrieve_state
 def pull(state: Any, image: Optional[str] = None) -> CommandResponse:

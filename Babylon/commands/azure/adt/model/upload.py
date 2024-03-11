@@ -12,7 +12,6 @@ from azure.core.exceptions import ResourceExistsError
 from azure.core.exceptions import ResourceNotFoundError
 from azure.digitaltwins.core import DigitalTwinsClient
 from Babylon.utils.decorators import describe_dry_run, injectcontext
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_adt_client
 
@@ -21,7 +20,6 @@ logger = logging.getLogger("Babylon")
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_adt_client
 @option("--override", "override_if_exists", is_flag=True, help="Override existing models")
 @describe_dry_run("Would go through the given file and upload the models to ADT")

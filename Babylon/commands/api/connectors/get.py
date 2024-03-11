@@ -3,8 +3,8 @@ from typing import Any
 from click import option
 from click import command
 from Babylon.commands.api.connectors.services.api import ConnectorService
-from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import injectcontext
+from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -16,7 +16,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--connector-id", "connector_id", type=str)
