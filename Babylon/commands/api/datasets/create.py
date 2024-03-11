@@ -10,7 +10,6 @@ from click import option
 from click import Path
 from Babylon.commands.api.datasets.services.api import DatasetService
 from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
@@ -22,7 +21,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)

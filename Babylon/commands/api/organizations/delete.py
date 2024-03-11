@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Any
 from click import command
 from click import option
-from Babylon.utils.decorators import injectcontext, retrieve_state, timing_decorator
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.environment import Environment
@@ -14,7 +14,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_azure_token("csm_api")
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @option("--organization-id", "organization_id", type=str)

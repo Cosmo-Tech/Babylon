@@ -6,7 +6,7 @@ from azure.mgmt.resource import ResourceManagementClient
 from click import argument
 from click import command
 from click import option
-from Babylon.utils.decorators import retrieve_state, timing_decorator, injectcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_arm_client
@@ -19,7 +19,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_arm_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("deployment_name", type=str)

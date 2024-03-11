@@ -6,7 +6,6 @@ from azure.mgmt.kusto import KustoManagementClient
 from Babylon.commands.azure.adx.services.script import AdxScriptService
 from Babylon.utils.decorators import (
     retrieve_state,
-    timing_decorator,
     injectcontext,
 )
 from Babylon.utils.clients import pass_kusto_client
@@ -15,7 +14,6 @@ from Babylon.utils.response import CommandResponse
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_context
 @pass_kusto_client
 @argument(

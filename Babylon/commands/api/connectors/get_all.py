@@ -4,8 +4,9 @@ from typing import Any, Optional
 import jmespath
 from click import command, option
 from Babylon.commands.api.connectors.services.api import ConnectorService
-from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
-from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import injectcontext
+from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
@@ -17,7 +18,6 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@timing_decorator
 @pass_azure_token("csm_api")
 @option("--filter", "filter", type=str, help="Filter response with a jmespath query")
 @retrieve_state

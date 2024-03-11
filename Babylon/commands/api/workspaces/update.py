@@ -12,7 +12,6 @@ from Babylon.utils.decorators import (
     retrieve_state,
 )
 from Babylon.utils.decorators import output_to_file
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -24,7 +23,6 @@ payload = {"name": "Updated workspace to be deleted"}
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @retrieve_state

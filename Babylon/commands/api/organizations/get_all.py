@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Any
 from click import command
 from click import option
-from Babylon.utils.decorators import retrieve_state, timing_decorator
+from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
@@ -18,7 +18,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @option("--filter", "filter", help="Filter response with a jmespath query")

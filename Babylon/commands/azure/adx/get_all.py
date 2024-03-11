@@ -7,14 +7,13 @@ from typing import Any, Optional
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
-from Babylon.utils.decorators import retrieve_state, timing_decorator, injectcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")
 
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_kusto_client
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state

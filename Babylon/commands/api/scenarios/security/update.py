@@ -11,7 +11,6 @@ from Babylon.utils.decorators import (
     injectcontext,
 )
 from Babylon.utils.decorators import output_to_file
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -21,7 +20,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @argument("identity_id", type=str)

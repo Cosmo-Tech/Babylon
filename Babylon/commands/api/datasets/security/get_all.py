@@ -6,8 +6,8 @@ from click import command
 from Babylon.commands.api.datasets.services.security import DatasetSecurityService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file
-from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.decorators import timing_decorator
+from Babylon.utils.decorators import retrieve_state
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -17,7 +17,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @retrieve_state

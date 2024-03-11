@@ -19,7 +19,7 @@ from Babylon.utils.credentials import (
     get_powerbi_token,
     get_azure_credentials,
 )
-from Babylon.utils.decorators import injectcontext, retrieve_state, timing_decorator
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -29,7 +29,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_azure_token("csm_api")
 @retrieve_state
 @option("--state-to-destroy", "state_to_destroy", type=pathlib.Path)

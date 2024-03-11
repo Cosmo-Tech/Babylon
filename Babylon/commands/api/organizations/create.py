@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Any
 from click import argument, command
 from click import Path
-from Babylon.utils.decorators import injectcontext, timing_decorator
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
@@ -18,7 +18,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_azure_token("csm_api")
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))

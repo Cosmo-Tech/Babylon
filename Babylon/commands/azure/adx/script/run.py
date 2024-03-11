@@ -6,7 +6,6 @@ from click import Path, command, argument
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.commands.azure.adx.services.script import AdxScriptService
 from Babylon.utils.decorators import retrieve_state
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_kusto_client
@@ -16,7 +15,6 @@ env = Environment()
 
 
 @command()
-@timing_decorator
 @pass_kusto_client
 @argument(
     "script_file",

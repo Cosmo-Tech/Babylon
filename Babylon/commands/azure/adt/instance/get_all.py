@@ -7,7 +7,6 @@ from typing import Optional
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from Babylon.utils.decorators import output_to_file, injectcontext, retrieve_state
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_adt_management_client
@@ -18,7 +17,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @output_to_file
 @pass_adt_management_client
 @option("--filter", "filter", help="Filter response with a jmespath query")

@@ -7,7 +7,6 @@ from typing import Optional
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from Babylon.utils.decorators import injectcontext, retrieve_state
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
@@ -19,7 +18,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_adt_management_client
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("name", type=str)

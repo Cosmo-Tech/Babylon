@@ -5,7 +5,6 @@ from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
 from click import command
 from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.decorators import timing_decorator
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.clients import pass_arm_client
 from Babylon.utils.environment import Environment
@@ -16,7 +15,6 @@ env = Environment()
 
 @command()
 @injectcontext()
-@timing_decorator
 @pass_arm_client
 @retrieve_state
 def get_all(
