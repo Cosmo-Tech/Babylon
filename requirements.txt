@@ -1,56 +1,55 @@
 # Azure connection requirements
-azure-identity>=1.11.0
-azure-mgmt-subscription>=3.1.1
-azure-mgmt-kusto>=3.0.0
-msrest>=0.7.1
+azure-identity
+azure-mgmt-subscription
+azure-mgmt-kusto
+msrest
 
 # Azure services requirements
-azure-digitaltwins-core>=1.2.0
-azure-containerregistry>=1.0.0
-azure-storage-blob>=12.14.1
+azure-digitaltwins-core
+azure-containerregistry
+azure-storage-blob
 azure-mgmt-storage
-azure-mgmt-digitaltwins>=6.2.0
-azure-mgmt-resource>=21.2.1
-azure-mgmt-authorization>=3.0.0
-azure-mgmt-eventhub>=11.0.0
+azure-mgmt-digitaltwins
+azure-mgmt-resource
+azure-mgmt-authorization
+azure-mgmt-eventhub
 
 # Vault Hashicorp client
-hvac>=1.1.1
+hvac
 
 # ABBA requiremetns
-pandas>=2.2.0
-plotly>=5.19.0
+pandas
+plotly
 
 # Click requirements
-click>=8.1.3
-click-log>=0.4.0
+click
+click-log
 
 # Other requirements
-cryptography >= 38.0.3
-pyyaml>=6.0
-docker>=6.0.0
-jmespath>=1.0.1
-terrasnek>=0.1.10
-rich>=12.6.0
-GitPython>=3.1.30
-Mako==1.2.4
-polling2>=0.5.0
-inquirer>=3.1.3
-flatten_json>=0.1.13
-dynaconf>=3.2.1
+cryptography
+pyyaml
+docker
+jmespath
+terrasnek
+rich
+GitPython
+Mako
+polling2
+inquirer
+flatten_json
+dynaconf
 
 # Testing requirements
-pytest>=7.1.3
-ruamel.yaml>=0.17.21
-mock>=5.1.0
-# unittest>=1.4.34
+pytest
+ruamel.yaml
+mock
 
 # Documentation generation requirements
-mkdocs>=1.4.0
-mkdocs-click>=0.8.0
-mkdocs-gen-files>=0.4.0
-mkdocs-material>=8.5.6
-mkdocstrings[python]>=0.19.0
-mike>=1.1.2
-pymdown-extensions>=9.6
-requirements-parser>=0.5.0
+mkdocs
+mkdocs-click
+mkdocs-gen-files
+mkdocs-material
+mkdocstrings[python]
+mike
+pymdown-extensions
+requirements-parser
