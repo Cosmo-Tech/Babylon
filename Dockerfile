@@ -3,7 +3,7 @@ FROM python:3 as s1
 LABEL org.label-schema.name="Babylon"
 LABEL org.label-schema.description="Babylon is a tool designed to simplify interaction between Cosmo Tech solutions and the Azure environment."
 LABEL org.label-schema.url="https://github.com/Cosmo-Tech/Babylon"
-LABEL org.label-schema.maintainer="alexis.fossart@cosmotech.com"
+LABEL org.label-schema.maintainer="nibaldo.donoso@cosmotech.com"
 RUN apt update;apt install -y curl apt-transport-https 
 
 # Install Azure CLI
