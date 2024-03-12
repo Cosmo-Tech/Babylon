@@ -24,7 +24,7 @@ def create(
     """
     Create a resource deployment config
     """
-    _azure_deployment_template = ORIGINAL_TEMPLATE_FOLDER_PATH / "azure_resource_manager/azure_deployment.yaml"
+    _azure_deployment_template = ORIGINAL_TEMPLATE_FOLDER_PATH / "arm/azure_deployment.yaml"
     _commented_yaml_loader = YAML()
 
     with open(_azure_deployment_template, mode='r') as file:
