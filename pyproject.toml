@@ -31,3 +31,9 @@ include = ["Babylon*"]
 [tool.setuptools.dynamic]
 version.attr = "Babylon.version.VERSION"
 dependencies.file = "requirements.txt"
+
+[tool.yapfignore]
+ignore_patterns = [
+  "build/*",
+  "Babylon.egg-info/*"
+]
