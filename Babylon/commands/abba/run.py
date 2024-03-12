@@ -30,7 +30,7 @@ def run(state: dict, azure_token: str, input: str, var_types: str) -> CommandRes
       input (str): Table with details of the simulations
       var_types (str): A table declaring the variable types of columns in input
     """
-    df = pd.read_csv(input, sep='\t')
+    df = pd.read_csv(input, sep="\t", na_filter=False)
     input_types = {k: v for k, v in (line.rstrip().split("\t") for line in var_types)}
     df['scenarioId'] = ""
     df['scenariorunId'] = ""

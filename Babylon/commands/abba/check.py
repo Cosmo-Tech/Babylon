@@ -103,7 +103,7 @@ def check(state: dict, azure_token: str, input: str, var_types: str) -> CommandR
     """
     # read file provided as argument and run api calls
     input_types = {k: v for k, v in (line.rstrip().split("\t") for line in var_types)}
-    df = pd.read_csv(input, sep='\t')
+    df = pd.read_csv(input, sep="\t", na_filter=False)
     rows = dataframe_to_dict(df, input_types)
     service_state = state["services"]
     detailed_data = []
