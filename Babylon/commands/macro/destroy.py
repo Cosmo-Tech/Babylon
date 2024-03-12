@@ -1,3 +1,4 @@
+import click
 import json
 import pathlib
 
@@ -39,6 +40,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         state_to_destroy_json = yaml_to_json(data)
         state_to_destroy_dict = json.loads(state_to_destroy_json)
         state = state_to_destroy_dict
+
     organization_id = state['services']["api"]["organization_id"]
     workspace_id = state['services']["api"]["workspace_id"]
     solution_id = state['services']["api"]["solution_id"]
@@ -69,7 +71,10 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                 dataset = response.json()
                 if dataset["sourceType"] == "AzureStorage":
                     dataset_name = dataset.get("name").replace(" ", "_").lower()
-                    blob = env.blob_client.get_blob_client(organization_id, blob=f"{workspace_id}/{dataset_name}", )
+                    blob = env.blob_client.get_blob_client(
+                        organization_id,
+                        blob=f"{workspace_id}/{dataset_name}",
+                    )
                     if blob.exists():
                         logger.info(f"Deleting dataset blob {dataset_id}....")
                         blob.delete_blob()
@@ -89,7 +94,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     env.store_state_in_cloud(state=state)
 
     # deleting EventHub
-    eventhub_key = organization_id - state["services"]["api"]["workspace_key"]
+    eventhub_key = f"{organization_id} - {state['services']['api']['workspace_key']}"
     arm_service = ArmService(arm_client=arm_client, state=state.get('services'))
     logger.info(f"Deleting event hub : {eventhub_key} ....")
     arm_service.delete_event_hub()
@@ -136,12 +141,33 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                 blob = env.blob_client.get_blob_client(container=organization_id,
                                                        blob=f"{solution_id}/{runtemplate_id}/{h}.zip")
                 if blob.exists():
-                    logger.info(f"Deleting run template {run_template} in solution : {solution_id}")
+                    logger.info(f"Deleting run template {h} - {run_template} in solution : {solution_id}")
                     blob.delete_blob()
         # deleting solution
         logger.info(f"Deleting solution {solution_id} ....")
         solution_service.delete(force_validation=True)
         state["services"]["api"]["solution_id"] = ""
+
     env.store_state_in_local(state=state)
     env.store_state_in_cloud(state=state)
+    _ret = ['']
+    _ret.append("")
+    _ret.append("Deployments: ")
+    _ret.append("")
+    _ret.append(f"   * Organization   : {state['services'].get('api').get('organization_id', '')}")
+    _ret.append(f"   * Solution       : {solution_id} - Deleted")
+    _ret.append("      * RunTemplates: All Deleted")
+    _ret.append(f"   * Workspace      : {workspace_id} - Deleted")
+    _ret.append("      * EvenHub     : Deleted")
+    _ret.append("      * Database    : Deleted")
+    _ret.append("      * PowerBI     : Deleted")
+    _ret.append("   * Datasets       : All Deleted")
+    _ret.append("      * Storage     : All Deleted")
+    _ret.append("   * Scenarios      : All Deleted")
+    _ret.append("   * ScenarioRuns   : All Deleted")
+    if state["services"].get('webapp').get('static_domain', ''):
+        _ret.append("   * WebApp         ")
+        _ret.append(f"      * Hostname    : https://{state['services'].get('webapp').get('static_domain', '')}")
+    click.echo(click.style("\n".join(_ret), fg="green"))
+
     return CommandResponse.success()
