@@ -51,7 +51,7 @@ class AzureAppInsightService:
             return CommandResponse.fail()
         logger.info("Successfully deleted")
 
-    def get_all(self):
+    def get_all(self, filter: str = None):
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
         route = (
