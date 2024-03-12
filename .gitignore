@@ -13,6 +13,7 @@ Test**/
 poetry.lock
 typings/
 .config/
+info.log
 
 # Added rule to ignore folders called personal allowing to put WIP and other test files inside of those
 **/*personal/
