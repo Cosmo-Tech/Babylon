@@ -86,7 +86,7 @@ def timing_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         resp: CommandResponse = func(*args, **kwargs)
         end_time = time.time()
         lapsed = end_time - start_time
-        logger.info(f"{func.__name__} - Total elapsed time: {datetime.timedelta(seconds = lapsed)}")
+        logger.info(f"{func.__name__} - Total elapsed time: {datetime.timedelta(seconds=lapsed)}")
         return resp
 
     return wrapper

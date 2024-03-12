@@ -30,7 +30,8 @@ def apply(deploy_dir: pathlib.Path):
         with open(f) as input_file:
             heads_list = [next(input_file) for _ in range(7)]
             head_text = "".join(heads_list)
-            head = yaml.safe_load(head_text)
+            result = head_text.replace("{{", "${").replace("}}", "}")
+            head = yaml.safe_load(result)
             head_['kind'] = head.get('kind')
             head_['head'] = head_text
             head_['path'] = pathlib.Path(f).absolute()
