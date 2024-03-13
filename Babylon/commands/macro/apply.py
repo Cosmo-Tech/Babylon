@@ -1,15 +1,16 @@
-import click
 import yaml
+import click
 import pathlib
 
 from logging import getLogger
+from datetime import datetime
 from click import Path, argument, command
-from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import injectcontext
 from Babylon.commands.macro.deploy_webapp import deploy_swa
 from Babylon.commands.macro.deploy_dataset import deploy_dataset
-from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.commands.macro.deploy_solution import deploy_solution
+from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.commands.macro.deploy_organization import deploy_organization
 
 logger = getLogger("Babylon")
@@ -23,6 +24,7 @@ def apply(deploy_dir: pathlib.Path):
     """Macro Apply"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
     files = list(pathlib.Path(deploy_dir).iterdir())
+    start_time = datetime.now()
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
     heads = []
     for f in files_to_deploy:
@@ -67,17 +69,31 @@ def apply(deploy_dir: pathlib.Path):
         head = w.get('head')
         deploy_workspace(head=head, file_content=content, deploy_dir=deploy_dir)
 
-    final_datasets = []
+    final_datasets = dict()
     for d in datasets:
         p = pathlib.Path(d.get('path'))
         content = p.open().read()
         head = d.get('head')
-        deployed_id = deploy_dataset(head=head, file_content=content, deploy_dir=deploy_dir)
-        if deployed_id:
-            final_datasets.append(deployed_id)
+        deployed_dataset = deploy_dataset(head=head, file_content=content, deploy_dir=deploy_dir)
+        if deployed_dataset:
+            final_datasets.update(deployed_dataset)
 
     final_state = env.get_state_from_local()
     services = final_state.get('services')
+
+    _errors = ['']
+    _errors.append("The following warnings or errors were returned and need to be looked at")
+    error_file = open(pathlib.Path.cwd() / pathlib.Path(deploy_dir).parent / "error.log", 'r')
+    lines = error_file.readlines()
+    for line in lines:
+        line_split = line.split(" ", 3)
+        exact_time = line_split[1]
+        date_time_format = exact_time.split(",")
+        formatted_time = datetime.strptime(date_time_format[0], "%H:%M:%S")
+        if formatted_time > start_time:
+            _errors.append(line_split[3])
+    if _errors.count > 2:
+        click.echo(click.style("\n".join(_errors), fg="red"))
 
     _ret = ['']
     _ret.append("")
@@ -86,8 +102,8 @@ def apply(deploy_dir: pathlib.Path):
     _ret.append(f"   * Organization   : {services.get('api').get('organization_id', '')}")
     _ret.append(f"   * Solution       : {services.get('api').get('solution_id', '')}")
     _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
-    for d in final_datasets:
-        _ret.append(f"   * Dataset        : {d}")
+    for id, name in final_datasets:
+        _ret.append(f"   * Dataset        : {id} - {name}")
     if services.get('webapp').get('static_domain', ''):
         _ret.append("   * WebApp         ")
         _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
