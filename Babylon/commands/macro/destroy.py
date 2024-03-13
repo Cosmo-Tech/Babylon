@@ -13,9 +13,11 @@ from Babylon.commands.api.solutions.services.api import SolutionService
 from Babylon.commands.api.workspaces.services.api import WorkspaceService
 from Babylon.commands.azure.func.services.api import AzureAppFunctionService
 from Babylon.commands.azure.adx.services.database import AdxDatabaseService
+from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
 from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
+    get_azure_token,
     pass_azure_token,
     get_powerbi_token,
     get_azure_credentials,
@@ -82,6 +84,17 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                 dataset_service.delete(dataset_id=dataset_id, force_validation=True)
     env.store_state_in_local(state=state)
     env.store_state_in_cloud(state=state)
+
+    # deleting web app
+    webapp_id = state["services"]["webapp"]["deployment_name"]
+    logger.info(f"Deleting webapp {webapp_id} ....")
+    azure_token = get_azure_token()
+    subscription_id = state["services"]["azure"]["subscription_id"]
+    swa_svc = AzureSWAService(
+        azure_token=azure_token, state=state['services']
+    )
+    swa_svc.delete(webapp_name=webapp_id, force_validation=True)
+    state["services"]["app"]["object_id"] = ""
 
     # deleting azure function
     azure_credential = get_azure_credentials()
