@@ -68,10 +68,12 @@ The following environment variables are required:
     """
     if not tests_mode:
         sys.tracebacklimit = 0
-        fileHandler = logging.FileHandler("./info.log")
+        logfileHandler = logging.FileHandler("./info.log")
+        errorFileHandler = logging.FileHandler("./error.log")
+        errorFileHandler.setLevel(logging.WARNING)
         logging.basicConfig(format="%(asctime)s | %(message)10s",
                             handlers=[
-                                fileHandler,
+                                logfileHandler, errorFileHandler,
                                 RichHandler(show_time=False,
                                             rich_tracebacks=True,
                                             tracebacks_suppress=click,
