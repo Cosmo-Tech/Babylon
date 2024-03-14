@@ -1,4 +1,3 @@
-import time
 import jmespath
 import logging
 import polling2
