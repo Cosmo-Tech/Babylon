@@ -131,6 +131,7 @@ def is_correct_response(response):
     if "id" in output_data:
         return output_data
 
+
 def is_webapp_deleted(response):
     if response is None:
         return None

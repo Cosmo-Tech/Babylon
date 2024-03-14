@@ -90,9 +90,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     logger.info(f"Deleting webapp {webapp_id} ....")
     azure_token = get_azure_token()
     subscription_id = state['services']['azure']["subscription_id"]
-    swa_svc = AzureSWAService(
-        azure_token=azure_token, state=state['services']
-    )
+    swa_svc = AzureSWAService(azure_token=azure_token, state=state['services'])
     swa_svc.delete(webapp_name=webapp_id, force_validation=True)
     state['services']['app']["object_id"] = ""
 
