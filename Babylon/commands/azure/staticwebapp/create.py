@@ -40,8 +40,5 @@ def create(
     """
     service_state = state['services']
     service = AzureSWAService(azure_token=azure_token, state=service_state)
-    response = service.create(
-        webapp_name=webapp_name,
-        swa_file=swa_file,
-    )
+    response = service.create(webapp_name=webapp_name, swa_file=swa_file)
     return CommandResponse.success(response, verbose=True)
