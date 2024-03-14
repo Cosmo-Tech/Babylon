@@ -24,7 +24,7 @@ def get_all(
     """
     Get all the deployments for a resource group
     """
-    resource_group_name = state["azure"]["resource_group_name"]
+    resource_group_name = state["services"]["azure"]["resource_group_name"]
     try:
         deployment_list = arm_client.deployments.list_by_resource_group(resource_group_name)
     except HttpResponseError as _e:

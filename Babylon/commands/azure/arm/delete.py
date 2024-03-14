@@ -32,7 +32,7 @@ def delete(
     """
     Delete a resource deployment via arm deployment
     """
-    resource_group_name = state["azure"]["resource_group_name"]
+    resource_group_name = state["services"]["azure"]["resource_group_name"]
     if not force_validation and not confirm_deletion("azure deployment", deployment_name):
         return CommandResponse.fail()
     logger.info(f"Deleting resource deployment {deployment_name} ...")
