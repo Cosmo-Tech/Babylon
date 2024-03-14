@@ -1,3 +1,4 @@
+import time
 import jmespath
 import logging
 import polling2
@@ -42,31 +43,8 @@ class AzureSWAService:
         return output_data
 
     def delete(self, webapp_name: str, force_validation: bool):
-        # azure_credential = get_azure_credentials()
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
-        # arm_client = ResourceManagementClient(
-        #     credential=azure_credential, subscription_id=azure_subscription
-        # )
-        # if not force_validation and not confirm_deletion("webapp", webapp_name):
-        #     return CommandResponse.fail()
-        # logger.info(
-        #     f"Deleting static webapp {webapp_name} from resource group {resource_group_name}"
-        # )
-        # try:
-        #     poller = arm_client.resources.begin_delete_by_id(
-        #         resource_id=f"/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}"
-        #         f"/providers/Microsoft.Web/staticSites/{webapp_name}",
-        #         api_version="2022-09-01",
-        #     )
-        #     poller.wait()
-        #     # check if done
-        #     if not poller.done():
-        #         return False
-        #     return True
-        # except HttpResponseError as _e:
-        #     logger.error(f"An error occurred : {_e.message}")
-        #     return False
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
         if not force_validation and not confirm_deletion("webapp", webapp_name):
@@ -153,7 +131,17 @@ def is_correct_response(response):
     if "id" in output_data:
         return output_data
 
-
 def is_webapp_deleted(response):
     if response is None:
-        return " "
+        return None
+    print(response)
+    status_code = response.status_code
+    if status_code == 200:
+        logger.info("The static webapp deletion was successful.")
+        return True
+    elif status_code == 202:
+        logger.info("The static webapp deletion is in progress. Please wait.")
+        return False
+    else:
+        logger.error(f"Static webapp deletion failed. Error code: {status_code}")
+        return CommandResponse.fail(verbose=False)
