@@ -10,7 +10,6 @@ from Babylon.commands.azure.arm.get_all import get_all
 from Babylon.utils.environment import Environment
 from Babylon.utils import BABYLON_PATH
 
-
 env = Environment()
 
 
@@ -37,20 +36,15 @@ class AzureAppInsightServiceTestCase(unittest.TestCase):
 
     @mock.patch('azure.mgmt.resource.ResourceManagementClient.deployments')
     def test_delete(self, mock_delete):
-        result = CliRunner().invoke(
-            delete,
-            ["-D", "my-deployment"],
-            standalone_mode=False)
+        result = CliRunner().invoke(delete, ["-D", "my-deployment"], standalone_mode=False)
 
-        assert result.return_value.status_code == 0   
+        assert result.return_value.status_code == 0
 
     @mock.patch('azure.mgmt.resource.ResourceManagementClient.deployments')
     def test_get_all(self, mock_get_all):
-        result = CliRunner().invoke(
-            get_all,
-            standalone_mode=False)
+        result = CliRunner().invoke(get_all, standalone_mode=False)
 
-        assert result.return_value.status_code == 0   
+        assert result.return_value.status_code == 0
 
 
 if __name__ == "__main__":

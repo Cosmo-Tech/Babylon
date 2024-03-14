@@ -24,5 +24,5 @@ def get_all(state: Any, azure_token: str, filter: Optional[str] = None) -> Comma
     """
     service_state = state['services']
     service = AzureSWAService(azure_token=azure_token, state=service_state)
-    response = service.get_all()
+    response = service.get_all(filter)
     return CommandResponse.success(response, verbose=True)

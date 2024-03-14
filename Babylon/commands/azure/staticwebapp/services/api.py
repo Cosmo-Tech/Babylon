@@ -27,13 +27,18 @@ class AzureSWAService:
         self.state = state
         self.azure_token = azure_token
 
-    def create(self, webapp_name: str, details: str):
+    def create(self, webapp_name: str, swa_file: Path):
         check_ascii(webapp_name)
         azure_subscription = self.state["azure"]["subscription_id"]
         resource_group_name = self.state["azure"]["resource_group_name"]
         route = (
             f"https://management.azure.com/subscriptions/{azure_subscription}/resourceGroups/{resource_group_name}/"
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
+        swa_file = (swa_file or env.original_template_path / "webapp/webapp_details.yaml")
+        github_secret = env.get_global_secret(resource="github", name="token")
+        details = env.fill_template(data=swa_file.open().read(),
+                                    state=self.state,
+                                    ext_args={"github_secret": github_secret})
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
             return None
