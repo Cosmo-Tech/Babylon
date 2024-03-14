@@ -89,6 +89,7 @@ def deploy_swa(head: str, file_content: str):
             print("webapp not found")
             payload_str = json.dumps(obj=payload, indent=4, ensure_ascii=True)
             swa = swa_svc.create(webapp_name=swa_name, details=payload_str)
+            state['services']['webapp']['webapp_name'] = swa_name
             state['services']['webapp']['static_domain'] = swa["properties"]['defaultHostname']
             time.sleep(5)
             github_svc = GitHubRunsService(state=state.get('services'))
