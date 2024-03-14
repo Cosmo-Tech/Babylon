@@ -116,7 +116,8 @@ def check(state: dict, azure_token: str, input: str, var_types: str) -> CommandR
         response = get_scenariorun_status(service_state, azure_token)
         start_time = pd.to_datetime(response['startTime'])
         end_time = pd.to_datetime(response['endTime'])
-        df.loc[i, 'duration'] = (end_time - start_time).total_seconds()
+        if not (pd.isnull(start_time) or pd.isnull(end_time)):
+            df.loc[i, 'duration'] = (end_time - start_time).total_seconds()
         if response.get('phase') == "Succeeded":
             detailed_data.append(summarize(response, i))
         else:
