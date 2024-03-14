@@ -1,3 +1,4 @@
+import os
 import yaml
 import click
 import pathlib
@@ -81,19 +82,21 @@ def apply(deploy_dir: pathlib.Path):
     final_state = env.get_state_from_local()
     services = final_state.get('services')
 
-    _errors = ['']
-    _errors.append("The following warnings or errors were returned and need to be looked at")
-    error_file = open(pathlib.Path.cwd() / pathlib.Path(deploy_dir).parent / "error.log", 'r')
-    lines = error_file.readlines()
-    for line in lines:
-        line_split = line.split(" ", 3)
-        exact_time = line_split[1]
-        date_time_format = exact_time.split(",")
-        formatted_time = datetime.strptime(date_time_format[0], "%H:%M:%S")
-        if formatted_time > start_time:
-            _errors.append(line_split[3])
-    if _errors.count > 2:
-        click.echo(click.style("\n".join(_errors), fg="red"))
+    error_file_path = pathlib.Path.cwd() / pathlib.Path(deploy_dir).parent / "error.log"
+    if os.path.exists(error_file_path):
+        error_file = open(error_file_path, 'r')
+        _errors = ['']
+        _errors.append("The following warnings or errors were returned and need to be looked at")
+        lines = error_file.readlines()
+        for line in lines:
+            line_split = line.split(" ", 3)
+            exact_time = line_split[1]
+            date_time_format = exact_time.split(",")
+            formatted_time = datetime.strptime(date_time_format[0], "%H:%M:%S")
+            if formatted_time > start_time:
+                _errors.append(line_split[3])
+        if _errors.count > 2:
+            click.echo(click.style("\n".join(_errors), fg="red"))
 
     _ret = ['']
     _ret.append("")

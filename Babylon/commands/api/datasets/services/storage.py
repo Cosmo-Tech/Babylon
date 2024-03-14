@@ -29,4 +29,4 @@ class DatasetStorageService:
             client.delete_blob()
         with open(path, "rb") as data:
             client.upload_blob(data)
-        logger.info(f"[azure] successfully sent dataset file to workspace {workspace_id}")
+        logger.info(f"[azure] successfully sent dataset file : {dataset_name} to workspace {workspace_id}")
