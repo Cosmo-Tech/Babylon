@@ -134,7 +134,6 @@ def is_correct_response(response):
 def is_webapp_deleted(response):
     if response is None:
         return None
-    print(response)
     status_code = response.status_code
     if status_code == 200:
         logger.info("The static webapp deletion was successful.")
