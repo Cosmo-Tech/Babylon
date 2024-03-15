@@ -17,4 +17,4 @@ def list(state: Any, server: Optional[str] = None) -> CommandResponse:
     service_state = state['services']
     service = AzureContainerRegistryService(state=service_state)
     service.list(server=server)
-    CommandResponse.success()
+    return CommandResponse.success()
