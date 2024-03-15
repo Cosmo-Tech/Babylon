@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 from click.testing import CliRunner
 from Babylon.commands.azure.adt.model.get_all import get_all
 from Babylon.commands.azure.adt.model.upload import upload
