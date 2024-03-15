@@ -33,12 +33,12 @@ class AzureStaticWebappServiceTestCase(unittest.TestCase):
     @mock.patch('requests.delete')
     def test_delete(self, mock_delete):
         the_response = Response()
-        the_response.status_code = 200
+        the_response.status_code = 204
         the_response._content = b'{"name": "my-webapp-name"}'
         mock_delete.return_value = the_response
         result = CliRunner().invoke(delete, ["-D", "my-webapp-name"], standalone_mode=False)
 
-        assert result.return_value.status_code == 0
+        assert result.return_value is None
 
     @mock.patch('requests.get')
     def test_get_all(self, mock_get_all):

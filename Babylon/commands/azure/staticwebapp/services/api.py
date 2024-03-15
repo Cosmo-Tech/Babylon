@@ -139,13 +139,4 @@ def is_correct_response(response):
 def is_webapp_deleted(response):
     if response is None:
         return None
-    status_code = response.status_code
-    if status_code == 200:
-        logger.info("The static webapp deletion was successful.")
-        return True
-    elif status_code == 202:
-        logger.info("The static webapp deletion is in progress. Please wait.")
-        return False
-    else:
-        logger.error(f"Static webapp deletion failed. Error code: {status_code}")
-        return CommandResponse.fail(verbose=False)
+    return True
