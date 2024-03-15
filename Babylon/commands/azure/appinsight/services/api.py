@@ -47,7 +47,7 @@ class AzureAppInsightService:
         if response is None:
             return CommandResponse.fail()
         if response.status_code == 204:
-            logger.warn("App Insight not found")
+            logger.warning("App Insight not found")
             return CommandResponse.fail()
         logger.info("Successfully deleted")
 

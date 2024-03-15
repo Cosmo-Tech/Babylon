@@ -44,15 +44,15 @@ def oauth_request(url: str,
     }
     request_func = request_funcs.get(type.upper())
     if not request_func:
-        logger.warn(f"Could not find request of type {type}")
+        logger.warning(f"Could not find request of type {type}")
         return None
     try:
         response = request_func(url=url, headers=headers, **kwargs)
     except Exception as e:
-        logger.warn(f"Request failed: {e}")
+        logger.warning(f"Request failed: {e}")
         return None
     if response.status_code >= 300:
-        logger.warn(f"Failed: ({response.status_code}): {response.text}")
+        logger.warning(f"Failed: ({response.status_code}): {response.text}")
         return None
     logger.debug(f"Request success ({response.status_code}): {response.text}")
     return response

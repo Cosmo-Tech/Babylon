@@ -32,7 +32,7 @@ class AzureAppFunctionService:
 
         mode = DeploymentMode.INCREMENTAL
         if deploy_mode_complete:
-            logger.warn("""Warning: In complete mode,\n
+            logger.warning("""Warning: In complete mode,\n
                         Resource Manager deletes resources that exist in the resource group but,\n
                         aren't specified in the template.""")
             if confirm_deploy_arm_mode():
