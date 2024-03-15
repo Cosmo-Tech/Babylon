@@ -42,7 +42,6 @@ dynaconf
 # Testing requirements
 pytest
 ruamel.yaml
-mock
 
 # Documentation generation requirements
 mkdocs
