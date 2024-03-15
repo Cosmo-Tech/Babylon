@@ -1,6 +1,5 @@
-import mock
 import unittest
-
+from unittest import mock
 from click.testing import CliRunner
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.organizations.create import create

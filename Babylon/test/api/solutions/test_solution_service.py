@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 from click.testing import CliRunner
 from Babylon.commands.api.solutions.services.api import SolutionService
 from Babylon.commands.api.solutions.create import create

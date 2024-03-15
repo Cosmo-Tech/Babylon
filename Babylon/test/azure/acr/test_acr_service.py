@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 from click.testing import CliRunner
 from Babylon.commands.azure.acr.delete import delete
 from Babylon.commands.azure.acr.list import list

@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 from click.testing import CliRunner
 from Babylon.commands.api.workspaces.services.api import WorkspaceService
 from Babylon.commands.api.workspaces.get import get

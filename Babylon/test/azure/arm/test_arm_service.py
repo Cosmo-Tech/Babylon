@@ -1,6 +1,6 @@
-import mock
 import os
 import unittest
+from unittest import mock
 from pathlib import Path
 from click.testing import CliRunner
 from ruamel.yaml import YAML
@@ -13,7 +13,7 @@ from Babylon.utils import BABYLON_PATH
 env = Environment()
 
 
-class AzureAppInsightServiceTestCase(unittest.TestCase):
+class AzureResourceManagerServiceTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

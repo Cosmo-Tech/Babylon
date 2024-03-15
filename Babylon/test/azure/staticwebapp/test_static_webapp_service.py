@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 from click.testing import CliRunner
 from Babylon.utils.environment import Environment
 from Babylon.commands.azure.staticwebapp.create import create
@@ -12,7 +12,7 @@ from requests.models import Response
 env = Environment()
 
 
-class AzureAppInsightServiceTestCase(unittest.TestCase):
+class AzureStaticWebappServiceTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

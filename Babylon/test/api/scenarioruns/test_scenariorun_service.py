@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 from click.testing import CliRunner
 from Babylon.commands.api.scenarioruns.services.api import ScenarioRunService
 from Babylon.commands.api.scenarioruns.cumulated_logs import cumulated_logs
