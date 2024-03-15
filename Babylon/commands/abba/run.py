@@ -38,12 +38,16 @@ def run(state: dict, azure_token: str, input: str, var_types: str) -> CommandRes
     for i, entry in enumerate(rows):
         # create scenario
         service_state = state["services"]
-        if not entry.get('organizationId'):
-            entry['organizationId'] = service_state["api"]["organization_id"]
-            df.loc[i, 'organizationId'] = service_state["api"]["organization_id"]
-        if not entry.get('workspaceId'):
-            entry['workspaceId'] = service_state["api"]["workspace_id"]
-            df.loc[i, 'workspaceId'] = service_state["api"]["workspace_id"]
+        # priority to user input else from state
+        organizationId = entry.get('organizationId') or service_state["api"]["organization_id"]
+        workspaceId  = entry.get('workspaceId') or service_state["api"]["workspace_id"]
+        # update everywhere the same values
+        df.loc[i, 'organizationId'] = organizationId
+        df.loc[i, 'workspaceId'] = workspaceId
+        entry['organizationId'] = organizationId
+        entry['workspaceId'] = workspaceId
+        service_state["api"]["organization_id"] = organizationId
+        service_state["api"]["workspace_id"] = workspaceId
         spec = dict()
         spec["payload"] = json.dumps(entry)
         scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=spec)
