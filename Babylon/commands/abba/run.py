@@ -40,7 +40,7 @@ def run(state: dict, azure_token: str, input: str, var_types: str) -> CommandRes
         service_state = state["services"]
         # priority to user input else from state
         organizationId = entry.get('organizationId') or service_state["api"]["organization_id"]
-        workspaceId  = entry.get('workspaceId') or service_state["api"]["workspace_id"]
+        workspaceId = entry.get('workspaceId') or service_state["api"]["workspace_id"]
         # update everywhere the same values
         df.loc[i, 'organizationId'] = organizationId
         df.loc[i, 'workspaceId'] = workspaceId
