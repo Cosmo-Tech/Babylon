@@ -95,7 +95,7 @@ def apply(deploy_dir: pathlib.Path):
             formatted_time = datetime.strptime(date_time_format[0], "%H:%M:%S")
             if formatted_time > start_time:
                 _errors.append(line_split[3])
-        if _errors.count > 2:
+        if len(_errors) > 2:
             click.echo(click.style("\n".join(_errors), fg="red"))
 
     _ret = ['']
