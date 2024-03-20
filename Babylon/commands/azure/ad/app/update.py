@@ -29,16 +29,15 @@ env = Environment()
 )
 @argument("object_id", type=str)
 @retrieve_state
-def update(state: Any, azure_token: str, object_id: str, registration_file: str) -> CommandResponse:
+def update(state: Any, azure_token: str, object_id: str, registration_file: pathlib.Path) -> CommandResponse:
     """
     Update an app registration in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-update
     """
-    service_state = state['services']
-    service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
-    details = env.fill_template(registration_file.open().read(), state)
+    service = AzureDirectoyAppService(azure_token=azure_token, state=state.get('services'))
+    details = env.fill_template(data=pathlib.Path(registration_file).open().read(), state=state)
     service.update(
-        object_id,
-        details,
+        object_id=object_id,
+        details=details,
     )
     return CommandResponse.success(None, verbose=True)

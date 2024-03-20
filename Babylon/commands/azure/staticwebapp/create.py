@@ -23,7 +23,7 @@ env = Environment()
 @option(
     "--file",
     "swa_file",
-    type=Path(readable=True, dir_okay=False, path_type=pathlib.Path),
+    type=Path(readable=True, dir_okay=False, path_type=pathlib.Path, exists=True),
     help="Your custom staticwebapp description file yaml",
 )
 @argument("webapp_name", type=str)
@@ -38,7 +38,7 @@ def create(
     Create a static webapp data in the given resource group
     https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-update-static-site
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzureSWAService(azure_token=azure_token, state=service_state)
     response = service.create(webapp_name=webapp_name, swa_file=swa_file)
     return CommandResponse.success(response, verbose=True)

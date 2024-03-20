@@ -20,15 +20,15 @@ class AzureStaticWebappServiceTestCase(unittest.TestCase):
         env.get_namespace_from_local()
 
     @mock.patch('requests.put')
-    def test_create(self, mock_put):
+    def test_create(self, mock_create):
         the_response = Response()
-        the_response.status_code = 204
-        the_response._content = b'{"name": "my-webapp-name"}'
-        mock_put.return_value = the_response
+        the_response.status_code = 200
+        the_response._content = b'{"id": "my-webapp-name"}'
+        mock_create.return_value = the_response
         swa_file = str(env.pwd / "Babylon/test/azure/staticwebapp/swa_file.yaml")
-        result = CliRunner().invoke(create, ["my-webapp-name", "--file", swa_file], standalone_mode=False)
+        result = CliRunner().invoke(create, ["my-webapp", "--file", swa_file], standalone_mode=False)
 
-        assert result.return_value.status_code == 0
+        assert result.return_value.data == {'id': 'my-webapp-name'}
 
     @mock.patch('requests.delete')
     def test_delete(self, mock_delete):

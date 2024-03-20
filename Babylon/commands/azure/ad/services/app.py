@@ -41,13 +41,12 @@ class AzureDirectoyAppService:
         )
         sp_response = sp_response.json()
         if sp_response is None:
-            logger.error("Failed to create application service principal")
+            logger.error("[app] Failed to create application service principal")
             return False
         return sp_response, output_data
 
     def delete(self, object_id: str):
-        logger.info("deleting app")
-        logger.info(f"Deleting app registration {object_id}")
+        logger.info(f"[app] deleting app registration {object_id}")
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         sp_response = polling2.poll(
             lambda: oauth_request(route, self.azure_token, type="DELETE"),
@@ -56,7 +55,7 @@ class AzureDirectoyAppService:
             timeout=10,
         )
         if sp_response is None:
-            logger.info("Successfully deleted")
+            logger.info("[app] Successfully deleted")
             return True
 
     def get_all(self, filter: str = None):
@@ -84,7 +83,7 @@ class AzureDirectoyAppService:
         return output_data["id"]
 
     def get(self, object_id: str):
-        logger.info(f'getting app {object_id}')
+        logger.info(f'[app] getting app {object_id}')
         if not object_id:
             return dict()
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
@@ -100,12 +99,12 @@ class AzureDirectoyAppService:
         return output_data
 
     def update(self, object_id: str, details: str):
-        logger.info(f'update app {object_id}')
+        logger.info(f'[app] update app {object_id}')
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         sp_response = oauth_request(route, self.azure_token, type="PATCH", data=details)
         if sp_response is None:
             return False
-        logger.info("Successfully updated")
+        logger.info("[app] Successfully updated")
         return True
 
 

@@ -1,0 +1,13 @@
+name: my-webapp-name
+location: westeurope
+properties:
+  repositoryUrl: https://github.com/Cosmo-Tech/azure-webapp-engineering-brewery-deployments
+  branch: dev
+  repositoryToken: mysecret
+  buildProperties:
+    appLocation: "/"
+    apiLocation: api
+    appArtifactLocation: build
+sku:
+  name: Standard
+  tier: Standard

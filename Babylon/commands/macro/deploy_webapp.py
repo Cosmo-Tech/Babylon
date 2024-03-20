@@ -71,12 +71,14 @@ def deploy_swa(head: str, file_content: str):
                 app_secrets = AzureDirectoyPasswordService(azure_token=azure_token, state=state.get('services'))
                 app_secrets.create(object_id=sp["id"], password_name="pbi")
                 app_secrets.create(object_id=sp["id"], password_name="azf")
-                group_id = sidecars.get('group_id', '')
-                if group_id:
-                    group_svc = AzureDirectoyMemberService(azure_token=azure_token)
-                    group_svc.add(group_id=group_id, principal_id=app_created.get("id"))
-                else:
-                    app_svc.update(object_id=object_id, details=details)
+            group_id = sidecars.get('powerbi', {}).get('group_id', '')
+            add_to_group_powerbi = sidecars.get('azure').get('app', {}).get('add_to_powerbi', False)
+            if group_id and add_to_group_powerbi:
+                logger.info(f'adding app to group powerbi {group_id}')
+                group_svc = AzureDirectoyMemberService(azure_token=azure_token)
+                group_svc.add(group_id=group_id, principal_id=state['services']['app']["principal_id"])
+            else:
+                app_svc.update(object_id=object_id, details=details)
     swa_name = payload.get('name', "")
     swa = dict()
     if payload:
