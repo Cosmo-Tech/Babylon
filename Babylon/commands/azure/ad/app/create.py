@@ -32,8 +32,7 @@ def create(state: Any, azure_token: str, registration_file: pathlib.Path) -> Com
     Register an app in Active Directory
     https://learn.microsoft.com/en-us/graph/api/application-post-applications
     """
-    service_state = state['services']
-    service = AzureDirectoyAppService(azure_token=azure_token, state=service_state)
-    details = env.fill_template(registration_file.open().read(), state)
+    service = AzureDirectoyAppService(azure_token=azure_token, state=state.get('services'))
+    details = env.fill_template(data=registration_file.open().read(), state=state)
     response = service.create(details)
     return CommandResponse.success(response, verbose=True)

@@ -34,7 +34,6 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> di
     dataset_id = payload.get("id")
     state["services"]["api"]["dataset_id"] = dataset_id
     spec = dict()
-    dataset_infos = dict()
     if source_type == "File":
         local_path = azure["dataset"].get("file", {}).get("local_path", "")
         dataset_zip: pathlib.Path = pathlib.Path(deploy_dir) / local_path
@@ -89,7 +88,6 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> di
             return str()
         dataset = response.json()
         dataset_id = dataset["id"]
-        dataset_infos[dataset_id] = dataset["name"]
         if source_type != "None":
             if source_type in ["ADT", "AzureStorage"]:
                 dataset_service.refresh(dataset_id=dataset_id)
@@ -147,4 +145,4 @@ def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> di
         data = run_scripts.get("post_deploy.sh", "")
         if data:
             os.system(data)
-    return dataset_infos
+    return dataset_id
