@@ -9,7 +9,7 @@ from logging import getLogger
 from flatten_json import flatten
 from click import command, option
 from mako.template import Template
-from Babylon.commands.api.scenarios.services.api import ScenarioService
+from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 from Babylon.utils.environment import Environment

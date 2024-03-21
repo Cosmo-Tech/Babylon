@@ -1,7 +1,7 @@
 import logging
 
 from click import command, option
-from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
+from Babylon.commands.azure.ad.services.ad_member_svc import AzureDirectoyMemberService
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 

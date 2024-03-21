@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 from click.testing import CliRunner
-from Babylon.commands.api.solutions.services.api import SolutionService
+from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.commands.api.solutions.create import create
 from Babylon.commands.api.solutions.delete import delete
 from Babylon.commands.api.solutions.get_all import get_all

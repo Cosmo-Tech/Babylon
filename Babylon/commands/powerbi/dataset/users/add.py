@@ -8,7 +8,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.commands.powerbi.dataset.users.service.api import AzurePowerBUsersIService
+from Babylon.commands.powerbi.dataset.services.powerbi_users_svc import AzurePowerBUsersIService
 
 logger = logging.getLogger("Babylon")
 env = Environment()

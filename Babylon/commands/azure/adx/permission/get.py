@@ -8,7 +8,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from azure.mgmt.kusto import KustoManagementClient
 from Babylon.utils.clients import pass_kusto_client
-from Babylon.commands.azure.adx.services.permission import AdxPermissionService
+from Babylon.commands.azure.adx.services.adx_permission_svc import AdxPermissionService
 from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,

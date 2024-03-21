@@ -3,7 +3,7 @@ import logging
 from typing import Any
 from click import command
 from click import argument
-from Babylon.commands.azure.staticwebapp.services.custom_domain import (
+from Babylon.commands.azure.staticwebapp.services.swa_custom_domain_svc import (
     AzureSWACustomDomainService, )
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse

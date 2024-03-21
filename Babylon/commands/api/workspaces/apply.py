@@ -9,7 +9,7 @@ from select import select
 from flatten_json import flatten
 from click import command, option
 from mako.template import Template
-from Babylon.commands.api.workspaces.services.api import WorkspaceService
+from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment

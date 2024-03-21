@@ -2,7 +2,7 @@ import logging
 
 from typing import Any, Optional
 from click import argument, command
-from Babylon.commands.git_hub.runs.service.api import GitHubRunsService
+from Babylon.commands.git_hub.runs.service.github_api_svc import GitHubRunsService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse

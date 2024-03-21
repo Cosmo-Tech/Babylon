@@ -1,79 +1,71 @@
 import json
 import sys
-import logging
 
-from typing import Optional
-from Babylon.commands.api.solutions.services.security import SolutionSecurityService
-from Babylon.utils.environment import Environment
+from logging import getLogger
+from Babylon.commands.api.organizations.services.organization_security_svc import (
+    OrganizationSecurityService, )
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
+from Babylon.utils.environment import Environment
 
-logger = logging.getLogger("Babylon")
+logger = getLogger("Babylon")
 env = Environment()
 
 
-class SolutionService:
+class OrganizationService:
 
-    def __init__(self, azure_token: str, state: dict, spec: Optional[dict] = None):
+    def __init__(self, state: dict, azure_token: str, spec: dict = None):
         self.state = state
         self.spec = spec
         self.azure_token = azure_token
-        self.url = self.state["api"]["url"]
-        self.organization_id = self.state["api"]["organization_id"]
-        self.solution_id = self.state["api"]["solution_id"]
-        if not self.organization_id:
-            logger.error('organization id is missing')
+        self.url = state["api"]["url"]
+        if not self.url:
+            logger.error("API url not found")
             sys.exit(1)
 
     def create(self):
         details = self.spec["payload"]
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions",
-            self.azure_token,
-            type="POST",
-            data=details,
-        )
+        response = oauth_request(f"{self.url}/organizations", self.azure_token, type="POST", data=details)
         return response
 
     def delete(self, force_validation: bool):
-        check_if_solution_exists(self.solution_id)
-        if not force_validation and not confirm_deletion("solution", self.solution_id):
+        organization_id = self.state["api"]["organization_id"]
+        if not organization_id:
+            logger.error("organization id not found")
+            sys.exit(1)
+        if not force_validation and not confirm_deletion("organization", organization_id):
             return None
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
+            f"{self.url}/organizations/{organization_id}",
             self.azure_token,
-            "DELETE",
+            type="DELETE",
         )
         return response
 
     def get(self):
-        check_if_solution_exists(self.solution_id)
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
-            self.azure_token,
-        )
+        organization_id = self.state["api"]["organization_id"]
+        if not organization_id:
+            logger.error("Organization id is missing")
+            return None
+        response = oauth_request(f"{self.url}/organizations/{organization_id}", self.azure_token)
         return response
 
     def get_all(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions",
-            self.azure_token,
-        )
-        return response
+        return oauth_request(f"{self.url}/organizations", self.azure_token)
 
     def update(self):
-        check_if_solution_exists(self.solution_id)
         details = self.spec["payload"]
+        organization_id = self.state["api"]["organization_id"]
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
+            f"{self.url}/organizations/{organization_id}",
             self.azure_token,
-            "PATCH",
+            type="PATCH",
             data=details,
         )
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = SolutionSecurityService(azure_token=self.azure_token, state=self.state)
+        self.security_svc = OrganizationSecurityService(azure_token=self.azure_token, state=self.state)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:
@@ -99,13 +91,7 @@ class SolutionService:
                     return None
         for s in ids_existing:
             if s not in ids_spec:
-                response = self.security_svc.remove(id=s)
+                response = self.security_svc.delete(id=s)
                 if response is None:
                     return None
         return security_spec
-
-
-def check_if_solution_exists(solution_id: str):
-    if solution_id is None:
-        logger.error(f"solution {solution_id} is missing")
-        sys.exit(1)

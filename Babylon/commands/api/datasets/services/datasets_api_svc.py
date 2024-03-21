@@ -6,7 +6,7 @@ from typing import Optional
 
 from pathlib import Path
 
-from Babylon.commands.api.datasets.services.security import DatasetSecurityService
+from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request

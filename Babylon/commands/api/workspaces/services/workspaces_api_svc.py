@@ -4,7 +4,7 @@ import sys
 from logging import getLogger
 from typing import Optional
 
-from Babylon.commands.api.workspaces.services.security import (
+from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion

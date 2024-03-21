@@ -4,7 +4,7 @@ from azure.storage.blob import BlobServiceClient
 from click import argument
 from click import command
 from click import option
-from Babylon.commands.azure.storage.services.container import AzureStorageContainerService
+from Babylon.commands.azure.storage.services.storage_container_svc import AzureStorageContainerService
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 

@@ -4,7 +4,7 @@ from typing import Any, Optional
 from click import command
 from click import argument
 from click import option
-from Babylon.commands.powerbi.dataset.parameters.service.api import AzurePowerBIParamsService
+from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import AzurePowerBIParamsService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 

@@ -8,7 +8,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
+from Babylon.commands.azure.staticwebapp.services.swa_api_svc import AzureSWAService
 
 logger = logging.getLogger("Babylon")
 env = Environment()

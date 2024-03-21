@@ -5,7 +5,7 @@ from typing import Optional
 from typing import Any, Iterable
 from click import command, option
 from Babylon.utils.response import CommandResponse
-from Babylon.commands.webapp.service.api import AzureWebAppService
+from Babylon.commands.webapp.service.webapp_api_svc import AzureWebAppService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 
 logger = logging.getLogger("Babylon")

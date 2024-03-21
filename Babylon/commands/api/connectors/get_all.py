@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 import jmespath
 from click import command, option
-from Babylon.commands.api.connectors.services.api import ConnectorService
+from Babylon.commands.api.connectors.services.connectors_svc import ConnectorService
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import retrieve_state

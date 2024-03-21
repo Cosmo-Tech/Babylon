@@ -4,7 +4,7 @@ from typing import Any, Optional
 from azure.mgmt.authorization import AuthorizationManagementClient
 from click import Choice, option
 from click import command
-from Babylon.commands.azure.permission.services.api import AzureIamService
+from Babylon.commands.azure.permission.services.iam_api_svc import AzureIamService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment

@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.commands.api.organizations.services.api import OrganizationService
+from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
 logger = getLogger("Babylon")
 env = Environment()

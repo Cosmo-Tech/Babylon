@@ -6,15 +6,15 @@ from logging import getLogger
 from click import command, option
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.services.api import ArmService
-from Babylon.commands.api.datasets.services.api import DatasetService
-from Babylon.commands.api.scenarios.services.api import ScenarioService
-from Babylon.commands.api.solutions.services.api import SolutionService
-from Babylon.commands.api.workspaces.services.api import WorkspaceService
-from Babylon.commands.azure.func.services.api import AzureAppFunctionService
-from Babylon.commands.azure.adx.services.database import AdxDatabaseService
-from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
-from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
+from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
+from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
+from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
+from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
+from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
+from Babylon.commands.azure.func.services.func_api_svc import AzureAppFunctionService
+from Babylon.commands.azure.adx.services.adx_database_svc import AdxDatabaseService
+from Babylon.commands.azure.staticwebapp.services.swa_api_svc import AzureSWAService
+from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
     get_azure_token,

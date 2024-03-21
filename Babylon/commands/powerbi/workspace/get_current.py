@@ -2,7 +2,7 @@ import logging
 
 from typing import Any
 from click import command
-from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
+from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,

@@ -3,7 +3,7 @@ import logging
 from typing import Any
 from click import command
 from click import argument
-from Babylon.commands.azure.staticwebapp.services.app_settings import (
+from Babylon.commands.azure.staticwebapp.services.swa_app_settings_svc import (
     AzureSWASettingsAppService, )
 from Babylon.utils.decorators import (
     retrieve_state,

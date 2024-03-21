@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 from click import argument, command
-from Babylon.commands.azure.storage.services.policy import AzureStoragePolicyService
+from Babylon.commands.azure.storage.services.storage_policy_svc import AzureStoragePolicyService
 from Babylon.utils.clients import pass_storage_mgmt_client
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse

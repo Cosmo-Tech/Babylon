@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 from click.testing import CliRunner
-from Babylon.commands.api.connectors.services.api import ConnectorService
+from Babylon.commands.api.connectors.services.connectors_svc import ConnectorService
 from Babylon.commands.api.connectors.create import create
 from Babylon.commands.api.connectors.get import get
 from Babylon.commands.api.connectors.get_all import get_all

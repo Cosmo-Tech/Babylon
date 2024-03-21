@@ -3,7 +3,7 @@ import logging
 from click import option
 from click import command
 from typing import Any, Optional
-from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
+from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import AzurePowerBIReportService
 
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_powerbi_token

@@ -7,8 +7,8 @@ from logging import getLogger
 import click
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
-from Babylon.commands.api.organizations.services.api import OrganizationService
-from Babylon.commands.azure.storage.services.container import (
+from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
+from Babylon.commands.azure.storage.services.storage_container_svc import (
     AzureStorageContainerService, )
 
 logger = getLogger("Babylon")

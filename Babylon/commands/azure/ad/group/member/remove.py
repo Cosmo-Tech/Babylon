@@ -6,7 +6,7 @@ from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.credentials import pass_azure_token
-from Babylon.commands.azure.ad.services.member import AzureDirectoyMemberService
+from Babylon.commands.azure.ad.services.ad_member_svc import AzureDirectoyMemberService
 
 logger = logging.getLogger("Babylon")
 

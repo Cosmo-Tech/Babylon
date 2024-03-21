@@ -14,7 +14,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.yaml_utils import yaml_to_json
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
-from Babylon.commands.api.organizations.services.api import OrganizationService
+from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
 logger = getLogger("Babylon")
 env = Environment()
