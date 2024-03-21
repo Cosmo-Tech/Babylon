@@ -40,5 +40,12 @@ def create(
     """
     service_state = state["services"]
     service = AzureSWAService(azure_token=azure_token, state=service_state)
-    response = service.create(webapp_name=webapp_name, swa_file=swa_file)
+    swa_file = swa_file or env.original_template_path / "webapp/webapp_details.yaml"
+    github_secret = env.get_global_secret(resource="github", name="token")
+    details = env.fill_template(
+        data=swa_file.open().read(),
+        state=state,
+        ext_args={"github_secret": github_secret},
+    )
+    response = service.create(webapp_name=webapp_name, details=details)
     return CommandResponse.success(response, verbose=True)
