@@ -3,7 +3,7 @@ from typing import Any
 
 from click import argument, command
 
-from Babylon.commands.api.datasets.services.security import DatasetSecurityService
+from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import retrieve_state, injectcontext

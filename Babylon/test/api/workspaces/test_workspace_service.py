@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 from click.testing import CliRunner
-from Babylon.commands.api.workspaces.services.api import WorkspaceService
+from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.commands.api.workspaces.get import get
 from Babylon.commands.api.workspaces.get_all import get_all
 from Babylon.commands.api.workspaces.update import update

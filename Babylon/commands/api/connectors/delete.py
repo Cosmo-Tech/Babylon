@@ -3,7 +3,7 @@ import logging
 from typing import Any
 from click import command
 from click import option
-from Babylon.commands.api.connectors.services.api import ConnectorService
+from Babylon.commands.api.connectors.services.connectors_svc import ConnectorService
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.response import CommandResponse

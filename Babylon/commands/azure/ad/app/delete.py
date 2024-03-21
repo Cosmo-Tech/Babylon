@@ -7,7 +7,7 @@ from click import argument
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
+from Babylon.commands.azure.ad.services.ad_app_svc import AzureDirectoyAppService
 
 logger = logging.getLogger("Babylon")
 

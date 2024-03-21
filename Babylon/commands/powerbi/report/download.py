@@ -6,7 +6,7 @@ from click import command
 from click import argument
 from click import option
 from click import Path
-from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
+from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import AzurePowerBIReportService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.credentials import pass_powerbi_token

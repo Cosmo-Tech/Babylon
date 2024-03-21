@@ -5,7 +5,7 @@ from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
-from Babylon.commands.api.solutions.services.security import SolutionSecurityService
+from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 
 
 @command()

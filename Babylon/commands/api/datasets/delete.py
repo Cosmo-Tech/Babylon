@@ -4,7 +4,7 @@ from typing import Any
 from click import command
 from click import option
 
-from Babylon.commands.api.datasets.services.api import DatasetService
+from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment

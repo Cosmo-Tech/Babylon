@@ -4,7 +4,7 @@ import pathlib
 from typing import Any
 from click import Path, command, argument
 from azure.mgmt.kusto import KustoManagementClient
-from Babylon.commands.azure.adx.services.script import AdxScriptService
+from Babylon.commands.azure.adx.services.adx_script_svc import AdxScriptService
 from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse

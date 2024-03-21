@@ -3,7 +3,7 @@ from logging import getLogger
 from typing import Any
 from click import command, argument
 from click import option
-from Babylon.commands.api.scenarios.services.security import (
+from Babylon.commands.api.scenarios.services.scenario_security_svc import (
     ScenarioSecurityService, )
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (

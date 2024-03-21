@@ -6,7 +6,7 @@ from click import command
 from click import argument
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
-from Babylon.commands.webapp.service.api import AzureWebAppService
+from Babylon.commands.webapp.service.webapp_api_svc import AzureWebAppService
 
 logger = logging.getLogger("Babylon")
 

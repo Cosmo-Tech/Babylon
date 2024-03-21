@@ -3,7 +3,7 @@ from typing import Any
 from click import command
 from click import option
 from click import argument
-from Babylon.commands.api.solutions.services.handler import SolutionHandleService
+from Babylon.commands.api.solutions.services.solutions_handler_svc import SolutionHandleService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     retrieve_state,

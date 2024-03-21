@@ -9,7 +9,7 @@ from Babylon.commands.abba.common import dataframe_to_dict
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
-from Babylon.commands.api.scenarioruns.services.api import ScenarioRunService
+from Babylon.commands.api.scenarioruns.services.scenariorun_api_svc import ScenarioRunService
 
 logger = getLogger("Babylon")
 

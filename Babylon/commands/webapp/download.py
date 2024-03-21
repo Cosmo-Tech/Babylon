@@ -5,7 +5,7 @@ from typing import Any
 from click import command
 from click import argument
 from click import Path
-from Babylon.commands.webapp.service.api import AzureWebAppService
+from Babylon.commands.webapp.service.webapp_api_svc import AzureWebAppService
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse

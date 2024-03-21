@@ -10,8 +10,8 @@ from posixpath import basename
 import click
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
-from Babylon.commands.api.solutions.services.api import SolutionService
-from Babylon.commands.api.solutions.services.handler import SolutionHandleService
+from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
+from Babylon.commands.api.solutions.services.solutions_handler_svc import SolutionHandleService
 
 logger = getLogger("Babylon")
 env = Environment()

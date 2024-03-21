@@ -6,7 +6,7 @@ from click import argument, command
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.commands.azure.adx.services.consumer import AdxConsumerService
+from Babylon.commands.azure.adx.services.adx_consumer_svc import AdxConsumerService
 
 logger = logging.getLogger("Babylon")
 env = Environment()

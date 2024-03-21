@@ -9,8 +9,8 @@ from os.path import basename
 from logging import getLogger
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
-from Babylon.commands.api.datasets.services.api import DatasetService
-from Babylon.commands.api.datasets.services.storage import DatasetStorageService
+from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
+from Babylon.commands.api.datasets.services.datasets_storage_svc import DatasetStorageService
 
 logger = getLogger("Babylon")
 env = Environment()

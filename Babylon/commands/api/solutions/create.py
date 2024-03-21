@@ -6,7 +6,7 @@ from click import Path
 from click import argument
 from click import command
 from click import option
-from Babylon.commands.api.solutions.services.api import SolutionService
+from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import injectcontext, retrieve_state

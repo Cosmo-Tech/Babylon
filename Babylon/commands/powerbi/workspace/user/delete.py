@@ -4,7 +4,7 @@ from typing import Any, Optional
 from click import argument
 from click import command
 from click import option
-from Babylon.commands.powerbi.workspace.user.service.api import (
+from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
     AzurePowerBIWorkspaceUserService, )
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse

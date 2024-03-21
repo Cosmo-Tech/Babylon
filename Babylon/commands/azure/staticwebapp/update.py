@@ -6,7 +6,7 @@ from click import command
 from click import argument
 from click import option
 from click import Path
-from Babylon.commands.azure.staticwebapp.services.api import AzureSWAService
+from Babylon.commands.azure.staticwebapp.services.swa_api_svc import AzureSWAService
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_azure_token

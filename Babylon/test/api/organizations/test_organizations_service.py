@@ -7,7 +7,7 @@ from Babylon.commands.api.organizations.delete import delete
 from Babylon.commands.api.organizations.get_all import get_all
 from Babylon.commands.api.organizations.get import get
 from Babylon.commands.api.organizations.update import update
-from Babylon.commands.api.organizations.services.api import OrganizationService
+from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 from requests.models import Response
 
 env = Environment()

@@ -3,7 +3,7 @@ import logging
 from click import option
 from click import command
 from typing import Any, Optional
-from Babylon.commands.azure.ad.services.password import AzureDirectoyPasswordService
+from Babylon.commands.azure.ad.services.ad_password_svc import AzureDirectoyPasswordService
 
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse

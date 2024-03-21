@@ -3,7 +3,7 @@ from typing import Any
 from click import command
 from click import option
 
-from Babylon.commands.api.workspaces.services.api import WorkspaceService
+from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.utils.decorators import (
     injectcontext,
     retrieve_state,

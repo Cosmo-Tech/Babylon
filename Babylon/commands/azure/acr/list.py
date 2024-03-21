@@ -3,7 +3,7 @@ from click import argument, command
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import retrieve_state
-from Babylon.commands.azure.acr.services.api import AzureContainerRegistryService
+from Babylon.commands.azure.acr.services.acr_api_svc import AzureContainerRegistryService
 
 
 @command()

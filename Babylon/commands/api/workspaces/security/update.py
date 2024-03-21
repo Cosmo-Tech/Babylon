@@ -2,7 +2,7 @@ import json
 import logging
 
 from click import argument, command, option
-from Babylon.commands.api.workspaces.services.security import (
+from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment

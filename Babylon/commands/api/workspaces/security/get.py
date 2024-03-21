@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 from click import argument, command
-from Babylon.commands.api.workspaces.services.security import (
+from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import retrieve_state, injectcontext

@@ -3,7 +3,7 @@ import logging
 from typing import Any
 from click import command
 from click import argument, option
-from Babylon.commands.azure.arm.services.api import ArmService
+from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
 
 from Babylon.utils.environment import Environment
 from Babylon.utils.clients import pass_arm_client

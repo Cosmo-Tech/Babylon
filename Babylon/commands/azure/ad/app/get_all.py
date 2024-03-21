@@ -3,7 +3,7 @@ import logging
 from click import option
 from click import command
 from typing import Any, Optional
-from Babylon.commands.azure.ad.services.app import AzureDirectoyAppService
+from Babylon.commands.azure.ad.services.ad_app_svc import AzureDirectoyAppService
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext

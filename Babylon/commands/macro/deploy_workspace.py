@@ -9,26 +9,26 @@ import click
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.services.api import ArmService
+from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
 from azure.mgmt.authorization import AuthorizationManagementClient
-from Babylon.commands.azure.adx.services.script import AdxScriptService
-from Babylon.commands.api.workspaces.services.api import WorkspaceService
-from Babylon.commands.azure.permission.services.api import AzureIamService
-from Babylon.commands.azure.adx.services.consumer import AdxConsumerService
-from Babylon.commands.azure.adx.services.database import AdxDatabaseService
-from Babylon.commands.azure.adx.services.connection import AdxConnectionService
-from Babylon.commands.azure.adx.services.permission import AdxPermissionService
-from Babylon.commands.powerbi.report.service.api import AzurePowerBIReportService
-from Babylon.commands.powerbi.dataset.service.api import AzurePowerBIDatasetService
-from Babylon.commands.powerbi.workspace.service.api import AzurePowerBIWorkspaceService
-from Babylon.commands.powerbi.dataset.parameters.service.api import (
+from Babylon.commands.azure.adx.services.adx_script_svc import AdxScriptService
+from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
+from Babylon.commands.azure.permission.services.iam_api_svc import AzureIamService
+from Babylon.commands.azure.adx.services.adx_consumer_svc import AdxConsumerService
+from Babylon.commands.azure.adx.services.adx_database_svc import AdxDatabaseService
+from Babylon.commands.azure.adx.services.adx_connection_svc import AdxConnectionService
+from Babylon.commands.azure.adx.services.adx_permission_svc import AdxPermissionService
+from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import AzurePowerBIReportService
+from Babylon.commands.powerbi.dataset.services.powerbi_api_svc import AzurePowerBIDatasetService
+from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
+from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import (
     AzurePowerBIParamsService, )
 from Babylon.utils.credentials import (
     get_azure_credentials,
     get_azure_token,
     get_powerbi_token,
 )
-from Babylon.commands.powerbi.workspace.user.service.api import (
+from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
     AzurePowerBIWorkspaceUserService, )
 
 logger = getLogger("Babylon")

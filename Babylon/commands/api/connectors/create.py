@@ -4,7 +4,7 @@ import pathlib
 from typing import Any
 from click import Path, argument
 from click import command
-from Babylon.commands.api.connectors.services.api import (
+from Babylon.commands.api.connectors.services.connectors_svc import (
     ConnectorService, )
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import injectcontext
