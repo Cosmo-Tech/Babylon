@@ -1,7 +1,6 @@
 import json
 import sys
 import click
-import yaml
 
 from logging import getLogger
 from pathlib import Path
@@ -53,10 +52,7 @@ def apply(
             data = payload_file.open().read()
     result = data.replace("{{", "${").replace("}}", "}")
     t = Template(text=result, strict_undefined=True)
-    variables_file = Path().cwd() / "variables.yaml"
-    vars = dict()
-    if variables_file.exists():
-        vars = yaml.safe_load(variables_file.open())
+    vars = env.get_variables()
     flattenstate = flatten(state.get("services"), separator=".")
     payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)

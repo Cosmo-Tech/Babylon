@@ -1,7 +1,6 @@
 import json
 import sys
 import click
-import yaml
 
 from pathlib import Path
 from select import select
@@ -46,11 +45,7 @@ def apply(state: dict, azure_token: str, organization_id: str, solution_id: str,
             data = payload_file.open().read()
     result = data.replace("{{", "${").replace("}}", "}")
     t = Template(text=result, strict_undefined=True)
-    values_file = Path().cwd() / "variables.yaml"
-    vars = dict()
-    if values_file.exists():
-        logger.info("variables.yaml found")
-        vars = yaml.safe_load(values_file.open())
+    vars = env.get_variables()
     flattenstate = flatten(state.get("services"), separator=".")
     payload = t.render(**vars, services=flattenstate)
     payload_json = yaml_to_json(payload)

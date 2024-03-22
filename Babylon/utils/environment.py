@@ -69,13 +69,18 @@ class Environment(metaclass=SingletonMeta):
         }
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
 
+    def get_variables(self):
+        variables_file = self.pwd / "variables.yaml"
+        vars = dict()
+        if variables_file.exists():
+            logger.debug(f"Loading variables from {variables_file}")
+            vars = yaml.safe_load(variables_file.open()) or dict()
+        return vars
+
     def get_ns_from_text(self, content: str):
         result = content.replace("services", "")
         t = Template(text=result, strict_undefined=True)
-        values_file = Path().cwd() / "variables.yaml"
-        vars = dict()
-        if values_file.exists():
-            vars = yaml.safe_load(values_file.open())
+        vars = self.get_variables()
         payload = t.render(**vars)
         payload_dict = yaml.safe_load(payload)
         context_id = payload_dict.get("context", "")
@@ -106,12 +111,10 @@ class Environment(metaclass=SingletonMeta):
         return platform_url
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
-        t = Template(text=data, strict_undefined=True)
-        values_file = Path().cwd() / "variables.yaml"
-        vars = dict()
+        result = data.replace("{{", "${").replace("}}", "}")
+        t = Template(text=result, strict_undefined=True)
+        vars = self.get_variables()
         flattenstate = dict()
-        if values_file.exists():
-            vars = yaml.safe_load(values_file.open())
         if ext_args:
             vars.update(ext_args)
         if state:
