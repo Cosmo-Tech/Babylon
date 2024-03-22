@@ -24,55 +24,49 @@ def apply(deploy_dir: pathlib.Path):
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
     files = list(pathlib.Path(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
-    heads = []
+    resources = []
     for f in files_to_deploy:
-        head_ = dict()
+        resource = dict()
         with open(f) as input_file:
-            heads_list = [next(input_file) for _ in range(7)]
-            head_text = "".join(heads_list)
-            result = head_text.replace("{{", "${").replace("}}", "}")
-            head = yaml.safe_load(result)
-            head_['kind'] = head.get('kind')
-            head_['head'] = head_text
-            head_['path'] = pathlib.Path(f).absolute()
-            heads.append(head_)
+            content = input_file.read()
+            escaped_content = content.replace("{{", "${").replace("}}", "}")
+            yaml_data = yaml.safe_load(escaped_content)
+            resource['kind'] = yaml_data.get('kind')
+            resource['namespace'] = yaml.safe_dump(yaml_data.get('namespace'))
+            resource['content'] = escaped_content
+            resources.append(resource)
 
-    organizations = list(filter(lambda x: x.get('kind') == "Organization", heads))
-    solutions = list(filter(lambda x: x.get('kind') == "Solution", heads))
-    workspaces = list(filter(lambda x: x.get('kind') == "Workspace", heads))
-    webapps = list(filter(lambda x: x.get('kind') == "WebApp", heads))
-    datasets = list(filter(lambda x: x.get('kind') == "Dataset", heads))
+    organizations = list(filter(lambda x: x.get('kind') == "Organization", resources))
+    solutions = list(filter(lambda x: x.get('kind') == "Solution", resources))
+    workspaces = list(filter(lambda x: x.get('kind') == "Workspace", resources))
+    webapps = list(filter(lambda x: x.get('kind') == "WebApp", resources))
+    datasets = list(filter(lambda x: x.get('kind') == "Dataset", resources))
 
     for o in organizations:
-        p = pathlib.Path(o.get('path'))
-        content = p.open().read()
-        head = o.get('head')
-        deploy_organization(head=head, file_content=content)
+        content = o.get('content')
+        namespace = o.get('namespace')
+        deploy_organization(namespace=namespace, file_content=content)
 
     for s in solutions:
-        p = pathlib.Path(s.get('path'))
-        content = p.open().read()
-        head = s.get('head')
-        deploy_solution(head=head, file_content=content, deploy_dir=deploy_dir)
+        content = s.get('content')
+        namespace = s.get('namespace')
+        deploy_solution(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
 
     for swa in webapps:
-        p = pathlib.Path(swa.get('path'))
-        content = p.open().read()
-        head = swa.get('head')
-        deploy_swa(head=head, file_content=content)
+        content = swa.get('content')
+        namespace = swa.get('namespace')
+        deploy_swa(namespace=namespace, file_content=content)
 
     for w in workspaces:
-        p = pathlib.Path(w.get('path'))
-        content = p.open().read()
-        head = w.get('head')
-        deploy_workspace(head=head, file_content=content, deploy_dir=deploy_dir)
+        content = w.get('content')
+        namespace = w.get('namespace')
+        deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
 
     final_datasets = []
     for d in datasets:
-        p = pathlib.Path(d.get('path'))
-        content = p.open().read()
-        head = d.get('head')
-        deployed_dataset_id = deploy_dataset(head=head, file_content=content, deploy_dir=deploy_dir)
+        content = d.get('content')
+        namespace = d.get('namespace')
+        deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
         if deployed_dataset_id:
             final_datasets.append(deployed_dataset_id)
 

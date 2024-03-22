@@ -23,12 +23,12 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_swa(head: str, file_content: str):
+def deploy_swa(namespace: str, file_content: str):
     _ret = [""]
     _ret.append("Webapp deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=head)
+    platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
