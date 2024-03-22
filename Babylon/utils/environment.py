@@ -70,8 +70,7 @@ class Environment(metaclass=SingletonMeta):
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
 
     def get_ns_from_text(self, content: str):
-        result = content.replace("{{", "${").replace("}}", "}")
-        result = result.replace("services", "")
+        result = content.replace("services", "")
         t = Template(text=result, strict_undefined=True)
         values_file = Path().cwd() / "variables.yaml"
         vars = dict()
@@ -79,13 +78,12 @@ class Environment(metaclass=SingletonMeta):
             vars = yaml.safe_load(values_file.open())
         payload = t.render(**vars)
         payload_dict = yaml.safe_load(payload)
-        ns = payload_dict.get("namespace")
-        context_id = ns.get("context", "")
-        state_id = ns.get("state_id", "")
+        context_id = payload_dict.get("context", "")
+        state_id = payload_dict.get("state_id", "")
         if not state_id:
             logger.error("state id is mandatory")
             sys.exit(1)
-        plt_obj = ns.get("platform", {})
+        plt_obj = payload_dict.get("platform", {})
         platform_id = plt_obj.get("id", "")
         if not platform_id:
             logger.error("platform id is mandatory")
@@ -108,8 +106,7 @@ class Environment(metaclass=SingletonMeta):
         return platform_url
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
-        result = data.replace("{{", "${").replace("}}", "}")
-        t = Template(text=result, strict_undefined=True)
+        t = Template(text=data, strict_undefined=True)
         values_file = Path().cwd() / "variables.yaml"
         vars = dict()
         flattenstate = dict()

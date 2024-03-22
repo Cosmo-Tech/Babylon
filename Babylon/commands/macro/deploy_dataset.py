@@ -16,12 +16,12 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_dataset(head: str, file_content: str, deploy_dir: pathlib.Path) -> dict:
+def deploy_dataset(namespace: str, file_content: str, deploy_dir: pathlib.Path) -> dict:
     _ret = [""]
     _ret.append("Dataset deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=head)
+    platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
     state["services"]["azure"]["tenant_id"] = env.tenant_id
