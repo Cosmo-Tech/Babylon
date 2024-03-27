@@ -97,11 +97,6 @@ class Environment(metaclass=SingletonMeta):
         if not platform_url:
             logger.error("url is mandatory")
             sys.exit(1)
-        url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
-        match_content = url_.match(platform_url)
-        if not match_content:
-            logger.error("url not match")
-            sys.exit(1)
         self.set_state_id(state_id=state_id)
         self.set_context(context_id=context_id)
         self.set_environ(environ_id=platform_id)
