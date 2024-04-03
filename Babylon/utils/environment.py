@@ -14,6 +14,7 @@ from cryptography.fernet import Fernet
 from flatten_json import flatten
 from Babylon.config import config_files
 from azure.storage.blob import BlobServiceClient
+from azure.core.exceptions import ResourceNotFoundError
 
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
@@ -296,7 +297,12 @@ class Environment(metaclass=SingletonMeta):
 
     def store_state_in_cloud(self, state: dict):
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
+        try:
+            state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
+        except ResourceNotFoundError:
+            logger.debug("Container 'babylon-states' not found. Creating it...")
+            self.blob_client.create_container("babylon-states")
+            state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
         if state_blob.exists():
             state_blob.delete_blob()
         state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
