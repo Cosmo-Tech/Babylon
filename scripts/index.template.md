@@ -18,6 +18,6 @@ cd Babylon
 pip install .
 ```
 
-The full installation guide is present there : [![Installation](https://img.shields.io/badge/Installation-%23121011.svg?style=for-the-badge&logoColor=black)](getting_started/installation/)
+The full installation guide is present there : [![Installation](https://img.shields.io/badge/Installation-%23121011.svg?style=for-the-badge&logoColor=black)](getting_started/installation.md)
 
 After installation, you should have access to the `babylon` command.
