@@ -57,25 +57,24 @@ def create(
         return CommandResponse.fail()
     dataset = response.json()
     dataset_id = dataset.get('id')
-    match source_type:
-        case "None":
-            logger.info(f"Successfully created dataset {dataset_id}")
-            return CommandResponse.success(dataset, verbose=True)
-        case "File":
-            if not dataset_zip or not dataset_zip.exists():
-                logger.error(f"File {dataset_zip} not found in directory")
-                sys.exit(1)
-            elif dataset_zip.suffix != ".zip":
-                logger.error("File to create a dataset must be a zip")
-                sys.exit(1)
-            service.upload(dataset_id=dataset_id, zip_file=dataset_zip)
-            when_not_none(service=service, dataset_id=dataset_id)
-        case "ADT":
-            service.refresh(dataset_id=dataset_id)
-            when_not_none(service=service, dataset_id=dataset_id)
-        case "AzureStorage":
-            service.refresh(dataset_id=dataset_id)
-            when_not_none(service=service, dataset_id=dataset_id)
+    if source_type == "None":
+        logger.info(f"Successfully created dataset {dataset_id}")
+        return CommandResponse.success(dataset, verbose=True)
+    elif source_type == "File":
+        if not dataset_zip or not dataset_zip.exists():
+            logger.error(f"File {dataset_zip} not found in directory")
+            sys.exit(1)
+        elif dataset_zip.suffix != ".zip":
+            logger.error("File to create a dataset must be a zip")
+            sys.exit(1)
+        service.upload(dataset_id=dataset_id, zip_file=dataset_zip)
+        when_not_none(service=service, dataset_id=dataset_id)
+    elif source_type == "ADT":
+        service.refresh(dataset_id=dataset_id)
+        when_not_none(service=service, dataset_id=dataset_id)
+    elif source_type == "AzureStorage":
+        service.refresh(dataset_id=dataset_id)
+        when_not_none(service=service, dataset_id=dataset_id)
 
     if state['services']["api"]["workspace_id"]:
         linked_dataset_response = service.link_to_workspace(dataset_id=dataset_id)
