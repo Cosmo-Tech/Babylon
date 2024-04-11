@@ -40,11 +40,14 @@ class SolutionHandleService:
             container=self.organization_id,
             blob=f"{self.solution_id}/{run_template_id}/{handler_id}.zip",
         )
+        if not client.exists():
+            logger.info("[api] handler file not found")
+            sys.exit(1)
         data = client.download_blob().readall()
-        zf = zipfile.ZipFile("data.zip", mode="w", compression=zipfile.ZIP_DEFLATED)
+        zf = zipfile.ZipFile(f"{handler_id}.zip", mode="w", compression=zipfile.ZIP_DEFLATED)
         zf.writestr(basename(client.blob_name), data)
         zf.extractall(".")
-        os.remove("data.zip")
+        os.remove(f"{handler_id}.zip")
         logger.info("[api] successfully downloaded handler file")
 
     def upload(self, run_template_id: str, handler_id: str, handler_path: Path, override: bool):
