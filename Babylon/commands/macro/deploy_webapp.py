@@ -98,8 +98,8 @@ def deploy_swa(namespace: str, file_content: str):
             if workflow_github:
                 github_svc.cancel(run_url=workflow_github)
             time.sleep(5)
-        if state['services']['webapp']['static_domain']:
-            swa_url = f'https://{state['services']['webapp']['static_domain']}/sign-in'
+        if state["services"]["webapp"]["static_domain"]:
+            swa_url = f"https://{state['services']['webapp']['static_domain']}/sign-in"
             app_section_payload = app_section.get('payload', {})
             if swa_url not in app_section_payload['spa']['redirectUris']:
                 app_section_payload['spa']['redirectUris'].append(swa_url)
