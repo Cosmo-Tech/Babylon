@@ -47,6 +47,8 @@ def deploy_swa(namespace: str, file_content: str):
         state['services']['github']['repository'] = github_section.get('repository_name', "")
         state['services']["github"]["branch"] = github_section.get('branch', "")
     app_section = sidecars.get('azure').get('app', {})
+    azure_token = get_azure_token("graph")
+    app_svc = AzureDirectoyAppService(azure_token=azure_token, state=state.get('services'))
     if app_section:
         to_create = app_section.get('create', False)
         if not to_create:
@@ -55,8 +57,6 @@ def deploy_swa(namespace: str, file_content: str):
             env.store_state_in_local(state)
             env.store_state_in_cloud(state)
         if to_create:
-            azure_token = get_azure_token("graph")
-            app_svc = AzureDirectoyAppService(azure_token=azure_token, state=state.get('services'))
             details = json.dumps(obj=app_section.get('payload', {}), indent=4, ensure_ascii=True)
             object_id = state['services']['app']["object_id"]
             get_app = app_svc.get(object_id=object_id)
@@ -77,8 +77,6 @@ def deploy_swa(namespace: str, file_content: str):
                 logger.info(f'adding app to group powerbi {group_id}')
                 group_svc = AzureDirectoyMemberService(azure_token=azure_token)
                 group_svc.add(group_id=group_id, principal_id=state['services']['app']["principal_id"])
-            else:
-                app_svc.update(object_id=object_id, details=details)
     swa_name = payload.get('name', "")
     swa = dict()
     if payload:
@@ -100,6 +98,14 @@ def deploy_swa(namespace: str, file_content: str):
             if workflow_github:
                 github_svc.cancel(run_url=workflow_github)
             time.sleep(5)
+        if state['services']['webapp']['static_domain']:
+            swa_url = f'https://{state['services']['webapp']['static_domain']}/sign-in'
+            app_section_payload = app_section.get('payload', {})
+            if swa_url not in app_section_payload['spa']['redirectUris']:
+                app_section_payload['spa']['redirectUris'].append(swa_url)
+                details = json.dumps(obj=app_section_payload, indent=4, ensure_ascii=True)
+                object_id = state['services']['app']["object_id"]
+                app_svc.update(object_id=object_id, details=details)
         workflow_name = state['services']['webapp']['static_domain'].split(".")[0]
         webapp_svc = AzureWebAppService(state=state.get('services'))
         webapp_svc.download(webapp_path)
