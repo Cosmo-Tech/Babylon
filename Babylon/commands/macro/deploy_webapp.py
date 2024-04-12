@@ -38,6 +38,8 @@ def deploy_swa(namespace: str, file_content: str):
     workspace_key = state['services']['api']['workspace_key']
     obi_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="pbi")
     ext_args = dict(github_secret=github_secret, secret_powerbi=obi_secret)
+    file_content_obj = yaml.safe_load(file_content)
+    config = json.dumps(obj=file_content_obj.get("spec").get('sidecars').get('config', {}), indent=4, ensure_ascii=True)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     sidecars = content.get("spec").get("sidecars", {})
     payload: dict = content.get("spec").get("payload", {})
@@ -109,7 +111,6 @@ def deploy_swa(namespace: str, file_content: str):
         workflow_name = state['services']['webapp']['static_domain'].split(".")[0]
         webapp_svc = AzureWebAppService(state=state.get('services'))
         webapp_svc.download(webapp_path)
-        config = yaml.dump(sidecars.get('config', {}))
         c_path = Path().cwd() / "webapp_src/config.json"
         webapp_svc.export_config(data=config, config_path=c_path)
         time.sleep(5)
