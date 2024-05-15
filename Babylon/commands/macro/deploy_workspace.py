@@ -1,12 +1,10 @@
 import os
 import sys
 import json
+import click
 import pathlib
 
 from logging import getLogger
-
-import click
-import yaml
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
@@ -19,14 +17,18 @@ from Babylon.commands.azure.adx.services.adx_consumer_svc import AdxConsumerServ
 from Babylon.commands.azure.adx.services.adx_database_svc import AdxDatabaseService
 from Babylon.commands.azure.adx.services.adx_connection_svc import AdxConnectionService
 from Babylon.commands.azure.adx.services.adx_permission_svc import AdxPermissionService
-from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import AzurePowerBIReportService
-from Babylon.commands.powerbi.dataset.services.powerbi_api_svc import AzurePowerBIDatasetService
-from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
+from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import (
+    AzurePowerBIReportService, )
+from Babylon.commands.powerbi.dataset.services.powerbi_api_svc import (
+    AzurePowerBIDatasetService, )
+from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import (
+    AzurePowerBIWorkspaceService, )
 from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import (
     AzurePowerBIParamsService, )
 from Babylon.utils.credentials import (
     get_azure_credentials,
     get_azure_token,
+    get_default_token,
     get_powerbi_token,
 )
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
@@ -41,17 +43,14 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     _ret.append("Workspace deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=namespace)
+    platform_url, workspace_key = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
     state["services"]["azure"]["tenant_id"] = env.tenant_id
-    azure_credential = get_azure_credentials()
-    selector = yaml.safe_load(file_content)
-    selector_organization_id = selector.get('spec').get('selector').get('organization_id')
-    state["services"]["api"]["organization_id"] = selector_organization_id
+
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state["services"]["api"]["organization_id"]
-    workspace_key = state["services"]["api"]["workspace_key"]
+    workspace_key = workspace_key or state["services"]["api"]["workspace_key"]
     azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
     ext_args = dict(azure_function_secret=azf_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
@@ -98,7 +97,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 logger.error("[powerbi] PowerBI workspace name is mandatory")
                 sys.exit(1)
             workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
-            if name not in workspaceli_list_name:
+            if workspaceli_list_name and name not in workspaceli_list_name:
                 logger.info(f"[powerbi] creating PowerBI Workspace {name}")
                 w = powerbi_svc.create(name=name)
                 state["services"]["powerbi"]["workspace.id"] = w.get("id")
@@ -107,11 +106,13 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
             else:
                 logger.info(f"[powerbi] PowerBI Workspace '{name}' already exists")
             work_obj = powerbi_svc.get_by_name_or_id(name=name)
-            state["services"]["powerbi"]["workspace.id"] = work_obj.get("id")
-            env.store_state_in_local(state)
-            env.store_state_in_cloud(state)
+            if work_obj:
+                state["services"]["powerbi"]["workspace.id"] = work_obj.get("id")
+                env.store_state_in_local(state)
+                env.store_state_in_cloud(state)
             user_svc = AzurePowerBIWorkspaceUserService(powerbi_token=po_token, state=state.get("services"))
-            existing_permissions = user_svc.get_all(workspace_id=work_obj.get("id"), filter="[].identifier")
+            work_obj_id = state["services"]["powerbi"]["workspace.id"]
+            existing_permissions = user_svc.get_all(workspace_id=work_obj_id, filter="[].identifier")
             spec_permissions = workspace_powerbi.get("permissions", [])
             if len(spec_permissions):
                 ids = [i.get("identifier") for i in spec_permissions]
@@ -161,6 +162,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                             report_type=rtype,
                             override=True,
                         )
+                        po_token = get_default_token() or po_token
                         for d in report_obj.get("datasets", []):
                             if d:
                                 dataset_svc = AzurePowerBIDatasetService(powerbi_token=po_token,
@@ -169,6 +171,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                     workspace_id=work_obj.get("id"),
                                     dataset_id=d.get("id"),
                                 )
+                                parameters_svc = AzurePowerBIParamsService(powerbi_token=po_token,
+                                                                           state=state.get("services"))
                                 if len(params):
                                     parameters_svc.update(
                                         workspace_id=work_obj.get("id"),
@@ -176,6 +180,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                         params=params,
                                     )
                         logger.info(f"[powerbi] report {name} successfully imported")
+    azure_credential = get_azure_credentials()
     if adx_section:
         ok = True
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
@@ -233,7 +238,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = ArmService(arm_client=arm_client, state=state.get("services"))
-        to_create = eventhub_section.get('create', True)
+        to_create = eventhub_section.get("create", True)
         if to_create:
             deployment_name = f"{organization_id}-evn-{work_key}"
             adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")

@@ -25,7 +25,7 @@ class AzurePowerBIWorkspaceService:
             type="POST",
         )
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json()
         return output_data
 
@@ -46,7 +46,7 @@ class AzurePowerBIWorkspaceService:
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:
-            return CommandResponse.fail()
+            return None
         output_data = response.json().get("value")
         if len(output_data) and filter:
             output_data = jmespath.search(filter, output_data)
@@ -58,11 +58,11 @@ class AzurePowerBIWorkspaceService:
         params = {"$filter": f"id eq '{workspace_id}'"}
         response = oauth_request(url_groups, self.powerbi_token, params=params)
         if response is None:
-            return CommandResponse.fail()
+            return None
         workspace_data = response.json().get('value')
         if not workspace_data:
             logger.error(f"{workspace_id} not found")
-            return CommandResponse.fail()
+            return None
         return workspace_data
 
     def get_by_name_or_id(self, name: str, workspace_id: str = ""):
@@ -70,11 +70,11 @@ class AzurePowerBIWorkspaceService:
         params = {"$filter": f"id eq '{workspace_id}'"} if workspace_id else {"$filter": f"name eq '{name}'"}
         response = oauth_request(url_groups, self.powerbi_token, params=params)
         if response is None:
-            return CommandResponse.fail()
+            return None
         workspace_data = response.json().get('value')
         if not workspace_data:
             logger.error(f"{name} not found")
-            return CommandResponse.fail()
+            return None
         if len(workspace_data):
             workspace_id = workspace_data[0]['id']
             return workspace_data[0]
