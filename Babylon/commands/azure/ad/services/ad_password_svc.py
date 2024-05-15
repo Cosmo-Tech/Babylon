@@ -29,7 +29,7 @@ class AzureDirectoyPasswordService:
         output_data = response.json()
         d = dict(secret=output_data['secretText'])
         prefix = f'{env.organization_name}/{env.tenant_id}/projects/{env.context_id}'
-        schema = f'{prefix}/{env.environ_id}/{org_id.lower()}/{work_key.lower()}/{password_name.lower()}'
+        schema = f'{prefix}/{env.environ_id}/{org_id}/{work_key}/{password_name}'.lower()
         env.hvac_client.write(path=schema, **d)
         logger.info("Successfully created")
         return output_data
