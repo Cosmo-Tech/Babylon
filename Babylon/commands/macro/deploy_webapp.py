@@ -28,7 +28,7 @@ def deploy_swa(namespace: str, file_content: str):
     _ret.append("Webapp deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=namespace)
+    platform_url, workspace_key = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
@@ -68,11 +68,11 @@ def deploy_swa(namespace: str, file_content: str):
                 state['services']['app']["name"] = app_created.get("appDisplayName")
                 state['services']['app']["principal_id"] = app_created.get("id")
                 state['services']['app']["object_id"] = sp.get("id")
+                app_secrets = AzureDirectoyPasswordService(azure_token=azure_token, state=state.get('services'))
+                app_secrets.create(object_id=sp.get("id", None), password_name="pbi")
+                app_secrets.create(object_id=sp.get("id", None), password_name="azf")
                 env.store_state_in_local(state)
                 env.store_state_in_cloud(state)
-                app_secrets = AzureDirectoyPasswordService(azure_token=azure_token, state=state.get('services'))
-                app_secrets.create(object_id=sp["id"], password_name="pbi")
-                app_secrets.create(object_id=sp["id"], password_name="azf")
             group_id = sidecars.get('powerbi', {}).get('group_id', '')
             add_to_group_powerbi = sidecars.get('azure').get('app', {}).get('add_to_powerbi', False)
             if group_id and add_to_group_powerbi:

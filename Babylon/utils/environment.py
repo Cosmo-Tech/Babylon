@@ -103,7 +103,7 @@ class Environment(metaclass=SingletonMeta):
         self.set_server_id()
         self.set_org_name()
         self.set_blob_client()
-        return platform_url
+        return platform_url, vars.get('workspace_key', "")
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
