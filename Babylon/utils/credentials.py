@@ -4,17 +4,27 @@ import logging
 from functools import wraps
 from typing import Callable
 from typing import Any
+from click import option
 from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import ClientSecretCredential
 from azure.identity import CredentialUnavailableError
-from click import option
-
+from azure.identity import DefaultAzureCredential
 from Babylon.utils.checkers import check_email
 from Babylon.utils.response import CommandResponse
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 env = Environment()
+
+
+def get_default_token():
+    try:
+        credential = DefaultAzureCredential()
+        token = credential.get_token("https://analysis.windows.net/powerbi/api/.default")
+        return token.token
+    except Exception as exp:
+        logger.info(exp)
+        return None
 
 
 def get_powerbi_token(email: str = None) -> str:

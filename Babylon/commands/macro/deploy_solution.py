@@ -22,7 +22,7 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     _ret.append("Solution deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=namespace)
+    platform_url, workspace_key = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
