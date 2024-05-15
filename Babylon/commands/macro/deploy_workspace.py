@@ -6,6 +6,7 @@ import pathlib
 from logging import getLogger
 
 import click
+import yaml
 from Babylon.utils.environment import Environment
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
@@ -45,6 +46,9 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     state["services"]["api"]["url"] = platform_url
     state["services"]["azure"]["tenant_id"] = env.tenant_id
     azure_credential = get_azure_credentials()
+    selector = yaml.safe_load(file_content)
+    selector_organization_id = selector.get('spec').get('selector').get('organization_id')
+    state["services"]["api"]["organization_id"] = selector_organization_id
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state["services"]["api"]["organization_id"]
     workspace_key = state["services"]["api"]["workspace_key"]
@@ -62,6 +66,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     if not state["services"]["api"]["workspace_id"]:
         logger.info("[api] creating workspace")
         response = workspace_svc.create()
+        if not response:
+            sys.exit(1)
         workspace = response.json()
         logger.info(f"[api] workspace {workspace.get('id')} successfully created")
         logger.info(json.dumps(workspace, indent=2))
@@ -227,8 +233,10 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
         iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
         adx_svc = ArmService(arm_client=arm_client, state=state.get("services"))
-        deployment_name = f"{organization_id}-evn-{work_key}"
-        adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")
+        to_create = eventhub_section.get('create', True)
+        if to_create:
+            deployment_name = f"{organization_id}-evn-{work_key}"
+            adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")
         arm_svc = AzureIamService(iam_client=iam_client, state=state.get("services"))
         principal_id = state["services"]["adx"]["cluster_principal_id"]
         resource_type = "Microsoft.EventHub/Namespaces"
