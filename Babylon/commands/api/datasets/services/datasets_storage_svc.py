@@ -23,7 +23,7 @@ class DatasetStorageService:
             return None
         client = env.blob_client.get_blob_client(
             container=self.organization_id,
-            blob=f"{workspace_id}/datasets/{dataset_dir_name}/{dataset_name}.csv",
+            blob=f"{workspace_id}/datasets/{dataset_dir_name}/{dataset_name}",
         )
         if override and client.exists():
             client.delete_blob()
