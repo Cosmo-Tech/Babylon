@@ -4,7 +4,6 @@ from uuid import uuid4
 from Babylon.utils.checkers import check_ascii
 from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.kusto.models import EventHubDataConnection
-
 from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")

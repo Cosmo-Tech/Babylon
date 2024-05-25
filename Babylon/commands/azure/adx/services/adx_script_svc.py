@@ -1,13 +1,16 @@
 import glob
 import logging
+import time
 
 from pathlib import Path
 from click import progressbar
 from azure.mgmt.kusto import KustoManagementClient
+from azure.kusto.data import KustoClient, KustoConnectionStringBuilder
 from azure.core.exceptions import HttpResponseError
-from Babylon.utils.response import CommandResponse
+from Babylon.utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 class AdxScriptService:
@@ -15,6 +18,9 @@ class AdxScriptService:
     def __init__(self, kusto_client: KustoManagementClient, state: dict = None) -> None:
         self.state = state
         self.kusto_client = kusto_client
+        config = env.get_state_from_vault_by_platform(env.environ_id)
+        self.babylon_client_id = config["babylon"]["client_id"]
+        self.baby_client_secret = env.get_env_babylon(name="client", environ_id=env.environ_id)
 
     def get_all(self):
         resource_group_name = self.state["azure"]["resource_group_name"]
@@ -36,7 +42,7 @@ class AdxScriptService:
         files = glob.glob(str(script_folder.absolute() / "*.kql"))
         if not files:
             logger.error(f"No script found in path {script_folder.absolute()}")
-            return CommandResponse.fail()
+            return None
         for _file in files[::-1]:
             file_path = Path(_file)
             logger.info(f"Found script {file_path} sending it to the database.")
@@ -71,3 +77,27 @@ class AdxScriptService:
             except HttpResponseError as _resp_error:
                 logger.error(_resp_error.message.split("\nMessage:")[1])
             logger.info("Successfully ran")
+
+    def execute_query(self, script_file: Path):
+        adx_cluster_name = self.state["adx"]["cluster_name"]
+        database_name = self.state["adx"]["database_name"]
+        if script_file.suffix != ".kql":
+            logger.warning(f"File {script_file.name} is not a kql file. Errors could happen.")
+        with open(script_file) as _script_file:
+            script_content = _script_file.read().replace("<database_name>", database_name)
+            kbsc = KustoConnectionStringBuilder.with_aad_application_key_authentication(
+                aad_app_id=self.babylon_client_id,
+                app_key=self.baby_client_secret,
+                authority_id=env.tenant_id,
+                connection_string=f"https://{adx_cluster_name}.westeurope.kusto.windows.net")
+            kusto_client = KustoClient(kcsb=kbsc)
+            try:
+                s = kusto_client.execute_mgmt(database=database_name, query=script_content)
+                with progressbar(length=20, label="Waiting for script to finish") as bar:
+                    for _ in bar:
+                        if not s.primary_results:
+                            time.sleep(1)
+                    while not s.primary_results:
+                        time.sleep(1)
+            except Exception as exp:
+                print(exp)
