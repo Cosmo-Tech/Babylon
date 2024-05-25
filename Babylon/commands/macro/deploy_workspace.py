@@ -232,7 +232,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                         name = s.get("name")
                         path_end = s.get("path")
                         path_abs = pathlib.Path(deploy_dir) / f"{path_end}/{name}"
-                        scripts_svc.run(path_abs.absolute(), script_id=s.get("id"))
+                        scripts_svc.execute_query(path_abs.absolute())
     if eventhub_section:
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)

@@ -1,6 +1,8 @@
 import pathlib
 
 from logging import getLogger
+
+from click import progressbar
 from Babylon.utils.environment import Environment
 from azure.core.exceptions import HttpResponseError
 from azure.mgmt.resource import ResourceManagementClient
@@ -54,14 +56,19 @@ class ArmService:
                 parameters=Deployment(
                     properties=DeploymentProperties(mode=mode, template=arm_template, parameters=parameters)),
             )
-            poller.wait()
+            with progressbar(length=20, label="Waiting for provisioning to finish") as bar:
+                for _ in bar:
+                    if not poller.done():
+                        poller.wait(1)
+                while not poller.done():
+                    poller.wait(1)
             if not poller.done():
-                return CommandResponse.fail()
+                return None
         except HttpResponseError as _e:
             logger.error(f"An error occurred : {_e.message}")
-            return CommandResponse.fail()
+            return None
         logger.info(f"[arm] provisioning state {file}: successful")
-        return CommandResponse.success()
+        return None
 
     def delete_event_hub(self):
         subscription_id = self.state["azure"]["subscription_id"]
@@ -74,7 +81,12 @@ class ArmService:
                 f"/providers/Microsoft.EventHub/namespaces/{organization_id}-{workspace_key}",
                 api_version="2017-04-01",
             )
-            poller.wait()
+            with progressbar(length=20, label="Waiting for provisioning to finish") as bar:
+                for _ in bar:
+                    if not poller.done():
+                        poller.wait(1)
+                while not poller.done():
+                    poller.wait(1)
             # check if done
             if not poller.done():
                 return False

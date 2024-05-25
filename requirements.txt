@@ -2,6 +2,8 @@
 azure-identity
 azure-mgmt-subscription
 azure-mgmt-kusto
+azure-kusto-data
+azure-kusto-ingest
 msrest
 
 # Azure services requirements
