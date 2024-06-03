@@ -28,7 +28,6 @@ from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import (
 from Babylon.utils.credentials import (
     get_azure_credentials,
     get_azure_token,
-    get_default_token,
     get_powerbi_token,
 )
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
@@ -97,7 +96,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 logger.error("[powerbi] PowerBI workspace name is mandatory")
                 sys.exit(1)
             workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
-            if workspaceli_list_name and name not in workspaceli_list_name:
+            if name not in workspaceli_list_name:
                 logger.info(f"[powerbi] creating PowerBI Workspace {name}")
                 w = powerbi_svc.create(name=name)
                 state["services"]["powerbi"]["workspace.id"] = w.get("id")
@@ -162,7 +161,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                             report_type=rtype,
                             override=True,
                         )
-                        po_token = get_default_token() or po_token
                         for d in report_obj.get("datasets", []):
                             if d:
                                 dataset_svc = AzurePowerBIDatasetService(powerbi_token=po_token,
