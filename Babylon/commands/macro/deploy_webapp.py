@@ -32,10 +32,10 @@ def deploy_swa(namespace: str, file_content: str):
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
+    state["services"]["api"]["workspace_key"] = workspace_key
     subscription_id = state["services"]["azure"]["subscription_id"]
     github_secret = env.get_global_secret(resource="github", name="token")
     organization_id = state['services']['api']['organization_id']
-    workspace_key = state['services']['api']['workspace_key']
     obi_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="pbi")
     ext_args = dict(github_secret=github_secret, secret_powerbi=obi_secret)
     file_content_obj = yaml.safe_load(file_content)
