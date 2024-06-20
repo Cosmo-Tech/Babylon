@@ -54,9 +54,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     ext_args = dict(azure_function_secret=azf_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
     payload: dict = content.get("spec").get("payload")
-    work_key = payload.get("key")
-    state["services"]["api"]["workspace_key"] = work_key
-    state["services"]["adx"]["database_name"] = f"{organization_id}-{work_key}"
+    state["services"]["adx"]["database_name"] = f"{organization_id}-{workspace_key}"
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     azure_token = get_azure_token("csm_api")

@@ -412,21 +412,20 @@ class Environment(metaclass=SingletonMeta):
         self.set_org_name()
         self.set_blob_client()
         return platform_url
-    
-    def init_workspace_key_from_yaml (self, vars):
+
+    def init_workspace_key_from_yaml(self, vars):
         workspace_file = self.pwd / "project" / "workspace.yaml"
         if not workspace_file.exists():
             logger.error(f"{workspace_file} not found")
             sys.exit(1)
         workspace_content = workspace_file.open().read()
-        workspace_content_replace = workspace_content.replace("{{", "${").replace("}}", "}").replace("services", "")
+        workspace_content_replace = (workspace_content.replace("{{", "${").replace("}}", "}").replace("services", ""))
         t = Template(text=workspace_content_replace, strict_undefined=True)
         payload = t.render(**vars)
         payload_dict = yaml.safe_load(payload)
-        key =  payload_dict.get("spec").get("payload", {}).get("key")
-        if(key == "" or key is None):
+        key = payload_dict.get("spec").get("payload", {}).get("key")
+        if key == "" or key is None:
             logger.error("The key parameter in workspace payload is empty ")
             sys.exit(1)
 
         return key
-
