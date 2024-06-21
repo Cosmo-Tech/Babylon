@@ -77,7 +77,7 @@ class Environment(metaclass=SingletonMeta):
             vars = yaml.safe_load(variables_file.open()) or dict()
         return vars
 
-    def get_ns_from_text(self, content: str):
+    def get_ns_from_text(self, content: str, file_content: str):
         result = content.replace("services", "")
         t = Template(text=result, strict_undefined=True)
         vars = self.get_variables()
@@ -94,6 +94,7 @@ class Environment(metaclass=SingletonMeta):
             logger.error("platform id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
+        metadatas = self.get_metadata(vars, file_content)
         if not platform_url:
             logger.error("url is mandatory")
             sys.exit(1)
@@ -103,7 +104,7 @@ class Environment(metaclass=SingletonMeta):
         self.set_server_id()
         self.set_org_name()
         self.set_blob_client()
-        return platform_url, vars.get('workspace_key', self.init_workspace_key_from_yaml(vars))
+        return platform_url, metadatas.get('workspace_key')
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -413,19 +414,10 @@ class Environment(metaclass=SingletonMeta):
         self.set_blob_client()
         return platform_url
 
-    def init_workspace_key_from_yaml(self, vars):
-        workspace_file = self.pwd / "project" / "workspace.yaml"
-        if not workspace_file.exists():
-            logger.error(f"{workspace_file} not found")
-            sys.exit(1)
-        workspace_content = workspace_file.open().read()
-        workspace_content_replace = (workspace_content.replace("{{", "${").replace("}}", "}").replace("services", ""))
-        t = Template(text=workspace_content_replace, strict_undefined=True)
-        payload = t.render(**vars)
-        payload_dict = yaml.safe_load(payload)
-        key = payload_dict.get("spec").get("payload", {}).get("key")
-        if key == "" or key is None:
-            logger.error("The key parameter in workspace payload is empty ")
-            sys.exit(1)
-
-        return key
+    def get_metadata(self, vars: dict, content: str):
+        result = (content.replace("{{", "${").replace("}}", "}").replace("services", ""))
+        t = Template(text=result, strict_undefined=True)
+        replace = t.render(**vars)
+        content = yaml.safe_load(replace)
+        metadatas = content.get("metadatas", {})
+        return metadatas
