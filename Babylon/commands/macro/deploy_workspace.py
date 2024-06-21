@@ -49,7 +49,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     state["services"]["api"]["workspace_key"] = workspace_key
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state["services"]["api"]["organization_id"]
-    workspace_key = workspace_key or state["services"]["api"]["workspace_key"]
     azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
     ext_args = dict(azure_function_secret=azf_secret)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args)

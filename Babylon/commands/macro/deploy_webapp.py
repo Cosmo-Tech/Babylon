@@ -129,7 +129,6 @@ def deploy_swa(namespace: str, file_content: str):
         azure_token = get_azure_token()
         swa_settings = AzureSWASettingsAppService(azure_token=azure_token, state=state.get('services'))
         organization_id = state['services']['api']['organization_id']
-        workspace_key = state['services']['api']['workspace_key'] or payload.get("key")
         secret_powerbi = env.get_project_secret(organization_id=organization_id,
                                                 workspace_key=workspace_key,
                                                 name="pbi")
