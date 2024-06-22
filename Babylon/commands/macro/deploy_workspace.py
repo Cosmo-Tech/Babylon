@@ -220,6 +220,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
             scripts_svc = AdxScriptService(kusto_client=kusto_client, state=state.get("services"))
             script_list = scripts_svc.get_all()
             scripts_spec: list[dict] = adx_section.get("database").get("scripts", [])
+            database_uri = adx_section.get("database").get("uri", "")
             if len(scripts_spec):
                 for s in scripts_spec:
                     t = list(filter(lambda x: s.get("id") in str(x.get("id")), script_list))
@@ -227,7 +228,10 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                         name = s.get("name")
                         path_end = s.get("path")
                         path_abs = pathlib.Path(deploy_dir) / f"{path_end}/{name}"
-                        scripts_svc.execute_query(path_abs.absolute())
+                        scripts_svc.execute_query(
+                            script_file=path_abs.absolute(),
+                            database_uri=database_uri
+                        )
     if eventhub_section:
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
