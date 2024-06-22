@@ -35,5 +35,6 @@ def get_all(state: Any, azure_token: str, filter: str) -> CommandResponse:
     if len(organizations) and filter:
         organizations = jmespath.search(filter, organizations)
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success(organizations, verbose=True)

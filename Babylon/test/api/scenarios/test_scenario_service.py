@@ -19,6 +19,7 @@ class ScenarioServiceTestCase(unittest.TestCase):
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
+        env.remote = True
 
     @mock.patch.object(ScenarioService, 'get_all')
     def test_get_all(self, mock_get_all):

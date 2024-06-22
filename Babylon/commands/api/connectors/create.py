@@ -41,6 +41,7 @@ def create(state: Any, azure_token: str, payload_file: pathlib.Path) -> CommandR
     connector = response.json()
     state["services"]["api"]["connector_id"] = connector.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     logger.info(f"Connector '{connector.get('id')}' successfully saved in state {state.get('id')}")
     return CommandResponse.success(connector, verbose=True)

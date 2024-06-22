@@ -41,6 +41,7 @@ def create(state: Any, azure_token: str, organization_id: str, payload_file: pat
     solution = response.json()
     state["services"]["api"]["solution_id"] = solution.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     logger.info(f"Solution {solution.get('id')} successfully saved in state {state.get('id')}")
     return CommandResponse.success(solution, verbose=True)

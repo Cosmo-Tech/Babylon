@@ -65,6 +65,7 @@ def apply(state: dict, azure_token: str, organization_id: str, solution_id: str,
         solution = response.json()
         state["services"]["api"]["solution_id"] = solution.get("id")
         env.store_state_in_local(state)
+    if env.remote:
         env.store_state_in_cloud(state)
     else:
         response = solution_service.update()

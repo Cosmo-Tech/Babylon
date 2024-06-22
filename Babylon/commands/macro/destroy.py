@@ -83,18 +83,21 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                 logger.info(f"Deleting dataset {dataset_id}....")
                 dataset_service.delete(dataset_id=dataset_id, force_validation=True)
     env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
+    if env.remote:
+        env.store_state_in_cloud(state=state)
 
     # deleting web app
-    webapp_id = state['services']['webapp']['webapp_name']
-    logger.info(f"Deleting webapp {webapp_id} ....")
-    azure_token = get_azure_token()
-    swa_svc = AzureSWAService(azure_token=azure_token, state=state['services'])
-    swa_svc.delete(webapp_name=webapp_id, force_validation=True)
-    state['services']['webapp']["webapp_name"] = ""
-    state['services']['webapp']["static_domain"] = ""
-    env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    webapp_id = state['services']['webapp'].get("webapp_name", "")
+    if webapp_id:
+        logger.info(f"Deleting webapp {webapp_id} ....")
+        azure_token = get_azure_token()
+        swa_svc = AzureSWAService(azure_token=azure_token, state=state['services'])
+        swa_svc.delete(webapp_name=webapp_id, force_validation=True)
+        state['services']['webapp']["webapp_name"] = ""
+        state['services']['webapp']["static_domain"] = ""
+        env.store_state_in_local(state)
+        if env.remote:
+            env.store_state_in_cloud(state)
 
     # deleting azure function
     azure_credential = get_azure_credentials()
@@ -104,7 +107,8 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     logger.info(f"Deleting azure function in workspace : {workspace_id} ....")
     azure_func_service.delete()
     env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
+    if env.remote:
+        env.store_state_in_cloud(state=state)
 
     # deleting EventHub
     eventhub_key = f"{organization_id} - {state['services']['api']['workspace_key']}"
@@ -112,16 +116,18 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     logger.info(f"Deleting event hub : {eventhub_key} ....")
     arm_service.delete_event_hub()
     env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
+    if env.remote:
+        env.store_state_in_cloud(state=state)
 
     # deleting adx database
     adx_name = state['services']["adx"]["database_name"]
     kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
     adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state.get('services'))
-    logger.info(f"Deleting ADX workspace cluster {adx_name} ....")
+    logger.info(f"Deleting ADX database {adx_name} ....")
     adx_svc.delete(name=adx_name)
     env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
+    if env.remote:
+        env.store_state_in_cloud(state=state)
 
     # # deleting powerBI workspace
     powerbi_workspace_id = state['services']["powerbi"]["workspace.id"]
@@ -132,7 +138,8 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         powerbi_svc.delete(workspace_id=powerbi_workspace_id, force_validation=True)
         state["services"]["powerbi"]["workspace.id"] = ""
     env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
+    if env.remote:
+        env.store_state_in_cloud(state=state)
 
     # deleting workspace
     if workspace_id:
@@ -140,7 +147,8 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         workspace_service.delete(force_validation=True)
         state["services"]["api"]["workspace_id"] = ""
     env.store_state_in_local(state=state)
-    env.store_state_in_cloud(state=state)
+    if env.remote:
+        env.store_state_in_cloud(state=state)
 
     # deleting run templates
     if solution_id:

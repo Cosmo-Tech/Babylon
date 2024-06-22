@@ -47,6 +47,7 @@ def run(
     scenario_run = response.json()
     state["services"]["api"]["scenariorun_id"] = scenario_run["id"]
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     logger.info(f"Scenario run {scenario_run['id']} has been successfully added to state")
     return CommandResponse.success(scenario_run, verbose=True)

@@ -14,6 +14,7 @@ class AzureDigitalTwinsModelServiceTestCase(unittest.TestCase):
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
+        env.remote = True
 
     @mock.patch('azure.digitaltwins.core.DigitalTwinsClient.list_models')
     def test_create(self, mock_list_models):

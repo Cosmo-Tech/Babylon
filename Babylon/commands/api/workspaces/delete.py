@@ -45,7 +45,8 @@ def delete(
         if (service_state["api"]["workspace_id"] == state["services"]["api"]["workspace_id"]):
             state["services"]["api"]["workspace_id"] = ""
             env.store_state_in_local(state)
-            env.store_state_in_cloud(state)
+            if env.remote:
+                env.store_state_in_cloud(state)
             logger.info(
                 f'Workspace {service_state["api"]["workspace_id"]} successfully deleted in state {state.get("id")}')
     return CommandResponse.success()
