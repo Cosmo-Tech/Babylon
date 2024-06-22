@@ -78,8 +78,10 @@ class AdxScriptService:
                 logger.error(_resp_error.message.split("\nMessage:")[1])
             logger.info("Successfully ran")
 
-    def execute_query(self, script_file: Path):
+    def execute_query(self, script_file: Path, database_uri: str):
         adx_cluster_name = self.state["adx"]["cluster_name"]
+        resource_location = str(self.state["azure"]['resource_location']).replace(" ", "").lower()
+        database_uri = database_uri or f"https://{adx_cluster_name}.{resource_location}.kusto.windows.net"
         database_name = self.state["adx"]["database_name"]
         if script_file.suffix != ".kql":
             logger.warning(f"File {script_file.name} is not a kql file. Errors could happen.")
@@ -89,7 +91,7 @@ class AdxScriptService:
                 aad_app_id=self.babylon_client_id,
                 app_key=self.baby_client_secret,
                 authority_id=env.tenant_id,
-                connection_string=f"https://{adx_cluster_name}.westeurope.kusto.windows.net")
+                connection_string=database_uri)
             kusto_client = KustoClient(kcsb=kbsc)
             try:
                 s = kusto_client.execute_mgmt(database=database_name, query=script_content)
