@@ -79,5 +79,6 @@ def apply(
         workspace["security"] = security_spec
     state["services"]["api"]["workspace_id"] = workspace.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success(workspace, verbose=True)

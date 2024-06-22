@@ -39,7 +39,8 @@ def delete(
         if (service_state["api"]["connector_id"] == state["services"]["api"]["connector_id"]):
             state["services"]["api"]["connector_id"] = ""
             env.store_state_in_local(state)
-            env.store_state_in_cloud(state)
+            if env.remote:
+                env.store_state_in_cloud(state)
             logger.info(f'Connector {state["services"]["api"]["connector_id"]} '
                         f'successfully removed from state {state.get("id")}')
     return CommandResponse.success()

@@ -77,7 +77,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         workspace = response_json
         logger.info(json.dumps(workspace, indent=2))
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     # update sidecars
     sidecars = content.get("spec")["sidecars"]
     eventhub_section = sidecars["azure"].get("eventhub", {})
@@ -98,14 +99,16 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 w = powerbi_svc.create(name=name)
                 state["services"]["powerbi"]["workspace.id"] = w.get("id")
                 env.store_state_in_local(state)
-                env.store_state_in_cloud(state)
+                if env.remote:
+                    env.store_state_in_cloud(state)
             else:
                 logger.info(f"[powerbi] PowerBI Workspace '{name}' already exists")
             work_obj = powerbi_svc.get_by_name_or_id(name=name)
             if work_obj:
                 state["services"]["powerbi"]["workspace.id"] = work_obj.get("id")
                 env.store_state_in_local(state)
-                env.store_state_in_cloud(state)
+                if env.remote:
+                    env.store_state_in_cloud(state)
             user_svc = AzurePowerBIWorkspaceUserService(powerbi_token=po_token, state=state.get("services"))
             work_obj_id = state["services"]["powerbi"]["workspace.id"]
             existing_permissions = user_svc.get_all(workspace_id=work_obj_id, filter="[].identifier")
@@ -228,10 +231,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                         name = s.get("name")
                         path_end = s.get("path")
                         path_abs = pathlib.Path(deploy_dir) / f"{path_end}/{name}"
-                        scripts_svc.execute_query(
-                            script_file=path_abs.absolute(),
-                            database_uri=database_uri
-                        )
+                        scripts_svc.execute_query(script_file=path_abs.absolute(), database_uri=database_uri)
     if eventhub_section:
         kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)

@@ -124,5 +124,6 @@ def apply(
         dataset = response_json
     state["services"]["api"]["dataset_id"] = dataset.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success(dataset, verbose=True)

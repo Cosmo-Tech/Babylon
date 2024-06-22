@@ -38,7 +38,8 @@ def delete(state: Any,
         if service_state["api"]["dataset_id"] == state["services"]["api"]["dataset_id"]:
             state["services"]["api"]["dataset_id"] = ""
             env.store_state_in_local(state)
-            env.store_state_in_cloud(state)
+            if env.remote:
+                env.store_state_in_cloud(state)
             logger.info(
                 f"Dataset '{state['services']['api']['dataset_id']}' successfully deleted from state {state.get('id')}")
     return CommandResponse.success()

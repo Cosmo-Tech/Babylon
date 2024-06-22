@@ -52,7 +52,8 @@ def deploy_organization(namespace: str, file_content: str):
         logger.info(json.dumps(organization, indent=2))
     state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
         data = run_scripts.get("post_deploy.sh", "")

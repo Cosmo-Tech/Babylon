@@ -72,5 +72,6 @@ def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str
         scenario = response_json
     state["services"]["api"]["dataset_id"] = scenario.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success(scenario, verbose=True)

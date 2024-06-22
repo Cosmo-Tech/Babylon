@@ -49,6 +49,7 @@ class SingletonMeta(type):
 class Environment(metaclass=SingletonMeta):
 
     def __init__(self):
+        self.remote = False
         self.pwd = Path.cwd()
         self.hvac_client = None
         self.blob_client = None
@@ -87,6 +88,8 @@ class Environment(metaclass=SingletonMeta):
         payload_dict = yaml.safe_load(payload)
         context_id = payload_dict.get("context", "")
         state_id = payload_dict.get("state_id", "")
+        remote: bool = payload_dict.get("remote", self.remote)
+        self.remote = remote
         if not state_id:
             logger.error("state id is mandatory")
             sys.exit(1)
@@ -336,12 +339,13 @@ class Environment(metaclass=SingletonMeta):
         if not state_local.get("id", ""):
             state_local["id"] = id
             return state_local.get("id")
-        state_cloud = self.get_state_from_cloud(state_local)
-        if not state_cloud:
-            state_cloud = dict(id="")
-        if state_local and not state_cloud.get("id", ""):
-            state_cloud["id"] = state_local.get("id", "") or id
-        return state_cloud.get("id")
+        if self.remote:
+            state_cloud = self.get_state_from_cloud(state_local)
+            if not state_cloud:
+                state_cloud = dict(id="")
+            if state_local and not state_cloud.get("id", ""):
+                state_cloud["id"] = state_local.get("id", "") or id
+            return state_cloud.get("id")
 
     def store_namespace_in_local(self):
         ns_dir = Path().home() / ".config/cosmotech/babylon"
@@ -377,15 +381,20 @@ class Environment(metaclass=SingletonMeta):
         data_vault = self.get_state_from_vault_by_platform(self.environ_id)
         init_state["services"] = data_vault
         init_state["id"] = state_id or self.get_state_id()
-        state_cloud = self.get_state_from_cloud(init_state)
-        self.store_state_in_local(state_cloud)
-        for section, keys in state_cloud.get("services").items():
+        current_state = init_state
+        if self.remote:
+            state_cloud = self.get_state_from_cloud(init_state)
+            self.store_state_in_local(state_cloud)
+            current_state = state_cloud
+        else:
+            current_state = self.get_state_from_local()
+        for section, keys in current_state.get("services").items():
             final_state["services"][section] = dict()
             for key, _ in keys.items():
-                final_state["services"][section].update({key: state_cloud["services"][section][key]})
+                final_state["services"][section].update({key: current_state["services"][section][key]})
                 if key in data_vault[section] and data_vault[section][key]:
                     final_state["services"][section].update({key: data_vault[section][key]})
-        final_state["id"] = init_state.get("id") or state_cloud.get("id")
+        final_state["id"] = init_state.get("id") or current_state.get("id")
         final_state["context"] = self.context_id
         final_state["platform"] = self.environ_id
         return final_state

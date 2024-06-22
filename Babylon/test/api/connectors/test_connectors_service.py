@@ -18,6 +18,7 @@ class ConnectorServiceTestCase(unittest.TestCase):
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
+        env.remote = True
 
     @mock.patch.object(ConnectorService, 'create')
     def test_create(self, connectorservice_create):

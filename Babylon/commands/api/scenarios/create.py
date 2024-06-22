@@ -58,6 +58,7 @@ def create(
 
     state["services"]["api"]["scenario_id"] = scenario["id"]
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     logger.info(f"Scenario {scenario['id']} has been successfully added in state")
     return CommandResponse.success(scenario, verbose=True)

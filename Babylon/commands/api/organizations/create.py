@@ -40,6 +40,7 @@ def create(
     organization = response.json()
     state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     logger.info(f"Organization {organization.get('id')} successfully saved in state {state.get('id')}")
     return CommandResponse.success(organization, verbose=True)

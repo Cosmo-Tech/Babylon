@@ -57,7 +57,8 @@ def deploy_swa(namespace: str, file_content: str):
             state['services']['app']['app_id'] = app_section.get('use').get('client_id')
             state['services']['app']["name"] = app_section.get('use').get("displayName")
             env.store_state_in_local(state)
-            env.store_state_in_cloud(state)
+            if env.remote:
+                env.store_state_in_cloud(state)
         if to_create:
             details = json.dumps(obj=app_section.get('payload', {}), indent=4, ensure_ascii=True)
             object_id = state['services']['app']["object_id"]
@@ -72,7 +73,8 @@ def deploy_swa(namespace: str, file_content: str):
                 app_secrets.create(object_id=sp.get("id", None), password_name="pbi")
                 app_secrets.create(object_id=sp.get("id", None), password_name="azf")
                 env.store_state_in_local(state)
-                env.store_state_in_cloud(state)
+                if env.remote:
+                    env.store_state_in_cloud(state)
             group_id = sidecars.get('powerbi', {}).get('group_id', '')
             add_to_group_powerbi = sidecars.get('azure').get('app', {}).get('add_to_powerbi', False)
             if group_id and add_to_group_powerbi:
@@ -123,7 +125,8 @@ def deploy_swa(namespace: str, file_content: str):
             time.sleep(5)
         shutil.rmtree(path=webapp_path)
         env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
+        if env.remote:
+            env.store_state_in_cloud(state)
     powerbi = sidecars.get('powerbi', {})
     if powerbi:
         azure_token = get_azure_token()
@@ -148,12 +151,10 @@ def deploy_swa(namespace: str, file_content: str):
         instance_name = function_spec.get('name', f"{organization_id}-{workspace_key}")
         deployment_name = function_spec.get('name', f"{organization_id}-azf-{workspace_key}")
         app_section_payload = app_section.get('payload', {})
-        ext_args = dict(
-            azure_app_client_secret=azf_secret, 
-            url_zip=url_zip, 
-            instance_name=instance_name,
-            redirect_uris=app_section_payload.get("spa").get("redirectUris")
-        )
+        ext_args = dict(azure_app_client_secret=azf_secret,
+                        url_zip=url_zip,
+                        instance_name=instance_name,
+                        redirect_uris=app_section_payload.get("spa").get("redirectUris"))
         arm_svc.run(deployment_name=deployment_name, file="azf_deploy.json", ext_args=ext_args)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:

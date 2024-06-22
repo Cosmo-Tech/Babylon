@@ -46,6 +46,7 @@ def delete(
     if service_state["api"]["scenario_id"] == state["services"]["api"]["scenario_id"]:
         state["services"]["api"]["scenario_id"] = ""
         env.store_state_in_local(state)
-        env.store_state_in_cloud(state)
+        if env.remote:
+            env.store_state_in_cloud(state)
         logger.info(f"Scenario {service_state['api']['scenario_id']} has been successfully removed from state")
     return CommandResponse.success()
