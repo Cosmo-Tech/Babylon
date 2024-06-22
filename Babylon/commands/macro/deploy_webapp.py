@@ -147,7 +147,13 @@ def deploy_swa(namespace: str, file_content: str):
         arm_svc = ArmService(arm_client=arm_client, state=state.get('services'))
         instance_name = function_spec.get('name', f"{organization_id}-{workspace_key}")
         deployment_name = function_spec.get('name', f"{organization_id}-azf-{workspace_key}")
-        ext_args = dict(azure_app_client_secret=azf_secret, url_zip=url_zip, instance_name=instance_name)
+        app_section_payload = app_section.get('payload', {})
+        ext_args = dict(
+            azure_app_client_secret=azf_secret, 
+            url_zip=url_zip, 
+            instance_name=instance_name,
+            redirect_uris=app_section_payload.get("spa").get("redirectUris")
+        )
         arm_svc.run(deployment_name=deployment_name, file="azf_deploy.json", ext_args=ext_args)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
