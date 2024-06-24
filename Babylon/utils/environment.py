@@ -94,7 +94,7 @@ class Environment(metaclass=SingletonMeta):
             logger.error("platform id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
-        metadatas = self.get_metadata(vars, file_content)
+        metadata = self.get_metadata(vars, file_content)
         if not platform_url:
             logger.error("url is mandatory")
             sys.exit(1)
@@ -104,7 +104,7 @@ class Environment(metaclass=SingletonMeta):
         self.set_server_id()
         self.set_org_name()
         self.set_blob_client()
-        return platform_url, metadatas.get('workspace_key')
+        return platform_url, metadata.get('workspace_key') or ""
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -419,5 +419,5 @@ class Environment(metaclass=SingletonMeta):
         t = Template(text=result, strict_undefined=True)
         replace = t.render(**vars)
         content = yaml.safe_load(replace)
-        metadatas = content.get("metadatas", {})
-        return metadatas
+        metadata = content.get("metadata", {})
+        return metadata
