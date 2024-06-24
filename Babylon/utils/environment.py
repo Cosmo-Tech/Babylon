@@ -419,8 +419,6 @@ class Environment(metaclass=SingletonMeta):
     def get_metadata(self, vars: dict, content: str):
         result = (content.replace("{{", "${").replace("}}", "}").replace("services", ""))
         t = Template(text=result, strict_undefined=True)
-        # print(vars)
-        # sys.exit(1)
         replace = t.render(**vars)
         content = yaml.safe_load(replace)
         metadata = content.get("metadata", {})
