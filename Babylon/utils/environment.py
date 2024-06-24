@@ -75,6 +75,8 @@ class Environment(metaclass=SingletonMeta):
         if variables_file.exists():
             logger.debug(f"Loading variables from {variables_file}")
             vars = yaml.safe_load(variables_file.open()) or dict()
+        vars["secret_powerbi"] = ""
+        vars["github_secret"] = ""
         return vars
 
     def get_ns_from_text(self, content: str, file_content: str):
@@ -417,6 +419,8 @@ class Environment(metaclass=SingletonMeta):
     def get_metadata(self, vars: dict, content: str):
         result = (content.replace("{{", "${").replace("}}", "}").replace("services", ""))
         t = Template(text=result, strict_undefined=True)
+        # print(vars)
+        # sys.exit(1)
         replace = t.render(**vars)
         content = yaml.safe_load(replace)
         metadata = content.get("metadata", {})
