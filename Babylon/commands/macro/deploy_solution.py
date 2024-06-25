@@ -27,7 +27,6 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
     state["services"]["api"]["workspace_key"] = workspace_key
-    state = env.retrieve_state_func()
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")

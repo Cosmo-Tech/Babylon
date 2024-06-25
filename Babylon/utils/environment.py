@@ -346,6 +346,9 @@ class Environment(metaclass=SingletonMeta):
             if state_local and not state_cloud.get("id", ""):
                 state_cloud["id"] = state_local.get("id", "") or id
             return state_cloud.get("id")
+        else:
+            vars = self.get_variables()
+            return vars["state_id"]
 
     def store_namespace_in_local(self):
         ns_dir = Path().home() / ".config/cosmotech/babylon"
@@ -381,13 +384,14 @@ class Environment(metaclass=SingletonMeta):
         data_vault = self.get_state_from_vault_by_platform(self.environ_id)
         init_state["services"] = data_vault
         init_state["id"] = state_id or self.get_state_id()
+        self.state_id = init_state.get('id')
         current_state = init_state
+        local_state = self.get_state_from_local()
+        current_state.update(local_state)
         if self.remote:
             state_cloud = self.get_state_from_cloud(init_state)
             self.store_state_in_local(state_cloud)
             current_state = state_cloud
-        else:
-            current_state = self.get_state_from_local()
         for section, keys in current_state.get("services").items():
             final_state["services"][section] = dict()
             for key, _ in keys.items():
