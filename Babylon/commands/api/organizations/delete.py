@@ -34,5 +34,5 @@ def delete(state: Any, azure_token: str, organization_id: str, force_validation:
             env.store_state_in_local(state)
             if env.remote:
                 env.store_state_in_cloud(state)
-            logger.info(f'Organization {org_id} successfully deleted in state {state.get("id")}')
+        logger.info(f'Organization {org_id} successfully deleted in state {state.get("id")}')
     return CommandResponse.success()

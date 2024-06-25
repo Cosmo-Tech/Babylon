@@ -70,5 +70,6 @@ def apply(state: dict, azure_token: str, organization_id: str, payload_file: pat
         organization = response_json
     state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
-    env.store_state_in_cloud(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success(organization, verbose=True)
