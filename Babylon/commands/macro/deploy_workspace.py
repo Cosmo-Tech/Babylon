@@ -42,11 +42,13 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     _ret.append("Workspace deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url, workspace_key = env.get_ns_from_text(content=namespace, file_content=file_content)
+    platform_url, workspace_key, metadata = env.get_ns_from_text(content=namespace, file_content=file_content)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
     state["services"]["azure"]["tenant_id"] = env.tenant_id
     state["services"]["api"]["workspace_key"] = workspace_key
+    if not state["services"]["api"]["organization_id"]:
+        state["services"]["api"]["organization_id"] = metadata.get('organization_id', "")
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state["services"]["api"]["organization_id"]
     azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
