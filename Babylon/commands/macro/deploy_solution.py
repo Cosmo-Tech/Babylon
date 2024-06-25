@@ -22,7 +22,7 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     _ret.append("Solution deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url, workspace_key = env.get_ns_from_text(content=namespace, file_content=file_content)
+    platform_url, workspace_key, metadata = env.get_ns_from_text(content=namespace, file_content=file_content)
     state = env.retrieve_state_func(state_id=env.state_id)
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
@@ -31,6 +31,8 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     state['services']["api"]["solution_id"] = (payload.get("id") or state['services']["api"]["solution_id"])
+    if not state["services"]["api"]["organization_id"]:
+        state["services"]["api"]["organization_id"] = metadata.get('organization_id', "")
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=state['services'])
