@@ -47,8 +47,11 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     state["services"]["api"]["url"] = platform_url
     state["services"]["azure"]["tenant_id"] = env.tenant_id
     state["services"]["api"]["workspace_key"] = workspace_key
-    if not state["services"]["api"]["organization_id"]:
-        state["services"]["api"]["organization_id"] = metadata.get('organization_id', "")
+    if metadata.get('selector', ""):
+        state["services"]["api"]["organization_id"] = metadata['selector'].get('organization_id', "")
+        state["services"]["api"]["solution_id"] = metadata['selector'].get('solution_id', "")
+    else:
+        logger.error("Please verify if the selector field is correct!")
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state["services"]["api"]["organization_id"]
     azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")

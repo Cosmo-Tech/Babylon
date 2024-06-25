@@ -31,8 +31,8 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     state['services']["api"]["solution_id"] = (payload.get("id") or state['services']["api"]["solution_id"])
-    if not state["services"]["api"]["organization_id"]:
-        state["services"]["api"]["organization_id"] = metadata.get('organization_id', "")
+    if metadata.get('selector', ""):
+        state["services"]["api"]["organization_id"] = metadata['selector'].get('organization_id', "")   
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=state['services'])
