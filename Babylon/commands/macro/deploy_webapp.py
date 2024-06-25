@@ -83,6 +83,7 @@ def deploy_swa(namespace: str, file_content: str):
                 group_svc.add(group_id=group_id, principal_id=state['services']['app']["principal_id"])
     swa_name = payload.get('name', "")
     swa = dict()
+    uris = list()
     if payload:
         webapp_path = Path().cwd() / "webapp_src"
         azure_token = get_azure_token()
@@ -110,6 +111,7 @@ def deploy_swa(namespace: str, file_content: str):
                 details = json.dumps(obj=app_section_payload, indent=4, ensure_ascii=True)
                 object_id = state['services']['app']["object_id"]
                 app_svc.update(object_id=object_id, details=details)
+            uris = app_section_payload['spa']['redirectUris']
         workflow_name = state['services']['webapp']['static_domain'].split(".")[0]
         webapp_svc = AzureWebAppService(state=state.get('services'))
         webapp_svc.download(webapp_path)
@@ -142,7 +144,7 @@ def deploy_swa(namespace: str, file_content: str):
         settings_str = json.dumps(obj=settings, indent=4, ensure_ascii=True)
         swa_settings.update(webapp_name=swa_name, details=settings_str)
     function_spec = sidecars.get("azure").get("function", {})
-    if function_spec:
+    if function_spec and len(uris):
         url_zip = function_spec.get('url_zip', '')
         azure_credential = get_azure_credentials()
         arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
@@ -150,11 +152,10 @@ def deploy_swa(namespace: str, file_content: str):
         arm_svc = ArmService(arm_client=arm_client, state=state.get('services'))
         instance_name = function_spec.get('name', f"{organization_id}-{workspace_key}")
         deployment_name = function_spec.get('name', f"{organization_id}-azf-{workspace_key}")
-        app_section_payload = app_section.get('payload', {})
         ext_args = dict(azure_app_client_secret=azf_secret,
                         url_zip=url_zip,
                         instance_name=instance_name,
-                        redirect_uris=app_section_payload.get("spa").get("redirectUris"))
+                        redirect_uris=uris)
         arm_svc.run(deployment_name=deployment_name, file="azf_deploy.json", ext_args=ext_args)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
