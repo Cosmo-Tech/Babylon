@@ -54,7 +54,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         state["services"]["api"]["organization_id"] = metadata['selector'].get('organization_id', "")
         state["services"]["api"]["solution_id"] = metadata['selector'].get('solution_id', "")
     else:
-        logger.error("Selector verification failed. Please check the selector field for correctness: %s", metadata.get('selector'))
+        logger.error("Selector verification failed. Please check the selector field for correctness: %s",
+                     metadata.get('selector'))
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state["services"]["api"]["organization_id"]
     azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
