@@ -80,7 +80,7 @@ class Environment(metaclass=SingletonMeta):
         vars["github_secret"] = ""
         return vars
 
-    def get_ns_from_text(self, content: str, file_content: str):
+    def get_ns_from_text(self, content: str):
         result = content.replace("services", "")
         t = Template(text=result, strict_undefined=True)
         vars = self.get_variables()
@@ -108,8 +108,7 @@ class Environment(metaclass=SingletonMeta):
         self.set_server_id()
         self.set_org_name()
         self.set_blob_client()
-        metadata = self.get_metadata(vars, file_content)
-        return platform_url, metadata.get('workspace_key', ""), metadata
+        return platform_url
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -390,7 +389,6 @@ class Environment(metaclass=SingletonMeta):
         current_state.update(local_state)
         if self.remote:
             state_cloud = self.get_state_from_cloud(init_state)
-            self.store_state_in_local(state_cloud)
             current_state = state_cloud
         for section, keys in current_state.get("services").items():
             final_state["services"][section] = dict()
@@ -401,6 +399,9 @@ class Environment(metaclass=SingletonMeta):
         final_state["id"] = init_state.get("id") or current_state.get("id")
         final_state["context"] = self.context_id
         final_state["platform"] = self.environ_id
+        self.store_state_in_local(final_state)
+        if self.remote:
+            self.store_state_in_cloud(final_state)
         return final_state
 
     def set_ns_from_yaml(self, content: str, state: dict = None, ext_args: dict = None):
@@ -432,7 +433,6 @@ class Environment(metaclass=SingletonMeta):
     def get_metadata(self, vars: dict, content: str):
         result = content.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
-        vars = self.get_variables()
         state = self.get_state_from_local()
         flattenstate = flatten(state.get("services", {}), separator=".")
         payload = t.render(**vars, services=flattenstate)

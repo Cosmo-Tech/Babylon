@@ -28,8 +28,11 @@ def deploy_swa(namespace: str, file_content: str):
     _ret.append("Webapp deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    platform_url, workspace_key, metadata = env.get_ns_from_text(content=namespace, file_content=file_content)
+    platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
+    vars = env.get_variables()
+    metadata = env.get_metadata(vars, file_content)
+    workspace_key = metadata['selector'].get('workspace_key', "")
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
     state["services"]["api"]["workspace_key"] = workspace_key
