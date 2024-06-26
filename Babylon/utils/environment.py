@@ -99,7 +99,6 @@ class Environment(metaclass=SingletonMeta):
             logger.error("platform id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
-        metadata = self.get_metadata(vars, file_content)
         if not platform_url:
             logger.error("url is mandatory")
             sys.exit(1)
@@ -109,7 +108,8 @@ class Environment(metaclass=SingletonMeta):
         self.set_server_id()
         self.set_org_name()
         self.set_blob_client()
-        return platform_url, metadata.get('workspace_key') or "", metadata
+        metadata = self.get_metadata(vars, file_content)
+        return platform_url, metadata.get('workspace_key', ""), metadata
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -430,9 +430,13 @@ class Environment(metaclass=SingletonMeta):
         return platform_url
 
     def get_metadata(self, vars: dict, content: str):
-        result = (content.replace("{{", "${").replace("}}", "}").replace("services", ""))
+        result = content.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
-        replace = t.render(**vars)
-        content = yaml.safe_load(replace)
-        metadata = content.get("metadata", {})
+        vars = self.get_variables()
+        state = self.get_state_from_local()
+        flattenstate = flatten(state.get("services", {}), separator=".")
+        payload = t.render(**vars, services=flattenstate)
+        payload_json = yaml_to_json(payload)
+        payload_dict: dict = json.loads(payload_json)
+        metadata = payload_dict.get("metadata", {})
         return metadata
