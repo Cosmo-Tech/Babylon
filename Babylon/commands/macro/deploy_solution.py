@@ -26,7 +26,7 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     state = env.retrieve_state_func(state_id=env.state_id)
     vars = env.get_variables()
     metadata = env.get_metadata(vars, file_content)
-    workspace_key = metadata['selector'].get('workspace_key', "")
+    workspace_key = metadata.get("workspace_key", vars.get('workspace_key'))
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
     state["services"]["api"]["workspace_key"] = workspace_key
