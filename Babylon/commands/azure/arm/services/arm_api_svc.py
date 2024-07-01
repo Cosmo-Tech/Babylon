@@ -48,7 +48,9 @@ class ArmService:
             state=dict(services=self.state),
             ext_args=ext_args,
         )
-        arm_template.get("resources")[0].get('siteConfig').get('cors')['allowedOrigins'] = ext_args.get("redirect_uris")
+        if "azf" in deployment_name:
+            arm_template.get("resources")[0].get('properties').get('siteConfig').get(
+                'cors')['allowedOrigins'] = ext_args.get("redirect_uris")
         parameters = {k: {"value": v["defaultValue"]} for k, v in dict(arm_template["parameters"]).items()}
         try:
             poller = self.arm_client.deployments.begin_create_or_update(
