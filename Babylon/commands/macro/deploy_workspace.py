@@ -44,14 +44,14 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
+    state["services"]["api"]["url"] = platform_url
+    state["services"]["azure"]["tenant_id"] = env.tenant_id
     vars = env.get_variables()
-    metadata = env.get_metadata(vars, file_content)
+    metadata = env.get_metadata(vars=vars, content=file_content, state=state)
     workspace_key = metadata.get(
         "workspace_key",
         vars.get("workspace_key", state["services"]["api"]["workspace_key"]),
     )
-    state["services"]["api"]["url"] = platform_url
-    state["services"]["azure"]["tenant_id"] = env.tenant_id
     state["services"]["api"]["workspace_key"] = workspace_key
     if metadata.get("selector", ""):
         state["services"]["api"]["organization_id"] = metadata["selector"].get("organization_id", "")
