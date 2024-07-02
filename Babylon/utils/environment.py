@@ -430,10 +430,9 @@ class Environment(metaclass=SingletonMeta):
         self.set_blob_client()
         return platform_url
 
-    def get_metadata(self, vars: dict, content: str):
+    def get_metadata(self, vars: dict, content: str, state: dict):
         result = content.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
-        state = self.get_state_from_local()
         flattenstate = flatten(state.get("services", {}), separator=".")
         payload = t.render(**vars, services=flattenstate)
         payload_json = yaml_to_json(payload)

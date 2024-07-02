@@ -24,11 +24,11 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
-    vars = env.get_variables()
-    metadata = env.get_metadata(vars, file_content)
-    workspace_key = metadata.get("workspace_key", vars.get('workspace_key', state["services"]["api"]["workspace_key"]))
     state['services']['api']['url'] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
+    vars = env.get_variables()
+    metadata = env.get_metadata(vars=vars, content=file_content, state=state)
+    workspace_key = metadata.get("workspace_key", vars.get('workspace_key', state["services"]["api"]["workspace_key"]))
     state["services"]["api"]["workspace_key"] = workspace_key
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
