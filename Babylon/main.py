@@ -4,6 +4,7 @@ import sys
 import click
 import logging
 import click_log
+import os
 
 from click import echo
 from click import group
@@ -68,17 +69,33 @@ The following environment variables are required:
     """
     if not tests_mode:
         sys.tracebacklimit = 0
-        logfileHandler = logging.FileHandler("./info.log")
-        errorFileHandler = logging.FileHandler("./error.log")
-        errorFileHandler.setLevel(logging.WARNING)
-        logging.basicConfig(format="%(asctime)s | %(message)10s",
-                            handlers=[
-                                logfileHandler, errorFileHandler,
-                                RichHandler(show_time=False,
-                                            rich_tracebacks=True,
-                                            tracebacks_suppress=click,
-                                            omit_repeated_times=False)
-                            ])
+        vars = env.get_variables()
+        path_logs = vars.get('path_logs')
+        if vars.get('path_logs'):
+            os.makedirs(path_logs, exist_ok=True)
+            logfileHandler = logging.FileHandler(f"{path_logs}/babylon.log")
+            errorFileHandler = logging.FileHandler(f"{path_logs}/babylon.error")
+            errorFileHandler.setLevel(logging.WARNING)
+            logging.basicConfig(format="%(asctime)s | %(message)10s",
+                                handlers=[
+                                    logfileHandler, errorFileHandler,
+                                    RichHandler(show_time=False,
+                                                rich_tracebacks=True,
+                                                tracebacks_suppress=click,
+                                                omit_repeated_times=False)
+                                ])
+        else:
+            logfileHandler = logging.FileHandler("./babylon.log")
+            errorFileHandler = logging.FileHandler("./babylon.error")
+            errorFileHandler.setLevel(logging.WARNING)
+            logging.basicConfig(format="%(asctime)s | %(message)10s",
+                                handlers=[
+                                    logfileHandler, errorFileHandler,
+                                    RichHandler(show_time=False,
+                                                rich_tracebacks=True,
+                                                tracebacks_suppress=click,
+                                                omit_repeated_times=False)
+                                ])
 
 
 main.result_callback()(interactive_run)
