@@ -1,6 +1,7 @@
 import yaml
 import click
 import pathlib
+import os
 
 from logging import getLogger
 from click import Path, argument, command
@@ -72,6 +73,7 @@ def apply(deploy_dir: pathlib.Path):
 
     final_state = env.get_state_from_local()
     services = final_state.get('services')
+    vars = env.get_variables()
 
     _ret = ['']
     _ret.append("")
@@ -85,4 +87,17 @@ def apply(deploy_dir: pathlib.Path):
     if services.get('webapp').get('static_domain', ''):
         _ret.append("   * WebApp         ")
         _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
+    # Get the current working directory
+    current_working_directory = os.getcwd()
+    logfile_path = os.path.join(current_working_directory, "babylon.log")
+    # Get the directory part of the log file path
+    logfile_directory = os.path.dirname(logfile_path)
+    _logs = ['']
+    _logs.append("Babylon Logs: ")
+    _logs.append("")
+    if vars.get('path_logs'):
+        _logs.append(f"   * The Babylon log and error files are generated at: {vars.get('path_logs')}")
+    else:
+        _logs.append(f"   * The Babylon log and error files are generated at: {logfile_directory}")
     click.echo(click.style("\n".join(_ret), fg="green"))
+    click.echo(click.style("\n".join(_logs), fg="green"))
