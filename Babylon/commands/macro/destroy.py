@@ -137,6 +137,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         logger.info(f"Deleting PowerBI workspace {powerbi_workspace_id} ....")
         powerbi_svc.delete(workspace_id=powerbi_workspace_id, force_validation=True)
         state["services"]["powerbi"]["workspace.id"] = ""
+        state["services"]["powerbi"]["workspace.name"] = ""
     env.store_state_in_local(state=state)
     if env.remote:
         env.store_state_in_cloud(state=state)

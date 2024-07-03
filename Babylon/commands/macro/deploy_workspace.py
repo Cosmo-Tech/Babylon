@@ -114,6 +114,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                     logger.info(f"[powerbi] creating PowerBI Workspace {name}")
                     w = powerbi_svc.create(name=name)
                     state["services"]["powerbi"]["workspace.id"] = w.get("id")
+                    state["services"]["powerbi"]["workspace.name"] = w.get("name")
                     env.store_state_in_local(state)
                     if env.remote:
                         env.store_state_in_cloud(state)
@@ -122,6 +123,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 work_obj = powerbi_svc.get_by_name_or_id(name=name)
                 if work_obj:
                     state["services"]["powerbi"]["workspace.id"] = work_obj.get("id")
+                    state["services"]["powerbi"]["workspace.name"] = work_obj.get("name")
                     env.store_state_in_local(state)
                     if env.remote:
                         env.store_state_in_cloud(state)
