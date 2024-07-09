@@ -161,11 +161,15 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                     force_validation=True,
                                 )
                 spec_dash = workspace_powerbi.get("reports", [])
+                workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts')
+                dashboard_view = dict()
+                scenario_view = dict()
                 if len(spec_dash):
                     for r in spec_dash:
                         rtype = r.get("type")
                         name = r.get("name")
                         path = r.get("path")
+                        rtag = r.get("tag")
                         params = r.get("parameters", [])
                         path_report = pathlib.Path(deploy_dir) / f"{path}"
                         if not path_report.exists():
@@ -181,6 +185,27 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                 report_type=rtype,
                                 override=True,
                             )
+
+                            if (rtype == "dashboard"):
+                                dashboard_view[rtag] = custom_obj.get("reportId")
+                                allDashboardsViews = workspaceCharts.get("dashboardsView")
+                                # set the good value of reportId in the reports objects inside dashboardsView
+                                filteredTitles = list(
+                                    filter(lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
+                                           allDashboardsViews))
+                                for item in filteredTitles:
+                                    item['title']['reportId'] = custom_obj.get("reportId")
+
+                            if (rtype == "scenario"):
+                                scenario_view[rtag] = custom_obj.get("reportId")
+                                allScenariosViews = workspaceCharts.get("scenarioView")
+                                # set the good value of reportId in the reports objects inside scenarioView
+                                for scenario in allScenariosViews:
+                                    scenarioData = allScenariosViews.get(scenario, {})
+                                    if (scenarioData.get('reportTag') is not None
+                                            and scenarioData.get('reportTag') == rtag):
+                                        scenarioData['reportId'] = custom_obj.get("reportId")
+
                             for d in report_obj.get("datasets", []):
                                 if d:
                                     dataset_svc = AzurePowerBIDatasetService(
@@ -202,6 +227,17 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                             params=params,
                                         )
                             logger.info(f"[powerbi] report {name} successfully imported")
+        rcharts = content.get('spec').get('payload').get('webApp').get('options').get('charts') or {}
+        print(rcharts)
+        state["services"]["powerbi"]["dashboard_view"] = dashboard_view
+        state["services"]["powerbi"]["scenario_view"] = scenario_view
+        env.store_state_in_local(state)
+        if env.remote:
+            env.store_state_in_cloud(state)
+        print()
+        print()
+        print()
+        print(state)
         azure_credential = get_azure_credentials()
         if adx_section:
             ok = True
