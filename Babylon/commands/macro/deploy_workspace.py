@@ -161,7 +161,9 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                     force_validation=True,
                                 )
                 spec_dash = workspace_powerbi.get("reports", [])
-                workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts')
+                workspaceCharts = None
+                if (content.get('spec').get('payload').get('webApp').get('options').get('charts') is not None):
+                    workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts')
                 dashboard_view = dict()
                 scenario_view = dict()
                 if len(spec_dash):
@@ -186,25 +188,27 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                 override=True,
                             )
 
-                            if (rtype == "dashboard"):
-                                dashboard_view[rtag] = custom_obj.get("reportId")
-                                allDashboardsViews = workspaceCharts.get("dashboardsView")
-                                # set the good value of reportId in the reports objects inside dashboardsView
-                                filteredTitles = list(
-                                    filter(lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
-                                           allDashboardsViews))
-                                for item in filteredTitles:
-                                    item['reportId'] = custom_obj.get("reportId")
+                            if (workspaceCharts is not None):
 
-                            if (rtype == "scenario"):
-                                scenario_view[rtag] = custom_obj.get("reportId")
-                                allScenariosViews = workspaceCharts.get("scenarioView")
-                                # set the good value of reportId in the reports objects inside scenarioView
-                                for scenario in allScenariosViews:
-                                    scenarioData = allScenariosViews.get(scenario, {})
-                                    if (scenarioData.get('reportTag') is not None
-                                            and scenarioData.get('reportTag') == rtag):
-                                        scenarioData['reportId'] = custom_obj.get("reportId")
+                                if (rtype == "dashboard"):
+                                    dashboard_view[rtag] = custom_obj.get("reportId")
+                                    allDashboardsViews = workspaceCharts.get("dashboardsView")
+                                    # set the good value of reportId in the reports objects inside dashboardsView
+                                    filteredTitles = list(
+                                        filter(lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
+                                               allDashboardsViews))
+                                    for item in filteredTitles:
+                                        item['reportId'] = custom_obj.get("reportId")
+
+                                if (rtype == "scenario"):
+                                    scenario_view[rtag] = custom_obj.get("reportId")
+                                    allScenariosViews = workspaceCharts.get("scenarioView")
+                                    # set the good value of reportId in the reports objects inside scenarioView
+                                    for scenario in allScenariosViews:
+                                        scenarioData = allScenariosViews.get(scenario, {})
+                                        if (scenarioData.get('reportTag') is not None
+                                                and scenarioData.get('reportTag') == rtag):
+                                            scenarioData['reportId'] = custom_obj.get("reportId")
 
                             for d in report_obj.get("datasets", []):
                                 if d:
@@ -227,18 +231,20 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                             params=params,
                                         )
                             logger.info(f"[powerbi] report {name} successfully imported")
-        content.get('spec').get('payload').get('webApp').get('options').get(
-            'charts')['workspaceId'] = state["services"]["powerbi"]["workspace.id"]
         state["services"]["powerbi"]["dashboard_view"] = dashboard_view
         state["services"]["powerbi"]["scenario_view"] = scenario_view
         env.store_state_in_local(state)
         if env.remote:
             env.store_state_in_cloud(state)
-        logger.info(f"[powerbi] updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
-        payloadUpdated: dict = content.get("spec").get("payload")
-        specUpdated = dict()
-        specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
-        workspace_svc.updateWithPayload(specUpdated)
+        if (workspaceCharts is not None):
+            content.get('spec').get('payload').get('webApp').get('options').get(
+                'charts')['workspaceId'] = state["services"]["powerbi"]["workspace.id"]
+            logger.info(
+                f"[powerbi] updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
+            payloadUpdated: dict = content.get("spec").get("payload")
+            specUpdated = dict()
+            specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
+            workspace_svc.updateWithPayload(specUpdated)
         azure_credential = get_azure_credentials()
         if adx_section:
             ok = True
