@@ -46,6 +46,9 @@ class AzurePowerBIWorkspaceService:
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:
+            logger.warning(
+                f'Cannot get workspace name list - Either the workspace name list is empty or you are not allowed to access to the PowerBI service '
+            )
             return None
         output_data = response.json().get("value")
         if len(output_data) and filter:
