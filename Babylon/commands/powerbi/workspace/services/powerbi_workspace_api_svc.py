@@ -25,6 +25,7 @@ class AzurePowerBIWorkspaceService:
             type="POST",
         )
         if response is None:
+            logger.warning(f'Cannot create PowerBI workspace')
             return None
         output_data = response.json()
         return output_data
@@ -39,6 +40,7 @@ class AzurePowerBIWorkspaceService:
         url_delete = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
         response = oauth_request(url=url_delete, access_token=self.powerbi_token, type="DELETE")
         if response is None:
+            logger.warning(f'Cannot delete PowerBI workspace')
             return CommandResponse.fail()
         return response
 
@@ -61,6 +63,7 @@ class AzurePowerBIWorkspaceService:
         params = {"$filter": f"id eq '{workspace_id}'"}
         response = oauth_request(url_groups, self.powerbi_token, params=params)
         if response is None:
+            logger.warning(f'Cannot get the current PowerBI workspace')
             return None
         workspace_data = response.json().get('value')
         if not workspace_data:
@@ -73,6 +76,7 @@ class AzurePowerBIWorkspaceService:
         params = {"$filter": f"id eq '{workspace_id}'"} if workspace_id else {"$filter": f"name eq '{name}'"}
         response = oauth_request(url_groups, self.powerbi_token, params=params)
         if response is None:
+            logger.warning(f'Cannot get the PowerBI workspace by name or id')
             return None
         workspace_data = response.json().get('value')
         if not workspace_data:
