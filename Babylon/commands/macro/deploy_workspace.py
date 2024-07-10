@@ -227,6 +227,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                             params=params,
                                         )
                             logger.info(f"[powerbi] report {name} successfully imported")
+        content.get('spec').get('payload').get('webApp').get('options').get(
+            'charts')['workspaceId'] = state["services"]["powerbi"]["workspace.id"]
         rcharts = content.get('spec').get('payload').get('webApp').get('options').get('charts') or {}
         print(rcharts)
         state["services"]["powerbi"]["dashboard_view"] = dashboard_view
