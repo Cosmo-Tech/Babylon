@@ -71,6 +71,20 @@ class WorkspaceService:
         )
         return response
 
+    def updateWithPayload(self, payload: dict):
+        workspace_id = self.state["api"]["workspace_id"]
+        details = payload["payload"]
+        if not workspace_id:
+            logger.error("workspace id not found")
+            sys.exit(1)
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
+            self.azure_token,
+            type="PATCH",
+            data=details,
+        )
+        return response
+
     def delete(self, force_validation: bool):
         workspace_id = self.state["api"]["workspace_id"]
         if not workspace_id:

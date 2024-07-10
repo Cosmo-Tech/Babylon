@@ -194,7 +194,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                     filter(lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
                                            allDashboardsViews))
                                 for item in filteredTitles:
-                                    item['title']['reportId'] = custom_obj.get("reportId")
+                                    item['reportId'] = custom_obj.get("reportId")
 
                             if (rtype == "scenario"):
                                 scenario_view[rtag] = custom_obj.get("reportId")
@@ -234,10 +234,11 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         env.store_state_in_local(state)
         if env.remote:
             env.store_state_in_cloud(state)
-        print()
-        print()
-        print()
-        print(state)
+        logger.info(f"[powerbi] updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
+        payloadUpdated: dict = content.get("spec").get("payload")
+        specUpdated = dict()
+        specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
+        workspace_svc.updateWithPayload(specUpdated)
         azure_credential = get_azure_credentials()
         if adx_section:
             ok = True
