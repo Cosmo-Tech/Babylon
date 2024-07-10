@@ -109,7 +109,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 if not name:
                     logger.error("[powerbi] PowerBI workspace name is mandatory")
                     sys.exit(1)
-                print("before  powerbi_svc.get_all")
                 workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
                 if (workspaceli_list_name is None) or (workspaceli_list_name is not None
                                                        and name not in workspaceli_list_name):
