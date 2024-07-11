@@ -76,6 +76,7 @@ class WorkspaceService:
         details = payload["payload"]
         if not workspace_id:
             logger.error("workspace id not found")
+            return None
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
             self.azure_token,
