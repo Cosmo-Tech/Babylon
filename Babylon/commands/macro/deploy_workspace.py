@@ -160,8 +160,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                     force_validation=True,
                                 )
                 spec_dash = workspace_powerbi.get("reports", [])
-                workspaceCharts = None
-                if (content.get('spec').get('payload').get('webApp').get('options').get('charts') is not None):
+                workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts') or None
+                if (workspaceCharts is not None):
                     workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts')
                 dashboard_view = dict()
                 scenario_view = dict()
@@ -187,9 +187,9 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                 override=True,
                             )
 
-                            if (workspaceCharts is not None):
+                            if workspaceCharts is not None:
 
-                                if (rtype == "dashboard"):
+                                if rtype == "dashboard":
                                     dashboard_view[rtag] = custom_obj.get("reportId")
                                     allDashboardsViews = workspaceCharts.get("dashboardsView")
                                     # set the good value of reportId in the reports objects inside dashboardsView
@@ -199,7 +199,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                     for item in filteredTitles:
                                         item['reportId'] = custom_obj.get("reportId")
 
-                                if (rtype == "scenario"):
+                                if rtype == "scenario":
                                     scenario_view[rtag] = custom_obj.get("reportId")
                                     allScenariosViews = workspaceCharts.get("scenarioView")
                                     # set the good value of reportId in the reports objects inside scenarioView
@@ -235,7 +235,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         env.store_state_in_local(state)
         if env.remote:
             env.store_state_in_cloud(state)
-        if (workspaceCharts is not None):
+        if workspaceCharts is not None:
             content.get('spec').get('payload').get('webApp').get('options').get(
                 'charts')['workspaceId'] = state["services"]["powerbi"]["workspace.id"]
             logger.info(
