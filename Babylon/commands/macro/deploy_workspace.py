@@ -162,8 +162,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                 )
                 spec_dash = workspace_powerbi.get("reports", [])
                 workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts') or None
-                if (workspaceCharts is not None):
-                    workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts')
                 dashboard_view = dict()
                 scenario_view = dict()
                 if len(spec_dash):
