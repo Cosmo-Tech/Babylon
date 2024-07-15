@@ -95,11 +95,12 @@ class AdxScriptService:
             kusto_client = KustoClient(kcsb=kbsc)
             try:
                 s = kusto_client.execute_mgmt(database=database_name, query=script_content)
+                logger.info(f"[adx] Sending ADX script '{script_file.name}' to Kusto database '{database_name}'")
                 with progressbar(length=20, label="Waiting for script to finish") as bar:
                     for _ in bar:
                         if not s.primary_results:
                             time.sleep(1)
                     while not s.primary_results:
                         time.sleep(1)
-            except Exception as exp:
-                print(exp)
+            except Exception:
+                logger.error(f"[adx] Syntax error in the script '{script_file}'")
