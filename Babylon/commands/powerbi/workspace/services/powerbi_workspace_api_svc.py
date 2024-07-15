@@ -40,7 +40,7 @@ class AzurePowerBIWorkspaceService:
         url_delete = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
         response = oauth_request(url=url_delete, access_token=self.powerbi_token, type="DELETE")
         if response is None:
-            logger.warning('[powerbi]Cannot delete PowerBI workspace')
+            logger.warning('[powerbi] Cannot delete PowerBI workspace')
             return CommandResponse.fail()
         return response
 
