@@ -199,7 +199,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                         filter(lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
                                                allDashboardsViews))
                                     if not filteredTitles:
-                                        logger.warning("[powerbi] Report is not found in dashboardsView")
+                                        logger.warning("[powerbi] Report tag is not found in dashboardsView")
                                     else:
                                         for item in filteredTitles:
                                             item['reportId'] = custom_obj.get("reportId")
@@ -216,7 +216,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                             scenarioData['reportId'] = custom_obj.get("reportId")
                                             scenarioWithThistag = True
                                     if not scenarioWithThistag:
-                                        logger.warning("[powerbi] Report is not found in scenarioView")
+                                        logger.warning("[powerbi] Report tag is not found in scenarioView")
 
                             for d in report_obj.get("datasets", []):
                                 if d:
@@ -244,7 +244,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 env.store_state_in_local(state)
                 if env.remote:
                     env.store_state_in_cloud(state)
-        if workspaceCharts is not None:
+        if workspaceCharts is not None and powerbi_section:
             content.get('spec').get('payload').get('webApp').get('options').get(
                 'charts')['workspaceId'] = state["services"]["powerbi"]["workspace.id"]
             logger.info(
