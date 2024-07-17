@@ -4,7 +4,7 @@ import pathlib
 import os
 
 from logging import getLogger
-from click import Path, argument, command
+from click import Path, argument, command, option
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import injectcontext
 from Babylon.commands.macro.deploy_webapp import deploy_swa
@@ -20,11 +20,18 @@ env = Environment()
 @command()
 @injectcontext()
 @argument("deploy_dir", type=Path(dir_okay=True, exists=True))
-def apply(deploy_dir: pathlib.Path):
+@option('-f',
+        '--file',
+        type=Path(file_okay=True, exists=True),
+        default=["./variables.yaml"],
+        multiple=True,
+        help='Your variables files ')
+def apply(deploy_dir: pathlib.Path, file: [pathlib.Path]):
     """Macro Apply"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
     files = list(pathlib.Path(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
+    env.set_var_files(file)
     resources = []
     for f in files_to_deploy:
         resource = dict()
