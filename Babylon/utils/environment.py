@@ -69,13 +69,17 @@ class Environment(metaclass=SingletonMeta):
             "csm_api": "",
         }
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
+        self.var_files = []
 
     def get_variables(self):
-        variables_file = self.pwd / "variables.yaml"
+        filesPath = self.get_var_files()
         vars = dict()
-        if variables_file.exists():
-            logger.debug(f"Loading variables from {variables_file}")
-            vars = yaml.safe_load(variables_file.open()) or dict()
+        for file in filesPath:
+            variables_file = self.pwd / file
+            if variables_file.exists():
+                logger.debug(f"Loading variables from {variables_file}")
+                vars_tmp = yaml.safe_load(variables_file.open()) or dict()
+                vars = dict(list(vars.items()) + list(vars_tmp.items()))
         vars["secret_powerbi"] = ""
         vars["github_secret"] = ""
         return vars
@@ -439,3 +443,9 @@ class Environment(metaclass=SingletonMeta):
         payload_dict: dict = json.loads(payload_json)
         metadata = payload_dict.get("metadata", {})
         return metadata
+
+    def get_var_files(self):
+        return self.var_files
+
+    def set_var_files(self, var_files_updated):
+        self.var_files = var_files_updated
