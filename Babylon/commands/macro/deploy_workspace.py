@@ -190,33 +190,34 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
 
                                 if not rtag:
                                     logger.warning("[powerbi] Tag is missing in this report")
+                                else:
+                                    if rtype == "dashboard":
+                                        dashboard_view[rtag] = custom_obj.get("reportId")
+                                        allDashboardsViews = workspaceCharts.get("dashboardsView")
+                                        # set the good value of reportId in the reports objects inside dashboardsView
+                                        filteredTitles = list(
+                                            filter(
+                                                lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
+                                                allDashboardsViews))
+                                        if not filteredTitles:
+                                            logger.warning("[powerbi] Report tag is not found in dashboardsView")
+                                        else:
+                                            for item in filteredTitles:
+                                                item['reportId'] = custom_obj.get("reportId")
 
-                                if rtype == "dashboard":
-                                    dashboard_view[rtag] = custom_obj.get("reportId")
-                                    allDashboardsViews = workspaceCharts.get("dashboardsView")
-                                    # set the good value of reportId in the reports objects inside dashboardsView
-                                    filteredTitles = list(
-                                        filter(lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
-                                               allDashboardsViews))
-                                    if not filteredTitles:
-                                        logger.warning("[powerbi] Report tag is not found in dashboardsView")
-                                    else:
-                                        for item in filteredTitles:
-                                            item['reportId'] = custom_obj.get("reportId")
-
-                                if rtype == "scenario":
-                                    scenario_view[rtag] = custom_obj.get("reportId")
-                                    allScenariosViews = workspaceCharts.get("scenarioView")
-                                    scenarioWithThistag = False
-                                    # set the good value of reportId in the reports objects inside scenarioView
-                                    for scenario in allScenariosViews:
-                                        scenarioData = allScenariosViews.get(scenario, {})
-                                        if (scenarioData.get('reportTag') is not None
-                                                and scenarioData.get('reportTag') == rtag):
-                                            scenarioData['reportId'] = custom_obj.get("reportId")
-                                            scenarioWithThistag = True
-                                    if not scenarioWithThistag:
-                                        logger.warning("[powerbi] Report tag is not found in scenarioView")
+                                    if rtype == "scenario":
+                                        scenario_view[rtag] = custom_obj.get("reportId")
+                                        allScenariosViews = workspaceCharts.get("scenarioView")
+                                        scenarioWithThistag = False
+                                        # set the good value of reportId in the reports objects inside scenarioView
+                                        for scenario in allScenariosViews:
+                                            scenarioData = allScenariosViews.get(scenario, {})
+                                            if (scenarioData.get('reportTag') is not None
+                                                    and scenarioData.get('reportTag') == rtag):
+                                                scenarioData['reportId'] = custom_obj.get("reportId")
+                                                scenarioWithThistag = True
+                                        if not scenarioWithThistag:
+                                            logger.warning("[powerbi] Report tag is not found in scenarioView")
 
                             for d in report_obj.get("datasets", []):
                                 if d:
