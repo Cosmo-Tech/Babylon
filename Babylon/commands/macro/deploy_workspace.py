@@ -200,7 +200,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                                 lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
                                                 allDashboardsViews))
                                         if not filteredTitles:
-                                            logger.warning("[powerbi] Report tag is not found in dashboardsView")
+                                            logger.warning(
+                                                "[powerbi] Report tag is not found in dashboardsView Section")
                                         else:
                                             for item in filteredTitles:
                                                 item['reportId'] = custom_obj.get("reportId")
@@ -217,7 +218,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                                 scenarioData['reportId'] = custom_obj.get("reportId")
                                                 scenarioWithThistag = True
                                         if not scenarioWithThistag:
-                                            logger.warning("[powerbi] Report tag is not found in scenarioView")
+                                            logger.warning("[powerbi] Report tag is not found in scenarioView Section")
 
                             for d in report_obj.get("datasets", []):
                                 if d:
