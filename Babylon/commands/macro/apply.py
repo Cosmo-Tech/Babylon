@@ -20,18 +20,18 @@ env = Environment()
 @command()
 @injectcontext()
 @argument("deploy_dir", type=Path(dir_okay=True, exists=True))
-@option('-f',
-        '--file',
+@option('--var-file',
+        'variables_files',
         type=Path(file_okay=True, exists=True),
         default=["./variables.yaml"],
         multiple=True,
         help='Specify the of your variable file. By default, it takes the variables.yaml file.')
-def apply(deploy_dir: pathlib.Path, file: [pathlib.Path]):
+def apply(deploy_dir: pathlib.Path, variables_files: [pathlib.Path]):
     """Macro Apply"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
     files = list(pathlib.Path(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
-    env.set_var_files(file)
+    env.set_variable_files(variables_files)
     resources = []
     for f in files_to_deploy:
         resource = dict()
