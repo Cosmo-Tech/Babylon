@@ -1,3 +1,4 @@
+from collections import defaultdict
 import json
 import os
 import re
@@ -69,20 +70,18 @@ class Environment(metaclass=SingletonMeta):
             "csm_api": "",
         }
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
-        self.var_files = []
+        self.variable_files: [Path] = []
 
     def get_variables(self):
-        filesPath = self.get_var_files()
-        vars = dict()
-        for file in filesPath:
-            variables_file = self.pwd / file
-            if variables_file.exists():
-                logger.debug(f"Loading variables from {variables_file}")
-                vars_tmp = yaml.safe_load(variables_file.open()) or dict()
-                vars = dict(list(vars.items()) + list(vars_tmp.items()))
-        vars["secret_powerbi"] = ""
-        vars["github_secret"] = ""
-        return vars
+        merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
+        if len(duplicate_keys) > 0:
+            for key, files in duplicate_keys.items():
+                logger.error(f"The key '{key}' is duplicated in variable files {' and '.join(files)}")
+            sys.exit(1)
+        else:
+            merged_data["secret_powerbi"] = ""
+            merged_data["github_secret"] = ""
+            return merged_data
 
     def get_ns_from_text(self, content: str):
         result = content.replace("services", "")
@@ -444,8 +443,40 @@ class Environment(metaclass=SingletonMeta):
         metadata = payload_dict.get("metadata", {})
         return metadata
 
-    def get_var_files(self):
-        return self.var_files
+    def set_variable_files(self, variable_files_updated: [Path]):
+        self.variable_files = variable_files_updated
 
-    def set_var_files(self, var_files_updated):
-        self.var_files = var_files_updated
+    def load_yaml_file(self, file_path: Path):
+        with open(file_path, 'r') as file:
+            try:
+                return yaml.safe_load(file) or {}
+            except yaml.YAMLError as e:
+                logger.error(f"File '{file_path}' is not a valid YAML file. Details: {str(e)}")
+                sys.exit(1)
+
+    def merge_yaml_files(self, file_paths: [Path]):
+        merged_data = {}
+        keys_tracker = defaultdict(list)
+
+        for file_path in file_paths:
+            if not file_path.endswith('.yaml'):
+                logger.error(f"File '{file_path}' is not a valid YAML file.")
+                sys.exit(1)
+            if os.path.getsize(file_path) == 0:
+                logger.error(f"File '{file_path}' is empty.")
+                sys.exit(1)
+
+            data = self.load_yaml_file(file_path)
+
+            for key in data:
+                if key in merged_data:
+                    keys_tracker[key].append(file_path)
+                else:
+                    keys_tracker[key] = [file_path]
+
+                merged_data[key] = data[key]
+
+        # Check for duplicate keys
+        duplicate_keys = {key: files for key, files in keys_tracker.items() if len(files) > 1}
+
+        return merged_data, duplicate_keys
