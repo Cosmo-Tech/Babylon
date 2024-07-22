@@ -25,7 +25,7 @@ env = Environment()
         type=Path(file_okay=True, exists=True),
         default=["./variables.yaml"],
         multiple=True,
-        help='Specify the of your variable file. By default, it takes the variables.yaml file.')
+        help='Specify the path of your variable file. By default, it takes the variables.yaml file.')
 def apply(deploy_dir: pathlib.Path, variables_files: [pathlib.Path]):
     """Macro Apply"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
