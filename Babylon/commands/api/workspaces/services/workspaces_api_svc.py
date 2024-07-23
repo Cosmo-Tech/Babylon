@@ -59,7 +59,8 @@ class WorkspaceService:
 
     def update(self):
         workspace_id = self.state["api"]["workspace_id"]
-        details = self.spec["payload"]
+        details = self.updatePayloadWithState()
+        details_json = json.dumps(details, indent=4, default=str)
         if not workspace_id:
             logger.error("workspace id not found")
             sys.exit(1)
@@ -67,7 +68,7 @@ class WorkspaceService:
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
             self.azure_token,
             type="PATCH",
-            data=details,
+            data=details_json,
         )
         return response
 
@@ -153,3 +154,27 @@ class WorkspaceService:
             if s not in ids_spec:
                 security_svc.delete(id=s)
         return security_spec
+
+    def updatePayloadWithState(self):
+        jsonPayload = json.loads(self.spec["payload"])
+        if self.state["powerbi"] is not None and jsonPayload.get('webApp') is not None and jsonPayload.get(
+                'webApp').get('options').get('charts') is not None:
+            if self.state["powerbi"]['dashboard_view'] is not None:
+                for dashboard_view_tag in self.state["powerbi"]['dashboard_view']:
+                    for dashboard in jsonPayload.get('webApp').get('options').get('charts').get('dashboardsView'):
+                        if (dashboard_view_tag == dashboard["reportTag"]):
+                            dashboard["reportId"] = self.state["powerbi"]['dashboard_view'][dashboard_view_tag]
+
+            if self.state["powerbi"]['scenario_view'] is not None:
+                for scenario_view_tag in self.state["powerbi"]['scenario_view']:
+                    for scenario in jsonPayload.get('webApp').get('options').get('charts').get('scenarioView'):
+                        if isinstance(scenario, dict):
+                            if (scenario_view_tag == scenario["reportTag"]):
+                                scenario["reportId"] = self.state["powerbi"]['scenario_view'][scenario_view_tag]
+                        else:
+                            scenarioData = jsonPayload.get('webApp').get('options').get('charts').get(
+                                'scenarioView').get(scenario, {})
+                            if (scenarioData is not None and scenario_view_tag == scenarioData.get("reportTag")):
+                                scenarioData["reportId"] = self.state["powerbi"]['scenario_view'][scenario_view_tag]
+
+        return jsonPayload
