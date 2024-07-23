@@ -60,5 +60,6 @@ def check_special_char(string: str):
     regex = re.compile('[@_!#$%^&*()<>?/\\|}{~:|\\.]')
     if not regex.search(string):
         return string
-    logger.error(f"{string} is not accepted")
+    logger.error(f"{string} is invalid")
+    logger.error("@_!#$%^&*()<>?/|}{~:. characters are forbidden")
     sys.exit()
