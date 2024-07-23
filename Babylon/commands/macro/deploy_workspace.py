@@ -96,7 +96,10 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         env.store_state_in_cloud(state)
     # update sidecars
     sidecars = content.get("spec").get("sidecars", None)
-    workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts') or None
+    if content.get('spec').get('payload') is not None and content.get('spec').get('payload').get('webApp') is not None:
+        workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts') or None
+    else:
+        workspaceCharts = None
     if sidecars:
         eventhub_section = sidecars.get("azure").get("eventhub", {})
         adx_section = sidecars["azure"].get("adx", {})
@@ -212,11 +215,17 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                         scenarioWithThistag = False
                                         # set the good value of reportId in the reports objects inside scenarioView
                                         for scenario in allScenariosViews:
-                                            scenarioData = allScenariosViews.get(scenario, {})
-                                            if (scenarioData.get('reportTag') is not None
-                                                    and scenarioData.get('reportTag') == rtag):
-                                                scenarioData['reportId'] = custom_obj.get("reportId")
-                                                scenarioWithThistag = True
+                                            if isinstance(scenario, dict):
+                                                if (scenario.get('reportTag') is not None
+                                                        and scenario.get('reportTag') == rtag):
+                                                    scenario['reportId'] = custom_obj.get("reportId")
+                                                    scenarioWithThistag = True
+                                            else:
+                                                scenarioData = allScenariosViews.get(scenario, {})
+                                                if (scenarioData.get('reportTag') is not None
+                                                        and scenarioData.get('reportTag') == rtag):
+                                                    scenarioData['reportId'] = custom_obj.get("reportId")
+                                                    scenarioWithThistag = True
                                         if not scenarioWithThistag:
                                             logger.warning("[powerbi] Report tag is not found in scenarioView Section")
 
