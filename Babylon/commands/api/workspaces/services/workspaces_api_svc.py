@@ -155,7 +155,7 @@ class WorkspaceService:
                 security_svc.delete(id=s)
         return security_spec
 
-    def updatePayloadWithState(self):
+    def update_payload_with_state(self):
         jsonPayload = json.loads(self.spec["payload"])
         if self.state["powerbi"] is not None and jsonPayload.get('webApp') is not None and jsonPayload.get(
                 'webApp').get('options').get('charts') is not None:
