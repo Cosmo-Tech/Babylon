@@ -440,4 +440,5 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 print(data)
                 os.system(data)
         if not workspace.get("id"):
+            logger.error("workspace id not found")
             sys.exit(1)

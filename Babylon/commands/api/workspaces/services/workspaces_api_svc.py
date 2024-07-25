@@ -34,6 +34,8 @@ class WorkspaceService:
             f"{self.url}/organizations/{self.organization_id}/workspaces",
             self.azure_token,
         )
+        if response is None:
+            logger.error('An error occurred while getting of all workspaces')
         return response
 
     def get(self):
@@ -45,6 +47,8 @@ class WorkspaceService:
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
             self.azure_token,
         )
+        if response is None:
+            logger.error('An error occurred while getting of workspace by workspace_id')
         return response
 
     def create(self):
@@ -55,11 +59,13 @@ class WorkspaceService:
             type="POST",
             data=details,
         )
+        if response is None:
+            logger.error('An error occurred while creating the workspace')
         return response
 
     def update(self):
         workspace_id = self.state["api"]["workspace_id"]
-        details = self.updatePayloadWithState()
+        details = self.update_payload_with_state()
         details_json = json.dumps(details, indent=4, default=str)
         if not workspace_id:
             logger.error("workspace id not found")
@@ -70,6 +76,8 @@ class WorkspaceService:
             type="PATCH",
             data=details_json,
         )
+        if response is None:
+            logger.error('An error occurred while updating the workspace')
         return response
 
     def updateWithPayload(self, payload: dict):
@@ -84,6 +92,8 @@ class WorkspaceService:
             type="PATCH",
             data=details,
         )
+        if response is None:
+            logger.error('An error occurred while updating the workspace')
         return response
 
     def delete(self, force_validation: bool):
@@ -99,6 +109,8 @@ class WorkspaceService:
             self.azure_token,
             type="DELETE",
         )
+        if response is None:
+            logger.error('An error occurred while workspace deleting')
         return response
 
     def send_key(self, workspace_id: str, workspace_key: str):
@@ -123,6 +135,8 @@ class WorkspaceService:
             type="POST",
             data=details_json,
         )
+        if response is None:
+            logger.error('An error occurred while creating a workspace secret key')
         return response
 
     def update_security(self, old_security: dict):
@@ -138,21 +152,26 @@ class WorkspaceService:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
             response = security_svc.set_default(data)
             if response is None:
+                logger.error('An error occurred while updating a default security role in workspace')
                 return None
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = security_svc.update(id=g.get("id"), details=details)
                 if response is None:
+                    logger.error('An error occurred while updating a security role in workspace')
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = security_svc.add(details)
                 if response is None:
+                    logger.error('An error occurred while adding a security role in workspace')
                     return None
         for s in ids_existing:
             if s not in ids_spec:
-                security_svc.delete(id=s)
+                response = security_svc.delete(id=s)
+                if response is None:
+                    logger.error('An error occurred while deleting a security role in workspace')
         return security_spec
 
     def update_payload_with_state(self):

@@ -16,6 +16,7 @@ class AzurePowerBIParamsService:
         update_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/parameters"
         response = oauth_request(update_url, self.powerbi_token)
         if response is None:
+            logger.info(f"[powerbi] failled to get dataset with id: {dataset_id}")
             return None
         output_data = response.json().get("value")
         return output_data
@@ -28,5 +29,6 @@ class AzurePowerBIParamsService:
                       f"/datasets/{dataset_id}/Default.UpdateParameters")
         response = oauth_request(update_url, self.powerbi_token, json=details, type="POST")
         if response is None:
+            logger.info(f"[powerbi] failled to update dataset with id: {dataset_id}")
             return None
         logger.info("[powerbi] parameters successfully updated")

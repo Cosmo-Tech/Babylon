@@ -21,6 +21,7 @@ class AzurePowerBIDatasetService:
         url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}"
         response = oauth_request(url, self.powerbi_token, type="DELETE")
         if response is None:
+            logger.error(f"[powerbi] failed to delete dataset with dataset_id: {dataset_id}")
             return None
         return response
 
@@ -29,6 +30,7 @@ class AzurePowerBIDatasetService:
         url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
         response = oauth_request(url, self.powerbi_token)
         if response is None:
+            logger.error("[powerbi] failed to get all datasets")
             return None
         output_data = response.json().get("value")
         if filter:
@@ -40,6 +42,7 @@ class AzurePowerBIDatasetService:
         url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}"
         response = oauth_request(url, self.powerbi_token)
         if response is None:
+            logger.error(f"[powerbi] failed to get dataset with dataset_id: {dataset_id}")
             return None
         output_data = response.json()
         return output_data
@@ -49,6 +52,7 @@ class AzurePowerBIDatasetService:
         url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/Default.TakeOver"
         response = oauth_request(url, self.powerbi_token, type="POST")
         if response is None:
+            logger.error(f"[powerbi] failed to run TakeOver process on dataset_id : {dataset_id}")
             return None
         logger.info(f"[powerbi] successfully took ownership of dataset {dataset_id}")
 
@@ -59,6 +63,7 @@ class AzurePowerBIDatasetService:
         access_token = self.powerbi_token
         response = oauth_request(get_url, access_token)
         if response is None:
+            logger.error(f"[powerbi] failed to update dataset with dataset_id : {dataset_id}")
             return None
         output_data = response.json().get("value")
         credential_details = {

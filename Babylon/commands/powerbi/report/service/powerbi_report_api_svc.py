@@ -26,6 +26,7 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}"
         response = oauth_request(url=urls_reports, access_token=self.powerbi_token, type="DELETE")
         if response is None:
+            logger.error(f"[powerbi] failed to delete report with id : {report_id} ")
             return None
         return response
 
@@ -44,6 +45,7 @@ class AzurePowerBIReportService:
         url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
         response = oauth_request(url_report, self.powerbi_token)
         if response is None:
+            logger.error(f"[powerbi] failed to export report with id : {report_id} ")
             return None
         output_path = Path(response.headers.get("X-PowerBI-FileName"))
         if output_folder:
@@ -58,6 +60,7 @@ class AzurePowerBIReportService:
         urls_reports = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports")
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
+            logger.error("[powerbi] failed to get all reports")
             return None
         output_data = response.json().get("value")
         if filter:
@@ -68,6 +71,7 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
+            logger.error("[powerbi] failed to get report by report_id")
             return None
         output_data = response.json()
         return output_data
