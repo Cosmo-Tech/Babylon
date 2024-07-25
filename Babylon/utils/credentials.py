@@ -72,6 +72,7 @@ def get_azure_credentials() -> ClientSecretCredential:
             client_secret=baby_client_secret,
         )
         if credential is None:
+            logger.error(f"Authentication error during logging to Azure")
             raise AttributeError
     except (CredentialUnavailableError, AttributeError) as exp:
         logger.error(exp)

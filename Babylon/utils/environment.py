@@ -269,6 +269,7 @@ class Environment(metaclass=SingletonMeta):
         )
         response_json = response.json()
         if "refresh_token" not in response_json:
+            logger.info("refresh_token is missing")
             return None
         token_encrypt = self.working_dir.encrypt_content(
             encoding_key=encoding_key,

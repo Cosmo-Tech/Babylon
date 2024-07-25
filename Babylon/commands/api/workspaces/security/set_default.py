@@ -49,5 +49,6 @@ def set_default(
     response = service.set_default(details)
     default_security = response.json()
     if response is None:
+        logger.error('An error occurred while setting a default security role in workspace')
         return CommandResponse.fail()
     return CommandResponse.success(default_security, verbose=True)

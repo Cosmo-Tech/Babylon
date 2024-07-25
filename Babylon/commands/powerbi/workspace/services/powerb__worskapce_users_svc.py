@@ -24,6 +24,7 @@ class AzurePowerBIWorkspaceUserService:
         }
         response = oauth_request(url_users, self.powerbi_token, json=body, type="POST")
         if response is None:
+            logger.error("[powerbi] failed to add identifier")
             return None
         logger.info("[powerbi] identifier successfully added")
 
@@ -34,6 +35,7 @@ class AzurePowerBIWorkspaceUserService:
             return None
         response = oauth_request(url_users, self.powerbi_token, type="DELETE")
         if response is None:
+            logger.error("[powerbi] failed to delete identifier")
             return None
         logger.info("[powerbi] identifier successfully removed")
 
@@ -42,6 +44,7 @@ class AzurePowerBIWorkspaceUserService:
         url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users"
         response = oauth_request(url_users, self.powerbi_token)
         if response is None:
+            logger.error("[powerbi] failed to get all identifier")
             return None
         output_data = response.json().get("value")
         if filter:
@@ -58,6 +61,7 @@ class AzurePowerBIWorkspaceUserService:
         }
         response = oauth_request(url_users, self.powerbi_token, json=body, type="PUT")
         if response is None:
+            logger.error("[powerbi] failed to update identifier")
             return None
         logger.info("[powerbi] identifier successfully updated")
         return response
