@@ -62,6 +62,7 @@ class AzureDirectoyAppService:
         route = "https://graph.microsoft.com/v1.0/applications"
         response = oauth_request(route, self.azure_token)
         if response is None:
+            logger.error("[app] Failed to get all applications")
             return CommandResponse.fail()
         response = response.json()
         output_data = response["value"]
@@ -73,11 +74,13 @@ class AzureDirectoyAppService:
         get_route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         get_response = oauth_request(get_route, self.azure_token)
         if get_response is None:
+            logger.error(f"[app] Failed to get application id: {object_id}")
             return CommandResponse.fail()
         app_id = get_response.json().get("appId")
         route = f"https://graph.microsoft.com/v1.0/servicePrincipals(appId='{app_id}')"
         response = oauth_request(route, self.azure_token)
         if response is None:
+            logger.error(f"[app] Failed to get service principal id: {app_id}")
             return False
         output_data = response.json()
         return output_data["id"]
@@ -94,6 +97,7 @@ class AzureDirectoyAppService:
             timeout=10,
         )
         if response is None:
+            logger.error(f"[app] Failed to get applications id: {object_id}")
             return False
         output_data = response.json()
         return output_data
@@ -103,6 +107,7 @@ class AzureDirectoyAppService:
         route = f"https://graph.microsoft.com/v1.0/applications/{object_id}"
         sp_response = oauth_request(route, self.azure_token, type="PATCH", data=details)
         if sp_response is None:
+            logger.error(f"[app] Failed to update applications id: {object_id}")
             return False
         logger.info("[app] Successfully updated")
         return True
