@@ -57,8 +57,7 @@ class AzureSWAService:
         response = oauth_request(route, self.azure_token, type="DELETE")
         if response is None:
             logger.error(
-                f"[webapp] Failed to launch deletion of static webapp {webapp_name} from resource group {resource_group_name}"
-            )
+                f"[webapp] Failed to delete of static webapp {webapp_name} from resource group {resource_group_name}")
             return CommandResponse.fail()
         logger.info(
             f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}")
