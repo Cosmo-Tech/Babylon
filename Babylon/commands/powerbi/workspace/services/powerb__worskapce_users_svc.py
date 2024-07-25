@@ -24,7 +24,7 @@ class AzurePowerBIWorkspaceUserService:
         }
         response = oauth_request(url_users, self.powerbi_token, json=body, type="POST")
         if response is None:
-            logger.error("[powerbi] failed to add identifier")
+            logger.error(f"[powerbi] failed to add identifier with email: {identifier}")
             return None
         logger.info("[powerbi] identifier successfully added")
 
@@ -35,7 +35,7 @@ class AzurePowerBIWorkspaceUserService:
             return None
         response = oauth_request(url_users, self.powerbi_token, type="DELETE")
         if response is None:
-            logger.error("[powerbi] failed to delete identifier")
+            logger.error(f"[powerbi] failed to delete identifier with email: {email}")
             return None
         logger.info("[powerbi] identifier successfully removed")
 
