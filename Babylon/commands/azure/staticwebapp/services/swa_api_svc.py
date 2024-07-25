@@ -36,6 +36,7 @@ class AzureSWAService:
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
+            logger.error(f"[webapp] Failed to launch of webapp {webapp_name} in resource group {resource_group_name}")
             return None
         output_data = response.json()
         logger.info(f"[webapp] successfully launched of webapp {webapp_name} in resource group {resource_group_name}")
@@ -55,6 +56,9 @@ class AzureSWAService:
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="DELETE")
         if response is None:
+            logger.error(
+                f"[webapp] Failed to launch deletion of static webapp {webapp_name} from resource group {resource_group_name}"
+            )
             return CommandResponse.fail()
         logger.info(
             f"Successfully launched deletion of static webapp {webapp_name} from resource group {resource_group_name}")
@@ -69,6 +73,7 @@ class AzureSWAService:
             timeout=60,
         )
         if response_polling is None:
+            logger.error(f"[webapp] Failed to delete static webapp {webapp_name}")
             return CommandResponse.fail(verbose=False)
 
     def get_all(self, filter: str):
@@ -80,6 +85,7 @@ class AzureSWAService:
             self.azure_token,
         )
         if response is None:
+            logger.error(f"[webapp] Failed to get all subscriptions in resource groups {resource_group_name}")
             return None
         output_data = response.json().get("value")
         if filter:
@@ -100,6 +106,7 @@ class AzureSWAService:
             timeout=60,
         )
         if response is None:
+            logger.error(f"[webapp] Failed to get static webapp {webapp_name}")
             return None
         outputdata = response.json()
         return outputdata
@@ -117,6 +124,7 @@ class AzureSWAService:
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
+            logger.error(f"[webapp] Failed to update static webapp {webapp_name}")
             return None
         output_data = response.json()
         logger.info("[webapp] update successfully launched")
