@@ -63,7 +63,7 @@ class AzurePowerBIDatasetService:
         access_token = self.powerbi_token
         response = oauth_request(get_url, access_token)
         if response is None:
-            logger.error(f"[powerbi] failed to update dataset with dataset_id : {dataset_id}")
+            logger.error(f"[powerbi] failed to update credentials on dataset_id : {dataset_id}")
             return None
         output_data = response.json().get("value")
         credential_details = {
