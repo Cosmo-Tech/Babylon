@@ -56,15 +56,15 @@ def deploy_dataset(namespace: str, file_content: str, deploy_dir: pathlib.Path) 
             if not payload["source"].get("location"):
                 payload["source"]["location"] = state["services"]["api"]["organization_id"]
         else:
-            datasets_csv_dir_path = (pathlib.Path(deploy_dir) / azure["dataset"]["storage"]["local_path"])
-            files = list(pathlib.Path(datasets_csv_dir_path).iterdir())
-            datasets = list(filter(lambda x: x.suffix == ".csv", files))
+            datasets_dir_path = (pathlib.Path(deploy_dir) / azure["dataset"]["storage"]["local_path"])
+            files = list(pathlib.Path(datasets_dir_path).iterdir())
+            datasets = list(filter(lambda x: x.suffix != "", files))
             dataset_dir_name = payload["name"].replace(" ", "_").lower()
             storage_service = DatasetStorageService(azure_token=azure_token, state=state["services"])
             for dataset in datasets:
                 dataset_name = basename(dataset)
                 storage_service.upload_csv_to_storage(
-                    path=datasets_csv_dir_path / f"{dataset_name}",
+                    path=datasets_dir_path / f"{dataset_name}",
                     dataset_dir_name=dataset_dir_name,
                     dataset_name=dataset_name,
                     override=True,
@@ -88,6 +88,7 @@ def deploy_dataset(namespace: str, file_content: str, deploy_dir: pathlib.Path) 
             return str()
         dataset = response.json()
         dataset_id = dataset["id"]
+        Path = (f"{state['services']['api']['workspace_id']}/datasets/{dataset_dir_name}")
         if source_type != "None":
             if source_type in ["ADT", "AzureStorage"]:
                 dataset_service.refresh(dataset_id=dataset_id)
@@ -103,7 +104,7 @@ def deploy_dataset(namespace: str, file_content: str, deploy_dir: pathlib.Path) 
                 status_text = str(status.text)
             if "SUCCESS" not in status_text:
                 logger.error(
-                    f"[api] dataset {dataset['id']} has been created but the creation of a twingraph has failed")
+                    f"[api] dataset {Path}/{dataset['id']} has been created but the creation of a twingraph has failed")
             else:
                 logger.info("[api] twingraph successfully created")
         logger.info(f"[api] successfully created dataset {dataset['id']}")
