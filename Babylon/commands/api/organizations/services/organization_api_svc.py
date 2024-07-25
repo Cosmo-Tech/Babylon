@@ -26,6 +26,8 @@ class OrganizationService:
     def create(self):
         details = self.spec["payload"]
         response = oauth_request(f"{self.url}/organizations", self.azure_token, type="POST", data=details)
+        if response is None:
+            logger.error('An error occurred while creating the organisation')
         return response
 
     def delete(self, force_validation: bool):
@@ -40,6 +42,8 @@ class OrganizationService:
             self.azure_token,
             type="DELETE",
         )
+        if response is None:
+            logger.error(f'An error occurred while deleting the organisation with id: {organization_id}')
         return response
 
     def get(self):
@@ -48,10 +52,15 @@ class OrganizationService:
             logger.error("Organization id is missing")
             return None
         response = oauth_request(f"{self.url}/organizations/{organization_id}", self.azure_token)
+        if response is None:
+            logger.error(f"An error occurred while getting the organisation with id: {organization_id}")
         return response
 
     def get_all(self):
-        return oauth_request(f"{self.url}/organizations", self.azure_token)
+        response = oauth_request(f"{self.url}/organizations", self.azure_token)
+        if response is None:
+            logger.error('An error occurred while getting of all organisations')
+        return response
 
     def update(self):
         details = self.spec["payload"]
@@ -62,6 +71,8 @@ class OrganizationService:
             type="PATCH",
             data=details,
         )
+        if response is None:
+            logger.error(f"An error occurred while updating the organisation with id: {organization_id}")
         return response
 
     def update_security(self, old_security: dict):
@@ -77,21 +88,25 @@ class OrganizationService:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
             response = self.security_svc.set_default(data)
             if response is None:
+                logger.error('An error occurred while updating a default security role in organization')
                 return None
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = self.security_svc.update(id=g.get("id"), details=details)
                 if response is None:
+                    logger.error('An error occurred while updating a security role in organization')
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = self.security_svc.add(details)
                 if response is None:
+                    logger.error('An error occurred while adding a security role in organization')
                     return None
         for s in ids_existing:
             if s not in ids_spec:
                 response = self.security_svc.delete(id=s)
                 if response is None:
+                    logger.error('An error occurred while deleting a security role in organization')
                     return None
         return security_spec
