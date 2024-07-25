@@ -33,6 +33,8 @@ class SolutionService:
             type="POST",
             data=details,
         )
+        if response is None:
+            logger.error('An error occurred while creating the solution')
         return response
 
     def delete(self, force_validation: bool):
@@ -44,6 +46,8 @@ class SolutionService:
             self.azure_token,
             "DELETE",
         )
+        if response is None:
+            logger.error(f"An error occurred while creating the solution id : {self.solution_id}")
         return response
 
     def get(self):
@@ -52,6 +56,8 @@ class SolutionService:
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
             self.azure_token,
         )
+        if response is None:
+            logger.error(f"An error occurred while getting the solution id : {self.solution_id}")
         return response
 
     def get_all(self):
@@ -59,6 +65,8 @@ class SolutionService:
             f"{self.url}/organizations/{self.organization_id}/solutions",
             self.azure_token,
         )
+        if response is None:
+            logger.error('An error occurred while getting all solutions')
         return response
 
     def update(self):
@@ -70,6 +78,8 @@ class SolutionService:
             "PATCH",
             data=details,
         )
+        if response is None:
+            logger.error(f"An error occurred while updating the solution id : {self.solution_id}")
         return response
 
     def update_security(self, old_security: dict):
@@ -85,22 +95,26 @@ class SolutionService:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
             response = self.security_svc.set_default(data)
             if response is None:
+                logger.error('An error occurred while updating a default security role in solution')
                 return None
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = self.security_svc.update(id=g.get("id"), details=details)
                 if response is None:
+                    logger.error('An error occurred while updating a security role in solution')
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = self.security_svc.add(details)
                 if response is None:
+                    logger.error('An error occurred while adding a security role in solution')
                     return None
         for s in ids_existing:
             if s not in ids_spec:
                 response = self.security_svc.remove(id=s)
                 if response is None:
+                    logger.error('An error occurred while deleting a security role in solution')
                     return None
         return security_spec
 
