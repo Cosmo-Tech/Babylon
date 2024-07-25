@@ -263,7 +263,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
             payloadUpdated: dict = content.get("spec").get("payload")
             specUpdated = dict()
             specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
-            workspace_svc.updateWithPayload(specUpdated)
+            workspace_svc.update_with_payload(specUpdated)
         azure_credential = get_azure_credentials()
         if adx_section:
             ok = True

@@ -80,7 +80,7 @@ class WorkspaceService:
             logger.error('An error occurred while updating the workspace')
         return response
 
-    def updateWithPayload(self, payload: dict):
+    def update_with_payload(self, payload: dict):
         workspace_id = self.state["api"]["workspace_id"]
         details = payload["payload"]
         if not workspace_id:
@@ -136,7 +136,7 @@ class WorkspaceService:
             data=details_json,
         )
         if response is None:
-            logger.error('An error occurred while creating a workspace secret key')
+            logger.error('An error occurred while sending a workspace secret key')
         return response
 
     def update_security(self, old_security: dict):
