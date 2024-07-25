@@ -36,7 +36,7 @@ class AzureSWAService:
             f"providers/Microsoft.Web/staticSites/{webapp_name}?api-version=2022-03-01")
         response = oauth_request(route, self.azure_token, type="PUT", data=details)
         if response is None:
-            logger.error(f"[webapp] Failed to launch of webapp {webapp_name} in resource group {resource_group_name}")
+            logger.error(f"[webapp] Failed to create webapp {webapp_name} in resource group {resource_group_name}")
             return None
         output_data = response.json()
         logger.info(f"[webapp] successfully launched of webapp {webapp_name} in resource group {resource_group_name}")
