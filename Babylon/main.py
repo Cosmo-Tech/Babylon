@@ -69,6 +69,8 @@ The following environment variables are required:
     """
     if not tests_mode:
         sys.tracebacklimit = 0
+        current_working_directory = os.getcwd()
+        env.set_variable_files([f'{current_working_directory}/variables.yaml'])
         vars = env.get_variables()
         path_logs = vars.get('path_logs')
         if vars.get('path_logs'):
