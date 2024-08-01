@@ -72,6 +72,16 @@ class Environment(metaclass=SingletonMeta):
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
         self.variable_files: [Path] = []
 
+    def get_variables_for_logs(self):
+        variables_file = self.pwd / "variables.yaml"
+        vars = dict()
+        if variables_file.exists():
+            logger.debug(f"Loading variables from {variables_file}")
+            vars = yaml.safe_load(variables_file.open()) or dict()
+        vars["secret_powerbi"] = ""
+        vars["github_secret"] = ""
+        return vars
+
     def get_variables(self):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
