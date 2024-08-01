@@ -96,19 +96,19 @@ def apply(deploy_dir: pathlib.Path, organization: bool, solution: bool, workspac
                 namespace = s.get('namespace')
                 deploy_solution(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
         elif workspace:
-            for s in solutions:
-                content = s.get('content')
-                namespace = s.get('namespace')
+            for w in workspaces:
+                content = w.get('content')
+                namespace = w.get('namespace')
                 deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
         elif webapp:
-            for s in solutions:
-                content = s.get('content')
-                namespace = s.get('namespace')
+            for swa in webapps:
+                content = swa.get('content')
+                namespace = swa.get('namespace')
                 deploy_swa(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
         elif dataset:
-            for s in solutions:
-                content = s.get('content')
-                namespace = s.get('namespace')
+            for d in datasets:
+                content = d.get('content')
+                namespace = d.get('namespace')
                 deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
                 if deployed_dataset_id:
                     final_datasets.append(deployed_dataset_id)
