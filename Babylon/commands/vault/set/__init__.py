@@ -6,10 +6,11 @@ from .babylon import set_babylon
 from .project import project
 from .platform import platform
 from .user import set_user_secrets
+from .set_workspace_secret import set_workspace_secrets
 
 env = Environment()
 
-list_commands = [set_global, set_babylon, project, platform, set_user_secrets]
+list_commands = [set_global, set_babylon, project, platform, set_workspace_secrets, set_user_secrets]
 
 
 @group()
