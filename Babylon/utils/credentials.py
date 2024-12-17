@@ -17,7 +17,7 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 
-def get_default_token():
+def get_default_powerbi_token():
     try:
         credential = DefaultAzureCredential()
         token = credential.get_token("https://analysis.windows.net/powerbi/api/.default")
