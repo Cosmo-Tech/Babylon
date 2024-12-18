@@ -1,3 +1,4 @@
+from typing import Iterable
 import yaml
 import click
 import pathlib
@@ -20,19 +21,30 @@ env = Environment()
 @command()
 @injectcontext()
 @argument("deploy_dir", type=Path(dir_okay=True, exists=True))
-@option('--var-file',
-        'variables_files',
-        type=Path(file_okay=True, exists=True),
-        default=["./variables.yaml"],
-        multiple=True,
-        help='Specify the path of your variable file. By default, it takes the variables.yaml file.')
-@option('--organization', is_flag=True, help='Deploy or update an organization.')
-@option('--solution', is_flag=True, help='Deploy or update a solution.')
-@option('--workspace', is_flag=True, help='Deploy or update a workspace.')
-@option('--webapp', is_flag=True, help='Deploy or update a webapp.')
-@option('--dataset', is_flag=True, help='Deploy or update a dataset.')
-def apply(deploy_dir: pathlib.Path, organization: bool, solution: bool, workspace: bool, webapp: bool, dataset: bool,
-          variables_files: [pathlib.Path]):
+@option(
+    "--var-file",
+    "variables_files",
+    type=Path(file_okay=True, exists=True),
+    default=["./variables.yaml"],
+    multiple=True,
+    help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
+)
+@option("--organization", is_flag=True, help="Deploy or update an organization.")
+@option("--solution", is_flag=True, help="Deploy or update a solution.")
+@option("--workspace", is_flag=True, help="Deploy or update a workspace.")
+@option("--webapp", is_flag=True, help="Deploy or update a webapp.")
+@option("--dataset", is_flag=True, help="Deploy or update a dataset.")
+@option("--payload-only", is_flag=True, help="Specify if you want to specify payload only")
+def apply(
+    deploy_dir: pathlib.Path,
+    organization: bool,
+    solution: bool,
+    workspace: bool,
+    webapp: bool,
+    dataset: bool,
+    payload_only: bool,
+    variables_files: Iterable[pathlib.Path],
+):  # type: ignore
     """Macro Apply"""
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
     files = list(pathlib.Path(deploy_dir).iterdir())
@@ -45,78 +57,87 @@ def apply(deploy_dir: pathlib.Path, organization: bool, solution: bool, workspac
             content = input_file.read()
             escaped_content = content.replace("{{", "${").replace("}}", "}")
             yaml_data = yaml.safe_load(escaped_content)
-            resource['kind'] = yaml_data.get('kind')
-            resource['namespace'] = yaml.safe_dump(yaml_data.get('namespace'))
-            resource['content'] = escaped_content
+            resource["kind"] = yaml_data.get("kind")
+            resource["namespace"] = yaml.safe_dump(yaml_data.get("namespace"))
+            resource["content"] = escaped_content
             resources.append(resource)
 
-    organizations = list(filter(lambda x: x.get('kind') == "Organization", resources))
-    solutions = list(filter(lambda x: x.get('kind') == "Solution", resources))
-    workspaces = list(filter(lambda x: x.get('kind') == "Workspace", resources))
-    webapps = list(filter(lambda x: x.get('kind') == "WebApp", resources))
-    datasets = list(filter(lambda x: x.get('kind') == "Dataset", resources))
-    _ret = ['']
+    organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
+    solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
+    workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
+    webapps = list(filter(lambda x: x.get("kind") == "WebApp", resources))
+    datasets = list(filter(lambda x: x.get("kind") == "Dataset", resources))
+    _ret = [""]
     final_datasets = []
     if not (organization or solution or workspace or webapp or dataset):
         for o in organizations:
-            content = o.get('content')
-            namespace = o.get('namespace')
+            content = o.get("content")
+            namespace = o.get("namespace")
             deploy_organization(namespace=namespace, file_content=content)
 
         for s in solutions:
-            content = s.get('content')
-            namespace = s.get('namespace')
-            deploy_solution(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+            content = s.get("content")
+            namespace = s.get("namespace")
+            deploy_solution(namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only)
 
         for swa in webapps:
-            content = swa.get('content')
-            namespace = swa.get('namespace')
+            content = swa.get("content")
+            namespace = swa.get("namespace")
             deploy_swa(namespace=namespace, file_content=content)
 
         for w in workspaces:
-            content = w.get('content')
-            namespace = w.get('namespace')
-            deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+            content = w.get("content")
+            namespace = w.get("namespace")
+            deploy_workspace(namespace=namespace,
+                             file_content=content,
+                             deploy_dir=deploy_dir,
+                             payload_only=payload_only)
 
         for d in datasets:
-            content = d.get('content')
-            namespace = d.get('namespace')
+            content = d.get("content")
+            namespace = d.get("namespace")
             deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
             if deployed_dataset_id:
                 final_datasets.append(deployed_dataset_id)
     else:
         if organization:
             for o in organizations:
-                content = o.get('content')
-                namespace = o.get('namespace')
+                content = o.get("content")
+                namespace = o.get("namespace")
                 deploy_organization(namespace=namespace, file_content=content)
         elif solution:
             for s in solutions:
-                content = s.get('content')
-                namespace = s.get('namespace')
-                deploy_solution(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+                content = s.get("content")
+                namespace = s.get("namespace")
+                deploy_solution(namespace=namespace,
+                                file_content=content,
+                                deploy_dir=deploy_dir,
+                                payload_only=payload_only)
         elif workspace:
             for w in workspaces:
-                content = w.get('content')
-                namespace = w.get('namespace')
-                deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+                content = w.get("content")
+                namespace = w.get("namespace")
+                deploy_workspace(namespace=namespace,
+                                 file_content=content,
+                                 deploy_dir=deploy_dir,
+                                 payload_only=payload_only)
         elif webapp:
             for swa in webapps:
-                content = swa.get('content')
-                namespace = swa.get('namespace')
+                content = swa.get("content")
+                namespace = swa.get("namespace")
                 deploy_swa(namespace=namespace, file_content=content)
         elif dataset:
             for d in datasets:
-                content = d.get('content')
-                namespace = d.get('namespace')
+                content = d.get("content")
+                namespace = d.get("namespace")
                 deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
                 if deployed_dataset_id:
                     final_datasets.append(deployed_dataset_id)
 
     final_state = env.get_state_from_local()
-    services = final_state.get('services')
+    services = final_state.get("services")
 
-    _ret = ['']
+    _ret = [""]
     _ret.append("")
     _ret.append("Deployments: ")
     _ret.append("")
@@ -125,17 +146,17 @@ def apply(deploy_dir: pathlib.Path, organization: bool, solution: bool, workspac
     _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
     for id in final_datasets:
         _ret.append(f"   * Dataset        : {id}")
-    if services.get('webapp').get('static_domain', ''):
+    if services.get("webapp").get("static_domain", ""):
         _ret.append("   * WebApp         ")
         _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
     vars = env.get_variables()
     current_working_directory = os.getcwd()
     logfile_path = os.path.join(current_working_directory, "babylon.log")
     logfile_directory = os.path.dirname(logfile_path)
-    _logs = ['']
+    _logs = [""]
     _logs.append("Babylon Logs: ")
     _logs.append("")
-    if vars.get('path_logs'):
+    if vars.get("path_logs"):
         _logs.append(f"   * The Babylon log and error files are generated at: {vars.get('path_logs')}")
     else:
         _logs.append(f"   * The Babylon log and error files are generated at: {logfile_directory}")
