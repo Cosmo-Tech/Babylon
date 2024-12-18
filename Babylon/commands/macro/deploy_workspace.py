@@ -29,7 +29,6 @@ from Babylon.utils.credentials import (
     get_azure_credentials,
     get_azure_token,
     get_default_powerbi_token,
-    get_powerbi_token,
 )
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
     AzurePowerBIWorkspaceUserService, )
@@ -97,8 +96,9 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         env.store_state_in_cloud(state)
     # update sidecars
     sidecars = content.get("spec").get("sidecars", None)
-    if content.get('spec').get('payload') is not None and content.get('spec').get('payload').get('webApp') is not None:
-        workspaceCharts = content.get('spec').get('payload').get('webApp').get('options').get('charts') or None
+    if (content.get("spec").get("payload") is not None
+            and content.get("spec").get("payload").get("webApp") is not None):
+        workspaceCharts = (content.get("spec").get("payload").get("webApp").get("options").get("charts") or None)
     else:
         workspaceCharts = None
     if sidecars:
@@ -201,14 +201,15 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                         # set the good value of reportId in the reports objects inside dashboardsView
                                         filteredTitles = list(
                                             filter(
-                                                lambda x: x.get('reportTag') is not None and x.get('reportTag') == rtag,
-                                                allDashboardsViews))
+                                                lambda x: x.get("reportTag") is not None and x.get("reportTag") == rtag,
+                                                allDashboardsViews,
+                                            ))
                                         if not filteredTitles:
                                             logger.warning(
                                                 "[powerbi] Report tag is not found in dashboardsView Section")
                                         else:
                                             for item in filteredTitles:
-                                                item['reportId'] = custom_obj.get("reportId")
+                                                item["reportId"] = custom_obj.get("reportId")
 
                                     if rtype == "scenario":
                                         scenario_view[rtag] = custom_obj.get("reportId")
@@ -217,15 +218,15 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                         # set the good value of reportId in the reports objects inside scenarioView
                                         for scenario in allScenariosViews:
                                             if isinstance(scenario, dict):
-                                                if (scenario.get('reportTag') is not None
-                                                        and scenario.get('reportTag') == rtag):
-                                                    scenario['reportId'] = custom_obj.get("reportId")
+                                                if (scenario.get("reportTag") is not None
+                                                        and scenario.get("reportTag") == rtag):
+                                                    scenario["reportId"] = (custom_obj.get("reportId"))
                                                     scenarioWithThistag = True
                                             else:
                                                 scenarioData = allScenariosViews.get(scenario, {})
-                                                if (scenarioData.get('reportTag') is not None
-                                                        and scenarioData.get('reportTag') == rtag):
-                                                    scenarioData['reportId'] = custom_obj.get("reportId")
+                                                if (scenarioData.get("reportTag") is not None
+                                                        and scenarioData.get("reportTag") == rtag):
+                                                    scenarioData["reportId"] = (custom_obj.get("reportId"))
                                                     scenarioWithThistag = True
                                         if not scenarioWithThistag:
                                             logger.warning("[powerbi] Report tag is not found in scenarioView Section")
@@ -257,8 +258,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 if env.remote:
                     env.store_state_in_cloud(state)
         if workspaceCharts is not None and powerbi_section:
-            content.get('spec').get('payload').get('webApp').get('options').get(
-                'charts')['workspaceId'] = state["services"]["powerbi"]["workspace.id"]
+            content.get("spec").get("payload").get("webApp").get("options").get(
+                "charts")["workspaceId"] = state["services"]["powerbi"]["workspace.id"]
             logger.info(
                 f"[powerbi] updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
             payloadUpdated: dict = content.get("spec").get("payload")

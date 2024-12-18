@@ -104,7 +104,7 @@ def apply(deploy_dir: pathlib.Path, organization: bool, solution: bool, workspac
             for swa in webapps:
                 content = swa.get('content')
                 namespace = swa.get('namespace')
-                deploy_swa(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+                deploy_swa(namespace=namespace, file_content=content)
         elif dataset:
             for d in datasets:
                 content = d.get('content')

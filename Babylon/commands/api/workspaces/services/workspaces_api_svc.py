@@ -176,8 +176,8 @@ class WorkspaceService:
 
     def update_payload_with_state(self):
         jsonPayload = json.loads(self.spec["payload"])
-        if self.state["powerbi"] is not None and jsonPayload.get('webApp') is not None and jsonPayload.get(
-                'webApp').get('options').get('charts') is not None:
+        if self.state["powerbi"].get("workspace.id") and jsonPayload.get('webApp').get(
+                "static_domain") and jsonPayload.get('webApp').get('options').get('charts'):
             if self.state["powerbi"]['dashboard_view'] is not None:
                 for dashboard_view_tag in self.state["powerbi"]['dashboard_view']:
                     for dashboard in jsonPayload.get('webApp').get('options').get('charts').get('dashboardsView'):
@@ -195,5 +195,4 @@ class WorkspaceService:
                                 'scenarioView').get(scenario, {})
                             if (scenarioData is not None and scenario_view_tag == scenarioData.get("reportTag")):
                                 scenarioData["reportId"] = self.state["powerbi"]['scenario_view'][scenario_view_tag]
-
         return jsonPayload
