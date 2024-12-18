@@ -37,7 +37,7 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
+def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
     _ret = [""]
     _ret.append("Workspace deployment")
     _ret.append("")
@@ -101,7 +101,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         workspaceCharts = (content.get("spec").get("payload").get("webApp").get("options").get("charts") or None)
     else:
         workspaceCharts = None
-    if sidecars:
+    if sidecars and not payload_only:
         eventhub_section = sidecars.get("azure").get("eventhub", {})
         adx_section = sidecars["azure"].get("adx", {})
         powerbi_section = sidecars["azure"].get("powerbi", {})

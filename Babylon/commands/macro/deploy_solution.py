@@ -11,39 +11,45 @@ import click
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_azure_token
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
-from Babylon.commands.api.solutions.services.solutions_handler_svc import SolutionHandleService
+from Babylon.commands.api.solutions.services.solutions_handler_svc import (
+    SolutionHandleService, )
 
 logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path) -> bool:
+def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
     _ret = [""]
     _ret.append("Solution deployment")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
-    state['services']['api']['url'] = platform_url
-    state['services']['azure']['tenant_id'] = env.tenant_id
+    state["services"]["api"]["url"] = platform_url
+    state["services"]["azure"]["tenant_id"] = env.tenant_id
     vars = env.get_variables()
     metadata = env.get_metadata(vars=vars, content=file_content, state=state)
-    workspace_key = metadata.get("workspace_key", vars.get('workspace_key', state["services"]["api"]["workspace_key"]))
+    workspace_key = metadata.get(
+        "workspace_key",
+        vars.get("workspace_key", state["services"]["api"]["workspace_key"]),
+    )
     state["services"]["api"]["workspace_key"] = workspace_key
     azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
-    state['services']["api"]["solution_id"] = (payload.get("id") or state['services']["api"]["solution_id"])
-    if metadata.get('selector', ""):
-        state["services"]["api"]["organization_id"] = metadata['selector'].get('organization_id', "")
+    state["services"]["api"]["solution_id"] = (payload.get("id") or state["services"]["api"]["solution_id"])
+    if metadata.get("selector", ""):
+        state["services"]["api"]["organization_id"] = metadata["selector"].get("organization_id", "")
     else:
-        if not state['services']['api']['organization_id']:
-            logger.error("Selector verification failed. Please check the selector field for correctness: %s",
-                         metadata.get('selector'))
+        if not state["services"]["api"]["organization_id"]:
+            logger.error(
+                "Selector verification failed. Please check the selector field for correctness: %s",
+                metadata.get("selector"),
+            )
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=state['services'])
-    if not state['services']["api"]["solution_id"]:
+    solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=state["services"])
+    if not state["services"]["api"]["solution_id"]:
         logger.info("[api] creating solution")
         response = solution_svc.create()
         solution = response.json()
@@ -64,7 +70,7 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
         env.store_state_in_cloud(state)
     # update run_templates
     sidecars = content.get("spec").get("sidecars", {})
-    if sidecars:
+    if sidecars and not payload_only:
         logger.info("[api] uploading run templates")
         if env.remote:
             run_templates = sidecars["azure"]["run_templates"]
@@ -72,10 +78,11 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
                 run_id = run_item.get("id")
                 for handler_id, deploy in run_item.get("handlers").items():
                     if deploy:
-                        run_id_dir_path: pathlib.Path = pathlib.Path(deploy_dir) / "run_templates" / run_id / handler_id
+                        run_id_dir_path: pathlib.Path = (pathlib.Path(deploy_dir) / "run_templates" / run_id /
+                                                         handler_id)
                         solution_handler_svc = SolutionHandleService(azure_token=azure_token, state=state["services"])
                         if run_id_dir_path.is_dir():
-                            with ZipFile(run_id_dir_path / f"{handler_id}.zip", 'w') as zip_object:
+                            with ZipFile(run_id_dir_path / f"{handler_id}.zip", "w") as zip_object:
                                 for f in run_id_dir_path.iterdir():
                                     if basename(f) != f"{handler_id}.zip":
                                         zip_object.write(f, basename(f))
