@@ -63,29 +63,30 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path)
     if env.remote:
         env.store_state_in_cloud(state)
     # update run_templates
-    logger.info("[api] uploading run templates")
     sidecars = content.get("spec").get("sidecars", {})
-    if env.remote:
-        run_templates = sidecars["azure"]["run_templates"]
-        for run_item in run_templates:
-            run_id = run_item.get("id")
-            for handler_id, deploy in run_item.get("handlers").items():
-                if deploy:
-                    run_id_dir_path: pathlib.Path = pathlib.Path(deploy_dir) / "run_templates" / run_id / handler_id
-                    solution_handler_svc = SolutionHandleService(azure_token=azure_token, state=state["services"])
-                    if run_id_dir_path.is_dir():
-                        with ZipFile(run_id_dir_path / f"{handler_id}.zip", 'w') as zip_object:
-                            for f in run_id_dir_path.iterdir():
-                                if basename(f) != f"{handler_id}.zip":
-                                    zip_object.write(f, basename(f))
-                    handler_zip_path = run_id_dir_path / f"{handler_id}.zip"
-                    solution_handler_svc.upload(
-                        run_template_id=run_id,
-                        handler_id=handler_id,
-                        handler_path=handler_zip_path,
-                        override=True,
-                    )
-                    os.remove(handler_zip_path)
+    if sidecars:
+        logger.info("[api] uploading run templates")
+        if env.remote:
+            run_templates = sidecars["azure"]["run_templates"]
+            for run_item in run_templates:
+                run_id = run_item.get("id")
+                for handler_id, deploy in run_item.get("handlers").items():
+                    if deploy:
+                        run_id_dir_path: pathlib.Path = pathlib.Path(deploy_dir) / "run_templates" / run_id / handler_id
+                        solution_handler_svc = SolutionHandleService(azure_token=azure_token, state=state["services"])
+                        if run_id_dir_path.is_dir():
+                            with ZipFile(run_id_dir_path / f"{handler_id}.zip", 'w') as zip_object:
+                                for f in run_id_dir_path.iterdir():
+                                    if basename(f) != f"{handler_id}.zip":
+                                        zip_object.write(f, basename(f))
+                        handler_zip_path = run_id_dir_path / f"{handler_id}.zip"
+                        solution_handler_svc.upload(
+                            run_template_id=run_id,
+                            handler_id=handler_id,
+                            handler_path=handler_zip_path,
+                            override=True,
+                        )
+                        os.remove(handler_zip_path)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
         data = run_scripts.get("post_deploy.sh", "")
