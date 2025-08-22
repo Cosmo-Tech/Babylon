@@ -26,6 +26,6 @@ jobs:
         with:
           serverhostname: ${{ secrets.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
           apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
-          project: 'b2832cf3-014e-493a-b712-b3ff703d8728'
+          project: 'b79e84bb-f445-4b32-a56c-5c82c0064aff'
           bomfilename: 'sbom.json'
     
