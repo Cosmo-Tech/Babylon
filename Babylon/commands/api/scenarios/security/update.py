@@ -1,7 +1,7 @@
 import json
 from logging import getLogger
 from typing import Any
-from click import command, argument
+from click import command
 from click import option
 from Babylon.commands.api.scenarios.services.scenario_security_svc import (
     ScenarioSecurityService, )
@@ -22,7 +22,9 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_azure_token("csm_api")
-@argument("identity_id", type=str)
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
+@option("--scenario-id", "scenario_id", type=str)
 @option(
     "--role",
     "role",
@@ -30,9 +32,7 @@ env = Environment()
     required=True,
     help="Role RBAC",
 )
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
-@option("--scenario-id", "scenario_id", type=str)
+@option("--identity-id", type=str, required=True, help="Email valid")
 @retrieve_state
 def update(
     state: Any,

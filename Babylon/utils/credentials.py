@@ -12,6 +12,8 @@ from azure.identity import DefaultAzureCredential
 from Babylon.utils.checkers import check_email
 from Babylon.utils.response import CommandResponse
 from .environment import Environment
+import requests
+import difflib
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -77,6 +79,64 @@ def get_azure_credentials() -> ClientSecretCredential:
     except (CredentialUnavailableError, AttributeError) as exp:
         logger.error(exp)
     return credential
+
+
+def correct_auth_method(auth_method):
+    """
+    Find the closest match among the valid options  
+    `n=1`: Returns at most one best match  
+    `cutoff=0.6`: Only considers words with at least 60% similarity
+    Return the closest match or default to "azure"""
+    valid_options = ["azure", "keycloak"]
+    match = difflib.get_close_matches(auth_method, valid_options, n=1, cutoff=0.6)
+    return match[0] if match else "azure"
+
+
+def get_keycloak_credentials() -> dict:
+    """Returns the client credentials required for keycloak authentification"""
+    try:
+        config = env.get_state_from_vault_by_platform(env.environ_id)
+        credential = {
+            "grant_type": config["keycloak"]["grant_type"],
+            "client_id": config["keycloak"]["client_id"],
+            "client_secret": config["keycloak"]["client_secret"],
+            "scope": config["keycloak"]["scope"]
+        }
+        if not all(credential.values()):
+            missing = [k for k, v in credential.items() if not v]
+            raise AttributeError(f"Missing required Keycloak credentials: {', '.join(missing)}")
+
+        return credential
+
+    except KeyError as e:
+        error_msg = f"Missing Keycloak configuration in Vault: {str(e)}"
+        logger.error(error_msg)
+    except Exception as e:
+        error_msg = f"Unexpected error getting Keycloak credentials: {str(e)}"
+        logger.error(error_msg)
+
+
+def get_keycloak_token() -> str:
+    """Fetches an access token from Keycloak using the client credentials flow"""
+
+    config = env.get_state_from_vault_by_platform(env.environ_id)
+    url = config["keycloak"]["url"]
+    try:
+        credentials = get_keycloak_credentials()
+
+        headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
+        response = requests.post(url=url, data=credentials, headers=headers, timeout=30)
+
+        response.raise_for_status()
+
+        token_data = response.json()
+        access_token = token_data.get("access_token", )
+        if not access_token:
+            logger.error("Access token not found in Keycloak response")
+        return access_token
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Keycloak request failed: {e}")
 
 
 def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:

@@ -1,6 +1,6 @@
 import logging
 
-from click import argument, command, option
+from click import command, option
 
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_azure_token
@@ -20,7 +20,7 @@ env = Environment()
 @output_to_file
 @option("--organization-id", "organization_id", type=str)
 @option("--dataset-id", "dataset_id", type=str)
-@argument("identity_id", type=str)
+@option("--identity-id", type=str, required=True, help="Email valid")
 @retrieve_state
 def delete(state: dict, azure_token: str, identity_id: str, organization_id: str, dataset_id: str) -> CommandResponse:
     """

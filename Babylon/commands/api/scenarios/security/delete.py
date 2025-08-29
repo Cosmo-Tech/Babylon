@@ -1,6 +1,6 @@
 from logging import getLogger
 from typing import Any
-from click import command, argument
+from click import command
 from click import option
 from Babylon.commands.api.scenarios.services.scenario_security_svc import (
     ScenarioSecurityService, )
@@ -21,7 +21,7 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_azure_token("csm_api")
-@argument("identity_id", type=str)
+@option("--identity-id", type=str, required=True, help="Email valid")
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--scenario-id", "scenario_id", type=str)
@@ -35,7 +35,7 @@ def delete(
     scenario_id: str,
 ) -> CommandResponse:
     """
-    Delete scenario RBAC access
+    Delete scenario users RBAC access
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]

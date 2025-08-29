@@ -2,6 +2,7 @@ from logging import getLogger
 from typing import Any
 
 from click import argument, command
+from click import option
 
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_azure_token
@@ -19,6 +20,8 @@ env = Environment()
 @output_to_file
 @pass_azure_token("csm_api")
 @argument("identity_id", type=str)
+@option("--organization-id", "organization_id", type=str)
+@option("--dataset-id", "dataset_id", type=str)
 @retrieve_state
 def get(state: Any, azure_token: str, identity_id: str, organization_id: str, dataset_id: str) -> CommandResponse:
     """

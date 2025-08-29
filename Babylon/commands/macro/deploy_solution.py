@@ -9,7 +9,7 @@ from posixpath import basename
 
 import click
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import get_azure_token
+from Babylon.utils.credentials import get_azure_token, get_keycloak_token
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.commands.api.solutions.services.solutions_handler_svc import (
     SolutionHandleService, )
@@ -34,8 +34,12 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path,
         vars.get("workspace_key", state["services"]["api"]["workspace_key"]),
     )
     state["services"]["api"]["workspace_key"] = workspace_key
-    azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
+    auth_method = str(content.get("namespace", {}).get("auth", "azure")).lower()
+    if auth_method == "azure":
+        azure_token = get_azure_token("csm_api")
+    else:
+        azure_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload")
     state["services"]["api"]["solution_id"] = (payload.get("id") or state["services"]["api"]["solution_id"])
     if metadata.get("selector", ""):

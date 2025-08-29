@@ -59,7 +59,7 @@ class ScenarioSecurityService:
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/scenarios/{self.scenario_id}/security/access/{id}",
             self.azure_token,
-            type="POST",
+            type="PATCH",
             data=details,
         )
         return response

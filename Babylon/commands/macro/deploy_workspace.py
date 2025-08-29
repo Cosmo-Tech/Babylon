@@ -28,6 +28,7 @@ from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import (
 from Babylon.utils.credentials import (
     get_azure_credentials,
     get_azure_token,
+    get_keycloak_token,
     get_default_powerbi_token,
 )
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
@@ -71,7 +72,11 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     state["services"]["adx"]["database_name"] = f"{organization_id}-{workspace_key}"
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    azure_token = get_azure_token("csm_api")
+    auth_method = str(content.get("namespace", {}).get("auth", "azure")).lower()
+    if auth_method == "azure":
+        azure_token = get_azure_token("csm_api")
+    else:
+        azure_token = get_keycloak_token()
     workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=state.get("services"))
     if not state["services"]["api"]["workspace_id"]:
         logger.info("[api] creating workspace")
