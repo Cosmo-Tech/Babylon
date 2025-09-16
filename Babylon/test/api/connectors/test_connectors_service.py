@@ -23,27 +23,30 @@ class ConnectorServiceTestCase(unittest.TestCase):
     @mock.patch.object(ConnectorService, 'create')
     def test_create(self, connectorservice_create):
         the_response = Response()
-        the_response._content = b'{"id" : "1", "name": "ADT Connector"}'
+        the_response._content = b'{"id" : "1", "name": "Azure Storage Connector"}'
         connectorservice_create.return_value = the_response
 
         runner = CliRunner()
         runner.invoke(create, [str(env.pwd / "Babylon/test/api/connectors/payload.json")], standalone_mode=False)
         states = env.get_state_from_local()
-        assert states["services"]["api"]["connector_id"] == '1'
+        assert states["services"]["api"]["connector.storage_id"] == '1'
 
     @mock.patch.object(ConnectorService, 'get')
     def test_get(self, connectorservice_get):
         the_response = Response()
-        the_response._content = b'{"id": "1", "name": "ADT Connector"}'
+        the_response._content = b'{"id": "1", "name": "Azure Storage Connector"}'
         connectorservice_get.return_value = the_response
 
         result = CliRunner().invoke(get, ["--connector-id", "1"], standalone_mode=False)
-        assert result.return_value.data == {"id": "1", "name": "ADT Connector"}
+        assert result.return_value.data == {"id": "1", "name": "Azure Storage Connector"}
 
     @mock.patch.object(ConnectorService, 'get_all')
     def test_get_all(self, connectorservice_get_all):
         the_response = Response()
-        the_response._content = b'[{"id": "1", "name": "ADT Connector"}, {"id" : "1", "name": "ADT Connector"}]'
+        the_response._content = (
+            b'[{"id": "1", "name": "Azure Storage Connector"},'
+            b'{"id" : "1", "name": "Azure Storage Connector"}]'
+        )
         connectorservice_get_all.return_value = the_response
 
         result = CliRunner().invoke(get_all, standalone_mode=False)
@@ -59,7 +62,7 @@ class ConnectorServiceTestCase(unittest.TestCase):
         CliRunner().invoke(delete, ["--connector-id", "1"], standalone_mode=False)
 
         states = env.get_state_from_local()
-        assert states["services"]["api"]["connector_id"] == ""
+        assert states["services"]["api"]["connector.storage_id"] == ""
 
 
 if __name__ == "__main__":

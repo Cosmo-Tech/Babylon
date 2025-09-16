@@ -28,19 +28,19 @@ def delete(
 ) -> CommandResponse:
     """Delete a registered connector"""
     service_state = state["services"]
-    service_state["api"]["connector_id"] = (connector_id or service_state["api"]["connector_id"])
+    service_state["api"]["connector.storage_id"] = (connector_id or service_state["api"]["connector.storage_id"])
 
     service = ConnectorService(azure_token=azure_token, state=service_state)
-    logger.info(f"Deleting connector: {service_state['api']['solution_id']}")
+    logger.info(f"Deleting connector: {service_state['api']['connector.storage_id']}")
     response = service.delete(force_validation=force_validation)
 
     if response:
-        logger.info(f'Connector {service_state["api"]["connector_id"]} successfully deleted')
-        if (service_state["api"]["connector_id"] == state["services"]["api"]["connector_id"]):
-            state["services"]["api"]["connector_id"] = ""
+        logger.info(f'Connector {service_state["api"]["connector.storage_id"]} successfully deleted')
+        if (service_state["api"]["connector.storage_id"] == state["services"]["api"]["connector.storage_id"]):
+            state["services"]["api"]["connector.storage_id"] = ""
             env.store_state_in_local(state)
             if env.remote:
                 env.store_state_in_cloud(state)
-            logger.info(f'Connector {state["services"]["api"]["connector_id"]} '
+            logger.info(f'Connector {state["services"]["api"]["connector.storage_id"]} '
                         f'successfully removed from state {state.get("id")}')
     return CommandResponse.success()

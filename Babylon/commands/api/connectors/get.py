@@ -23,8 +23,8 @@ env = Environment()
 def get(state: Any, azure_token: str, connector_id: str) -> CommandResponse:
     """Get a registered connector details"""
     service_state = state["services"]
-    service_state["api"]["connector_id"] = (connector_id or service_state["api"]["connector_id"])
-    logger.info(f"Searching connector: {service_state['api']['connector_id']}")
+    service_state["api"]["connector.storage_id"] = (connector_id or service_state["api"]["connector.storage_id"])
+    logger.info(f"Searching connector: {service_state['api']['connector.storage_id']}")
     service = ConnectorService(azure_token=azure_token, state=service_state)
     response = service.get()
     if response is None:

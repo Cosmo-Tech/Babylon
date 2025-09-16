@@ -13,6 +13,7 @@ from Babylon.commands.macro.deploy_dataset import deploy_dataset
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.commands.macro.deploy_organization import deploy_organization
+from Babylon.commands.macro.deploy_connector import deploy_connector
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -30,6 +31,7 @@ env = Environment()
     help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
 )
 @option("--organization", is_flag=True, help="Deploy or update an organization.")
+@option("--connector", is_flag=True, help="Deploy or update an connector.")
 @option("--solution", is_flag=True, help="Deploy or update a solution.")
 @option("--workspace", is_flag=True, help="Deploy or update a workspace.")
 @option("--webapp", is_flag=True, help="Deploy or update a webapp.")
@@ -42,6 +44,7 @@ def apply(
     workspace: bool,
     webapp: bool,
     dataset: bool,
+    connector: bool,
     payload_only: bool,
     variables_files: Iterable[pathlib.Path],
 ):  # type: ignore
@@ -67,13 +70,19 @@ def apply(
     workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
     webapps = list(filter(lambda x: x.get("kind") == "WebApp", resources))
     datasets = list(filter(lambda x: x.get("kind") == "Dataset", resources))
+    connectors = list(filter(lambda x: x.get("kind") == "Connector", resources))
     _ret = [""]
     final_datasets = []
-    if not (organization or solution or workspace or webapp or dataset):
+    if not (organization or solution or workspace or webapp or dataset or connector):
         for o in organizations:
             content = o.get("content")
             namespace = o.get("namespace")
             deploy_organization(namespace=namespace, file_content=content)
+
+        for c in connectors:
+            content = c.get("content")
+            namespace = c.get("namespace")
+            deploy_connector(namespace=namespace, file_content=content)
 
         for s in solutions:
             content = s.get("content")
@@ -105,6 +114,12 @@ def apply(
                 content = o.get("content")
                 namespace = o.get("namespace")
                 deploy_organization(namespace=namespace, file_content=content)
+
+        elif connector:
+            for c in connectors:
+                content = c.get("content")
+                namespace = c.get("namespace")
+                deploy_connector(namespace=namespace, file_content=content)               
         elif solution:
             for s in solutions:
                 content = s.get("content")
@@ -142,6 +157,7 @@ def apply(
     _ret.append("Deployments: ")
     _ret.append("")
     _ret.append(f"   * Organization   : {services.get('api').get('organization_id', '')}")
+    _ret.append(f"   * Connector      : {services.get('api').get('connector.storage_id', '')}")
     _ret.append(f"   * Solution       : {services.get('api').get('solution_id', '')}")
     _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
     for id in final_datasets:

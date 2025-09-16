@@ -39,7 +39,7 @@ def create(state: Any, azure_token: str, payload_file: pathlib.Path) -> CommandR
     if response is None:
         return CommandResponse.fail()
     connector = response.json()
-    state["services"]["api"]["connector_id"] = connector.get("id")
+    state["services"]["api"]["connector.storage_id"] = connector.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
