@@ -119,7 +119,7 @@ def apply(
             for c in connectors:
                 content = c.get("content")
                 namespace = c.get("namespace")
-                deploy_connector(namespace=namespace, file_content=content)               
+                deploy_connector(namespace=namespace, file_content=content) 
         elif solution:
             for s in solutions:
                 content = s.get("content")

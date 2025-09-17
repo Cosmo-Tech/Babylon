@@ -27,6 +27,7 @@ def create(state: Any, azure_token: str, payload_file: pathlib.Path) -> CommandR
     """
     Register new Connector
     """
+    print(state["services"])
     service_state = state["services"]
     if not payload_file.exists():
         print(f"file {payload_file} not found in directory")

@@ -18,7 +18,7 @@ class ConnectorServiceTestCase(unittest.TestCase):
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
-        env.remote = True
+        env.remote = False
 
     @mock.patch.object(ConnectorService, 'create')
     def test_create(self, connectorservice_create):
@@ -43,10 +43,8 @@ class ConnectorServiceTestCase(unittest.TestCase):
     @mock.patch.object(ConnectorService, 'get_all')
     def test_get_all(self, connectorservice_get_all):
         the_response = Response()
-        the_response._content = (
-            b'[{"id": "1", "name": "Azure Storage Connector"},'
-            b'{"id" : "1", "name": "Azure Storage Connector"}]'
-        )
+        the_response._content = (b'[{"id": "1", "name": "Azure Storage Connector"},'
+                                 b'{"id" : "1", "name": "Azure Storage Connector"}]')
         connectorservice_get_all.return_value = the_response
 
         result = CliRunner().invoke(get_all, standalone_mode=False)

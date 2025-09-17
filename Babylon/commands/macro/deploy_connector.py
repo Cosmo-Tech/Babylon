@@ -29,8 +29,8 @@ def deploy_connector(namespace: str, file_content: str):
     else:
         azure_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
-    state["services"]["api"]["connector.storage_id"] = (payload.get("id") or 
-                                                        state["services"]["api"]["connector.storage_id"])
+    state["services"]["api"]["connector.storage_id"] = (payload.get("id") 
+                                                        or state["services"]["api"]["connector.storage_id"])
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     connector_service = ConnectorService(azure_token=azure_token, spec=spec, state=state["services"])

@@ -18,7 +18,7 @@ class AzureDirectoyAppServiceTestCase(unittest.TestCase):
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
-        env.remote = True
+        env.remote = False
 
     @mock.patch('polling2.poll')
     def test_create(self, mock_poll):
