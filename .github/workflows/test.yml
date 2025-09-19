@@ -34,6 +34,4 @@ jobs:
       - name: run pytest
         run: |
           babylon namespace use -c test -p wa-adx-dev -s testid
-          ls -la $HOME/.config/cosmotech/babylon
           pytest . -v
-          ls -la $HOME/.config/cosmotech/babylon
