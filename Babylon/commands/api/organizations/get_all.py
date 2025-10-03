@@ -1,4 +1,6 @@
 import jmespath
+import json
+import click
 
 from logging import getLogger
 from typing import Any
@@ -24,10 +26,14 @@ env = Environment()
 @retrieve_state
 def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     """
-    Get all organization details
+    Get all organizations details
     """
-    service_state = state["services"]
-    organization_service = OrganizationService(state=service_state, keycloak_token=keycloak_token)
+    _ret = [""]
+    _ret.append("Get all organizations details")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    organization_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
+    logger.info("[api] Retrieving all organizations details")
     response = organization_service.get_all()
     if response is None:
         return CommandResponse.fail()
@@ -37,4 +43,5 @@ def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    return CommandResponse.success(organizations, verbose=True)
+    logger.info(json.dumps(organizations, indent=2))
+    return CommandResponse.success()

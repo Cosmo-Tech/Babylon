@@ -6,10 +6,10 @@ from logging import getLogger
 
 import click
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import get_azure_token
+from Babylon.utils.credentials import get_keycloak_token
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 from Babylon.commands.azure.storage.services.storage_container_svc import (
-    AzureStorageContainerService, )
+    AzureStorageContainerService)
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -24,24 +24,24 @@ def deploy_organization(namespace: str, file_content: str):
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
     state['services']['azure']['tenant_id'] = env.tenant_id
-    azure_token = get_azure_token("csm_api")
     content = env.fill_template(data=file_content, state=state)
+    keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
     state["services"]["api"]["organization_id"] = (payload.get("id") or state["services"]["api"]["organization_id"])
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    organization_service = OrganizationService(azure_token=azure_token, spec=spec, state=state["services"])
+    organization_service = OrganizationService(keycloak_token=keycloak_token, spec=spec, state=state["services"])
     sidecars = content.get("spec").get("sidecars", {})
     if not state["services"]["api"]["organization_id"]:
-        logger.info("[api] creating organization")
+        logger.info("[api] Creating organization")
         response = organization_service.create()
         organization = response.json()
-        logger.info(f"[api] organization {organization['id']} successfully created")
         logger.info(json.dumps(organization, indent=2))
+        logger.info(f"[api] Organization {organization['id']} successfully created")
         service = AzureStorageContainerService(state=state, blob_client=env.blob_client)
         service.create(name=organization.get("id"))
     else:
-        logger.info(f"[api] updating organization {state['services']['api']['organization_id']}")
+        logger.info(f"[api] Updating organization {state['services']['api']['organization_id']}")
         response = organization_service.update()
         response_json = response.json()
         old_security = response_json.get("security")
@@ -49,6 +49,7 @@ def deploy_organization(namespace: str, file_content: str):
         response_json["security"] = security_spec
         organization = response_json
         logger.info(json.dumps(organization, indent=2))
+        logger.info(f"[api] Organization {organization['id']} successfully updated")
     state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
     if env.remote:

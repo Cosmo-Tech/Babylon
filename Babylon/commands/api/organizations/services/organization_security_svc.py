@@ -10,9 +10,9 @@ env = Environment()
 
 class OrganizationSecurityService:
 
-    def __init__(self, azure_token: str, state: dict) -> None:
+    def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
-        self.azure_token = azure_token
+        self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
             logger.error("API url not found")
@@ -25,8 +25,8 @@ class OrganizationSecurityService:
     def set_default(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/security/default",
-            self.azure_token,
-            type="POST",
+            self.keycloak_token,
+            type="PATCH",
             data=details,
         )
         return response
@@ -34,7 +34,7 @@ class OrganizationSecurityService:
     def add(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/security/access",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
@@ -43,7 +43,7 @@ class OrganizationSecurityService:
     def get(self, id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
-            self.azure_token,
+            self.keycloak_token,
             type="GET",
         )
         return response
@@ -51,20 +51,20 @@ class OrganizationSecurityService:
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/security",
-            self.azure_token,
+            self.keycloak_token,
             type="GET",
         )
         return response
 
     def update(self, id: str, details: str):
         response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
-                                 self.azure_token,
+                                 self.keycloak_token,
                                  type="PATCH",
                                  data=details)
         return response
 
     def delete(self, id: str):
         response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
-                                 self.azure_token,
+                                 self.keycloak_token,
                                  type="DELETE")
         return response

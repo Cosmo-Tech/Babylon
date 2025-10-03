@@ -39,7 +39,7 @@ class OrganizationService:
             return None
         response = oauth_request(
             f"{self.url}/organizations/{organization_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="DELETE",
         )
         if response is None:
@@ -51,13 +51,13 @@ class OrganizationService:
         if not organization_id:
             logger.error("Organization id is missing")
             return None
-        response = oauth_request(f"{self.url}/organizations/{organization_id}", self.azure_token)
+        response = oauth_request(f"{self.url}/organizations/{organization_id}", self.keycloak_token)
         if response is None:
             logger.error(f"An error occurred while getting the organisation with id: {organization_id}")
         return response
 
     def get_all(self):
-        response = oauth_request(f"{self.url}/organizations", self.azure_token)
+        response = oauth_request(f"{self.url}/organizations", self.keycloak_token)
         if response is None:
             logger.error('An error occurred while getting of all organisations')
         return response
@@ -67,7 +67,7 @@ class OrganizationService:
         organization_id = self.state["api"]["organization_id"]
         response = oauth_request(
             f"{self.url}/organizations/{organization_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="PATCH",
             data=details,
         )
@@ -76,7 +76,7 @@ class OrganizationService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = OrganizationSecurityService(azure_token=self.azure_token, state=self.state)
+        self.security_svc = OrganizationSecurityService(keycloak_token=self.keycloak_token, state=self.state)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

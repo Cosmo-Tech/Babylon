@@ -14,6 +14,7 @@ from Babylon.utils.checkers import check_email
 from Babylon.utils.response import CommandResponse
 from .environment import Environment
 
+
 logger = logging.getLogger("Babylon")
 env = Environment()
 

@@ -1,5 +1,6 @@
 import pathlib
 import json
+import click
 
 from logging import getLogger
 from typing import Any
@@ -23,19 +24,20 @@ env = Environment()
 @pass_keycloak_token()
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
 @retrieve_state
-def create(
-    state: Any,
-    keycloak_token: str,
-    payload_file: pathlib.Path,
-) -> CommandResponse:
+def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> CommandResponse:
     """
     Register new organization
     """
-    spec = dict()
+    _ret = [""]
+    _ret.append("Register new organization")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    spec = dict()   
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
     spec["payload"] = json.dumps(spec["payload"], indent=2, ensure_ascii=True)
     organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token, spec=spec)
+    logger.info("[api] Creating organization")
     response = organizations_service.create()
     if response is None:
         return CommandResponse.fail()
@@ -44,5 +46,6 @@ def create(
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(f"Organization {organization.get('id')} successfully saved in state {state.get('id')}")
-    return CommandResponse.success(organization, verbose=True)
+    logger.info(json.dumps(organization, indent=2))
+    logger.info(f"[api] Organization {organization.get('id')} successfully created")
+    return CommandResponse.success()
