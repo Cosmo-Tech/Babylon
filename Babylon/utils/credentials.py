@@ -1,5 +1,6 @@
 import sys
 import logging
+import requests
 
 from functools import wraps
 from typing import Callable
@@ -79,12 +80,70 @@ def get_azure_credentials() -> ClientSecretCredential:
     return credential
 
 
+def get_keycloak_credentials() -> dict:
+    """"Logs to keycloak and saves the token as a config variable"""
+    try:
+        config = env.get_state_from_vault_by_platform(env.environ_id)
+        credential = {
+            "grant_type": config["keycloak"]["grant_type"],
+            "client_id": config["keycloak"]["client_id"],
+            "client_secret": config["keycloak"]["client_secret"],
+            "scope": config["keycloak"]["scope"]
+        }
+        if not all(credential.values()):
+            missing = [k for k, v in credential.items() if not v]
+            raise AttributeError(f"Missing required Keycloak credentials: {', '.join(missing)}")
+
+        return credential
+
+    except KeyError as e:
+        error_msg = f"Missing Keycloak configuration in Vault: {str(e)}"
+        logger.error(error_msg)
+    except Exception as e:
+        error_msg = f"Unexpected error getting Keycloak credentials: {str(e)}"
+        logger.error(error_msg)
+
+
+def get_keycloak_token() -> str:
+    """Returns keycloak token"""
+
+    config = env.get_state_from_vault_by_platform(env.environ_id)
+    url = config["keycloak"]["url"]
+    try:
+        credentials = get_keycloak_credentials()
+
+        headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
+        response = requests.post(url=url, data=credentials, headers=headers, timeout=30)
+
+        response.raise_for_status()
+
+        token_data = response.json()
+        access_token = token_data.get("access_token", )
+        if not access_token:
+            logger.error("Access token not found in Keycloak response")
+        return access_token
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Keycloak request failed: {e}")
+
+
 def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
     """Grab Azure credentials and pass credentials"""
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         kwargs["azure_credentials"] = get_azure_credentials()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def pass_keycloak_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Grab keycloak credentials and pass credentials"""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        kwargs["keycloak_credentials"] = get_keycloak_credentials()
         return func(*args, **kwargs)
 
     return wrapper
@@ -110,6 +169,24 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
         def wrapper(*args: Any, **kwargs: Any):
             try:
                 kwargs["azure_token"] = get_azure_token(scope)
+            except ConnectionError:
+                return CommandResponse().fail()
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return wrap_function
+
+
+def pass_keycloak_token() -> Callable[..., Any]:
+    """Logs to keycloak and pass token"""
+
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            try:
+                kwargs["keycloak_token"] = get_keycloak_token()
             except ConnectionError:
                 return CommandResponse().fail()
             return func(*args, **kwargs)
