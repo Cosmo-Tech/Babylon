@@ -1,10 +1,11 @@
 import json
+import click
 from logging import getLogger
 from typing import Any
 from click import command
 from click import option
 from Babylon.commands.api.organizations.services.organization_security_svc import OrganizationSecurityService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,
@@ -20,7 +21,7 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option(
     "--role",
     "role",
@@ -32,19 +33,27 @@ env = Environment()
 @retrieve_state
 def set_default(
     state: Any,
-    azure_token: str,
+    keycloak_token: str,
     organization_id: str,
     role: str = None,
 ) -> CommandResponse:
     """
-    Set default RBAC access to organization
+    Set default RBAC access to the organization
     """
+    _ret = [""]
+    _ret.append("Set default RBAC access to the organization")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
-    service = OrganizationSecurityService(azure_token=azure_token, state=service_state)
+    service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
+    org_id = service_state["api"]["organization_id"]
+    logger.info(f"[api] Setting default RBAC access to the organization {org_id}")
     response = service.set_default(details)
-    default_security = response.json()
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(default_security, verbose=True)
+    default_security = response.json()
+    logger.info(json.dumps(default_security, indent=2))
+    logger.info("[api] default RBAC access successfully setted")
+    return CommandResponse.success()

@@ -1,3 +1,5 @@
+import click
+
 from logging import getLogger
 from typing import Any
 from click import command
@@ -20,18 +22,20 @@ env = Environment()
 @retrieve_state
 def delete(state: Any, keycloak_token: str, organization_id: str, force_validation: bool = False) -> CommandResponse:
     """Delete an organization"""
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
-    service = OrganizationService(state=service_state, keycloak_token=keycloak_token)
+    _ret = [""]
+    _ret.append("Delete organization")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    state['services']["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
+    service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
+    logger.info("[api] Deleting organization")
     response = service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    if response:
-        org_id = service_state["api"]["organization_id"]
-        logger.info(f'Organization {org_id} successfully deleted')
-        state["services"]["api"]["organization_id"] = ""
-        env.store_state_in_local(state)
-        if env.remote:
-            env.store_state_in_cloud(state)
-        logger.info(f'Organization {org_id} successfully deleted in state {state.get("id")}')
+    org_id = state['services']["api"]["organization_id"]
+    logger.info(f"[api] Organization {org_id} successfully deleted")
+    state["services"]["api"]["organization_id"] = ""
+    env.store_state_in_local(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success()

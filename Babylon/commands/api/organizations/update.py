@@ -1,4 +1,6 @@
 import pathlib
+import json
+import click
 
 from logging import getLogger
 from typing import Any
@@ -26,18 +28,20 @@ def update(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     """
     Update an organization
     """
-    service_state = state["services"]
+    _ret = [""]
+    _ret.append("Update an organization")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
-    organizations_service = OrganizationService(state=service_state, keycloak_token=keycloak_token, spec=spec)
+    spec["payload"] = json.dumps(spec["payload"], indent=2, ensure_ascii=True)
+    organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token, spec=spec)
+    logger.info(f"[api] Updating organization {state['services']['api']['organization_id']}")
     response = organizations_service.update()
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
-    if response:
-        org_id = service_state["api"]["organization_id"]
-        logger.info(f"Organization {org_id} successfully updated")
-        if org_id == state["services"]["api"]["workspace_id"]:
-            logger.info(f"Organization {org_id} stored in state has been successfully updated")
-    return CommandResponse.success(organization, verbose=True)
+    logger.info(json.dumps(organization, indent=2))
+    logger.info(f"[api] Organization {organization.get("id")} successfully updated")
+    return CommandResponse.success()

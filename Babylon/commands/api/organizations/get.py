@@ -1,3 +1,6 @@
+import json
+import click
+
 from logging import getLogger
 from typing import Any
 from click import option
@@ -21,11 +24,17 @@ env = Environment()
 @retrieve_state
 def get(state: Any, organization_id: str, keycloak_token: str) -> CommandResponse:
     """Get an organization details"""
+    _ret = [""]
+    _ret.append("Get organization details")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     services_state = state["services"]
     services_state["api"]["organization_id"] = (organization_id or services_state["api"]["organization_id"])
-    organizations_service = OrganizationService(state=services_state, keycloak_token=keycloak_token)
+    organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
+    logger.info(f"[api] Retrieving organization {services_state["api"]["organization_id"]} details")
     response = organizations_service.get()
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
-    return CommandResponse.success(organization, verbose=True)
+    logger.info(json.dumps(organization, indent=2))
+    return CommandResponse.success()

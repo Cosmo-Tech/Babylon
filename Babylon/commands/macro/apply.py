@@ -61,7 +61,6 @@ def apply(
             resource["namespace"] = yaml.safe_dump(yaml_data.get("namespace"))
             resource["content"] = escaped_content
             resources.append(resource)
-
     organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
     solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
     workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
