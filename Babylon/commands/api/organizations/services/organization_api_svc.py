@@ -14,10 +14,10 @@ env = Environment()
 
 class OrganizationService:
 
-    def __init__(self, state: dict, azure_token: str, spec: dict = None):
+    def __init__(self, state: dict, keycloak_token: str, spec: dict = None):
         self.state = state
         self.spec = spec
-        self.azure_token = azure_token
+        self.keycloak_token = keycloak_token
         self.url = state["api"]["url"]
         if not self.url:
             logger.error("API url not found")
@@ -25,7 +25,7 @@ class OrganizationService:
 
     def create(self):
         details = self.spec["payload"]
-        response = oauth_request(f"{self.url}/organizations", self.azure_token, type="POST", data=details)
+        response = oauth_request(f"{self.url}/organizations", self.keycloak_token, type="POST", data=details)
         if response is None:
             logger.error('An error occurred while creating the organisation')
         return response

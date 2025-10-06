@@ -8,7 +8,7 @@ from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
@@ -19,15 +19,15 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
-def get_all(state: Any, azure_token: str, filter: str) -> CommandResponse:
+def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     """
     Get all organization details
     """
     service_state = state["services"]
-    organization_service = OrganizationService(state=service_state, azure_token=azure_token)
+    organization_service = OrganizationService(state=service_state, keycloak_token=keycloak_token)
     response = organization_service.get_all()
     if response is None:
         return CommandResponse.fail()
