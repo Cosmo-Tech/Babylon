@@ -1,4 +1,5 @@
 import pathlib
+import json
 
 from logging import getLogger
 from typing import Any
@@ -9,7 +10,7 @@ from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
 logger = getLogger("Babylon")
@@ -19,12 +20,12 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
 @retrieve_state
 def create(
     state: Any,
-    azure_token: str,
+    keycloak_token: str,
     payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
@@ -33,7 +34,8 @@ def create(
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
-    organizations_service = OrganizationService(state['services'], azure_token, spec=spec)
+    spec["payload"] = json.dumps(spec["payload"], indent=2, ensure_ascii=True)
+    organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token, spec=spec)
     response = organizations_service.create()
     if response is None:
         return CommandResponse.fail()

@@ -106,7 +106,6 @@ def get_keycloak_credentials() -> dict:
 
 def get_keycloak_token() -> str:
     """Returns keycloak token"""
-
     config = env.get_state_from_vault_by_platform(env.environ_id)
     url = config["keycloak"]["url"]
     try:

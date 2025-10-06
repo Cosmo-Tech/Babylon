@@ -31,7 +31,7 @@ jobs:
         run: |
           pip install -e .
 
-      - name: run pytest
+      - name: run pytest organizations service
         run: |
-          babylon namespace use -c test -p dev -s testid
-          pytest . -v
+          babylon namespace use -c test -p sphinx -s testid
+          pytest . Babylon/test/api/organizations/test_organizations_service.py

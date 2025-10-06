@@ -8,7 +8,7 @@ from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
 logger = getLogger("Babylon")
@@ -18,11 +18,11 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
 @retrieve_state
-def update(state: Any, azure_token: str, organization_id: str, payload_file: pathlib.Path) -> CommandResponse:
+def update(state: Any, keycloak_token: str, organization_id: str, payload_file: pathlib.Path) -> CommandResponse:
     """
     Update an organization
     """
@@ -30,7 +30,7 @@ def update(state: Any, azure_token: str, organization_id: str, payload_file: pat
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
-    organizations_service = OrganizationService(state=service_state, azure_token=azure_token, spec=spec)
+    organizations_service = OrganizationService(state=service_state, keycloak_token=keycloak_token, spec=spec)
     response = organizations_service.update()
     if response is None:
         return CommandResponse.fail()
