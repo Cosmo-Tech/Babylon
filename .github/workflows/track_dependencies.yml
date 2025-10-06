@@ -1,4 +1,6 @@
 name: Track Dependencies
+permissions:
+  contents: read
 
 on:
   push:
