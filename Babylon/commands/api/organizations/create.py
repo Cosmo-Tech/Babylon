@@ -32,7 +32,7 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     _ret.append("Register new organization")
     _ret.append("")
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
-    spec = dict()   
+    spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
     spec["payload"] = json.dumps(spec["payload"], indent=2, ensure_ascii=True)

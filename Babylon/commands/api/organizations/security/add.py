@@ -37,9 +37,9 @@ def add(state: Any, keycloak_token: str, email: str, role: str = None) -> Comman
     service_state = state["services"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Adding user {email} RBAC access to the organization {service_state["api"]["organization_id"]}")
+    logger.info(f"[api] Adding user {email} RBAC access to the organization {service_state['api']['organization_id']}")
     response = service.add(details)
-    if response: 
+    if response:
         rbacs = response.json()
         logger.info(json.dumps(rbacs, indent=2))
         logger.info("[api] User RBAC access successfully added")
