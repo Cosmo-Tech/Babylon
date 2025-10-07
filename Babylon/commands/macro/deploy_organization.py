@@ -8,8 +8,6 @@ import click
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
-from Babylon.commands.azure.storage.services.storage_container_svc import (
-    AzureStorageContainerService)
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -38,8 +36,6 @@ def deploy_organization(namespace: str, file_content: str):
         organization = response.json()
         logger.info(json.dumps(organization, indent=2))
         logger.info(f"[api] Organization {organization['id']} successfully created")
-        service = AzureStorageContainerService(state=state, blob_client=env.blob_client)
-        service.create(name=organization.get("id"))
     else:
         logger.info(f"[api] Updating organization {state['services']['api']['organization_id']}")
         response = organization_service.update()
