@@ -48,4 +48,4 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
         env.store_state_in_cloud(state)
     logger.info(json.dumps(organization, indent=2))
     logger.info(f"[api] Organization {organization.get('id')} successfully created")
-    return CommandResponse.success()
+    return CommandResponse.success(organization)

@@ -44,4 +44,4 @@ def update(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     organization = response.json()
     logger.info(json.dumps(organization, indent=2))
     logger.info(f"[api] Organization {organization.get('id')} successfully updated")
-    return CommandResponse.success()
+    return CommandResponse.success(organization)

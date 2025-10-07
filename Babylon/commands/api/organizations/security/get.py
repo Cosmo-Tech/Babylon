@@ -37,4 +37,4 @@ def get(state: Any, keycloak_token: str, email: str) -> CommandResponse:
         return CommandResponse.fail()
     rbac = response.json()
     logger.info(json.dumps(rbac, indent=2))
-    return CommandResponse.success()
+    return CommandResponse.success(rbac)

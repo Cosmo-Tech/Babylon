@@ -32,10 +32,10 @@ def delete(state: dict, keycloak_token: str, email: str, organization_id: str) -
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
-    org_id = service_state["api"]["organization_id"]
-    logger.info(f"[api] Deleting user {email} RBAC access from the organization {org_id}")
+    logger.info(
+        f"[api] Deleting user {email} RBAC access from the organization {service_state['api']['organization_id']}")
     response = service.delete(id=email)
     if response is None:
         return CommandResponse.fail()
     logger.info(f"[api] User {email} RBAC access successfully deleted")
-    return CommandResponse.success()
+    return CommandResponse.success(response)

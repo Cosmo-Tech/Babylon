@@ -43,4 +43,4 @@ def add(state: Any, keycloak_token: str, email: str, role: str = None) -> Comman
         rbacs = response.json()
         logger.info(json.dumps(rbacs, indent=2))
         logger.info("[api] User RBAC access successfully added")
-    return CommandResponse.success()
+    return CommandResponse.success(rbacs)
