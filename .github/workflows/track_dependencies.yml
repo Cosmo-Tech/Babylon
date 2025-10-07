@@ -5,8 +5,8 @@ permissions:
 on:
   push:
     branches:
-      - main
-      
+      - release/v4
+
 jobs:
   generate-sbom:
     runs-on: ubuntu-latest
@@ -30,4 +30,4 @@ jobs:
           apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
           project: '3c0ac6ed-883d-4423-b0e3-9de865a494ce'
           bomfilename: 'sbom.json'
-    
+
