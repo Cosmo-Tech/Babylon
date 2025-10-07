@@ -37,4 +37,4 @@ def get(state: Any, organization_id: str, keycloak_token: str) -> CommandRespons
         return CommandResponse.fail()
     organization = response.json()
     logger.info(json.dumps(organization, indent=2))
-    return CommandResponse.success()
+    return CommandResponse.success(organization)

@@ -44,4 +44,4 @@ def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     if env.remote:
         env.store_state_in_cloud(state)
     logger.info(json.dumps(organizations, indent=2))
-    return CommandResponse.success()
+    return CommandResponse.success(organizations)

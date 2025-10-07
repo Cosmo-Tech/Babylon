@@ -36,4 +36,4 @@ def get_all(state: Any, keycloak_token: str) -> CommandResponse:
         return CommandResponse.fail()
     rbacs = response.json()
     logger.info(json.dumps(rbacs, indent=2))
-    return CommandResponse.success()
+    return CommandResponse.success(rbacs)

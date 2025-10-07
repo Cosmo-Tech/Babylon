@@ -39,12 +39,12 @@ def update(state: dict, keycloak_token: str, email: str, role: str) -> CommandRe
     service_state = state["services"]
     details = json.dumps({"id": email, "role": role})
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
-    org_id = service_state["api"]["organization_id"]
-    logger.info(f"[api] Updating user {email} RBAC access in the organization {org_id}")
+    logger.info(
+        f"[api] Updating user {email} RBAC access in the organization {service_state['api']['organization_id']}")
     response = service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
     logger.info(json.dumps(rbacs, indent=2))
     logger.info(f"[api] User {email} RBAC access successfully Updated")
-    return CommandResponse.success()
+    return CommandResponse.success(rbacs)

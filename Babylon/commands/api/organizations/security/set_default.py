@@ -48,12 +48,11 @@ def set_default(
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
-    org_id = service_state["api"]["organization_id"]
-    logger.info(f"[api] Setting default RBAC access to the organization {org_id}")
+    logger.info(f"[api] Setting default RBAC access to the organization {service_state['api']['organization_id']}")
     response = service.set_default(details)
     if response is None:
         return CommandResponse.fail()
     default_security = response.json()
     logger.info(json.dumps(default_security, indent=2))
     logger.info("[api] default RBAC access successfully setted")
-    return CommandResponse.success()
+    return CommandResponse.success(default_security)
