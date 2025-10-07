@@ -31,7 +31,7 @@ def get(state: Any, organization_id: str, keycloak_token: str) -> CommandRespons
     services_state = state["services"]
     services_state["api"]["organization_id"] = (organization_id or services_state["api"]["organization_id"])
     organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
-    logger.info(f"[api] Retrieving organization {services_state["api"]["organization_id"]} details")
+    logger.info(f"[api] Retrieving organization {services_state['api']['organization_id']} details")
     response = organizations_service.get()
     if response is None:
         return CommandResponse.fail()

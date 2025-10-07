@@ -31,7 +31,7 @@ def get(state: Any, keycloak_token: str, email: str) -> CommandResponse:
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Get user {email} RBAC access to the organization {service_state["api"]["organization_id"]}")
+    logger.info(f"[api] Get user {email} RBAC access to the organization {service_state['api']['organization_id']}")
     response = service.get(id=email)
     if response is None:
         return CommandResponse.fail()

@@ -32,8 +32,7 @@ def delete(state: Any, keycloak_token: str, organization_id: str, force_validati
     response = service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    org_id = state['services']["api"]["organization_id"]
-    logger.info(f"[api] Organization {org_id} successfully deleted")
+    logger.info(f"[api] Organization {state['services']['api']['organization_id']} successfully deleted")
     state["services"]["api"]["organization_id"] = ""
     env.store_state_in_local(state)
     if env.remote:
