@@ -1,0 +1,33 @@
+name: Track Dependencies
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install CycloneDX
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cyclonedx-bom
+      - name: Install project
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -r requirements.txt
+      - name: Generate SBOM file
+        run: |
+          cyclonedx-py environment .venv --output-file sbom.json
+      - name: Upload cyclonedx bom to dependency
+        uses: DependencyTrack/gh-upload-sbom@v3
+        with:
+          serverhostname: ${{ secrets.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          project: '3c0ac6ed-883d-4423-b0e3-9de865a494ce'
+          bomfilename: 'sbom.json'
+    
