@@ -1,0 +1,46 @@
+name: Continuous Integration
+permissions:
+  contents: read
+
+env:
+  BABYLON_SERVICE: ${{ vars.BABYLON_SERVICE }}
+  BABYLON_TOKEN: ${{ secrets.BABYLON_TOKEN }}
+  BABYLON_ORG_NAME: ${{ vars.BABYLON_ORG_NAME }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+
+      - name: lint
+        uses: py-actions/flake8@v2
+        with:
+          max-line-length: "120"
+          path: "Babylon"
+
+      - name: format
+        uses: AlexanderMelde/yapf-action@master
+        with:
+          args: --diff
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install .
+
+      - name: Run tests
+        run: |
+         . .venv/bin/activate
+         babylon namespace use -c test -p sphinx -s testid
+         pytest . Babylon/test/api/organizations/test_organizations_service.py
