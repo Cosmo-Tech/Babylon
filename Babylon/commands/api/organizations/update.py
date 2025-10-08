@@ -35,7 +35,6 @@ def update(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
-    spec["payload"] = json.dumps(spec["payload"], indent=2, ensure_ascii=True)
     organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token, spec=spec)
     logger.info(f"[api] Updating organization {state['services']['api']['organization_id']}")
     response = organizations_service.update()
