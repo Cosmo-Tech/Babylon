@@ -15,15 +15,15 @@ class SolutionSecurityService:
         self.azure_token = azure_token
         self.url = self.state["api"]["url"]
         if not self.url:
-            logger.error("API url not found")
+            logger.error("[babylon] api url not found")
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
-            logger.error("organization id is missing")
+            logger.error("[babylon] Organization id is missing")
             sys.exit(1)
         self.solution_id = self.state["api"]["solution_id"]
         if not self.solution_id:
-            logger.error("workspace id is missing")
+            logger.error("[babylon] solution id is missing")
             sys.exit(1)
 
     def add(self, details: str):

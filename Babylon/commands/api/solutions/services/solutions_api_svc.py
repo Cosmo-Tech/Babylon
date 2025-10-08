@@ -14,27 +14,30 @@ env = Environment()
 
 class SolutionService:
 
-    def __init__(self, azure_token: str, state: dict, spec: Optional[dict] = None):
+    def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None):
         self.state = state
         self.spec = spec
-        self.azure_token = azure_token
+        self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         self.organization_id = self.state["api"]["organization_id"]
         self.solution_id = self.state["api"]["solution_id"]
         if not self.organization_id:
-            logger.error('organization id is missing')
+            logger.error('[babylon] Organization id is missing')
             sys.exit(1)
 
     def create(self):
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
-        if response is None:
-            logger.error('An error occurred while creating the solution')
+        if not response or response.get("error"):
+            logger.error(
+                f"[api] Failed to create solution {self.solution_id}. Response: {response}"
+            )
+            return None
         return response
 
     def delete(self, force_validation: bool):
@@ -43,30 +46,39 @@ class SolutionService:
             return None
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
-            self.azure_token,
+            self.keycloak_token,
             "DELETE",
         )
-        if response is None:
-            logger.error(f"An error occurred while creating the solution id : {self.solution_id}")
+        if not response or response.get("error"):
+            logger.error(
+                f"[api] Failed to delete solution {self.solution_id}. Response: {response}"
+            )
+            return None
         return response
 
     def get(self):
         check_if_solution_exists(self.solution_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
-            self.azure_token,
+            self.keycloak_token,
         )
-        if response is None:
-            logger.error(f"An error occurred while getting the solution id : {self.solution_id}")
+        if not response or response.get("error"):
+            logger.error(
+                f"[api] Failed to get solution {self.solution_id}. Response: {response}"
+            )
+            return None
         return response
 
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions",
-            self.azure_token,
+            self.keycloak_token,
         )
-        if response is None:
-            logger.error('An error occurred while getting all solutions')
+        if not response or response.get("error"):
+            logger.error(
+                f"[api] Failed to retrieve all solutions. Response: {response}"
+            )
+            return None
         return response
 
     def update(self):
@@ -74,35 +86,44 @@ class SolutionService:
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
-            self.azure_token,
+            self.keycloak_token,
             "PATCH",
             data=details,
         )
-        if response is None:
-            logger.error(f"An error occurred while updating the solution id : {self.solution_id}")
+        if not response or response.get("error"):
+            logger.error(
+                f"[api] Failed to update solution {self.solution_id}. Response: {response}"
+            )
+            return None
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = SolutionSecurityService(azure_token=self.azure_token, state=self.state)
+        self.security_svc = SolutionSecurityService(keycloak_token=self.keycloak_token, state=self.state)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:
-            logger.error("security is missing")
+            logger.error("[babylon] Security is missing")
             sys.exit(1)
         ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
         ids_existing = [i.get("id") for i in old_security["accessControlList"]]
         if "default" in security_spec:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
             response = self.security_svc.set_default(data)
-            if response is None:
-                logger.error('An error occurred while updating a default security role in solution')
+            if not response or response.get("error"):
+                logger.error(
+                    "[api] Failed to set default security. Response: %s",
+                    response,
+                )
                 return None
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = self.security_svc.update(id=g.get("id"), details=details)
-                if response is None:
-                    logger.error('An error occurred while updating a security role in solution')
+                if not response or response.get("error"):
+                    logger.error(
+                        "[api] Failed to update default security. Response: %s",
+                        response,
+                    )
                     return None
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)

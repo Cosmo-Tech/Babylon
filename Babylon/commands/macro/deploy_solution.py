@@ -1,24 +1,20 @@
 import os
 import sys
 import json
-import pathlib
-
-from zipfile import ZipFile
-from logging import getLogger
-from posixpath import basename
-
 import click
+
+from logging import getLogger
+
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import get_azure_token
+from Babylon.utils.credentials import get_keycloak_token
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
-from Babylon.commands.api.solutions.services.solutions_handler_svc import (
-    SolutionHandleService, )
+from Babylon.utils.response import CommandResponse
 
 logger = getLogger("Babylon")
 env = Environment()
 
 
-def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
+def deploy_solution(namespace: str, file_content: str) -> bool:
     _ret = [""]
     _ret.append("Solution deployment")
     _ret.append("")
@@ -34,7 +30,7 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path,
         vars.get("workspace_key", state["services"]["api"]["workspace_key"]),
     )
     state["services"]["api"]["workspace_key"] = workspace_key
-    azure_token = get_azure_token("csm_api")
+    keycloak_token = get_keycloak_token()
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     state["services"]["api"]["solution_id"] = (payload.get("id") or state["services"]["api"]["solution_id"])
@@ -43,57 +39,38 @@ def deploy_solution(namespace: str, file_content: str, deploy_dir: pathlib.Path,
     else:
         if not state["services"]["api"]["organization_id"]:
             logger.error(
-                "Selector verification failed. Please check the selector field for correctness: %s",
+                "Selector verification failed: please ensure the 'selector' field is correct: %s",
                 metadata.get("selector"),
             )
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    solution_svc = SolutionService(azure_token=azure_token, spec=spec, state=state["services"])
+    solution_svc = SolutionService(keycloak_token=keycloak_token, spec=spec, state=state["services"])
     if not state["services"]["api"]["solution_id"]:
-        logger.info("[api] creating solution")
+        logger.info("[api] Creating solution")
         response = solution_svc.create()
+        if response is None:
+            return CommandResponse.fail()
         solution = response.json()
-        logger.info(f"Solution {solution['id']} successfully created...")
         logger.info(json.dumps(solution, indent=2))
+        logger.info(f"Solution {solution['id']} successfully created")
     else:
-        logger.info("Updating solution...")
+        logger.info(f"[api] Updating solution {state['services']['api']['solution_id']}")
         response = solution_svc.update()
+        if response is None:
+            return CommandResponse.fail()
         response_json = response.json()
         old_security = response_json.get("security")
         security_spec = solution_svc.update_security(old_security=old_security)
         response_json["security"] = security_spec
         solution = response_json
         logger.info(json.dumps(solution, indent=2))
+        logger.info(f"[api] Solution {solution['id']} successfully updated")
     state["services"]["api"]["solution_id"] = solution.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
     # update run_templates
     sidecars = content.get("spec").get("sidecars", {})
-    if sidecars and not payload_only:
-        logger.info("[api] uploading run templates")
-        if env.remote:
-            run_templates = sidecars["azure"]["run_templates"]
-            for run_item in run_templates:
-                run_id = run_item.get("id")
-                for handler_id, deploy in run_item.get("handlers").items():
-                    if deploy:
-                        run_id_dir_path: pathlib.Path = (pathlib.Path(deploy_dir) / "run_templates" / run_id /
-                                                         handler_id)
-                        solution_handler_svc = SolutionHandleService(azure_token=azure_token, state=state["services"])
-                        if run_id_dir_path.is_dir():
-                            with ZipFile(run_id_dir_path / f"{handler_id}.zip", "w") as zip_object:
-                                for f in run_id_dir_path.iterdir():
-                                    if basename(f) != f"{handler_id}.zip":
-                                        zip_object.write(f, basename(f))
-                        handler_zip_path = run_id_dir_path / f"{handler_id}.zip"
-                        solution_handler_svc.upload(
-                            run_template_id=run_id,
-                            handler_id=handler_id,
-                            handler_path=handler_zip_path,
-                            override=True,
-                        )
-                        os.remove(handler_zip_path)
     run_scripts = sidecars.get("run_scripts")
     if run_scripts:
         data = run_scripts.get("post_deploy.sh", "")
