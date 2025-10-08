@@ -123,6 +123,19 @@ class Environment(metaclass=SingletonMeta):
         self.set_blob_client()
         return platform_url
 
+    def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
+        result = data.replace("{{", "${").replace("}}", "}")
+        t = Template(text=result, strict_undefined=True)
+        vars = self.get_variables()
+        flattenstate = dict()
+        if ext_args:
+            vars.update(ext_args)
+        if state:
+            flattenstate = flatten(state.get("services", {}), separator=".")
+        payload = t.render(**vars, services=flattenstate)
+        payload_json = yaml_to_json(payload)
+        return payload_json
+
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)

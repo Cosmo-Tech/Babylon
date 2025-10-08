@@ -34,8 +34,7 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(data=f.read(), state=state)
-    spec["payload"] = json.dumps(spec["payload"], indent=2, ensure_ascii=True)
+        spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token, spec=spec)
     logger.info("[api] Creating organization")
     response = organizations_service.create()
