@@ -113,32 +113,6 @@ class WorkspaceService:
             logger.error('An error occurred while workspace deleting')
         return response
 
-    def send_key(self, workspace_id: str, workspace_key: str):
-        workspace_id = workspace_id or self.state['api']['workspace_id']
-        workspace_key = workspace_key or self.state['api']['workspace_key']
-        secret_eventhub = env.get_project_secret(
-            organization_id=self.organization_id,
-            workspace_key=workspace_key,
-            name="eventhub",
-        )
-        if not secret_eventhub:
-            logger.error("[vault] workspace secret key is missing in vault")
-            sys.exit(1)
-        details = {"dedicatedEventHubKey": secret_eventhub.replace('"', "")}
-        details_json = json.dumps(details, indent=4, default=str)
-        if not workspace_id:
-            logger.error("[api] workspace id not found")
-            sys.exit(1)
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}/secret",
-            self.keycloak_token,
-            type="POST",
-            data=details_json,
-        )
-        if response is None:
-            logger.error('An error occurred while sending a workspace secret key')
-        return response
-
     def update_security(self, old_security: dict):
         security_svc = ApiWorkspaceSecurityService(keycloak_token=self.keycloak_token, state=self.state)
         payload = json.loads(self.spec["payload"])
