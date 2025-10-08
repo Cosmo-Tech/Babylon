@@ -10,7 +10,7 @@ from Babylon.utils.decorators import (
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -19,13 +19,13 @@ env = Environment()
 @command()
 @injectcontext()
 @retrieve_state
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @option("--organization-id", type=str)
 @option("--workspace-id", type=str)
 def delete(
     state: Any,
-    azure_token: str,
+    keycloak_token: str,
     organization_id: str,
     workspace_id: str,
     force_validation: bool,
@@ -36,7 +36,7 @@ def delete(
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    workspace_service = WorkspaceService(state=service_state, azure_token=azure_token)
+    workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)
     response = workspace_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()

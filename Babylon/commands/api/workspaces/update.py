@@ -6,7 +6,7 @@ from click import Path, argument
 from click import command
 from click import option
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
     retrieve_state,
@@ -24,7 +24,7 @@ payload = {"name": "Updated workspace to be deleted"}
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @retrieve_state
 @option(
     "--organization-id",
@@ -37,7 +37,7 @@ payload = {"name": "Updated workspace to be deleted"}
 def update(
     state: Any,
     organization_id: str,
-    azure_token: str,
+    keycloak_token: str,
     workspace_id: str,
     payload_file: pathlib.Path,
 ) -> CommandResponse:
@@ -52,8 +52,8 @@ def update(
         return CommandResponse.fail()
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(data=f.read(), state=state)
-    workspace_service = WorkspaceService(state=service_state, azure_token=azure_token, spec=spec)
+        spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
+    workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token, spec=spec)
     response = workspace_service.update()
     if response is None:
         return CommandResponse.fail()
