@@ -16,10 +16,10 @@ env = Environment()
 
 class WorkspaceService:
 
-    def __init__(self, state: dict, azure_token: str, spec: Optional[dict] = None):
+    def __init__(self, state: dict, keycloak_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
-        self.azure_token = azure_token
+        self.keycloak_token = keycloak_token
         self.url = state["api"]["url"]
         if not self.url:
             logger.error("API url not found")
@@ -32,7 +32,7 @@ class WorkspaceService:
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces",
-            self.azure_token,
+            self.keycloak_token,
         )
         if response is None:
             logger.error('An error occurred while getting of all workspaces')
@@ -45,7 +45,7 @@ class WorkspaceService:
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
-            self.azure_token,
+            self.keycloak_token,
         )
         if response is None:
             logger.error('An error occurred while getting of workspace by workspace_id')
@@ -55,7 +55,7 @@ class WorkspaceService:
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
@@ -72,7 +72,7 @@ class WorkspaceService:
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="PATCH",
             data=details_json,
         )
@@ -88,7 +88,7 @@ class WorkspaceService:
             return None
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="PATCH",
             data=details,
         )
@@ -106,7 +106,7 @@ class WorkspaceService:
 
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="DELETE",
         )
         if response is None:
@@ -131,7 +131,7 @@ class WorkspaceService:
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{workspace_id}/secret",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details_json,
         )
@@ -140,7 +140,7 @@ class WorkspaceService:
         return response
 
     def update_security(self, old_security: dict):
-        security_svc = ApiWorkspaceSecurityService(azure_token=self.azure_token, state=self.state)
+        security_svc = ApiWorkspaceSecurityService(keycloak_token=self.keycloak_token, state=self.state)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

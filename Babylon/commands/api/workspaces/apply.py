@@ -9,7 +9,7 @@ from flatten_json import flatten
 from click import command, option
 from mako.template import Template
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -22,14 +22,14 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--payload-file", "payload_file", type=Path)
 @retrieve_state
 def apply(
     state: dict,
-    azure_token: str,
+    keycloak_token: str,
     organization_id: str,
     workspace_id: str,
     payload_file: Path,
@@ -66,7 +66,7 @@ def apply(
     spec["payload"] = payload_json
     service_state["api"]["organization_id"] = organization_id
     service_state["api"]["workspace_id"] = id
-    workspace_service = WorkspaceService(azure_token=azure_token, state=service_state, spec=spec)
+    workspace_service = WorkspaceService(keycloak_token=keycloak_token, state=service_state, spec=spec)
 
     if not id:
         response = workspace_service.create()
