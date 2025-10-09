@@ -27,12 +27,6 @@ class RunService:
             self.keycloak_token)
         return response
 
-    def cumulated_logs(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/cumulatedlogs",
-            self.keycloak_token)
-        return response
-
     def status(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/status",
