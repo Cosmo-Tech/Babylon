@@ -1,32 +1,59 @@
 import json
+import click
+
 from typing import Any
 from click import option
 from click import command
-from Babylon.utils.credentials import pass_azure_token
+from logging import getLogger
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
+from Babylon.utils.environment import Environment
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
+
+logger = getLogger("Babylon")
+env = Environment()
 
 
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
-@option("--role", "role", type=str, required=True, default="viewer", help="Role RBAC")
-@option("--email", "email", type=str, required=True, help="Email valid")
+@pass_keycloak_token()
+@option("--organization-id", "organization_id", type=str)
+@option("--solution-id", "solution_id", type=str)
+@option(
+    "--role",
+    "role",
+    type=str,
+    required=True,
+    help="Role RBAC",
+)
 @retrieve_state
 def set_default(
     state: Any,
-    azure_token: str,
-    role: str,
-    email: str,
+    keycloak_token: str,
+    organization_id: str,
+    solution_id: str,
+    role: str = None,
 ) -> CommandResponse:
     """
     Set the Solution default security
     """
+    _ret = [""]
+    _ret.append("Set default RBAC access to the solution")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
-    service = SolutionSecurityService(azure_token=azure_token, state=service_state)
-    details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    response = service.set_default(details)
-    return CommandResponse.success(response, verbose=True)
+    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
+    solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
+    details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
+    logger.info(f"[api] Setting default RBAC access to the solution {service_state['api']['solution_id']}")
+    response = solution_service.set_default(details)
+    if response is None:
+        return CommandResponse.fail()
+    default_security = response.json()
+    logger.info(json.dumps(default_security, indent=2))
+    logger.info("[api] default RBAC access successfully setted")
+    return CommandResponse.success(response)
