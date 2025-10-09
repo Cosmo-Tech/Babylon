@@ -1,7 +1,6 @@
 import json
 import click
 
-
 from typing import Any
 from click import option
 from click import command
