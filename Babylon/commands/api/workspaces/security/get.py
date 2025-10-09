@@ -1,4 +1,5 @@
 import json
+import click
 from logging import getLogger
 from typing import Any
 from click import argument, command
@@ -24,6 +25,10 @@ def get(state: Any, keycloak_token: str, identity_id: str) -> CommandResponse:
     """
     Get workspace users RBAC access
     """
+    _ret = [""]
+    _ret.append("Get workspace users RBAC access")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
     response = service.get(id=identity_id)

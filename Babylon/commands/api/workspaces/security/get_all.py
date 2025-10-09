@@ -1,3 +1,4 @@
+import click
 from logging import getLogger
 from typing import Any
 from click import command
@@ -32,6 +33,10 @@ def get_all(
     """
     Get all RBAC access for the workspace
     """
+    _ret = [""]
+    _ret.append("Get all RBAC access for the workspace")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]

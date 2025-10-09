@@ -1,3 +1,4 @@
+import click
 import jmespath
 from logging import getLogger
 from typing import Any, Optional
@@ -29,6 +30,10 @@ def get_all(state: Any, organization_id: str, keycloak_token: str, filter: Optio
     """
     Get all workspaces details
     """
+    _ret = [""]
+    _ret.append("Get all workspaces details")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)

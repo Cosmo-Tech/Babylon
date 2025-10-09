@@ -1,5 +1,5 @@
 import json
-
+import click
 from logging import getLogger
 from typing import Any
 from click import option
@@ -31,6 +31,10 @@ def add(
     """
     Add workspace users RBAC access
     """
+    _ret = [""]
+    _ret.append("Add workspace users RBAC access")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)

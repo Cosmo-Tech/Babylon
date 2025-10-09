@@ -1,6 +1,6 @@
 import json
 import logging
-
+import click
 from click import argument, command, option
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService, )
@@ -33,6 +33,10 @@ def update(state: dict, keycloak_token: str, id: str, email: str, role: str) -> 
     """
     Update workspace users RBAC access
     """
+    _ret = [""]
+    _ret.append("Update workspace users RBAC access")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     details = json.dumps({"id": email, "role": role})
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)

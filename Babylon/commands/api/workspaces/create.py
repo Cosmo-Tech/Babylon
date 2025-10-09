@@ -1,5 +1,5 @@
 import pathlib
-
+import click
 from logging import getLogger
 from typing import Any
 from click import argument, command
@@ -35,6 +35,10 @@ def create(
     """
     Register a workspace.
     """
+    _ret = [""]
+    _ret.append("Register a workspace")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
 
