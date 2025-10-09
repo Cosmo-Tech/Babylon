@@ -20,10 +20,16 @@ class SolutionService:
         self.spec = spec
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
+        if not self.url:
+            logger.error("[babylon] api url not found")
+            sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
+        if not self.organization_id:
+            logger.error("[babylon] Organization id is missing")
+            sys.exit(1)
         self.solution_id = self.state["api"]["solution_id"]
         if not self.organization_id:
-            logger.error('[babylon] Organization id is missing')
+            logger.error('[babylon] Solution id is missing')
             sys.exit(1)
 
     def create(self):

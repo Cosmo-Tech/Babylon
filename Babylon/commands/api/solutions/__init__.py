@@ -7,6 +7,7 @@ from .get_all import get_all
 from .handler import handler
 from .update import update
 from .security import security
+from .runTemplates import runTemplates
 
 
 @group()
@@ -20,7 +21,7 @@ list_commands = [delete, get_all, create, get, update]
 for _command in list_commands:
     solutions.add_command(_command)
 
-list_groups = [handler, security]
+list_groups = [handler, security, runTemplates]
 
 for _group in list_groups:
     solutions.add_command(_group)
