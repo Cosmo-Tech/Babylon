@@ -1,5 +1,5 @@
 import logging
-import json
+import click
 
 from click import argument, command
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import ApiWorkspaceSecurityService
@@ -23,6 +23,10 @@ def delete(state: dict, keycloak_token: str, id: str) -> CommandResponse:
     """
     Delete workspace users RBAC access
     """
+    _ret = [""]
+    _ret.append("Delete workspace users RBAC access")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
     response = service.delete(id=id)

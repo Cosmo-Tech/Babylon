@@ -37,6 +37,10 @@ def apply(
     """
     Apply workspace deployment
     """
+    _ret = [""]
+    _ret.append("Apply workspace deployment")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     data = None
     if len(select([sys.stdin], [], [], 0.0)[0]):
