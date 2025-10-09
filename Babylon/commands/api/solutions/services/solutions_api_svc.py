@@ -7,6 +7,7 @@ from Babylon.commands.api.solutions.services.solutions_security_svc import Solut
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -33,11 +34,6 @@ class SolutionService:
             type="POST",
             data=details,
         )
-        if not response or response.get("error"):
-            logger.error(
-                f"[api] Failed to create solution {self.solution_id}. Response: {response}"
-            )
-            return None
         return response
 
     def delete(self, force_validation: bool):
@@ -49,11 +45,6 @@ class SolutionService:
             self.keycloak_token,
             "DELETE",
         )
-        if not response or response.get("error"):
-            logger.error(
-                f"[api] Failed to delete solution {self.solution_id}. Response: {response}"
-            )
-            return None
         return response
 
     def get(self):
@@ -62,11 +53,6 @@ class SolutionService:
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}",
             self.keycloak_token,
         )
-        if not response or response.get("error"):
-            logger.error(
-                f"[api] Failed to get solution {self.solution_id}. Response: {response}"
-            )
-            return None
         return response
 
     def get_all(self):
@@ -74,11 +60,6 @@ class SolutionService:
             f"{self.url}/organizations/{self.organization_id}/solutions",
             self.keycloak_token,
         )
-        if not response or response.get("error"):
-            logger.error(
-                f"[api] Failed to retrieve all solutions. Response: {response}"
-            )
-            return None
         return response
 
     def update(self):
@@ -90,11 +71,6 @@ class SolutionService:
             "PATCH",
             data=details,
         )
-        if not response or response.get("error"):
-            logger.error(
-                f"[api] Failed to update solution {self.solution_id}. Response: {response}"
-            )
-            return None
         return response
 
     def update_security(self, old_security: dict):
@@ -109,34 +85,24 @@ class SolutionService:
         if "default" in security_spec:
             data = json.dumps(obj={"role": security_spec["default"]}, indent=2, ensure_ascii=True)
             response = self.security_svc.set_default(data)
-            if not response or response.get("error"):
-                logger.error(
-                    "[api] Failed to set default security. Response: %s",
-                    response,
-                )
-                return None
+            if response is None:
+                return CommandResponse.fail()
         for g in security_spec["accessControlList"]:
             if g.get("id") in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = self.security_svc.update(id=g.get("id"), details=details)
-                if not response or response.get("error"):
-                    logger.error(
-                        "[api] Failed to update default security. Response: %s",
-                        response,
-                    )
-                    return None
+                if response is None:
+                    return CommandResponse.fail()
             if g.get("id") not in ids_existing:
                 details = json.dumps(obj=g, indent=2, ensure_ascii=True)
                 response = self.security_svc.add(details)
                 if response is None:
-                    logger.error('An error occurred while adding a security role in solution')
-                    return None
+                    return CommandResponse.fail()
         for s in ids_existing:
             if s not in ids_spec:
                 response = self.security_svc.remove(id=s)
                 if response is None:
-                    logger.error('An error occurred while deleting a security role in solution')
-                    return None
+                    return CommandResponse.fail()
         return security_spec
 
 
