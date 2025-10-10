@@ -1,7 +1,7 @@
 import json
 import logging
 import click
-from click import argument, command, option
+from click import command, option
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.decorators import injectcontext
@@ -27,7 +27,6 @@ env = Environment()
     help="Role RBAC",
 )
 @option("--email", "email", type=str, required=True, help="Email valid")
-@argument("id", type=str)
 @retrieve_state
 def update(state: dict, keycloak_token: str, id: str, email: str, role: str) -> CommandResponse:
     """
@@ -40,6 +39,11 @@ def update(state: dict, keycloak_token: str, id: str, email: str, role: str) -> 
     service_state = state["services"]
     details = json.dumps({"id": email, "role": role})
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
+    logger.info(f"[api] Updating user {[email]} RBAC access in the workspace {[service_state['api']['workspace_id']]}")
     response = service.update(id=id, details=details)
-    logger.info(json.dumps(response.json(), indent=2))
-    return CommandResponse.success(response, verbose=True)
+    if response is None:
+        return CommandResponse.fail()
+    rbacs = response.json()
+    logger.info(json.dumps(rbacs, indent=2))
+    logger.info(f"[api] User {[email]} RBAC access successfully Updated")
+    return CommandResponse.success(rbacs)

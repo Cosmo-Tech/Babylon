@@ -2,7 +2,7 @@ import json
 import click
 from logging import getLogger
 from typing import Any
-from click import argument, command
+from click import option, command
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.credentials import pass_keycloak_token
@@ -19,9 +19,9 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@argument("identity_id", type=str)
+@option("--email", "email", type=str, required=True, help="Email valid")
 @retrieve_state
-def get(state: Any, keycloak_token: str, identity_id: str) -> CommandResponse:
+def get(state: Any, keycloak_token: str, email: str) -> CommandResponse:
     """
     Get workspace users RBAC access
     """
@@ -31,6 +31,9 @@ def get(state: Any, keycloak_token: str, identity_id: str) -> CommandResponse:
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
-    response = service.get(id=identity_id)
+    logger.info(f"[api] Get user {[email]} RBAC access to the workspace {[service_state['api']['workspace_id']]}")
+    response = service.get(id=email)
+    if response is None:
+        return CommandResponse.fail()
     logger.info(json.dumps(response.json(), indent=2))
     return CommandResponse.success(response)

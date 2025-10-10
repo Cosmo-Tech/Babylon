@@ -42,16 +42,13 @@ def delete(
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)
+    logger.info("[api] Deleting workspace")
     response = workspace_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    if response:
-        logger.info(f'Workspace {service_state["api"]["workspace_id"]} successfully deleted')
-        if (service_state["api"]["workspace_id"] == state["services"]["api"]["workspace_id"]):
-            state["services"]["api"]["workspace_id"] = ""
-            env.store_state_in_local(state)
-            if env.remote:
-                env.store_state_in_cloud(state)
-            logger.info(
-                f'Workspace {service_state["api"]["workspace_id"]} successfully deleted in state {state.get("id")}')
+    logger.info(f"[api] Workspace {[service_state['api']['workspace_id']]} successfully deleted")
+    state["services"]["api"]["workspace_id"] = ""
+    env.store_state_in_local(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success()

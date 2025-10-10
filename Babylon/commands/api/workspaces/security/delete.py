@@ -1,7 +1,7 @@
 import logging
 import click
 
-from click import argument, command
+from click import option, command
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import ApiWorkspaceSecurityService
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
@@ -17,9 +17,9 @@ env = Environment()
 @injectcontext()
 @pass_keycloak_token()
 @output_to_file
-@argument("id", type=str)
+@option("--email", "email", type=str, required=True, help="Email valid")
 @retrieve_state
-def delete(state: dict, keycloak_token: str, id: str) -> CommandResponse:
+def delete(state: dict, keycloak_token: str, email: str) -> CommandResponse:
     """
     Delete workspace users RBAC access
     """
@@ -29,6 +29,9 @@ def delete(state: dict, keycloak_token: str, id: str) -> CommandResponse:
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
-    response = service.delete(id=id)
-    logger.info(response)
-    return CommandResponse.success(response, verbose=True)
+    logger.info(f"[api] Deleting user {[email]} RBAC permissions on workspace {[service_state['api']['workspace_id']]}")
+    response = service.delete(id=email)
+    if response is None:
+        return CommandResponse.fail()
+    logger.info("[api] User RBAC permissions successfully deleted")
+    return CommandResponse.success(response)

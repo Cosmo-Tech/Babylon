@@ -51,9 +51,11 @@ def set_default(
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
+    logger.info(f"[api] Setting default RBAC access to the solution {[service_state['api']['workspace_id']]}")
     response = service.set_default(details)
-    default_security = response.json()
     if response is None:
-        logger.error('An error occurred while setting a default security role in workspace')
         return CommandResponse.fail()
-    return CommandResponse.success(default_security, verbose=True)
+    default_security = response.json()
+    logger.info(json.dumps(default_security, indent=2))
+    logger.info("[api] default RBAC access successfully setted")
+    return CommandResponse.success(default_security)

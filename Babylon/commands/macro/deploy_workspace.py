@@ -58,10 +58,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         state["services"]["api"]["solution_id"] = metadata["selector"].get("solution_id", "")
     else:
         if (not state["services"]["api"]["organization_id"] and not state["services"]["api"]["solution_id"]):
-            logger.error(
-                "Selector verification failed. Please check the selector field for correctness: %s",
-                metadata.get("selector"),
-            )
+            logger.error(f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
+            sys.exit(1)
     subscription_id = state["services"]["azure"]["subscription_id"]
     organization_id = state["services"]["api"]["organization_id"]
     azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
@@ -74,16 +72,16 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     azure_token = get_azure_token("csm_api")
     workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=state.get("services"))
     if not state["services"]["api"]["workspace_id"]:
-        logger.info("[api] creating workspace")
+        logger.info("[api] Creating workspace")
         response = workspace_svc.create()
         if not response:
             sys.exit(1)
         workspace = response.json()
-        logger.info(f"[api] workspace {workspace.get('id')} successfully created")
         logger.info(json.dumps(workspace, indent=2))
+        logger.info(f"[api] Workspace {[workspace.get('id')]} successfully created")
         state["services"]["api"]["workspace_id"] = workspace.get("id")
     else:
-        logger.info(f"[api] updating workspace {state['services']['api']['workspace_id']}")
+        logger.info(f"[api] Updating workspace {[state['services']['api']['workspace_id']]}")
         response = workspace_svc.update()
         response_json = response.json()
         old_security = response_json.get("security")
@@ -91,6 +89,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         response_json["security"] = security_spec
         workspace = response_json
         logger.info(json.dumps(workspace, indent=2))
+        logger.info(f"[api] Solution {[workspace['id']]} successfully updated")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)

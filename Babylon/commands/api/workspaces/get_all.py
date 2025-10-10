@@ -1,5 +1,6 @@
 import click
 import jmespath
+import json
 from logging import getLogger
 from typing import Any, Optional
 from click import command
@@ -37,10 +38,12 @@ def get_all(state: Any, organization_id: str, keycloak_token: str, filter: Optio
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)
+    logger.info(f"[api] Getting all workspaces from organization {[service_state['api']['organization_id']]}")
     response = workspace_service.get_all()
     if response is None:
         return CommandResponse.fail()
     workspaces = response.json()
     if len(workspaces) and filter:
         workspaces = jmespath.search(filter, workspaces)
-    return CommandResponse.success(workspaces, verbose=True)
+    logger.info(json.dumps(workspaces, indent=2))
+    return CommandResponse.success(workspaces)

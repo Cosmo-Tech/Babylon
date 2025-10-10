@@ -1,5 +1,6 @@
 import pathlib
 import click
+import json
 from logging import getLogger
 from typing import Any
 from click import argument, command
@@ -49,6 +50,7 @@ def create(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token, spec=spec)
+    logger.info("[api] Creating workspace")
     response = workspace_service.create()
     if response is None:
         return CommandResponse.fail()
@@ -58,5 +60,6 @@ def create(
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(f"Workspace {workspace['id']} successfully saved in state {state.get('id')}")
-    return CommandResponse.success(workspace, verbose=True)
+    logger.info(json.dumps(workspace, indent=2))
+    logger.info(f"[api] Workspace {[workspace.get('id')]} successfully created")
+    return CommandResponse.success(workspace)
