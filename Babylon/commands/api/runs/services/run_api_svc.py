@@ -22,19 +22,16 @@ class RunService:
             sys.exit(1)
 
     def logs(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/logs",
-            self.keycloak_token)
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/logs",
+                                 self.keycloak_token)
         return response
 
     def status(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/status",
-            self.keycloak_token)
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/status",
+                                 self.keycloak_token)
         return response
 
     def stop(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/stop",
-            self.keycloak_token, "POST")
+        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/runs/{self.run_id}/stop",
+                                 self.keycloak_token, "POST")
         return response
