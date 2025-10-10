@@ -11,7 +11,6 @@ from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 
-
 logger = getLogger("Babylon")
 env = Environment()
 
