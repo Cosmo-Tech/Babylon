@@ -25,7 +25,7 @@ env = Environment()
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--runner-id", type=str)
-def run(
+def start(
     state: Any,
     organization_id: str,
     workspace_id: str,
@@ -39,9 +39,8 @@ def run(
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
-
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
-    response = runner_service.run()
+    response = runner_service.start()
     if response is None:
         return CommandResponse.fail()
     runner_run = response.json()
