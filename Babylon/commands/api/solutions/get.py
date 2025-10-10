@@ -33,7 +33,7 @@ def get(state: Any, keycloak_token: str, organization_id: str, solution_id: str)
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
-    logger.info(f"[api] Retrieving solution {service_state['api']['solution_id']}")
+    logger.info(f"[api] Retrieving solution {[service_state['api']['solution_id']]}")
     organizations_service = SolutionService(state=service_state, keycloak_token=keycloak_token)
     response = organizations_service.get()
     if response is None:

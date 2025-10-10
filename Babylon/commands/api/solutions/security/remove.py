@@ -29,7 +29,7 @@ def remove(state: dict, keycloak_token: str, email: str) -> CommandResponse:
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Deleting user {email} RBAC permissions on solution {service_state['api']['solution_id']}")
+    logger.info(f"[api] Deleting user {[email]} RBAC permissions on solution {[service_state['api']['solution_id']]}")
     response = solution_service.remove(email)
     if response is None:
         return CommandResponse.fail()

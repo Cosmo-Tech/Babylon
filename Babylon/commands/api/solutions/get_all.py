@@ -33,7 +33,7 @@ def get_all(state: Any, keycloak_token: str, organization_id: str, filter: Optio
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     solutions_service = SolutionService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Getting all solutions from organization {service_state['api']['organization_id']}")
+    logger.info(f"[api] Getting all solutions from organization {[service_state['api']['organization_id']]}")
     response = solutions_service.get_all()
     if response is None:
         return CommandResponse.fail()

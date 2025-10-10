@@ -29,7 +29,7 @@ def get_users(state: dict, keycloak_token: str) -> CommandResponse:
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Fetching solution {service_state['api']['solution_id']} RBAC users")
+    logger.info(f"[api] Fetching solution {[service_state['api']['solution_id']]} RBAC users")
     response = solution_service.get_users()
     if response is None:
         return CommandResponse.fail()

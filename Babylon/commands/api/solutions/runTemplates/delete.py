@@ -1,4 +1,3 @@
-import json
 import click
 
 from typing import Any
@@ -46,7 +45,6 @@ def delete(
     response = solution_service.delete(runTemplate_id)
     if response is None:
         return CommandResponse.fail()
-    logger.info(
-        f"[api] RunTemplate id {[runTemplate_id]} successfully deleted from the solution {[service_state['api']['solution_id']]}"
-    )
+    sol_id = service_state['api']['solution_id']
+    logger.info(f"[api] RunTemplate id {[runTemplate_id]} successfully deleted from the solution {[sol_id]}")
     return CommandResponse.success(response)

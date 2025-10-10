@@ -43,7 +43,7 @@ def delete(
     response = solutions_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f" [api] Solution {service_state['api']['solution_id']} successfully deleted")
+    logger.info(f" [api] Solution {[service_state['api']['solution_id']]} successfully deleted")
     state["services"]["api"]["solution_id"] = ""
     env.store_state_in_local(state)
     if env.remote:

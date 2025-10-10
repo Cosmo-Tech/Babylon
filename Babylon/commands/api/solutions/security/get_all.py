@@ -33,7 +33,7 @@ def get_all(
     click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Retrieving all RBAC access to the solution {service_state['api']['solution_id']}")
+    logger.info(f"[api] Retrieving all RBAC access to the solution {[service_state['api']['solution_id']]}")
     response = solution_service.get_all()
     if response is None:
         return CommandResponse.fail()

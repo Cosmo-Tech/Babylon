@@ -49,7 +49,7 @@ def set_default(
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Setting default RBAC access to the solution {service_state['api']['solution_id']}")
+    logger.info(f"[api] Setting default RBAC access to the solution {[service_state['api']['solution_id']]}")
     response = solution_service.set_default(details)
     if response is None:
         return CommandResponse.fail()

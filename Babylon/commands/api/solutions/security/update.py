@@ -38,11 +38,11 @@ def update(state: dict, keycloak_token: str, email: str, role: str) -> CommandRe
     service_state = state["services"]
     details = json.dumps({"id": email, "role": role})
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Updating user {email} RBAC access in the solution {service_state['api']['solution_id']}")
+    logger.info(f"[api] Updating user {[email]} RBAC access in the solution {[service_state['api']['solution_id']]}")
     response = solution_service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
     logger.info(json.dumps(rbacs, indent=2))
-    logger.info(f"[api] User {email} RBAC access successfully Updated")
+    logger.info(f"[api] User {[email]} RBAC access successfully Updated")
     return CommandResponse.success(rbacs)

@@ -39,7 +39,7 @@ def add(
     service_state = state["services"]
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Granting user {email} RBAC permissions on solution {service_state['api']['solution_id']}")
+    logger.info(f"[api] Granting user {[email]} RBAC permissions on solution {[service_state['api']['solution_id']]}")
     response = solution_service.add(details)
     if response is None:
         return CommandResponse.fail()

@@ -38,10 +38,8 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
         state["services"]["api"]["organization_id"] = metadata["selector"].get("organization_id", "")
     else:
         if not state["services"]["api"]["organization_id"]:
-            logger.error(
-                "Selector verification failed: please ensure the 'selector' field is correct: %s",
-                metadata.get("selector"),
-            )
+            logger.error(f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
+            sys.exit(1)
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     solution_svc = SolutionService(keycloak_token=keycloak_token, spec=spec, state=state["services"])
@@ -52,9 +50,9 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
             return CommandResponse.fail()
         solution = response.json()
         logger.info(json.dumps(solution, indent=2))
-        logger.info(f"Solution {solution['id']} successfully created")
+        logger.info(f"[api] Solution {[solution['id']]} successfully created")
     else:
-        logger.info(f"[api] Updating solution {state['services']['api']['solution_id']}")
+        logger.info(f"[api] Updating solution {[state['services']['api']['solution_id']]}")
         response = solution_svc.update()
         if response is None:
             return CommandResponse.fail()
@@ -64,7 +62,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
         response_json["security"] = security_spec
         solution = response_json
         logger.info(json.dumps(solution, indent=2))
-        logger.info(f"[api] Solution {solution['id']} successfully updated")
+        logger.info(f"[api] Solution {[solution['id']]} successfully updated")
     state["services"]["api"]["solution_id"] = solution.get("id")
     env.store_state_in_local(state)
     if env.remote:

@@ -21,11 +21,11 @@ class SolutionRunTemplatesService:
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing")
+            logger.error("[babylon] Organization id is missing verify the state")
             sys.exit(1)
         self.solution_id = self.state["api"]["solution_id"]
         if not self.solution_id:
-            logger.error("[babylon] solution id is missing")
+            logger.error("[babylon] solution id is missing verify the state")
             sys.exit(1)
 
     def add(self):
@@ -48,8 +48,8 @@ class SolutionRunTemplatesService:
     def get(self, run_template_id: str):
         response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/ \
                 {self.solution_id}/runTemplates/{run_template_id}",
-                                self.keycloak_token,
-                                type="GET")
+                                 self.keycloak_token,
+                                 type="GET")
         return response
 
     def delete(self, run_template_id: str):
@@ -61,10 +61,11 @@ class SolutionRunTemplatesService:
 
     def update(self, run_template_id: str):
         details = self.spec["payload"]
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/ \
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/solutions/ \
                 {self.solution_id}/runTemplates/{run_template_id}",
-                                self.keycloak_token,
-                                type="PATCH",
-                                data=details,
+            self.keycloak_token,
+            type="PATCH",
+            data=details,
         )
         return response

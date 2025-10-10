@@ -50,5 +50,5 @@ def create(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     if env.remote:
         env.store_state_in_cloud(state)
     logger.info(json.dumps(solution, indent=2))
-    logger.info(f"[api] Solution {solution.get('id')} successfully created")
+    logger.info(f"[api] Solution {[solution.get('id')]} successfully created")
     return CommandResponse.success(solution)

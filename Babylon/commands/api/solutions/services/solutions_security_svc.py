@@ -19,11 +19,11 @@ class SolutionSecurityService:
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing")
+            logger.error("[babylon] Organization id is missing verify the state")
             sys.exit(1)
         self.solution_id = self.state["api"]["solution_id"]
         if not self.solution_id:
-            logger.error("[babylon] solution id is missing")
+            logger.error("[babylon] solution id is missing verify the state")
             sys.exit(1)
 
     def add(self, details: str):
