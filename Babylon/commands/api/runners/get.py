@@ -22,25 +22,25 @@ logger = getLogger("Babylon")
 @retrieve_state
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@option("--scenario-id", type=str)
+@option("--runner-id", type=str)
 def get(
     state: Any,
     organization_id: str,
     workspace_id: str,
-    scenario_id: str,
+    runner_id: str,
     azure_token: str,
 ) -> CommandResponse:
     """
-    Get scenario details
+    Get runner details
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    service_state["api"]["scenario_id"] = (scenario_id or state["services"]["api"]["scenario_id"])
+    service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
 
-    scenario_service = RunnerService(state=service_state, azure_token=azure_token)
-    response = scenario_service.get()
+    runner_service = RunnerService(state=service_state, azure_token=azure_token)
+    response = runner_service.get()
     if response is None:
         return CommandResponse.fail()
-    scenario = response.json()
-    return CommandResponse.success(scenario, verbose=True)
+    runner = response.json()
+    return CommandResponse.success(runner, verbose=True)

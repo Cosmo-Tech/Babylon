@@ -6,7 +6,7 @@ from Babylon.utils.request import oauth_request
 logger = getLogger("Babylon")
 
 
-class ScenarioSecurityService:
+class RunnerSecurityService:
 
     def __init__(self, azure_token: str, state: dict) -> None:
         self.state = state
@@ -23,15 +23,15 @@ class ScenarioSecurityService:
         if not self.workspace_id:
             logger.error("workspace id is missing")
             sys.exit(1)
-        self.scenario_id = self.state["api"]["scenario_id"]
-        if not self.scenario_id:
-            logger.error("scenario id is missing")
+        self.runner_id = self.state["api"]["runner_id"]
+        if not self.runner_id:
+            logger.error("runner id is missing")
             sys.exit(1)
 
     def get(self, id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{self.scenario_id}/security/access/{id}",
+            f"{self.workspace_id}/runners/{self.runner_id}/security/access/{id}",
             self.azure_token,
         )
         return response
@@ -39,7 +39,7 @@ class ScenarioSecurityService:
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{self.scenario_id}/security",
+            f"{self.workspace_id}/runners/{self.runner_id}/security",
             self.azure_token,
         )
         return response
@@ -47,7 +47,7 @@ class ScenarioSecurityService:
     def add(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{self.scenario_id}/security/access",
+            f"{self.workspace_id}/runners/{self.runner_id}/security/access",
             self.azure_token,
             type="POST",
             data=details,
@@ -57,7 +57,7 @@ class ScenarioSecurityService:
     def update(self, id: str, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{self.scenario_id}/security/access/{id}",
+            f"{self.workspace_id}/runners/{self.runner_id}/security/access/{id}",
             self.azure_token,
             type="POST",
             data=details,
@@ -67,7 +67,7 @@ class ScenarioSecurityService:
     def delete(self, id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{self.scenario_id}/security/access/{id}",
+            f"{self.workspace_id}/runners/{self.runner_id}/security/access/{id}",
             self.azure_token,
             type="DELETE",
         )
@@ -76,7 +76,7 @@ class ScenarioSecurityService:
     def set_default(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{self.scenario_id}/security/default",
+            f"{self.workspace_id}/runners/{self.runner_id}/security/default",
             self.azure_token,
             type="POST",
             data=details,

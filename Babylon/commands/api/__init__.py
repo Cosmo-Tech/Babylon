@@ -5,7 +5,7 @@ from .organizations import organizations
 from .runs import runs
 from .solutions import solutions
 from .workspaces import workspaces
-from .runners import scenarios
+from .runners import runners
 
 env = Environment()
 

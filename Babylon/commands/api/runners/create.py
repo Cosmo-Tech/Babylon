@@ -37,7 +37,7 @@ def create(
     payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
-    Create new scenario
+    Create new runner
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
@@ -50,15 +50,15 @@ def create(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
 
-    scenario_service = RunnerService(state=service_state, azure_token=azure_token, spec=spec)
-    response = scenario_service.create()
+    runner_service = RunnerService(state=service_state, azure_token=azure_token, spec=spec)
+    response = runner_service.create()
     if response is None:
         return CommandResponse.fail()
-    scenario = response.json()
+    runner = response.json()
 
-    state["services"]["api"]["scenario_id"] = scenario["id"]
+    state["services"]["api"]["runner_id"] = runner["id"]
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(f"Scenario {scenario['id']} has been successfully added in state")
-    return CommandResponse.success(scenario, verbose=True)
+    logger.info(f"Scenario {runner['id']} has been successfully added in state")
+    return CommandResponse.success(runner, verbose=True)

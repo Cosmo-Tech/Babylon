@@ -5,7 +5,7 @@ from logging import getLogger
 
 from typing import Optional
 
-from Babylon.commands.api.runners.services.runner_security_svc import ScenarioSecurityService
+from Babylon.commands.api.runners.services.runner_security_svc import RunnerSecurityService
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 
@@ -35,36 +35,36 @@ class RunnerService:
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios",
+            f"{self.workspace_id}/runners",
             self.azure_token,
         )
         return response
 
     def get(self):
-        scenario_id = self.state["api"]["scenario_id"]
+        runner_id = self.state["api"]["runner_id"]
 
-        if not scenario_id:
-            logger.error("scenario_id is missing")
+        if not runner_id:
+            logger.error("runner_id is missing")
             sys.exit(1)
 
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{scenario_id}",
+            f"{self.workspace_id}/runners/{runner_id}",
             self.azure_token,
         )
         return response
 
     def update(self):
-        scenario_id = self.state["api"]["scenario_id"]
+        runner_id = self.state["api"]["runner_id"]
 
-        if not scenario_id:
-            logger.error("scenario_id is missing")
+        if not runner_id:
+            logger.error("runner_id is missing")
             sys.exit(1)
 
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{scenario_id}",
+            f"{self.workspace_id}/runners/{runner_id}",
             self.azure_token,
             type="PATCH",
             data=details,
@@ -75,7 +75,7 @@ class RunnerService:
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios",
+            f"{self.workspace_id}/runners",
             self.azure_token,
             type="POST",
             data=details,
@@ -83,40 +83,40 @@ class RunnerService:
         return response
 
     def delete(self, force_validation: bool):
-        scenario_id = self.state["api"]["scenario_id"]
+        runner_id = self.state["api"]["runner_id"]
 
-        if not scenario_id:
-            logger.error("scenario_id is missing")
+        if not runner_id:
+            logger.error("runner_id is missing")
             sys.exit(1)
 
-        if not force_validation and not confirm_deletion("solution", scenario_id):
+        if not force_validation and not confirm_deletion("solution", runner_id):
             return None
 
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{scenario_id}",
+            f"{self.workspace_id}/runners/{runner_id}",
             self.azure_token,
             type="DELETE",
         )
         return response
 
     def run(self):
-        scenario_id = self.state["api"]["scenario_id"]
+        runner_id = self.state["api"]["runner_id"]
 
-        if not scenario_id:
-            logger.error("scenario_id is missing")
+        if not runner_id:
+            logger.error("runner_id is missing")
             sys.exit(1)
 
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/scenarios/{scenario_id}/run",
+            f"{self.workspace_id}/runners/{runner_id}/run",
             self.azure_token,
             type="POST",
         )
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = ScenarioSecurityService(azure_token=self.azure_token, state=self.state)
+        self.security_svc = RunnerSecurityService(azure_token=self.azure_token, state=self.state)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

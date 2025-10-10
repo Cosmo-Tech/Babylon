@@ -25,10 +25,10 @@ env = Environment()
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@option("--scenario-id", "scenario_id", type=str)
+@option("--runner-id", "runner_id", type=str)
 @option("--payload-file", "payload_file", type=Path)
 @retrieve_state
-def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str, scenario_id: str, payload_file: Path):
+def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str, runner_id: str, payload_file: Path):
     data = None
     if len(select([sys.stdin], [], [], 0.0)[0]):
         stream = click.get_text_stream("stdin")
@@ -52,26 +52,26 @@ def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str
     organization_id = payload_dict.get("organization_id") or (organization_id
                                                               or service_state["api"].get("organization_id"))
     workspace_id = payload_dict.get("workspace_id") or (workspace_id or service_state["api"].get("workspace_id"))
-    scenario_id = payload_dict.get("id") or (scenario_id or service_state["api"].get("scenario_id"))
+    runner_id = payload_dict.get("id") or (runner_id or service_state["api"].get("runner_id"))
 
     spec = dict()
     spec["payload"] = payload_json
     service_state["api"]["organization_id"] = organization_id
     service_state["api"]["workspace_id"] = workspace_id
-    service_state["api"]["scenario_id"] = scenario_id
-    scenario_service = RunnerService(azure_token=azure_token, spec=spec, state=service_state)
-    if not scenario_id:
-        response = scenario_service.create()
-        scenario = response.json()
+    service_state["api"]["runner_id"] = runner_id
+    runner_service = RunnerService(azure_token=azure_token, spec=spec, state=service_state)
+    if not runner_id:
+        response = runner_service.create()
+        runner = response.json()
     else:
-        response = scenario_service.update()
+        response = runner_service.update()
         response_json = response.json()
         old_security = response_json.get("security")
-        security_spec = scenario_service.update_security(old_security=old_security)
+        security_spec = runner_service.update_security(old_security=old_security)
         response_json["security"] = security_spec
-        scenario = response_json
-    state["services"]["api"]["dataset_id"] = scenario.get("id")
+        runner = response_json
+    state["services"]["api"]["dataset_id"] = runner.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    return CommandResponse.success(scenario, verbose=True)
+    return CommandResponse.success(runner, verbose=True)
