@@ -4,7 +4,7 @@ from typing import Any
 from click import command, option
 
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
     retrieve_state,
@@ -17,7 +17,7 @@ logger = getLogger("Babylon")
 
 @command()
 @injectcontext()
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @output_to_file
 @retrieve_state
 @option("--organization-id", "organization_id", type=str)
@@ -28,7 +28,7 @@ def get(
     organization_id: str,
     workspace_id: str,
     runner_id: str,
-    azure_token: str,
+    keycloak_token: str,
 ) -> CommandResponse:
     """
     Get runner details
@@ -38,7 +38,7 @@ def get(
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
 
-    runner_service = RunnerService(state=service_state, azure_token=azure_token)
+    runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
     response = runner_service.get()
     if response is None:
         return CommandResponse.fail()

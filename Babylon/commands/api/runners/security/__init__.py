@@ -10,7 +10,7 @@ from .set_default import set_default
 
 @group()
 def security():
-    """Group allowing scenario security management"""
+    """Group allowing runner security management"""
     pass
 
 

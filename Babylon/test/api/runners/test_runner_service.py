@@ -49,9 +49,9 @@ class RunnerServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Runner updated"}'
         mock_update.return_value = the_response
         payload_file = str(env.pwd / "Babylon/test/api/runners/payload.json")
-        result = CliRunner().invoke(
-            update, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", payload_file],
-            standalone_mode=False)
+        result = CliRunner().invoke(update,
+                                    ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", payload_file],
+                                    standalone_mode=False)
 
         assert result.return_value.data.get("name") == 'Runner updated'
 

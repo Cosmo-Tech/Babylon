@@ -5,7 +5,7 @@ from typing import Any
 from click import command, option, Path, argument
 
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
     retrieve_state,
@@ -21,7 +21,7 @@ logger = getLogger("Babylon")
 @command()
 @injectcontext()
 @retrieve_state
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @output_to_file
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
@@ -33,7 +33,7 @@ def create(
     state: Any,
     organization_id: str,
     workspace_id: str,
-    azure_token: str,
+    keycloak_token: str,
     payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
@@ -50,7 +50,7 @@ def create(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
 
-    runner_service = RunnerService(state=service_state, azure_token=azure_token, spec=spec)
+    runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token, spec=spec)
     response = runner_service.create()
     if response is None:
         return CommandResponse.fail()
