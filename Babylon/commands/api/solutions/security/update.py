@@ -1,16 +1,23 @@
 import json
-from click import argument, option, command
+import logging
+import click
+
+from click import option, command
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.environment import Environment
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
+
+logger = logging.getLogger("Babylon")
+env = Environment()
 
 
 @command()
 @injectcontext()
-@pass_azure_token("csm_api")
-@argument("identity_id", type=str)
+@pass_keycloak_token()
+@option("--email", "email", type=str, required=True, help="Email valid")
 @option(
     "--role",
     "role",
@@ -20,12 +27,22 @@ from Babylon.commands.api.solutions.services.solutions_security_svc import Solut
 )
 @output_to_file
 @retrieve_state
-def update(state: dict, azure_token: str, identity_id: str, email: str, role: str) -> CommandResponse:
+def update(state: dict, keycloak_token: str, email: str, role: str) -> CommandResponse:
     """
-    Update the specified access to User for a Solution
+    Update solution users RBAC access
     """
+    _ret = [""]
+    _ret.append("Update solution user RBAC access")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
-    service = SolutionSecurityService(azure_token=azure_token, state=service_state)
     details = json.dumps({"id": email, "role": role})
-    response = service.update_control_access(identity_id, details)
-    return CommandResponse.success(response, verbose=True)
+    solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
+    logger.info(f"[api] Updating user {[email]} RBAC access in the solution {[service_state['api']['solution_id']]}")
+    response = solution_service.update(id=email, details=details)
+    if response is None:
+        return CommandResponse.fail()
+    rbacs = response.json()
+    logger.info(json.dumps(rbacs, indent=2))
+    logger.info(f"[api] User {[email]} RBAC access successfully Updated")
+    return CommandResponse.success(rbacs)

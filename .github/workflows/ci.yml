@@ -43,4 +43,4 @@ jobs:
         run: |
          . .venv/bin/activate
          babylon namespace use -c test -p sphinx -s testid
-         pytest . Babylon/test/api/organizations/test_organizations_service.py
+         CI=true pytest Babylon/test/api/organizations Babylon/test/api/solutions
