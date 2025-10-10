@@ -1,4 +1,5 @@
 import click
+import json
 from logging import getLogger
 from typing import Any
 from click import command
@@ -41,8 +42,10 @@ def get_all(
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
+    logger.info(f"[api] Retrieving all RBAC access to the workspace {[service_state['api']['workspace_id']]}")
     response = service.get_all()
-    scenario_security = response.json()
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(scenario_security, verbose=True)
+    rbacs = response.json()
+    logger.info(json.dumps(rbacs, indent=2))
+    return CommandResponse.success(rbacs)

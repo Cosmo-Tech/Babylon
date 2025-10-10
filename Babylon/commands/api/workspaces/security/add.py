@@ -38,6 +38,11 @@ def add(
     service_state = state["services"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
+    logger.info(f"[api] Granting user {[email]} RBAC permissions on workspace {[service_state['api']['workspace_id']]}")
     response = service.add(details)
-    logger.info(json.dumps(response.json(), indent=2))
-    return CommandResponse.success(response, verbose=True)
+    if response is None:
+        return CommandResponse.fail()
+    rbacs = response.json()
+    logger.info(json.dumps(rbacs, indent=2))
+    logger.info("[api] User RBAC permissions successfully added")
+    return CommandResponse.success(rbacs)

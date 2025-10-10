@@ -1,4 +1,5 @@
 import click
+import json
 from logging import getLogger
 from typing import Any
 from click import command, option
@@ -36,8 +37,10 @@ def get(state: Any, organization_id: str, keycloak_token: str, workspace_id: str
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)
+    logger.info(f"[api] Retrieving workspace {[service_state['api']['workspace_id']]}")
     response = workspace_service.get()
     if response is None:
         return CommandResponse.fail()
     workspace = response.json()
-    return CommandResponse.success(workspace, verbose=True)
+    logger.info(json.dumps(workspace, indent=2))
+    return CommandResponse.success(workspace)
