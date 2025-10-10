@@ -5,10 +5,9 @@ from .get import get
 from .get_all import get_all
 from .security import security
 from .update import update
-from .send_key import send_key
 from .apply import apply
 
-list_commands = [update, delete, get_all, get, create, send_key, apply]
+list_commands = [update, delete, get_all, get, create, apply]
 
 
 @group()

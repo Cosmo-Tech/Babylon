@@ -1,5 +1,6 @@
 import pathlib
-
+import click
+import json
 from logging import getLogger
 from typing import Any
 from click import argument, command
@@ -13,7 +14,7 @@ from Babylon.utils.decorators import (
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -22,19 +23,23 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--organization-id", type=str)
 @argument("payload_file", type=Path(path_type=pathlib.Path))
 @retrieve_state
 def create(
     state: Any,
-    azure_token: str,
+    keycloak_token: str,
     organization_id: str,
     payload_file: pathlib.Path = None,
 ) -> CommandResponse:
     """
     Register a workspace.
     """
+    _ret = [""]
+    _ret.append("Register a workspace")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
 
@@ -43,8 +48,9 @@ def create(
         print(f"file {payload_file} not found in directory")
         return CommandResponse.fail()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(data=f.read(), state=state)
-    workspace_service = WorkspaceService(state=service_state, azure_token=azure_token, spec=spec)
+        spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
+    workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token, spec=spec)
+    logger.info("[api] Creating workspace")
     response = workspace_service.create()
     if response is None:
         return CommandResponse.fail()
@@ -54,5 +60,6 @@ def create(
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(f"Workspace {workspace['id']} successfully saved in state {state.get('id')}")
-    return CommandResponse.success(workspace, verbose=True)
+    logger.info(json.dumps(workspace, indent=2))
+    logger.info(f"[api] Workspace {[workspace.get('id')]} successfully created")
+    return CommandResponse.success(workspace)
