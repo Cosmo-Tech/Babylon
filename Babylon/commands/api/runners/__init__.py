@@ -1,6 +1,5 @@
 from click import group
 
-from .apply import apply
 from .security import security
 from .get_all import get_all
 from .create import create
@@ -9,7 +8,7 @@ from .update import update
 from .delete import delete
 from .start import start
 
-list_commands = [get_all, get, create, update, delete, start, apply]
+list_commands = [get_all, get, create, update, delete, start]
 
 
 @group()
