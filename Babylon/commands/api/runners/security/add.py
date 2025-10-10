@@ -5,7 +5,7 @@ from click import command
 from click import option
 from Babylon.commands.api.runners.services.runner_security_svc import (
     RunnerSecurityService, )
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     retrieve_state,
     injectcontext,
@@ -21,7 +21,7 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option(
     "--role",
     "role",
@@ -36,7 +36,7 @@ env = Environment()
 @retrieve_state
 def add(
     state: Any,
-    azure_token: str,
+    keycloak_token: str,
     email: str,
     organization_id: str,
     workspace_id: str,
@@ -50,7 +50,7 @@ def add(
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
-    service = RunnerSecurityService(azure_token=azure_token, state=service_state)
+    service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
     response = service.add(details)
     if response is None:

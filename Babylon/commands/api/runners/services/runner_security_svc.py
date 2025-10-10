@@ -59,7 +59,7 @@ class RunnerSecurityService:
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security/access/{id}",
             self.keycloak_token,
-            type="POST",
+            type="PATCH",
             data=details,
         )
         return response
@@ -78,7 +78,7 @@ class RunnerSecurityService:
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security/default",
             self.keycloak_token,
-            type="POST",
+            type="PATCH",
             data=details,
         )
         return response

@@ -100,16 +100,15 @@ class RunnerService:
         )
         return response
 
-    def run(self):
+    def start(self):
         runner_id = self.state["api"]["runner_id"]
 
         if not runner_id:
             logger.error("runner_id is missing")
             sys.exit(1)
-
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{runner_id}/run",
+            f"{self.workspace_id}/runners/{runner_id}/start",
             self.keycloak_token,
             type="POST",
         )

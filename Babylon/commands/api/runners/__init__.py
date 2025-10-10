@@ -7,9 +7,9 @@ from .create import create
 from .get import get
 from .update import update
 from .delete import delete
-from .run import run
+from .start import start
 
-list_commands = [get_all, get, create, update, delete, run, apply]
+list_commands = [get_all, get, create, update, delete, start, apply]
 
 
 @group()
