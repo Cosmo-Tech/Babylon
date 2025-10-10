@@ -9,7 +9,7 @@ from flatten_json import flatten
 from click import command, option
 from mako.template import Template
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -22,13 +22,14 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--runner-id", "runner_id", type=str)
 @option("--payload-file", "payload_file", type=Path)
 @retrieve_state
-def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str, runner_id: str, payload_file: Path):
+def apply(state: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str,
+          payload_file: Path):
     data = None
     if len(select([sys.stdin], [], [], 0.0)[0]):
         stream = click.get_text_stream("stdin")
@@ -59,7 +60,7 @@ def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str
     service_state["api"]["organization_id"] = organization_id
     service_state["api"]["workspace_id"] = workspace_id
     service_state["api"]["runner_id"] = runner_id
-    runner_service = RunnerService(azure_token=azure_token, spec=spec, state=service_state)
+    runner_service = RunnerService(keycloak_token=keycloak_token, spec=spec, state=service_state)
     if not runner_id:
         response = runner_service.create()
         runner = response.json()

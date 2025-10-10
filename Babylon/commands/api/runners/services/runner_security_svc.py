@@ -8,9 +8,9 @@ logger = getLogger("Babylon")
 
 class RunnerSecurityService:
 
-    def __init__(self, azure_token: str, state: dict) -> None:
+    def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
-        self.azure_token = azure_token
+        self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
             logger.error("API url not found")
@@ -32,7 +32,7 @@ class RunnerSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security/access/{id}",
-            self.azure_token,
+            self.keycloak_token,
         )
         return response
 
@@ -40,7 +40,7 @@ class RunnerSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security",
-            self.azure_token,
+            self.keycloak_token,
         )
         return response
 
@@ -48,7 +48,7 @@ class RunnerSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security/access",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
@@ -58,7 +58,7 @@ class RunnerSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security/access/{id}",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
@@ -68,7 +68,7 @@ class RunnerSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security/access/{id}",
-            self.azure_token,
+            self.keycloak_token,
             type="DELETE",
         )
         return response
@@ -77,7 +77,7 @@ class RunnerSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/security/default",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
