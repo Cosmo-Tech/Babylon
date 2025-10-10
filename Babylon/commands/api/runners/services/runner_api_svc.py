@@ -89,7 +89,7 @@ class RunnerService:
             logger.error("runner_id is missing")
             sys.exit(1)
 
-        if not force_validation and not confirm_deletion("solution", runner_id):
+        if not force_validation and not confirm_deletion("runner", runner_id):
             return None
 
         response = oauth_request(
