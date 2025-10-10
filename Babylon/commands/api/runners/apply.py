@@ -8,7 +8,7 @@ from logging import getLogger
 from flatten_json import flatten
 from click import command, option
 from mako.template import Template
-from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
+from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
@@ -59,7 +59,7 @@ def apply(state: dict, azure_token: str, organization_id: str, workspace_id: str
     service_state["api"]["organization_id"] = organization_id
     service_state["api"]["workspace_id"] = workspace_id
     service_state["api"]["scenario_id"] = scenario_id
-    scenario_service = ScenarioService(azure_token=azure_token, spec=spec, state=service_state)
+    scenario_service = RunnerService(azure_token=azure_token, spec=spec, state=service_state)
     if not scenario_id:
         response = scenario_service.create()
         scenario = response.json()

@@ -3,7 +3,7 @@ from logging import getLogger
 from typing import Any
 from click import command
 from click import option
-from Babylon.commands.api.scenarios.services.scenario_security_svc import (
+from Babylon.commands.api.runners.services.runner_security_svc import (
     ScenarioSecurityService, )
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
@@ -29,15 +29,13 @@ env = Environment()
     required=True,
     help="Role RBAC",
 )
-@option("--email", "email", type=str, required=True, help="Valid email")
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--scenario-id", "scenario_id", type=str)
 @retrieve_state
-def add(
+def set_default(
     state: Any,
     azure_token: str,
-    email: str,
     organization_id: str,
     workspace_id: str,
     scenario_id: str,
@@ -51,9 +49,9 @@ def add(
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service_state["api"]["scenario_id"] = scenario_id or state["services"]["api"]["scenario_id"]
     service = ScenarioSecurityService(azure_token=azure_token, state=service_state)
-    details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    response = service.add(details)
+    details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
+    response = service.set_default(details)
+    default_security = response.json()
     if response is None:
         return CommandResponse.fail()
-    scenario_security = response.json()
-    return CommandResponse.success(scenario_security, verbose=True)
+    return CommandResponse.success(default_security, verbose=True)

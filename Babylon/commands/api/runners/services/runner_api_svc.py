@@ -5,14 +5,14 @@ from logging import getLogger
 
 from typing import Optional
 
-from Babylon.commands.api.scenarios.services.scenario_security_svc import ScenarioSecurityService
+from Babylon.commands.api.runners.services.runner_security_svc import ScenarioSecurityService
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 
 logger = getLogger("Babylon")
 
 
-class ScenarioService:
+class RunnerService:
 
     def __init__(self, state: dict, azure_token: str, spec: Optional[dict] = None):
         self.spec = spec

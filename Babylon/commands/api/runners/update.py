@@ -4,7 +4,7 @@ from typing import Any
 
 from click import command, option, Path, argument
 
-from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
+from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     injectcontext,
@@ -50,7 +50,7 @@ def update(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
 
-    scenario_service = ScenarioService(state=service_state, spec=spec, azure_token=azure_token)
+    scenario_service = RunnerService(state=service_state, spec=spec, azure_token=azure_token)
     response = scenario_service.update()
     if response is None:
         return CommandResponse.fail()
