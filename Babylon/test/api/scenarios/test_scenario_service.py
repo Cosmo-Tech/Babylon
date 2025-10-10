@@ -1,12 +1,12 @@
 import unittest
 from unittest import mock
 from click.testing import CliRunner
-from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
-from Babylon.commands.api.scenarios.get_all import get_all
-from Babylon.commands.api.scenarios.get import get
-from Babylon.commands.api.scenarios.update import update
-from Babylon.commands.api.scenarios.delete import delete
-from Babylon.commands.api.scenarios.create import create
+from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
+from Babylon.commands.api.runners.get_all import get_all
+from Babylon.commands.api.runners.get import get
+from Babylon.commands.api.runners.update import update
+from Babylon.commands.api.runners.delete import delete
+from Babylon.commands.api.runners.create import create
 from Babylon.utils.environment import Environment
 from requests.models import Response
 
@@ -21,7 +21,7 @@ class ScenarioServiceTestCase(unittest.TestCase):
         env.get_namespace_from_local()
         env.remote = True
 
-    @mock.patch.object(ScenarioService, 'get_all')
+    @mock.patch.object(RunnerService, 'get_all')
     def test_get_all(self, mock_get_all):
         the_response = Response()
         the_response._content = b'[{"id": "1", "name": "Scenario 1"}, {"id" : "2", "name": "Scenario 2"}]'
@@ -31,7 +31,7 @@ class ScenarioServiceTestCase(unittest.TestCase):
 
         assert len(result.return_value.data) == 2
 
-    @mock.patch.object(ScenarioService, 'get')
+    @mock.patch.object(RunnerService, 'get')
     def test_get(self, mock_get):
         the_response = Response()
         the_response._content = b'{"id": "1", "name": "Scenario"}'
@@ -42,7 +42,7 @@ class ScenarioServiceTestCase(unittest.TestCase):
 
         assert result.return_value.data == {"id": "1", "name": "Scenario"}
 
-    @mock.patch.object(ScenarioService, 'update')
+    @mock.patch.object(RunnerService, 'update')
     def test_update(self, mock_update):
         the_response = Response()
         the_response.status_code = 200
@@ -55,7 +55,7 @@ class ScenarioServiceTestCase(unittest.TestCase):
 
         assert result.return_value.data.get("name") == 'Scenario updated'
 
-    @mock.patch.object(ScenarioService, 'delete')
+    @mock.patch.object(RunnerService, 'delete')
     def test_delete(self, mock_delete):
         the_response = Response()
         the_response.status_code = 204
@@ -66,7 +66,7 @@ class ScenarioServiceTestCase(unittest.TestCase):
         states = env.get_state_from_local()
         assert states["services"]["api"]["scenario_id"] == ""
 
-    @mock.patch.object(ScenarioService, 'create')
+    @mock.patch.object(RunnerService, 'create')
     def test_create(self, mock_create):
         the_response = Response()
         the_response.status_code = 201

@@ -1,10 +1,9 @@
-import pathlib
 from logging import getLogger
 from typing import Any
 
-from click import command, option, Path, argument
+from click import command, option
 
-from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
+from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     injectcontext,
@@ -14,51 +13,41 @@ from Babylon.utils.decorators import (
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-env = Environment()
 logger = getLogger("Babylon")
+env = Environment()
 
 
 @command()
 @injectcontext()
-@retrieve_state
 @pass_azure_token("csm_api")
 @output_to_file
+@retrieve_state
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@argument(
-    "payload_file",
-    type=Path(path_type=pathlib.Path),
-)
-def create(
+@option("--runner-id", type=str)
+def run(
     state: Any,
     organization_id: str,
     workspace_id: str,
+    runner_id: str,
     azure_token: str,
-    payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
-    Create new scenario
+    Start a runner run
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
+    service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
 
-    if not payload_file.exists():
-        print(f"file {payload_file} not found in directory")
-        return CommandResponse.fail()
-    spec = dict()
-    with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(data=f.read(), state=state)
-
-    scenario_service = ScenarioService(state=service_state, azure_token=azure_token, spec=spec)
-    response = scenario_service.create()
+    runner_service = RunnerService(state=service_state, azure_token=azure_token)
+    response = runner_service.run()
     if response is None:
         return CommandResponse.fail()
-    scenario = response.json()
-
-    state["services"]["api"]["scenario_id"] = scenario["id"]
+    runner_run = response.json()
+    state["services"]["api"]["runnerrun_id"] = runner_run["id"]
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(f"Scenario {scenario['id']} has been successfully added in state")
-    return CommandResponse.success(scenario, verbose=True)
+    logger.info(f"Scenario run {runner_run['id']} has been successfully added to state")
+    return CommandResponse.success(runner_run, verbose=True)

@@ -3,7 +3,7 @@ from typing import Any
 
 from click import command, option
 
-from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
+from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     injectcontext,
@@ -38,7 +38,7 @@ def get(
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["scenario_id"] = (scenario_id or state["services"]["api"]["scenario_id"])
 
-    scenario_service = ScenarioService(state=service_state, azure_token=azure_token)
+    scenario_service = RunnerService(state=service_state, azure_token=azure_token)
     response = scenario_service.get()
     if response is None:
         return CommandResponse.fail()

@@ -5,7 +5,7 @@ from .organizations import organizations
 from .runs import runs
 from .solutions import solutions
 from .workspaces import workspaces
-from .scenarios import scenarios
+from .runners import scenarios
 
 env = Environment()
 
@@ -16,7 +16,7 @@ def api():
     env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
 
 
-list_groups = [workspaces, datasets, organizations, solutions, scenarios, runs]
+list_groups = [workspaces, datasets, organizations, solutions, runners, runs]
 
 for _group in list_groups:
     api.add_command(_group)
