@@ -13,15 +13,15 @@ list_commands = [get_all, get, create, update, delete, run, apply]
 
 
 @group()
-def scenarios():
-    """Scenarios - Cosmotech API"""
+def runners():
+    """Runners - Cosmotech API"""
     pass
 
 
 for _command in list_commands:
-    scenarios.add_command(_command)
+    runners.add_command(_command)
 
 list_groups = [security]
 
 for _group in list_groups:
-    scenarios.add_command(_group)
+    runners.add_command(_group)

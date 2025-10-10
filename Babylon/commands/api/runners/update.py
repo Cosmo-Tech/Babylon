@@ -25,23 +25,23 @@ env = Environment()
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@option("--scenario-id", type=str)
+@option("--runner-id", type=str)
 @argument("payload_file", type=Path(path_type=pathlib.Path))
 def update(
     state: Any,
     organization_id: str,
     workspace_id: str,
-    scenario_id: str,
+    runner_id: str,
     azure_token: str,
     payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
-    Update a scenario
+    Update a runner
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    service_state["api"]["scenario_id"] = (scenario_id or state["services"]["api"]["scenario_id"])
+    service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
 
     if not payload_file.exists():
         print(f"file {payload_file} not found in directory")
@@ -50,12 +50,12 @@ def update(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
 
-    scenario_service = RunnerService(state=service_state, spec=spec, azure_token=azure_token)
-    response = scenario_service.update()
+    runner_service = RunnerService(state=service_state, spec=spec, azure_token=azure_token)
+    response = runner_service.update()
     if response is None:
         return CommandResponse.fail()
-    scenario = response.json()
-    logger.info(f'Scenario {service_state["api"]["scenario_id"]} successfully updated')
-    if service_state["api"]["scenario_id"] == state["services"]["api"]["scenario_id"]:
-        logger.info(f'Scenario {state["services"]["api"]["scenario_id"]} stored in state has been successfully updated')
-    return CommandResponse.success(scenario, verbose=True)
+    runner = response.json()
+    logger.info(f'Scenario {service_state["api"]["runner_id"]} successfully updated')
+    if service_state["api"]["runner_id"] == state["services"]["api"]["runner_id"]:
+        logger.info(f'Scenario {state["services"]["api"]["runner_id"]} stored in state has been successfully updated')
+    return CommandResponse.success(runner, verbose=True)

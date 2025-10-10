@@ -3,7 +3,7 @@ from typing import Any
 from click import command
 from click import option
 from Babylon.commands.api.runners.services.runner_security_svc import (
-    ScenarioSecurityService, )
+    RunnerSecurityService, )
 from Babylon.utils.credentials import pass_azure_token
 from Babylon.utils.decorators import (
     retrieve_state,
@@ -23,25 +23,25 @@ env = Environment()
 @pass_azure_token("csm_api")
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@option("--scenario-id", "scenario_id", type=str)
+@option("--runner-id", "runner_id", type=str)
 @retrieve_state
 def get_all(
     state: Any,
     azure_token: str,
     organization_id: str,
     workspace_id: str,
-    scenario_id: str,
+    runner_id: str,
 ) -> CommandResponse:
     """
-    Get all scenario RBAC access
+    Get all runner RBAC access
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
-    service_state["api"]["scenario_id"] = scenario_id or state["services"]["api"]["scenario_id"]
-    service = ScenarioSecurityService(azure_token=azure_token, state=service_state)
+    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
+    service = RunnerSecurityService(azure_token=azure_token, state=service_state)
     response = service.get_all()
-    scenario_security = response.json()
+    runner_security = response.json()
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(scenario_security, verbose=True)
+    return CommandResponse.success(runner_security, verbose=True)

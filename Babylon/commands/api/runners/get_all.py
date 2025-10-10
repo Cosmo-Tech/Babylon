@@ -33,17 +33,17 @@ def get_all(
     filter: Optional[str],
 ) -> CommandResponse:
     """
-    Get all scenarios in the workspace
+    Get all runners in the workspace
     """
 
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
 
-    logger.info(f"Getting all scenarios from workspace {service_state['api']['workspace_id']}")
+    logger.info(f"Getting all runners from workspace {service_state['api']['workspace_id']}")
 
-    scenario_service = RunnerService(state=service_state, azure_token=azure_token)
-    response = scenario_service.get_all()
+    runner_service = RunnerService(state=service_state, azure_token=azure_token)
+    response = runner_service.get_all()
     if response is None:
         return CommandResponse.fail()
     return CommandResponse.success(response.json(), verbose=True)
