@@ -48,7 +48,7 @@ def update(
         return CommandResponse.fail()
     spec = dict()
     with open(payload_file, 'r') as f:
-        spec["payload"] = env.fill_template(data=f.read(), state=state)
+        spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
 
     runner_service = RunnerService(state=service_state, spec=spec, keycloak_token=keycloak_token)
     response = runner_service.update()
