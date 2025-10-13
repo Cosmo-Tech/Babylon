@@ -4,7 +4,7 @@ import logging
 from click import argument, command, option
 
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
@@ -16,7 +16,7 @@ env = Environment()
 
 @command()
 @injectcontext()
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @output_to_file
 @option(
     "--role",
@@ -28,7 +28,7 @@ env = Environment()
 @option("--email", "email", type=str, required=True, help="Email valid")
 @argument("identity_id", type=str)
 @retrieve_state
-def update(state: dict, azure_token: str, identity_id: str, email: str, role: str, organization_id: str,
+def update(state: dict, keycloak_token: str, identity_id: str, email: str, role: str, organization_id: str,
            dataset_id: str) -> CommandResponse:
     """
     Update dataset users RBAC access
@@ -37,7 +37,7 @@ def update(state: dict, azure_token: str, identity_id: str, email: str, role: st
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
     details = json.dumps({"id": email, "role": role})
-    service = DatasetSecurityService(azure_token=azure_token, state=service_state)
+    service = DatasetSecurityService(keycloak_token=keycloak_token, state=service_state)
     response = service.update(id=identity_id, details=details)
     if response is None:
         return CommandResponse.fail()

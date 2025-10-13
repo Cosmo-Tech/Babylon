@@ -7,7 +7,7 @@ from click import command
 from click import option
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     output_to_file,
     retrieve_state,
@@ -23,12 +23,12 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @option("--dataset-id", "dataset_id", type=str)
 @argument("payload_file", type=Path(path_type=pathlib.Path))
 @retrieve_state
-def update(state: Any, azure_token: str, organization_id: str, dataset_id: str,
+def update(state: Any, keycloak_token: str, organization_id: str, dataset_id: str,
            payload_file: pathlib.Path) -> CommandResponse:
     """
     Update a registered dataset
@@ -42,7 +42,7 @@ def update(state: Any, azure_token: str, organization_id: str, dataset_id: str,
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
-    service = DatasetService(azure_token=azure_token, state=service_state, spec=spec)
+    service = DatasetService(keycloak_token=keycloak_token, state=service_state, spec=spec)
     response = service.update()
     if response is None:
         return CommandResponse.fail()

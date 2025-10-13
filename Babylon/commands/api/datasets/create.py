@@ -13,7 +13,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -22,7 +22,7 @@ env = Environment()
 @command()
 @injectcontext()
 @output_to_file
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--dataset-zip", "dataset_zip", type=Path(path_type=pathlib.Path))
@@ -33,7 +33,7 @@ env = Environment()
 @retrieve_state
 def create(
     state: Any,
-    azure_token: str,
+    keycloak_token: str,
     organization_id: str,
     workspace_id: str,
     payload_file: pathlib.Path,
@@ -51,7 +51,7 @@ def create(
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template(data=f.read(), state=state)
-    service = DatasetService(azure_token=azure_token, state=service_state, spec=spec)
+    service = DatasetService(keycloak_token=keycloak_token, state=service_state, spec=spec)
     response = service.create()
     if response is None:
         return CommandResponse.fail()

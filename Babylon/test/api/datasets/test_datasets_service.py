@@ -20,7 +20,7 @@ class DatasetServiceTestCase(unittest.TestCase):
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
-        env.remote = True
+        env.remote = False
 
     @mock.patch.object(DatasetService, 'create')
     def test_create(self, mock_create):

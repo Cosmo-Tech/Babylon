@@ -17,10 +17,10 @@ env = Environment()
 
 class DatasetService:
 
-    def __init__(self, azure_token: str, state: dict, spec: Optional[dict] = None) -> None:
+    def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None) -> None:
         self.state = state
         self.spec = spec
-        self.azure_token = azure_token
+        self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         self.organization_id = self.state["api"]["organization_id"]
 
@@ -35,7 +35,7 @@ class DatasetService:
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
@@ -46,7 +46,7 @@ class DatasetService:
             return None
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="DELETE",
         )
         return response
@@ -54,7 +54,7 @@ class DatasetService:
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets",
-            self.azure_token,
+            self.keycloak_token,
         )
         return response
 
@@ -64,7 +64,7 @@ class DatasetService:
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
-            self.azure_token,
+            self.keycloak_token,
         )
         if response is None:
             return None
@@ -74,7 +74,7 @@ class DatasetService:
         details = {"datasetTags": [tag]}
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/search",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             json=details,
         )
@@ -88,14 +88,14 @@ class DatasetService:
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="PATCH",
             data=details,
         )
         return response
 
     def update_security(self, old_security: dict):
-        security_svc = DatasetSecurityService(azure_token=self.azure_token, state=self.state)
+        security_svc = DatasetSecurityService(keycloak_token=self.keycloak_token, state=self.state)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:
@@ -132,7 +132,7 @@ class DatasetService:
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/refresh",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
         )
         return response
@@ -143,7 +143,7 @@ class DatasetService:
             sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/status",
-            self.azure_token,
+            self.keycloak_token,
         )
         return response
 
@@ -154,7 +154,7 @@ class DatasetService:
         with open(zip_file, "rb") as file:
             response = oauth_request(
                 f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
-                self.azure_token,
+                self.keycloak_token,
                 type="POST",
                 data=file,
                 content_type="application/octet-stream",
@@ -168,7 +168,7 @@ class DatasetService:
         workspace_id = self.state["api"]["workspace_id"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/link?workspaceId={workspace_id}",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
         )
         return response
