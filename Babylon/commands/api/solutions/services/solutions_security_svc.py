@@ -35,10 +35,10 @@ class SolutionSecurityService:
         )
         return response
 
-    def get(self, idendity_id: str):
+    def get(self, identity_id: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security/access/ \
-            {idendity_id}",
+            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security/access/"
+            f"{identity_id}",
             self.keycloak_token,
             type="GET")
         return response
@@ -52,8 +52,8 @@ class SolutionSecurityService:
 
     def set_default(self, details: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/ \
-                {self.solution_id}/security/default",
+            f"{self.url}/organizations/{self.organization_id}/solutions/"
+            f"{self.solution_id}/security/default",
             self.keycloak_token,
             type="PATCH",
             data=details,
@@ -61,10 +61,11 @@ class SolutionSecurityService:
         return response
 
     def remove(self, identity_id: str):
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/ \
-                {self.solution_id}/security/access/{identity_id}",
-                                 self.keycloak_token,
-                                 type="DELETE")
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/solutions/"
+            f"{self.solution_id}/security/access/{identity_id}",
+            self.keycloak_token,
+            type="DELETE")
         return response
 
     def get_users(self):
@@ -76,8 +77,8 @@ class SolutionSecurityService:
 
     def update(self, id: str, details: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/ \
-                {self.solution_id}/security/access/{id}",
+            f"{self.url}/organizations/{self.organization_id}/solutions/"
+            f"{self.solution_id}/security/access/{id}",
             self.keycloak_token,
             type="PATCH",
             data=details,

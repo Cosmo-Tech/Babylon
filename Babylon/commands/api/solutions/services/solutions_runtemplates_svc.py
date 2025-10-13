@@ -46,24 +46,26 @@ class SolutionRunTemplatesService:
         return response
 
     def get(self, run_template_id: str):
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/ \
-                {self.solution_id}/runTemplates/{run_template_id}",
-                                 self.keycloak_token,
-                                 type="GET")
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/solutions/"
+            f"{self.solution_id}/runTemplates/{run_template_id}",
+            self.keycloak_token,
+            type="GET")
         return response
 
     def delete(self, run_template_id: str):
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/solutions/ \
-                {self.solution_id}/runTemplates/{run_template_id}",
-                                 self.keycloak_token,
-                                 type="DELETE")
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/solutions/"
+            f"{self.solution_id}/runTemplates/{run_template_id}",
+            self.keycloak_token,
+            type="DELETE")
         return response
 
     def update(self, run_template_id: str):
         details = self.spec["payload"]
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/ \
-                {self.solution_id}/runTemplates/{run_template_id}",
+            f"{self.url}/organizations/{self.organization_id}/solutions/"
+            f"{self.solution_id}/runTemplates/{run_template_id}",
             self.keycloak_token,
             type="PATCH",
             data=details,
