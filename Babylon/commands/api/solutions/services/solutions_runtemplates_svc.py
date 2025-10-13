@@ -1,5 +1,6 @@
 import sys
 
+from typing import Optional
 from logging import getLogger
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
@@ -8,10 +9,11 @@ logger = getLogger("Babylon")
 env = Environment()
 
 
-class SolutionSecurityService:
+class SolutionRunTemplatesService:
 
-    def __init__(self, keycloak_token: str, state: dict) -> None:
+    def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None) -> None:
         self.state = state
+        self.spec = spec
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
@@ -26,59 +28,44 @@ class SolutionSecurityService:
             logger.error("[babylon] solution id is missing verify the state")
             sys.exit(1)
 
-    def add(self, details: str):
+    def add(self):
+        details = self.spec["payload"]
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security/access",
+            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/runTemplates",
             self.keycloak_token,
             type="POST",
             data=details,
         )
         return response
 
-    def get(self, identity_id: str):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security/access/"
-            f"{identity_id}",
-            self.keycloak_token,
-            type="GET")
-        return response
-
     def get_all(self):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security",
+            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/runTemplates",
             self.keycloak_token,
             type="GET")
         return response
 
-    def set_default(self, details: str):
+    def get(self, run_template_id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/"
-            f"{self.solution_id}/security/default",
+            f"{self.solution_id}/runTemplates/{run_template_id}",
             self.keycloak_token,
-            type="PATCH",
-            data=details,
-        )
+            type="GET")
         return response
 
-    def remove(self, identity_id: str):
+    def delete(self, run_template_id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/"
-            f"{self.solution_id}/security/access/{identity_id}",
+            f"{self.solution_id}/runTemplates/{run_template_id}",
             self.keycloak_token,
             type="DELETE")
         return response
 
-    def get_users(self):
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/security/users",
-            self.keycloak_token,
-            type="GET")
-        return response
-
-    def update(self, id: str, details: str):
+    def update(self, run_template_id: str):
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/"
-            f"{self.solution_id}/security/access/{id}",
+            f"{self.solution_id}/runTemplates/{run_template_id}",
             self.keycloak_token,
             type="PATCH",
             data=details,

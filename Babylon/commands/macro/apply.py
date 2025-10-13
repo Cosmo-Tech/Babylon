@@ -108,10 +108,7 @@ def apply(
             for s in solutions:
                 content = s.get("content")
                 namespace = s.get("namespace")
-                deploy_solution(namespace=namespace,
-                                file_content=content,
-                                deploy_dir=deploy_dir,
-                                payload_only=payload_only)
+                deploy_solution(namespace=namespace, file_content=content)
         elif workspace:
             for w in workspaces:
                 content = w.get("content")

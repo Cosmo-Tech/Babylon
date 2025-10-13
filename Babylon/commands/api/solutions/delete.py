@@ -1,10 +1,12 @@
+import click
+
 from logging import getLogger
 from typing import Any
 from Babylon.utils.environment import Environment
 from click import command
 from click import option
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
 
@@ -14,14 +16,14 @@ env = Environment()
 
 @command()
 @injectcontext()
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @option("--solution-id", "solution_id", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @retrieve_state
 def delete(
     state: Any,
-    azure_token: str,
+    keycloak_token: str,
     organization_id: str,
     solution_id: str,
     force_validation: bool = False,
@@ -29,20 +31,21 @@ def delete(
     """
     Delete a solution
     """
+    _ret = [""]
+    _ret.append("Delete solution")
+    _ret.append("")
+    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
-
-    service = SolutionService(state=service_state, azure_token=azure_token)
-    logger.info(f"Deleting solution: {service_state['api']['solution_id']}")
-    response = service.delete(force_validation=force_validation, )
-    if response:
-        logger.info(f'Solution {service_state["api"]["solution_id"]} successfully deleted')
-        if (service_state["api"]["solution_id"] == state["services"]["api"]["solution_id"]):
-            state["services"]["api"]["solution_id"] = ""
-            env.store_state_in_local(state)
-            if env.remote:
-                env.store_state_in_cloud(state)
-            logger.info(
-                f'Solution {state["services"]["api"]["solution_id"]} successfully deleted in state {state.get("id")}')
+    solutions_service = SolutionService(state=service_state, keycloak_token=keycloak_token)
+    logger.info("[api] Deleting solution")
+    response = solutions_service.delete(force_validation=force_validation)
+    if response is None:
+        return CommandResponse.fail()
+    logger.info(f" [api] Solution {[service_state['api']['solution_id']]} successfully deleted")
+    state["services"]["api"]["solution_id"] = ""
+    env.store_state_in_local(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     return CommandResponse.success()
