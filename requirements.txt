@@ -31,7 +31,7 @@ click-log
 cryptography
 pyyaml
 docker
-requests==2.31.0
+requests==2.32.4
 jmespath
 terrasnek
 rich
