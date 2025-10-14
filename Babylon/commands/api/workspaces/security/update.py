@@ -28,7 +28,7 @@ env = Environment()
 )
 @option("--email", "email", type=str, required=True, help="Email valid")
 @retrieve_state
-def update(state: dict, keycloak_token: str, id: str, email: str, role: str) -> CommandResponse:
+def update(state: dict, keycloak_token: str, email: str, role: str) -> CommandResponse:
     """
     Update workspace users RBAC access
     """
@@ -40,7 +40,7 @@ def update(state: dict, keycloak_token: str, id: str, email: str, role: str) -> 
     details = json.dumps({"id": email, "role": role})
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
     logger.info(f"[api] Updating user {[email]} RBAC access in the workspace {[service_state['api']['workspace_id']]}")
-    response = service.update(id=id, details=details)
+    response = service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()

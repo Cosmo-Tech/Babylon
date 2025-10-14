@@ -26,12 +26,10 @@ class WorkspaceService:
             logger.error("API url not found verify the state")
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
+        self.solution_id = self.state["api"]["solution_id"]
+        self.workspace_id = self.state["api"]["workspace_id"]
         if not self.organization_id:
             logger.error("[babylon] Organization id is missing verify the state")
-            sys.exit(1)
-        self.workspace_id = self.state["api"]["workspace_id"]
-        if not self.workspace_id:
-            logger.error("[babylon] Workspace id is missing verify the state")
             sys.exit(1)
 
     def get_all(self):

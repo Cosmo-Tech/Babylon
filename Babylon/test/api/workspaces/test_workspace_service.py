@@ -13,7 +13,7 @@ from requests.models import Response
 env = Environment()
 
 
-class SolutionServiceTestCase(unittest.TestCase):
+class WorkspaceServiceTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
