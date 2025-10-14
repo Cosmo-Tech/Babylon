@@ -10,26 +10,26 @@ env = Environment()
 
 class ApiWorkspaceSecurityService:
 
-    def __init__(self, azure_token: str, state: dict) -> None:
+    def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
-        self.azure_token = azure_token
+        self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
-            logger.error("API url not found")
+            logger.error("API url not found verify the state")
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
-            logger.error("organization id is missing")
+            logger.error("[babylon] Organization id is missing verify the state")
             sys.exit(1)
         self.workspace_id = self.state["api"]["workspace_id"]
         if not self.workspace_id:
-            logger.error("workspace id is missing")
+            logger.error("[babylon] Workspace id is missing verify the state")
             sys.exit(1)
 
     def add(self, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access",
-            self.azure_token,
+            self.keycloak_token,
             type="POST",
             data=details,
         )
@@ -38,7 +38,7 @@ class ApiWorkspaceSecurityService:
     def get(self, id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access/{id}",
-            self.azure_token,
+            self.keycloak_token,
             type="GET",
         )
         return response
@@ -46,14 +46,14 @@ class ApiWorkspaceSecurityService:
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security",
-            self.azure_token,
+            self.keycloak_token,
             type="GET")
         return response
 
     def update(self, id: str, details: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access/{id}",
-            self.azure_token,
+            self.keycloak_token,
             type="PATCH",
             data=details,
         )
@@ -62,7 +62,7 @@ class ApiWorkspaceSecurityService:
     def delete(self, id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/access/{id}",
-            self.azure_token,
+            self.keycloak_token,
             type="DELETE",
         )
         return response
@@ -71,8 +71,8 @@ class ApiWorkspaceSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/security/default",
-            self.azure_token,
-            type="POST",
+            self.keycloak_token,
+            type="PATCH",
             data=details,
         )
         return response

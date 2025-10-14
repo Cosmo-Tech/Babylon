@@ -6,17 +6,7 @@ import pathlib
 
 from logging import getLogger
 from Babylon.utils.environment import Environment
-from azure.mgmt.kusto import KustoManagementClient
-from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
-from azure.mgmt.authorization import AuthorizationManagementClient
-from Babylon.commands.azure.adx.services.adx_script_svc import AdxScriptService
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-from Babylon.commands.azure.permission.services.iam_api_svc import AzureIamService
-from Babylon.commands.azure.adx.services.adx_consumer_svc import AdxConsumerService
-from Babylon.commands.azure.adx.services.adx_database_svc import AdxDatabaseService
-from Babylon.commands.azure.adx.services.adx_connection_svc import AdxConnectionService
-from Babylon.commands.azure.adx.services.adx_permission_svc import AdxPermissionService
 from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import (
     AzurePowerBIReportService, )
 from Babylon.commands.powerbi.dataset.services.powerbi_api_svc import (
@@ -26,9 +16,8 @@ from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc impor
 from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import (
     AzurePowerBIParamsService, )
 from Babylon.utils.credentials import (
-    get_azure_credentials,
-    get_azure_token,
     get_default_powerbi_token,
+    get_keycloak_token,
 )
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
     AzurePowerBIWorkspaceUserService, )
@@ -58,32 +47,25 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         state["services"]["api"]["solution_id"] = metadata["selector"].get("solution_id", "")
     else:
         if (not state["services"]["api"]["organization_id"] and not state["services"]["api"]["solution_id"]):
-            logger.error(
-                "Selector verification failed. Please check the selector field for correctness: %s",
-                metadata.get("selector"),
-            )
-    subscription_id = state["services"]["azure"]["subscription_id"]
-    organization_id = state["services"]["api"]["organization_id"]
-    azf_secret = env.get_project_secret(organization_id=organization_id, workspace_key=workspace_key, name="azf")
-    ext_args = dict(azure_function_secret=azf_secret)
-    content = env.fill_template(data=file_content, state=state, ext_args=ext_args)
+            logger.error(f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
+            sys.exit(1)
+    content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
-    state["services"]["adx"]["database_name"] = f"{organization_id}-{workspace_key}"
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    azure_token = get_azure_token("csm_api")
-    workspace_svc = WorkspaceService(azure_token=azure_token, spec=spec, state=state.get("services"))
+    keycloak_token = get_keycloak_token()
+    workspace_svc = WorkspaceService(keycloak_token=keycloak_token, spec=spec, state=state.get("services"))
     if not state["services"]["api"]["workspace_id"]:
-        logger.info("[api] creating workspace")
+        logger.info("[api] Creating workspace")
         response = workspace_svc.create()
         if not response:
             sys.exit(1)
         workspace = response.json()
-        logger.info(f"[api] workspace {workspace.get('id')} successfully created")
         logger.info(json.dumps(workspace, indent=2))
+        logger.info(f"[api] Workspace {[workspace.get('id')]} successfully created")
         state["services"]["api"]["workspace_id"] = workspace.get("id")
     else:
-        logger.info(f"[api] updating workspace {state['services']['api']['workspace_id']}")
+        logger.info(f"[api] Updating workspace {[state['services']['api']['workspace_id']]}")
         response = workspace_svc.update()
         response_json = response.json()
         old_security = response_json.get("security")
@@ -91,10 +73,14 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         response_json["security"] = security_spec
         workspace = response_json
         logger.info(json.dumps(workspace, indent=2))
+        logger.info(f"[api] Workspace {[workspace['id']]} successfully updated")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    # update sidecars
+
+    # TODO: Update sidecars to support Superset in the future.
+    # For now, keeping the same implementation as Power BI until we fully understand how it works.
+    # Once clarified, we will modify this part to work with Superset.
     sidecars = content.get("spec").get("sidecars", None)
     if (content.get("spec").get("payload") is not None
             and content.get("spec").get("payload").get("webApp") is not None):
@@ -102,11 +88,9 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     else:
         workspaceCharts = None
     if sidecars and not payload_only:
-        eventhub_section = sidecars.get("azure").get("eventhub", {})
-        adx_section = sidecars["azure"].get("adx", {})
-        powerbi_section = sidecars["azure"].get("powerbi", {})
-        if powerbi_section:
-            workspace_powerbi = powerbi_section.get("workspace", {})
+        superset_section = sidecars.get("superset", {})
+        if superset_section:
+            workspace_powerbi = superset_section.get("workspace", {})
             if workspace_powerbi:
                 po_token = get_default_powerbi_token()
                 powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=state.get("services"))
@@ -189,9 +173,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                 report_type=rtype,
                                 override=True,
                             )
-
                             if workspaceCharts is not None:
-
                                 if not rtag:
                                     logger.warning("[powerbi] Tag is missing in this report")
                                 else:
@@ -210,7 +192,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                         else:
                                             for item in filteredTitles:
                                                 item["reportId"] = custom_obj.get("reportId")
-
                                     if rtype == "scenario":
                                         scenario_view[rtag] = custom_obj.get("reportId")
                                         allScenariosViews = workspaceCharts.get("scenarioView")
@@ -230,7 +211,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                                     scenarioWithThistag = True
                                         if not scenarioWithThistag:
                                             logger.warning("[powerbi] Report tag is not found in scenarioView Section")
-
                             for d in report_obj.get("datasets", []):
                                 if d:
                                     dataset_svc = AzurePowerBIDatasetService(
@@ -257,7 +237,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 env.store_state_in_local(state)
                 if env.remote:
                     env.store_state_in_cloud(state)
-        if workspaceCharts is not None and powerbi_section:
+        if workspaceCharts is not None and superset_section:
             content.get("spec").get("payload").get("webApp").get("options").get(
                 "charts")["workspaceId"] = state["services"]["powerbi"]["workspace.id"]
             logger.info(
@@ -266,175 +246,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
             specUpdated = dict()
             specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
             workspace_svc.update_with_payload(specUpdated)
-        azure_credential = get_azure_credentials()
-        if adx_section:
-            ok = True
-            kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
-            adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state["services"])
-            name = f"{organization_id}-{workspace_key}"
-            available = adx_svc.check(name=name)
-            to_create = adx_section.get("database").get("create", True)
-            if available and to_create:
-                logger.info("[adx] creating or updating adx database")
-                created = adx_svc.create(
-                    name=name,
-                    retention=adx_section.get("database").get("retention", 365),
-                )
-                if created:
-                    available = False
-            if not available:
-                permission_svc = AdxPermissionService(kusto_client=kusto_client, state=state.get("services"))
-                existing_permissions = permission_svc.get_all()
-                existing_ids = [ent.get("principal_id") for ent in existing_permissions]
-                spec_permissions: list = adx_section["database"].get("permissions", [])
-                if len(spec_permissions):
-                    ids = [i.get("principal_id") for i in spec_permissions]
-                    for g in spec_permissions:
-                        if g.get("principal_id") in existing_ids:
-                            deleted = permission_svc.delete(g.get("principal_id"), force_validation=True)
-                            if deleted:
-                                permission_svc.set(
-                                    principal_id=g.get("principal_id"),
-                                    principal_type=g.get("type"),
-                                    role=g.get("role"),
-                                    tenant_id=g.get("tenant_id", env.tenant_id),
-                                )
-                        if g.get("principal_id") not in existing_ids:
-                            permission_svc.set(
-                                principal_id=g.get("principal_id"),
-                                principal_type=g.get("type"),
-                                role=g.get("role"),
-                                tenant_id=g.get("tenant_id", env.tenant_id),
-                            )
-                    for s in existing_ids:
-                        if s not in ids:
-                            if s != state["services"]["babylon"]["client_id"]:
-                                permission_svc.delete(s, force_validation=True)
-            if ok:
-                scripts_svc = AdxScriptService(kusto_client=kusto_client, state=state.get("services"))
-                script_list = scripts_svc.get_all()
-                scripts_spec: list[dict] = adx_section.get("database").get("scripts", [])
-                database_uri = adx_section.get("database").get("uri", "")
-                if len(scripts_spec):
-                    for s in scripts_spec:
-                        t = list(filter(lambda x: s.get("id") in str(x.get("id")), script_list))
-                        if not len(t):
-                            name = s.get("name")
-                            path_end = s.get("path")
-                            path_abs = pathlib.Path(deploy_dir) / f"{path_end}/{name}"
-                            scripts_svc.execute_query(
-                                script_file=path_abs.absolute(),
-                                database_uri=database_uri,
-                            )
-        if eventhub_section:
-            kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
-            arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
-            iam_client = AuthorizationManagementClient(credential=azure_credential, subscription_id=subscription_id)
-            adx_svc = ArmService(arm_client=arm_client, state=state.get("services"))
-            to_create = eventhub_section.get("create", True)
-            if to_create:
-                deployment_name = f"{organization_id}-evn-{workspace_key}"
-                adx_svc.run(deployment_name=deployment_name, file="eventhub_deploy.json")
-            arm_svc = AzureIamService(iam_client=iam_client, state=state.get("services"))
-            principal_id = state["services"]["adx"]["cluster_principal_id"]
-            resource_type = "Microsoft.EventHub/Namespaces"
-            resource_name = f"{organization_id}-{workspace_key}"
-            role_id = state["services"]["azure"]["eventhub_built_data_receiver"]
-            arm_svc.set(
-                principal_id=principal_id,
-                resource_name=resource_name,
-                resource_type=resource_type,
-                role_id=role_id,
-            )
-            principal_id = state["services"]["platform"]["principal_id"]
-            resource_type = "Microsoft.EventHub/Namespaces"
-            resource_name = f"{organization_id}-{workspace_key}"
-            role_id = state["services"]["azure"]["eventhub_built_data_sender"]
-            arm_svc.set(
-                principal_id=principal_id,
-                resource_name=resource_name,
-                resource_type=resource_type,
-                role_id=role_id,
-            )
-            principal_id = state["services"]["babylon"]["principal_id"]
-            resource_type = "Microsoft.EventHub/Namespaces"
-            resource_name = f"{organization_id}-{workspace_key}"
-            role_id = state["services"]["azure"]["eventhub_built_data_sender"]
-            arm_svc.set(
-                principal_id=principal_id,
-                resource_name=resource_name,
-                resource_type=resource_type,
-                role_id=role_id,
-            )
-            consumers = eventhub_section.get("consumers", [])
-            ent_accepted = [
-                "ProbesMeasures",
-                "ScenarioMetadata",
-                "ScenarioRun",
-                "ScenarioRunMetadata",
-            ]
-            if len(consumers):
-                service_event = AdxConsumerService(state=state.get("services"))
-                for ent in ent_accepted:
-                    spec_listing = [
-                        k.get("displayName") for k in list(filter(lambda x: x.get("entity") == ent, consumers))
-                    ]
-                    existing_consumers = service_event.get_all(event_hub_name=ent)
-                    for t in spec_listing:
-                        if t not in existing_consumers:
-                            service_event.add(name=t, event_hub_name=ent)
-                    for s in existing_consumers:
-                        if s not in spec_listing:
-                            service_event.delete(name=s, event_hub_name=ent)
-            connectors = eventhub_section.get("connectors", [])
-            if len(connectors):
-                service_conn = AdxConnectionService(kusto_client=kusto_client, state=state.get("services"))
-                spec_databases = list(set([k.get("database_target") for k in connectors]))
-                for db in spec_databases:
-                    existing_connectors = service_conn.get_all(database_name=db)
-                    existing_conn_names = [
-                        dict(
-                            table=k.get("table_name"),
-                            database=k.get("name").split("/")[-2],
-                        ) for k in existing_connectors
-                    ]
-                    spec_conn = [
-                        dict(
-                            table=k.get("table_name"),
-                            database=k.get("database_target"),
-                            data=k,
-                        ) for k in connectors
-                    ]
-                    for ch in spec_conn:
-                        t = dict(table=ch.get("table"), database=ch.get("database"))
-                        if t not in existing_conn_names:
-                            k = ch.get("data")
-                            compression_value = k.get("compression")
-                            connection_name = k.get("connection_name")
-                            consumer_group = k.get("consumer_group")
-                            database_name = k.get("database_target")
-                            data_format = k.get("format")
-                            table_name = k.get("table_name")
-                            mapping = k.get("mapping")
-                            service_conn.create(
-                                compression_value=compression_value,
-                                connection_name=connection_name,
-                                consumer_group=consumer_group,
-                                database_name=database_name,
-                                data_format=data_format,
-                                table_name=table_name,
-                                mapping=mapping,
-                            )
-                    for hc in existing_conn_names:
-                        if hc.get("table") not in [k.get("table") for k in spec_conn]:
-                            to_delete = list(
-                                filter(
-                                    lambda x: x.get("table_name") == hc.get("table"),
-                                    existing_connectors,
-                                ))
-                            if to_delete:
-                                connection_name = to_delete[-1]["name"].split("/")[-1]
-                                service_conn.delete(database_name=db, connection_name=connection_name)
         run_scripts = sidecars.get("run_scripts")
         if run_scripts:
             data = run_scripts.get("post_deploy.sh", "")
