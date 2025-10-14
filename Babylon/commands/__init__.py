@@ -1,4 +1,3 @@
-from .abba import abba
 from .webapp import webapp
 from .powerbi import powerbi
 from .api import api
@@ -9,4 +8,4 @@ from .namespace import namespace
 from .macro.apply import apply
 from .macro.destroy import destroy
 
-list_groups = [abba, api, azure, powerbi, webapp, vault, github, namespace, apply, destroy]
+list_groups = [api, azure, powerbi, webapp, vault, github, namespace, apply, destroy]
