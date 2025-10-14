@@ -81,11 +81,9 @@ def confirm_deletion(entity_type: str, entity_id: str) -> bool:
     :param entity_id: Entity ID
     :return: Should execution continue ?
     """
-    prompt_text = click.style(
-        f"You are trying to delete {entity_type} {entity_id} \nDo you want to continue?",
-        fg="red",
-        bold=True
-    )
+    prompt_text = click.style(f"You are trying to delete {entity_type} {entity_id} \nDo you want to continue?",
+                              fg="red",
+                              bold=True)
     if not click.confirm(prompt_text):
         logger.info(f"{entity_type} deletion aborted.")
         return False
