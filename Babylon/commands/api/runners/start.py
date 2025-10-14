@@ -1,8 +1,7 @@
+import click
 from logging import getLogger
 from typing import Any
-
 from click import command, option
-
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
@@ -24,7 +23,7 @@ env = Environment()
 @retrieve_state
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@option("--runner-id", type=str)
+@option("--runner-id", "runner_id", type=str)
 def start(
     state: Any,
     organization_id: str,
@@ -35,18 +34,19 @@ def start(
     """
     Start a runner run
     """
+    _run = [""]
+    _run.append("Start a runner run")
+    _run.append("")
+    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
+    logger.info(f"[api] Starting a runner {[service_state['api']['runner_id']]}")
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
     response = runner_service.start()
     if response is None:
         return CommandResponse.fail()
     runner_run = response.json()
-    state["services"]["api"]["runnerrun_id"] = runner_run["id"]
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
-    logger.info(f"Scenario run {runner_run['id']} has been successfully added to state")
-    return CommandResponse.success(runner_run, verbose=True)
+    logger.info(f"[api] Runner {runner_run['id']} successfully started")
+    return CommandResponse.success(runner_run)

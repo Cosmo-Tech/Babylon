@@ -1,3 +1,4 @@
+import click
 from logging import getLogger
 from typing import Any
 
@@ -33,20 +34,22 @@ def delete(
     """
     Delete a runner
     """
+    _run = [""]
+    _run.append("Delete a runner")
+    _run.append("")
+    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
-
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
+    logger.info("[api] Deleting runner")
     response = runner_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f'Scenario {service_state["api"]["runner_id"]} successfully deleted')
-    if service_state["api"]["runner_id"] == state["services"]["api"]["runner_id"]:
-        state["services"]["api"]["runner_id"] = ""
-        env.store_state_in_local(state)
-        if env.remote:
-            env.store_state_in_cloud(state)
-        logger.info(f"Scenario {service_state['api']['runner_id']} has been successfully removed from state")
-    return CommandResponse.success()
+    logger.info(f'[api] Runner {[service_state["api"]["runner_id"]]} successfully deleted')
+    state["services"]["api"]["runner_id"] = ""
+    env.store_state_in_local(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
+    return CommandResponse.success(response)
