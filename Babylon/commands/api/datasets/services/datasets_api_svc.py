@@ -23,6 +23,7 @@ class DatasetService:
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         self.organization_id = self.state["api"]["organization_id"]
+        self.workspace_id = self.state["api"]["workspace_id"]
 
         if not self.url:
             logger.error("API url not found")
@@ -30,22 +31,15 @@ class DatasetService:
         if not self.organization_id:
             logger.error("organization_id not found")
             sys.exit(1)
-
-    def create(self):
-        details = self.spec["payload"]
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets",
-            self.keycloak_token,
-            type="POST",
-            data=details,
-        )
-        return response
+        if not self.workspace_id:
+            logger.error("workspace_id not found")
+            sys.exit(1)
 
     def delete(self, dataset_id: str, force_validation: bool):
         if not force_validation and not confirm_deletion("dataset", dataset_id):
             return None
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{dataset_id}",
             self.keycloak_token,
             type="DELETE",
         )
@@ -53,8 +47,9 @@ class DatasetService:
 
     def get_all(self):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets",
             self.keycloak_token,
+            type="GET",
         )
         return response
 
@@ -63,7 +58,7 @@ class DatasetService:
             logger.error("dataset_id not found")
             sys.exit(1)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{dataset_id}",
             self.keycloak_token,
         )
         if response is None:
@@ -73,24 +68,10 @@ class DatasetService:
     def search(self, tag: str):
         details = {"datasetTags": [tag]}
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets/search",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/search",
             self.keycloak_token,
             type="POST",
             json=details,
-        )
-        return response
-
-    def update(self):
-        dataset_id = self.state["api"]["dataset_id"]
-        details = self.spec["payload"]
-        if not dataset_id:
-            logger.error("dataset_id not found")
-            sys.exit(1)
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
-            self.keycloak_token,
-            type="PATCH",
-            data=details,
         )
         return response
 
@@ -125,50 +106,3 @@ class DatasetService:
                 if response is None:
                     return None
         return security_spec
-
-    def refresh(self, dataset_id: str):
-        if not dataset_id:
-            logger.error("dataset_id not found")
-            sys.exit(1)
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/refresh",
-            self.keycloak_token,
-            type="POST",
-        )
-        return response
-
-    def get_status(self, dataset_id: str):
-        if not dataset_id:
-            logger.error("dataset_id not found")
-            sys.exit(1)
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/status",
-            self.keycloak_token,
-        )
-        return response
-
-    def upload(self, dataset_id: str, zip_file: Path):
-        if not dataset_id:
-            logger.error("dataset_id not found")
-            sys.exit(1)
-        with open(zip_file, "rb") as file:
-            response = oauth_request(
-                f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}",
-                self.keycloak_token,
-                type="POST",
-                data=file,
-                content_type="application/octet-stream",
-            )
-        return response
-
-    def link_to_workspace(self, dataset_id: str):
-        if not dataset_id:
-            logger.error("dataset_id not found")
-            sys.exit(1)
-        workspace_id = self.state["api"]["workspace_id"]
-        response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/datasets/{dataset_id}/link?workspaceId={workspace_id}",
-            self.keycloak_token,
-            type="POST",
-        )
-        return response

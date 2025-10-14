@@ -25,13 +25,17 @@ env = Environment()
     required=True,
     help="Role RBAC",
 )
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
+@option("--dataset-id", "dataset_id", type=str)
 @retrieve_state
-def set_default(state: dict, keycloak_token: str, role: str, organization_id: str, dataset_id: str) -> CommandResponse:
+def set_default(state: dict, keycloak_token: str, role: str, organization_id: str, workspace_id: str, dataset_id: str) -> CommandResponse:
     """
     Update dataset default security
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
     service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
     details = json.dumps({"role": role})
     service = DatasetSecurityService(keycloak_token=keycloak_token, state=service_state)

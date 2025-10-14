@@ -26,15 +26,19 @@ env = Environment()
     help="Role RBAC",
 )
 @option("--email", "email", type=str, required=True, help="Email valid")
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
+@option("--dataset-id", "dataset_id", type=str)
 @argument("identity_id", type=str)
 @retrieve_state
 def update(state: dict, keycloak_token: str, identity_id: str, email: str, role: str, organization_id: str,
-           dataset_id: str) -> CommandResponse:
+           workspace_id: str, dataset_id: str) -> CommandResponse:
     """
     Update dataset users RBAC access
     """
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
     service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
     details = json.dumps({"id": email, "role": role})
     service = DatasetSecurityService(keycloak_token=keycloak_token, state=service_state)
