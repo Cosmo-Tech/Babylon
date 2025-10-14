@@ -23,7 +23,8 @@ env = Environment()
 @option("--workspace-id", "workspace_id", type=str)
 @option("--dataset-id", "dataset_id", type=str)
 @retrieve_state
-def get(state: Any, keycloak_token: str, identity_id: str, organization_id: str, workspace_id: str, dataset_id: str) -> CommandResponse:
+def get(state: Any, keycloak_token: str, identity_id: str, organization_id: str, workspace_id: str,
+        dataset_id: str) -> CommandResponse:
     """
     Get dataset user RBAC access
     """
