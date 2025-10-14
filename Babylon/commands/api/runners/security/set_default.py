@@ -1,4 +1,6 @@
 import json
+import click
+
 from logging import getLogger
 from typing import Any
 from click import command
@@ -42,16 +44,23 @@ def set_default(
     role: str = None,
 ) -> CommandResponse:
     """
-    Add runner users RBAC access
+    Set the runner default security
     """
+    _run = [""]
+    _run.append("Set default RBAC access to the runner")
+    _run.append("")
+    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
     service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
+    logger.info(f"[api] Setting default RBAC access to the runner {[service_state['api']['runner_id']]}")
     response = service.set_default(details)
-    default_security = response.json()
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(default_security, verbose=True)
+    default_security = response.json()
+    logger.info(json.dumps(default_security, indent=2))
+    logger.info("[api] default RBAC access successfully setted")
+    return CommandResponse.success(default_security)

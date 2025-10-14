@@ -12,20 +12,20 @@ class RunnerSecurityService:
         self.state = state
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
-        if not self.url:
-            logger.error("API url not found")
-            sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
-        if not self.organization_id:
-            logger.error("organization id is missing")
-            sys.exit(1)
         self.workspace_id = self.state["api"]["workspace_id"]
-        if not self.workspace_id:
-            logger.error("workspace id is missing")
-            sys.exit(1)
         self.runner_id = self.state["api"]["runner_id"]
+        if not self.url:
+            logger.error("[babylon] api url not found verify the state")
+            sys.exit(1)
+        if not self.organization_id:
+            logger.error("[babylon] Organization id is missing verify the state")
+            sys.exit(1)
+        if not self.workspace_id:
+            logger.error('[babylon] Workspace id is missing verify the state')
+            sys.exit(1)
         if not self.runner_id:
-            logger.error("runner id is missing")
+            logger.error("[babylon] Runner id is missing verify the state")
             sys.exit(1)
 
     def get(self, id: str):

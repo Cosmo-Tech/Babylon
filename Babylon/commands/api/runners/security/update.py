@@ -1,8 +1,9 @@
 import json
+import click
+
 from logging import getLogger
 from typing import Any
-from click import command, argument
-from click import option
+from click import command, option
 from Babylon.commands.api.runners.services.runner_security_svc import (
     RunnerSecurityService, )
 from Babylon.utils.credentials import pass_keycloak_token
@@ -22,7 +23,7 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@argument("identity_id", type=str)
+@option("--email", "email", type=str, required=True, help="Email valid")
 @option(
     "--role",
     "role",
@@ -37,7 +38,7 @@ env = Environment()
 def update(
     state: Any,
     keycloak_token: str,
-    identity_id: str,
+    email: str,
     role: str,
     organization_id: str,
     workspace_id: str,
@@ -46,14 +47,21 @@ def update(
     """
     Update runner RBAC access for user
     """
+    _run = [""]
+    _run.append("Update runner uner RBAC access")
+    _run.append("")
+    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
-    details = json.dumps({"id": identity_id, "role": role})
+    details = json.dumps({"id": email, "role": role})
     service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
-    response = service.update(id=identity_id, details=details)
-    runner_security = response.json()
+    logger.info(f"[api] Updating user {[email]} RBAC access in the runner {[service_state['api']['runner_id']]}")
+    response = service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(runner_security, verbose=True)
+    runner_security = response.json()
+    logger.info(json.dumps(runner_security, indent=2))
+    logger.info(f"[api] User {[email]} RBAC access successfully Updated")
+    return CommandResponse.success(runner_security)

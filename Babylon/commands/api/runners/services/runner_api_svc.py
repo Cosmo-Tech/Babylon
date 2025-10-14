@@ -20,16 +20,17 @@ class RunnerService:
         self.url = state["api"]["url"]
         self.organization_id = state["api"]["organization_id"]
         self.workspace_id = state["api"]["workspace_id"]
+        self.runner_id = self.state["api"]["runner_id"]
         self.keycloak_token = keycloak_token
 
         if not self.url:
-            logger.error("API url not found")
+            logger.error("[babylon] api url not found verify the state")
             sys.exit(1)
         if not self.organization_id:
-            logger.error("organization_id not found")
+            logger.error("[babylon] Organization id is missing verify the state")
             sys.exit(1)
         if not self.workspace_id:
-            logger.error("workspace_id not found")
+            logger.error('[babylon] Workspace id is missing verify the state')
             sys.exit(1)
 
     def get_all(self):
@@ -41,30 +42,18 @@ class RunnerService:
         return response
 
     def get(self):
-        runner_id = self.state["api"]["runner_id"]
-
-        if not runner_id:
-            logger.error("runner_id is missing")
-            sys.exit(1)
-
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{runner_id}",
+            f"{self.workspace_id}/runners/{self.runner_id}",
             self.keycloak_token,
         )
         return response
 
     def update(self):
-        runner_id = self.state["api"]["runner_id"]
-
-        if not runner_id:
-            logger.error("runner_id is missing")
-            sys.exit(1)
-
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{runner_id}",
+            f"{self.workspace_id}/runners/{self.runner_id}",
             self.keycloak_token,
             type="PATCH",
             data=details,
@@ -83,32 +72,30 @@ class RunnerService:
         return response
 
     def delete(self, force_validation: bool):
-        runner_id = self.state["api"]["runner_id"]
-
-        if not runner_id:
-            logger.error("runner_id is missing")
-            sys.exit(1)
-
-        if not force_validation and not confirm_deletion("runner", runner_id):
+        if not force_validation and not confirm_deletion("runner", self.runner_id):
             return None
 
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{runner_id}",
+            f"{self.workspace_id}/runners/{self.runner_id}",
             self.keycloak_token,
             type="DELETE",
         )
         return response
 
     def start(self):
-        runner_id = self.state["api"]["runner_id"]
-
-        if not runner_id:
-            logger.error("runner_id is missing")
-            sys.exit(1)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{runner_id}/start",
+            f"{self.workspace_id}/runners/{self.runner_id}/start",
+            self.keycloak_token,
+            type="POST",
+        )
+        return response
+
+    def stop(self):
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/workspaces/"
+            f"{self.workspace_id}/runners/{self.runner_id}/stop",
             self.keycloak_token,
             type="POST",
         )

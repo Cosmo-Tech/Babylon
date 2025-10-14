@@ -1,3 +1,6 @@
+import json
+import click
+
 from logging import getLogger
 from typing import Any
 from click import command
@@ -35,13 +38,19 @@ def get_all(
     """
     Get all runner RBAC access
     """
+    _run = [""]
+    _run.append("Get all RBAC access to the Runner")
+    _run.append("")
+    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
     service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
+    logger.info(f"[api] Retrieving all RBAC access to the runner {[service_state['api']['runner_id']]}")
     response = service.get_all()
-    runner_security = response.json()
     if response is None:
         return CommandResponse.fail()
-    return CommandResponse.success(runner_security, verbose=True)
+    runner_security = response.json()
+    logger.info(json.dumps(runner_security, indent=2))
+    return CommandResponse.success(runner_security)
