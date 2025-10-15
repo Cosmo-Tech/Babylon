@@ -25,6 +25,6 @@ def about(state: dict, keycloak_token: str) -> dict:
         return CommandResponse.fail()
     response = oauth_request(f"{url}/about", keycloak_token, type="GET")
     if response is None:
-        return {}
+        return CommandResponse.fail()
     info = response.json()
     return CommandResponse.success(info, verbose=True)
