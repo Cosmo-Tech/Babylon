@@ -1,10 +1,10 @@
 import json
 import logging
+import click
 
 from click import command, option
-
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
-from Babylon.utils.credentials import pass_azure_token
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
@@ -16,7 +16,7 @@ env = Environment()
 
 @command()
 @injectcontext()
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @output_to_file
 @option(
     "--role",
@@ -25,18 +25,30 @@ env = Environment()
     required=True,
     help="Role RBAC",
 )
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
+@option("--dataset-id", "dataset_id", type=str)
 @retrieve_state
-def set_default(state: dict, azure_token: str, role: str, organization_id: str, dataset_id: str) -> CommandResponse:
+def set_default(state: dict, keycloak_token: str, role: str, organization_id: str, workspace_id: str,
+                dataset_id: str) -> CommandResponse:
     """
-    Update dataset default security
+    Set the dataset default security
     """
+    _data = [""]
+    _data.append(" Set dataset default security RBAC")
+    _data.append("")
+    click.echo(click.style("\n".join(_data), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
     service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
     details = json.dumps({"role": role})
-    service = DatasetSecurityService(azure_token=azure_token, state=service_state)
+    service = DatasetSecurityService(keycloak_token=keycloak_token, state=service_state)
+    logger.info(f"[api] Setting default RBAC access to the dataset {[service_state['api']['dataset_id']]}")
     response = service.set_default(details=details)
     if response is None:
         return CommandResponse.fail()
-    rbac = response.json()
-    return CommandResponse.success(rbac, verbose=True)
+    default_security = response.json()
+    logger.info(json.dumps(default_security, indent=2))
+    logger.info("[api] default RBAC access successfully setted")
+    return CommandResponse.success(default_security)
