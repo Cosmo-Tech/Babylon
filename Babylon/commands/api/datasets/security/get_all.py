@@ -1,8 +1,9 @@
+import click
+import json
+
 from logging import getLogger
 from typing import Any
-
 from click import command, option
-
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file
@@ -24,14 +25,20 @@ env = Environment()
 @retrieve_state
 def get_all(state: Any, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """
-    Get dataset users RBAC access
+    Get dataset users access
     """
+    _data = [""]
+    _data.append(" Get dataset users access")
+    _data.append("")
+    click.echo(click.style("\n".join(_data), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
     service = DatasetSecurityService(keycloak_token=keycloak_token, state=service_state)
+    logger.info(f"[api] Retrieving all users access to the dataset {[service_state['api']['dataset_id']]}")
     response = service.get_all()
     if response is None:
         return CommandResponse.fail()
-    rbac = response.json()
-    return CommandResponse.success(rbac, verbose=True)
+    rbacs = response.json()
+    logger.info(json.dumps(rbacs, indent=2))
+    return CommandResponse.success(rbacs)
