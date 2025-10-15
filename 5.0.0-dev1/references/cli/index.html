@@ -2635,6 +2635,24 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#get-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-contexts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-states
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#use" class="md-nav__link">
     <span class="md-ellipsis">
       use
@@ -5090,6 +5108,24 @@
   
     <nav class="md-nav" aria-label="namespace">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-contexts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-states
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#use" class="md-nav__link">
@@ -14708,9 +14744,60 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em>use</em>: <em>No description was provided with this command.</em></li>
+<li><em>get-contexts</em>: Display the currently active namespace</li>
+<li><em>get-states</em>: Display all states in your local machine</li>
+<li><em>use</em>: Switch to a specific namespace or create a new one</li>
 </ul>
+<h4 id="get-contexts">get-contexts<a class="headerlink" href="#get-contexts" title="Permanent link">&para;</a></h4>
+<p>Display the currently active namespace</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon namespace get-contexts [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="get-states">get-states<a class="headerlink" href="#get-states" title="Permanent link">&para;</a></h4>
+<p>Display all states in your local machine</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon namespace get-states [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="use">use<a class="headerlink" href="#use" title="Permanent link">&para;</a></h4>
+<p>Switch to a specific namespace or create a new one</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon namespace use [OPTIONS]
 </code></pre></div>
