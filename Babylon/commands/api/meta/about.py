@@ -1,0 +1,30 @@
+from click import command
+from logging import getLogger
+from Babylon.utils.request import oauth_request
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
+
+logger = getLogger("Babylon")
+env = Environment()
+
+
+@command()
+@injectcontext()
+@output_to_file
+@pass_keycloak_token()
+@retrieve_state
+def about(state: dict, keycloak_token: str) -> dict:
+    """
+    Get the version of the API service
+    """
+    url = state.get("services").get("api").get("url")
+    if not url:
+        logger.error("API url not found verify the state")
+        return CommandResponse.fail()
+    response = oauth_request(f"{url}/about", keycloak_token, type="GET")
+    if response is None:
+        return {}
+    info = response.json()
+    return CommandResponse.success(info, verbose=True)
