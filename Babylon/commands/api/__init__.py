@@ -6,6 +6,7 @@ from .runs import runs
 from .solutions import solutions
 from .workspaces import workspaces
 from .runners import runners
+from .meta.about import about
 
 env = Environment()
 
@@ -20,3 +21,5 @@ list_groups = [workspaces, datasets, organizations, solutions, runners, runs]
 
 for _group in list_groups:
     api.add_command(_group)
+
+api.add_command(about)
