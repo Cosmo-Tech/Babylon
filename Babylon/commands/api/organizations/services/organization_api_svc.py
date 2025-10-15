@@ -20,7 +20,7 @@ class OrganizationService:
         self.keycloak_token = keycloak_token
         self.url = state["api"]["url"]
         if not self.url:
-            logger.error("API url not found")
+            logger.error("[babylon] api url not found verify the state")
             sys.exit(1)
 
     def create(self):

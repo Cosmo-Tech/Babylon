@@ -15,7 +15,7 @@ class ApiWorkspaceSecurityService:
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
-            logger.error("API url not found verify the state")
+            logger.error("[babylon] Api url not found verify the state")
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
