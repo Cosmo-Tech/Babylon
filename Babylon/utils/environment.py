@@ -345,6 +345,14 @@ class Environment(metaclass=SingletonMeta):
         state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
         return state_data
 
+    def get_all_states_from_local(self):
+        state_dir = Path().home() / ".config/cosmotech/babylon"
+        if not state_dir.exists():
+            logger.error(f"[babylon] directory {state_dir} not found")
+            sys.exit(1)
+        else:
+            return state_dir
+
     def get_state_from_cloud(self, state: dict) -> dict:
         if not state.get("id"):
             return state
@@ -389,7 +397,7 @@ class Environment(metaclass=SingletonMeta):
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
-            logger.error("The context and the platform are not set. \
+            logger.error("[babylon] The context and the platform are not set. \
                          Please set the platform using the 'namespace use' command.")
             sys.exit(1)
 
@@ -402,6 +410,7 @@ class Environment(metaclass=SingletonMeta):
             self.set_server_id()
             self.set_org_name()
             self.set_blob_client()
+            return ns_data
 
     def retrieve_state_func(self, state_id: str = ""):
         init_state = dict()
