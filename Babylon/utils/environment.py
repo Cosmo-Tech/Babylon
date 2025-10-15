@@ -346,7 +346,7 @@ class Environment(metaclass=SingletonMeta):
         return state_data
 
     def get_all_states_from_local(self):
-        state_dir = Path().home() / ".config/cosmotech/babylon"
+        state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         if not state_dir.exists():
             logger.error(f"[babylon] directory {state_dir} not found")
             sys.exit(1)
