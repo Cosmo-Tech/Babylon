@@ -8,7 +8,7 @@ from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
-from Babylon.commands.api.scenarios.services.scenario_api_svc import ScenarioService
+from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.commands.azure.func.services.func_api_svc import AzureAppFunctionService
@@ -51,7 +51,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     logger.info(f"Starting deletion of solution deployed in organization : {organization_id}")
     # deleting scenarios
     if workspace_id:
-        scenario_service = ScenarioService(state=state.get('services'), azure_token=azure_token)
+        scenario_service = RunnerService(state=state.get('services'), azure_token=azure_token)
         response = scenario_service.get_all()
         scenario_json = response.json()
         scenario_str = json.dumps(scenario_json)

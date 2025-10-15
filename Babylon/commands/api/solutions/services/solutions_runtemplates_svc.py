@@ -17,7 +17,7 @@ class SolutionRunTemplatesService:
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
-            logger.error("[babylon] api url not found")
+            logger.error("[babylon] api url not found verify the state")
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
@@ -25,7 +25,7 @@ class SolutionRunTemplatesService:
             sys.exit(1)
         self.solution_id = self.state["api"]["solution_id"]
         if not self.solution_id:
-            logger.error("[babylon] solution id is missing verify the state")
+            logger.error("[babylon] Solution id is missing verify the state")
             sys.exit(1)
 
     def add(self):
