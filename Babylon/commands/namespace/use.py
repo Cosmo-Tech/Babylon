@@ -11,6 +11,7 @@ env = Environment()
 @command()
 @wrapcontext()
 def use() -> CommandResponse:
+    """Switch to a specific namespace or create a new one"""
     env.store_namespace_in_local()
-    logger.info(f"[namespace] switched to namespace {env.context_id}, {env.environ_id} successfully")
+    logger.info(f"[namespace] switched to context {[env.context_id]}, tenant {[env.environ_id]} successfully")
     return CommandResponse.success()
