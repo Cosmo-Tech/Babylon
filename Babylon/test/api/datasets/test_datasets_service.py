@@ -24,7 +24,7 @@ class DatasetServiceTestCase(unittest.TestCase):
     def test_get(self, datasetservice_get):
         the_response = Response()
         the_response.status_code = 200
-        the_response._content = b'{"id": "1", "name": "ADT Dataset"}'
+        the_response._content = b'{"id": "1", "name": "Dataset"}'
         datasetservice_get.return_value = the_response
 
         result = CliRunner().invoke(
@@ -32,13 +32,13 @@ class DatasetServiceTestCase(unittest.TestCase):
             ["--organization-id", "my_organization_id", "--dataset-id", "1"],
             standalone_mode=False,
         )
-        assert result.return_value.data == {"id": "1", "name": "ADT Dataset"}
+        assert result.return_value.data == {"id": "1", "name": "Dataset"}
 
     @mock.patch.object(DatasetService, "get_all")
     def test_get_all(self, datasetservice_get_all):
         the_response = Response()
         the_response.status_code = 200
-        the_response._content = b'[{"id": "1", "name": "ADT Dataset"}, {"id" : "2", "name": "ADT Dataset2"}]'
+        the_response._content = b'[{"id": "1", "name": "Dataset"}, {"id" : "2", "name": "Dataset2"}]'
         datasetservice_get_all.return_value = the_response
 
         result = CliRunner().invoke(get_all, ["--organization-id", "my_organization_id"], standalone_mode=False)
@@ -58,13 +58,13 @@ class DatasetServiceTestCase(unittest.TestCase):
         )
 
         states = env.get_state_from_local()
-        assert states["services"]["api"]["dataset.storage_id"] == ""
+        assert states["services"]["api"]["dataset_id"] == ""
 
     @mock.patch.object(DatasetService, "search")
     def test_search(self, datasetservice_search):
         the_response = Response()
         the_response.status_code = 200
-        the_response._content = b'{"id": "1", "name": "ADT Dataset"}'
+        the_response._content = b'{"id": "1", "name": "Dataset"}'
         datasetservice_search.return_value = the_response
 
         result = CliRunner().invoke(
@@ -73,7 +73,7 @@ class DatasetServiceTestCase(unittest.TestCase):
             standalone_mode=False,
         )
 
-        assert result.return_value.data == {"id": "1", "name": "ADT Dataset"}
+        assert result.return_value.data == {"id": "1", "name": "Dataset"}
 
 
 if __name__ == "__main__":
