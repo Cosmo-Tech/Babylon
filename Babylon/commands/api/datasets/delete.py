@@ -19,6 +19,7 @@ env = Environment()
 @pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @option("--dataset-id", "dataset_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @retrieve_state
 def delete(state: Any,
@@ -29,6 +30,7 @@ def delete(state: Any,
     """Delete a dataset"""
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (service_state["api"]["workspace_id"])
     service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
     logger.info(f"Deleting dataset: {service_state['api']['dataset_id']}")

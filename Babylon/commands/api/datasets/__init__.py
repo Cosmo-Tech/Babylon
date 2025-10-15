@@ -1,6 +1,5 @@
 from click import group
 
-from .apply import apply
 from .delete import delete
 from .get import get
 from .get_all import get_all
@@ -14,7 +13,7 @@ def datasets():
     pass
 
 
-list_commands = [delete, get, search, get_all, apply]
+list_commands = [delete, get, search, get_all]
 
 for _command in list_commands:
     datasets.add_command(_command)
