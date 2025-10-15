@@ -4,8 +4,6 @@ import sys
 
 from typing import Optional
 
-from pathlib import Path
-
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
@@ -39,7 +37,8 @@ class DatasetService:
         if not force_validation and not confirm_deletion("dataset", dataset_id):
             return None
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{dataset_id}",
+            f"{self.url}/organizations/{self.organization_id}/"
+            f"workspaces/{self.workspace_id}/datasets/{dataset_id}",
             self.keycloak_token,
             type="DELETE",
         )

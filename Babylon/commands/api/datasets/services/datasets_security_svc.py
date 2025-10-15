@@ -9,7 +9,6 @@ env = Environment()
 
 
 class DatasetSecurityService:
-
     def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
         self.keycloak_token = keycloak_token
@@ -32,7 +31,9 @@ class DatasetSecurityService:
 
     def add(self, details: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{self.dataset_id}/security/access",
+            f"{self.url}/organizations/{self.organization_id}/"
+            f"workspaces/{self.workspace_id}/"
+            f"datasets/{self.dataset_id}/security/access",
             self.keycloak_token,
             type="POST",
             data=details,
@@ -41,7 +42,9 @@ class DatasetSecurityService:
 
     def get(self, id: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{self.dataset_id}/security/access/{id}",
+            f"{self.url}/organizations/{self.organization_id}"
+            f"/workspaces/{self.workspace_id}/"
+            f"datasets/{self.dataset_id}/security/access/{id}",
             self.keycloak_token,
             type="GET",
         )
@@ -49,7 +52,9 @@ class DatasetSecurityService:
 
     def get_all(self):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{self.dataset_id}/security/users",
+            f"{self.url}/organizations/{self.organization_id}"
+            f"/workspaces/{self.workspace_id}/"
+            f"datasets/{self.dataset_id}/security/users",
             self.keycloak_token,
             type="GET",
         )
@@ -57,23 +62,32 @@ class DatasetSecurityService:
 
     def update(self, id: str, details: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{self.dataset_id}/security/access/{id}",
+            f"{self.url}/organizations/{self.organization_id}"
+            f"/workspaces/{self.workspace_id}/"
+            f"datasets/{self.dataset_id}/security/access/{id}",
             self.keycloak_token,
             type="PATCH",
-            data=details)
+            data=details,
+        )
         return response
 
     def set_default(self, details: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{self.dataset_id}/security/default",
+            f"{self.url}/organizations/{self.organization_id}/"
+            f"workspaces/{self.workspace_id}/"
+            f"datasets/{self.dataset_id}/security/default",
             self.keycloak_token,
             type="PATCH",
-            data=details)
+            data=details,
+        )
         return response
 
     def delete(self, id: str):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{self.dataset_id}/security/access/{id}",
+            f"{self.url}/organizations/{self.organization_id}/"
+            f"workspaces/{self.workspace_id}/"
+            f"datasets/{self.dataset_id}/security/access/{id}",
             self.keycloak_token,
-            type="DELETE")
+            type="DELETE",
+        )
         return response
