@@ -9,6 +9,7 @@ env = Environment()
 
 
 class DatasetSecurityService:
+
     def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
         self.keycloak_token = keycloak_token
