@@ -1,5 +1,4 @@
 import click
-import json
 
 from logging import getLogger
 from typing import Any
@@ -41,5 +40,4 @@ def logs(state: Any, keycloak_token: str, organization_id: str, workspace_id: st
     if response is None:
         return CommandResponse.fail()
     run_logs = response.json()
-    logger.info(json.dumps(run_logs, indent=2))
-    return CommandResponse.success(run_logs)
+    return CommandResponse.success(run_logs, verbose=True)

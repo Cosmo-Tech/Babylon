@@ -23,7 +23,6 @@ class RunService:
         if not self.organization_id:
             logger.error("[babylon] Organization id is missing verify the state")
             sys.exit(1)
-        self.workspace_id = self.state["api"]["workspace_id"]
         if not self.workspace_id:
             logger.error("[babylon] Workspace id is missing verify the state")
             sys.exit(1)

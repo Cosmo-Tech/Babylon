@@ -21,6 +21,18 @@ class RunnerServiceTestCase(unittest.TestCase):
         env.get_namespace_from_local()
         env.remote = False
 
+    @mock.patch.object(RunnerService, 'create')
+    def test_create(self, mock_create):
+        the_response = Response()
+        the_response.status_code = 201
+        the_response._content = b'{"id": "1", "name": "A runner"}'
+        mock_create.return_value = the_response
+        payload_file = str(env.pwd / "Babylon/test/api/runners/payload.json")
+        CliRunner().invoke(create, ["--organization-id", "1", "--workspace-id", "1", payload_file],
+                           standalone_mode=False)
+        states = env.get_state_from_local()
+        assert states["services"]["api"]["runner_id"] == "1"
+
     @mock.patch.object(RunnerService, 'get_all')
     def test_get_all(self, mock_get_all):
         the_response = Response()
@@ -65,18 +77,6 @@ class RunnerServiceTestCase(unittest.TestCase):
                            standalone_mode=False)
         states = env.get_state_from_local()
         assert states["services"]["api"]["runner_id"] == ""
-
-    @mock.patch.object(RunnerService, 'create')
-    def test_create(self, mock_create):
-        the_response = Response()
-        the_response.status_code = 201
-        the_response._content = b'{"id": "1", "name": "A runner"}'
-        mock_create.return_value = the_response
-        payload_file = str(env.pwd / "Babylon/test/api/runners/payload.json")
-        CliRunner().invoke(create, ["--organization-id", "1", "--workspace-id", "1", payload_file],
-                           standalone_mode=False)
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["runner_id"] == "1"
 
 
 if __name__ == "__main__":

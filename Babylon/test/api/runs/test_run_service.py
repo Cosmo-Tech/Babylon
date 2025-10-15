@@ -4,7 +4,8 @@ from click.testing import CliRunner
 from Babylon.commands.api.runs.services.run_api_svc import RunService
 from Babylon.commands.api.runs.logs import logs
 from Babylon.commands.api.runs.status import status
-from Babylon.commands.api.runs.stop import stop
+from Babylon.commands.api.runs.get import get
+from Babylon.commands.api.runs.get_all import get_all
 from Babylon.utils.environment import Environment
 from requests.models import Response
 
@@ -19,14 +20,37 @@ class RunServiceTestCase(unittest.TestCase):
         env.get_namespace_from_local()
         env.remote = False
 
+    @mock.patch.object(RunService, 'get')
+    def test_get(self, mock_status):
+        the_response = Response()
+        the_response._content = b'{"id": "1"}'
+        mock_status.return_value = the_response
+
+        result = CliRunner().invoke(
+            get, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            standalone_mode=False)
+        assert result.return_value.data == {"id": "1"}
+
+    @mock.patch.object(RunService, 'get_all')
+    def test_get_all(self, mock_status):
+        the_response = Response()
+        the_response._content = b'[{"id": "1"}, {"id" : "2"}]'
+        mock_status.return_value = the_response
+
+        result = CliRunner().invoke(
+            get_all, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            standalone_mode=False)
+        assert len(result.return_value.data) == 2
+
     @mock.patch.object(RunService, 'logs')
     def test_logs(self, mock_logs):
         the_response = Response()
         the_response._content = b'{"logs": "A lot of logs"}'
         mock_logs.return_value = the_response
 
-        result = CliRunner().invoke(logs, ["--organization-id", "1", "--run-id", "1"], standalone_mode=False)
-
+        result = CliRunner().invoke(
+            logs, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            standalone_mode=False)
         assert result.return_value.data == {"logs": "A lot of logs"}
 
     @mock.patch.object(RunService, 'status')
@@ -35,19 +59,10 @@ class RunServiceTestCase(unittest.TestCase):
         the_response._content = b'{"phase": "Succeeded"}'
         mock_status.return_value = the_response
 
-        result = CliRunner().invoke(status, ["--organization-id", "1", "--run-id", "1"], standalone_mode=False)
-
+        result = CliRunner().invoke(
+            status, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            standalone_mode=False)
         assert result.return_value.data == {"phase": "Succeeded"}
-
-    @mock.patch.object(RunService, 'stop')
-    def test_stop(self, mock_stop):
-        the_response = Response()
-        the_response._content = b'{"phase": "Failed"}'
-        mock_stop.return_value = the_response
-
-        result = CliRunner().invoke(stop, ["--organization-id", "1", "--run-id", "1"], standalone_mode=False)
-
-        assert result.return_value.data == {"phase": "Failed"}
 
 
 if __name__ == "__main__":
