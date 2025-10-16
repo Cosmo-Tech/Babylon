@@ -1,13 +1,9 @@
 import pathlib
 import json
-import click
 
 from logging import getLogger
 from typing import Any
-from click import Path
-from click import argument
-from click import command
-from click import option
+from click import Path, argument, command, option, echo, style
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file
@@ -30,10 +26,10 @@ def create(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     """
     Register a new solution
     """
-    _ret = [""]
-    _ret.append("Register new organization")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _sol = [""]
+    _sol.append("Register new organization")
+    _sol.append("")
+    echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     spec = dict()

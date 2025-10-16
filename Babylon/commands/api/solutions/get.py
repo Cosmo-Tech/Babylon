@@ -1,9 +1,8 @@
 import json
-import click
 
 from logging import getLogger
 from typing import Any
-from click import command, option
+from click import command, option, echo, style
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file
@@ -26,14 +25,14 @@ def get(state: Any, keycloak_token: str, organization_id: str, solution_id: str)
     """
     Get a solution details
     """
-    _ret = [""]
-    _ret.append("Get solution details")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _sol = [""]
+    _sol.append("Get solution details")
+    _sol.append("")
+    echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
-    logger.info(f"[api] Retrieving solution {[service_state['api']['solution_id']]}")
+    logger.info(f"[api] Retrieving solution {[service_state['api']['solution_id']]} details")
     organizations_service = SolutionService(state=service_state, keycloak_token=keycloak_token)
     response = organizations_service.get()
     if response is None:

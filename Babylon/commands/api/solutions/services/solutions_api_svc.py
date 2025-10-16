@@ -111,5 +111,5 @@ class SolutionService:
 
 def check_if_solution_exists(solution_id: str):
     if solution_id is None:
-        logger.error(f"solution {solution_id} is missing")
+        logger.error("[babylon] solution_id is missing check the state or use --solution-id")
         sys.exit(1)

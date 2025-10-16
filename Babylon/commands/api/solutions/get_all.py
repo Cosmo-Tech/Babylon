@@ -1,11 +1,9 @@
 import jmespath
 import json
-import click
 
 from logging import getLogger
 from typing import Any, Optional
-from click import command
-from click import option
+from click import command, option, echo, style
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file
@@ -26,10 +24,10 @@ def get_all(state: Any, keycloak_token: str, organization_id: str, filter: Optio
     """
     Get all solutions details
     """
-    _ret = [""]
-    _ret.append("Get all solutions details")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _sol = [""]
+    _sol.append("Get all solutions details")
+    _sol.append("")
+    echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     solutions_service = SolutionService(keycloak_token=keycloak_token, state=service_state)

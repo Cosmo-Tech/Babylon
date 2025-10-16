@@ -1,10 +1,9 @@
 import os
 import sys
 import json
-import click
 
 from logging import getLogger
-
+from click import echo, style
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
@@ -18,7 +17,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
     _ret = [""]
     _ret.append("Solution deployment")
     _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    echo(style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
@@ -38,7 +37,8 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
         state["services"]["api"]["organization_id"] = metadata["selector"].get("organization_id", "")
     else:
         if not state["services"]["api"]["organization_id"]:
-            logger.error(f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
+            logger.error(
+                f"[babylon] Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
             sys.exit(1)
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)

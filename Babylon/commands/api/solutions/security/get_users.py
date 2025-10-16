@@ -1,7 +1,6 @@
 import json
-import click
 
-from click import command
+from click import command, option, echo, style
 from logging import getLogger
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
@@ -18,16 +17,20 @@ env = Environment()
 @injectcontext()
 @pass_keycloak_token()
 @output_to_file
+@option("--organization-id", "organization_id", type=str)
+@option("--solution-id", "solution_id", type=str)
 @retrieve_state
-def get_users(state: dict, keycloak_token: str) -> CommandResponse:
+def get_users(state: dict, organization_id: str, solution_id: str, keycloak_token: str) -> CommandResponse:
     """
     Get the Solution security users list
     """
-    _ret = [""]
-    _ret.append("Get solution security users list")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _sol = [""]
+    _sol.append("Get solution security users list")
+    _sol.append("")
+    echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
+    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
     logger.info(f"[api] Fetching solution {[service_state['api']['solution_id']]} RBAC users")
     response = solution_service.get_users()
