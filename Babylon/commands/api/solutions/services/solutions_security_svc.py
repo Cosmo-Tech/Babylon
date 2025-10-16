@@ -60,7 +60,7 @@ class SolutionSecurityService:
         )
         return response
 
-    def remove(self, identity_id: str):
+    def delete(self, identity_id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/"
             f"{self.solution_id}/security/access/{identity_id}",
