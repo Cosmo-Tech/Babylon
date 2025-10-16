@@ -1,7 +1,5 @@
-import click
-
 from typing import Any
-from click import command, option
+from click import command, option, echo, style
 from logging import getLogger
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
@@ -32,10 +30,10 @@ def delete(
     """
     Delete solution runtemplate by id
     """
-    _ret = [""]
-    _ret.append("Delete runtemplate in solution")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _sol = [""]
+    _sol.append("Delete runtemplate in solution")
+    _sol.append("")
+    echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])

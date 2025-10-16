@@ -1,9 +1,8 @@
 import json
-import click
 import pathlib
 
 from typing import Any
-from click import command, option, argument
+from click import command, option, argument, echo, style
 from click import Path
 from logging import getLogger
 from Babylon.utils.credentials import pass_keycloak_token
@@ -35,12 +34,12 @@ def update(
     payload_file: pathlib.Path,
 ) -> CommandResponse:
     """
-    Update Run Templates in the Solution by id
+    Update Run Template in the Solution by id
     """
-    _ret = [""]
-    _ret.append("Update solution RunTemplate")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _sol = [""]
+    _sol.append("Update solution RunTemplate")
+    _sol.append("")
+    echo(style("\n".join(_sol), bold=True, fg="green"))
     spec = dict()
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
@@ -55,5 +54,5 @@ def update(
     run_template = response.json()
     logger.info(json.dumps(run_template, indent=2))
     sol_id = service_state['api']['solution_id']
-    logger.info(f"[api] Runtemplate id {[run_template.get('id')]} successfully Updated in the solution {[sol_id]}")
+    logger.info(f"[api] Runtemplate id {[run_template.get('id')]} successfully updated in the solution {[sol_id]}")
     return CommandResponse.success(run_template)
