@@ -1,9 +1,8 @@
 import json
-import click
+
 from logging import getLogger
 from typing import Any
-from click import command
-from click import option
+from click import command, option, echo, style
 from Babylon.commands.api.organizations.services.organization_security_svc import OrganizationSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
@@ -40,19 +39,19 @@ def set_default(
     """
     Set default RBAC access to the organization
     """
-    _ret = [""]
-    _ret.append("Set default RBAC access to the organization")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _org = [""]
+    _org.append("Set default RBAC access to the organization")
+    _org.append("")
+    echo(style("\n".join(_org), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Setting default RBAC access to the organization {service_state['api']['organization_id']}")
+    logger.info(f"[api] Setting default RBAC access to the organization {[service_state['api']['organization_id']]}")
     response = service.set_default(details)
     if response is None:
         return CommandResponse.fail()
     default_security = response.json()
     logger.info(json.dumps(default_security, indent=2))
-    logger.info("[api] default RBAC access successfully setted")
+    logger.info(f"[api] default RBAC access successfully setted with role {[role]}")
     return CommandResponse.success(default_security)

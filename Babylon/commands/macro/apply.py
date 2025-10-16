@@ -1,11 +1,10 @@
 from typing import Iterable
 import yaml
-import click
 import pathlib
 import os
 
 from logging import getLogger
-from click import Path, argument, command, option
+from click import Path, argument, command, option, style, echo
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import injectcontext
 from Babylon.commands.macro.deploy_webapp import deploy_swa
@@ -79,10 +78,13 @@ def apply(
             namespace = s.get("namespace")
             deploy_solution(namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only)
 
-        for swa in webapps:
-            content = swa.get("content")
-            namespace = swa.get("namespace")
-            deploy_swa(namespace=namespace, file_content=content)
+        # For the web app, we need to wait to know whether it will be deployed as a Helm chart
+        # or continue as a static Azure Web App.
+
+        # for swa in webapps:
+        #     content = swa.get("content")
+        #     namespace = swa.get("namespace")
+        #     deploy_swa(namespace=namespace, file_content=content)
 
         for w in workspaces:
             content = w.get("content")
@@ -92,12 +94,14 @@ def apply(
                              deploy_dir=deploy_dir,
                              payload_only=payload_only)
 
-        for d in datasets:
-            content = d.get("content")
-            namespace = d.get("namespace")
-            deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
-            if deployed_dataset_id:
-                final_datasets.append(deployed_dataset_id)
+        # To do: This is not implemented yet. We are waiting for the API implementation before working on it again.
+
+        # for d in datasets:
+        #     content = d.get("content")
+        #     namespace = d.get("namespace")
+        #     deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+        #     if deployed_dataset_id:
+        #         final_datasets.append(deployed_dataset_id)
     else:
         if organization:
             for o in organizations:
@@ -156,5 +160,5 @@ def apply(
         _logs.append(f"   * The Babylon log and error files are generated at: {vars.get('path_logs')}")
     else:
         _logs.append(f"   * The Babylon log and error files are generated at: {logfile_directory}")
-    click.echo(click.style("\n".join(_ret), fg="green"))
-    click.echo(click.style("\n".join(_logs), fg="green"))
+    echo(style("\n".join(_ret), fg="green"))
+    echo(style("\n".join(_logs), fg="green"))

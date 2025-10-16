@@ -1,10 +1,8 @@
 import json
-import click
 
 from logging import getLogger
 from typing import Any
-from click import option
-from click import command
+from click import option, command, style, echo
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
@@ -24,14 +22,14 @@ env = Environment()
 @retrieve_state
 def get(state: Any, organization_id: str, keycloak_token: str) -> CommandResponse:
     """Get an organization details"""
-    _ret = [""]
-    _ret.append("Get organization details")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _org = [""]
+    _org.append("Get organization details")
+    _org.append("")
+    echo(style("\n".join(_org), bold=True, fg="green"))
     services_state = state["services"]
     services_state["api"]["organization_id"] = (organization_id or services_state["api"]["organization_id"])
     organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
-    logger.info(f"[api] Retrieving organization {services_state['api']['organization_id']} details")
+    logger.info(f"[api] Retrieving organization {[services_state['api']['organization_id']]} details")
     response = organizations_service.get()
     if response is None:
         return CommandResponse.fail()
