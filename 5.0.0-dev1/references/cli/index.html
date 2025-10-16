@@ -727,6 +727,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    <span class="md-ellipsis">
+      about
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#datasets" class="md-nav__link">
     <span class="md-ellipsis">
       datasets
@@ -3202,6 +3211,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    <span class="md-ellipsis">
+      about
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#datasets" class="md-nav__link">
     <span class="md-ellipsis">
       datasets
@@ -5649,6 +5667,7 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
+<li><em>about</em>: </li>
 <li><em>datasets</em>: Datasets - Cosmotech API</li>
 <li><em>organizations</em>: Organizations - Cosmotech API</li>
 <li><em>runners</em>: Runners - Cosmotech API</li>
@@ -5656,6 +5675,54 @@
 <li><em>solutions</em>: Solutions - Cosmotech API</li>
 <li><em>workspaces</em>: Workspaces - Cosmotech API</li>
 </ul>
+<h4 id="about">about<a class="headerlink" href="#about" title="Permanent link">&para;</a></h4>
+<p>Get the version of the API service</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon api about [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-c</code>, <code>--context</code></td>
+<td>text</td>
+<td>Context Name without any special character</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-p</code>, <code>--platform</code></td>
+<td>text</td>
+<td>Platform Id without any special character</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-s</code>, <code>--state-id</code></td>
+<td>text</td>
+<td>State Id</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="datasets">datasets<a class="headerlink" href="#datasets" title="Permanent link">&para;</a></h4>
 <p>Datasets - Cosmotech API</p>
 <p><strong>Usage:</strong></p>
