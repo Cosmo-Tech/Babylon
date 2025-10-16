@@ -1,7 +1,6 @@
-import click
 from logging import getLogger
 from typing import Any
-from click import command, option
+from click import command, option, echo, style
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
@@ -37,7 +36,7 @@ def start(
     _run = [""]
     _run.append("Start a runner run")
     _run.append("")
-    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
+    echo(style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
