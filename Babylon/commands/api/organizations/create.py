@@ -1,10 +1,9 @@
 import pathlib
 import json
-import click
 
 from logging import getLogger
 from typing import Any
-from click import argument, command
+from click import argument, command, echo, style
 from click import Path
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.decorators import retrieve_state
@@ -28,10 +27,10 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     """
     Register new organization
     """
-    _ret = [""]
-    _ret.append("Register new organization")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _org = [""]
+    _org.append("Register new organization")
+    _org.append("")
+    echo(style("\n".join(_org), bold=True, fg="green"))
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
@@ -46,5 +45,5 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     if env.remote:
         env.store_state_in_cloud(state)
     logger.info(json.dumps(organization, indent=2))
-    logger.info(f"[api] Organization {organization.get('id')} successfully created")
+    logger.info(f"[api] Organization {[organization.get('id')]} successfully created")
     return CommandResponse.success(organization)

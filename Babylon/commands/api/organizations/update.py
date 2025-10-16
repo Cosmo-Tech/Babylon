@@ -1,10 +1,9 @@
 import pathlib
 import json
-import click
 
 from logging import getLogger
 from typing import Any
-from click import Path, argument, command, option
+from click import Path, argument, command, option, echo, style
 from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
@@ -28,19 +27,21 @@ def update(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     """
     Update an organization
     """
-    _ret = [""]
-    _ret.append("Update an organization")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _org = [""]
+    _org.append("Update an organization")
+    _org.append("")
+    echo(style("\n".join(_org), bold=True, fg="green"))
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
+    services_state = state["services"]
+    services_state["api"]["organization_id"] = (organization_id or services_state["api"]["organization_id"])
     organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token, spec=spec)
-    logger.info(f"[api] Updating organization {state['services']['api']['organization_id']}")
+    logger.info(f"[api] Updating organization {[services_state['api']['organization_id']]}")
     response = organizations_service.update()
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
     logger.info(json.dumps(organization, indent=2))
-    logger.info(f"[api] Organization {organization.get('id')} successfully updated")
+    logger.info(f"[api] Organization {[organization.get('id')]} successfully updated")
     return CommandResponse.success(organization)

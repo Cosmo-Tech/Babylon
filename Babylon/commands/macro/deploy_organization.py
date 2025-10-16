@@ -3,8 +3,7 @@ import sys
 import json
 
 from logging import getLogger
-
-import click
+from click import echo, style
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
@@ -17,7 +16,7 @@ def deploy_organization(namespace: str, file_content: str):
     _ret = [""]
     _ret.append("Organization deployment")
     _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    echo(style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url

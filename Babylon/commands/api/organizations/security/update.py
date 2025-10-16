@@ -1,8 +1,7 @@
 import json
 import logging
-import click
 
-from click import command, option
+from click import command, option, echo, style
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -26,25 +25,27 @@ env = Environment()
     required=True,
     help="Role RBAC",
 )
+@option("--organization-id", "organization_id", type=str)
 @option("--email", "email", type=str, required=True, help="Email valid")
 @retrieve_state
-def update(state: dict, keycloak_token: str, email: str, role: str) -> CommandResponse:
+def update(state: dict, keycloak_token: str, organization_id: str, email: str, role: str) -> CommandResponse:
     """
     Update organization users RBAC access
     """
-    _ret = [""]
-    _ret.append("Update organization user RBAC access")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _org = [""]
+    _org.append("Update organization user RBAC access")
+    _org.append("")
+    echo(style("\n".join(_org), bold=True, fg="green"))
     service_state = state["services"]
+    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     details = json.dumps({"id": email, "role": role})
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     logger.info(
-        f"[api] Updating user {email} RBAC access in the organization {service_state['api']['organization_id']}")
+        f"[api] Updating user {[email]} RBAC access in the organization {[service_state['api']['organization_id']]}")
     response = service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
     logger.info(json.dumps(rbacs, indent=2))
-    logger.info(f"[api] User {email} RBAC access successfully Updated")
+    logger.info(f"[api] User {[email]} RBAC access successfully updated")
     return CommandResponse.success(rbacs)

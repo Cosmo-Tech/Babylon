@@ -15,7 +15,6 @@ from cryptography.fernet import Fernet
 from flatten_json import flatten
 from Babylon.config import config_files
 from azure.storage.blob import BlobServiceClient
-
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
@@ -86,7 +85,7 @@ class Environment(metaclass=SingletonMeta):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
             for key, files in duplicate_keys.items():
-                logger.error(f"The key '{key}' is duplicated in variable files {' and '.join(files)}")
+                logger.error(f"[babylon] The key '{key}' is duplicated in variable files {' and '.join(files)}")
             sys.exit(1)
         else:
             merged_data["secret_powerbi"] = ""
@@ -104,16 +103,16 @@ class Environment(metaclass=SingletonMeta):
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
         if not state_id:
-            logger.error("state id is mandatory")
+            logger.error("[babylon] state_id is mandatory")
             sys.exit(1)
         plt_obj = payload_dict.get("platform", {})
         platform_id = plt_obj.get("id", "")
         if not platform_id:
-            logger.error("platform id is mandatory")
+            logger.error("[babylon] platform_id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
         if not platform_url:
-            logger.error("url is mandatory")
+            logger.error("[babylon] url is mandatory")
             sys.exit(1)
         self.set_state_id(state_id=state_id)
         self.set_context(context_id=context_id)
@@ -309,7 +308,7 @@ class Environment(metaclass=SingletonMeta):
         for r in resources:
             response = self.hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}")
             if not response:
-                logger.error(f"platform id '{platform}' not found in vault service")
+                logger.error(f"[babylon] platform id '{platform}' not found in vault service")
                 sys.exit(1)
             response_parsed.setdefault(r, dict(response["data"].items()))
         return response_parsed
@@ -447,7 +446,7 @@ class Environment(metaclass=SingletonMeta):
         plt_obj = ns.get("platform", {})
         platform_id = plt_obj.get("id", "")
         if not platform_id:
-            logger.error("platform id is mandatory")
+            logger.error("[babylon] platform_id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
         if not platform_url:
@@ -456,7 +455,7 @@ class Environment(metaclass=SingletonMeta):
         url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
         match_content = url_.match(platform_url)
         if not match_content:
-            logger.error("url not match")
+            logger.error("[babylon] url not match")
             sys.exit(1)
         self.state_id = state_id
         self.set_context(context_id=context_id)
@@ -484,7 +483,7 @@ class Environment(metaclass=SingletonMeta):
             try:
                 return yaml.safe_load(file) or {}
             except yaml.YAMLError as e:
-                logger.error(f"File '{file_path}' is not a valid YAML file. Details: {str(e)}")
+                logger.error(f"[babylon] File '{file_path}' is not a valid YAML file. Details: {str(e)}")
                 sys.exit(1)
 
     def merge_yaml_files(self, file_paths: [Path]):
@@ -493,10 +492,10 @@ class Environment(metaclass=SingletonMeta):
 
         for file_path in file_paths:
             if not file_path.endswith('.yaml'):
-                logger.error(f"File '{file_path}' is not a valid YAML file.")
+                logger.error(f"[babylon] File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:
-                logger.error(f"File '{file_path}' is empty.")
+                logger.error(f"[babylon] File '{file_path}' is empty.")
                 sys.exit(1)
 
             data = self.load_yaml_file(file_path)

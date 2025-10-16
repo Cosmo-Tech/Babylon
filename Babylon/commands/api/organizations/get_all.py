@@ -1,11 +1,9 @@
 import jmespath
 import json
-import click
 
 from logging import getLogger
 from typing import Any
-from click import command
-from click import option
+from click import command, option, echo, style
 from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
@@ -28,10 +26,10 @@ def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     """
     Get all organizations details
     """
-    _ret = [""]
-    _ret.append("Get all organizations details")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _org = [""]
+    _org.append("Get all organizations details")
+    _org.append("")
+    echo(style("\n".join(_org), bold=True, fg="green"))
     organization_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
     logger.info("[api] Retrieving all organizations details")
     response = organization_service.get_all()
