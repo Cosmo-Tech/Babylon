@@ -1,8 +1,6 @@
-import click
-
 from logging import getLogger
 from typing import Any
-from click import command, option
+from click import command, option, echo, style
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.runs.services.run_api_svc import RunService
 from Babylon.utils.credentials import pass_keycloak_token
@@ -38,7 +36,7 @@ def delete(
     _run = [""]
     _run.append("Delete the Run")
     _run.append("")
-    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
+    echo(style("\n".join(_run), bold=True, fg="green"))
     service_state = state['services']
     service_state['api']['organization_id'] = organization_id or service_state['api']['organization_id']
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
