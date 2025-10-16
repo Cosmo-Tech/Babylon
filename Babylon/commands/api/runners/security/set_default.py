@@ -1,10 +1,8 @@
 import json
-import click
 
 from logging import getLogger
 from typing import Any
-from click import command
-from click import option
+from click import command, option, echo, style
 from Babylon.commands.api.runners.services.runner_security_svc import (
     RunnerSecurityService, )
 from Babylon.utils.credentials import pass_keycloak_token
@@ -49,7 +47,7 @@ def set_default(
     _run = [""]
     _run.append("Set default RBAC access to the runner")
     _run.append("")
-    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
+    echo(style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
@@ -62,5 +60,5 @@ def set_default(
         return CommandResponse.fail()
     default_security = response.json()
     logger.info(json.dumps(default_security, indent=2))
-    logger.info("[api] default RBAC access successfully setted")
+    logger.info(f"[api] default RBAC access successfully setted with role {[role]}")
     return CommandResponse.success(default_security)

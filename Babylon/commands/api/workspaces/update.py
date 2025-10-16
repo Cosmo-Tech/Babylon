@@ -23,12 +23,6 @@ env = Environment()
 @output_to_file
 @pass_keycloak_token()
 @retrieve_state
-@option(
-    "--organization-id",
-    "organization_id",
-    type=str,
-    help="Organization Id Cosmotech Platform",
-)
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)

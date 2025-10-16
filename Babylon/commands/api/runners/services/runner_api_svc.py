@@ -2,9 +2,7 @@ import sys
 import json
 
 from logging import getLogger
-
 from typing import Optional
-
 from Babylon.commands.api.runners.services.runner_security_svc import RunnerSecurityService
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
@@ -22,7 +20,6 @@ class RunnerService:
         self.workspace_id = state["api"]["workspace_id"]
         self.runner_id = self.state["api"]["runner_id"]
         self.keycloak_token = keycloak_token
-
         if not self.url:
             logger.error("[babylon] api url not found verify the state")
             sys.exit(1)
@@ -42,6 +39,7 @@ class RunnerService:
         return response
 
     def get(self):
+        check_if_runner_exists(self.runner_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}",
@@ -50,6 +48,7 @@ class RunnerService:
         return response
 
     def update(self):
+        check_if_runner_exists(self.runner_id)
         details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
@@ -72,6 +71,7 @@ class RunnerService:
         return response
 
     def delete(self, force_validation: bool):
+        check_if_runner_exists(self.runner_id)
         if not force_validation and not confirm_deletion("runner", self.runner_id):
             return None
 
@@ -84,6 +84,7 @@ class RunnerService:
         return response
 
     def start(self):
+        check_if_runner_exists(self.runner_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/start",
@@ -93,6 +94,7 @@ class RunnerService:
         return response
 
     def stop(self):
+        check_if_runner_exists(self.runner_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
             f"{self.workspace_id}/runners/{self.runner_id}/stop",
@@ -132,3 +134,9 @@ class RunnerService:
                 if response is None:
                     return None
         return security_spec
+
+
+def check_if_runner_exists(runner_id: str):
+    if not runner_id:
+        logger.error("[babylon] runner_id is missing check the state or use --runner-id")
+        sys.exit(1)

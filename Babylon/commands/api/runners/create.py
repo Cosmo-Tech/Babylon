@@ -1,11 +1,9 @@
 import pathlib
-import click
 import json
+
 from logging import getLogger
 from typing import Any
-
-from click import command, option, Path, argument
-
+from click import command, option, Path, argument, echo, style
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
@@ -44,10 +42,10 @@ def create(
     _run = [""]
     _run.append("Register new runner")
     _run.append("")
-    click.echo(click.style("\n".join(_run), bold=True, fg="green"))
+    echo(style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
-    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
+    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     spec = dict()
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
