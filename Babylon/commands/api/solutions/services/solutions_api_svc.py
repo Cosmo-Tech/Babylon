@@ -103,7 +103,7 @@ class SolutionService:
                     return CommandResponse.fail()
         for s in ids_existing:
             if s not in ids_spec:
-                response = self.security_svc.remove(id=s)
+                response = self.security_svc.delete(id=s)
                 if response is None:
                     return CommandResponse.fail()
         return security_spec

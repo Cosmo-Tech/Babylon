@@ -1,10 +1,8 @@
 import json
-import click
 import pathlib
 
 from typing import Any
-from click import argument, option, command
-from click import Path
+from click import argument, option, command, Path, echo, style
 from logging import getLogger
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import retrieve_state, injectcontext
@@ -35,10 +33,10 @@ def add(
     """
     Add runTemplates to solution
     """
-    _ret = [""]
-    _ret.append("Add runtemplates to solution")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _sol = [""]
+    _sol.append("Add runtemplates to solution")
+    _sol.append("")
+    echo(style("\n".join(_sol), bold=True, fg="green"))
     spec = dict()
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
@@ -53,5 +51,5 @@ def add(
     run_template = response.json()
     logger.info(json.dumps(run_template, indent=2))
     sol_id = service_state['api']['solution_id']
-    logger.info(f"[api] Run Templates id:{[run_template.get('id')]} successfully added to the solution {[sol_id]}")
+    logger.info(f"[api] Run Templates id {[run_template.get('id')]} successfully added to the solution {[sol_id]}")
     return CommandResponse.success(run_template)
