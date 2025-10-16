@@ -1,7 +1,5 @@
-import logging
-import click
-
-from click import command, option
+from click import command, option, echo, style
+from logging import getLogger
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file
@@ -10,7 +8,7 @@ from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = logging.getLogger("Babylon")
+logger = getLogger("Babylon")
 env = Environment()
 
 
@@ -31,7 +29,7 @@ def delete(state: dict, keycloak_token: str, email: str, organization_id: str, w
     _data = [""]
     _data.append(" Delete dataset users RBAC access")
     _data.append("")
-    click.echo(click.style("\n".join(_data), bold=True, fg="green"))
+    echo(style("\n".join(_data), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])

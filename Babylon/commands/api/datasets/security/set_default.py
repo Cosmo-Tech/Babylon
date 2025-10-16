@@ -1,8 +1,7 @@
 import json
-import logging
-import click
 
-from click import command, option
+from logging import getLogger
+from click import command, option, echo, style
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
@@ -10,7 +9,7 @@ from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = logging.getLogger("Babylon")
+logger = getLogger("Babylon")
 env = Environment()
 
 
@@ -37,7 +36,7 @@ def set_default(state: dict, keycloak_token: str, role: str, organization_id: st
     _data = [""]
     _data.append(" Set dataset default security RBAC")
     _data.append("")
-    click.echo(click.style("\n".join(_data), bold=True, fg="green"))
+    echo(style("\n".join(_data), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
@@ -50,5 +49,5 @@ def set_default(state: dict, keycloak_token: str, role: str, organization_id: st
         return CommandResponse.fail()
     default_security = response.json()
     logger.info(json.dumps(default_security, indent=2))
-    logger.info("[api] default RBAC access successfully setted")
+    logger.info(f"[api] default RBAC access successfully setted with role {[role]}")
     return CommandResponse.success(default_security)

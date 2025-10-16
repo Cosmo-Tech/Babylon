@@ -3,7 +3,6 @@ import logging
 import sys
 
 from typing import Optional
-
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
@@ -35,6 +34,7 @@ class DatasetService:
             sys.exit(1)
 
     def delete(self, force_validation: bool):
+        check_if_dataset_exists(self.dataset_id)
         if not force_validation and not confirm_deletion("dataset", self.dataset_id):
             return None
         response = oauth_request(

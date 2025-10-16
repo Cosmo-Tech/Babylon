@@ -1,9 +1,8 @@
-import click
 import json
 
 from logging import getLogger
 from typing import Any
-from click import command, option
+from click import command, option, echo, style
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file
@@ -30,7 +29,7 @@ def get_all(state: Any, keycloak_token: str, organization_id: str, workspace_id:
     _data = [""]
     _data.append(" Get dataset users access")
     _data.append("")
-    click.echo(click.style("\n".join(_data), bold=True, fg="green"))
+    echo(style("\n".join(_data), bold=True, fg="green"))
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
