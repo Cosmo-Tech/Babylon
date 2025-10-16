@@ -3,7 +3,6 @@ import sys
 
 from logging import getLogger
 from typing import Optional
-
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService, )
 from Babylon.utils.environment import Environment
@@ -22,12 +21,11 @@ class WorkspaceService:
         self.state = state
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
-        if not self.url:
-            logger.error("API url not found verify the state")
-            sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
-        self.solution_id = self.state["api"]["solution_id"]
         self.workspace_id = self.state["api"]["workspace_id"]
+        if not self.url:
+            logger.error("[babylon] api url not found verify the state")
+            sys.exit(1)
         if not self.organization_id:
             logger.error("[babylon] Organization id is missing verify the state")
             sys.exit(1)
@@ -40,6 +38,7 @@ class WorkspaceService:
         return response
 
     def get(self):
+        check_if_workspace_exists(self.workspace_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}",
             self.keycloak_token,
@@ -57,6 +56,7 @@ class WorkspaceService:
         return response
 
     def update(self):
+        check_if_workspace_exists(self.workspace_id)
         details = self.update_payload_with_state()
         details_json = json.dumps(details, indent=4, default=str)
         response = oauth_request(
@@ -78,9 +78,9 @@ class WorkspaceService:
         return response
 
     def delete(self, force_validation: bool):
+        check_if_workspace_exists(self.workspace_id)
         if not force_validation and not confirm_deletion("workspace", self.workspace_id):
             return None
-
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}",
             self.keycloak_token,
@@ -142,3 +142,9 @@ class WorkspaceService:
                             if (scenarioData is not None and scenario_view_tag == scenarioData.get("reportTag")):
                                 scenarioData["reportId"] = self.state["powerbi"]['scenario_view'][scenario_view_tag]
         return jsonPayload
+
+
+def check_if_workspace_exists(dataset_id: str):
+    if not dataset_id:
+        logger.error("[babylon] workspace_id is missing check the state or use --workspace-id")
+        sys.exit(1)
