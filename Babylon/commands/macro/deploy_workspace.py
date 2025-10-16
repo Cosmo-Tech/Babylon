@@ -1,9 +1,9 @@
 import os
 import sys
 import json
-import click
 import pathlib
 
+from click import echo, style
 from logging import getLogger
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
@@ -30,7 +30,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     _ret = [""]
     _ret.append("Workspace deployment")
     _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    echo(style("\n".join(_ret), bold=True, fg="green"))
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
@@ -47,7 +47,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         state["services"]["api"]["solution_id"] = metadata["selector"].get("solution_id", "")
     else:
         if (not state["services"]["api"]["organization_id"] and not state["services"]["api"]["solution_id"]):
-            logger.error(f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
+            logger.error(f"[babylon] Missing 'organization_id' and 'solution_id'"
+                         f"in metadata -> selector field : {metadata.get('selector')}")
             sys.exit(1)
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")

@@ -1,9 +1,6 @@
-import click
 from logging import getLogger
 from typing import Any
-from click import command
-from click import option
-
+from click import command, option, echo, style
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.utils.decorators import (
     injectcontext,
@@ -22,8 +19,8 @@ env = Environment()
 @retrieve_state
 @pass_keycloak_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@option("--organization-id", type=str)
-@option("--workspace-id", type=str)
+@option("--organization-id", "organization_id", type=str)
+@option("--workspace-id", "workspace_id", type=str)
 def delete(
     state: Any,
     keycloak_token: str,
@@ -34,13 +31,13 @@ def delete(
     """
     Delete a workspace
     """
-    _ret = [""]
-    _ret.append("Delete a workspace")
-    _ret.append("")
-    click.echo(click.style("\n".join(_ret), bold=True, fg="green"))
+    _work = [""]
+    _work.append("Delete a workspace")
+    _work.append("")
+    echo(style("\n".join(_work), bold=True, fg="green"))
     service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
-    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
+    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)
     logger.info("[api] Deleting workspace")
     response = workspace_service.delete(force_validation=force_validation)
@@ -51,4 +48,4 @@ def delete(
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    return CommandResponse.success()
+    return CommandResponse.success(response)
