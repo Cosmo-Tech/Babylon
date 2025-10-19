@@ -17,6 +17,6 @@ def get_contexts() -> CommandResponse:
     col_widths = [max(len(h), len(v)) + 2 for h, v in zip(headers, values)]
     header_line = "".join(h.ljust(w) for h, w in zip(headers, col_widths))
     value_line = "".join(v.ljust(w) for v, w in zip(values, col_widths))
-    logger.info(header_line)
-    logger.info(value_line)
+    print(header_line)
+    print(value_line)
     return CommandResponse.success()

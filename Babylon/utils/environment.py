@@ -1,4 +1,3 @@
-from collections import defaultdict
 import json
 import os
 import re
@@ -8,13 +7,13 @@ import yaml
 import logging
 import requests
 
+from collections import defaultdict
 from pathlib import Path
 from hvac import Client
 from mako.template import Template
 from cryptography.fernet import Fernet
 from flatten_json import flatten
 from Babylon.config import config_files
-from azure.storage.blob import BlobServiceClient
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
@@ -52,7 +51,7 @@ class Environment(metaclass=SingletonMeta):
         self.remote = False
         self.pwd = Path.cwd()
         self.hvac_client = None
-        self.blob_client = None
+        # self.blob_client = None
         self.state_id: str = ""
         self.context_id: str = ""
         self.environ_id: str = ""
@@ -75,7 +74,7 @@ class Environment(metaclass=SingletonMeta):
         variables_file = self.pwd / "variables.yaml"
         vars = dict()
         if variables_file.exists():
-            logger.debug(f"Loading variables from {variables_file}")
+            logger.debug(f"[babylon] Loading variables from {variables_file}")
             vars = yaml.safe_load(variables_file.open()) or dict()
         vars["secret_powerbi"] = ""
         vars["github_secret"] = ""
@@ -98,28 +97,21 @@ class Environment(metaclass=SingletonMeta):
         vars = self.get_variables()
         payload = t.render(**vars)
         payload_dict = yaml.safe_load(payload)
-        context_id = payload_dict.get("context", "")
-        state_id = payload_dict.get("state_id", "")
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
-        if not state_id:
-            logger.error("[babylon] state_id is mandatory")
-            sys.exit(1)
         plt_obj = payload_dict.get("platform", {})
         platform_id = plt_obj.get("id", "")
         if not platform_id:
-            logger.error("[babylon] platform_id is mandatory")
+            logger.error("[babylon] Missing required 'platform_id' please check your 'variable file' ")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
         if not platform_url:
-            logger.error("[babylon] url is mandatory")
+            logger.error("[babylon] Missing required 'platform_url' please check your 'variable file' ")
             sys.exit(1)
-        self.set_state_id(state_id=state_id)
-        self.set_context(context_id=context_id)
         self.set_environ(environ_id=platform_id)
         self.set_server_id()
         self.set_org_name()
-        self.set_blob_client()
+        # self.set_blob_client()
         return platform_url
 
     def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
@@ -198,16 +190,17 @@ class Environment(metaclass=SingletonMeta):
         except Exception as e:
             logger.error(e)
 
-    def set_blob_client(self):
-        try:
-            state = self.get_state_from_vault_by_platform(self.environ_id)
-            storage_name = state["azure"]["storage_account_name"]
-            account_secret = self.get_platform_secret(self.environ_id, resource="storage", name="account")
-            prefix = f"DefaultEndpointsProtocol=https;AccountName={storage_name}"
-            connection_str = (f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net")
-            self.blob_client = BlobServiceClient.from_connection_string(connection_str)
-        except Exception as e:
-            logger.error(e)
+    # This is deactivated for now because we need to decide where the Babylon state should be stored    
+    # def set_blob_client(self):
+    #     try:
+    #         state = self.get_state_from_vault_by_platform(self.environ_id)
+    #         storage_name = state["azure"]["storage_account_name"]
+    #         account_secret = self.get_platform_secret(self.environ_id, resource="storage", name="account")
+    #         prefix = f"DefaultEndpointsProtocol=https;AccountName={storage_name}"
+    #         connection_str = (f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net")
+    #         self.blob_client = BlobServiceClient.from_connection_string(connection_str)
+    #     except Exception as e:
+    #         logger.error(e)
 
     def get_organization_secret(self, organization_name: str, name: str):
         data = self.hvac_client.read(path=f"organization/{organization_name}")
@@ -390,6 +383,9 @@ class Environment(metaclass=SingletonMeta):
         s = ns_dir / "namespace.yaml"
         ns = dict(state_id=self.state_id, context=self.context_id, platform=self.environ_id)
         s.write_bytes(data=yaml.dump(ns).encode("utf-8"))
+        self.set_state_id(state_id=self.state_id)
+        self.set_context(context_id=self.context_id)
+        self.set_environ(environ_id=self.environ_id)
 
     def get_namespace_from_local(self, context: str = "", platform: str = "", state_id: str = ""):
         ns_dir = Path().home() / ".config/cosmotech/babylon"
@@ -408,7 +404,7 @@ class Environment(metaclass=SingletonMeta):
             self.set_state_id(state_id=self.state_id)
             self.set_server_id()
             self.set_org_name()
-            self.set_blob_client()
+            # self.set_blob_client()
             return ns_data
 
     def retrieve_state_func(self, state_id: str = ""):
@@ -462,7 +458,7 @@ class Environment(metaclass=SingletonMeta):
         self.set_environ(environ_id=platform_id)
         self.set_server_id()
         self.set_org_name()
-        self.set_blob_client()
+        # self.set_blob_client()
         return platform_url
 
     def get_metadata(self, vars: dict, content: str, state: dict):
