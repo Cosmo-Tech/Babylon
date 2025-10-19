@@ -146,9 +146,10 @@ def apply(
     _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
     for id in final_datasets:
         _ret.append(f"   * Dataset        : {id}")
-    if services.get("webapp").get("static_domain", ""):
-        _ret.append("   * WebApp         ")
-        _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
+    # TODO: When the Helm chart for the web app is implemented in Babylon ! 
+    # if services.get("webapp").get("static_domain", ""):
+    #     _ret.append("   * WebApp         ")
+    #     _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
     vars = env.get_variables()
     current_working_directory = os.getcwd()
     logfile_path = os.path.join(current_working_directory, "babylon.log")

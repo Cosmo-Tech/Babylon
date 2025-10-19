@@ -6,6 +6,7 @@ from logging import getLogger
 from click import echo, style
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import get_keycloak_token
+from Babylon.utils.response import CommandResponse
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
 logger = getLogger("Babylon")
@@ -20,7 +21,6 @@ def deploy_organization(namespace: str, file_content: str):
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
-    state['services']['azure']['tenant_id'] = env.tenant_id
     content = env.fill_template(data=file_content, state=state)
     keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
@@ -32,12 +32,16 @@ def deploy_organization(namespace: str, file_content: str):
     if not state["services"]["api"]["organization_id"]:
         logger.info("[api] Creating organization")
         response = organization_service.create()
+        if response is None:
+            return CommandResponse.fail()
         organization = response.json()
         logger.info(json.dumps(organization, indent=2))
         logger.info(f"[api] Organization {organization['id']} successfully created")
     else:
         logger.info(f"[api] Updating organization {state['services']['api']['organization_id']}")
         response = organization_service.update()
+        if response is None:
+            return CommandResponse.fail()
         response_json = response.json()
         old_security = response_json.get("security")
         security_spec = organization_service.update_security(old_security=old_security)
@@ -49,10 +53,11 @@ def deploy_organization(namespace: str, file_content: str):
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    run_scripts = sidecars.get("run_scripts")
-    if run_scripts:
-        data = run_scripts.get("post_deploy.sh", "")
-        if data:
-            os.system(data)
-    if not organization.get("id"):
-        sys.exit(1)
+    if sidecars:
+        run_scripts = sidecars.get("run_scripts")
+        if run_scripts:
+            data = run_scripts.get("post_deploy.sh", "")
+            if data:
+                os.system(data)
+        if not organization.get("id"):
+            sys.exit(1)
