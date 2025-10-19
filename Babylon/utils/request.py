@@ -51,8 +51,18 @@ def oauth_request(url: str,
     except Exception as e:
         logger.warning(f"Request failed: {e}")
         return None
-    if response.status_code >= 300:
-        logger.warning(f"Failed: ({response.status_code}): {response.text}")
+    if response.status_code == 401:
+        logger.error("[api] Unauthorized (401): token missing or expired. Refresh token or check client credentials.")
         return None
-    logger.debug(f"Request success ({response.status_code}): {response.text}")
+    if response.status_code == 403:
+        logger.error(
+            "[api] Forbidden (403): token valid but lacks required roles/scopes. Check Keycloak client permissions.")
+        return None
+    if not response.ok:
+        logger.warning(f"[api] Request failed ({response.status_code}): {response.text}")
+        return None
+    if response.status_code >= 300:
+        logger.warning(f"[api] Failed: ({response.status_code}): {response.text}")
+        return None
+    logger.debug(f"[api] Request success ({response.status_code}): {response.text}")
     return response

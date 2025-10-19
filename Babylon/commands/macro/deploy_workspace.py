@@ -5,6 +5,7 @@ import pathlib
 
 from click import echo, style
 from logging import getLogger
+from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import (
@@ -59,8 +60,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     if not state["services"]["api"]["workspace_id"]:
         logger.info("[api] Creating workspace")
         response = workspace_svc.create()
-        if not response:
-            sys.exit(1)
+        if response is None:
+            return CommandResponse.fail()
         workspace = response.json()
         logger.info(json.dumps(workspace, indent=2))
         logger.info(f"[api] Workspace {[workspace.get('id')]} successfully created")
@@ -68,6 +69,8 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     else:
         logger.info(f"[api] Updating workspace {[state['services']['api']['workspace_id']]}")
         response = workspace_svc.update()
+        if response is None:
+            return CommandResponse.fail()
         response_json = response.json()
         old_security = response_json.get("security")
         security_spec = workspace_svc.update_security(old_security=old_security)
