@@ -35,7 +35,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     platform_url = env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func(state_id=env.state_id)
     state["services"]["api"]["url"] = platform_url
-    state["services"]["azure"]["tenant_id"] = env.tenant_id
     vars = env.get_variables()
     metadata = env.get_metadata(vars=vars, content=file_content, state=state)
     workspace_key = metadata.get(
