@@ -2634,6 +2634,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    <span class="md-ellipsis">
+      init
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#namespace" class="md-nav__link">
     <span class="md-ellipsis">
       namespace
@@ -5118,6 +5127,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    <span class="md-ellipsis">
+      init
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#namespace" class="md-nav__link">
     <span class="md-ellipsis">
       namespace
@@ -5637,6 +5655,7 @@
 <li><em>destroy</em>: Macro Destroy</li>
 <li><em>github</em>: Group allowing communication with Github REST API</li>
 <li><em>hvac</em>: Group handling Vault Hashicorp</li>
+<li><em>init</em>: </li>
 <li><em>namespace</em>: Babylon namespace</li>
 <li><em>powerbi</em>: Group handling communication with PowerBI API</li>
 <li><em>webapp</em>: Group handling Cosmo Sample WebApp configuration</li>
@@ -10559,6 +10578,12 @@
 <td><code>False</code></td>
 </tr>
 <tr>
+<td><code>--runner</code></td>
+<td>boolean</td>
+<td>Deploy or update a runner.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
 <td><code>--payload-only</code></td>
 <td>boolean</td>
 <td>Specify if you want to specify payload only</td>
@@ -14933,6 +14958,42 @@ https://learn.microsoft.com/en-us/rest/api/appservice/static-sites/create-or-upd
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="init">init<a class="headerlink" href="#init" title="Permanent link">&para;</a></h3>
+<p>Create a Babylon project structure using YAML templates.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon init [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--project-folder</code></td>
+<td>text</td>
+<td>Name of the project folder to create (default: 'project').</td>
+<td><code>project</code></td>
+</tr>
+<tr>
+<td><code>--variables-file</code></td>
+<td>text</td>
+<td>Name of the variables file (default: 'variables.yaml').</td>
+<td><code>variables.yaml</code></td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
