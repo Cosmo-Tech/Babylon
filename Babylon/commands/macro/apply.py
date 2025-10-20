@@ -12,6 +12,7 @@ from Babylon.commands.macro.deploy_dataset import deploy_dataset
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.commands.macro.deploy_organization import deploy_organization
+from Babylon.commands.macro.deploy_runner import deploy_runner
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -33,6 +34,7 @@ env = Environment()
 @option("--workspace", is_flag=True, help="Deploy or update a workspace.")
 @option("--webapp", is_flag=True, help="Deploy or update a webapp.")
 @option("--dataset", is_flag=True, help="Deploy or update a dataset.")
+@option("--runner", is_flag=True, help="Deploy or update a runner.")
 @option("--payload-only", is_flag=True, help="Specify if you want to specify payload only")
 def apply(
     deploy_dir: pathlib.Path,
@@ -41,6 +43,7 @@ def apply(
     workspace: bool,
     webapp: bool,
     dataset: bool,
+    runner: bool,
     payload_only: bool,
     variables_files: Iterable[pathlib.Path],
 ):  # type: ignore
@@ -65,9 +68,10 @@ def apply(
     workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
     webapps = list(filter(lambda x: x.get("kind") == "WebApp", resources))
     datasets = list(filter(lambda x: x.get("kind") == "Dataset", resources))
+    runners = list(filter(lambda x: x.get("kind") == "Runner", resources))
     _ret = [""]
     final_datasets = []
-    if not (organization or solution or workspace or webapp or dataset):
+    if not (organization or solution or workspace or webapp or dataset or runner):
         for o in organizations:
             content = o.get("content")
             namespace = o.get("namespace")
@@ -121,6 +125,12 @@ def apply(
                                  file_content=content,
                                  deploy_dir=deploy_dir,
                                  payload_only=payload_only)
+        elif runner:
+            for r in runners:
+                content = r.get("content")
+                namespace = r.get("namespace")
+                deploy_runner(namespace=namespace, file_content=content)
+
         elif webapp:
             for swa in webapps:
                 content = swa.get("content")
@@ -144,9 +154,11 @@ def apply(
     _ret.append(f"   * Organization   : {services.get('api').get('organization_id', '')}")
     _ret.append(f"   * Solution       : {services.get('api').get('solution_id', '')}")
     _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
+    if runner:
+        _ret.append(f"   * Runner         : {services.get('api').get('runner_id', '')}")
     for id in final_datasets:
         _ret.append(f"   * Dataset        : {id}")
-    # TODO: When the Helm chart for the web app is implemented in Babylon ! 
+    # TODO: When the Helm chart for the web app is implemented in Babylon !
     # if services.get("webapp").get("static_domain", ""):
     #     _ret.append("   * WebApp         ")
     #     _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")

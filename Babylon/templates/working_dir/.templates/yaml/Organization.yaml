@@ -1,0 +1,9 @@
+kind: Organization
+namespace:
+  platform: {{platform}}
+  remote: false
+spec:
+  sidecars: 
+  payload:
+    name: "{{organization_name}}"
+    security: {{security}}

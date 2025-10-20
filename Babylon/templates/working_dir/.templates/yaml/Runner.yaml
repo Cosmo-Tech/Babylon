@@ -1,0 +1,14 @@
+kind: Runner
+namespace:
+  platform: {{platform}}
+  remote: false
+spec:
+  sidecars:
+  payload:
+    name: "{{runner_name}}"
+    runTemplateId: "{{run_template_id}}"
+    solutionId: "{{services['api.solution_id']}}"
+    solutionName: "{{solution_name}}"
+    runTemplateName: "{{runTemplate_name}}"
+    ownerName: "{{owner_name}}"
+    security: {{security}}

@@ -1,0 +1,8 @@
+kind: Dataset
+namespace:
+  platform: {{platform}}
+  remote: false
+spec:
+  sidecars:
+  payload:
+    # TODO: waiting for the implementation of the dataset

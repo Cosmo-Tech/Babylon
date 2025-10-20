@@ -1,0 +1,26 @@
+kind: Solution
+namespace:
+  platform: {{platform}}
+  remote: false
+metadata:
+  workspace_key: "{{workspace_key}}"
+  selector:
+    organization_id: "{{services['api.organization_id']}}"
+spec:
+  sidecars:
+  payload:
+    key: "{{solution_key}}"
+    name: "{{solution_name}}"
+    description: "{{solution_description}}"
+    repository: cosmotech/brewerysamplesolution_simulator
+    version: latest
+    tags:
+    - brewery
+    runTemplates:
+    - id: "run_id"
+      name: "{{runTemplate_name}}"
+      csmSimulation: AzureWebApp/AzureWebApp_Simulation
+      run: true
+      preRun: true
+    parameterGroups:
+    security: {{security}}
