@@ -42,6 +42,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     solution_svc = SolutionService(keycloak_token=keycloak_token, spec=spec, state=state["services"])
+    sidecars = content.get("spec").get("sidecars", {})
     if not state["services"]["api"]["solution_id"]:
         logger.info("[api] Creating solution")
         response = solution_svc.create()
@@ -67,11 +68,11 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
     if env.remote:
         env.store_state_in_cloud(state)
     # update run_templates
-    sidecars = content.get("spec").get("sidecars", {})
-    run_scripts = sidecars.get("run_scripts")
-    if run_scripts:
-        data = run_scripts.get("post_deploy.sh", "")
-        if data:
-            os.system(data)
-    if not solution.get("id"):
-        sys.exit(1)
+    if sidecars:
+        run_scripts = sidecars.get("run_scripts")
+        if run_scripts:
+            data = run_scripts.get("post_deploy.sh", "")
+            if data:
+                os.system(data)
+        if not solution.get("id"):
+            sys.exit(1)

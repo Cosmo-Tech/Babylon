@@ -190,7 +190,7 @@ class Environment(metaclass=SingletonMeta):
         except Exception as e:
             logger.error(e)
 
-    # This is deactivated for now because we need to decide where the Babylon state should be stored    
+    # This is deactivated for now because we need to decide where the Babylon state should be stored
     # def set_blob_client(self):
     #     try:
     #         state = self.get_state_from_vault_by_platform(self.environ_id)

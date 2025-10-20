@@ -1,0 +1,24 @@
+kind: Workspace
+namespace:
+  platform: {{platform}}
+  remote: false
+spec:
+  sidecars:
+  payload:
+    key: "{{workspace_key}}"
+    name: "{{workspace_name}}"
+    description: "{{workspace_description}}"
+    solution:
+      solutionId: "{{services['api.solution_id']}}"
+    useDedicatedEventHubNamespace: true
+    sendScenarioMetadataToEventHub: true
+    sendInputToDataWarehouse: true
+    sendScenarioRunToEventHub: true
+    webApp:
+        url: ""
+        options:
+            charts:
+            dataSource:
+            datacontent:
+            menu:
+    security: {{security}}

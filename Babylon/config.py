@@ -4,9 +4,7 @@ from glob import glob
 from pathlib import Path
 from dynaconf import Dynaconf
 
-config_files = [
-    'acr', 'api', 'keycloak', 'babylon', 'powerbi'
-]
+config_files = ['acr', 'api', 'keycloak', 'babylon', 'powerbi']
 
 pwd = Path(os.getcwd())
 

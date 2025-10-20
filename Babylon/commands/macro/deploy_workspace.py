@@ -249,12 +249,11 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
             specUpdated = dict()
             specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
             workspace_svc.update_with_payload(specUpdated)
-        run_scripts = sidecars.get("run_scripts")
-        if run_scripts:
-            data = run_scripts.get("post_deploy.sh", "")
-            if data:
-                print(data)
-                os.system(data)
-        if not workspace.get("id"):
-            logger.error("workspace id not found")
-            sys.exit(1)
+        if sidecars:
+            run_scripts = sidecars.get("run_scripts")
+            if run_scripts:
+                data = run_scripts.get("post_deploy.sh", "")
+                if data:
+                    os.system(data)
+            if not workspace.get("id"):
+                sys.exit(1)
