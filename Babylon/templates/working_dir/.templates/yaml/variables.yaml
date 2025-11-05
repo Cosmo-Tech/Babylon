@@ -25,7 +25,7 @@ workspace_name: Babylon v5 workspace
 workspace_key: brewerytestingwork
 workspace_description: Testing workspace for the brewery web application
 # Runner 
-run_template_id: run_id
+run_template_id: minimal
 runner_name: Babylon v5 Runner
 runTemplate_name: Standard simulation
 owner_name: toto
