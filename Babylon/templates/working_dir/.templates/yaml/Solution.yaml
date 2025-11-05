@@ -17,7 +17,7 @@ spec:
     tags:
     - brewery
     runTemplates:
-    - id: "run_id"
+    - id: "{{run_template_id}}"
       name: "{{runTemplate_name}}"
       csmSimulation: AzureWebApp/AzureWebApp_Simulation
       run: true
