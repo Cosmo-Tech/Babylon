@@ -45,6 +45,18 @@ class DatasetService:
         )
         return response
 
+    def delete_part(self, dataset_part_id: str, force_validation: bool):
+        if not force_validation and not confirm_deletion("dataset part", dataset_part_id):
+            return None
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/"
+            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}/"
+            f"parts/{dataset_part_id}",
+            self.keycloak_token,
+            type="DELETE",
+        )
+        return response
+
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets",
