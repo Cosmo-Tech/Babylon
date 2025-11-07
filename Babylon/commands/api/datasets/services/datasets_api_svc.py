@@ -63,6 +63,20 @@ class DatasetService:
         )
         return response
 
+    def create(self, filename_array: list[str]):
+        url = f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets"
+        data = {"datasetCreateRequest": self.spec["payload"]}
+        files = [("files", (filename, open(filename, "rb"), "text/csv")) for filename in filename_array]
+        response = oauth_request(
+            url=url,
+            access_token=self.keycloak_token,
+            type="POST",
+            content_type="multipart/form-data",
+            files=files,
+            data=data,
+        )
+        return response
+
     def search(self, tag: str):
         details = {"datasetTags": [tag]}
         response = oauth_request(
