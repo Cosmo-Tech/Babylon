@@ -57,6 +57,17 @@ class DatasetService:
         )
         return response
 
+    def download_part(self, dataset_part_id: str):
+        check_if_dataset_exists(self.dataset_id)
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/"
+            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}/"
+            f"parts/{dataset_part_id}/download",
+            self.keycloak_token,
+            type="GET",
+        )
+        return response
+
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets",

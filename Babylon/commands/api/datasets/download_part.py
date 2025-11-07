@@ -2,10 +2,12 @@ from logging import getLogger
 from typing import Any
 from click import command, option, echo, style
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.environment import Environment
+from Babylon.utils.decorators import retrieve_state
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.response import CommandResponse
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.environment import Environment
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -13,23 +15,18 @@ env = Environment()
 
 @command()
 @injectcontext()
+@output_to_file
 @pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
-@option("--dataset-id", "dataset_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@option("--dataset-part-id", "dataset_part_id", type=str)
-@option("-D", "force_validation", is_flag=True, help="Force Delete")
+@option("--dataset-id", "dataset_id", type=str)
+@option('--dataset-part-id', 'dataset_part_id', type=str)
 @retrieve_state
-def delete_part(state: Any,
-                keycloak_token: str,
-                organization_id: str,
-                workspace_id: str,
-                dataset_id: str,
-                dataset_part_id: str,
-                force_validation: bool = False) -> CommandResponse:
-    """Delete a dataset part"""
+def download_part(state: Any, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str,
+                  dataset_part_id: str) -> CommandResponse:
+    """Download a dataset part"""
     _data = [""]
-    _data.append("Delete a dataset part")
+    _data.append("Get dataset details")
     _data.append("")
     echo(style("\n".join(_data), bold=True, fg="green"))
     service_state = state["services"]
@@ -37,9 +34,12 @@ def delete_part(state: Any,
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Deleting dataset part {dataset_part_id} from dataset {[service_state['api']['dataset_id']]}")
-    response = service.delete_part(dataset_part_id, force_validation=force_validation)
+    logger.info(f"[api] Downloading dataset part {dataset_part_id} from dataset {[service_state['api']['dataset_id']]}")
+    response = service.download_part(dataset_part_id=dataset_part_id)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"[api] Dataset part {dataset_part_id} successfully deleted")
-    return CommandResponse.success(response)
+    dataset = response.content
+    with (open(f"dataset_part_{dataset_part_id}", "wb")) as f:
+        f.write(dataset)
+    logger.info(f"[api] Dataset part {dataset_part_id} successfully saved to file dataset_part_{dataset_part_id}")
+    return CommandResponse.success(dataset)
