@@ -4,6 +4,7 @@ from .delete import delete
 from .get import get
 from .get_all import get_all
 from .create import create
+from .create_part import create_part
 from .search import search
 from .security import security
 
@@ -14,7 +15,7 @@ def datasets():
     pass
 
 
-list_commands = [delete, get, search, get_all, create]
+list_commands = [delete, get, search, get_all, create, create_part]
 
 for _command in list_commands:
     datasets.add_command(_command)
