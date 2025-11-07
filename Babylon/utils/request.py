@@ -34,7 +34,10 @@ def oauth_request(url: str,
     :param type: request type [POST, PATCH, PUT, GET]
     :type type: str
     """
-    headers = {'Authorization': f'Bearer {access_token}', "Content-Type": content_type, **kwargs.pop("headers", {})}
+    if content_type == "multipart/form-data":
+        headers = {'Authorization': f'Bearer {access_token}'}
+    else:
+        headers = {'Authorization': f'Bearer {access_token}', "Content-Type": content_type, **kwargs.pop("headers", {})}
     request_funcs = {
         "POST": requests.post,
         "PATCH": requests.patch,
