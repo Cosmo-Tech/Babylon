@@ -86,6 +86,16 @@ class DatasetService:
         )
         return response
 
+    def get_part(self):
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/"
+            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}/"
+            f"parts/{self.state['api']['dataset_part_id']}",
+            self.keycloak_token,
+            type="GET",
+        )
+        return response
+
     def create(self, filename_array: list[str]):
         url = f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets"
         data = {"datasetCreateRequest": self.spec["payload"]}
