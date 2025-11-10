@@ -144,6 +144,16 @@ class DatasetService:
         )
         return response
 
+    def search_parts(self, tag: tuple[str, ...]):
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/"
+            f"{self.dataset_id}/parts/search",
+            self.keycloak_token,
+            type="POST",
+            json=tag,
+        )
+        return response
+
     def update_security(self, old_security: dict):
         security_svc = DatasetSecurityService(keycloak_token=self.keycloak_token, state=self.state)
         payload = json.loads(self.spec["payload"])
