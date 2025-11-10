@@ -135,13 +135,12 @@ class DatasetService:
         )
         return response
 
-    def search(self, tag: str):
-        details = {"datasetTags": [tag]}
+    def search(self, tag: tuple[str, ...]):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/search",
             self.keycloak_token,
             type="POST",
-            json=details,
+            json=tag,
         )
         return response
 

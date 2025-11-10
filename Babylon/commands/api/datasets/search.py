@@ -19,10 +19,11 @@ env = Environment()
 @pass_keycloak_token()
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
-@argument("tag", type=str)
+@argument("tag", type=str, nargs=-1)
 @output_to_file
 @retrieve_state
-def search(state: Any, keycloak_token: str, organization_id: str, workspace_id: str, tag: str) -> CommandResponse:
+def search(state: Any, keycloak_token: str, organization_id: str, workspace_id: str,
+           tag: tuple[str, ...]) -> CommandResponse:
     """Get dataset with the given tag from the organization"""
     _data = [""]
     _data.append("Get dataset with the given tag")
