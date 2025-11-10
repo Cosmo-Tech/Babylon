@@ -43,7 +43,6 @@ def create_part(state: Any, keycloak_token: str, organization_id: str, workspace
     if response is None:
         return CommandResponse.fail()
     dataset_part = response.json()
-    dataset_part.get("id")
     logger.info(dumps(dataset_part, indent=2))
     logger.info(f"[api] Dataset part {[dataset_part.get('id')]} successfully created")
     return CommandResponse.success(dataset_part)

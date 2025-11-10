@@ -42,7 +42,7 @@ def get_all_parts(state: Any,
     service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
     logger.info(f"[api] Getting all dataset parts from dataset {[service_state['api']['dataset_id']]}")
-    response = service.get_all()
+    response = service.get_all_parts()
     if response is None:
         return CommandResponse.fail()
     datasets = response.json()

@@ -38,7 +38,7 @@ def get_part(state: Any, keycloak_token: str, organization_id: str, workspace_id
     service_state["api"]["dataset_part_id"] = (dataset_part_id or service_state["api"]["dataset_part_id"])
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
     logger.info(f"[api] Retrieving dataset part {dataset_part_id} of dataset {[service_state['api']['dataset_id']]}")
-    response = service.get()
+    response = service.get_part()
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()
