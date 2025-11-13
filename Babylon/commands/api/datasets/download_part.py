@@ -20,7 +20,7 @@ env = Environment()
 @option("--organization-id", "organization_id", type=str)
 @option("--workspace-id", "workspace_id", type=str)
 @option("--dataset-id", "dataset_id", type=str)
-@option('--dataset-part-id', 'dataset_part_id', type=str)
+@option('--dataset-part-id', 'dataset_part_id', type=str, required=True)
 @retrieve_state
 def download_part(state: Any, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str,
                   dataset_part_id: str) -> CommandResponse:
