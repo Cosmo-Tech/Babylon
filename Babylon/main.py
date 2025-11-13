@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 import sys
-import click
 import logging
 import click_log
 import os
-
+from click import Path as clickPath
+from pathlib import Path as pathlibPath
 from click import echo
 from click import group
 from click import option
@@ -28,6 +28,20 @@ def print_version(ctx, param, value):
     echo(VERSION)
     ctx.exit()
 
+def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
+    import click
+    log_path.mkdir(parents=True, exist_ok=True)
+    log_file_handler = logging.FileHandler(log_path / "babylon.log")
+    error_file_handler = logging.FileHandler(log_path / "babylon.error")
+    error_file_handler.setLevel(logging.WARNING)
+    logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s",
+                        handlers=[
+                        log_file_handler, error_file_handler,
+                        RichHandler(show_time=False,
+                        rich_tracebacks=True,
+                        tracebacks_suppress=[click],
+                        omit_repeated_times=False)
+                                ])
 
 @group(name='babylon', invoke_without_command=False)
 @click_log.simple_verbosity_option(logger)
@@ -51,13 +65,18 @@ def print_version(ctx, param, value):
         expose_value=False,
         is_eager=True,
         help="Print version number and return.")
+@option('--log-path',
+        "log_path",
+        type=clickPath(file_okay=False, dir_okay=True, writable=True, path_type=pathlibPath),
+        default=pathlibPath.cwd(),
+        help='Path to the directory where log files will be stored. If not set, defaults to current working directory.')
 @option(INTERACTIVE_ARG_VALUE,
         "interactive",
         is_flag=True,
         hidden=True,
         help="Start an interactive session after command run.")
 @prepend_doc_with_ascii
-def main(tests_mode, interactive):
+def main(tests_mode, interactive, log_path):
     """CLI used for cloud interactions between CosmoTech and multiple cloud environment
 
 The following environment variables are required:
@@ -69,33 +88,8 @@ The following environment variables are required:
     """
     if not tests_mode:
         sys.tracebacklimit = 0
-        vars = env.get_variables_for_logs()
-        path_logs = vars.get('path_logs')
-        if vars.get('path_logs'):
-            os.makedirs(path_logs, exist_ok=True)
-            logfileHandler = logging.FileHandler(f"{path_logs}/babylon.log")
-            errorFileHandler = logging.FileHandler(f"{path_logs}/babylon.error")
-            errorFileHandler.setLevel(logging.WARNING)
-            logging.basicConfig(format="%(asctime)s | %(message)10s",
-                                handlers=[
-                                    logfileHandler, errorFileHandler,
-                                    RichHandler(show_time=False,
-                                                rich_tracebacks=True,
-                                                tracebacks_suppress=click,
-                                                omit_repeated_times=False)
-                                ])
-        else:
-            logfileHandler = logging.FileHandler("./babylon.log")
-            errorFileHandler = logging.FileHandler("./babylon.error")
-            errorFileHandler.setLevel(logging.WARNING)
-            logging.basicConfig(format="%(asctime)s | %(message)10s",
-                                handlers=[
-                                    logfileHandler, errorFileHandler,
-                                    RichHandler(show_time=False,
-                                                rich_tracebacks=True,
-                                                tracebacks_suppress=click,
-                                                omit_repeated_times=False)
-                                ])
+        setup_logging(pathlibPath(log_path))
+
 
 
 main.result_callback()(interactive_run)
