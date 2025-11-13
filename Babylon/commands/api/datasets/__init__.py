@@ -3,6 +3,14 @@ from click import group
 from .delete import delete
 from .get import get
 from .get_all import get_all
+from .create import create
+from .create_part import create_part
+from .delete_part import delete_part
+from .download_part import download_part
+from .search_parts import search_parts
+from .get_part import get_part
+from .get_all_parts import get_all_parts
+
 from .search import search
 from .security import security
 
@@ -13,7 +21,9 @@ def datasets():
     pass
 
 
-list_commands = [delete, get, search, get_all]
+list_commands = [
+    delete, get, search, get_all, create, create_part, delete_part, download_part, get_part, get_all_parts, search_parts
+]
 
 for _command in list_commands:
     datasets.add_command(_command)
