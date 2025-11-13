@@ -1,21 +1,22 @@
 from pathlib import Path as pathlibPath
-from json import loads, dumps
+from json import loads
 from logging import getLogger
 from typing import Any
 from click import argument, command, option, echo, style
 from click import Path as clickPath
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import retrieve_state, injectcontext
+from Babylon.utils.decorators import retrieve_state, injectcontext, output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
 @command()
 @injectcontext()
+@output_to_file
 @pass_keycloak_token()
 @argument("payload_file", type=clickPath(path_type=pathlibPath, exists=True))
 @option("--organization-id", "organization_id", type=str)
@@ -45,6 +46,5 @@ def create(state: Any, keycloak_token: str, organization_id: str, workspace_id: 
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(dumps(dataset, indent=2))
-    logger.info(f"[api] Dataset {[dataset.get('id')]} successfully created")
+    logger.info(f"Dataset {[dataset.get('id')]} successfully created")
     return CommandResponse.success(dataset)

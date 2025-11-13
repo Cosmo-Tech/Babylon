@@ -1,5 +1,4 @@
 import jmespath
-import json
 
 from logging import getLogger
 from typing import Any
@@ -12,7 +11,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -31,7 +30,6 @@ def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     _org.append("")
     echo(style("\n".join(_org), bold=True, fg="green"))
     organization_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
-    logger.info("[api] Retrieving all organizations details")
     response = organization_service.get_all()
     if response is None:
         return CommandResponse.fail()
@@ -41,5 +39,6 @@ def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(json.dumps(organizations, indent=2))
+    ids = [o["id"] for o in organizations]
+    logger.info(f"Retrieved {ids} organizations details")
     return CommandResponse.success(organizations)

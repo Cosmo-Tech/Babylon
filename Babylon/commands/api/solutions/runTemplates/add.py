@@ -11,7 +11,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.solutions.services.solutions_runtemplates_svc import SolutionRunTemplatesService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -44,12 +44,12 @@ def add(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=service_state, spec=spec)
-    logger.info(f"[api] Adding runtemplates to the solution {[service_state['api']['solution_id']]}")
+    logger.info(f"Adding runtemplates to the solution {[service_state['api']['solution_id']]}")
     response = solution_service.add()
     if response is None:
         return CommandResponse.fail()
     run_template = response.json()
     logger.info(json.dumps(run_template, indent=2))
     sol_id = service_state['api']['solution_id']
-    logger.info(f"[api] Run Templates id {[run_template.get('id')]} successfully added to the solution {[sol_id]}")
+    logger.info(f"Run Templates id {[run_template.get('id')]} successfully added to the solution {[sol_id]}")
     return CommandResponse.success(run_template)

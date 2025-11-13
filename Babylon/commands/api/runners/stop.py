@@ -11,7 +11,7 @@ from Babylon.utils.decorators import (
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -41,11 +41,11 @@ def stop(
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
-    logger.info(f"[api] Stopping a runner {[service_state['api']['runner_id']]}")
+    logger.info(f"Stopping a runner {[service_state['api']['runner_id']]}")
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
     response = runner_service.stop()
     if response is None:
         return CommandResponse.fail()
     runner_run = response.json()
-    logger.info(f"[api] Runner {runner_run['id']} successfully stoped")
+    logger.info(f"Runner {runner_run['id']} successfully stopped")
     return CommandResponse.success(runner_run)

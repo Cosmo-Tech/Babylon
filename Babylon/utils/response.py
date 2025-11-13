@@ -11,7 +11,7 @@ from rich.pretty import pprint
 from click import get_current_context
 from .environment import Environment
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 
 
 class CommandResponse():
@@ -57,6 +57,7 @@ class CommandResponse():
         shutil.copy(tmpf.name, output_file)
         tmpf.flush()
         tmpf.close()
+        logger.info(f"The YAML response was dumped in file: {output_file}")
 
     def dump_json(self, output_file: pathlib.Path):
         """Dump command response data in a json file"""

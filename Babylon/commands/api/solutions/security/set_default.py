@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -47,11 +47,11 @@ def set_default(
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Setting default RBAC access to the solution {[service_state['api']['solution_id']]}")
+    logger.info(f"Setting default RBAC access to the solution {[service_state['api']['solution_id']]}")
     response = solution_service.set_default(details)
     if response is None:
         return CommandResponse.fail()
     default_security = response.json()
     logger.info(json.dumps(default_security, indent=2))
-    logger.info(f"[api] default RBAC access successfully setted with role {[role]}")
+    logger.info(f"default RBAC access successfully set with role {[role]}")
     return CommandResponse.success(response)

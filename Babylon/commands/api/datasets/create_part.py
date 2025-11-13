@@ -1,5 +1,5 @@
 from pathlib import Path as pathlibPath
-from json import loads, dumps
+from json import loads
 from logging import getLogger
 from typing import Any
 from click import argument, command, option, echo, style
@@ -10,7 +10,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -43,6 +43,5 @@ def create_part(state: Any, keycloak_token: str, organization_id: str, workspace
     if response is None:
         return CommandResponse.fail()
     dataset_part = response.json()
-    logger.info(dumps(dataset_part, indent=2))
-    logger.info(f"[api] Dataset part {[dataset_part.get('id')]} successfully created")
+    logger.info(f"Dataset part {[dataset_part.get('id')]} successfully created")
     return CommandResponse.success(dataset_part)

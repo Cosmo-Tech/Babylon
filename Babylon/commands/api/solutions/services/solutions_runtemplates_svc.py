@@ -5,7 +5,7 @@ from logging import getLogger
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -17,15 +17,15 @@ class SolutionRunTemplatesService:
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
-            logger.error("[babylon] api url not found verify the state")
+            logger.error("api url not found verify the state")
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing verify the state")
+            logger.error("Organization id is missing verify the state")
             sys.exit(1)
         self.solution_id = self.state["api"]["solution_id"]
         if not self.solution_id:
-            logger.error("[babylon] Solution id is missing verify the state")
+            logger.error("Solution id is missing verify the state")
             sys.exit(1)
 
     def add(self):

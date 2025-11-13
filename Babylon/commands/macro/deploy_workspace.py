@@ -23,7 +23,7 @@ from Babylon.utils.credentials import (
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
     AzurePowerBIWorkspaceUserService, )
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -47,7 +47,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         state["services"]["api"]["solution_id"] = metadata["selector"].get("solution_id", "")
     else:
         if (not state["services"]["api"]["organization_id"] and not state["services"]["api"]["solution_id"]):
-            logger.error(f"[babylon] Missing 'organization_id' and 'solution_id'"
+            logger.error(f"Missing 'organization_id' and 'solution_id'"
                          f"in metadata -> selector field : {metadata.get('selector')}")
             sys.exit(1)
     content = env.fill_template(data=file_content, state=state)
@@ -57,16 +57,15 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     keycloak_token = get_keycloak_token()
     workspace_svc = WorkspaceService(keycloak_token=keycloak_token, spec=spec, state=state.get("services"))
     if not state["services"]["api"]["workspace_id"]:
-        logger.info("[api] Creating workspace")
+        logger.info("Creating workspace")
         response = workspace_svc.create()
         if response is None:
             return CommandResponse.fail()
         workspace = response.json()
-        logger.info(json.dumps(workspace, indent=2))
-        logger.info(f"[api] Workspace {[workspace.get('id')]} successfully created")
+        logger.info(f"Workspace {[workspace.get('id')]} successfully created")
         state["services"]["api"]["workspace_id"] = workspace.get("id")
     else:
-        logger.info(f"[api] Updating workspace {[state['services']['api']['workspace_id']]}")
+        logger.info(f"Updating workspace {[state['services']['api']['workspace_id']]}")
         response = workspace_svc.update()
         if response is None:
             return CommandResponse.fail()
@@ -75,8 +74,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         security_spec = workspace_svc.update_security(old_security=old_security)
         response_json["security"] = security_spec
         workspace = response_json
-        logger.info(json.dumps(workspace, indent=2))
-        logger.info(f"[api] Workspace {[workspace['id']]} successfully updated")
+        logger.info(f"Workspace {[workspace['id']]} successfully updated")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
@@ -99,12 +97,12 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                 powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=state.get("services"))
                 name = workspace_powerbi.get("name", "")
                 if not name:
-                    logger.error("[powerbi] PowerBI workspace name is mandatory")
+                    logger.error("PowerBI workspace name is mandatory")
                     sys.exit(1)
                 workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
                 if (workspaceli_list_name is None) or (workspaceli_list_name is not None
                                                        and name not in workspaceli_list_name):
-                    logger.info(f"[powerbi] creating PowerBI Workspace {name}")
+                    logger.info(f"creating PowerBI Workspace {name}")
                     w = powerbi_svc.create(name=name)
                     state["services"]["powerbi"]["workspace.id"] = w.get("id")
                     state["services"]["powerbi"]["workspace.name"] = w.get("name")
@@ -112,7 +110,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                     if env.remote:
                         env.store_state_in_cloud(state)
                 else:
-                    logger.info(f"[powerbi] PowerBI Workspace '{name}' already exists")
+                    logger.info(f"PowerBI Workspace '{name}' already exists")
                 work_obj = powerbi_svc.get_by_name_or_id(name=name)
                 if work_obj:
                     state["services"]["powerbi"]["workspace.id"] = work_obj.get("id")
@@ -128,7 +126,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                     ids = [i.get("identifier") for i in spec_permissions]
                     for g in spec_permissions:
                         if g.get("identifier") in existing_permissions:
-                            logger.info(f"[powerbi] updating permissions for {g.get('identifier')}")
+                            logger.info(f"updating permissions for {g.get('identifier')}")
                             user_svc.update(
                                 workspace_id=work_obj.get("id"),
                                 right=g.get("rights"),
@@ -136,7 +134,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                 type=g.get("type"),
                             )
                         if g.get("identifier") not in existing_permissions:
-                            logger.info(f"[powerbi] creating permissions for {g.get('identifier')}")
+                            logger.info(f"creating permissions for {g.get('identifier')}")
                             user_svc.add(
                                 workspace_id=work_obj.get("id"),
                                 right=g.get("rights"),
@@ -146,7 +144,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                     for s in existing_permissions:
                         if s not in ids:
                             if s != state["services"]["babylon"]["principal_id"]:
-                                logger.info(f"[powerbi] deleting permissions for {g.get('identifier')}")
+                                logger.info(f"deleting permissions for {g.get('identifier')}")
                                 user_svc.delete(
                                     workspace_id=work_obj.get("id"),
                                     email=s,
@@ -164,7 +162,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                         params = r.get("parameters", [])
                         path_report = pathlib.Path(deploy_dir) / f"{path}"
                         if not path_report.exists():
-                            logger.warning(f"[powerbi] report '{path_report}' not found")
+                            logger.warning(f"report '{path_report}' not found")
                         if path_report.exists():
                             parameters_svc = AzurePowerBIParamsService(powerbi_token=po_token,
                                                                        state=state.get("services"))
@@ -178,7 +176,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                             )
                             if workspaceCharts is not None:
                                 if not rtag:
-                                    logger.warning("[powerbi] Tag is missing in this report")
+                                    logger.warning("Tag is missing in this report")
                                 else:
                                     if rtype == "dashboard":
                                         dashboard_view[rtag] = custom_obj.get("reportId")
@@ -190,8 +188,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                                 allDashboardsViews,
                                             ))
                                         if not filteredTitles:
-                                            logger.warning(
-                                                "[powerbi] Report tag is not found in dashboardsView Section")
+                                            logger.warning("Report tag is not found in dashboardsView Section")
                                         else:
                                             for item in filteredTitles:
                                                 item["reportId"] = custom_obj.get("reportId")
@@ -213,7 +210,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                                     scenarioData["reportId"] = (custom_obj.get("reportId"))
                                                     scenarioWithThistag = True
                                         if not scenarioWithThistag:
-                                            logger.warning("[powerbi] Report tag is not found in scenarioView Section")
+                                            logger.warning("Report tag is not found in scenarioView Section")
                             for d in report_obj.get("datasets", []):
                                 if d:
                                     dataset_svc = AzurePowerBIDatasetService(
@@ -234,7 +231,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
                                             dataset_id=d.get("id"),
                                             params=params,
                                         )
-                            logger.info(f"[powerbi] report {name} successfully imported")
+                            logger.info(f"report {name} successfully imported")
                 state["services"]["powerbi"]["dashboard_view"] = dashboard_view
                 state["services"]["powerbi"]["scenario_view"] = scenario_view
                 env.store_state_in_local(state)
@@ -243,8 +240,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         if workspaceCharts is not None and superset_section:
             content.get("spec").get("payload").get("webApp").get("options").get(
                 "charts")["workspaceId"] = state["services"]["powerbi"]["workspace.id"]
-            logger.info(
-                f"[powerbi] updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
+            logger.info(f"updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
             payloadUpdated: dict = content.get("spec").get("payload")
             specUpdated = dict()
             specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)

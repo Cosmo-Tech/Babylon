@@ -1,5 +1,3 @@
-import json
-
 from typing import Any
 from click import command, option, echo, style
 from logging import getLogger
@@ -10,7 +8,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.solutions.services.solutions_runtemplates_svc import SolutionRunTemplatesService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -38,10 +36,9 @@ def get_all(
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Retrieving all runtemplates in the solution {[service_state['api']['solution_id']]}")
     response = solution_service.get_all()
     if response is None:
         return CommandResponse.fail()
     run_templates = response.json()
-    logger.info(json.dumps(run_templates, indent=2))
+    logger.info(f"Retrieving all runtemplates in the solution {[service_state['api']['solution_id']]}")
     return CommandResponse.success(run_templates)

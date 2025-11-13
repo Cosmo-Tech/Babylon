@@ -11,7 +11,7 @@ from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -51,11 +51,11 @@ def add(state: Any,
     service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
     service = DatasetSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Granting user {[email]} RBAC permissions on dataset {[service_state['api']['dataset_id']]}")
+    logger.info(f"Granting user {[email]} RBAC permissions on dataset {[service_state['api']['dataset_id']]}")
     response = service.add(details)
     if response is None:
         return CommandResponse.fail()
     rbac = response.json()
     logger.info(json.dumps(rbac, indent=2))
-    logger.info("[api] User RBAC permissions successfully added")
+    logger.info("User RBAC permissions successfully added")
     return CommandResponse.success(rbac)

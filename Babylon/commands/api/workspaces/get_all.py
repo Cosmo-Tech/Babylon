@@ -1,5 +1,4 @@
 import jmespath
-import json
 
 from logging import getLogger
 from typing import Any, Optional
@@ -14,7 +13,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -42,12 +41,12 @@ def get_all(state: Any,
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)
-    logger.info(f"[api] Getting all workspaces from organization {[service_state['api']['organization_id']]}")
+    logger.info(f"Getting all workspaces from organization {[service_state['api']['organization_id']]}")
     response = workspace_service.get_all()
     if response is None:
         return CommandResponse.fail()
     workspaces = response.json()
     if len(workspaces) and filter:
         workspaces = jmespath.search(filter, workspaces)
-    logger.info(json.dumps(workspaces, indent=2))
+    logger.info(f"Retrieved workspaces {[w.get('id') for w in workspaces]}")
     return CommandResponse.success(workspaces)
