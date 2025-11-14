@@ -47,11 +47,10 @@ class RunServiceTestCase(unittest.TestCase):
         the_response = Response()
         the_response._content = b'{"logs": "A lot of logs"}'
         mock_logs.return_value = the_response
-
         result = CliRunner().invoke(
             logs, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
             standalone_mode=False)
-        assert result.return_value.data == {"logs": "A lot of logs"}
+        assert result.return_value.data == '{"logs": "A lot of logs"}'
 
     @mock.patch.object(RunService, 'status')
     def test_status(self, mock_status):

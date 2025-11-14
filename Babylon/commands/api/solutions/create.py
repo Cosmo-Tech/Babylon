@@ -1,6 +1,4 @@
 import pathlib
-import json
-
 from logging import getLogger
 from typing import Any
 from click import Path, argument, command, option, echo, style
@@ -11,7 +9,7 @@ from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -36,7 +34,7 @@ def create(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     solutions_service = SolutionService(keycloak_token=keycloak_token, state=service_state, spec=spec)
-    logger.info("[api] Creating solution")
+    logger.info("Creating solution")
     response = solutions_service.create()
     if response is None:
         return CommandResponse.fail()
@@ -45,6 +43,5 @@ def create(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(json.dumps(solution, indent=2))
-    logger.info(f"[api] Solution {[solution.get('id')]} successfully created")
+    logger.info(f"Solution {[solution.get('id')]} successfully created")
     return CommandResponse.success(solution)

@@ -1,6 +1,4 @@
 import jmespath
-import json
-
 from logging import getLogger
 from typing import Any, Optional
 from click import command, option, echo, style
@@ -10,7 +8,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 
 
 @command()
@@ -31,12 +29,12 @@ def get_all(state: Any, keycloak_token: str, organization_id: str, filter: Optio
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     solutions_service = SolutionService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Getting all solutions from organization {[service_state['api']['organization_id']]}")
+    logger.info(f"Getting all solutions from organization {[service_state['api']['organization_id']]}")
     response = solutions_service.get_all()
     if response is None:
         return CommandResponse.fail()
     solutions = response.json()
     if len(solutions) and filter:
         solutions = jmespath.search(filter, solutions)
-    logger.info(json.dumps(solutions, indent=2))
+    logger.info(f"Retrieved solutions: {[s.get('id') for s in solutions]}")
     return CommandResponse.success(solutions)

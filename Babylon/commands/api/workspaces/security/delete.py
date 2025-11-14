@@ -8,7 +8,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 env = Environment()
 
 
@@ -32,9 +32,9 @@ def delete(state: dict, organization_id: str, workspace_id: str, keycloak_token:
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Deleting user {[email]} RBAC permissions on workspace {[service_state['api']['workspace_id']]}")
+    logger.info(f"Deleting user {[email]} RBAC permissions on workspace {[service_state['api']['workspace_id']]}")
     response = service.delete(id=email)
     if response is None:
         return CommandResponse.fail()
-    logger.info("[api] User RBAC permissions successfully deleted")
+    logger.info("User RBAC permissions successfully deleted")
     return CommandResponse.success(response)

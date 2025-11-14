@@ -64,16 +64,15 @@ class DatasetServiceTestCase(unittest.TestCase):
     def test_search(self, datasetservice_search):
         the_response = Response()
         the_response.status_code = 200
-        the_response._content = b'{"id": "1", "name": "Dataset"}'
+        the_response._content = b'[{"id": "1", "name": "Dataset"}]'
         datasetservice_search.return_value = the_response
-
         result = CliRunner().invoke(
             search,
-            ["--organization-id", "my_organization_id", "atag"],
+            ["--organization-id", "my_organization_id", "--workspace-id", "my_workspace_id", "atag"],
             standalone_mode=False,
         )
 
-        assert result.return_value.data == {"id": "1", "name": "Dataset"}
+        assert result.return_value.data == [{"id": "1", "name": "Dataset"}]
 
 
 if __name__ == "__main__":

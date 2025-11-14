@@ -1,5 +1,3 @@
-import json
-
 from logging import getLogger
 from typing import Any
 from click import command, option, echo, style
@@ -12,7 +10,7 @@ from Babylon.utils.decorators import (
 )
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 
 
 @command()
@@ -45,10 +43,10 @@ def get_all(
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
     service_state["api"]["run_id"] = (run_id or state["services"]["api"]["run_id"])
     run_service = RunService(state=service_state, keycloak_token=keycloak_token)
-    logger.info(f"[api] Retrieving all runs from runner {[service_state['api']['runner_id']]}")
+    logger.info(f"Retrieving all runs from runner {[service_state['api']['runner_id']]}")
     response = run_service.get_all()
     if response is None:
         return CommandResponse.fail()
     runs = response.json()
-    logger.info(json.dumps(runs, indent=2))
+    logger.info(f"Retrieved runs {[r.get('id') for r in runs]}")
     return CommandResponse.success(runs)

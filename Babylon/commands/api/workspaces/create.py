@@ -1,6 +1,4 @@
 import pathlib
-import json
-
 from logging import getLogger
 from typing import Any
 from click import argument, command, option, echo, style, Path
@@ -14,7 +12,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_keycloak_token
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -47,7 +45,7 @@ def create(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token, spec=spec)
-    logger.info("[api] Creating workspace")
+    logger.info("Creating workspace")
     response = workspace_service.create()
     if response is None:
         return CommandResponse.fail()
@@ -57,6 +55,5 @@ def create(
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(json.dumps(workspace, indent=2))
-    logger.info(f"[api] Workspace {[workspace.get('id')]} successfully created")
+    logger.info(f"Workspace {[workspace.get('id')]} successfully created")
     return CommandResponse.success(workspace)

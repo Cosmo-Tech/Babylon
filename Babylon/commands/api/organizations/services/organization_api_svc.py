@@ -9,7 +9,7 @@ from Babylon.utils.request import oauth_request
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -21,7 +21,7 @@ class OrganizationService:
         self.keycloak_token = keycloak_token
         self.url = state["api"]["url"]
         if not self.url:
-            logger.error("[babylon] api url not found verify the state")
+            logger.error("api url not found verify the state")
             sys.exit(1)
 
     def create(self):
@@ -68,7 +68,7 @@ class OrganizationService:
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:
-            logger.error("[babylon] Security is missing")
+            logger.error("Security is missing")
             sys.exit(1)
         ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
         ids_existing = [i.get("id") for i in old_security["accessControlList"]]
@@ -98,5 +98,5 @@ class OrganizationService:
 
 def check_if_organization_exists(dataset_id: str):
     if not dataset_id:
-        logger.error("[babylon] organization_id is missing check the state or use --organization-id")
+        logger.error("organization_id is missing check the state or use --organization-id")
         sys.exit(1)

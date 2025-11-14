@@ -1,6 +1,4 @@
 import pathlib
-import json
-
 from logging import getLogger
 from typing import Any
 from click import command, argument, option, echo, style, Path
@@ -14,7 +12,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -47,11 +45,10 @@ def update(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token, spec=spec)
-    logger.info(f"[api] Updating workspace {[service_state['api']['workspace_id']]}")
+    logger.info(f"Updating workspace {[service_state['api']['workspace_id']]}")
     response = workspace_service.update()
     if response is None:
         return CommandResponse.fail()
     workspace = response.json()
-    logger.info(json.dumps(workspace, indent=2))
-    logger.info(f"[api] Workspace {[service_state['api']['workspace_id']]} successfully updated")
+    logger.info(f"Workspace {[service_state['api']['workspace_id']]} successfully updated")
     return CommandResponse.success(workspace)

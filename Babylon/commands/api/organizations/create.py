@@ -1,5 +1,4 @@
 import pathlib
-import json
 
 from logging import getLogger
 from typing import Any
@@ -13,7 +12,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -35,7 +34,7 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     organizations_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token, spec=spec)
-    logger.info("[api] Creating organization")
+    logger.info("Creating organization")
     response = organizations_service.create()
     if response is None:
         return CommandResponse.fail()
@@ -44,6 +43,5 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(json.dumps(organization, indent=2))
-    logger.info(f"[api] Organization {[organization.get('id')]} successfully created")
+    logger.info(f"Organization {[organization.get('id')]} successfully created")
     return CommandResponse.success(organization)

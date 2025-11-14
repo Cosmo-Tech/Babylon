@@ -9,7 +9,7 @@ from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.response import CommandResponse
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -30,15 +30,14 @@ def deploy_organization(namespace: str, file_content: str):
     organization_service = OrganizationService(keycloak_token=keycloak_token, spec=spec, state=state["services"])
     sidecars = content.get("spec").get("sidecars", {})
     if not state["services"]["api"]["organization_id"]:
-        logger.info("[api] Creating organization")
+        logger.info("Creating organization")
         response = organization_service.create()
         if response is None:
             return CommandResponse.fail()
         organization = response.json()
-        logger.info(json.dumps(organization, indent=2))
-        logger.info(f"[api] Organization {organization['id']} successfully created")
+        logger.info(f"Organization {organization['id']} successfully created")
     else:
-        logger.info(f"[api] Updating organization {state['services']['api']['organization_id']}")
+        logger.info(f"Updating organization {state['services']['api']['organization_id']}")
         response = organization_service.update()
         if response is None:
             return CommandResponse.fail()
@@ -47,8 +46,7 @@ def deploy_organization(namespace: str, file_content: str):
         security_spec = organization_service.update_security(old_security=old_security)
         response_json["security"] = security_spec
         organization = response_json
-        logger.info(json.dumps(organization, indent=2))
-        logger.info(f"[api] Organization {organization['id']} successfully updated")
+        logger.info(f"Organization {organization['id']} successfully updated")
     state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
     if env.remote:

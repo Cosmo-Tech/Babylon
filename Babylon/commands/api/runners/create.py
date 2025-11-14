@@ -1,5 +1,4 @@
 import pathlib
-import json
 
 from logging import getLogger
 from typing import Any
@@ -15,7 +14,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 env = Environment()
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 
 
 @command()
@@ -50,7 +49,7 @@ def create(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token, spec=spec)
-    logger.info("[api] Creating runner")
+    logger.info("Creating runner")
     response = runner_service.create()
     if response is None:
         return CommandResponse.fail()
@@ -59,6 +58,5 @@ def create(
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-    logger.info(json.dumps(runner, indent=2))
-    logger.info(f"[api] Runner {[runner['id']]} successfully created")
+    logger.info(f"Runner {[runner['id']]} successfully created")
     return CommandResponse.success(runner)

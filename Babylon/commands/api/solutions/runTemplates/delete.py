@@ -8,7 +8,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.solutions.services.solutions_runtemplates_svc import SolutionRunTemplatesService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -38,11 +38,10 @@ def delete(
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(
-        f"[api] Deleting runtemplate id {[runTemplate_id]} from the solution {[service_state['api']['solution_id']]}")
+    logger.info(f"Deleting runtemplate id {[runTemplate_id]} from the solution {[service_state['api']['solution_id']]}")
     response = solution_service.delete(runTemplate_id)
     if response is None:
         return CommandResponse.fail()
     sol_id = service_state['api']['solution_id']
-    logger.info(f"[api] RunTemplate id {[runTemplate_id]} successfully deleted from the solution {[sol_id]}")
+    logger.info(f"RunTemplate id {[runTemplate_id]} successfully deleted from the solution {[sol_id]}")
     return CommandResponse.success(response)

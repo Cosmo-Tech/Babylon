@@ -1,5 +1,3 @@
-import json
-
 from logging import getLogger
 from typing import Any
 from click import command, option, argument, echo, style
@@ -10,7 +8,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -32,11 +30,11 @@ def search(state: Any, keycloak_token: str, organization_id: str, workspace_id: 
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
-    logger.info(f"[api] Searching dataset by tag {[tag]}")
+    logger.info(f"Searching dataset by tag {[tag]}")
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
     response = service.search(tag=tag)
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()
-    logger.info(json.dumps(dataset, indent=2))
+    logger.info(f"Retrieved datasets {[d.get('id') for d in dataset]}")
     return CommandResponse.success(dataset)

@@ -10,7 +10,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -43,11 +43,11 @@ def add(
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Granting user {[email]} RBAC permissions on workspace {[service_state['api']['workspace_id']]}")
+    logger.info(f"Granting user {[email]} RBAC permissions on workspace {[service_state['api']['workspace_id']]}")
     response = service.add(details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
     logger.info(json.dumps(rbacs, indent=2))
-    logger.info("[api] User RBAC permissions successfully added")
+    logger.info("User RBAC permissions successfully added")
     return CommandResponse.success(rbacs)

@@ -9,7 +9,7 @@ from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.response import CommandResponse
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -35,10 +35,9 @@ def deploy_runner(namespace: str, file_content: str):
         if response is None:
             return CommandResponse.fail()
         organization = response.json()
-        logger.info(json.dumps(organization, indent=2))
-        logger.info(f"[api] Runner {organization['id']} successfully created")
+        logger.info(f"Runner {organization['id']} successfully created")
     else:
-        logger.info(f"[api] Updating runner {state['services']['api']['runner_id']}")
+        logger.info(f"Updating runner {state['services']['api']['runner_id']}")
         response = runner_service.update()
         if response is None:
             return CommandResponse.fail()
@@ -47,8 +46,7 @@ def deploy_runner(namespace: str, file_content: str):
         security_spec = runner_service.update_security(old_security=old_security)
         response_json["security"] = security_spec
         organization = response_json
-        logger.info(json.dumps(organization, indent=2))
-        logger.info(f"[api] Runner {organization['id']} successfully updated")
+        logger.info(f"Runner {organization['id']} successfully updated")
     state["services"]["api"]["runner_id"] = organization.get("id")
     env.store_state_in_local(state)
     if env.remote:

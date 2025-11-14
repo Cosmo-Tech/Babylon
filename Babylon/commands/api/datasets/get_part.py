@@ -1,5 +1,3 @@
-import json
-
 from logging import getLogger
 from typing import Any
 from click import command, option, echo, style
@@ -11,7 +9,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -37,10 +35,9 @@ def get_part(state: Any, keycloak_token: str, organization_id: str, workspace_id
     service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
     service_state["api"]["dataset_part_id"] = (dataset_part_id or service_state["api"]["dataset_part_id"])
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Retrieving dataset part {dataset_part_id} of dataset {[service_state['api']['dataset_id']]}")
+    logger.info(f"Retrieving dataset part {dataset_part_id} of dataset {[service_state['api']['dataset_id']]}")
     response = service.get_part()
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()
-    logger.info(json.dumps(dataset, indent=2))
     return CommandResponse.success(dataset)

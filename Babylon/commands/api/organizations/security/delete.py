@@ -9,7 +9,7 @@ from Babylon.utils.decorators import output_to_file, retrieve_state
 from Babylon.commands.api.organizations.services.organization_security_svc import (
     OrganizationSecurityService, )
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 env = Environment()
 
 
@@ -32,9 +32,9 @@ def delete(state: dict, keycloak_token: str, email: str, organization_id: str) -
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     logger.info(
-        f"[api] Deleting user {[email]} RBAC access from the organization {[service_state['api']['organization_id']]}")
+        f"Deleting user {[email]} RBAC access from the organization {[service_state['api']['organization_id']]}")
     response = service.delete(id=email)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"[api] User {[email]} RBAC access successfully deleted")
+    logger.info(f"User {[email]} RBAC access successfully deleted")
     return CommandResponse.success(response)

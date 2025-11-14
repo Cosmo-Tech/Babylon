@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -38,7 +38,7 @@ def get_all(
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Retrieving all RBAC access to the solution {[service_state['api']['solution_id']]}")
+    logger.info(f"Retrieving all RBAC access to the solution {[service_state['api']['solution_id']]}")
     response = solution_service.get_all()
     if response is None:
         return CommandResponse.fail()

@@ -1,5 +1,4 @@
 import pathlib
-import json
 
 from logging import getLogger
 from typing import Any
@@ -11,7 +10,7 @@ from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -44,11 +43,10 @@ def update(
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     solutions_service = SolutionService(state=service_state, keycloak_token=keycloak_token, spec=spec)
-    logger.info(f"[api] Updating solution {[service_state['api']['solution_id']]}")
+    logger.info(f"Updating solution {[service_state['api']['solution_id']]}")
     response = solutions_service.update()
     if response is None:
         return CommandResponse.fail()
     solution = response.json()
-    logger.info(json.dumps(solution, indent=2))
-    logger.info(f"[api] Solution {[service_state['api']['solution_id']]} successfully updated")
+    logger.info(f"Solution {[service_state['api']['solution_id']]} successfully updated")
     return CommandResponse.success(solution)

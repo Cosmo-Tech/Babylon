@@ -9,7 +9,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -34,12 +34,12 @@ def download_part(state: Any, keycloak_token: str, organization_id: str, workspa
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Downloading dataset part {dataset_part_id} from dataset {[service_state['api']['dataset_id']]}")
+    logger.info(f"Downloading dataset part {dataset_part_id} from dataset {[service_state['api']['dataset_id']]}")
     response = service.download_part(dataset_part_id=dataset_part_id)
     if response is None:
         return CommandResponse.fail()
     dataset = response.content
     with (open(f"dataset_part_{dataset_part_id}", "wb")) as f:
         f.write(dataset)
-    logger.info(f"[api] Dataset part {dataset_part_id} successfully saved to file dataset_part_{dataset_part_id}")
+    logger.info(f"Dataset part {dataset_part_id} successfully saved to file dataset_part_{dataset_part_id}")
     return CommandResponse.success(dataset)

@@ -1,5 +1,3 @@
-import json
-
 from logging import getLogger
 from typing import Any
 from click import command, echo, style, option
@@ -10,7 +8,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -31,10 +29,9 @@ def get_all(state: Any, organization_id: str, keycloak_token: str) -> CommandRes
     service_state = state["services"]
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Retrieving all RBAC access to the organization {[service_state['api']['organization_id']]}")
+    logger.info(f"Retrieving all RBAC access to the organization {[service_state['api']['organization_id']]}")
     response = service.get_all()
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
-    logger.info(json.dumps(rbacs, indent=2))
     return CommandResponse.success(rbacs)

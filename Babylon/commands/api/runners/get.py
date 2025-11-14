@@ -1,5 +1,3 @@
-import json
-
 from logging import getLogger
 from typing import Any
 from click import command, option, echo, style
@@ -12,7 +10,7 @@ from Babylon.utils.decorators import (
 )
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 
 
 @command()
@@ -42,10 +40,9 @@ def get(
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
-    logger.info(f"[api] Retrieving runner {[service_state['api']['runner_id']]} details")
+    logger.info(f"Retrieving runner {[service_state['api']['runner_id']]} details")
     response = runner_service.get()
     if response is None:
         return CommandResponse.fail()
     runner = response.json()
-    logger.info(json.dumps(runner, indent=2))
     return CommandResponse.success(runner)

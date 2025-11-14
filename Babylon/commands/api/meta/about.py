@@ -1,4 +1,3 @@
-import json
 from click import command, echo, style
 from logging import getLogger
 from Babylon.utils.request import oauth_request
@@ -7,7 +6,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -26,11 +25,11 @@ def about(state: dict, keycloak_token: str) -> dict:
     echo(style("\n".join(_meta), bold=True, fg="green"))
     url = state.get("services").get("api").get("url")
     if not url:
-        logger.error("[babylon] Api url not found verify the state")
+        logger.error("Api url not found verify the state")
         return CommandResponse.fail()
     response = oauth_request(f"{url}/about", keycloak_token, type="GET")
     if response is None:
         return CommandResponse.fail()
     info = response.json()
-    logger.info(json.dumps(info, indent=2))
+    logger.info(f"API version:{info.get('version')}")
     return CommandResponse.success(info)

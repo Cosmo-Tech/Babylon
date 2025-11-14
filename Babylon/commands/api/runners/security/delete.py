@@ -12,7 +12,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -45,9 +45,9 @@ def delete(
     service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
     service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
     service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Deleting user {[email]} RBAC permissions on runner {[service_state['api']['runner_id']]}")
+    logger.info(f"Deleting user {[email]} RBAC permissions on runner {[service_state['api']['runner_id']]}")
     response = service.delete(id=email)
     if response is None:
         return CommandResponse.fail()
-    logger.info("[api] User RBAC permissions successfully deleted")
+    logger.info("User RBAC permissions successfully deleted")
     return CommandResponse.success(response)

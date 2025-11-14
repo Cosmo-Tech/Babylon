@@ -4,7 +4,7 @@ from logging import getLogger
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -15,15 +15,15 @@ class ApiWorkspaceSecurityService:
         self.keycloak_token = keycloak_token
         self.url = self.state["api"]["url"]
         if not self.url:
-            logger.error("[babylon] Api url not found verify the state")
+            logger.error("Api url not found verify the state")
             sys.exit(1)
         self.organization_id = self.state["api"]["organization_id"]
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing verify the state")
+            logger.error("Organization id is missing verify the state")
             sys.exit(1)
         self.workspace_id = self.state["api"]["workspace_id"]
         if not self.workspace_id:
-            logger.error("[babylon] Workspace id is missing verify the state")
+            logger.error("Workspace id is missing verify the state")
             sys.exit(1)
 
     def add(self, details: str):

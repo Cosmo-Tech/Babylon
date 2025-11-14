@@ -3,7 +3,7 @@ from logging import getLogger
 
 from Babylon.utils.request import oauth_request
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 
 
 class RunnerSecurityService:
@@ -16,16 +16,16 @@ class RunnerSecurityService:
         self.workspace_id = self.state["api"]["workspace_id"]
         self.runner_id = self.state["api"]["runner_id"]
         if not self.url:
-            logger.error("[babylon] api url not found verify the state")
+            logger.error("api url not found verify the state")
             sys.exit(1)
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing verify the state")
+            logger.error("Organization id is missing verify the state")
             sys.exit(1)
         if not self.workspace_id:
-            logger.error('[babylon] Workspace id is missing verify the state')
+            logger.error('Workspace id is missing verify the state')
             sys.exit(1)
         if not self.runner_id:
-            logger.error("[babylon] Runner id is missing verify the state")
+            logger.error("Runner id is missing verify the state")
             sys.exit(1)
 
     def get(self, id: str):

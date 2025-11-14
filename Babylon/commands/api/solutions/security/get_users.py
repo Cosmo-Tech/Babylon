@@ -9,7 +9,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -32,7 +32,7 @@ def get_users(state: dict, organization_id: str, solution_id: str, keycloak_toke
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Fetching solution {[service_state['api']['solution_id']]} RBAC users")
+    logger.info(f"Fetching solution {[service_state['api']['solution_id']]} RBAC users")
     response = solution_service.get_users()
     if response is None:
         return CommandResponse.fail()

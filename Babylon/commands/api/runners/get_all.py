@@ -1,5 +1,4 @@
 import jmespath
-import json
 
 from logging import getLogger
 from click import command, option, echo, style
@@ -15,7 +14,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 env = Environment()
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 
 
 @command()
@@ -44,12 +43,12 @@ def get_all(
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
-    logger.info(f"[api] Getting all runners from workspace {[service_state['api']['workspace_id']]}")
+    logger.info(f"Getting all runners from workspace {[service_state['api']['workspace_id']]}")
     response = runner_service.get_all()
     if response is None:
         return CommandResponse.fail()
     runners = response.json()
     if len(runners) and filter:
         runners = jmespath.search(filter, runners)
-    logger.info(json.dumps(runners, indent=2))
+    logger.info(f"Retrieved runners: {[r.get('id') for r in runners]}")
     return CommandResponse.success(runners)

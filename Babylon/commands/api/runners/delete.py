@@ -8,7 +8,7 @@ from Babylon.utils.decorators import retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -40,11 +40,11 @@ def delete(
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
-    logger.info("[api] Deleting runner")
+    logger.info("Deleting runner")
     response = runner_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f'[api] Runner {[service_state["api"]["runner_id"]]} successfully deleted')
+    logger.info(f'Runner {[service_state["api"]["runner_id"]]} successfully deleted')
     state["services"]["api"]["runner_id"] = ""
     env.store_state_in_local(state)
     if env.remote:

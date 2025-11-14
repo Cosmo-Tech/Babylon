@@ -7,7 +7,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -26,11 +26,11 @@ def delete(state: Any, keycloak_token: str, organization_id: str, force_validati
     service_state = state["services"]
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
-    logger.info("[api] Deleting organization")
+    logger.info("Deleting organization")
     response = service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"[api] Organization {[service_state['api']['organization_id']]} successfully deleted")
+    logger.info(f"Organization {[service_state['api']['organization_id']]} successfully deleted")
     service_state["api"]["organization_id"] = ''
     env.store_state_in_local(state)
     if env.remote:

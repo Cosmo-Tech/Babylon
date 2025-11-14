@@ -9,7 +9,7 @@ from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 env = Environment()
 
 
@@ -23,10 +23,10 @@ class SolutionService:
         self.organization_id = self.state["api"]["organization_id"]
         self.solution_id = self.state["api"]["solution_id"]
         if not self.url:
-            logger.error("[babylon] api url not found verify the state")
+            logger.error("api url not found verify the state")
             sys.exit(1)
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing verify the state")
+            logger.error("Organization id is missing verify the state")
             sys.exit(1)
 
     def create(self):
@@ -81,7 +81,7 @@ class SolutionService:
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:
-            logger.error("[babylon] Security is missing")
+            logger.error("Security is missing")
             sys.exit(1)
         ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
         ids_existing = [i.get("id") for i in old_security["accessControlList"]]
@@ -111,5 +111,5 @@ class SolutionService:
 
 def check_if_solution_exists(solution_id: str):
     if solution_id is None:
-        logger.error("[babylon] solution_id is missing check the state or use --solution-id")
+        logger.error("solution_id is missing check the state or use --solution-id")
         sys.exit(1)

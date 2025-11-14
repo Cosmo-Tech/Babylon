@@ -10,7 +10,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_keycloak_token
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -43,7 +43,7 @@ def delete(
     response = workspace_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"[api] Workspace {[service_state['api']['workspace_id']]} successfully deleted")
+    logger.info(f"Workspace {[service_state['api']['workspace_id']]} successfully deleted")
     state["services"]["api"]["workspace_id"] = ""
     env.store_state_in_local(state)
     if env.remote:
