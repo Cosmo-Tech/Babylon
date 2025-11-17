@@ -8,9 +8,7 @@ from typing import Any
 from typing import Callable
 from functools import wraps
 from azure.storage.blob import BlobServiceClient
-from azure.digitaltwins.core import DigitalTwinsClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.kusto import KustoManagementClient
