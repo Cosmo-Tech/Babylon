@@ -6,7 +6,6 @@ from Babylon.commands.azure.ad import ad
 from Babylon.commands.azure.staticwebapp import staticwebapp
 from Babylon.commands.azure.arm import arm
 from Babylon.commands.azure.acr import acr
-from Babylon.commands.azure.adt import adt
 from Babylon.commands.azure.adx import adx
 from Babylon.commands.azure.storage import storage
 from Babylon.commands.azure.appinsight import appinsight
@@ -18,7 +17,7 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 list_commands = []
-list_groups = [ad, staticwebapp, arm, storage, acr, adt, adx, appinsight, permission, func, token]
+list_groups = [ad, staticwebapp, arm, storage, acr, adx, appinsight, permission, func, token]
 
 
 @group()

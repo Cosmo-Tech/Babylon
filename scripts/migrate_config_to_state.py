@@ -14,7 +14,6 @@ parser.add_argument("platform", type=str)
 
 rsc = [
     "acr",
-    "adt",
     "adx",
     "api",
     "app",

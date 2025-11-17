@@ -101,34 +101,6 @@ def pass_kusto_client(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-def pass_adt_management_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab api configuration"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        state = env.get_state_from_vault_by_platform(env.environ_id)
-        azure_subscription = state['azure']["subscription_id"]
-        azure_credential = get_azure_credentials()
-        kwargs["adt_management_client"] = AzureDigitalTwinsManagementClient(azure_credential, azure_subscription)
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def pass_adt_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab api configuration"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        state = env.get_state_from_vault_by_platform(env.environ_id)
-        digital_twin_url = state["adt"]["digital_twin_url"]
-        azure_credential = get_azure_credentials()
-        kwargs["adt_client"] = DigitalTwinsClient(credential=azure_credential, endpoint=digital_twin_url)
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
 def pass_arm_client(func: Callable[..., Any]) -> Callable[..., Any]:
     """Grab arm mgmt configuration"""
 
