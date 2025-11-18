@@ -1,8 +1,3 @@
-connector.storage_id: ''
-connector.storage_version: ''
-connector.twin_id: ''
-connector.twin_cache_name: ''
-connector.twin_version: ''
 dataset.storage_id: ''
 dataset.twin_id: ''
 organization_id: ''
