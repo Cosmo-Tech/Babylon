@@ -4,14 +4,12 @@ import pathlib
 
 from logging import getLogger
 from click import command, option
-from azure.mgmt.kusto import KustoManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-from Babylon.commands.azure.adx.services.adx_database_svc import AdxDatabaseService
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
@@ -93,16 +91,6 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     arm_service = ArmService(arm_client=arm_client, state=state.get('services'))
     logger.info(f"Deleting event hub : {eventhub_key} ....")
     arm_service.delete_event_hub()
-    env.store_state_in_local(state=state)
-    if env.remote:
-        env.store_state_in_cloud(state=state)
-
-    # deleting adx database
-    adx_name = state['services']["adx"]["database_name"]
-    kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
-    adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state.get('services'))
-    logger.info(f"Deleting ADX database {adx_name} ....")
-    adx_svc.delete(name=adx_name)
     env.store_state_in_local(state=state)
     if env.remote:
         env.store_state_in_cloud(state=state)

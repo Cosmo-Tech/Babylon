@@ -5,7 +5,6 @@ from Babylon.utils.environment import Environment
 from Babylon.commands.azure.ad import ad
 from Babylon.commands.azure.arm import arm
 from Babylon.commands.azure.acr import acr
-from Babylon.commands.azure.adx import adx
 from Babylon.commands.azure.storage import storage
 from Babylon.commands.azure.appinsight import appinsight
 from Babylon.commands.azure.permission import permission
@@ -15,7 +14,7 @@ logger = logging.getLogger("Babylon")
 env = Environment()
 
 list_commands = []
-list_groups = [ad, arm, storage, acr, adx, appinsight, permission, token]
+list_groups = [ad, arm, storage, acr, appinsight, permission, token]
 
 
 @group()
