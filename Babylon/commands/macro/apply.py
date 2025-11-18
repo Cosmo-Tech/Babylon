@@ -7,7 +7,6 @@ from logging import getLogger
 from click import Path, argument, command, option, style, echo
 from Babylon.utils.environment import Environment
 from Babylon.utils.decorators import injectcontext
-from Babylon.commands.macro.deploy_webapp import deploy_swa
 from Babylon.commands.macro.deploy_dataset import deploy_dataset
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
@@ -32,7 +31,6 @@ env = Environment()
 @option("--organization", is_flag=True, help="Deploy or update an organization.")
 @option("--solution", is_flag=True, help="Deploy or update a solution.")
 @option("--workspace", is_flag=True, help="Deploy or update a workspace.")
-@option("--webapp", is_flag=True, help="Deploy or update a webapp.")
 @option("--dataset", is_flag=True, help="Deploy or update a dataset.")
 @option("--runner", is_flag=True, help="Deploy or update a runner.")
 @option("--payload-only", is_flag=True, help="Specify if you want to specify payload only")
@@ -41,7 +39,6 @@ def apply(
     organization: bool,
     solution: bool,
     workspace: bool,
-    webapp: bool,
     dataset: bool,
     runner: bool,
     payload_only: bool,
@@ -66,12 +63,11 @@ def apply(
     organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
     solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
     workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
-    webapps = list(filter(lambda x: x.get("kind") == "WebApp", resources))
     datasets = list(filter(lambda x: x.get("kind") == "Dataset", resources))
     runners = list(filter(lambda x: x.get("kind") == "Runner", resources))
     _ret = [""]
     final_datasets = []
-    if not (organization or solution or workspace or webapp or dataset or runner):
+    if not (organization or solution or workspace or dataset or runner):
         for o in organizations:
             content = o.get("content")
             namespace = o.get("namespace")
@@ -131,11 +127,6 @@ def apply(
                 namespace = r.get("namespace")
                 deploy_runner(namespace=namespace, file_content=content)
 
-        elif webapp:
-            for swa in webapps:
-                content = swa.get("content")
-                namespace = swa.get("namespace")
-                deploy_swa(namespace=namespace, file_content=content)
         elif dataset:
             for d in datasets:
                 content = d.get("content")

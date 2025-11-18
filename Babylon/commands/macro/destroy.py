@@ -11,13 +11,10 @@ from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetServi
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-from Babylon.commands.azure.func.services.func_api_svc import AzureAppFunctionService
 from Babylon.commands.azure.adx.services.adx_database_svc import AdxDatabaseService
-from Babylon.commands.azure.staticwebapp.services.swa_api_svc import AzureSWAService
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
-    get_azure_token,
     pass_azure_token,
     get_powerbi_token,
     get_azure_credentials,
@@ -86,29 +83,10 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     if env.remote:
         env.store_state_in_cloud(state=state)
 
-    # deleting web app
-    webapp_id = state['services']['webapp'].get("webapp_name", "")
-    if webapp_id:
-        logger.info(f"Deleting webapp {webapp_id} ....")
-        azure_token = get_azure_token()
-        swa_svc = AzureSWAService(azure_token=azure_token, state=state['services'])
-        swa_svc.delete(webapp_name=webapp_id, force_validation=True)
-        state['services']['webapp']["webapp_name"] = ""
-        state['services']['webapp']["static_domain"] = ""
-        env.store_state_in_local(state)
-        if env.remote:
-            env.store_state_in_cloud(state)
-
     # deleting azure function
     azure_credential = get_azure_credentials()
     subscription_id = state["services"]["azure"]["subscription_id"]
     arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
-    azure_func_service = AzureAppFunctionService(arm_client=arm_client, state=state.get('services'))
-    logger.info(f"Deleting azure function in workspace : {workspace_id} ....")
-    azure_func_service.delete()
-    env.store_state_in_local(state=state)
-    if env.remote:
-        env.store_state_in_cloud(state=state)
 
     # deleting EventHub
     eventhub_key = f"{organization_id} - {state['services']['api']['workspace_key']}"

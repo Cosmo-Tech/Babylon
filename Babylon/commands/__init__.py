@@ -1,4 +1,3 @@
-from .webapp import webapp
 from .powerbi import powerbi
 from .api import api
 from .azure import azure
@@ -9,4 +8,4 @@ from .macro.apply import apply
 from .macro.destroy import destroy
 from .macro.init import init
 
-list_groups = [api, azure, powerbi, webapp, vault, github, namespace, apply, destroy, init]
+list_groups = [api, azure, powerbi, vault, github, namespace, apply, destroy, init]
