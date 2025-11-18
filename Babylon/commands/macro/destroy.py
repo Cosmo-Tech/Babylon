@@ -4,8 +4,6 @@ import pathlib
 
 from logging import getLogger
 from click import command, option
-from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
@@ -15,7 +13,6 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
     pass_azure_token,
     get_powerbi_token,
-    get_azure_credentials,
 )
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
@@ -77,20 +74,6 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                         blob.delete_blob()
                 logger.info(f"Deleting dataset {dataset_id}....")
                 dataset_service.delete(dataset_id=dataset_id, force_validation=True)
-    env.store_state_in_local(state=state)
-    if env.remote:
-        env.store_state_in_cloud(state=state)
-
-    # deleting azure function
-    azure_credential = get_azure_credentials()
-    subscription_id = state["services"]["azure"]["subscription_id"]
-    arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
-
-    # deleting EventHub
-    eventhub_key = f"{organization_id} - {state['services']['api']['workspace_key']}"
-    arm_service = ArmService(arm_client=arm_client, state=state.get('services'))
-    logger.info(f"Deleting event hub : {eventhub_key} ....")
-    arm_service.delete_event_hub()
     env.store_state_in_local(state=state)
     if env.remote:
         env.store_state_in_cloud(state=state)
