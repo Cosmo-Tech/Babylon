@@ -1,40 +1,70 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [metadata]
-licence_files=["LICENSE.md"]
+license_files=["LICENSE.md"]
 
 [project]
 name = "Babylon"
-authors = [{ name = "Cosmo Tech", email = "platform@cosmotech.com" }]
-description = "A CLI made to simplify interaction between Cosmo solutions and Azure"
-urls.Homepage = "https://www.cosmotech.com"
-urls.Source = "https://github.com/Cosmo-Tech/Babylon"
-urls.Documentation = "https://cosmo-tech.github.io/Babylon/latest/"
-dynamic = ["version", "dependencies", "optional-dependencies"]
+authors = [{ name = "Mohcine Tor", email = "mohcine.tor@cosmotech.com" },
+           { name = "Diamantis Sellis", email = "diamantis.sellis@cosmotech.com"}]
+description = "A CLI made to simplify the deployment and management of the CosmoTech Platform and Solutions"
+dependencies = [
+  "azure-identity",
+  "azure-mgmt-storage",
+  "azure-storage-blob",
+  "hvac",
+  "click",
+  "click-log",
+  "cryptography",
+  "pyyaml",
+  "requests==2.31.0",
+  "jmespath",
+  "terrasnek",
+  "rich",
+  "GitPython",
+  "Mako",
+  "polling2",
+  "inquirer",
+  "flatten_json",
+  "dynaconf",
+  "pytest",
+  "ruamel.yaml",
+  "mkdocs",
+  "mkdocs-click",
+  "mkdocs-gen-files",
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "mike",
+  "pymdown-extensions",
+  "requirements-parser",
+  "azure-mgmt-authorization>=4.0.0",
+  "azure-containerregistry>=1.2.0",
+]
+dynamic = ["version"]
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.9"
+requires-python = ">=3.12"
+license = "MIT"
+
+[tool.hatch.envs.default]
+installer = "uv"
+
+[project.urls]
+Homepage = "https://www.cosmotech.com"
+Source = "https://github.com/Cosmo-Tech/Babylon"
+Documentation = "https://cosmo-tech.github.io/Babylon/latest/"
+
 
 [project.scripts]
 babylon = "Babylon.main:main"
 
-[tool.setuptools]
-include-package-data = true
-package-data."*" = [
-  "requirements.txt",
-]
-zip-safe = false
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["Babylon*"]
-
-[tool.setuptools.dynamic]
-version.attr = "Babylon.version.VERSION"
-dependencies.file = "requirements.txt"
+[tool.hatch.version]
+path = "Babylon/version.py"
 
 [tool.yapfignore]
 ignore_patterns = [
   "build/*",
   "Babylon.egg-info/*"
 ]
+
