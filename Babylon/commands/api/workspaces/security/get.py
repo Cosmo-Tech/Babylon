@@ -11,7 +11,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -35,7 +35,7 @@ def get(state: Any, organization_id: str, workspace_id: str, keycloak_token: str
     service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Get user {[email]} RBAC access to the workspace {[service_state['api']['workspace_id']]}")
+    logger.info(f"Get user {[email]} RBAC access to the workspace {[service_state['api']['workspace_id']]}")
     response = service.get(id=email)
     if response is None:
         return CommandResponse.fail()

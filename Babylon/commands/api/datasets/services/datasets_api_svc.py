@@ -9,7 +9,7 @@ from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 env = Environment()
 
 
@@ -24,13 +24,13 @@ class DatasetService:
         self.workspace_id = self.state["api"]["workspace_id"]
         self.dataset_id = self.state["api"]["dataset_id"]
         if not self.url:
-            logger.error("[babylon] api url not found verify the state")
+            logger.error("api url not found verify the state")
             sys.exit(1)
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing verify the state")
+            logger.error("Organization id is missing verify the state")
             sys.exit(1)
         if not self.workspace_id:
-            logger.error('[babylon] Workspace id is missing verify the state')
+            logger.error('Workspace id is missing verify the state')
             sys.exit(1)
 
     def delete(self, force_validation: bool):
@@ -159,7 +159,7 @@ class DatasetService:
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:
-            logger.error("[babylon] Security is missing")
+            logger.error("Security is missing")
             sys.exit(1)
         ids_spec = [i.get("id") for i in security_spec["accessControlList"]]
         ids_existing = [i.get("id") for i in old_security["accessControlList"]]
@@ -189,5 +189,5 @@ class DatasetService:
 
 def check_if_dataset_exists(dataset_id: str):
     if not dataset_id:
-        logger.error("[babylon] dataset_id is missing check the state or use --dataset-id")
+        logger.error("dataset_id is missing check the state or use --dataset-id")
         sys.exit(1)

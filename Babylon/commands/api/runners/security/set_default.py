@@ -14,7 +14,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -54,11 +54,10 @@ def set_default(
     service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
     service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"[api] Setting default RBAC access to the runner {[service_state['api']['runner_id']]}")
+    logger.info(f"Setting default RBAC access to the runner {[service_state['api']['runner_id']]}")
     response = service.set_default(details)
     if response is None:
         return CommandResponse.fail()
     default_security = response.json()
-    logger.info(json.dumps(default_security, indent=2))
-    logger.info(f"[api] default RBAC access successfully setted with role {[role]}")
+    logger.info(f"default RBAC access successfully set with role {[role]}")
     return CommandResponse.success(default_security)

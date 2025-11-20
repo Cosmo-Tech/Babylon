@@ -9,7 +9,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -42,11 +42,11 @@ def update(state: dict, organization_id: str, solution_id: str, keycloak_token: 
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     details = json.dumps({"id": email, "role": role})
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Updating user {[email]} RBAC access in the solution {[service_state['api']['solution_id']]}")
+    logger.info(f"Updating user {[email]} RBAC access in the solution {[service_state['api']['solution_id']]}")
     response = solution_service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
     logger.info(json.dumps(rbacs, indent=2))
-    logger.info(f"[api] User {[email]} RBAC access successfully Updated")
+    logger.info(f"User {[email]} RBAC access successfully Updated")
     return CommandResponse.success(rbacs)

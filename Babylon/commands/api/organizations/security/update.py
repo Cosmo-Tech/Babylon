@@ -10,7 +10,7 @@ from Babylon.utils.decorators import output_to_file, retrieve_state
 from Babylon.commands.api.organizations.services.organization_security_svc import (
     OrganizationSecurityService, )
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 env = Environment()
 
 
@@ -46,6 +46,5 @@ def update(state: dict, keycloak_token: str, organization_id: str, email: str, r
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
-    logger.info(json.dumps(rbacs, indent=2))
-    logger.info(f"[api] User {[email]} RBAC access successfully updated")
+    logger.info(f"User {[email]} RBAC access successfully updated")
     return CommandResponse.success(rbacs)

@@ -10,7 +10,7 @@ from Babylon.utils.response import CommandResponse
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import output_to_file, retrieve_state
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 env = Environment()
 
 
@@ -44,11 +44,11 @@ def update(state: dict, organization_id: str, workspace_id: str, keycloak_token:
     service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
     details = json.dumps({"id": email, "role": role})
     service = ApiWorkspaceSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Updating user {[email]} RBAC access in the workspace {[service_state['api']['workspace_id']]}")
+    logger.info(f"Updating user {[email]} RBAC access in the workspace {[service_state['api']['workspace_id']]}")
     response = service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
     logger.info(json.dumps(rbacs, indent=2))
-    logger.info(f"[api] User {[email]} RBAC access successfully Updated")
+    logger.info(f"User {[email]} RBAC access successfully Updated")
     return CommandResponse.success(rbacs)

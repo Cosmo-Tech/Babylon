@@ -7,7 +7,7 @@ from Babylon.commands.api.runners.services.runner_security_svc import RunnerSecu
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 
 
 class RunnerService:
@@ -21,13 +21,13 @@ class RunnerService:
         self.runner_id = self.state["api"]["runner_id"]
         self.keycloak_token = keycloak_token
         if not self.url:
-            logger.error("[babylon] api url not found verify the state")
+            logger.error("api url not found verify the state")
             sys.exit(1)
         if not self.organization_id:
-            logger.error("[babylon] Organization id is missing verify the state")
+            logger.error("Organization id is missing verify the state")
             sys.exit(1)
         if not self.workspace_id:
-            logger.error('[babylon] Workspace id is missing verify the state')
+            logger.error('Workspace id is missing verify the state')
             sys.exit(1)
 
     def get_all(self):
@@ -138,5 +138,5 @@ class RunnerService:
 
 def check_if_runner_exists(runner_id: str):
     if not runner_id:
-        logger.error("[babylon] runner_id is missing check the state or use --runner-id")
+        logger.error("runner_id is missing check the state or use --runner-id")
         sys.exit(1)

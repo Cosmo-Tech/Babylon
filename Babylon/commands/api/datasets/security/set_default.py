@@ -9,7 +9,7 @@ from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -49,5 +49,5 @@ def set_default(state: dict, keycloak_token: str, role: str, organization_id: st
         return CommandResponse.fail()
     default_security = response.json()
     logger.info(json.dumps(default_security, indent=2))
-    logger.info(f"[api] default RBAC access successfully setted with role {[role]}")
+    logger.info(f"default RBAC access successfully set with role {[role]}")
     return CommandResponse.success(default_security)

@@ -7,7 +7,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -36,11 +36,11 @@ def delete(
     service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
     service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
     solutions_service = SolutionService(state=service_state, keycloak_token=keycloak_token)
-    logger.info("[api] Deleting solution")
+    logger.info("Deleting solution")
     response = solutions_service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"[api] Solution {[service_state['api']['solution_id']]} successfully deleted")
+    logger.info(f"Solution {[service_state['api']['solution_id']]} successfully deleted")
     state["services"]["api"]["solution_id"] = ""
     env.store_state_in_local(state)
     if env.remote:

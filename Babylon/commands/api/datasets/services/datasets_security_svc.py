@@ -4,7 +4,7 @@ from logging import getLogger
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 

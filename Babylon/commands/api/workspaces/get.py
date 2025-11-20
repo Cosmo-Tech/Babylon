@@ -1,5 +1,3 @@
-import json
-
 from logging import getLogger
 from typing import Any
 from click import command, option, echo, style
@@ -13,7 +11,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -36,10 +34,9 @@ def get(state: Any, organization_id: str, keycloak_token: str, workspace_id: str
     service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
     service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
     workspace_service = WorkspaceService(state=service_state, keycloak_token=keycloak_token)
-    logger.info(f"[api] Retrieving workspace {[service_state['api']['workspace_id']]} details")
+    logger.info(f"Retrieving workspace {[service_state['api']['workspace_id']]} details")
     response = workspace_service.get()
     if response is None:
         return CommandResponse.fail()
     workspace = response.json()
-    logger.info(json.dumps(workspace, indent=2))
     return CommandResponse.success(workspace)

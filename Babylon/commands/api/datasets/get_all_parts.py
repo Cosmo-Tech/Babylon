@@ -1,5 +1,4 @@
 import jmespath
-import json
 
 from logging import getLogger
 from typing import Any, Optional
@@ -11,7 +10,7 @@ from Babylon.utils.decorators import retrieve_state, injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -41,12 +40,12 @@ def get_all_parts(state: Any,
     service_state["api"]["workspace_id"] = (workspace_id or service_state["api"]["workspace_id"])
     service_state["api"]["dataset_id"] = (dataset_id or service_state["api"]["dataset_id"])
     service = DatasetService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Getting all dataset parts from dataset {[service_state['api']['dataset_id']]}")
+    logger.info(f"Getting all dataset parts from dataset {[service_state['api']['dataset_id']]}")
     response = service.get_all_parts()
     if response is None:
         return CommandResponse.fail()
     datasets = response.json()
     if len(datasets) and filter:
         datasets = jmespath.search(filter, datasets)
-    logger.info(json.dumps(datasets, indent=2))
+    logger.info(f"Retrieved {[d.get('id') for d in datasets]} dataset parts")
     return CommandResponse.success(datasets)

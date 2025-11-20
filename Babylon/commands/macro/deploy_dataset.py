@@ -3,7 +3,7 @@ import pathlib
 from logging import getLogger
 from Babylon.utils.environment import Environment
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 

@@ -14,7 +14,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -56,11 +56,10 @@ def update(
     service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
     details = json.dumps({"id": email, "role": role})
     service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"[api] Updating user {[email]} RBAC access in the runner {[service_state['api']['runner_id']]}")
+    logger.info(f"Updating user {[email]} RBAC access in the runner {[service_state['api']['runner_id']]}")
     response = service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
     runner_security = response.json()
-    logger.info(json.dumps(runner_security, indent=2))
-    logger.info(f"[api] User {[email]} RBAC access successfully Updated")
+    logger.info(f"User {[email]} RBAC access successfully Updated")
     return CommandResponse.success(runner_security)

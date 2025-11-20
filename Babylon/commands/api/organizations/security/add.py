@@ -14,7 +14,7 @@ from Babylon.utils.decorators import output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -38,12 +38,10 @@ def add(state: Any, keycloak_token: str, organization_id: str, email: str, role:
     service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    logger.info(
-        f"[api] Adding user {[email]} RBAC access to the organization {[service_state['api']['organization_id']]}")
+    logger.info(f"Adding user {[email]} RBAC access to the organization {[service_state['api']['organization_id']]}")
     response = service.add(details)
     if response is None:
         return CommandResponse.fail()
     rbacs = response.json()
-    logger.info(json.dumps(rbacs, indent=2))
-    logger.info("[api] User RBAC access successfully added")
+    logger.info("User RBAC access successfully added")
     return CommandResponse.success(rbacs)
