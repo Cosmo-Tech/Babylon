@@ -6776,12 +6776,6 @@
 <td><code>INFO</code></td>
 </tr>
 <tr>
-<td><code>--bare</code>, <code>--raw</code>, <code>--tests</code></td>
-<td>boolean</td>
-<td>Enable test mode, this mode changes output formatting.</td>
-<td><code>False</code></td>
-</tr>
-<tr>
 <td><code>-n</code>, <code>--dry-run</code></td>
 <td>boolean</td>
 <td>Will run commands in dry-run mode.</td>
@@ -6792,6 +6786,12 @@
 <td>boolean</td>
 <td>Print version number and return.</td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--log-path</code></td>
+<td>directory</td>
+<td>Path to the directory where log files will be stored. If not set, defaults to current working directory.</td>
+<td><code>/home/runner/work/Babylon/Babylon</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -6967,6 +6967,12 @@
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>text</td>
+<td>File to which content should be outputted</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
