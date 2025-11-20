@@ -2,9 +2,6 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[metadata]
-license_files=["LICENSE.md"]
-
 [project]
 name = "Babylon"
 authors = [{ name = "Mohcine Tor", email = "mohcine.tor@cosmotech.com" },
@@ -41,6 +38,7 @@ dependencies = [
   "requirements-parser",
   "azure-mgmt-authorization>=4.0.0",
   "azure-containerregistry>=1.2.0",
+  "ruff>=0.14.5",
 ]
 dynamic = ["version"]
 readme = {file = "README.md", content-type = "text/markdown"}
@@ -55,16 +53,16 @@ Homepage = "https://www.cosmotech.com"
 Source = "https://github.com/Cosmo-Tech/Babylon"
 Documentation = "https://cosmo-tech.github.io/Babylon/latest/"
 
-
 [project.scripts]
 babylon = "Babylon.main:main"
 
 [tool.hatch.version]
 path = "Babylon/version.py"
 
-[tool.yapfignore]
-ignore_patterns = [
-  "build/*",
-  "Babylon.egg-info/*"
-]
+[tool.ruff]
+line-length = 120
 
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]

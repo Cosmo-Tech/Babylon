@@ -21,19 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - uses: astral-sh/ruff-action@v3
+      - run: ruff check --output-format=github
+      - run: ruff format
       - uses: actions/setup-python@v6
-
-      - name: lint
-        uses: py-actions/flake8@v2
-        with:
-          max-line-length: "120"
-          path: "Babylon"
-
-      - name: format
-        uses: AlexanderMelde/yapf-action@master
-        with:
-          args: --diff
-
       - name: Install dependencies
         run: |
           python -m venv .venv
