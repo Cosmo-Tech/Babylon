@@ -22,6 +22,12 @@ source .venv/bin/activate
 uv pip install .
 ```
 
+For development mode:
+
+```bash
+uv pip install -e . --group dev
+```
+
 ### Install using pip
 
 ```bash
