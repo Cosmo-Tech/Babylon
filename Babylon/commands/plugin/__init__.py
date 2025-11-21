@@ -1,6 +1,6 @@
-from click import group
-from click import pass_context
+from click import group, pass_context
 from click.core import Context
+
 from .activate import activate
 from .add import add
 from .deactivate import deactivate

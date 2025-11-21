@@ -1,6 +1,6 @@
 import sys
-
 from logging import getLogger
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
@@ -9,7 +9,6 @@ env = Environment()
 
 
 class DatasetSecurityService:
-
     def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
         self.keycloak_token = keycloak_token
@@ -23,11 +22,11 @@ class DatasetSecurityService:
             sys.exit(1)
         self.workspace_id = self.state["api"]["workspace_id"]
         if not self.workspace_id:
-            logger.error('[babylon] Workspace id is missing verify the state')
+            logger.error("[babylon] Workspace id is missing verify the state")
             sys.exit(1)
         self.dataset_id = self.state["api"]["dataset_id"]
         if not self.dataset_id:
-            logger.error('[babylon] Dataset is missing verify the state')
+            logger.error("[babylon] Dataset is missing verify the state")
             sys.exit(1)
 
     def add(self, details: str):

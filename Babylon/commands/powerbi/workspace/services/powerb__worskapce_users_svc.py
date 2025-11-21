@@ -1,14 +1,14 @@
 import logging
+
 import jmespath
 
-from Babylon.utils.request import oauth_request
 from Babylon.utils.interactive import confirm_deletion
+from Babylon.utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
 
 
 class AzurePowerBIWorkspaceUserService:
-
     def __init__(self, powerbi_token: str, state: dict = None) -> None:
         self.state = state
         self.powerbi_token = powerbi_token
@@ -30,7 +30,7 @@ class AzurePowerBIWorkspaceUserService:
 
     def delete(self, workspace_id, force_validation: bool, email: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        url_users = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{email}")
+        url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users/{email}"
         if not force_validation and not confirm_deletion("user", email):
             return None
         response = oauth_request(url_users, self.powerbi_token, type="DELETE")

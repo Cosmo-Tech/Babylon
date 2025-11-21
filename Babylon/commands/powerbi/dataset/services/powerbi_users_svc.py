@@ -8,7 +8,6 @@ logger = logging.getLogger("Babylon")
 
 
 class AzurePowerBUsersIService:
-
     def __init__(self, powerbi_token: str, state: dict = None) -> None:
         self.state = state
         self.powerbi_token = powerbi_token

@@ -1,6 +1,6 @@
 import sys
-
 from logging import getLogger
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
@@ -9,7 +9,6 @@ env = Environment()
 
 
 class ApiWorkspaceSecurityService:
-
     def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
         self.keycloak_token = keycloak_token
@@ -47,7 +46,8 @@ class ApiWorkspaceSecurityService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security",
             self.keycloak_token,
-            type="GET")
+            type="GET",
+        )
         return response
 
     def update(self, id: str, details: str):
@@ -69,8 +69,7 @@ class ApiWorkspaceSecurityService:
 
     def set_default(self, details: dict):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/security/default",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/security/default",
             self.keycloak_token,
             type="PATCH",
             data=details,

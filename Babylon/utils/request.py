@@ -1,9 +1,8 @@
 import logging
-import requests
-
-from typing import Any
-from typing import Optional
 from time import sleep
+from typing import Any, Optional
+
+import requests
 
 logger = logging.getLogger("Babylon")
 
@@ -21,11 +20,9 @@ def poll_request(retries: int = 5, check_for_failure: bool = False, **kwargs: di
     raise ValueError("Request polling failed")
 
 
-def oauth_request(url: str,
-                  access_token: str,
-                  type: str = "GET",
-                  content_type: str = "application/json",
-                  **kwargs: Any) -> Optional[Any]:
+def oauth_request(
+    url: str, access_token: str, type: str = "GET", content_type: str = "application/json", **kwargs: Any
+) -> Optional[Any]:
     """Requests an API using OAuth authentication
 
     :param content_type:
@@ -35,9 +32,9 @@ def oauth_request(url: str,
     :type type: str
     """
     if content_type == "multipart/form-data":
-        headers = {'Authorization': f'Bearer {access_token}'}
+        headers = {"Authorization": f"Bearer {access_token}"}
     else:
-        headers = {'Authorization': f'Bearer {access_token}', "Content-Type": content_type, **kwargs.pop("headers", {})}
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": content_type, **kwargs.pop("headers", {})}
     request_funcs = {
         "POST": requests.post,
         "PATCH": requests.patch,
@@ -59,7 +56,8 @@ def oauth_request(url: str,
         return None
     if response.status_code == 403:
         logger.error(
-            "[api] Forbidden (403): token valid but lacks required roles/scopes. Check Keycloak client permissions.")
+            "[api] Forbidden (403): token valid but lacks required roles/scopes. Check Keycloak client permissions."
+        )
         return None
     if not response.ok:
         logger.warning(f"[api] Request failed ({response.status_code}): {response.text}")

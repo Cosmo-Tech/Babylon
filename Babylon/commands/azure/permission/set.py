@@ -1,16 +1,16 @@
 import logging
-
 from typing import Any, Optional
-from azure.mgmt.authorization import AuthorizationManagementClient
-from click import Choice, option
-from click import command
-from Babylon.commands.azure.permission.services.iam_api_svc import AzureIamService
-from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
 
+from azure.mgmt.authorization import AuthorizationManagementClient
+from click import Choice, command, option
+
+from Babylon.commands.azure.permission.services.iam_api_svc import AzureIamService
 from Babylon.utils.clients import (
-    pass_iam_client, )
+    pass_iam_client,
+)
+from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -49,7 +49,7 @@ def set(
     """
     Assign a new role in resource given
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzureIamService(iam_client=iam_client, state=service_state)
     service.set(
         principal_id=principal_id,

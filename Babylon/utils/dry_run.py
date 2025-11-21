@@ -1,5 +1,6 @@
 import logging
 import sys
+
 import click
 import rich
 import rich.markdown
@@ -15,7 +16,7 @@ def display_dry_run(ctx: click.Context, param: click.Parameter, value: str):
     # create the command object manually and parse its arguments
     cmd = group
 
-    is_dry_run = global_opts.get('dry_run', False)
+    is_dry_run = global_opts.get("dry_run", False)
     if not is_dry_run:
         return
 

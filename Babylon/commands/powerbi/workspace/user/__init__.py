@@ -1,9 +1,9 @@
 from click import group
 
-from .get_all import get_all
 from .add import add
-from .update import update
 from .delete import delete
+from .get_all import get_all
+from .update import update
 
 list_commands = [
     get_all,

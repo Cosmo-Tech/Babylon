@@ -1,19 +1,17 @@
 import logging
 import pathlib
-
 from typing import Any
-from click import Path
-from click import option
-from click import Choice, command
 
-from Babylon.utils.environment import Environment
-from Babylon.utils.response import CommandResponse
+from click import Choice, Path, command, option
+
 from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import AzurePowerBIReportService
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
-    retrieve_state,
     injectcontext,
+    retrieve_state,
 )
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -57,7 +55,7 @@ def upload(
     """
     Publish the given pbxi file to the PowerBI workspace
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=service_state)
     service.upload(
         workspace_id=workspace_id,

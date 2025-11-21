@@ -1,14 +1,13 @@
 import sys
 from logging import getLogger
 
-from Babylon.utils.request import oauth_request
 from Babylon.utils.interactive import confirm_deletion
+from Babylon.utils.request import oauth_request
 
 logger = getLogger(__name__)
 
 
 class RunService:
-
     def __init__(self, keycloak_token: str, state: dict):
         self.state = state
         self.keycloak_token = keycloak_token
@@ -34,14 +33,18 @@ class RunService:
         check_if_run_exists(self.run_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/runs/{self.run_id}/logs", self.keycloak_token)
+            f"{self.workspace_id}/runners/{self.runner_id}/runs/{self.run_id}/logs",
+            self.keycloak_token,
+        )
         return response
 
     def status(self):
         check_if_run_exists(self.run_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/runs/{self.run_id}/status", self.keycloak_token)
+            f"{self.workspace_id}/runners/{self.runner_id}/runs/{self.run_id}/status",
+            self.keycloak_token,
+        )
         return response
 
     def delete(self, force_validation: bool):
@@ -60,13 +63,17 @@ class RunService:
         check_if_run_exists(self.run_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/runs/{self.run_id}", self.keycloak_token)
+            f"{self.workspace_id}/runners/{self.runner_id}/runs/{self.run_id}",
+            self.keycloak_token,
+        )
         return response
 
     def get_all(self):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/runs", self.keycloak_token)
+            f"{self.workspace_id}/runners/{self.runner_id}/runs",
+            self.keycloak_token,
+        )
         return response
 
 

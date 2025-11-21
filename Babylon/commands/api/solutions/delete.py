@@ -1,10 +1,12 @@
 from logging import getLogger
 from typing import Any
-from Babylon.utils.environment import Environment
-from click import command, option, echo, style
+
+from click import command, echo, option, style
+
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
@@ -33,8 +35,8 @@ def delete(
     _sol.append("")
     echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
-    service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
+    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service_state["api"]["solution_id"] = solution_id or service_state["api"]["solution_id"]
     solutions_service = SolutionService(state=service_state, keycloak_token=keycloak_token)
     logger.info("Deleting solution")
     response = solutions_service.delete(force_validation=force_validation)

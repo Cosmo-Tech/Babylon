@@ -1,5 +1,7 @@
 import json
+
 import yaml
+
 
 def yaml_to_json(yaml_str: str) -> str:
     """

@@ -1,13 +1,11 @@
+from azure.identity import AuthenticationRecord, InteractiveBrowserCredential, TokenCachePersistenceOptions
+
 from Babylon.utils.environment import Environment
-from azure.identity import TokenCachePersistenceOptions
-from azure.identity import InteractiveBrowserCredential
-from azure.identity import AuthenticationRecord
 
 env = Environment()
 
 
 class AzureTokenService:
-
     def __init__(self, state: dict = None) -> None:
         self.state = state
 

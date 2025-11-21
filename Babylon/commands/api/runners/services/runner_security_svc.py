@@ -7,7 +7,6 @@ logger = getLogger(__name__)
 
 
 class RunnerSecurityService:
-
     def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
         self.keycloak_token = keycloak_token
@@ -22,7 +21,7 @@ class RunnerSecurityService:
             logger.error("Organization id is missing verify the state")
             sys.exit(1)
         if not self.workspace_id:
-            logger.error('Workspace id is missing verify the state')
+            logger.error("Workspace id is missing verify the state")
             sys.exit(1)
         if not self.runner_id:
             logger.error("Runner id is missing verify the state")

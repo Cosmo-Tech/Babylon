@@ -1,4 +1,5 @@
 import logging
+
 import click
 
 from .response import CommandResponse

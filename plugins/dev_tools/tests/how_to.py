@@ -1,8 +1,8 @@
 import logging
 
 import click
-import rich.markdown
 import rich
+import rich.markdown
 
 from Babylon.utils import BABYLON_PATH
 
