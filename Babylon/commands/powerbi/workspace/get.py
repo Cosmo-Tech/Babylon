@@ -1,17 +1,16 @@
 import logging
-
 from typing import Any, Optional
-from click import command
-from click import option
-from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
 
+from click import command, option
+
+from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
-    retrieve_state,
     injectcontext,
+    retrieve_state,
 )
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -32,7 +31,7 @@ def get(
     """
     Get a specific workspace information
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=service_state)
     response = service.get(workspace_id=workspace_id, name=name)
     return CommandResponse.success(response, verbose=True)

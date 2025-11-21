@@ -1,11 +1,12 @@
 import pathlib
 from logging import getLogger
 from typing import Any
-from click import Path, argument, command, option, echo, style
+
+from click import Path, argument, command, echo, option, style
+
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file
-from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -29,9 +30,9 @@ def create(state: Any, keycloak_token: str, organization_id: str, payload_file: 
     _sol.append("")
     echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
+    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
     spec = dict()
-    with open(payload_file, 'r') as f:
+    with open(payload_file, "r") as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     solutions_service = SolutionService(keycloak_token=keycloak_token, state=service_state, spec=spec)
     logger.info("Creating solution")

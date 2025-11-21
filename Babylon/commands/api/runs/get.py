@@ -1,12 +1,14 @@
 from logging import getLogger
 from typing import Any
-from click import command, option, echo, style
+
+from click import command, echo, option, style
+
 from Babylon.commands.api.runs.services.run_api_svc import RunService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
-    retrieve_state,
     output_to_file,
+    retrieve_state,
 )
 from Babylon.utils.response import CommandResponse
 
@@ -38,10 +40,10 @@ def get(
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
-    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
-    service_state["api"]["run_id"] = (run_id or state["services"]["api"]["run_id"])
+    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
+    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
+    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
+    service_state["api"]["run_id"] = run_id or state["services"]["api"]["run_id"]
     run_service = RunService(state=service_state, keycloak_token=keycloak_token)
     logger.info(f"Retrieving run {[service_state['api']['run_id']]}")
     response = run_service.get()

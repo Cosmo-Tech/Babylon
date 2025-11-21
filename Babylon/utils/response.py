@@ -1,20 +1,20 @@
-import logging
 import json
+import logging
 import pathlib
 import shutil
 import tempfile
-import yaml
+from typing import Any, Optional
 
-from typing import Any
-from typing import Optional
-from rich.pretty import pprint
+import yaml
 from click import get_current_context
+from rich.pretty import pprint
+
 from .environment import Environment
 
 logger = logging.getLogger(__name__)
 
 
-class CommandResponse():
+class CommandResponse:
     """
     Contains command, status and data output from a command return value
     """
@@ -35,12 +35,15 @@ class CommandResponse():
         return {"command": self.command, "params": self.params, "status_code": self.status_code, "data": self.data}
 
     def __str__(self) -> str:
-        return "\n".join([
-            f"Command: {' '.join(self.command)}",
-            "\n".join([f"  -  {key}: {param}" for key, param in self.params.items()]),
-            f"Status code: {self.status_code}", "Return value:",
-            str(self.data)
-        ])
+        return "\n".join(
+            [
+                f"Command: {' '.join(self.command)}",
+                "\n".join([f"  -  {key}: {param}" for key, param in self.params.items()]),
+                f"Status code: {self.status_code}",
+                "Return value:",
+                str(self.data),
+            ]
+        )
 
     def toJSON(self) -> str:
         return json.dumps(self.data, indent=4, ensure_ascii=False)

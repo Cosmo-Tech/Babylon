@@ -1,16 +1,16 @@
 import logging
 import os
 import sys
-import hvac
-
-from typing import Any
-from typing import Callable
 from functools import wraps
-from azure.storage.blob import BlobServiceClient
-from azure.mgmt.storage import StorageManagementClient
+from typing import Any, Callable
+
+import hvac
 from azure.mgmt.authorization import AuthorizationManagementClient
-from .environment import Environment
+from azure.mgmt.storage import StorageManagementClient
+from azure.storage.blob import BlobServiceClient
+
 from .credentials import get_azure_credentials
+from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -23,7 +23,7 @@ def pass_hvac_client(func: Callable[..., Any]) -> Callable[..., Any]:
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         client = None
         try:
-            client = hvac.Client(url=env.server_id, token=os.environ.get('BABYLON_TOKEN'))
+            client = hvac.Client(url=env.server_id, token=os.environ.get("BABYLON_TOKEN"))
             if not client.is_authenticated():
                 logger.info("Forbidden. Check your credentials")
                 sys.exit(1)
@@ -58,7 +58,7 @@ def pass_iam_client(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         state = env.get_state_from_vault_by_platform(env.environ_id)
-        azure_subscription = state['azure']["subscription_id"]
+        azure_subscription = state["azure"]["subscription_id"]
         authorization_client = AuthorizationManagementClient(
             credential=get_azure_credentials(),
             subscription_id=azure_subscription,
@@ -75,7 +75,7 @@ def pass_storage_mgmt_client(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         state = env.get_state_from_vault_by_platform(env.environ_id)
-        azure_subscription = state['azure']["subscription_id"]
+        azure_subscription = state["azure"]["subscription_id"]
         authorization_client = StorageManagementClient(
             credential=get_azure_credentials(),
             base_url="https://management.azure.com",

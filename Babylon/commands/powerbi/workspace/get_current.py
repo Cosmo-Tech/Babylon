@@ -1,14 +1,15 @@
 import logging
-
 from typing import Any
+
 from click import command
+
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
+from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
-    retrieve_state,
     injectcontext,
+    retrieve_state,
 )
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_powerbi_token
 
 logger = logging.getLogger("Babylon")
 
@@ -24,7 +25,7 @@ def get_current(
     """
     Get a specific workspace information
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=service_state)
     response = service.get_current()
     return CommandResponse(data=response, verbose=True)

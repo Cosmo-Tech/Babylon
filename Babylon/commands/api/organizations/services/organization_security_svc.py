@@ -1,6 +1,6 @@
 import sys
-
 from logging import getLogger
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
@@ -9,7 +9,6 @@ env = Environment()
 
 
 class OrganizationSecurityService:
-
     def __init__(self, keycloak_token: str, state: dict) -> None:
         self.state = state
         self.keycloak_token = keycloak_token
@@ -57,14 +56,16 @@ class OrganizationSecurityService:
         return response
 
     def update(self, id: str, details: str):
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
-                                 self.keycloak_token,
-                                 type="PATCH",
-                                 data=details)
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
+            self.keycloak_token,
+            type="PATCH",
+            data=details,
+        )
         return response
 
     def delete(self, id: str):
-        response = oauth_request(f"{self.url}/organizations/{self.organization_id}/security/access/{id}",
-                                 self.keycloak_token,
-                                 type="DELETE")
+        response = oauth_request(
+            f"{self.url}/organizations/{self.organization_id}/security/access/{id}", self.keycloak_token, type="DELETE"
+        )
         return response

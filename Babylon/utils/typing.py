@@ -1,10 +1,8 @@
 import logging
+from typing import Any, Optional
 
-from typing import Any
-from typing import Optional
-from click import Context
-from click import ParamType
-from click import Parameter
+from click import Context, Parameter, ParamType
+
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")

@@ -1,7 +1,7 @@
+import logging
 import os
 import re
 import sys
-import logging
 
 from Babylon.utils.environment import Environment
 
@@ -38,7 +38,7 @@ def check_exists(group: str, key: str, values: dict) -> dict:
 
 # Make a regular expression
 # for validating an Email
-regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
 
 
 # for validating an Email
@@ -57,7 +57,7 @@ def check_encoding_key():
 
 
 def check_special_char(string: str):
-    regex = re.compile('[@_!#$%^&*()<>?/\\|}{~:|\\.]')
+    regex = re.compile("[@_!#$%^&*()<>?/\\|}{~:|\\.]")
     if not regex.search(string):
         return string
     logger.error(f"{string} is invalid")

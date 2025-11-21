@@ -1,7 +1,7 @@
+from typing import IO
+
 import mkdocs_gen_files
 import requirements
-
-from typing import IO
 
 _md_file: IO
 with mkdocs_gen_files.open("getting_started/dependencies.md", "w") as _md_file, open("requirements.txt") as _req:
@@ -20,6 +20,7 @@ with mkdocs_gen_files.open("getting_started/dependencies.md", "w") as _md_file, 
             content.append(
                 f"[ ![PyPI - {_name}]"
                 f"(https://img.shields.io/pypi/l/{_name}?style=for-the-badge&labelColor=informational&label={_name})]"
-                f"(https://pypi.org/project/{_name}/)  ")
+                f"(https://pypi.org/project/{_name}/)  "
+            )
 
     _md_file.writelines(_l + "\n" for _l in content)

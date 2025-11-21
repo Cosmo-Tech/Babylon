@@ -1,19 +1,20 @@
 import unittest
 from unittest import mock
+
 from click.testing import CliRunner
-from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
+from requests.models import Response
+
+from Babylon.commands.api.datasets.delete import delete
 from Babylon.commands.api.datasets.get import get
 from Babylon.commands.api.datasets.get_all import get_all
-from Babylon.commands.api.datasets.delete import delete
 from Babylon.commands.api.datasets.search import search
+from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.environment import Environment
-from requests.models import Response
 
 env = Environment()
 
 
 class DatasetServiceTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])

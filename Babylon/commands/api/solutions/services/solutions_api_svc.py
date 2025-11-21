@@ -1,8 +1,8 @@
 import json
-import sys
 import logging
-
+import sys
 from typing import Optional
+
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
@@ -14,7 +14,6 @@ env = Environment()
 
 
 class SolutionService:
-
     def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None):
         self.state = state
         self.spec = spec

@@ -9,7 +9,7 @@ def is_valid_command_name(string: str) -> bool:
     :param string: the string to check
     :return: True if the string is a valid command name
     """
-    pattern = r'^[a-zA-Z]\w*$'
+    pattern = r"^[a-zA-Z]\w*$"
     return bool(re.search(pattern, string))
 
 

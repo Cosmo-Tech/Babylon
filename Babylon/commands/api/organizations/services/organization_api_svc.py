@@ -1,12 +1,13 @@
 import json
 import sys
-
 from logging import getLogger
+
 from Babylon.commands.api.organizations.services.organization_security_svc import (
-    OrganizationSecurityService, )
+    OrganizationSecurityService,
+)
+from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
-from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
@@ -14,7 +15,6 @@ env = Environment()
 
 
 class OrganizationService:
-
     def __init__(self, state: dict, keycloak_token: str, spec: dict = None):
         self.state = state
         self.spec = spec

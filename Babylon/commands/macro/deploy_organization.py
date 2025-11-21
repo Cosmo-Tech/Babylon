@@ -1,13 +1,14 @@
+import json
 import os
 import sys
-import json
-
 from logging import getLogger
+
 from click import echo, style
-from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import get_keycloak_token
-from Babylon.utils.response import CommandResponse
+
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
+from Babylon.utils.credentials import get_keycloak_token
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 env = Environment()
@@ -24,7 +25,7 @@ def deploy_organization(namespace: str, file_content: str):
     content = env.fill_template(data=file_content, state=state)
     keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
-    state["services"]["api"]["organization_id"] = (payload.get("id") or state["services"]["api"]["organization_id"])
+    state["services"]["api"]["organization_id"] = payload.get("id") or state["services"]["api"]["organization_id"]
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
     organization_service = OrganizationService(keycloak_token=keycloak_token, spec=spec, state=state["services"])

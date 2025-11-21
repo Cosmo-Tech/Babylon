@@ -1,15 +1,15 @@
-import os
 import logging
-import jmespath
-
+import os
 from glob import glob
 from pathlib import Path
+
+import jmespath
 from azure.core.exceptions import HttpResponseError
-from Babylon.utils.checkers import check_ascii
 from azure.storage.blob import BlobServiceClient
+
+from Babylon.utils.checkers import check_ascii
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
-
 from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
@@ -17,7 +17,6 @@ env = Environment()
 
 
 class AzureStorageContainerService:
-
     def __init__(self, blob_client: BlobServiceClient, state: dict = None) -> None:
         self.blob_client = blob_client
         self.state = state
@@ -57,13 +56,16 @@ class AzureStorageContainerService:
         except Exception as e:
             logger.error(e.message)
             return CommandResponse.fail()
-        output_data = [{
-            "name": container.name,
-            "lease": container.lease,
-            "etag": container.etag,
-            "deleted": container.deleted,
-            "public_access": container.public_access,
-        } for container in containers]
+        output_data = [
+            {
+                "name": container.name,
+                "lease": container.lease,
+                "etag": container.etag,
+                "deleted": container.deleted,
+                "public_access": container.public_access,
+            }
+            for container in containers
+        ]
         if filter:
             output_data = jmespath.search(filter, output_data)
         return output_data
