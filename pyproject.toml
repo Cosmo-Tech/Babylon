@@ -26,8 +26,20 @@ dependencies = [
   "inquirer",
   "flatten_json",
   "dynaconf",
+  "azure-mgmt-authorization>=4.0.0",
+  "azure-containerregistry>=1.2.0",
+]
+dynamic = ["version"]
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.12"
+license = "MIT"
+
+[dependency-groups]
+dev = [
+  "ruff>=0.14.5",
   "pytest",
-  "ruamel.yaml",
+]
+doc = [
   "mkdocs",
   "mkdocs-click",
   "mkdocs-gen-files",
@@ -36,14 +48,7 @@ dependencies = [
   "mike",
   "pymdown-extensions",
   "requirements-parser",
-  "azure-mgmt-authorization>=4.0.0",
-  "azure-containerregistry>=1.2.0",
-  "ruff>=0.14.5",
 ]
-dynamic = ["version"]
-readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.12"
-license = "MIT"
 
 [tool.hatch.envs.default]
 installer = "uv"

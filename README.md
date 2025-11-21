@@ -4,20 +4,32 @@
 [![Documentation](https://img.shields.io/badge/Documentation-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://cosmo-tech.github.io/Babylon/)
 [![Cosmotech](https://img.shields.io/badge/Cosmotech-ffb039?style=for-the-badge&logoColor=black)](https://cosmotech.com/)
 
-Babylon is a tool designed to simplify interaction between Cosmo Tech solutions and the Azure environment.
+Babylon is a tool designed to simplify configuration and management of the Cosmo Tech solutions and platform.
 
 A basic how-to about contribution can be found there : [![Contribution](https://img.shields.io/badge/Contribution-%23121011.svg?style=for-the-badge&logoColor=black)](https://cosmo-tech.github.io/Babylon/latest/concepts/contribute/)
 
 ## Installation
 
-The full installation guide is present there : [![Installation](https://img.shields.io/badge/Installation-%23121011.svg?style=for-the-badge&logoColor=black)](https://cosmo-tech.github.io/Babylon/latest/getting_started/installation/)
+Install babylon in a virtual environment:
 
-A basic installation can be done with the following commands :
+### Install with uv (recommended)
+
+If you don't have `uv` installed do so following [instructions](https://docs.astral.sh/uv/getting-started/installation/)
 
 ```bash
-git clone git@github.com:Cosmo-Tech/Babylon.git
-cd Babylon
+uv venv
+source .venv/bin/activate
+uv pip install .
+```
+
+### Install using pip
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
 pip install .
 ```
 
-After installation, you should have access to the `babylon` command.
+## Usage
+After installation, you can use the `babylon` command in your terminal.
