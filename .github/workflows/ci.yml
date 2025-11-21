@@ -28,8 +28,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m venv .venv
-          .venv/bin/pip install .
-
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install . --group dev
       - name: Run tests
         run: |
          . .venv/bin/activate
