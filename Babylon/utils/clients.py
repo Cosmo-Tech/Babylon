@@ -9,7 +9,6 @@ from functools import wraps
 from azure.storage.blob import BlobServiceClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
-from terrasnek.api import TFC
 from .environment import Environment
 from .credentials import get_azure_credentials
 
@@ -48,22 +47,6 @@ def pass_blob_client(func: Callable[..., Any]) -> Callable[..., Any]:
         prefix = f"DefaultEndpointsProtocol=https;AccountName={account_name}"
         connection_str = f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net"
         kwargs["blob_client"] = BlobServiceClient.from_connection_string(connection_str)
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def pass_tfc_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab Azure credentials and pass credentials"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        token = env.get_global_secret(resource="tfc", name="token")
-        url = env.get_global_secret(resource="tfc", name="url")
-        organization = env.get_global_secret(resource="tfc", name="organization")
-        api = TFC(token, url)
-        api.set_org(organization)
-        kwargs["tfc_client"] = api
         return func(*args, **kwargs)
 
     return wrapper

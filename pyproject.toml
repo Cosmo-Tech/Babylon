@@ -18,7 +18,6 @@ dependencies = [
   "pyyaml",
   "requests==2.31.0",
   "jmespath",
-  "terrasnek",
   "rich",
   "GitPython",
   "Mako",
