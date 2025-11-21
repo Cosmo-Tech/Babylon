@@ -1,20 +1,21 @@
-import click
 import json
 import pathlib
-
 from logging import getLogger
+
+import click
 from click import command, option
+
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
-from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
-    pass_azure_token,
     get_powerbi_token,
+    pass_azure_token,
 )
 from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -35,15 +36,15 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         state_to_destroy_dict = json.loads(state_to_destroy_json)
         state = state_to_destroy_dict
 
-    organization_id = state['services']["api"]["organization_id"]
-    workspace_id = state['services']["api"]["workspace_id"]
-    solution_id = state['services']["api"]["solution_id"]
-    workspace_service = WorkspaceService(state=state.get('services'), azure_token=azure_token)
-    solution_service = SolutionService(state=state.get('services'), azure_token=azure_token)
+    organization_id = state["services"]["api"]["organization_id"]
+    workspace_id = state["services"]["api"]["workspace_id"]
+    solution_id = state["services"]["api"]["solution_id"]
+    workspace_service = WorkspaceService(state=state.get("services"), azure_token=azure_token)
+    solution_service = SolutionService(state=state.get("services"), azure_token=azure_token)
     logger.info(f"Starting deletion of solution deployed in organization : {organization_id}")
     # deleting scenarios
     if workspace_id:
-        scenario_service = RunnerService(state=state.get('services'), azure_token=azure_token)
+        scenario_service = RunnerService(state=state.get("services"), azure_token=azure_token)
         response = scenario_service.get_all()
         scenario_json = response.json()
         scenario_str = json.dumps(scenario_json)
@@ -60,7 +61,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         datasets = workspace_json.get("linkedDatasetIdList", [])
         if datasets:
             for dataset_id in datasets:
-                dataset_service = DatasetService(state=state['services'], azure_token=azure_token)
+                dataset_service = DatasetService(state=state["services"], azure_token=azure_token)
                 response = dataset_service.get(dataset_id=dataset_id)
                 dataset = response.json()
                 if dataset["sourceType"] == "AzureStorage":
@@ -79,10 +80,10 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         env.store_state_in_cloud(state=state)
 
     # # deleting powerBI workspace
-    powerbi_workspace_id = state['services']["powerbi"]["workspace.id"]
+    powerbi_workspace_id = state["services"]["powerbi"]["workspace.id"]
     if powerbi_workspace_id:
         pb_token = get_powerbi_token()
-        powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=pb_token, state=state.get('services'))
+        powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=pb_token, state=state.get("services"))
         logger.info(f"Deleting PowerBI workspace {powerbi_workspace_id} ....")
         powerbi_svc.delete(workspace_id=powerbi_workspace_id, force_validation=True)
         state["services"]["powerbi"]["workspace.id"] = ""
@@ -105,12 +106,13 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         solution = solution_service.get()
         solution_json = solution.json()
         run_templates = solution_json.get("runTemplates", [])
-        handlers = ['parameters_handler', 'preRun', 'run', 'engine', 'postRun', 'scenariodata_transform', 'validator']
+        handlers = ["parameters_handler", "preRun", "run", "engine", "postRun", "scenariodata_transform", "validator"]
         for run_template in run_templates:
-            runtemplate_id = run_template.get('id', "")
+            runtemplate_id = run_template.get("id", "")
             for h in handlers:
-                blob = env.blob_client.get_blob_client(container=organization_id,
-                                                       blob=f"{solution_id}/{runtemplate_id}/{h}.zip")
+                blob = env.blob_client.get_blob_client(
+                    container=organization_id, blob=f"{solution_id}/{runtemplate_id}/{h}.zip"
+                )
                 if blob.exists():
                     logger.info(f"Deleting run template {h} - {run_template} in solution : {solution_id}")
                     blob.delete_blob()
@@ -121,7 +123,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
 
     env.store_state_in_local(state=state)
     env.store_state_in_cloud(state=state)
-    _ret = ['']
+    _ret = [""]
     _ret.append("")
     _ret.append("Deployments: ")
     _ret.append("")
@@ -136,7 +138,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     _ret.append("      * Storage     : All Deleted")
     _ret.append("   * Scenarios      : All Deleted")
     _ret.append("   * ScenarioRuns   : All Deleted")
-    if state["services"].get('webapp').get('static_domain', ''):
+    if state["services"].get("webapp").get("static_domain", ""):
         _ret.append("   * WebApp         ")
         _ret.append(f"      * Hostname    : https://{state['services'].get('webapp').get('static_domain', '')}")
     click.echo(click.style("\n".join(_ret), fg="green"))

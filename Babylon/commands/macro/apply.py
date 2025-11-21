@@ -1,17 +1,18 @@
-from typing import Iterable
-import yaml
-import pathlib
 import os
-
+import pathlib
 from logging import getLogger
-from click import Path, argument, command, option, style, echo
-from Babylon.utils.environment import Environment
-from Babylon.utils.decorators import injectcontext
+from typing import Iterable
+
+import yaml
+from click import Path, argument, command, echo, option, style
+
 from Babylon.commands.macro.deploy_dataset import deploy_dataset
-from Babylon.commands.macro.deploy_solution import deploy_solution
-from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.commands.macro.deploy_organization import deploy_organization
 from Babylon.commands.macro.deploy_runner import deploy_runner
+from Babylon.commands.macro.deploy_solution import deploy_solution
+from Babylon.commands.macro.deploy_workspace import deploy_workspace
+from Babylon.utils.decorators import injectcontext
+from Babylon.utils.environment import Environment
 
 logger = getLogger("Babylon")
 env = Environment()
@@ -89,10 +90,9 @@ def apply(
         for w in workspaces:
             content = w.get("content")
             namespace = w.get("namespace")
-            deploy_workspace(namespace=namespace,
-                             file_content=content,
-                             deploy_dir=deploy_dir,
-                             payload_only=payload_only)
+            deploy_workspace(
+                namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only
+            )
 
         # To do: This is not implemented yet. We are waiting for the API implementation before working on it again.
 
@@ -117,10 +117,9 @@ def apply(
             for w in workspaces:
                 content = w.get("content")
                 namespace = w.get("namespace")
-                deploy_workspace(namespace=namespace,
-                                 file_content=content,
-                                 deploy_dir=deploy_dir,
-                                 payload_only=payload_only)
+                deploy_workspace(
+                    namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only
+                )
         elif runner:
             for r in runners:
                 content = r.get("content")

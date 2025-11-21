@@ -1,18 +1,19 @@
 import json
+import logging
 import os
 import re
 import sys
 import uuid
-import yaml
-import logging
-import requests
-
 from collections import defaultdict
 from pathlib import Path
-from hvac import Client
-from mako.template import Template
+
+import requests
+import yaml
 from cryptography.fernet import Fernet
 from flatten_json import flatten
+from hvac import Client
+from mako.template import Template
+
 from Babylon.config import config_files
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
@@ -46,7 +47,6 @@ class SingletonMeta(type):
 
 
 class Environment(metaclass=SingletonMeta):
-
     def __init__(self):
         self.remote = False
         self.pwd = Path.cwd()
@@ -58,7 +58,7 @@ class Environment(metaclass=SingletonMeta):
         self.server_id: str = ""
         self.tenant_id: str = ""
         self.organization_name: str = ""
-        self.original_template_path = (ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir/.templates")
+        self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir/.templates"
         self.dry_run = False
         self.is_verbose = True
         self.AZURE_SCOPES = {
@@ -142,10 +142,7 @@ class Environment(metaclass=SingletonMeta):
         return payload_dict
 
     def convert_template_path(self, query) -> str:
-        check_regex = re.compile(f"{PATH_SYMBOL}"
-                                 f"({TEMPLATES_STRING})"
-                                 f"{PATH_SYMBOL}"
-                                 f"(.+)")
+        check_regex = re.compile(f"{PATH_SYMBOL}({TEMPLATES_STRING}){PATH_SYMBOL}(.+)")
         match_content = check_regex.match(query)
         if not match_content:
             return None
@@ -237,7 +234,8 @@ class Environment(metaclass=SingletonMeta):
 
     def get_platform_secret(self, platform: str, resource: str, name: str):
         data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}")
+            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}"
+        )
         if data is None:
             return None
         return data["data"]["secret"]
@@ -392,8 +390,10 @@ class Environment(metaclass=SingletonMeta):
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
-            logger.error("[babylon] The context and the platform are not set. \
-                         Please set the platform using the 'namespace use' command.")
+            logger.error(
+                "[babylon] The context and the platform are not set. \
+                         Please set the platform using the 'namespace use' command."
+            )
             sys.exit(1)
 
         ns_data = yaml.safe_load(ns_file.open("r").read())
@@ -414,7 +414,7 @@ class Environment(metaclass=SingletonMeta):
         data_vault = self.get_state_from_vault_by_platform(self.environ_id)
         init_state["services"] = data_vault
         init_state["id"] = state_id or self.get_state_id()
-        self.state_id = init_state.get('id')
+        self.state_id = init_state.get("id")
         current_state = init_state
         local_state = self.get_state_from_local()
         current_state.update(local_state)
@@ -475,7 +475,7 @@ class Environment(metaclass=SingletonMeta):
         self.variable_files = variable_files_updated
 
     def load_yaml_file(self, file_path: Path):
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             try:
                 return yaml.safe_load(file) or {}
             except yaml.YAMLError as e:
@@ -487,7 +487,7 @@ class Environment(metaclass=SingletonMeta):
         keys_tracker = defaultdict(list)
 
         for file_path in file_paths:
-            if not file_path.endswith('.yaml'):
+            if not file_path.endswith(".yaml"):
                 logger.error(f"[babylon] File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:

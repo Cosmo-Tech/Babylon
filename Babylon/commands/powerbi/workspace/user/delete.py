@@ -1,14 +1,14 @@
 import logging
-
 from typing import Any, Optional
-from click import argument
-from click import command
-from click import option
+
+from click import argument, command, option
+
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
-    AzurePowerBIWorkspaceUserService, )
-from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.response import CommandResponse
+    AzurePowerBIWorkspaceUserService,
+)
 from Babylon.utils.credentials import pass_powerbi_token
+from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 

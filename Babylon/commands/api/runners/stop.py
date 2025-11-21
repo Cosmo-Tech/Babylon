@@ -1,12 +1,14 @@
 from logging import getLogger
 from typing import Any
-from click import command, option, echo, style
+
+from click import command, echo, option, style
+
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
-    retrieve_state,
     output_to_file,
+    retrieve_state,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -38,9 +40,9 @@ def stop(
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
     service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or state["services"]["api"]["organization_id"])
-    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
+    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
+    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
+    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
     logger.info(f"Stopping a runner {[service_state['api']['runner_id']]}")
     runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
     response = runner_service.stop()

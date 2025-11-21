@@ -1,4 +1,5 @@
 import logging
+
 import jmespath
 
 from Babylon.utils.interactive import confirm_deletion
@@ -8,7 +9,6 @@ logger = logging.getLogger("Babylon")
 
 
 class AzurePowerBIDatasetService:
-
     def __init__(self, powerbi_token: str, state: dict = None) -> None:
         self.state = state
         self.powerbi_token = powerbi_token
@@ -78,8 +78,8 @@ class AzurePowerBIDatasetService:
         for datasource in output_data:
             if datasource.get("datasourceType") != "Extension":
                 continue
-            gateway_id = datasource.get('gatewayId')
-            datasource_id = datasource.get('datasourceId')
+            gateway_id = datasource.get("gatewayId")
+            datasource_id = datasource.get("datasourceId")
             update_url = f"https://api.powerbi.com/v1.0/myorg/gateways/{gateway_id}/datasources/{datasource_id}"
             response = oauth_request(update_url, access_token, json=credential_details, type="PATCH")
             if response is None:

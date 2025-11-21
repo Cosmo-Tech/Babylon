@@ -4,9 +4,9 @@ from .create import create
 from .delete import delete
 from .get import get
 from .get_all import get_all
-from .update import update
-from .security import security
 from .runTemplates import runTemplates
+from .security import security
+from .update import update
 
 
 @group()

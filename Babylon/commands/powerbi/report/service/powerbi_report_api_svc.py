@@ -1,20 +1,20 @@
-import os
 import logging
-import jmespath
-import requests
-import polling2
-
+import os
 from pathlib import Path
-from Babylon.utils.request import oauth_request
+
+import jmespath
+import polling2
+import requests
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
+from Babylon.utils.request import oauth_request
 
 logger = logging.getLogger("Babylon")
 env = Environment()
 
 
 class AzurePowerBIReportService:
-
     def __init__(self, powerbi_token: str, state: dict = None) -> None:
         self.state = state
         self.powerbi_token = powerbi_token
@@ -31,12 +31,12 @@ class AzurePowerBIReportService:
         return response
 
     def download_all(self, workspace_id: str, output_folder: Path):
-        logger.info('[powerbi] download all reports')
+        logger.info("[powerbi] download all reports")
         if not output_folder.exists():
             output_folder.mkdir()
         reports = self.get_all(workspace_id=workspace_id)
         for r in reports:
-            self.download(workspace_id=workspace_id, report_id=r.get('id'), output_folder=output_folder)
+            self.download(workspace_id=workspace_id, report_id=r.get("id"), output_folder=output_folder)
             logger.info("[powerbi] successfully saved the following reports:")
         logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))
 
@@ -57,7 +57,7 @@ class AzurePowerBIReportService:
 
     def get_all(self, workspace_id: str, filter: str = ""):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        urls_reports = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports")
+        urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
             logger.error("[powerbi] failed to get all reports")
@@ -104,8 +104,10 @@ class AzurePowerBIReportService:
             "Authorization": f"Bearer {self.powerbi_token}",
         }
         name_conflict = "CreateOrOverwrite" if override else "Abort"
-        route = (f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
-                 f"/imports?datasetDisplayName={name}&nameConflict={name_conflict}")
+        route = (
+            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
+            f"/imports?datasetDisplayName={name}&nameConflict={name_conflict}"
+        )
         session = requests.Session()
         with open(pbix_filename, "rb") as _f:
             try:

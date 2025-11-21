@@ -1,18 +1,17 @@
 import logging
-
 from typing import Any, Optional
-from click import Choice
-from click import argument
-from click import command
-from click import option
+
+from click import Choice, argument, command, option
+
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
-    AzurePowerBIWorkspaceUserService, )
+    AzurePowerBIWorkspaceUserService,
+)
+from Babylon.utils.credentials import pass_powerbi_token
 from Babylon.utils.decorators import (
-    retrieve_state,
     injectcontext,
+    retrieve_state,
 )
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_powerbi_token
 
 logger = logging.getLogger("Babylon")
 
@@ -39,7 +38,7 @@ def update(
     """
     Updates an existing user in the power bi workspace
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=service_state)
     response = service.update(workspace_id=workspace_id, right=right, type=type, email=email)
     response = response.json()

@@ -1,13 +1,14 @@
 import logging
-
 from typing import Any, Optional
-from click import command
-from click import option
+
+from click import command, option
+
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
-    AzurePowerBIWorkspaceUserService, )
-from Babylon.utils.decorators import output_to_file, retrieve_state, injectcontext
-from Babylon.utils.response import CommandResponse
+    AzurePowerBIWorkspaceUserService,
+)
 from Babylon.utils.credentials import pass_powerbi_token
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -23,7 +24,7 @@ def get_all(state: Any, powerbi_token: str, workspace_id: str, filter: Optional[
     """
     List all exisiting users in the power bi workspace
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzurePowerBIWorkspaceUserService(powerbi_token=powerbi_token, state=service_state)
     response = service.get_all(workspace_id=workspace_id, filter=filter)
     return CommandResponse.success(response, verbose=True)

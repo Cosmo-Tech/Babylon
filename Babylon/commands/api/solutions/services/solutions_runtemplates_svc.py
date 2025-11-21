@@ -1,7 +1,7 @@
 import sys
-
-from typing import Optional
 from logging import getLogger
+from typing import Optional
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 
@@ -10,7 +10,6 @@ env = Environment()
 
 
 class SolutionRunTemplatesService:
-
     def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None) -> None:
         self.state = state
         self.spec = spec
@@ -42,7 +41,8 @@ class SolutionRunTemplatesService:
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/solutions/{self.solution_id}/runTemplates",
             self.keycloak_token,
-            type="GET")
+            type="GET",
+        )
         return response
 
     def get(self, run_template_id: str):
@@ -50,7 +50,8 @@ class SolutionRunTemplatesService:
             f"{self.url}/organizations/{self.organization_id}/solutions/"
             f"{self.solution_id}/runTemplates/{run_template_id}",
             self.keycloak_token,
-            type="GET")
+            type="GET",
+        )
         return response
 
     def delete(self, run_template_id: str):
@@ -58,7 +59,8 @@ class SolutionRunTemplatesService:
             f"{self.url}/organizations/{self.organization_id}/solutions/"
             f"{self.solution_id}/runTemplates/{run_template_id}",
             self.keycloak_token,
-            type="DELETE")
+            type="DELETE",
+        )
         return response
 
     def update(self, run_template_id: str):

@@ -1,10 +1,11 @@
 import logging
 
 from click import group
-from Babylon.utils.environment import Environment
-from Babylon.commands.azure.storage import storage
+
 from Babylon.commands.azure.permission import permission
+from Babylon.commands.azure.storage import storage
 from Babylon.commands.azure.token import token
+from Babylon.utils.environment import Environment
 
 logger = logging.getLogger("Babylon")
 env = Environment()

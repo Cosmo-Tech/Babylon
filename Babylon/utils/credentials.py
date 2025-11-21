@@ -1,17 +1,16 @@
-import sys
 import logging
-import requests
-
+import sys
 from functools import wraps
-from typing import Callable
-from typing import Any
-from click import option
+from typing import Any, Callable
+
+import requests
 from azure.core.exceptions import ClientAuthenticationError
-from azure.identity import ClientSecretCredential
-from azure.identity import CredentialUnavailableError
-from azure.identity import DefaultAzureCredential
+from azure.identity import ClientSecretCredential, CredentialUnavailableError, DefaultAzureCredential
+from click import option
+
 from Babylon.utils.checkers import check_email
 from Babylon.utils.response import CommandResponse
+
 from .environment import Environment
 
 logger = logging.getLogger("Babylon")
@@ -81,14 +80,14 @@ def get_azure_credentials() -> ClientSecretCredential:
 
 
 def get_keycloak_credentials() -> dict:
-    """"Logs to keycloak and saves the token as a config variable"""
+    """ "Logs to keycloak and saves the token as a config variable"""
     try:
         config = env.get_state_from_vault_by_platform(env.environ_id)
         credential = {
             "grant_type": config["keycloak"]["grant_type"],
             "client_id": config["keycloak"]["client_id"],
             "client_secret": config["keycloak"]["client_secret"],
-            "scope": config["keycloak"]["scope"]
+            "scope": config["keycloak"]["scope"],
         }
         if not all(credential.values()):
             missing = [k for k, v in credential.items() if not v]
@@ -117,7 +116,9 @@ def get_keycloak_token() -> str:
         response.raise_for_status()
 
         token_data = response.json()
-        access_token = token_data.get("access_token", )
+        access_token = token_data.get(
+            "access_token",
+        )
         if not access_token:
             logger.error("Access token not found in Keycloak response")
         return access_token
@@ -163,7 +164,6 @@ def pass_azure_token(scope: str = "default") -> Callable[..., Any]:
     """Logs to Azure and pass token"""
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             try:
@@ -181,7 +181,6 @@ def pass_keycloak_token() -> Callable[..., Any]:
     """Logs to keycloak and pass token"""
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             try:
@@ -199,7 +198,6 @@ def pass_powerbi_token() -> Callable[..., Any]:
     """Logs to powerbi and pass token"""
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @option("--email", "email", help="User email")
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):

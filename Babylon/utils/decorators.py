@@ -3,15 +3,15 @@ import logging
 import pathlib
 import shutil
 import time
-
-from typing import Any
 from functools import wraps
-from typing import Callable
-from Babylon.utils.checkers import check_special_char
-from Babylon.version import get_version
+from typing import Any, Callable
+
 from click import get_current_context, option
+
+from Babylon.utils.checkers import check_special_char
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
+from Babylon.version import get_version
 
 logger = logging.getLogger("Babylon")
 env = Environment()
@@ -99,7 +99,6 @@ def describe_dry_run(description: str):
     """
 
     def wrap_function(func):
-
         @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
@@ -118,7 +117,6 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
     """
 
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             if shutil.which(program_name):
@@ -136,9 +134,7 @@ def requires_external_program(program_name: str) -> Callable[..., Any]:
 
 
 def injectcontext() -> Callable[..., Any]:
-
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @option(
             "-c",
             "--context",
@@ -177,7 +173,6 @@ def injectcontext() -> Callable[..., Any]:
 
 
 def retrieve_state(func) -> Callable[..., Any]:
-
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
         state = env.retrieve_state_func(state_id=env.state_id)
@@ -188,9 +183,7 @@ def retrieve_state(func) -> Callable[..., Any]:
 
 
 def wrapcontext() -> Callable[..., Any]:
-
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-
         @option("-c", "--context", "context", required=True, help="Context Name")
         @option("-p", "--platform", "platform", required=True, help="Platform Name")
         @option("-s", "--state-id", "state_id", required=True, help="State Id")

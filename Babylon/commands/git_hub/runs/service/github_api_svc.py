@@ -1,4 +1,5 @@
 import logging
+
 import requests
 
 from Babylon.utils.environment import Environment
@@ -9,7 +10,6 @@ env = Environment()
 
 
 class GitHubRunsService:
-
     def __init__(self, state: dict = None) -> None:
         self.state = state
 

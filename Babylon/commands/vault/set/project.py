@@ -1,7 +1,8 @@
 import logging
 
-from hvac import Client
 from click import Choice, argument, command
+from hvac import Client
+
 from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
@@ -14,15 +15,15 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_hvac_client
-@argument("resource", type=Choice(['azf', 'powerbi', 'eventhub', 'func']))
+@argument("resource", type=Choice(["azf", "powerbi", "eventhub", "func"]))
 @argument("value", type=str)
 @retrieve_state
 def project(state: dict, hvac_client: Client, resource: str, value: str) -> CommandResponse:
     """
     Set a secret in project scope
     """
-    org_id: str = state['services']['api']['organization_id']
-    work_key: str = state['services']['api']['workspace_key']
+    org_id: str = state["services"]["api"]["organization_id"]
+    work_key: str = state["services"]["api"]["workspace_key"]
     d = dict(secret=value)
     prefix = f"{env.organization_name}/{env.tenant_id}/projects/{env.context_id}"
     schema = f"{prefix}/{env.environ_id}/{org_id}/{work_key}/{resource}".lower()

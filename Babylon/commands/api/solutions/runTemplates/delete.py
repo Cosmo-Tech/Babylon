@@ -1,12 +1,13 @@
-from typing import Any
-from click import command, option, echo, style
 from logging import getLogger
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.decorators import output_to_file
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
+from typing import Any
+
+from click import command, echo, option, style
+
 from Babylon.commands.api.solutions.services.solutions_runtemplates_svc import SolutionRunTemplatesService
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 env = Environment()
@@ -35,13 +36,13 @@ def delete(
     _sol.append("")
     echo(style("\n".join(_sol), bold=True, fg="green"))
     service_state = state["services"]
-    service_state["api"]["organization_id"] = (organization_id or service_state["api"]["organization_id"])
-    service_state["api"]["solution_id"] = (solution_id or service_state["api"]["solution_id"])
+    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service_state["api"]["solution_id"] = solution_id or service_state["api"]["solution_id"]
     solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=service_state)
     logger.info(f"Deleting runtemplate id {[runTemplate_id]} from the solution {[service_state['api']['solution_id']]}")
     response = solution_service.delete(runTemplate_id)
     if response is None:
         return CommandResponse.fail()
-    sol_id = service_state['api']['solution_id']
+    sol_id = service_state["api"]["solution_id"]
     logger.info(f"RunTemplate id {[runTemplate_id]} successfully deleted from the solution {[sol_id]}")
     return CommandResponse.success(response)

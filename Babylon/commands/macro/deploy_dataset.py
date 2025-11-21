@@ -1,6 +1,6 @@
 import pathlib
-
 from logging import getLogger
+
 from Babylon.utils.environment import Environment
 
 logger = getLogger(__name__)

@@ -1,7 +1,7 @@
 import logging
 
-from click import argument
-from click import command
+from click import argument, command
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 

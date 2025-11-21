@@ -1,11 +1,12 @@
 from click import group
+
 from .delete import delete
 from .get import get
-from .take_over import take_over
 from .get_all import get_all
 from .parameters import parameters
-from .users import users
+from .take_over import take_over
 from .update_credentials import update_credentials
+from .users import users
 
 list_groups = [parameters]
 

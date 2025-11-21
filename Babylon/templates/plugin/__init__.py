@@ -1,6 +1,4 @@
-from click import group
-from click import Command
-from click import Group
+from click import Command, Group, group
 
 list_commands: list[Command] = []
 list_groups: list[Group] = []

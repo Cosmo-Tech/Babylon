@@ -1,15 +1,14 @@
-import jmespath
-
 from logging import getLogger
 from typing import Any
-from click import command, option, echo, style
-from Babylon.utils.decorators import retrieve_state
-from Babylon.utils.decorators import injectcontext
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.decorators import output_to_file
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.environment import Environment
+
+import jmespath
+from click import command, echo, option, style
+
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 env = Environment()
@@ -29,7 +28,7 @@ def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     _org.append("Get all organizations details")
     _org.append("")
     echo(style("\n".join(_org), bold=True, fg="green"))
-    organization_service = OrganizationService(state=state['services'], keycloak_token=keycloak_token)
+    organization_service = OrganizationService(state=state["services"], keycloak_token=keycloak_token)
     response = organization_service.get_all()
     if response is None:
         return CommandResponse.fail()

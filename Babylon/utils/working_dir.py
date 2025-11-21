@@ -2,8 +2,8 @@ import logging
 import pathlib
 
 from cryptography.fernet import Fernet
-from . import ORIGINAL_TEMPLATE_FOLDER_PATH
-from . import ORIGINAL_CONFIG_FOLDER_PATH
+
+from . import ORIGINAL_CONFIG_FOLDER_PATH, ORIGINAL_TEMPLATE_FOLDER_PATH
 
 logger = logging.getLogger("Babylon")
 

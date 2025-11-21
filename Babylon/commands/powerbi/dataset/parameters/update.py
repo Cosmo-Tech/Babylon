@@ -1,14 +1,12 @@
 import logging
-
 from typing import Any, Optional
-from click import command
-from click import argument
-from click import option
-from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import AzurePowerBIParamsService
-from Babylon.utils.decorators import retrieve_state, injectcontext
-from Babylon.utils.response import CommandResponse
 
+from click import argument, command, option
+
+from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import AzurePowerBIParamsService
 from Babylon.utils.credentials import pass_powerbi_token
+from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.utils.response import CommandResponse
 
 logger = logging.getLogger("Babylon")
 
@@ -37,7 +35,7 @@ def update(
     """
     Update parameters of a given dataset
     """
-    service_state = state['services']
+    service_state = state["services"]
     service = AzurePowerBIParamsService(powerbi_token=powerbi_token, state=service_state)
     service.update(workspace_id=workspace_id, params=params, dataset_id=dataset_id)
     return CommandResponse.success()

@@ -1,13 +1,13 @@
 from click import group
 
-from .security import security
-from .get_all import get_all
 from .create import create
-from .get import get
-from .update import update
 from .delete import delete
+from .get import get
+from .get_all import get_all
+from .security import security
 from .start import start
 from .stop import stop
+from .update import update
 
 list_commands = [get_all, get, create, update, delete, start, stop]
 

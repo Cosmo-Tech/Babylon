@@ -1,10 +1,12 @@
 from logging import getLogger
 from typing import Any
-from click import command, option, echo, style
-from Babylon.utils.environment import Environment
+
+from click import command, echo, option, style
+
 from Babylon.commands.api.runs.services.run_api_svc import RunService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, retrieve_state, output_to_file
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
@@ -37,11 +39,11 @@ def delete(
     _run.append("Delete the Run")
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
-    service_state = state['services']
-    service_state['api']['organization_id'] = organization_id or service_state['api']['organization_id']
-    service_state["api"]["workspace_id"] = (workspace_id or state["services"]["api"]["workspace_id"])
-    service_state["api"]["runner_id"] = (runner_id or state["services"]["api"]["runner_id"])
-    service_state['api']['run_id'] = run_id or service_state['api'].get('run_id')
+    service_state = state["services"]
+    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
+    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
+    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
+    service_state["api"]["run_id"] = run_id or service_state["api"].get("run_id")
     service = RunService(state=service_state, keycloak_token=keycloak_token)
     logger.info(f"Deleting run {[service_state['api']['run_id']]}")
     response = service.delete(force_validation=force_validation)

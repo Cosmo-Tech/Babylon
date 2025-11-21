@@ -1,6 +1,7 @@
 from click import group
-from .store import store
+
 from .get import get
+from .store import store
 
 list_commands = [
     store,

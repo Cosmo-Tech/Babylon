@@ -1,10 +1,11 @@
 import json
 import sys
-
 from logging import getLogger
 from typing import Optional
+
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
-    ApiWorkspaceSecurityService, )
+    ApiWorkspaceSecurityService,
+)
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
@@ -15,7 +16,6 @@ env = Environment()
 
 
 class WorkspaceService:
-
     def __init__(self, state: dict, keycloak_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
@@ -122,25 +122,33 @@ class WorkspaceService:
 
     def update_payload_with_state(self):
         jsonPayload = json.loads(self.spec["payload"])
-        if self.state["powerbi"].get("workspace.id") and jsonPayload.get('webApp').get(
-                "static_domain") and jsonPayload.get('webApp').get('options').get('charts'):
-            if self.state["powerbi"]['dashboard_view'] is not None:
-                for dashboard_view_tag in self.state["powerbi"]['dashboard_view']:
-                    for dashboard in jsonPayload.get('webApp').get('options').get('charts').get('dashboardsView'):
-                        if (dashboard_view_tag == dashboard["reportTag"]):
-                            dashboard["reportId"] = self.state["powerbi"]['dashboard_view'][dashboard_view_tag]
+        if (
+            self.state["powerbi"].get("workspace.id")
+            and jsonPayload.get("webApp").get("static_domain")
+            and jsonPayload.get("webApp").get("options").get("charts")
+        ):
+            if self.state["powerbi"]["dashboard_view"] is not None:
+                for dashboard_view_tag in self.state["powerbi"]["dashboard_view"]:
+                    for dashboard in jsonPayload.get("webApp").get("options").get("charts").get("dashboardsView"):
+                        if dashboard_view_tag == dashboard["reportTag"]:
+                            dashboard["reportId"] = self.state["powerbi"]["dashboard_view"][dashboard_view_tag]
 
-            if self.state["powerbi"]['scenario_view'] is not None:
-                for scenario_view_tag in self.state["powerbi"]['scenario_view']:
-                    for scenario in jsonPayload.get('webApp').get('options').get('charts').get('scenarioView'):
+            if self.state["powerbi"]["scenario_view"] is not None:
+                for scenario_view_tag in self.state["powerbi"]["scenario_view"]:
+                    for scenario in jsonPayload.get("webApp").get("options").get("charts").get("scenarioView"):
                         if isinstance(scenario, dict):
-                            if (scenario_view_tag == scenario["reportTag"]):
-                                scenario["reportId"] = self.state["powerbi"]['scenario_view'][scenario_view_tag]
+                            if scenario_view_tag == scenario["reportTag"]:
+                                scenario["reportId"] = self.state["powerbi"]["scenario_view"][scenario_view_tag]
                         else:
-                            scenarioData = jsonPayload.get('webApp').get('options').get('charts').get(
-                                'scenarioView').get(scenario, {})
-                            if (scenarioData is not None and scenario_view_tag == scenarioData.get("reportTag")):
-                                scenarioData["reportId"] = self.state["powerbi"]['scenario_view'][scenario_view_tag]
+                            scenarioData = (
+                                jsonPayload.get("webApp")
+                                .get("options")
+                                .get("charts")
+                                .get("scenarioView")
+                                .get(scenario, {})
+                            )
+                            if scenarioData is not None and scenario_view_tag == scenarioData.get("reportTag"):
+                                scenarioData["reportId"] = self.state["powerbi"]["scenario_view"][scenario_view_tag]
         return jsonPayload
 
 

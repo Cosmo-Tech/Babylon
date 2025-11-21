@@ -1,8 +1,8 @@
-import sys
 import json
-
+import sys
 from logging import getLogger
 from typing import Optional
+
 from Babylon.commands.api.runners.services.runner_security_svc import RunnerSecurityService
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
@@ -11,7 +11,6 @@ logger = getLogger(__name__)
 
 
 class RunnerService:
-
     def __init__(self, state: dict, keycloak_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
@@ -27,13 +26,12 @@ class RunnerService:
             logger.error("Organization id is missing verify the state")
             sys.exit(1)
         if not self.workspace_id:
-            logger.error('Workspace id is missing verify the state')
+            logger.error("Workspace id is missing verify the state")
             sys.exit(1)
 
     def get_all(self):
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners",
             self.keycloak_token,
         )
         return response
@@ -41,8 +39,7 @@ class RunnerService:
     def get(self):
         check_if_runner_exists(self.runner_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
             self.keycloak_token,
         )
         return response
@@ -51,8 +48,7 @@ class RunnerService:
         check_if_runner_exists(self.runner_id)
         details = self.spec["payload"]
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
             self.keycloak_token,
             type="PATCH",
             data=details,
@@ -62,8 +58,7 @@ class RunnerService:
     def create(self):
         details = self.spec["payload"]
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners",
             self.keycloak_token,
             type="POST",
             data=details,
@@ -76,8 +71,7 @@ class RunnerService:
             return None
 
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
             self.keycloak_token,
             type="DELETE",
         )

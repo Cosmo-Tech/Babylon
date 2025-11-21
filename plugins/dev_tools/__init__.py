@@ -3,13 +3,11 @@ import pathlib
 from typing import Optional
 
 import click
-from click import group
-from click import option
-from click import pass_context
-from click import Context
+from click import Context, group, option, pass_context
 
 from Babylon.utils import BABYLON_PATH
 from Babylon.utils.environment import Environment
+
 from .initialize_plugin import initialize_plugin
 from .tests import tests
 
@@ -36,8 +34,8 @@ def dev_tools(ctx: Context, plugin: Optional[str] = None):
             raise click.Abort()
         else:
             for _p in config.plugins:
-                if _p['name'] == plugin:
-                    base_path = pathlib.Path(_p['path'])
+                if _p["name"] == plugin:
+                    base_path = pathlib.Path(_p["path"])
                     break
     ctx.obj = base_path
 

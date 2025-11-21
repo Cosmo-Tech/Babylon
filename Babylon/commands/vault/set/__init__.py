@@ -1,10 +1,11 @@
 from click import group
 
 from Babylon.utils.environment import Environment
-from .set_global import set_global
+
 from .babylon import set_babylon
-from .project import project
 from .platform import platform
+from .project import project
+from .set_global import set_global
 from .user import set_user_secrets
 
 env = Environment()

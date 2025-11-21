@@ -2,6 +2,7 @@ import logging
 
 from click import argument, command
 from hvac import Client
+
 from Babylon.utils.checkers import check_ascii
 from Babylon.utils.clients import pass_hvac_client
 from Babylon.utils.environment import Environment

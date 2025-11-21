@@ -1,9 +1,9 @@
 import logging
 import pathlib
-import click
 
-from click import argument
-from click import command
+import click
+from click import argument, command
+
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -21,6 +21,8 @@ def add(plugin_path: pathlib.Path) -> CommandResponse:
     if plugin_name:
         logger.info(f"Plugin {plugin_name} was added to config")
         return CommandResponse.success()
-    logger.error("Plugin was not added to the config, make sure the folder is a correct plugin "
-                 "or that no plugin with the same name exists")
+    logger.error(
+        "Plugin was not added to the config, make sure the folder is a correct plugin "
+        "or that no plugin with the same name exists"
+    )
     return CommandResponse.fail()

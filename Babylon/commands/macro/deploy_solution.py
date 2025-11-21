@@ -1,12 +1,13 @@
+import json
 import os
 import sys
-import json
-
 from logging import getLogger
+
 from click import echo, style
-from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import get_keycloak_token
+
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
+from Babylon.utils.credentials import get_keycloak_token
+from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
@@ -31,7 +32,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
     keycloak_token = get_keycloak_token()
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
-    state["services"]["api"]["solution_id"] = (payload.get("id") or state["services"]["api"]["solution_id"])
+    state["services"]["api"]["solution_id"] = payload.get("id") or state["services"]["api"]["solution_id"]
     if metadata.get("selector", ""):
         state["services"]["api"]["organization_id"] = metadata["selector"].get("organization_id", "")
     else:

@@ -1,8 +1,8 @@
 import json
 import logging
 import sys
-
 from typing import Optional
+
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
@@ -14,7 +14,6 @@ env = Environment()
 
 
 class DatasetService:
-
     def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None) -> None:
         self.state = state
         self.spec = spec
@@ -30,7 +29,7 @@ class DatasetService:
             logger.error("Organization id is missing verify the state")
             sys.exit(1)
         if not self.workspace_id:
-            logger.error('Workspace id is missing verify the state')
+            logger.error("Workspace id is missing verify the state")
             sys.exit(1)
 
     def delete(self, force_validation: bool):
@@ -120,9 +119,11 @@ class DatasetService:
         return response
 
     def create_part(self, filename: str):
-        url = (f"{self.url}/organizations/{self.organization_id}"
-               f"/workspaces/{self.workspace_id}"
-               f"/datasets/{self.dataset_id}/parts")
+        url = (
+            f"{self.url}/organizations/{self.organization_id}"
+            f"/workspaces/{self.workspace_id}"
+            f"/datasets/{self.dataset_id}/parts"
+        )
         data = {"datasetPartCreateRequest": self.spec["payload"]}
         files = [("file", (filename, open(filename, "rb"), "text/csv"))]
         response = oauth_request(

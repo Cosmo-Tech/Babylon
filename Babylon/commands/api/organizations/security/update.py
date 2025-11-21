@@ -1,14 +1,15 @@
 import json
 import logging
 
-from click import command, option, echo, style
-from Babylon.utils.decorators import injectcontext
+from click import command, echo, option, style
+
+from Babylon.commands.api.organizations.services.organization_security_svc import (
+    OrganizationSecurityService,
+)
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file, retrieve_state
-from Babylon.commands.api.organizations.services.organization_security_svc import (
-    OrganizationSecurityService, )
 
 logger = logging.getLogger(__name__)
 env = Environment()
@@ -41,7 +42,8 @@ def update(state: dict, keycloak_token: str, organization_id: str, email: str, r
     details = json.dumps({"id": email, "role": role})
     service = OrganizationSecurityService(keycloak_token=keycloak_token, state=service_state)
     logger.info(
-        f"[api] Updating user {[email]} RBAC access in the organization {[service_state['api']['organization_id']]}")
+        f"[api] Updating user {[email]} RBAC access in the organization {[service_state['api']['organization_id']]}"
+    )
     response = service.update(id=email, details=details)
     if response is None:
         return CommandResponse.fail()
