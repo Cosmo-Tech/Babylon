@@ -4,23 +4,15 @@ import pathlib
 
 from logging import getLogger
 from click import command, option
-from azure.mgmt.kusto import KustoManagementClient
-from azure.mgmt.resource import ResourceManagementClient
-from Babylon.commands.azure.arm.services.arm_api_svc import ArmService
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-from Babylon.commands.azure.func.services.func_api_svc import AzureAppFunctionService
-from Babylon.commands.azure.adx.services.adx_database_svc import AdxDatabaseService
-from Babylon.commands.azure.staticwebapp.services.swa_api_svc import AzureSWAService
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import (
-    get_azure_token,
     pass_azure_token,
     get_powerbi_token,
-    get_azure_credentials,
 )
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.response import CommandResponse
@@ -82,49 +74,6 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
                         blob.delete_blob()
                 logger.info(f"Deleting dataset {dataset_id}....")
                 dataset_service.delete(dataset_id=dataset_id, force_validation=True)
-    env.store_state_in_local(state=state)
-    if env.remote:
-        env.store_state_in_cloud(state=state)
-
-    # deleting web app
-    webapp_id = state['services']['webapp'].get("webapp_name", "")
-    if webapp_id:
-        logger.info(f"Deleting webapp {webapp_id} ....")
-        azure_token = get_azure_token()
-        swa_svc = AzureSWAService(azure_token=azure_token, state=state['services'])
-        swa_svc.delete(webapp_name=webapp_id, force_validation=True)
-        state['services']['webapp']["webapp_name"] = ""
-        state['services']['webapp']["static_domain"] = ""
-        env.store_state_in_local(state)
-        if env.remote:
-            env.store_state_in_cloud(state)
-
-    # deleting azure function
-    azure_credential = get_azure_credentials()
-    subscription_id = state["services"]["azure"]["subscription_id"]
-    arm_client = ResourceManagementClient(credential=azure_credential, subscription_id=subscription_id)
-    azure_func_service = AzureAppFunctionService(arm_client=arm_client, state=state.get('services'))
-    logger.info(f"Deleting azure function in workspace : {workspace_id} ....")
-    azure_func_service.delete()
-    env.store_state_in_local(state=state)
-    if env.remote:
-        env.store_state_in_cloud(state=state)
-
-    # deleting EventHub
-    eventhub_key = f"{organization_id} - {state['services']['api']['workspace_key']}"
-    arm_service = ArmService(arm_client=arm_client, state=state.get('services'))
-    logger.info(f"Deleting event hub : {eventhub_key} ....")
-    arm_service.delete_event_hub()
-    env.store_state_in_local(state=state)
-    if env.remote:
-        env.store_state_in_cloud(state=state)
-
-    # deleting adx database
-    adx_name = state['services']["adx"]["database_name"]
-    kusto_client = KustoManagementClient(credential=azure_credential, subscription_id=subscription_id)
-    adx_svc = AdxDatabaseService(kusto_client=kusto_client, state=state.get('services'))
-    logger.info(f"Deleting ADX database {adx_name} ....")
-    adx_svc.delete(name=adx_name)
     env.store_state_in_local(state=state)
     if env.remote:
         env.store_state_in_cloud(state=state)

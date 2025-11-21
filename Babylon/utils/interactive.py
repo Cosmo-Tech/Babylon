@@ -98,15 +98,6 @@ def confirm_deletion(entity_type: str, entity_id: str) -> bool:
     return False
 
 
-def confirm_deploy_arm_mode() -> bool:
-    """Ask for confirmation for continue on incremental mode or not
-    :return: Should execution continue ?
-    """
-    if not click.confirm("You are trying to deploy arm in complete mode. \nDo you want to continue ?"):
-        return False
-    return True
-
-
 def interactive_run(command_return, interactive: bool = False, **kwargs):
     if not interactive:
         return command_return

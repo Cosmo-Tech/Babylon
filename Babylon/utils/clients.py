@@ -8,12 +8,8 @@ from typing import Any
 from typing import Callable
 from functools import wraps
 from azure.storage.blob import BlobServiceClient
-from azure.digitaltwins.core import DigitalTwinsClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
-from azure.mgmt.resource import ResourceManagementClient
-from azure.mgmt.kusto import KustoManagementClient
 from azure.containerregistry import ContainerRegistryClient
 from terrasnek.api import TFC
 from .environment import Environment
@@ -82,62 +78,6 @@ def pass_hvac_client(func: Callable[..., Any]) -> Callable[..., Any]:
             logger.info(e)
             client = None
         kwargs["hvac_client"] = client
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def pass_kusto_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab kusto configuration"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        state = env.get_state_from_vault_by_platform(env.environ_id)
-        azure_subscription = state['azure']["subscription_id"]
-        azure_credential = get_azure_credentials()
-        kwargs["kusto_client"] = KustoManagementClient(credential=azure_credential, subscription_id=azure_subscription)
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def pass_adt_management_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab api configuration"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        state = env.get_state_from_vault_by_platform(env.environ_id)
-        azure_subscription = state['azure']["subscription_id"]
-        azure_credential = get_azure_credentials()
-        kwargs["adt_management_client"] = AzureDigitalTwinsManagementClient(azure_credential, azure_subscription)
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def pass_adt_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab api configuration"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        state = env.get_state_from_vault_by_platform(env.environ_id)
-        digital_twin_url = state["adt"]["digital_twin_url"]
-        azure_credential = get_azure_credentials()
-        kwargs["adt_client"] = DigitalTwinsClient(credential=azure_credential, endpoint=digital_twin_url)
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def pass_arm_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab arm mgmt configuration"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        state = env.get_state_from_vault_by_platform(env.environ_id)
-        azure_subscription_id = state["azure"]["subscription_id"]
-        azure_credential = get_azure_credentials()
-        kwargs["arm_client"] = ResourceManagementClient(azure_credential, azure_subscription_id)
         return func(*args, **kwargs)
 
     return wrapper

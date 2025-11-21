@@ -13,9 +13,6 @@ parser.add_argument("context", type=str)
 parser.add_argument("platform", type=str)
 
 rsc = [
-    "acr",
-    "adt",
-    "adx",
     "api",
     "app",
     "azure",
