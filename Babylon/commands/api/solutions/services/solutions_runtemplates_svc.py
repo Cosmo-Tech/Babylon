@@ -10,19 +10,21 @@ env = Environment()
 
 
 class SolutionRunTemplatesService:
-    def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None) -> None:
+
+    def __init__(self, keycloak_token: str, state: dict, config: dict, spec: Optional[dict] = None) -> None:
         self.state = state
+        self.config = config
         self.spec = spec
         self.keycloak_token = keycloak_token
-        self.url = self.state["api"]["url"]
+        self.url = config["api_url"]
         if not self.url:
             logger.error("api url not found verify the state")
             sys.exit(1)
-        self.organization_id = self.state["api"]["organization_id"]
+        self.organization_id = self.state["organization_id"]
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")
             sys.exit(1)
-        self.solution_id = self.state["api"]["solution_id"]
+        self.solution_id = self.state["solution_id"]
         if not self.solution_id:
             logger.error("Solution id is missing verify the state")
             sys.exit(1)

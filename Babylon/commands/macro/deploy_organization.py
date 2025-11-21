@@ -19,26 +19,25 @@ def deploy_organization(namespace: str, file_content: str):
     _ret.append("Organization deployment")
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=namespace)
-    state = env.retrieve_state_func(state_id=env.state_id)
-    state["services"]["api"]["url"] = platform_url
+    config, state = env.retrieve_config_state_func(content=namespace)
     content = env.fill_template(data=file_content, state=state)
     keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
-    state["services"]["api"]["organization_id"] = payload.get("id") or state["services"]["api"]["organization_id"]
+    api_section = state["services"]["api"]
+    api_section["organization_id"] = (payload.get("id") or api_section.get("organization_id", ""))
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    organization_service = OrganizationService(keycloak_token=keycloak_token, spec=spec, state=state["services"])
+    organization_service = OrganizationService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
     sidecars = content.get("spec").get("sidecars", {})
-    if not state["services"]["api"]["organization_id"]:
+    if not api_section["organization_id"]:
         logger.info("Creating organization")
         response = organization_service.create()
         if response is None:
             return CommandResponse.fail()
         organization = response.json()
-        logger.info(f"Organization {organization['id']} successfully created")
+        logger.info(f"Organization {[organization['id']]} successfully created")
     else:
-        logger.info(f"Updating organization {state['services']['api']['organization_id']}")
+        logger.info(f"Updating organization {[api_section['organization_id']]}")
         response = organization_service.update()
         if response is None:
             return CommandResponse.fail()
@@ -47,8 +46,8 @@ def deploy_organization(namespace: str, file_content: str):
         security_spec = organization_service.update_security(old_security=old_security)
         response_json["security"] = security_spec
         organization = response_json
-        logger.info(f"Organization {organization['id']} successfully updated")
-    state["services"]["api"]["organization_id"] = organization.get("id")
+        logger.info(f"Organization {[organization['id']]} successfully updated")
+    api_section["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)

@@ -11,13 +11,15 @@ logger = getLogger(__name__)
 
 
 class RunnerService:
-    def __init__(self, state: dict, keycloak_token: str, spec: Optional[dict] = None):
+
+    def __init__(self, state: dict, config: dict, keycloak_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
-        self.url = state["api"]["url"]
-        self.organization_id = state["api"]["organization_id"]
-        self.workspace_id = state["api"]["workspace_id"]
-        self.runner_id = self.state["api"]["runner_id"]
+        self.config = config
+        self.url = config["api_url"]
+        self.organization_id = state["organization_id"]
+        self.workspace_id = state["workspace_id"]
+        self.runner_id = self.state["runner_id"]
         self.keycloak_token = keycloak_token
         if not self.url:
             logger.error("api url not found verify the state")
@@ -98,7 +100,7 @@ class RunnerService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = RunnerSecurityService(keycloak_token=self.keycloak_token, state=self.state)
+        self.security_svc = RunnerSecurityService(keycloak_token=self.keycloak_token, state=self.state, config=self.config)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

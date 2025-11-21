@@ -82,7 +82,7 @@ def get_azure_credentials() -> ClientSecretCredential:
 def get_keycloak_credentials() -> dict:
     """ "Logs to keycloak and saves the token as a config variable"""
     try:
-        config = env.get_state_from_vault_by_platform(env.environ_id)
+        config = env.get_config_from_k8s_secret_by_tenant(env.environ_id)
         credential = {
             "grant_type": config["keycloak"]["grant_type"],
             "client_id": config["keycloak"]["client_id"],
@@ -105,14 +105,12 @@ def get_keycloak_credentials() -> dict:
 
 def get_keycloak_token() -> str:
     """Returns keycloak token"""
-    config = env.get_state_from_vault_by_platform(env.environ_id)
-    url = config["keycloak"]["url"]
+    config = env.get_config_from_k8s_secret_by_tenant(env.environ_id)
+    url = config["token_url"]
     try:
         credentials = get_keycloak_credentials()
-
         headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
         response = requests.post(url=url, data=credentials, headers=headers, timeout=30)
-
         response.raise_for_status()
 
         token_data = response.json()

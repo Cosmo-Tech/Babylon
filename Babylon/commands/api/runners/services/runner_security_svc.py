@@ -7,13 +7,15 @@ logger = getLogger(__name__)
 
 
 class RunnerSecurityService:
-    def __init__(self, keycloak_token: str, state: dict) -> None:
+
+    def __init__(self, keycloak_token: str, config: dict, state: dict) -> None:
         self.state = state
+        self.config = config
         self.keycloak_token = keycloak_token
-        self.url = self.state["api"]["url"]
-        self.organization_id = self.state["api"]["organization_id"]
-        self.workspace_id = self.state["api"]["workspace_id"]
-        self.runner_id = self.state["api"]["runner_id"]
+        self.url = config["api_url"]
+        self.organization_id = self.state["organization_id"]
+        self.workspace_id = self.state["workspace_id"]
+        self.runner_id = self.state["runner_id"]
         if not self.url:
             logger.error("api url not found verify the state")
             sys.exit(1)

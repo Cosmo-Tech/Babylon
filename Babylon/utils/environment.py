@@ -4,22 +4,21 @@ import os
 import re
 import sys
 import uuid
+import yaml
+import requests
+import base64
+
 from collections import defaultdict
 from pathlib import Path
-
-import requests
-import yaml
+from mako.template import Template
 from cryptography.fernet import Fernet
 from flatten_json import flatten
-from hvac import Client
-from mako.template import Template
-
-from Babylon.config import config_files
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
+from kubernetes import client, config
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 
 STORE_STRING = "datastore"
 TEMPLATES_STRING = "templates"
@@ -109,9 +108,6 @@ class Environment(metaclass=SingletonMeta):
             logger.error("[babylon] Missing required 'platform_url' please check your 'variable file' ")
             sys.exit(1)
         self.set_environ(environ_id=platform_id)
-        self.set_server_id()
-        self.set_org_name()
-        # self.set_blob_client()
         return platform_url
 
     def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
@@ -174,18 +170,6 @@ class Environment(metaclass=SingletonMeta):
 
     def set_state_id(self, state_id: str):
         self.state_id = state_id
-
-    def set_org_name(self):
-        self.organization_name = os.environ.get("BABYLON_ORG_NAME")
-        self.tenant_id = self.get_organization_secret(self.organization_name, "tenant")
-
-    def set_server_id(self):
-        self.server_id = os.environ.get("BABYLON_SERVICE")
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get("BABYLON_TOKEN"))
-            self.hvac_client = client
-        except Exception as e:
-            logger.error(e)
 
     # This is deactivated for now because we need to decide where the Babylon state should be stored
     # def set_blob_client(self):
@@ -291,18 +275,19 @@ class Environment(metaclass=SingletonMeta):
         self.set_users_secrets(username, internal_scope, dict(token=token_encrypt.decode("utf-8")))
         return response_json["access_token"]
 
-    def get_state_from_vault_by_platform(self, platform: str):
-        resources = config_files
-        organization_name = os.environ.get("BABYLON_ORG_NAME", "")
-        tenant_id = self.tenant_id
+    def get_config_from_k8s_secret_by_tenant(self, tenant: str):
         response_parsed = dict()
-        for r in resources:
-            response = self.hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}")
-            if not response:
-                logger.error(f"[babylon] platform id '{platform}' not found in vault service")
-                sys.exit(1)
-            response_parsed.setdefault(r, dict(response["data"].items()))
-        return response_parsed
+        config.load_kube_config()
+        try:
+            v1 = client.CoreV1Api()
+            secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
+            for key, value in secret.data.items():
+                decoded_value = base64.b64decode(value).decode("utf-8")
+                response_parsed[key] = decoded_value 
+            return response_parsed
+        except client.exceptions.ApiException:
+            logger.error("Failed to load kubeconfig. Use 'kubectl config use-context' to switch your context")
+            sys.exit(1)
 
     def store_mtime_in_state(self, state: dict):
         state["files"] = self.working_dir.files_to_deploy
@@ -331,7 +316,21 @@ class Environment(metaclass=SingletonMeta):
         state_dir = Path().home() / ".config/cosmotech/babylon"
         state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
-            return dict()
+            init_state = {
+                "context": self.context_id,
+                "id": self.state_id,
+                "tenant": self.environ_id,
+                "services": {
+                    "api": {
+                        "organization_id": "",
+                        "solution_id": "",
+                        "workspace_id": "",
+                        "dataset_id": "",
+                        "runner_id": "",
+                    }
+                }
+            }
+            return init_state
         state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
         return state_data
 
@@ -343,14 +342,25 @@ class Environment(metaclass=SingletonMeta):
         else:
             return state_dir
 
-    def get_state_from_cloud(self, state: dict) -> dict:
-        if not state.get("id"):
-            return state
-        self.state_id = state.get("id")
+    def get_state_from_cloud(self) -> dict:
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
         if not state_blob.exists():
-            return state
+            init_state = {
+                "context": self.context_id,
+                "id": self.state_id,
+                "tenant": self.environ_id,
+                "services": {
+                    "api": {
+                        "organization_id": "",
+                        "solution_id": "",
+                        "workspace_id": "",
+                        "dataset_id": "",
+                        "runner_id": "",
+                    }
+                }
+            }
+            return init_state
         if state_blob.exists():
             data = yaml.load(state_blob.download_blob().readall(), Loader=yaml.SafeLoader)
         return data
@@ -402,10 +412,22 @@ class Environment(metaclass=SingletonMeta):
             self.environ_id = platform or ns_data.get("platform", "")
             self.state_id = state_id or ns_data.get("state_id", "")
             self.set_state_id(state_id=self.state_id)
-            self.set_server_id()
-            self.set_org_name()
-            # self.set_blob_client()
             return ns_data
+
+    def retrieve_config_state_func(self, content: str):
+        t = Template(text=content, strict_undefined=True)
+        vars = self.get_variables()
+        payload = t.render(**vars)
+        payload_dict = yaml.safe_load(payload)
+        remote: bool = payload_dict.get("remote", self.remote)
+        self.remote = remote
+        # retrieve config from k8s secret 
+        config = self.get_config_from_k8s_secret_by_tenant(self.environ_id)
+        if self.remote:
+            state = self.get_state_from_cloud()
+        else:
+            state = self.get_state_from_local()
+        return config, state
 
     def retrieve_state_func(self, state_id: str = ""):
         init_state = dict()

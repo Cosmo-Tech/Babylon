@@ -14,31 +14,30 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_runner(namespace: str, file_content: str):
+def deploy_runner(file_content: str):
     _ret = [""]
     _ret.append("Runner deployment")
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=namespace)
-    state = env.retrieve_state_func(state_id=env.state_id)
-    state["services"]["api"]["url"] = platform_url
+    config, state = env.retrieve_config_state_func()
     content = env.fill_template(data=file_content, state=state)
+    api_section = state["services"]["api"]
     keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
-    state["services"]["api"]["runner_id"] = payload.get("id") or state["services"]["api"]["runner_id"]
+    api_section["runner_id"] = (payload.get("id") or api_section["runner_id"])
     spec = dict()
     spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    runner_service = RunnerService(keycloak_token=keycloak_token, spec=spec, state=state["services"])
+    runner_service = RunnerService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
     sidecars = content.get("spec").get("sidecars", {})
-    if not state["services"]["api"]["runner_id"]:
-        logger.info("[api] Creating runner")
+    if not api_section["runner_id"]:
+        logger.info("Creating runner")
         response = runner_service.create()
         if response is None:
             return CommandResponse.fail()
-        organization = response.json()
-        logger.info(f"Runner {organization['id']} successfully created")
+        runner = response.json()
+        logger.info(f"Runner {[runner['id']]} successfully created")
     else:
-        logger.info(f"Updating runner {state['services']['api']['runner_id']}")
+        logger.info(f"Updating runner {[api_section['runner_id']]}")
         response = runner_service.update()
         if response is None:
             return CommandResponse.fail()
@@ -46,9 +45,8 @@ def deploy_runner(namespace: str, file_content: str):
         old_security = response_json.get("security")
         security_spec = runner_service.update_security(old_security=old_security)
         response_json["security"] = security_spec
-        organization = response_json
-        logger.info(f"Runner {organization['id']} successfully updated")
-    state["services"]["api"]["runner_id"] = organization.get("id")
+        runner = response_json
+        logger.info(f"Runner {[runner['id']]} successfully updated")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
@@ -58,5 +56,5 @@ def deploy_runner(namespace: str, file_content: str):
             data = run_scripts.get("post_deploy.sh", "")
             if data:
                 os.system(data)
-        if not organization.get("id"):
+        if not runner.get("id"):
             sys.exit(1)
