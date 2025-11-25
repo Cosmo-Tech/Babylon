@@ -12,7 +12,7 @@ from Babylon.commands.api.workspaces.services.workspaces_api_svc import Workspac
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.credentials import (
     get_powerbi_token,
-    pass_azure_token,
+    pass_keycloak_token,
 )
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
@@ -25,10 +25,10 @@ env = Environment()
 
 @command()
 @injectcontext()
-@pass_azure_token("csm_api")
+@pass_keycloak_token()
 @retrieve_state
 @option("--state-to-destroy", "state_to_destroy", type=pathlib.Path)
-def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
+def destroy(state: dict, keycloak_token: str, state_to_destroy: pathlib.Path):
     """Macro Destroy"""
     if state_to_destroy and state_to_destroy.exists():
         data = state_to_destroy.open().read()
@@ -39,12 +39,12 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
     organization_id = state["services"]["api"]["organization_id"]
     workspace_id = state["services"]["api"]["workspace_id"]
     solution_id = state["services"]["api"]["solution_id"]
-    workspace_service = WorkspaceService(state=state.get("services"), azure_token=azure_token)
-    solution_service = SolutionService(state=state.get("services"), azure_token=azure_token)
+    workspace_service = WorkspaceService(state=state.get("services"), keycloak_token=keycloak_token)
+    solution_service = SolutionService(state=state.get("services"), keycloak_token=keycloak_token)
     logger.info(f"Starting deletion of solution deployed in organization : {organization_id}")
     # deleting scenarios
     if workspace_id:
-        scenario_service = RunnerService(state=state.get("services"), azure_token=azure_token)
+        scenario_service = RunnerService(state=state.get("services"), keycloak_token=keycloak_token)
         response = scenario_service.get_all()
         scenario_json = response.json()
         scenario_str = json.dumps(scenario_json)
@@ -61,18 +61,7 @@ def destroy(state: dict, azure_token: str, state_to_destroy: pathlib.Path):
         datasets = workspace_json.get("linkedDatasetIdList", [])
         if datasets:
             for dataset_id in datasets:
-                dataset_service = DatasetService(state=state["services"], azure_token=azure_token)
-                response = dataset_service.get(dataset_id=dataset_id)
-                dataset = response.json()
-                if dataset["sourceType"] == "AzureStorage":
-                    dataset_name = dataset.get("name").replace(" ", "_").lower()
-                    blob = env.blob_client.get_blob_client(
-                        organization_id,
-                        blob=f"{workspace_id}/{dataset_name}",
-                    )
-                    if blob.exists():
-                        logger.info(f"Deleting dataset blob {dataset_id}....")
-                        blob.delete_blob()
+                dataset_service = DatasetService(state=state["services"], keycloak_token=keycloak_token)
                 logger.info(f"Deleting dataset {dataset_id}....")
                 dataset_service.delete(dataset_id=dataset_id, force_validation=True)
     env.store_state_in_local(state=state)

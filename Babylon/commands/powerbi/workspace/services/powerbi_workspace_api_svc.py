@@ -83,5 +83,4 @@ class AzurePowerBIWorkspaceService:
             logger.error(f"{name} not found")
             return None
         if len(workspace_data):
-            workspace_id = workspace_data[0]["id"]
             return workspace_data[0]
