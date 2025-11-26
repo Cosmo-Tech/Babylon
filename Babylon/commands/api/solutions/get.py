@@ -27,7 +27,7 @@ def get(state: Any, config: Any, keycloak_token: str, organization_id: str, solu
 
        ORGANIZATION_ID : The unique identifier of the organization
        SOLUTION_ID : The unique identifier of the solution
-    """ 
+    """
     _sol = [""]
     _sol.append("Get solution details")
     _sol.append("")

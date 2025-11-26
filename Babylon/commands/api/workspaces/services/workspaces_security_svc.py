@@ -10,7 +10,12 @@ env = Environment()
 
 class ApiWorkspaceSecurityService:
 
-    def __init__(self, keycloak_token: str, state: dict, config: dict,) -> None:
+    def __init__(
+        self,
+        keycloak_token: str,
+        state: dict,
+        config: dict,
+    ) -> None:
         self.state = state
         self.config = config
         self.keycloak_token = keycloak_token

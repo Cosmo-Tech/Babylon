@@ -26,7 +26,8 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("solution_id", required=True)
 @retrieve_config_state
-def get(state: Any, config: Any, organization_id: str, solution_id: str, keycloak_token: str, email: str) -> CommandResponse:
+def get(state: Any, config: Any, organization_id: str, solution_id: str, keycloak_token: str,
+        email: str) -> CommandResponse:
     """
     Get solution users RBAC access
 

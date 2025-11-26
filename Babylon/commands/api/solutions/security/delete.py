@@ -23,7 +23,8 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("solution_id", required=True)
 @retrieve_config_state
-def delete(state: dict, config: dict, organization_id: str, solution_id: str, keycloak_token: str, email: str) -> CommandResponse:
+def delete(state: dict, config: dict, organization_id: str, solution_id: str, keycloak_token: str,
+           email: str) -> CommandResponse:
     """
     Remove the specified access from the Solution
 

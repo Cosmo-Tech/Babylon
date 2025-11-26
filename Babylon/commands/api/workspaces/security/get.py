@@ -24,7 +24,8 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
 @retrieve_config_state
-def get(state: Any, config: Any, organization_id: str, workspace_id: str, keycloak_token: str, email: str) -> CommandResponse:
+def get(state: Any, config: Any, organization_id: str, workspace_id: str, keycloak_token: str,
+        email: str) -> CommandResponse:
     """
     Get workspace users RBAC access
 

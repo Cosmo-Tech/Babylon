@@ -91,7 +91,9 @@ class WorkspaceService:
         return response
 
     def update_security(self, old_security: dict):
-        security_svc = ApiWorkspaceSecurityService(keycloak_token=self.keycloak_token, state=self.state, config=self.config)
+        security_svc = ApiWorkspaceSecurityService(keycloak_token=self.keycloak_token,
+                                                   state=self.state,
+                                                   config=self.config)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

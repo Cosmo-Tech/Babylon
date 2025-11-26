@@ -58,7 +58,10 @@ def update(
     services_state["solution_id"] = (solution_id or services_state["solution_id"])
     with open(payload_file, 'r') as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
-    solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=services_state, spec=spec, config=config)
+    solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token,
+                                                   state=services_state,
+                                                   spec=spec,
+                                                   config=config)
     logger.info(f"[api] Updating runtemplate in the solution {[services_state['solution_id']]}")
     response = solution_service.update(runTemplate_id)
     if response is None:

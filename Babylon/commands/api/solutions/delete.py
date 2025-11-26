@@ -33,7 +33,7 @@ def delete(
 
        ORGANIZATION_ID : The unique identifier of the organization
        SOLUTION_ID : The unique identifier of the solution
-    """ 
+    """
     _sol = [""]
     _sol.append("Delete solution")
     _sol.append("")

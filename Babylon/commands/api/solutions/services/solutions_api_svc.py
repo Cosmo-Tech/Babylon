@@ -24,7 +24,7 @@ class SolutionService:
         self.organization_id = self.state["organization_id"]
         self.solution_id = self.state["solution_id"]
         if not self.url:
-            logger.error("api url not found verify the config in the k8s secret")   
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")
@@ -78,7 +78,9 @@ class SolutionService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = SolutionSecurityService(keycloak_token=self.keycloak_token, state=self.state, config=self.config)
+        self.security_svc = SolutionSecurityService(keycloak_token=self.keycloak_token,
+                                                    state=self.state,
+                                                    config=self.config)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

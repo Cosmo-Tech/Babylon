@@ -51,8 +51,7 @@ def get(
     services_state["organization_id"] = (organization_id or services_state["organization_id"])
     services_state["solution_id"] = (solution_id or services_state["solution_id"])
     solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=services_state, config=config)
-    logger.info(
-        f"[api] Retrieving runtemplate id {[runTemplate_id]} in the solution {[services_state['solution_id']]}")
+    logger.info(f"[api] Retrieving runtemplate id {[runTemplate_id]} in the solution {[services_state['solution_id']]}")
     response = solution_service.get(runTemplate_id)
     if response is None:
         return CommandResponse.fail()

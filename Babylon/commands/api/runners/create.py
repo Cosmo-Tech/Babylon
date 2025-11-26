@@ -23,7 +23,10 @@ logger = getLogger(__name__)
 @output_to_file
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
-@argument("payload_file", type=Path(path_type=pathlib.Path, exists=True),)
+@argument(
+    "payload_file",
+    type=Path(path_type=pathlib.Path, exists=True),
+)
 def create(
     state: Any,
     config: Any,

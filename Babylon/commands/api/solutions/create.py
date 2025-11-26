@@ -20,7 +20,8 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
 @retrieve_config_state
-def create(state: Any, config: Any, keycloak_token: str, organization_id: str, payload_file: pathlib.Path) -> CommandResponse:
+def create(state: Any, config: Any, keycloak_token: str, organization_id: str,
+           payload_file: pathlib.Path) -> CommandResponse:
     """
     Register a new solution
 
@@ -28,7 +29,7 @@ def create(state: Any, config: Any, keycloak_token: str, organization_id: str, p
 
        ORGANIZATION_ID : The unique identifier of the organization
        PAYLOAD_FILE : Path to the manifest file used to update the solution
-    """ 
+    """
     _sol = [""]
     _sol.append("Register new solution")
     _sol.append("")

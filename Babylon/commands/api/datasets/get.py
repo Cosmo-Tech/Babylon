@@ -19,7 +19,8 @@ env = Environment()
 @argument("workspace_id", required=True)
 @argument("dataset_id", required=True)
 @retrieve_config_state
-def get(state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str) -> CommandResponse:
+def get(state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str,
+        dataset_id: str) -> CommandResponse:
     """Get a dataset
 
     Args:

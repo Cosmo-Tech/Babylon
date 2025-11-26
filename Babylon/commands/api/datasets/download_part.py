@@ -20,8 +20,8 @@ env = Environment()
 @argument("dataset_id", required=True)
 @argument("dataset_part_id", required=True)
 @retrieve_config_state
-def download_part(state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str,
-                  dataset_part_id: str) -> CommandResponse:
+def download_part(state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str,
+                  dataset_id: str, dataset_part_id: str) -> CommandResponse:
     """Download a dataset part
 
     Args:

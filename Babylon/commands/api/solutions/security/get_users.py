@@ -24,7 +24,8 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("solution_id", required=True)
 @retrieve_config_state
-def get_users(state: dict, config: dict, organization_id: str, solution_id: str, keycloak_token: str) -> CommandResponse:
+def get_users(state: dict, config: dict, organization_id: str, solution_id: str,
+              keycloak_token: str) -> CommandResponse:
     """
     Get the Solution security users list
 

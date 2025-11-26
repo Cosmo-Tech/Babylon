@@ -1,4 +1,3 @@
-
 import logging
 
 from click import command, option, echo, style, argument

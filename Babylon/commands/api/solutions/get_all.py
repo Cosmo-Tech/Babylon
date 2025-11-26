@@ -17,7 +17,11 @@ logger = getLogger(__name__)
 @argument("organization_id", required=True)
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_config_state
-def get_all(state: Any, config: Any, keycloak_token: str, organization_id: str, filter: Optional[str] = None) -> CommandResponse:
+def get_all(state: Any,
+            config: Any,
+            keycloak_token: str,
+            organization_id: str,
+            filter: Optional[str] = None) -> CommandResponse:
     """
     Get all solutions details
 

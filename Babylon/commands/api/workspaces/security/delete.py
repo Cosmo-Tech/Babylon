@@ -21,7 +21,8 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
 @retrieve_config_state
-def delete(state: dict, config: dict, organization_id: str, workspace_id: str, keycloak_token: str, email: str) -> CommandResponse:
+def delete(state: dict, config: dict, organization_id: str, workspace_id: str, keycloak_token: str,
+           email: str) -> CommandResponse:
     """
     Delete workspace users RBAC access
 
