@@ -16,7 +16,7 @@ env = Environment()
 @group()
 def api():
     """Cosmotech API"""
-    env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
+    pass
 
 
 list_groups = [workspaces, datasets, organizations, solutions, runners, runs]

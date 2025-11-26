@@ -73,7 +73,7 @@ class Environment(metaclass=SingletonMeta):
         variables_file = self.pwd / "variables.yaml"
         vars = dict()
         if variables_file.exists():
-            logger.debug(f"[babylon] Loading variables from {variables_file}")
+            logger.debug(f"Loading variables from {variables_file}")
             vars = yaml.safe_load(variables_file.open()) or dict()
         vars["secret_powerbi"] = ""
         vars["github_secret"] = ""
@@ -83,7 +83,7 @@ class Environment(metaclass=SingletonMeta):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
             for key, files in duplicate_keys.items():
-                logger.error(f"[babylon] The key '{key}' is duplicated in variable files {' and '.join(files)}")
+                logger.error(f"The key '{key}' is duplicated in variable files {' and '.join(files)}")
             sys.exit(1)
         else:
             merged_data["secret_powerbi"] = ""
@@ -91,24 +91,12 @@ class Environment(metaclass=SingletonMeta):
             return merged_data
 
     def get_ns_from_text(self, content: str):
-        result = content.replace("services", "")
-        t = Template(text=result, strict_undefined=True)
+        t = Template(text=content, strict_undefined=True)
         vars = self.get_variables()
         payload = t.render(**vars)
         payload_dict = yaml.safe_load(payload)
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
-        plt_obj = payload_dict.get("platform", {})
-        platform_id = plt_obj.get("id", "")
-        if not platform_id:
-            logger.error("[babylon] Missing required 'platform_id' please check your 'variable file' ")
-            sys.exit(1)
-        platform_url = plt_obj.get("url", "")
-        if not platform_url:
-            logger.error("[babylon] Missing required 'platform_url' please check your 'variable file' ")
-            sys.exit(1)
-        self.set_environ(environ_id=platform_id)
-        return platform_url
 
     def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -337,7 +325,7 @@ class Environment(metaclass=SingletonMeta):
     def get_all_states_from_local(self):
         state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         if not state_dir.exists():
-            logger.error(f"[babylon] directory {state_dir} not found")
+            logger.error(f"directory {state_dir} not found")
             sys.exit(1)
         else:
             return state_dir
@@ -400,10 +388,8 @@ class Environment(metaclass=SingletonMeta):
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
-            logger.error(
-                "[babylon] The context and the platform are not set. \
-                         Please set the platform using the 'namespace use' command."
-            )
+            logger.error("The context and the platform are not set. \
+                         Please set the platform using the 'namespace use' command.")
             sys.exit(1)
 
         ns_data = yaml.safe_load(ns_file.open("r").read())
@@ -414,13 +400,7 @@ class Environment(metaclass=SingletonMeta):
             self.set_state_id(state_id=self.state_id)
             return ns_data
 
-    def retrieve_config_state_func(self, content: str):
-        t = Template(text=content, strict_undefined=True)
-        vars = self.get_variables()
-        payload = t.render(**vars)
-        payload_dict = yaml.safe_load(payload)
-        remote: bool = payload_dict.get("remote", self.remote)
-        self.remote = remote
+    def retrieve_config_state_func(self):
         # retrieve config from k8s secret 
         config = self.get_config_from_k8s_secret_by_tenant(self.environ_id)
         if self.remote:
@@ -473,13 +453,11 @@ class Environment(metaclass=SingletonMeta):
         url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
         match_content = url_.match(platform_url)
         if not match_content:
-            logger.error("[babylon] url not match")
+            logger.error("url not match")
             sys.exit(1)
         self.state_id = state_id
         self.set_context(context_id=context_id)
         self.set_environ(environ_id=platform_id)
-        self.set_server_id()
-        self.set_org_name()
         # self.set_blob_client()
         return platform_url
 
@@ -501,7 +479,7 @@ class Environment(metaclass=SingletonMeta):
             try:
                 return yaml.safe_load(file) or {}
             except yaml.YAMLError as e:
-                logger.error(f"[babylon] File '{file_path}' is not a valid YAML file. Details: {str(e)}")
+                logger.error(f"File '{file_path}' is not a valid YAML file. Details: {str(e)}")
                 sys.exit(1)
 
     def merge_yaml_files(self, file_paths: [Path]):
@@ -509,11 +487,11 @@ class Environment(metaclass=SingletonMeta):
         keys_tracker = defaultdict(list)
 
         for file_path in file_paths:
-            if not file_path.endswith(".yaml"):
-                logger.error(f"[babylon] File '{file_path}' is not a valid YAML file.")
+            if not file_path.endswith('.yaml'):
+                logger.error(f"File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:
-                logger.error(f"[babylon] File '{file_path}' is empty.")
+                logger.error(f"File '{file_path}' is empty.")
                 sys.exit(1)
 
             data = self.load_yaml_file(file_path)

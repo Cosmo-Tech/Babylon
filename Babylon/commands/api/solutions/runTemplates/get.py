@@ -1,9 +1,13 @@
 import json
-from logging import getLogger
+
 from typing import Any
-
-from click import command, echo, option, style
-
+from click import command, argument, echo, style
+from logging import getLogger
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.decorators import retrieve_config_state, injectcontext
+from Babylon.utils.decorators import output_to_file
+from Babylon.utils.response import CommandResponse
+from Babylon.utils.environment import Environment
 from Babylon.commands.api.solutions.services.solutions_runtemplates_svc import SolutionRunTemplatesService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
@@ -18,12 +22,13 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "organization_id", type=str)
-@option("--solution-id", "solution_id", type=str)
-@option("--runTemplate-id", "runTemplate_id", type=str, required=True, help="Run Template id")
-@retrieve_state
+@argument("organization_id", required=True)
+@argument("solution_id", required=True)
+@argument("runTemplate_id", required=True)
+@retrieve_config_state
 def get(
     state: Any,
+    config: Any,
     keycloak_token: str,
     organization_id: str,
     solution_id: str,
@@ -31,18 +36,23 @@ def get(
 ) -> CommandResponse:
     """
     Get RunTemplate in the solution by ID
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       SOLUTION_ID : The unique identifier of the solution
+       PAYLOAD_FILE : Path to the manifest file used to add the runTemplates
     """
     _sol = [""]
     _sol.append("Get runtemplate in solution by id")
     _sol.append("")
     echo(style("\n".join(_sol), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
-    service_state["api"]["solution_id"] = solution_id or service_state["api"]["solution_id"]
-    solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=service_state)
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = (organization_id or services_state["organization_id"])
+    services_state["solution_id"] = (solution_id or services_state["solution_id"])
+    solution_service = SolutionRunTemplatesService(keycloak_token=keycloak_token, state=services_state, config=config)
     logger.info(
-        f"[api] Retrieving runtemplate id {[runTemplate_id]} in the solution {[service_state['api']['solution_id']]}"
-    )
+        f"[api] Retrieving runtemplate id {[runTemplate_id]} in the solution {[services_state['solution_id']]}")
     response = solution_service.get(runTemplate_id)
     if response is None:
         return CommandResponse.fail()

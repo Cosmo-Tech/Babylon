@@ -8,16 +8,18 @@ logger = getLogger(__name__)
 
 
 class RunService:
-    def __init__(self, keycloak_token: str, state: dict):
+
+    def __init__(self, keycloak_token: str, state: dict, config: dict):
         self.state = state
+        self.config = config
         self.keycloak_token = keycloak_token
-        self.url = self.state["api"]["url"]
-        self.organization_id = self.state["api"]["organization_id"]
-        self.workspace_id = self.state["api"]["workspace_id"]
-        self.runner_id = self.state["api"]["runner_id"]
-        self.run_id = self.state["api"]["run_id"]
+        self.url = config["api_url"]
+        self.organization_id = self.state["organization_id"]
+        self.workspace_id = self.state["workspace_id"]
+        self.runner_id = self.state["runner_id"]
+        self.run_id = self.state["run_id"]
         if not self.url:
-            logger.error("api url not found")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")

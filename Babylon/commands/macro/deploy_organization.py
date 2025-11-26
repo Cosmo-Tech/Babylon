@@ -1,6 +1,7 @@
-import json
 import os
 import sys
+
+from json import dumps
 from logging import getLogger
 
 from click import echo, style
@@ -19,14 +20,15 @@ def deploy_organization(namespace: str, file_content: str):
     _ret.append("Organization deployment")
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
-    config, state = env.retrieve_config_state_func(content=namespace)
+    env.get_ns_from_text(content=namespace)
+    config, state = env.retrieve_config_state_func()
     content = env.fill_template(data=file_content, state=state)
     keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
     api_section = state["services"]["api"]
     api_section["organization_id"] = (payload.get("id") or api_section.get("organization_id", ""))
     spec = dict()
-    spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
+    spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
     organization_service = OrganizationService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
     sidecars = content.get("spec").get("sidecars", {})
     if not api_section["organization_id"]:

@@ -1,9 +1,9 @@
-import json
 import os
-import pathlib
 import sys
+import pathlib
 from logging import getLogger
 
+from json import dumps
 from click import echo, style
 
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
@@ -53,7 +53,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path, payload_only: 
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     spec = dict()
-    spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
+    spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
     keycloak_token = get_keycloak_token()
     workspace_svc = WorkspaceService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
     if not api_section["workspace_id"]:

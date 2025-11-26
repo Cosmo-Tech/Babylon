@@ -1,12 +1,11 @@
-import json
 from logging import getLogger
+from json import dumps
 from typing import Any
-
-from click import command, echo, option, style
-
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from click import command, option, style, echo, argument
+from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -18,9 +17,9 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
-@option("--dataset-id", "dataset_id", type=str)
+@argument("organization_id", required=True)
+@argument("workspace_id", required=True)
+@argument("dataset_id", required=True)
 @option(
     "--role",
     "role",
@@ -29,34 +28,39 @@ env = Environment()
     help="Role RBAC",
 )
 @option("--email", "email", type=str, required=True, help="Email valid")
-@retrieve_state
-def add(
-    state: Any,
-    keycloak_token: str,
-    email: str,
-    organization_id: str,
-    workspace_id: str,
-    dataset_id: str,
-    role: str = None,
-) -> CommandResponse:
+@retrieve_config_state
+def add(state: Any,
+        config: Any,
+        keycloak_token: str,
+        email: str,
+        organization_id: str,
+        workspace_id: str,
+        dataset_id: str,
+        role: str = None) -> CommandResponse:
     """
     Add dataset users RBAC access
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       WORKSPACE_ID : The unique identifier of the workspace
+       DATASET_ID: The unique identifier of the datatset
     """
     _data = [""]
     _data.append(" Add dataset users RBAC access")
     _data.append("")
     echo(style("\n".join(_data), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
-    service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
-    service = DatasetSecurityService(keycloak_token=keycloak_token, state=service_state)
-    details = json.dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
-    logger.info(f"Granting user {[email]} RBAC permissions on dataset {[service_state['api']['dataset_id']]}")
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = (workspace_id or services_state["workspace_id"])
+    services_state["dataset_id"] = dataset_id or services_state["dataset_id"]
+    service = DatasetSecurityService(keycloak_token=keycloak_token, state=services_state, config=config)
+    details = dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)
+    logger.info(f"Granting user {[email]} RBAC permissions on dataset {[services_state['dataset_id']]}")
     response = service.add(details)
     if response is None:
         return CommandResponse.fail()
     rbac = response.json()
-    logger.info(json.dumps(rbac, indent=2))
+    logger.info(dumps(rbac, indent=2))
     logger.info("User RBAC permissions successfully added")
     return CommandResponse.success(rbac)

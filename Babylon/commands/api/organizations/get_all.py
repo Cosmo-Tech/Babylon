@@ -1,14 +1,12 @@
+import jmespath
 from logging import getLogger
 from typing import Any
-
-import jmespath
-from click import command, echo, option, style
-
-from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
-from Babylon.utils.environment import Environment
+from click import command, option, echo, style
 from Babylon.utils.response import CommandResponse
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.environment import Environment
+from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 
 logger = getLogger(__name__)
 env = Environment()
@@ -19,8 +17,8 @@ env = Environment()
 @output_to_file
 @pass_keycloak_token()
 @option("--filter", "filter", help="Filter response with a jmespath query")
-@retrieve_state
-def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
+@retrieve_config_state
+def get_all(state: Any, config: Any, keycloak_token: str, filter: str) -> CommandResponse:
     """
     Get all organizations details
     """
@@ -28,7 +26,8 @@ def get_all(state: Any, keycloak_token: str, filter: str) -> CommandResponse:
     _org.append("Get all organizations details")
     _org.append("")
     echo(style("\n".join(_org), bold=True, fg="green"))
-    organization_service = OrganizationService(state=state["services"], keycloak_token=keycloak_token)
+    services_state = state["services"]["api"]
+    organization_service = OrganizationService(state=services_state, config=config, keycloak_token=keycloak_token)
     response = organization_service.get_all()
     if response is None:
         return CommandResponse.fail()

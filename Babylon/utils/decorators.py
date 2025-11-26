@@ -182,6 +182,18 @@ def retrieve_state(func) -> Callable[..., Any]:
     return wrapper
 
 
+def retrieve_config_state(func) -> Callable[..., Any]:
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        config, state = env.retrieve_config_state_func()
+        kwargs["config"] = config
+        kwargs["state"] = state
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 def wrapcontext() -> Callable[..., Any]:
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
         @option("-c", "--context", "context", required=True, help="Context Name")

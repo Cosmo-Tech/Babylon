@@ -23,7 +23,7 @@ class OrganizationService:
         self.keycloak_token = keycloak_token
         self.url = config["api_url"]
         if not self.url:
-            logger.error("api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
 
     def create(self):
@@ -66,7 +66,9 @@ class OrganizationService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = OrganizationSecurityService(keycloak_token=self.keycloak_token, state=self.state, config=self.config)
+        self.security_svc = OrganizationSecurityService(keycloak_token=self.keycloak_token,
+                                                        state=self.state,
+                                                        config=self.config)
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

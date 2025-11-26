@@ -14,16 +14,18 @@ env = Environment()
 
 
 class DatasetService:
-    def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None) -> None:
+
+    def __init__(self, keycloak_token: str, state: dict, config: dict, spec: Optional[dict] = None) -> None:
         self.state = state
+        self.config = config
         self.spec = spec
         self.keycloak_token = keycloak_token
-        self.url = self.state["api"]["url"]
-        self.organization_id = self.state["api"]["organization_id"]
-        self.workspace_id = self.state["api"]["workspace_id"]
-        self.dataset_id = self.state["api"]["dataset_id"]
+        self.url = config["api_url"]
+        self.organization_id = self.state["organization_id"]
+        self.workspace_id = self.state["workspace_id"]
+        self.dataset_id = self.state["dataset_id"]
         if not self.url:
-            logger.error("api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")

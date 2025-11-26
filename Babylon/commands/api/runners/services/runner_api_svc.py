@@ -22,7 +22,7 @@ class RunnerService:
         self.runner_id = self.state["runner_id"]
         self.keycloak_token = keycloak_token
         if not self.url:
-            logger.error("api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")

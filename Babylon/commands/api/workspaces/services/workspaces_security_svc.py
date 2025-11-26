@@ -16,7 +16,7 @@ class ApiWorkspaceSecurityService:
         self.keycloak_token = keycloak_token
         self.url = config["api_url"]
         if not self.url:
-            logger.error("Api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         self.organization_id = self.state["organization_id"]
         if not self.organization_id:

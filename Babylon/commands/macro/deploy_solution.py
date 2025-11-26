@@ -1,6 +1,7 @@
-import json
 import os
 import sys
+
+from json import dumps
 from logging import getLogger
 
 from click import echo, style
@@ -35,7 +36,7 @@ def deploy_solution(file_content: str) -> bool:
                 f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
             sys.exit(1)
     spec = dict()
-    spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
+    spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
     solution_svc = SolutionService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
     sidecars = content.get("spec").get("sidecars", {})
     if not api_section["solution_id"]:
