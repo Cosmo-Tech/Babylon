@@ -250,7 +250,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path, payload_only: 
             logger.info(f"updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
             payloadUpdated: dict = content.get("spec").get("payload")
             specUpdated = dict()
-            specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
+            specUpdated["payload"] = dumps(payloadUpdated, indent=2, ensure_ascii=True)
             workspace_svc.update_with_payload(specUpdated)
         if sidecars:
             run_scripts = sidecars.get("run_scripts")

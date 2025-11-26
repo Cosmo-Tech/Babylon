@@ -32,8 +32,7 @@ def deploy_solution(file_content: str) -> bool:
         api_section["organization_id"] = metadata["selector"].get("organization_id", "")
     else:
         if not api_section["organization_id"]:
-            logger.error(
-                f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
+            logger.error(f"Missing 'organization_id' in metadata -> selector field : {metadata.get('selector')}")
             sys.exit(1)
     spec = dict()
     spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)

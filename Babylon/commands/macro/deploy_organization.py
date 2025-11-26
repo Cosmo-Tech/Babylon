@@ -29,7 +29,10 @@ def deploy_organization(namespace: str, file_content: str):
     api_section["organization_id"] = (payload.get("id") or api_section.get("organization_id", ""))
     spec = dict()
     spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
-    organization_service = OrganizationService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
+    organization_service = OrganizationService(keycloak_token=keycloak_token,
+                                               spec=spec,
+                                               config=config,
+                                               state=api_section)
     sidecars = content.get("spec").get("sidecars", {})
     if not api_section["organization_id"]:
         logger.info("Creating organization")

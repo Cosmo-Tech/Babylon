@@ -271,7 +271,7 @@ class Environment(metaclass=SingletonMeta):
             secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
             for key, value in secret.data.items():
                 decoded_value = base64.b64decode(value).decode("utf-8")
-                response_parsed[key] = decoded_value 
+                response_parsed[key] = decoded_value
             return response_parsed
         except client.exceptions.ApiException:
             logger.error("Failed to load kubeconfig. Use 'kubectl config use-context' to switch your context")
@@ -401,7 +401,7 @@ class Environment(metaclass=SingletonMeta):
             return ns_data
 
     def retrieve_config_state_func(self):
-        # retrieve config from k8s secret 
+        # retrieve config from k8s secret
         config = self.get_config_from_k8s_secret_by_tenant(self.environ_id)
         if self.remote:
             state = self.get_state_from_cloud()
