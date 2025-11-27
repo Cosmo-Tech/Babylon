@@ -39,7 +39,6 @@ nav:
   - Home: 'index.md'
   - Getting started:
     - Installation: 'getting_started/installation.md'
-    - Dependencies: 'getting_started/dependencies.md'
   - Concepts:
       - Contribute: 'concepts/contribute.md'
       - Environments: 'concepts/environment.md'
@@ -76,5 +75,4 @@ plugins:
     - gen-files:
         scripts:
           - scripts/generate_index.py
-          - scripts/generate_dependencies.py
     - mike
