@@ -45,7 +45,7 @@ def create(state: Any, config: Any, keycloak_token: str, organization_id: str,
     if response is None:
         return CommandResponse.fail()
     solution = response.json()
-    services_state["solution_id"] = solution.get("id")
+    state["services"]["api"]["solution_id"] = solution.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)

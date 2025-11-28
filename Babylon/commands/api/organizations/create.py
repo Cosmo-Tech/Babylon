@@ -42,7 +42,7 @@ def create(state: Any, config: Any, keycloak_token: str, payload_file: pathlib.P
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
-    services_state["organization_id"] = organization.get("id")
+    state["services"]["api"]["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)

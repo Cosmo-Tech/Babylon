@@ -39,7 +39,7 @@ class OrganizationServiceTestCase(unittest.TestCase):
         the_response._content = b'{"code" : "204", "description": "Succeeded"}'
         organizationservice_delete.return_value = the_response
 
-        CliRunner().invoke(delete, ["--organization-id", "my_organization_id"], standalone_mode=False)
+        CliRunner().invoke(delete, ["1"], standalone_mode=False)
         states = env.get_state_from_local()
         assert states["services"]["api"]["organization_id"] == ""
 
@@ -61,7 +61,7 @@ class OrganizationServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id" : "1", "name": "My Organization"}'
         organizationservice_get.return_value = the_response
 
-        result = CliRunner().invoke(get, standalone_mode=False)
+        result = CliRunner().invoke(get, ["1"], standalone_mode=False)
         assert result.return_value.data == {"id": "1", "name": "My Organization"}
 
     @mock.patch.object(OrganizationService, "update")
@@ -71,7 +71,7 @@ class OrganizationServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id" : "1", "name": "My Organization updated"}'
         organizationservice_update.return_value = the_response
         payload = str(env.pwd / "Babylon/test/api/organizations/payload.json")
-        result = CliRunner().invoke(update, ["--organization-id", "my_organization_id", payload], standalone_mode=False)
+        result = CliRunner().invoke(update, ["1", payload], standalone_mode=False)
 
         assert result.return_value.data == {"id": "1", "name": "My Organization updated"}
 

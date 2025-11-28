@@ -37,6 +37,7 @@ def deploy_runner(file_content: str):
             return CommandResponse.fail()
         runner = response.json()
         logger.info(f"Runner {[runner['id']]} successfully created")
+        state["services"]["api"]["runner_id"] = runner.get("id")
     else:
         logger.info(f"Updating runner {[api_section['runner_id']]}")
         response = runner_service.update()

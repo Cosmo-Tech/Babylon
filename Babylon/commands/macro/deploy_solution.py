@@ -45,6 +45,7 @@ def deploy_solution(file_content: str) -> bool:
             return CommandResponse.fail()
         solution = response.json()
         logger.info(f"Solution {[solution['id']]} successfully created")
+        state["services"]["api"]["solution_id"] = solution.get("id")
     else:
         logger.info(f"Updating solution {[api_section['solution_id']]}")
         response = solution_svc.update()
@@ -56,7 +57,6 @@ def deploy_solution(file_content: str) -> bool:
         response_json["security"] = security_spec
         solution = response_json
         logger.info(f"Solution {[solution['id']]} successfully updated")
-    api_section["solution_id"] = solution.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)

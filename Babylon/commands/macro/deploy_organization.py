@@ -41,6 +41,7 @@ def deploy_organization(namespace: str, file_content: str):
             return CommandResponse.fail()
         organization = response.json()
         logger.info(f"Organization {[organization['id']]} successfully created")
+        state["services"]["api"]["organization_id"] = organization.get("id")
     else:
         logger.info(f"Updating organization {[api_section['organization_id']]}")
         response = organization_service.update()
@@ -52,7 +53,6 @@ def deploy_organization(namespace: str, file_content: str):
         response_json["security"] = security_spec
         organization = response_json
         logger.info(f"Organization {[organization['id']]} successfully updated")
-    api_section["organization_id"] = organization.get("id")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)

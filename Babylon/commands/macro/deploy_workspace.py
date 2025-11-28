@@ -63,7 +63,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path, payload_only: 
             return CommandResponse.fail()
         workspace = response.json()
         logger.info(f"Workspace {[workspace.get('id')]} successfully created")
-        api_section["workspace_id"] = workspace.get("id")
+        state["services"]["api"]["workspace_id"] = workspace.get("id")
     else:
         logger.info(f"Updating workspace {[api_section['workspace_id']]}")
         response = workspace_svc.update()
