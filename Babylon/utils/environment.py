@@ -271,7 +271,7 @@ class Environment(metaclass=SingletonMeta):
             config.load_kube_config()
         except ConfigException as e:
             logger.error(f"Failed to load kube config: {e} \n"
-                         f"Please ensure your kubeconfig is valid and your context is set. \n" 
+                         f"Please ensure your kubeconfig is valid and your context is set. \n"
                          "Use 'kubectl config use-context' if needed")
             sys.exit(1)
         try:

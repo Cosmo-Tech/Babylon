@@ -36,7 +36,10 @@ def create(state: Any, config: Any, keycloak_token: str, payload_file: pathlib.P
     with open(payload_file, "r") as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     services_state = state["services"]["api"]
-    organizations_service = OrganizationService(state=services_state, config=config, keycloak_token=keycloak_token, spec=spec)
+    organizations_service = OrganizationService(state=services_state,
+                                                config=config,
+                                                keycloak_token=keycloak_token,
+                                                spec=spec)
     logger.info("Creating organization")
     response = organizations_service.create()
     if response is None:
