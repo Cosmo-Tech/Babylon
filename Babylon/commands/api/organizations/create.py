@@ -1,7 +1,9 @@
 import pathlib
 from logging import getLogger
 from typing import Any
-from click import argument, command, echo, style, Path
+from click import argument, command, echo, style
+from click import Path
+from Babylon.utils.decorators import injectcontext, retrieve_config_state
 from Babylon.utils.response import CommandResponse
 from Babylon.utils.environment import Environment
 from Babylon.utils.credentials import pass_keycloak_token
@@ -18,7 +20,7 @@ env = Environment()
 @pass_keycloak_token()
 @retrieve_config_state
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
-def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> CommandResponse:
+def create(state: Any, config: Any, keycloak_token: str, payload_file: pathlib.Path) -> CommandResponse:
     """
     Register new organization
 
@@ -33,11 +35,16 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     spec = dict()
     with open(payload_file, "r") as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
-    organizations_service = OrganizationService(state=state["services"], keycloak_token=keycloak_token, spec=spec)
+    services_state = state["services"]["api"]
+    organizations_service = OrganizationService(state=services_state, config=config, keycloak_token=keycloak_token, spec=spec)
     logger.info("Creating organization")
     response = organizations_service.create()
     if response is None:
         return CommandResponse.fail()
     organization = response.json()
+    services_state["organization_id"] = organization.get("id")
+    env.store_state_in_local(state)
+    if env.remote:
+        env.store_state_in_cloud(state)
     logger.info(f"Organization {[organization.get('id')]} successfully created")
     return CommandResponse.success(organization)

@@ -17,6 +17,8 @@ from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 from kubernetes import client, config
+from kubernetes.config.config_exception import ConfigException
+from kubernetes.client.exceptions import ApiException
 
 logger = logging.getLogger(__name__)
 
@@ -265,17 +267,31 @@ class Environment(metaclass=SingletonMeta):
 
     def get_config_from_k8s_secret_by_tenant(self, tenant: str):
         response_parsed = dict()
-        config.load_kube_config()
+        try:
+            config.load_kube_config()
+        except ConfigException as e:
+            logger.error(f"Failed to load kube config: {e} \n"
+                         f"Please ensure your kubeconfig is valid and your context is set. \n" 
+                         "Use 'kubectl config use-context' if needed")
+            sys.exit(1)
         try:
             v1 = client.CoreV1Api()
             secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
+        except ApiException:
+            logger.error("Please ensure your kubeconfig is valid and your context is set. \n"
+                         "Use 'kubectl config use-context' to switch your context")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Failed to connect to the Kubernetes cluster: {e} \n"
+                         f"Cluster may be down, kube-apiserver unreachable")
+            sys.exit(1)
+        if secret.data:
             for key, value in secret.data.items():
                 decoded_value = base64.b64decode(value).decode("utf-8")
                 response_parsed[key] = decoded_value
-            return response_parsed
-        except client.exceptions.ApiException:
-            logger.error("Failed to load kubeconfig. Use 'kubectl config use-context' to switch your context")
-            sys.exit(1)
+        else:
+            logging.warning(f"Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
+        return response_parsed
 
     def store_mtime_in_state(self, state: dict):
         state["files"] = self.working_dir.files_to_deploy
