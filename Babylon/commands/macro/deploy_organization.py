@@ -1,6 +1,5 @@
 import os
 import sys
-
 from json import dumps
 from logging import getLogger
 
@@ -26,13 +25,12 @@ def deploy_organization(namespace: str, file_content: str):
     keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
     api_section = state["services"]["api"]
-    api_section["organization_id"] = (payload.get("id") or api_section.get("organization_id", ""))
+    api_section["organization_id"] = payload.get("id") or api_section.get("organization_id", "")
     spec = dict()
     spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
-    organization_service = OrganizationService(keycloak_token=keycloak_token,
-                                               spec=spec,
-                                               config=config,
-                                               state=api_section)
+    organization_service = OrganizationService(
+        keycloak_token=keycloak_token, spec=spec, config=config, state=api_section
+    )
     sidecars = content.get("spec").get("sidecars", {})
     if not api_section["organization_id"]:
         logger.info("Creating organization")

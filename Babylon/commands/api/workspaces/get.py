@@ -1,13 +1,11 @@
 from logging import getLogger
 from typing import Any
-from click import command, argument, echo, style
+
+from click import argument, command, echo, style
+
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import (
-    injectcontext,
-    retrieve_config_state,
-    output_to_file
-)
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -36,8 +34,8 @@ def get(state: Any, config: Any, organization_id: str, keycloak_token: str, work
     _work.append("")
     echo(style("\n".join(_work), bold=True, fg="green"))
     services_state = state["services"]["api"]
-    services_state["organization_id"] = (organization_id or services_state["organization_id"])
-    services_state["workspace_id"] = (workspace_id or services_state["workspace_id"])
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
     workspace_service = WorkspaceService(state=services_state, keycloak_token=keycloak_token, config=config)
     logger.info(f"Retrieving workspace {[services_state['workspace_id']]} details")
     response = workspace_service.get()

@@ -1,10 +1,11 @@
 from json import dumps
 from logging import getLogger
-from click import command, option, echo, style, argument
+
+from click import argument, command, echo, option, style
+
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file, retrieve_config_state
-from Babylon.utils.decorators import injectcontext
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -22,8 +23,17 @@ env = Environment()
 @option("--email", "email", type=str, required=True, help="Email valid")
 @option("--role", "role", type=str, required=True, help="Role RBAC")
 @retrieve_config_state
-def update(state: dict, config: dict, keycloak_token: str, identity_id: str, email: str, role: str,
-           organization_id: str, workspace_id: str, dataset_id: str) -> CommandResponse:
+def update(
+    state: dict,
+    config: dict,
+    keycloak_token: str,
+    identity_id: str,
+    email: str,
+    role: str,
+    organization_id: str,
+    workspace_id: str,
+    dataset_id: str,
+) -> CommandResponse:
     """
     Update dataset users RBAC access
 

@@ -1,6 +1,5 @@
 import os
 import sys
-
 from json import dumps
 from logging import getLogger
 
@@ -25,7 +24,7 @@ def deploy_runner(file_content: str):
     api_section = state["services"]["api"]
     keycloak_token = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
-    api_section["runner_id"] = (payload.get("id") or api_section["runner_id"])
+    api_section["runner_id"] = payload.get("id") or api_section["runner_id"]
     spec = dict()
     spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
     runner_service = RunnerService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)

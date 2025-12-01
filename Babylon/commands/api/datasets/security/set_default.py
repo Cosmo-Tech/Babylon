@@ -1,10 +1,11 @@
-from logging import getLogger
 from json import dumps
-from click import command, option, echo, style, argument
+from logging import getLogger
+
+from click import argument, command, echo, option, style
+
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file, retrieve_config_state
-from Babylon.utils.decorators import injectcontext
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -27,8 +28,9 @@ env = Environment()
 @argument("workspace_id", required=True)
 @argument("dataset_id", required=True)
 @retrieve_config_state
-def set_default(state: dict, config: dict, keycloak_token: str, role: str, organization_id: str, workspace_id: str,
-                dataset_id: str) -> CommandResponse:
+def set_default(
+    state: dict, config: dict, keycloak_token: str, role: str, organization_id: str, workspace_id: str, dataset_id: str
+) -> CommandResponse:
     """
     Set the dataset default security
 

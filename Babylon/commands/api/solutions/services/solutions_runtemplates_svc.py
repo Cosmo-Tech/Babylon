@@ -10,7 +10,6 @@ env = Environment()
 
 
 class SolutionRunTemplatesService:
-
     def __init__(self, keycloak_token: str, state: dict, config: dict, spec: Optional[dict] = None) -> None:
         self.state = state
         self.config = config

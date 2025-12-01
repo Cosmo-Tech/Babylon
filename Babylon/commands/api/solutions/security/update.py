@@ -1,15 +1,11 @@
 import json
-
-from click import option, command, echo, style, argument
 from logging import getLogger
-from Babylon.utils.decorators import injectcontext
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file, retrieve_config_state
+
+from click import argument, command, echo, option, style
+
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -32,8 +28,9 @@ env = Environment()
 )
 @output_to_file
 @retrieve_config_state
-def update(state: dict, config: dict, organization_id: str, solution_id: str, keycloak_token: str, email: str,
-           role: str) -> CommandResponse:
+def update(
+    state: dict, config: dict, organization_id: str, solution_id: str, keycloak_token: str, email: str, role: str
+) -> CommandResponse:
     """
     Update solution users RBAC access
 
@@ -47,8 +44,8 @@ def update(state: dict, config: dict, organization_id: str, solution_id: str, ke
     _sol.append("")
     echo(style("\n".join(_sol), bold=True, fg="green"))
     services_state = state["services"]["api"]
-    services_state["organization_id"] = (organization_id or services_state["organization_id"])
-    services_state["solution_id"] = (solution_id or services_state["solution_id"])
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["solution_id"] = solution_id or services_state["solution_id"]
     details = json.dumps({"id": email, "role": role})
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=services_state, config=config)
     logger.info(f"Updating user {[email]} RBAC access in the solution {[services_state['solution_id']]}")

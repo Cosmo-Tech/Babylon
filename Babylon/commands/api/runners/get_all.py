@@ -1,13 +1,15 @@
 from logging import getLogger
-from click import command, option, echo, style, argument
 from typing import Any, Optional
+
 import jmespath
+from click import argument, command, echo, option, style
+
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
-    retrieve_config_state,
     output_to_file,
+    retrieve_config_state,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -45,8 +47,8 @@ def get_all(
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
     services_state = state["services"]["api"]
-    services_state["organization_id"] = (organization_id or services_state["organization_id"])
-    services_state["workspace_id"] = (workspace_id or services_state["workspace_id"])
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
     runner_service = RunnerService(state=services_state, keycloak_token=keycloak_token, config=config)
     logger.info(f"Getting all runners from workspace {[services_state['workspace_id']]}")
     response = runner_service.get_all()

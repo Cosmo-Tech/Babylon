@@ -1,9 +1,11 @@
 from logging import getLogger
 from typing import Any
-from click import command, argument, echo, style
+
+from click import argument, command, echo, style
+
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import retrieve_config_state, injectcontext, output_to_file
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -19,14 +21,15 @@ env = Environment()
 @argument("tag", type=str, nargs=-1)
 @output_to_file
 @retrieve_config_state
-def search(state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str,
-           tag: tuple[str, ...]) -> CommandResponse:
+def search(
+    state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str, tag: tuple[str, ...]
+) -> CommandResponse:
     """Get dataset with the given tag from the organization
 
     Args:
 
        ORGANIZATION_ID : The unique identifier of the organization
-       WORKSPACE_ID : The unique identifier of the workspace      
+       WORKSPACE_ID : The unique identifier of the workspace
        TAG : A specific tag used to retrieve the dataset
     """
     _data = [""]
@@ -34,8 +37,8 @@ def search(state: Any, config: Any, keycloak_token: str, organization_id: str, w
     _data.append("")
     echo(style("\n".join(_data), bold=True, fg="green"))
     services_state = state["services"]["api"]
-    services_state["organization_id"] = (organization_id or services_state["organization_id"])
-    services_state["workspace_id"] = (workspace_id or services_state["workspace_id"])
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
     logger.info(f"Searching dataset by tag {[tag]}")
     service = DatasetService(keycloak_token=keycloak_token, state=services_state, config=config)
     response = service.search(tag=tag)

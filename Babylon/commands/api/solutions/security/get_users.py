@@ -1,15 +1,11 @@
 import json
-
-from click import command, argument, echo, style
 from logging import getLogger
-from Babylon.utils.decorators import injectcontext
-from Babylon.utils.response import CommandResponse
-from Babylon.utils.environment import Environment
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file, retrieve_config_state
+
+from click import argument, command, echo, style
+
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -24,8 +20,9 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("solution_id", required=True)
 @retrieve_config_state
-def get_users(state: dict, config: dict, organization_id: str, solution_id: str,
-              keycloak_token: str) -> CommandResponse:
+def get_users(
+    state: dict, config: dict, organization_id: str, solution_id: str, keycloak_token: str
+) -> CommandResponse:
     """
     Get the Solution security users list
 
@@ -40,7 +37,7 @@ def get_users(state: dict, config: dict, organization_id: str, solution_id: str,
     echo(style("\n".join(_sol), bold=True, fg="green"))
     services_state = state["services"]["api"]
     services_state["organization_id"] = organization_id or services_state["organization_id"]
-    services_state["solution_id"] = (solution_id or services_state["solution_id"])
+    services_state["solution_id"] = solution_id or services_state["solution_id"]
     solution_service = SolutionSecurityService(keycloak_token=keycloak_token, state=services_state, config=config)
     logger.info(f"Fetching solution {[services_state['solution_id']]} RBAC users")
     response = solution_service.get_users()

@@ -1,16 +1,15 @@
 import logging
+from json import dumps
 
-from click import command, option, echo, style, argument
+from click import argument, command, echo, option, style
+
 from Babylon.commands.api.workspaces.services.workspaces_security_svc import (
     ApiWorkspaceSecurityService,
 )
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
-from json import dumps
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file, retrieve_config_state
 
 logger = logging.getLogger(__name__)
 env = Environment()
@@ -25,8 +24,9 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
 @retrieve_config_state
-def update(state: dict, config: dict, organization_id: str, workspace_id: str, keycloak_token: str, email: str,
-           role: str) -> CommandResponse:
+def update(
+    state: dict, config: dict, organization_id: str, workspace_id: str, keycloak_token: str, email: str, role: str
+) -> CommandResponse:
     """
     Update workspace users RBAC access
 

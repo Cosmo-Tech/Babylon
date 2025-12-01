@@ -11,7 +11,6 @@ logger = getLogger(__name__)
 
 
 class RunnerService:
-
     def __init__(self, state: dict, config: dict, keycloak_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
@@ -100,9 +99,9 @@ class RunnerService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = RunnerSecurityService(keycloak_token=self.keycloak_token,
-                                                  state=self.state,
-                                                  config=self.config)
+        self.security_svc = RunnerSecurityService(
+            keycloak_token=self.keycloak_token, state=self.state, config=self.config
+        )
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

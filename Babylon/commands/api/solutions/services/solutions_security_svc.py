@@ -9,7 +9,6 @@ env = Environment()
 
 
 class SolutionSecurityService:
-
     def __init__(self, keycloak_token: str, config: dict, state: dict) -> None:
         self.state = state
         self.config = config

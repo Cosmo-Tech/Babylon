@@ -7,7 +7,6 @@ logger = getLogger(__name__)
 
 
 class RunnerSecurityService:
-
     def __init__(self, keycloak_token: str, config: dict, state: dict) -> None:
         self.state = state
         self.config = config

@@ -1,9 +1,10 @@
-from typing import Iterable
-from yaml import safe_dump, safe_load
-import pathlib
 import os
+import pathlib
 from logging import getLogger
+from typing import Iterable
+
 from click import Path, argument, command, echo, option, style
+from yaml import safe_dump, safe_load
 
 from Babylon.commands.macro.deploy_dataset import deploy_dataset
 from Babylon.commands.macro.deploy_organization import deploy_organization

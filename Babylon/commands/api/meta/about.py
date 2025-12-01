@@ -1,9 +1,11 @@
-from click import command, echo, style
 from logging import getLogger
-from Babylon.utils.request import oauth_request
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+
+from click import command, echo, style
+
 from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
+from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)

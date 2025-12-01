@@ -183,7 +183,6 @@ def retrieve_state(func) -> Callable[..., Any]:
 
 
 def retrieve_config_state(func) -> Callable[..., Any]:
-
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
         config, state = env.retrieve_config_state_func()

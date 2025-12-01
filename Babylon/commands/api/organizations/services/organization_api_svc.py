@@ -15,7 +15,6 @@ env = Environment()
 
 
 class OrganizationService:
-
     def __init__(self, config: dict, state: dict, keycloak_token: str, spec: dict = None):
         self.config = config
         self.spec = spec
@@ -66,9 +65,9 @@ class OrganizationService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = OrganizationSecurityService(keycloak_token=self.keycloak_token,
-                                                        state=self.state,
-                                                        config=self.config)
+        self.security_svc = OrganizationSecurityService(
+            keycloak_token=self.keycloak_token, state=self.state, config=self.config
+        )
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

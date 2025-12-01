@@ -2,12 +2,13 @@ from json import loads
 from logging import getLogger
 from pathlib import Path as pathlibPath
 from typing import Any
-from click import argument, command, echo, style
+
 from click import Path as clickPath
+from click import argument, command, echo, style
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import retrieve_config_state, injectcontext
+from Babylon.utils.decorators import injectcontext, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -23,16 +24,23 @@ env = Environment()
 @argument("dataset_id", required=True)
 @argument("payload_file", type=clickPath(path_type=pathlibPath, exists=True))
 @retrieve_config_state
-def create_part(state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str,
-                payload_file: clickPath) -> CommandResponse:
+def create_part(
+    state: Any,
+    config: Any,
+    keycloak_token: str,
+    organization_id: str,
+    workspace_id: str,
+    dataset_id: str,
+    payload_file: clickPath,
+) -> CommandResponse:
     """
     Create a dataset part
 
     Args:
 
        ORGANIZATION_ID : The unique identifier of the organization
-       WORKSPACE_ID : The unique identifier of the workspace          
-       DATASET_ID: The unique identifier of the datatset               
+       WORKSPACE_ID : The unique identifier of the workspace
+       DATASET_ID: The unique identifier of the datatset
        PAYLOAD_FILE : Path to the manifest file used to create the dataset
     """
     _data = [""]
@@ -45,9 +53,9 @@ def create_part(state: Any, config: Any, keycloak_token: str, organization_id: s
     payload_string = loads(spec["payload"])
     filename = payload_string["sourceName"]
     services_state = state["services"]["api"]
-    services_state["organization_id"] = (organization_id or services_state["organization_id"])
-    services_state["workspace_id"] = (workspace_id or services_state["workspace_id"])
-    services_state["dataset_id"] = (dataset_id or services_state["dataset_id"])
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
+    services_state["dataset_id"] = dataset_id or services_state["dataset_id"]
     service = DatasetService(keycloak_token=keycloak_token, state=services_state, spec=spec, config=config)
     response = service.create_part(filename)
     if response is None:

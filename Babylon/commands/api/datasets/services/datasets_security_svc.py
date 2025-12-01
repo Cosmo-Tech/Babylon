@@ -9,7 +9,6 @@ env = Environment()
 
 
 class DatasetSecurityService:
-
     def __init__(self, keycloak_token: str, state: dict, config: dict) -> None:
         self.state = state
         self.config = config
@@ -24,11 +23,11 @@ class DatasetSecurityService:
             sys.exit(1)
         self.workspace_id = self.state["workspace_id"]
         if not self.workspace_id:
-            logger.error('Workspace id is missing verify the state')
+            logger.error("Workspace id is missing verify the state")
             sys.exit(1)
         self.dataset_id = self.state["dataset_id"]
         if not self.dataset_id:
-            logger.error('Dataset is missing verify the state')
+            logger.error("Dataset is missing verify the state")
             sys.exit(1)
 
     def add(self, details: str):

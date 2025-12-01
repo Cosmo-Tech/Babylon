@@ -1,11 +1,12 @@
-from logging import getLogger
 from json import dumps
+from logging import getLogger
 from typing import Any
+
+from click import argument, command, echo, option, style
+
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
-from click import command, option, style, echo, argument
-from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -29,14 +30,16 @@ env = Environment()
 )
 @option("--email", "email", type=str, required=True, help="Email valid")
 @retrieve_config_state
-def add(state: Any,
-        config: Any,
-        keycloak_token: str,
-        email: str,
-        organization_id: str,
-        workspace_id: str,
-        dataset_id: str,
-        role: str = None) -> CommandResponse:
+def add(
+    state: Any,
+    config: Any,
+    keycloak_token: str,
+    email: str,
+    organization_id: str,
+    workspace_id: str,
+    dataset_id: str,
+    role: str = None,
+) -> CommandResponse:
     """
     Add dataset users RBAC access
 
@@ -52,7 +55,7 @@ def add(state: Any,
     echo(style("\n".join(_data), bold=True, fg="green"))
     services_state = state["services"]["api"]
     services_state["organization_id"] = organization_id or services_state["organization_id"]
-    services_state["workspace_id"] = (workspace_id or services_state["workspace_id"])
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
     services_state["dataset_id"] = dataset_id or services_state["dataset_id"]
     service = DatasetSecurityService(keycloak_token=keycloak_token, state=services_state, config=config)
     details = dumps(obj={"id": email, "role": role}, indent=2, ensure_ascii=True)

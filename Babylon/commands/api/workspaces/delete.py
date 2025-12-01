@@ -1,6 +1,8 @@
 from logging import getLogger
 from typing import Any
-from click import command, option, echo, style, argument
+
+from click import argument, command, echo, option, style
+
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
@@ -42,8 +44,8 @@ def delete(
     _work.append("")
     echo(style("\n".join(_work), bold=True, fg="green"))
     services_state = state["services"]["api"]
-    services_state["organization_id"] = (organization_id or services_state["organization_id"])
-    services_state["workspace_id"] = (workspace_id or services_state["workspace_id"])
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
     workspace_service = WorkspaceService(state=services_state, keycloak_token=keycloak_token, config=config)
     logger.info("Deleting workspace")
     response = workspace_service.delete(force_validation=force_validation)

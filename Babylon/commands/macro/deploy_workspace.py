@@ -1,9 +1,9 @@
 import os
-import sys
 import pathlib
+import sys
+from json import dumps
 from logging import getLogger
 
-from json import dumps
 from click import echo, style
 
 from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
@@ -46,9 +46,10 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path, payload_only: 
         api_section["organization_id"] = metadata["selector"].get("organization_id", "")
         api_section["solution_id"] = metadata["selector"].get("solution_id", "")
     else:
-        if (not api_section["organization_id"] and not api_section["solution_id"]):
-            logger.error(f"Missing 'organization_id' and 'solution_id'"
-                         f"in metadata -> selector field : {metadata.get('selector')}")
+        if not api_section["organization_id"] and not api_section["solution_id"]:
+            logger.error(
+                f"Missing 'organization_id' and 'solution_id'in metadata -> selector field : {metadata.get('selector')}"
+            )
             sys.exit(1)
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")

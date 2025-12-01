@@ -1,6 +1,5 @@
 import os
 import sys
-
 from json import dumps
 from logging import getLogger
 
@@ -27,7 +26,7 @@ def deploy_solution(file_content: str) -> bool:
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     api_section = state["services"]["api"]
-    api_section["solution_id"] = (payload.get("id") or api_section.get("solution_id", ""))
+    api_section["solution_id"] = payload.get("id") or api_section.get("solution_id", "")
     if metadata.get("selector", ""):
         api_section["organization_id"] = metadata["selector"].get("organization_id", "")
     else:

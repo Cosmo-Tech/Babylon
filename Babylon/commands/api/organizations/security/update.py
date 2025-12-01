@@ -1,14 +1,15 @@
 import json
 import logging
 
-from click import command, option, echo, style, argument
-from Babylon.utils.decorators import injectcontext
+from click import argument, command, echo, option, style
+
+from Babylon.commands.api.organizations.services.organization_security_svc import (
+    OrganizationSecurityService,
+)
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
-from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import output_to_file, retrieve_config_state
-from Babylon.commands.api.organizations.services.organization_security_svc import (
-    OrganizationSecurityService, )
 
 logger = logging.getLogger(__name__)
 env = Environment()
@@ -28,8 +29,9 @@ env = Environment()
 @argument("organization_id", required=True)
 @option("--email", "email", type=str, required=True, help="Email valid")
 @retrieve_config_state
-def update(state: dict, config: dict, keycloak_token: str, organization_id: str, email: str,
-           role: str) -> CommandResponse:
+def update(
+    state: dict, config: dict, keycloak_token: str, organization_id: str, email: str, role: str
+) -> CommandResponse:
     """
     Update organization users RBAC access
 

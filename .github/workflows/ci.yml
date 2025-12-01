@@ -33,5 +33,5 @@ jobs:
       - name: Run tests
         run: |
          . .venv/bin/activate
-         babylon namespace use -c test -p sphinx -s testid
+         babylon namespace use -c test -t sphinx -s testid
          CI=true pytest Babylon/test/api/organizations Babylon/test/api/solutions Babylon/test/api/workspaces Babylon/test/api/runners Babylon/test/api/runs Babylon/test/api/datasets

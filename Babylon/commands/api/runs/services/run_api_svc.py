@@ -8,7 +8,6 @@ logger = getLogger(__name__)
 
 
 class RunService:
-
     def __init__(self, keycloak_token: str, state: dict, config: dict):
         self.state = state
         self.config = config

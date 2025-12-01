@@ -1,24 +1,25 @@
+import base64
 import json
 import logging
 import os
 import re
 import sys
 import uuid
-import yaml
-import requests
-import base64
-
 from collections import defaultdict
 from pathlib import Path
-from mako.template import Template
+
+import requests
+import yaml
 from cryptography.fernet import Fernet
 from flatten_json import flatten
+from kubernetes import client, config
+from kubernetes.client.exceptions import ApiException
+from kubernetes.config.config_exception import ConfigException
+from mako.template import Template
+
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
-from kubernetes import client, config
-from kubernetes.config.config_exception import ConfigException
-from kubernetes.client.exceptions import ApiException
 
 logger = logging.getLogger(__name__)
 
@@ -270,20 +271,25 @@ class Environment(metaclass=SingletonMeta):
         try:
             config.load_kube_config()
         except ConfigException as e:
-            logger.error(f"Failed to load kube config: {e} \n"
-                         f"Please ensure your kubeconfig is valid and your context is set. \n"
-                         "Use 'kubectl config use-context' if needed")
+            logger.error(
+                f"Failed to load kube config: {e} \n"
+                f"Please ensure your kubeconfig is valid and your context is set. \n"
+                "Use 'kubectl config use-context' if needed"
+            )
             sys.exit(1)
         try:
             v1 = client.CoreV1Api()
             secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
         except ApiException:
-            logger.error("Please ensure your kubeconfig is valid and your context is set. \n"
-                         "Use 'kubectl config use-context' to switch your context")
+            logger.error(
+                "Please ensure your kubeconfig is valid and your context is set. \n"
+                "Use 'kubectl config use-context' to switch your context"
+            )
             sys.exit(1)
         except Exception as e:
-            logger.error(f"Failed to connect to the Kubernetes cluster: {e} \n"
-                         f"Cluster may be down, kube-apiserver unreachable")
+            logger.error(
+                f"Failed to connect to the Kubernetes cluster: {e} \nCluster may be down, kube-apiserver unreachable"
+            )
             sys.exit(1)
         if secret.data:
             for key, value in secret.data.items():
@@ -332,7 +338,7 @@ class Environment(metaclass=SingletonMeta):
                         "dataset_id": "",
                         "runner_id": "",
                     }
-                }
+                },
             }
             return init_state
         state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
@@ -362,7 +368,7 @@ class Environment(metaclass=SingletonMeta):
                         "dataset_id": "",
                         "runner_id": "",
                     }
-                }
+                },
             }
             return init_state
         if state_blob.exists():
@@ -404,8 +410,10 @@ class Environment(metaclass=SingletonMeta):
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
-            logger.error("The context and the platform are not set. \
-                         Please set the platform using the 'namespace use' command.")
+            logger.error(
+                "The context and the platform are not set. \
+                         Please set the platform using the 'namespace use' command."
+            )
             sys.exit(1)
 
         ns_data = yaml.safe_load(ns_file.open("r").read())
@@ -503,7 +511,7 @@ class Environment(metaclass=SingletonMeta):
         keys_tracker = defaultdict(list)
 
         for file_path in file_paths:
-            if not file_path.endswith('.yaml'):
+            if not file_path.endswith(".yaml"):
                 logger.error(f"File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:
