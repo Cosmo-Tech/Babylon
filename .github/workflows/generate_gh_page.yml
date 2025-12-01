@@ -22,8 +22,10 @@ jobs:
 
       - name: Extract version
         id: version
-        run: echo "version=$(babylon --version)" >> $GITHUB_OUTPUT
-        shell: bash
+        run: |
+          . .venv/bin/activate
+          echo "version=$(babylon --version)" >> $GITHUB_OUTPUT
+
       - name: Configure Git user
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
