@@ -83,24 +83,22 @@ def get_keycloak_credentials() -> dict:
     """ "Logs to keycloak and saves the token as a config variable"""
     try:
         config = env.get_config_from_k8s_secret_by_tenant(env.environ_id)
-        credential = {
-            "grant_type": config["keycloak"]["grant_type"],
-            "client_id": config["keycloak"]["client_id"],
-            "client_secret": config["keycloak"]["client_secret"],
-            "scope": config["keycloak"]["scope"],
+        credentials = {
+            "grant_type": "client_credentials",
+            "client_id": config.get("client_id"),
+            "client_secret": config.get("client_secret"),
+            "scope": "openid",
         }
-        if not all(credential.values()):
-            missing = [k for k, v in credential.items() if not v]
+        if not all(credentials.values()):
+            missing = [k for k, v in credentials.items() if not v]
             raise AttributeError(f"Missing required Keycloak credentials: {', '.join(missing)}")
 
-        return credential
+        return credentials
 
     except KeyError as e:
-        error_msg = f"Missing Keycloak configuration in Vault: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"Check the Keycloak configuration in the Kubernetes secret: {e}")
     except Exception as e:
-        error_msg = f"Unexpected error getting Keycloak credentials: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"Unexpected error while retrieving Keycloak credentials: {e}")
 
 
 def get_keycloak_token() -> str:
