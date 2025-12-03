@@ -185,7 +185,8 @@ def retrieve_state(func) -> Callable[..., Any]:
 def retrieve_config_state(func) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        config, state = env.retrieve_config_state_func()
+        state = env.retrieve_config_state_func()
+        config = env.retrieve_config()
         kwargs["config"] = config
         kwargs["state"] = state
         return func(*args, **kwargs)

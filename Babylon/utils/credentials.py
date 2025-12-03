@@ -82,7 +82,7 @@ def get_azure_credentials() -> ClientSecretCredential:
 def get_keycloak_credentials() -> dict:
     """ "Logs to keycloak and saves the token as a config variable"""
     try:
-        config = env.get_config_from_k8s_secret_by_tenant(env.environ_id)
+        config = env.retrieve_config()
         credentials = {
             "grant_type": "client_credentials",
             "client_id": config.get("client_id"),
@@ -93,7 +93,7 @@ def get_keycloak_credentials() -> dict:
             missing = [k for k, v in credentials.items() if not v]
             raise AttributeError(f"Missing required Keycloak credentials: {', '.join(missing)}")
 
-        return credentials
+        return credentials, config
 
     except KeyError as e:
         logger.error(f"Check the Keycloak configuration in the Kubernetes secret: {e}")
@@ -103,10 +103,9 @@ def get_keycloak_credentials() -> dict:
 
 def get_keycloak_token() -> str:
     """Returns keycloak token"""
-    config = env.get_config_from_k8s_secret_by_tenant(env.environ_id)
-    url = config["token_url"]
     try:
-        credentials = get_keycloak_credentials()
+        credentials, config = get_keycloak_credentials()
+        url = config["token_url"]
         headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
         response = requests.post(url=url, data=credentials, headers=headers, timeout=30)
         response.raise_for_status()

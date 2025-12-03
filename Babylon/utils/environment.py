@@ -282,8 +282,11 @@ class Environment(metaclass=SingletonMeta):
             secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
         except ApiException:
             logger.error(
-                "Please ensure your kubeconfig is valid and your context is set. \n"
-                "Use 'kubectl config use-context' to switch your context"
+                "\n"
+                f"Failed to read Kubernetes secret 'keycloak-babylon' in namespace '{tenant}'.\n"
+                "Please ensure your kubeconfig is valid and your context is correctly set.\n"
+                "You can switch context using: 'kubectl config use-context <context-name>'.\n"
+                "Alternatively, you can export the necessary environment variables in your terminal."
             )
             sys.exit(1)
         except Exception as e:
@@ -424,14 +427,29 @@ class Environment(metaclass=SingletonMeta):
             self.set_state_id(state_id=self.state_id)
             return ns_data
 
+    def retrieve_config(self):
+        """Retrieve configuratio. First checks environment variables; if missing, fallback to Kubernetes secret."""
+        required_env_vars = ["API_URL", "CLIENT_ID", "CLIENT_SECRET", "TOKEN_URL"]
+        env_config = {}
+        missing_vars = [var for var in required_env_vars if var not in os.environ]
+        if not missing_vars:
+            env_config = {
+                "api_url": os.environ["API_URL"],
+                "client_id": os.environ["CLIENT_ID"],
+                "client_secret": os.environ["CLIENT_SECRET"],
+                "token_url": os.environ["TOKEN_URL"],
+            }
+            config = env_config
+        else:
+            config = self.get_config_from_k8s_secret_by_tenant(self.environ_id)
+        return config
+
     def retrieve_config_state_func(self):
-        # retrieve config from k8s secret
-        config = self.get_config_from_k8s_secret_by_tenant(self.environ_id)
         if self.remote:
             state = self.get_state_from_cloud()
         else:
             state = self.get_state_from_local()
-        return config, state
+        return state
 
     def retrieve_state_func(self, state_id: str = ""):
         init_state = dict()
