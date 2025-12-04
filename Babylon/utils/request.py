@@ -1,23 +1,9 @@
 import logging
-from time import sleep
 from typing import Any, Optional
 
 import requests
 
-logger = logging.getLogger("Babylon")
-
-
-def poll_request(retries: int = 5, check_for_failure: bool = False, **kwargs: dict[str, Any]):
-    """Do a request until success or failure with a long polling"""
-    for _ in range(0, retries):
-        response = oauth_request(**kwargs)
-        if check_for_failure and response is None:
-            return
-        if response and response.status_code <= 300:
-            logger.info("Request polling succeeded")
-            return response
-        sleep(1)
-    raise ValueError("Request polling failed")
+logger = logging.getLogger(__name__)
 
 
 def oauth_request(
