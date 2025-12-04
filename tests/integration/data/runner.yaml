@@ -1,0 +1,11 @@
+name: "Babylon testing runner"
+runTemplateId: "minimal"
+solutionId: "sol-7xgdvwq6959j"
+solutionName: "Updated description"
+runTemplateName: "Run template with Brewery parameters"
+ownerName: "dokimi"
+security:
+    default: viewer
+    accessControlList:
+        - id: diamantis.sellis@cosmotech.com
+          role: admin

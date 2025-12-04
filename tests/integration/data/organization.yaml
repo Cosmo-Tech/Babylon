@@ -1,0 +1,7 @@
+name: "Debugging organization"
+# Description: "Organization for debugging purposes"
+security:
+  default: none
+  accessControlList:
+    - id: diamantis.sellis@cosmotech.com
+      role: admin
