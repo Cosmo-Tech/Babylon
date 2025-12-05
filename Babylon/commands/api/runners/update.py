@@ -35,7 +35,6 @@ def update(
     runner_id: str,
     keycloak_token: str,
     payload_file: pathlib.Path,
-    s,
 ) -> CommandResponse:
     """
     Update a runner

@@ -62,9 +62,5 @@ def create(
     if response is None:
         return CommandResponse.fail()
     runner = response.json()
-    state["services"]["api"]["runner_id"] = runner.get("id")
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
     logger.info(f"Runner {[runner['id']]} successfully created")
     return CommandResponse.success(runner)

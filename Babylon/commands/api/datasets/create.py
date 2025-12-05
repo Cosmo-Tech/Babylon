@@ -53,9 +53,5 @@ def create(
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()
-    state["services"]["api"]["dataset_id"] = dataset.get("id")
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
     logger.info(f"Dataset {[dataset.get('id')]} successfully created")
     return CommandResponse.success(dataset)

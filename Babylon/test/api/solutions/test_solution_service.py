@@ -27,7 +27,7 @@ class SolutionServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Solution"}'
         mock_create.return_value = the_response
         payload_file = str(env.pwd / "Babylon/test/api/solutions/payload.json")
-        CliRunner().invoke(create, ["--organization-id", "1", payload_file], standalone_mode=False)
+        CliRunner().invoke(create, ["1", payload_file], standalone_mode=False)
         states = env.get_state_from_local()
         assert states["services"]["api"]["solution_id"] == "1"
 
@@ -38,7 +38,7 @@ class SolutionServiceTestCase(unittest.TestCase):
         the_response._content = b'{"code": "204", "description": "Request succeeded"}'
         mock_delete.return_value = the_response
 
-        CliRunner().invoke(delete, ["--organization-id", "1", "--solution-id", "1"], standalone_mode=False)
+        CliRunner().invoke(delete, ["1", "1"], standalone_mode=False)
         states = env.get_state_from_local()
         assert states["services"]["api"]["solution_id"] == ""
 
@@ -49,7 +49,7 @@ class SolutionServiceTestCase(unittest.TestCase):
         the_response._content = b'[{"id": "1", "name": "Solution 1"}, {"id" : "2", "name": "Solution 2"}]'
         mock_get_all.return_value = the_response
 
-        result = CliRunner().invoke(get_all, ["--organization-id", "1"], standalone_mode=False)
+        result = CliRunner().invoke(get_all, ["1"], standalone_mode=False)
 
         assert len(result.return_value.data) == 2
 
@@ -60,7 +60,7 @@ class SolutionServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Solution 1"}'
         mock_get.return_value = the_response
 
-        result = CliRunner().invoke(get, ["--organization-id", "1", "--solution-id", "1"], standalone_mode=False)
+        result = CliRunner().invoke(get, ["1", "1"], standalone_mode=False)
 
         assert result.return_value.data == {"id": "1", "name": "Solution 1"}
 
@@ -71,9 +71,7 @@ class SolutionServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Solution updated"}'
         mock_update.return_value = the_response
         payload_file = str(env.pwd / "Babylon/test/api/solutions/payload.json")
-        result = CliRunner().invoke(
-            update, ["--organization-id", "1", "--solution-id", "1", payload_file], standalone_mode=False
-        )
+        result = CliRunner().invoke(update, ["1", "1", payload_file], standalone_mode=False)
 
         assert result.return_value.data == {"id": "1", "name": "Solution updated"}
 

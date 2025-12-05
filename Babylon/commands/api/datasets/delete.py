@@ -52,8 +52,4 @@ def delete(
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Dataset {[services_state['dataset_id']]} successfully deleted")
-    state["services"]["api"]["dataset_id"] = ""
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
     return CommandResponse.success(response)

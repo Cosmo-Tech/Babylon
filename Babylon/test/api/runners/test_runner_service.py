@@ -28,11 +28,8 @@ class RunnerServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "A runner"}'
         mock_create.return_value = the_response
         payload_file = str(env.pwd / "Babylon/test/api/runners/payload.json")
-        CliRunner().invoke(
-            create, ["--organization-id", "1", "--workspace-id", "1", payload_file], standalone_mode=False
-        )
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["runner_id"] == "1"
+        result = CliRunner().invoke(create, ["1", "1", payload_file], standalone_mode=False)
+        assert result.return_value.data.get("name") == "A runner"
 
     @mock.patch.object(RunnerService, "get_all")
     def test_get_all(self, mock_get_all):
@@ -40,7 +37,7 @@ class RunnerServiceTestCase(unittest.TestCase):
         the_response._content = b'[{"id": "1", "name": "Runner 1"}, {"id" : "2", "name": "Runner 2"}]'
         mock_get_all.return_value = the_response
 
-        result = CliRunner().invoke(get_all, ["--organization-id", "1", "--workspace-id", "1"], standalone_mode=False)
+        result = CliRunner().invoke(get_all, ["1", "1"], standalone_mode=False)
 
         assert len(result.return_value.data) == 2
 
@@ -50,9 +47,7 @@ class RunnerServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Runner"}'
         mock_get.return_value = the_response
 
-        result = CliRunner().invoke(
-            get, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1"], standalone_mode=False
-        )
+        result = CliRunner().invoke(get, ["1", "1", "1"], standalone_mode=False)
 
         assert result.return_value.data == {"id": "1", "name": "Runner"}
 
@@ -65,7 +60,7 @@ class RunnerServiceTestCase(unittest.TestCase):
         payload_file = str(env.pwd / "Babylon/test/api/runners/payload.json")
         result = CliRunner().invoke(
             update,
-            ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", payload_file],
+            ["1", "1", "1", payload_file],
             standalone_mode=False,
         )
 
@@ -77,11 +72,8 @@ class RunnerServiceTestCase(unittest.TestCase):
         the_response.status_code = 204
         the_response._content = b'{"code": "204", "descripton": "Successfull"}'
         mock_delete.return_value = the_response
-        CliRunner().invoke(
-            delete, ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1"], standalone_mode=False
-        )
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["runner_id"] == ""
+        result = CliRunner().invoke(delete, ["1", "1", "1"], standalone_mode=False)
+        assert str(result.return_value.data.status_code) == "204"
 
 
 if __name__ == "__main__":
