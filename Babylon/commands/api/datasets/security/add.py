@@ -6,7 +6,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.datasets.services.datasets_security_svc import DatasetSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -29,7 +29,7 @@ env = Environment()
     help="Role RBAC",
 )
 @option("--email", "email", type=str, required=True, help="Email valid")
-@retrieve_config_state
+@retrieve_state
 def add(
     state: Any,
     config: Any,

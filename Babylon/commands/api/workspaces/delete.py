@@ -7,7 +7,7 @@ from Babylon.commands.api.workspaces.services.workspaces_api_svc import Workspac
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
-    retrieve_config_state,
+    retrieve_state,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -18,7 +18,7 @@ env = Environment()
 
 @command()
 @injectcontext()
-@retrieve_config_state
+@retrieve_state
 @pass_keycloak_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("organization_id", required=True)

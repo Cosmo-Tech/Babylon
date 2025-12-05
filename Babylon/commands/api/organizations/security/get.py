@@ -5,7 +5,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.organizations.services.organization_security_svc import OrganizationSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -19,7 +19,7 @@ env = Environment()
 @pass_keycloak_token()
 @option("--email", "email", type=str, required=True, help="Email valid")
 @argument("organization_id", required=True)
-@retrieve_config_state
+@retrieve_state
 def get(state: Any, config: Any, organization_id: str, keycloak_token: str, email: str) -> CommandResponse:
     """
     Get organization user RBAC access

@@ -11,7 +11,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
     output_to_file,
-    retrieve_config_state,
+    retrieve_state,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -27,7 +27,7 @@ env = Environment()
 @option("--role", "role", type=str, required=True, help="Role RBAC")
 @option("--email", "email", type=str, required=True, help="Email valid")
 @argument("organization_id", required=True)
-@retrieve_config_state
+@retrieve_state
 def add(
     state: Any, config: Any, keycloak_token: str, organization_id: str, email: str, role: str = None
 ) -> CommandResponse:

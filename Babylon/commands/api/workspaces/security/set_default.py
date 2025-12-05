@@ -9,7 +9,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
     output_to_file,
-    retrieve_config_state,
+    retrieve_state,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -25,7 +25,7 @@ env = Environment()
 @option("--role", "role", type=str, required=True, help="Role RBAC")
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
-@retrieve_config_state
+@retrieve_state
 def set_default(
     state: Any,
     config: Any,

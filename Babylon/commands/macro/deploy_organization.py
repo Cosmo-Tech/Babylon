@@ -20,10 +20,9 @@ def deploy_organization(namespace: str, file_content: str):
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
     env.get_ns_from_text(content=namespace)
-    config = env.retrieve_config()
-    state = env.retrieve_config_state_func()
+    state = env.retrieve_state_func()
     content = env.fill_template(data=file_content, state=state)
-    keycloak_token = get_keycloak_token()
+    keycloak_token, config = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
     api_section = state["services"]["api"]
     api_section["organization_id"] = payload.get("id") or api_section.get("organization_id", "")

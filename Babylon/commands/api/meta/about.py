@@ -3,7 +3,7 @@ from logging import getLogger
 from click import command, echo, style
 
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
 from Babylon.utils.response import CommandResponse
@@ -16,8 +16,7 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config_state
-def about(state: dict, config: dict, keycloak_token: str) -> dict:
+def about(config: dict, keycloak_token: str) -> dict:
     """
     Get the version of the API service
     """

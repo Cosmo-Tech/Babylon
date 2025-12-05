@@ -33,12 +33,13 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_workspace(file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
+def deploy_workspace(namespace: str,file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
     _ret = [""]
     _ret.append("Workspace deployment")
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
-    config, state = env.retrieve_config_state_func()
+    env.get_ns_from_text(content=namespace)
+    state = env.retrieve_state_func()
     api_section = state["services"]["api"]
     vars = env.get_variables()
     metadata = env.get_metadata(vars=vars, content=file_content, state=state)
@@ -55,7 +56,7 @@ def deploy_workspace(file_content: str, deploy_dir: pathlib.Path, payload_only: 
     payload: dict = content.get("spec").get("payload")
     spec = dict()
     spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
-    keycloak_token = get_keycloak_token()
+    keycloak_token, config = get_keycloak_token()
     workspace_svc = WorkspaceService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
     if not api_section["workspace_id"]:
         logger.info("Creating workspace")

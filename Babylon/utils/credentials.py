@@ -116,7 +116,7 @@ def get_keycloak_token() -> str:
         )
         if not access_token:
             logger.error("Access token not found in Keycloak response")
-        return access_token
+        return access_token, config
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Keycloak request failed: {e}")
@@ -179,7 +179,9 @@ def pass_keycloak_token() -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             try:
-                kwargs["keycloak_token"] = get_keycloak_token()
+                token, config = get_keycloak_token()
+                kwargs["keycloak_token"] = token
+                kwargs["config"] = config
             except ConnectionError:
                 return CommandResponse().fail()
             return func(*args, **kwargs)

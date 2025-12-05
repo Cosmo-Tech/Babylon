@@ -5,7 +5,7 @@ from click import argument, command, echo, style
 
 from Babylon.commands.api.solutions.services.solutions_runtemplates_svc import SolutionRunTemplatesService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -20,7 +20,7 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("solution_id", required=True)
 @argument("runTemplate_id", required=True)
-@retrieve_config_state
+@retrieve_state
 def delete(
     state: Any,
     config: Any,

@@ -175,20 +175,18 @@ def injectcontext() -> Callable[..., Any]:
 def retrieve_state(func) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        state = env.retrieve_state_func(state_id=env.state_id)
+        state = env.retrieve_state_func()
         kwargs["state"] = state
         return func(*args, **kwargs)
 
     return wrapper
 
 
-def retrieve_config_state(func) -> Callable[..., Any]:
+def retrieve_config(func) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        state = env.retrieve_config_state_func()
         config = env.retrieve_config()
         kwargs["config"] = config
-        kwargs["state"] = state
         return func(*args, **kwargs)
 
     return wrapper

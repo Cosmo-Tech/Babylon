@@ -6,7 +6,7 @@ from Babylon.commands.api.organizations.services.organization_security_svc impor
     OrganizationSecurityService,
 )
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -20,7 +20,7 @@ env = Environment()
 @output_to_file
 @argument("organization_id", required=True)
 @option("--email", "email", type=str, required=True, help="Email valid")
-@retrieve_config_state
+@retrieve_state
 def delete(state: dict, config: dict, keycloak_token: str, email: str, organization_id: str) -> CommandResponse:
     """
     Delete organization users RBAC access

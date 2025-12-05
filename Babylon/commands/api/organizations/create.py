@@ -6,7 +6,7 @@ from click import Path, argument, command, echo, style
 
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -18,7 +18,7 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config_state
+@retrieve_state
 @argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
 def create(state: Any, config: Any, keycloak_token: str, payload_file: pathlib.Path) -> CommandResponse:
     """

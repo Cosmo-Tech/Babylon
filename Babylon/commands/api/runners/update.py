@@ -9,7 +9,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
     output_to_file,
-    retrieve_config_state,
+    retrieve_state,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -20,7 +20,7 @@ env = Environment()
 
 @command()
 @injectcontext()
-@retrieve_config_state
+@retrieve_state
 @output_to_file
 @pass_keycloak_token()
 @argument("organization_id", required=True)

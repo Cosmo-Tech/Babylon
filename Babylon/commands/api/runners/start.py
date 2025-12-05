@@ -8,7 +8,7 @@ from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import (
     injectcontext,
     output_to_file,
-    retrieve_config_state,
+    retrieve_state,
 )
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -21,7 +21,7 @@ env = Environment()
 @injectcontext()
 @pass_keycloak_token()
 @output_to_file
-@retrieve_config_state
+@retrieve_state
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
 @argument("runner_id", required=True)

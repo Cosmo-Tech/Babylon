@@ -6,7 +6,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -27,7 +27,7 @@ env = Environment()
     required=True,
     help="Role RBAC",
 )
-@retrieve_config_state
+@retrieve_state
 def set_default(
     state: Any,
     config: Any,

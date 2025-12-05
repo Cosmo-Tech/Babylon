@@ -14,15 +14,16 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_solution(file_content: str) -> bool:
+def deploy_solution(namespace: str, file_content: str) -> bool:
     _ret = [""]
     _ret.append("Solution deployment")
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
-    config, state = env.retrieve_config_state_func()
+    env.get_ns_from_text(content=namespace)
+    state = env.retrieve_state_func()
     vars = env.get_variables()
     metadata = env.get_metadata(vars=vars, content=file_content, state=state)
-    keycloak_token = get_keycloak_token()
+    keycloak_token, config = get_keycloak_token()
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     api_section = state["services"]["api"]

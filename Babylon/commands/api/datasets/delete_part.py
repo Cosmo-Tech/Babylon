@@ -5,7 +5,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -21,7 +21,7 @@ env = Environment()
 @argument("dataset_id", required=True)
 @argument("dataset_part_id", required=True)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@retrieve_config_state
+@retrieve_state
 def delete_part(
     state: Any,
     config: Any,

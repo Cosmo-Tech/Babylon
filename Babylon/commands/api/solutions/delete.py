@@ -5,7 +5,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -19,7 +19,7 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("solution_id", required=True)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@retrieve_config_state
+@retrieve_state
 def delete(
     state: Any,
     config: Any,

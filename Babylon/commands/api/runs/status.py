@@ -5,7 +5,7 @@ from click import argument, command, echo, style
 
 from Babylon.commands.api.runs.services.run_api_svc import RunService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
@@ -19,7 +19,7 @@ logger = getLogger(__name__)
 @argument("workspace_id", required=True)
 @argument("runner_id", required=True)
 @argument("run_id", required=True)
-@retrieve_config_state
+@retrieve_state
 def status(
     state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
 ) -> CommandResponse:

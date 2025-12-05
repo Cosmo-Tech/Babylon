@@ -58,13 +58,14 @@ class WorkspaceService:
 
     def update(self):
         check_if_workspace_exists(self.workspace_id)
-        details = self.update_payload_with_state()
-        details_json = json.dumps(details, indent=4, default=str)
+        # details = self.update_payload_with_state()
+        # details_json = json.dumps(details, indent=4, default=str)
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}",
             self.keycloak_token,
             type="PATCH",
-            data=details_json,
+            data=details,
         )
         return response
 

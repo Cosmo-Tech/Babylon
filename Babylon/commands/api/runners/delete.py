@@ -5,7 +5,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -16,7 +16,7 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_keycloak_token()
-@retrieve_config_state
+@retrieve_state
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
 @argument("runner_id", required=True)

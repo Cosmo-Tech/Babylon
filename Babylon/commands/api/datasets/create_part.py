@@ -8,7 +8,7 @@ from click import argument, command, echo, style
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -23,7 +23,7 @@ env = Environment()
 @argument("workspace_id", required=True)
 @argument("dataset_id", required=True)
 @argument("payload_file", type=clickPath(path_type=pathlibPath, exists=True))
-@retrieve_config_state
+@retrieve_state
 def create_part(
     state: Any,
     config: Any,

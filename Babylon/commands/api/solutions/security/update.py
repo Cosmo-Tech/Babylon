@@ -5,7 +5,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.solutions.services.solutions_security_svc import SolutionSecurityService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -27,7 +27,7 @@ env = Environment()
     help="Role RBAC",
 )
 @output_to_file
-@retrieve_config_state
+@retrieve_state
 def update(
     state: dict, config: dict, organization_id: str, solution_id: str, keycloak_token: str, email: str, role: str
 ) -> CommandResponse:

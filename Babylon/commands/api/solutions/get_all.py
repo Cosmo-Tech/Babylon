@@ -6,7 +6,7 @@ from click import argument, command, echo, option, style
 
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
@@ -18,7 +18,7 @@ logger = getLogger(__name__)
 @pass_keycloak_token()
 @argument("organization_id", required=True)
 @option("--filter", "filter", help="Filter response with a jmespath query")
-@retrieve_config_state
+@retrieve_state
 def get_all(
     state: Any, config: Any, keycloak_token: str, organization_id: str, filter: Optional[str] = None
 ) -> CommandResponse:

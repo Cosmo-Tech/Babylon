@@ -286,7 +286,6 @@ class Environment(metaclass=SingletonMeta):
                 f"Failed to read Kubernetes secret 'keycloak-babylon' in namespace '{tenant}'.\n"
                 "Please ensure your kubeconfig is valid and your context is correctly set.\n"
                 "You can switch context using: 'kubectl config use-context <context-name>'.\n"
-                "Alternatively, you can export the necessary environment variables in your terminal."
             )
             sys.exit(1)
         except Exception as e:
@@ -314,16 +313,16 @@ class Environment(metaclass=SingletonMeta):
         state = self.store_mtime_in_state(state)
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
 
-    def store_state_in_cloud(self, state: dict):
-        s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        # check babylon-states container if exists
-        state_container = self.blob_client.get_container_client(container="babylon-states")
-        if not state_container.exists():
-            state_container.create_container()
-        state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
-        if state_blob.exists():
-            state_blob.delete_blob()
-        state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
+    # def store_state_in_cloud(self, state: dict):
+    #     s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+    #     # check babylon-states container if exists
+    #     state_container = self.blob_client.get_container_client(container="babylon-states")
+    #     if not state_container.exists():
+    #         state_container.create_container()
+    #     state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
+    #     if state_blob.exists():
+    #         state_blob.delete_blob()
+    #     state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
 
     def get_state_from_local(self):
         state_dir = Path().home() / ".config/cosmotech/babylon"
@@ -338,8 +337,6 @@ class Environment(metaclass=SingletonMeta):
                         "organization_id": "",
                         "solution_id": "",
                         "workspace_id": "",
-                        "dataset_id": "",
-                        "runner_id": "",
                     }
                 },
             }
@@ -368,8 +365,6 @@ class Environment(metaclass=SingletonMeta):
                         "organization_id": "",
                         "solution_id": "",
                         "workspace_id": "",
-                        "dataset_id": "",
-                        "runner_id": "",
                     }
                 },
             }
@@ -430,54 +425,25 @@ class Environment(metaclass=SingletonMeta):
     def retrieve_config(self):
         """Retrieve configuratio. First checks environment variables; if missing, fallback to Kubernetes secret."""
         required_env_vars = ["API_URL", "CLIENT_ID", "CLIENT_SECRET", "TOKEN_URL"]
-        env_config = {}
         missing_vars = [var for var in required_env_vars if var not in os.environ]
         if not missing_vars:
-            env_config = {
+            logger.info("Loading configuration from environment variables")
+            return {
                 "api_url": os.environ["API_URL"],
                 "client_id": os.environ["CLIENT_ID"],
                 "client_secret": os.environ["CLIENT_SECRET"],
                 "token_url": os.environ["TOKEN_URL"],
-            }
-            config = env_config
-        else:
-            config = self.get_config_from_k8s_secret_by_tenant(self.environ_id)
-        return config
+            } 
+        # Log missing env vars
+        logger.info("Loading configuration from Kubernetes secret")
+        return self.get_config_from_k8s_secret_by_tenant(self.environ_id)
 
-    def retrieve_config_state_func(self):
+    def retrieve_state_func(self):
         if self.remote:
             state = self.get_state_from_cloud()
         else:
             state = self.get_state_from_local()
         return state
-
-    def retrieve_state_func(self, state_id: str = ""):
-        init_state = dict()
-        final_state = dict()
-        final_state["services"] = dict()
-        data_vault = self.get_state_from_vault_by_platform(self.environ_id)
-        init_state["services"] = data_vault
-        init_state["id"] = state_id or self.get_state_id()
-        self.state_id = init_state.get("id")
-        current_state = init_state
-        local_state = self.get_state_from_local()
-        current_state.update(local_state)
-        if self.remote:
-            state_cloud = self.get_state_from_cloud(init_state)
-            current_state = state_cloud
-        for section, keys in current_state.get("services").items():
-            final_state["services"][section] = dict()
-            for key, _ in keys.items():
-                final_state["services"][section].update({key: current_state["services"][section][key]})
-                if key in data_vault[section] and data_vault[section][key]:
-                    final_state["services"][section].update({key: data_vault[section][key]})
-        final_state["id"] = init_state.get("id") or current_state.get("id")
-        final_state["context"] = self.context_id
-        final_state["platform"] = self.environ_id
-        self.store_state_in_local(final_state)
-        if self.remote:
-            self.store_state_in_cloud(final_state)
-        return final_state
 
     def set_ns_from_yaml(self, content: str, state: dict = None, ext_args: dict = None):
         ns = self.fill_template(data=content, state=state, ext_args=ext_args).get("namespace")

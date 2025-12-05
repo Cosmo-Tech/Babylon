@@ -5,7 +5,7 @@ from click import argument, command, echo, style
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -21,7 +21,7 @@ env = Environment()
 @argument("dataset_id", required=True)
 @argument("tag", type=str, nargs=-1)
 @output_to_file
-@retrieve_config_state
+@retrieve_state
 def search_parts(
     state: Any,
     config: Any,

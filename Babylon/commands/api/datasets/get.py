@@ -5,7 +5,7 @@ from click import argument, command, echo, style
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -20,7 +20,7 @@ env = Environment()
 @argument("organization_id", required=True)
 @argument("workspace_id", required=True)
 @argument("dataset_id", required=True)
-@retrieve_config_state
+@retrieve_state
 def get(
     state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
 ) -> CommandResponse:

@@ -5,7 +5,7 @@ from click import argument, command, echo, style
 
 from Babylon.commands.api.organizations.services.organization_api_svc import OrganizationService
 from Babylon.utils.credentials import pass_keycloak_token
-from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config_state
+from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -18,7 +18,7 @@ env = Environment()
 @output_to_file
 @pass_keycloak_token()
 @argument("organization_id", required=True)
-@retrieve_config_state
+@retrieve_state
 def get(state: Any, config: Any, organization_id: str, keycloak_token: str) -> CommandResponse:
     """
     Get the details of a specific organization.

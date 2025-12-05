@@ -14,15 +14,15 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_runner(file_content: str):
+def deploy_runner(namespace: str, file_content: str):
     _ret = [""]
     _ret.append("Runner deployment")
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
-    config, state = env.retrieve_config_state_func()
+    state = env.retrieve_state_func()
     content = env.fill_template(data=file_content, state=state)
     api_section = state["services"]["api"]
-    keycloak_token = get_keycloak_token()
+    keycloak_token, config = get_keycloak_token()
     payload: dict = content.get("spec").get("payload", {})
     api_section["runner_id"] = payload.get("id") or api_section["runner_id"]
     spec = dict()
