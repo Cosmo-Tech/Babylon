@@ -17,6 +17,12 @@ from cosmotech_api.models.organization_create_request import OrganizationCreateR
 from cosmotech_api.models.runner_create_request import RunnerCreateRequest
 from cosmotech_api.models.solution_create_request import SolutionCreateRequest
 from cosmotech_api.models.workspace_create_request import WorkspaceCreateRequest
+from cosmotech_api.models.organization_update_request import OrganizationUpdateRequest
+from cosmotech_api.models.solution_update_request import SolutionUpdateRequest
+from cosmotech_api.models.workspace_update_request import WorkspaceUpdateRequest
+from cosmotech_api.models.dataset_update_request import DatasetUpdateRequest
+from cosmotech_api.models.runner_update_request import RunnerUpdateRequest
+
 from yaml import safe_load
 
 from Babylon.utils.credentials import pass_keycloak_token
@@ -110,7 +116,6 @@ def create_dataset(state: dict, keycloak_token: str, organization_id: str, works
     with open(payload_file, "r") as f:
         payload = safe_load(f)
     dataset_create_request = DatasetCreateRequest.from_dict(payload)
-    payload["parts"]
     file_contents_list = [part["sourceName"] for part in payload["parts"]]
     api_instance = get_dataset_api_instance(state, keycloak_token)
     try:
@@ -371,7 +376,7 @@ def list_runners(state: dict, keycloak_token: str, organization_id: str, workspa
 @injectcontext()
 @pass_keycloak_token()
 @retrieve_state
-@option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
+@argument("organization-id", type=str)
 def get_organization(state: dict, keycloak_token: str, organization_id: str):
     """Get organization"""
     api_instance = get_organization_api_instance(state, keycloak_token)
@@ -387,7 +392,7 @@ def get_organization(state: dict, keycloak_token: str, organization_id: str):
 @pass_keycloak_token()
 @retrieve_state
 @option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
-@argument("--workspace-id", type=str)
+@argument("workspace-id", type=str)
 def get_workspace(state: dict, keycloak_token: str, organization_id: str, workspace_id: str):
     """Get workspace"""
     api_instance = get_workspace_api_instance(state, keycloak_token)
@@ -403,7 +408,7 @@ def get_workspace(state: dict, keycloak_token: str, organization_id: str, worksp
 @pass_keycloak_token()
 @retrieve_state
 @option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
-@argument("--solution-id", type=str)
+@argument("solution-id", type=str)
 def get_solution(state: dict, keycloak_token: str, organization_id: str, solution_id: str):
     """Get solution"""
     api_instance = get_solution_api_instance(state, keycloak_token)
@@ -420,7 +425,7 @@ def get_solution(state: dict, keycloak_token: str, organization_id: str, solutio
 @retrieve_state
 @option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
 @option("--workspace-id", "-w", required=False, default=None, type=str, help="Workspace ID")
-@argument("--dataset-id", required=False, type=str)
+@argument("dataset-id", required=False, type=str)
 def get_dataset(state: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str):
     """Get dataset"""
     api_instance = get_dataset_api_instance(state, keycloak_token)
@@ -439,7 +444,7 @@ def get_dataset(state: dict, keycloak_token: str, organization_id: str, workspac
 @retrieve_state
 @option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
 @option("--workspace-id", "-w", required=False, default=None, type=str, help="Workspace ID")
-@argument("--runner-id", type=str)
+@argument("runner-id", type=str)
 def get_runner(state: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str):
     """Get runner"""
     api_instance = get_runner_api_instance(state, keycloak_token)
@@ -464,7 +469,7 @@ def update_organization(state: dict, keycloak_token: str, organization_id: str, 
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
-    organization_update_request = OrganizationCreateRequest.from_dict(payload)
+    organization_update_request = OrganizationUpdateRequest.from_dict(payload)
     api_instance = get_organization_api_instance(state, keycloak_token)
     try:
         updated = api_instance.update_organization(
@@ -478,15 +483,95 @@ def update_organization(state: dict, keycloak_token: str, organization_id: str, 
 @injectcontext()
 @pass_keycloak_token()
 @retrieve_state
-def update_workspace():
+@option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
+@option("--workspace-id", "-w", required=False, default=None, type=str, help="Workspace ID")
+@argument("payload_file", required=True)
+def update_workspace(state: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file) -> dict:
     """Update workspace"""
-    pass
+    with open(payload_file, "r") as f:
+        payload = safe_load(f)
+    workspace_update_request = WorkspaceUpdateRequest.from_dict(payload)
+    api_instance = get_workspace_api_instance(state, keycloak_token)
+    try:
+        updated = api_instance.update_workspace(
+            organization_id=organization_id,
+            workspace_id=workspace_id,
+            workspace_update_request=workspace_update_request,
+        )
+        logger.info(f"Workspace {updated.id} updated successfully")
+    except Exception as e:
+        logger.error(f"Could not update workspace: {e}")
 
-def update_solution():
+@command()
+@injectcontext()
+@pass_keycloak_token()
+@retrieve_state
+@option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
+@option("--solution-id", required=False, default=None, type=str, help="Solution ID")
+@argument("payload_file", required=True)
+def update_solution(state: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file) -> dict:
     """Update solution"""
-    pass
+    with open(payload_file, "r") as f:
+        payload = safe_load(f)
+    solution_update_request = SolutionUpdateRequest.from_dict(payload)
+    api_instance = get_solution_api_instance(state, keycloak_token)
+    try:
+        updated = api_instance.update_solution(
+            organization_id=organization_id,
+            solution_id=solution_id,
+            solution_update_request=solution_update_request,
+        )
+        logger.info(f"Solution {updated.id} updated successfully")
+    except Exception as e:
+        logger.error(f"Could not update solution: {e}")
 
-def update_dataset():
+@command()
+@injectcontext()
+@pass_keycloak_token()
+@retrieve_state
+@option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
+@option("--workspace-id", "-w", required=False, default=None, type=str, help="Workspace ID")
+@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@argument("payload_file", required=True)
+def update_dataset(state: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file) -> dict:
     """Update dataset"""
-    pass
+    with open(payload_file, "r") as f:
+        payload = safe_load(f)
+    dataset_update_request = DatasetUpdateRequest.from_dict(payload)
+    api_instance = get_dataset_api_instance(state, keycloak_token)
+    try:
+        updated = api_instance.update_dataset(
+            organization_id=organization_id,
+            workspace_id=workspace_id,
+            dataset_id=dataset_id,
+            dataset_update_request=dataset_update_request,
+            files=[part["sourceName"] for part in payload["parts"]]
+        )
+        logger.info(f"Dataset {updated.id} updated successfully")
+    except Exception as e:
+        logger.error(f"Could not update dataset: {e}")
 
+@command()
+@injectcontext()
+@pass_keycloak_token()
+@retrieve_state
+@option("--organization-id", "-o", required=False, default=None, type=str, help="Organization ID")
+@option("--workspace-id", "-w", required=False, default=None, type=str, help="Workspace ID")
+@option("--runner-id", required=False, default=None, type=str, help="Runner ID")
+@argument("payload_file", required=True)
+def update_runner(state: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, payload_file) -> dict:
+    """Update runner"""
+    with open(payload_file, "r") as f:
+        payload = safe_load(f)
+    runner_update_request = RunnerUpdateRequest.from_dict(payload)
+    api_instance = get_runner_api_instance(state, keycloak_token)
+    try:
+        updated = api_instance.update_runner(
+            organization_id=organization_id,
+            workspace_id=workspace_id,
+            runner_id=runner_id,
+            runner_update_request=runner_update_request,
+        )
+        logger.info(f"Runner {updated.id} updated successfully")
+    except Exception as e:
+        logger.error(f"Could not update runner: {e}")
