@@ -15,5 +15,5 @@ def get_states() -> CommandResponse:
     states_dir = env.get_all_states_from_local()
     states_files = sorted(states_dir.glob("state.*.yaml"))
     for f in states_files:
-        logger.info(f" {f.name}")
+        print(f" {f.name}")
     return CommandResponse.success()

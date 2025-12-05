@@ -18,11 +18,15 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
 @retrieve_state
-def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> CommandResponse:
+@argument("payload_file", type=Path(path_type=pathlib.Path, exists=True))
+def create(state: Any, config: Any, keycloak_token: str, payload_file: pathlib.Path) -> CommandResponse:
     """
     Register new organization
+
+    Args:
+
+       PAYLOAD_FILE : Path to the manifest file used to create the organization
     """
     _org = [""]
     _org.append("Register new organization")
@@ -31,7 +35,10 @@ def create(state: Any, keycloak_token: str, payload_file: pathlib.Path) -> Comma
     spec = dict()
     with open(payload_file, "r") as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
-    organizations_service = OrganizationService(state=state["services"], keycloak_token=keycloak_token, spec=spec)
+    services_state = state["services"]["api"]
+    organizations_service = OrganizationService(
+        state=services_state, config=config, keycloak_token=keycloak_token, spec=spec
+    )
     logger.info("Creating organization")
     response = organizations_service.create()
     if response is None:

@@ -14,16 +14,16 @@ env = Environment()
 
 
 class DatasetService:
-    def __init__(self, keycloak_token: str, state: dict, spec: Optional[dict] = None) -> None:
+    def __init__(self, keycloak_token: str, state: dict, config: dict, spec: Optional[dict] = None) -> None:
         self.state = state
+        self.config = config
         self.spec = spec
         self.keycloak_token = keycloak_token
-        self.url = self.state["api"]["url"]
-        self.organization_id = self.state["api"]["organization_id"]
-        self.workspace_id = self.state["api"]["workspace_id"]
-        self.dataset_id = self.state["api"]["dataset_id"]
+        self.url = config["api_url"]
+        self.organization_id = self.state["organization_id"]
+        self.workspace_id = self.state["workspace_id"]
         if not self.url:
-            logger.error("api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")
@@ -32,35 +32,34 @@ class DatasetService:
             logger.error("Workspace id is missing verify the state")
             sys.exit(1)
 
-    def delete(self, force_validation: bool):
-        check_if_dataset_exists(self.dataset_id)
-        if not force_validation and not confirm_deletion("dataset", self.dataset_id):
+    def delete(self, dataset_id: str, force_validation: bool):
+        check_if_dataset_exists(dataset_id)
+        if not force_validation and not confirm_deletion("dataset", dataset_id):
             return None
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/"
-            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{dataset_id}",
             self.keycloak_token,
             type="DELETE",
         )
         return response
 
-    def delete_part(self, dataset_part_id: str, force_validation: bool):
+    def delete_part(self, dataset_part_id: str, dataset_id: str, force_validation: bool):
         if not force_validation and not confirm_deletion("dataset part", dataset_part_id):
             return None
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/"
-            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}/"
+            f"workspaces/{self.workspace_id}/datasets/{dataset_id}/"
             f"parts/{dataset_part_id}",
             self.keycloak_token,
             type="DELETE",
         )
         return response
 
-    def download_part(self, dataset_part_id: str):
-        check_if_dataset_exists(self.dataset_id)
+    def download_part(self, dataset_part_id: str, dataset_id: str):
+        check_if_dataset_exists(dataset_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/"
-            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}/"
+            f"workspaces/{self.workspace_id}/datasets/{dataset_id}/"
             f"parts/{dataset_part_id}/download",
             self.keycloak_token,
             type="GET",
@@ -75,30 +74,29 @@ class DatasetService:
         )
         return response
 
-    def get(self):
-        check_if_dataset_exists(self.dataset_id)
+    def get(self, dataset_id: str):
+        check_if_dataset_exists(dataset_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/"
-            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/{dataset_id}",
             self.keycloak_token,
             type="GET",
         )
         return response
 
-    def get_part(self):
+    def get_part(self, dataset_id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/"
-            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}/"
+            f"workspaces/{self.workspace_id}/datasets/{dataset_id}/"
             f"parts/{self.state['api']['dataset_part_id']}",
             self.keycloak_token,
             type="GET",
         )
         return response
 
-    def get_all_parts(self):
+    def get_all_parts(self, dataset_id: str):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/"
-            f"workspaces/{self.workspace_id}/datasets/{self.dataset_id}/parts",
+            f"workspaces/{self.workspace_id}/datasets/{dataset_id}/parts",
             self.keycloak_token,
             type="GET",
         )
@@ -118,11 +116,11 @@ class DatasetService:
         )
         return response
 
-    def create_part(self, filename: str):
+    def create_part(self, filename: str, dataset_id: str):
         url = (
             f"{self.url}/organizations/{self.organization_id}"
             f"/workspaces/{self.workspace_id}"
-            f"/datasets/{self.dataset_id}/parts"
+            f"/datasets/{dataset_id}/parts"
         )
         data = {"datasetPartCreateRequest": self.spec["payload"]}
         files = [("file", (filename, open(filename, "rb"), "text/csv"))]
@@ -145,10 +143,10 @@ class DatasetService:
         )
         return response
 
-    def search_parts(self, tag: tuple[str, ...]):
+    def search_parts(self, dataset_id: str, tag: tuple[str, ...]):
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/datasets/"
-            f"{self.dataset_id}/parts/search",
+            f"{dataset_id}/parts/search",
             self.keycloak_token,
             type="POST",
             json=tag,

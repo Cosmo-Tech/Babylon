@@ -1,7 +1,7 @@
-import json
 import os
 import pathlib
 import sys
+from json import dumps
 from logging import getLogger
 
 from click import echo, style
@@ -38,21 +38,16 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     _ret.append("Workspace deployment")
     _ret.append("")
     echo(style("\n".join(_ret), bold=True, fg="green"))
-    platform_url = env.get_ns_from_text(content=namespace)
-    state = env.retrieve_state_func(state_id=env.state_id)
-    state["services"]["api"]["url"] = platform_url
+    env.get_ns_from_text(content=namespace)
+    state = env.retrieve_state_func()
+    api_section = state["services"]["api"]
     vars = env.get_variables()
     metadata = env.get_metadata(vars=vars, content=file_content, state=state)
-    workspace_key = metadata.get(
-        "workspace_key",
-        vars.get("workspace_key", state["services"]["api"]["workspace_key"]),
-    )
-    state["services"]["api"]["workspace_key"] = workspace_key
     if metadata.get("selector", ""):
-        state["services"]["api"]["organization_id"] = metadata["selector"].get("organization_id", "")
-        state["services"]["api"]["solution_id"] = metadata["selector"].get("solution_id", "")
+        api_section["organization_id"] = metadata["selector"].get("organization_id", "")
+        api_section["solution_id"] = metadata["selector"].get("solution_id", "")
     else:
-        if not state["services"]["api"]["organization_id"] and not state["services"]["api"]["solution_id"]:
+        if not api_section["organization_id"] and not api_section["solution_id"]:
             logger.error(
                 f"Missing 'organization_id' and 'solution_id'in metadata -> selector field : {metadata.get('selector')}"
             )
@@ -60,10 +55,10 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
     spec = dict()
-    spec["payload"] = json.dumps(payload, indent=2, ensure_ascii=True)
-    keycloak_token = get_keycloak_token()
-    workspace_svc = WorkspaceService(keycloak_token=keycloak_token, spec=spec, state=state.get("services"))
-    if not state["services"]["api"]["workspace_id"]:
+    spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
+    keycloak_token, config = get_keycloak_token()
+    workspace_svc = WorkspaceService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
+    if not api_section["workspace_id"]:
         logger.info("Creating workspace")
         response = workspace_svc.create()
         if response is None:
@@ -72,7 +67,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
         logger.info(f"Workspace {[workspace.get('id')]} successfully created")
         state["services"]["api"]["workspace_id"] = workspace.get("id")
     else:
-        logger.info(f"Updating workspace {[state['services']['api']['workspace_id']]}")
+        logger.info(f"Updating workspace {[api_section['workspace_id']]}")
         response = workspace_svc.update()
         if response is None:
             return CommandResponse.fail()
@@ -257,7 +252,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
             logger.info(f"updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
             payloadUpdated: dict = content.get("spec").get("payload")
             specUpdated = dict()
-            specUpdated["payload"] = json.dumps(payloadUpdated, indent=2, ensure_ascii=True)
+            specUpdated["payload"] = dumps(payloadUpdated, indent=2, ensure_ascii=True)
             workspace_svc.update_with_payload(specUpdated)
         if sidecars:
             run_scripts = sidecars.get("run_scripts")

@@ -17,7 +17,6 @@ env = Environment()
 class DatasetServiceTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
         env.remote = False
 
@@ -30,7 +29,7 @@ class DatasetServiceTestCase(unittest.TestCase):
 
         result = CliRunner().invoke(
             get,
-            ["--organization-id", "my_organization_id", "--dataset-id", "1"],
+            ["1", "1", "1"],
             standalone_mode=False,
         )
         assert result.return_value.data == {"id": "1", "name": "Dataset"}
@@ -42,7 +41,7 @@ class DatasetServiceTestCase(unittest.TestCase):
         the_response._content = b'[{"id": "1", "name": "Dataset"}, {"id" : "2", "name": "Dataset2"}]'
         datasetservice_get_all.return_value = the_response
 
-        result = CliRunner().invoke(get_all, ["--organization-id", "my_organization_id"], standalone_mode=False)
+        result = CliRunner().invoke(get_all, ["1", "1"], standalone_mode=False)
         assert len(result.return_value.data) == 2
 
     @mock.patch.object(DatasetService, "delete")
@@ -51,15 +50,12 @@ class DatasetServiceTestCase(unittest.TestCase):
         the_response.status_code = 204
         the_response._content = b'{"code" : "204", "description": "Request successful"}'
         datasetservice_delete.return_value = the_response
-
-        CliRunner().invoke(
+        result = CliRunner().invoke(
             delete,
-            ["--organization-id", "my_organization_id", "--dataset-id", "1"],
+            ["1", "1", "1"],
             standalone_mode=False,
         )
-
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["dataset_id"] == ""
+        assert str(result.return_value.data.status_code) == "204"
 
     @mock.patch.object(DatasetService, "search")
     def test_search(self, datasetservice_search):
@@ -69,10 +65,9 @@ class DatasetServiceTestCase(unittest.TestCase):
         datasetservice_search.return_value = the_response
         result = CliRunner().invoke(
             search,
-            ["--organization-id", "my_organization_id", "--workspace-id", "my_workspace_id", "atag"],
+            ["1", "1", "atag"],
             standalone_mode=False,
         )
-
         assert result.return_value.data == [{"id": "1", "name": "Dataset"}]
 
 

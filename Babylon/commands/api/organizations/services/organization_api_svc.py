@@ -15,13 +15,14 @@ env = Environment()
 
 
 class OrganizationService:
-    def __init__(self, state: dict, keycloak_token: str, spec: dict = None):
-        self.state = state
+    def __init__(self, config: dict, state: dict, keycloak_token: str, spec: dict = None):
+        self.config = config
         self.spec = spec
+        self.state = state
         self.keycloak_token = keycloak_token
-        self.url = state["api"]["url"]
+        self.url = config["api_url"]
         if not self.url:
-            logger.error("api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
 
     def create(self):
@@ -30,7 +31,7 @@ class OrganizationService:
         return response
 
     def delete(self, force_validation: bool):
-        organization_id = self.state["api"]["organization_id"]
+        organization_id = self.state["organization_id"]
         check_if_organization_exists(organization_id)
         if not force_validation and not confirm_deletion("organization", organization_id):
             return None
@@ -42,7 +43,7 @@ class OrganizationService:
         return response
 
     def get(self):
-        organization_id = self.state["api"]["organization_id"]
+        organization_id = self.state["organization_id"]
         check_if_organization_exists(organization_id)
         response = oauth_request(f"{self.url}/organizations/{organization_id}", self.keycloak_token)
         return response
@@ -52,7 +53,7 @@ class OrganizationService:
         return response
 
     def update(self):
-        organization_id = self.state["api"]["organization_id"]
+        organization_id = self.state["organization_id"]
         check_if_organization_exists(organization_id)
         details = self.spec["payload"]
         response = oauth_request(
@@ -64,7 +65,9 @@ class OrganizationService:
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = OrganizationSecurityService(keycloak_token=self.keycloak_token, state=self.state)
+        self.security_svc = OrganizationSecurityService(
+            keycloak_token=self.keycloak_token, state=self.state, config=self.config
+        )
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

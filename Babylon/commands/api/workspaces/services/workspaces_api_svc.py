@@ -16,15 +16,16 @@ env = Environment()
 
 
 class WorkspaceService:
-    def __init__(self, state: dict, keycloak_token: str, spec: Optional[dict] = None):
+    def __init__(self, state: dict, config: dict, keycloak_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
+        self.config = config
         self.keycloak_token = keycloak_token
-        self.url = self.state["api"]["url"]
-        self.organization_id = self.state["api"]["organization_id"]
-        self.workspace_id = self.state["api"]["workspace_id"]
+        self.url = config["api_url"]
+        self.organization_id = self.state["organization_id"]
+        self.workspace_id = self.state["workspace_id"]
         if not self.url:
-            logger.error("api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")
@@ -57,13 +58,14 @@ class WorkspaceService:
 
     def update(self):
         check_if_workspace_exists(self.workspace_id)
-        details = self.update_payload_with_state()
-        details_json = json.dumps(details, indent=4, default=str)
+        # details = self.update_payload_with_state()
+        # details_json = json.dumps(details, indent=4, default=str)
+        details = self.spec["payload"]
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}",
             self.keycloak_token,
             type="PATCH",
-            data=details_json,
+            data=details,
         )
         return response
 
@@ -89,7 +91,9 @@ class WorkspaceService:
         return response
 
     def update_security(self, old_security: dict):
-        security_svc = ApiWorkspaceSecurityService(keycloak_token=self.keycloak_token, state=self.state)
+        security_svc = ApiWorkspaceSecurityService(
+            keycloak_token=self.keycloak_token, state=self.state, config=self.config
+        )
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

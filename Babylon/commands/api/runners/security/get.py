@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 
-from click import command, echo, option, style
+from click import argument, command, echo, option, style
 
 from Babylon.commands.api.runners.services.runner_security_svc import (
     RunnerSecurityService,
@@ -24,12 +24,13 @@ env = Environment()
 @output_to_file
 @pass_keycloak_token()
 @option("--email", "email", type=str, required=True, help="Email valid")
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
-@option("--runner-id", "runner_id", type=str)
+@argument("organization_id", required=True)
+@argument("workspace_id", required=True)
+@argument("runner_id", required=True)
 @retrieve_state
 def get(
     state: Any,
+    config: Any,
     keycloak_token: str,
     email: str,
     organization_id: str,
@@ -38,17 +39,23 @@ def get(
 ) -> CommandResponse:
     """
     Get runner RBAC access for user
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       WORKSPACE_ID : The unique identifier of the workspace
+       RUNNER_ID : The unique identifier of the runner
     """
     _run = [""]
     _run.append("Get runner RBAC access for user")
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
-    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
-    service = RunnerSecurityService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"Get user {[email]} RBAC access to the runner {[service_state['api']['runner_id']]}")
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
+    services_state["runner_id"] = runner_id or services_state["runner_id"]
+    service = RunnerSecurityService(keycloak_token=keycloak_token, state=services_state, config=config)
+    logger.info(f"Get user {[email]} RBAC access to the runner {[services_state['runner_id']]}")
     response = service.get(id=email)
     if response is None:
         return CommandResponse.fail()

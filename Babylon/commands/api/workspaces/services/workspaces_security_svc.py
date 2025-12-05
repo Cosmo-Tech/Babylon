@@ -9,18 +9,24 @@ env = Environment()
 
 
 class ApiWorkspaceSecurityService:
-    def __init__(self, keycloak_token: str, state: dict) -> None:
+    def __init__(
+        self,
+        keycloak_token: str,
+        state: dict,
+        config: dict,
+    ) -> None:
         self.state = state
+        self.config = config
         self.keycloak_token = keycloak_token
-        self.url = self.state["api"]["url"]
+        self.url = config["api_url"]
         if not self.url:
-            logger.error("Api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
-        self.organization_id = self.state["api"]["organization_id"]
+        self.organization_id = self.state["organization_id"]
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")
             sys.exit(1)
-        self.workspace_id = self.state["api"]["workspace_id"]
+        self.workspace_id = self.state["workspace_id"]
         if not self.workspace_id:
             logger.error("Workspace id is missing verify the state")
             sys.exit(1)

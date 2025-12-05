@@ -17,7 +17,6 @@ env = Environment()
 class RunServiceTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
         env.remote = False
 
@@ -29,7 +28,7 @@ class RunServiceTestCase(unittest.TestCase):
 
         result = CliRunner().invoke(
             get,
-            ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            ["1", "1", "1", "1"],
             standalone_mode=False,
         )
         assert result.return_value.data == {"id": "1"}
@@ -42,7 +41,7 @@ class RunServiceTestCase(unittest.TestCase):
 
         result = CliRunner().invoke(
             get_all,
-            ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            ["1", "1", "1", "1"],
             standalone_mode=False,
         )
         assert len(result.return_value.data) == 2
@@ -54,7 +53,7 @@ class RunServiceTestCase(unittest.TestCase):
         mock_logs.return_value = the_response
         result = CliRunner().invoke(
             logs,
-            ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            ["1", "1", "1", "1"],
             standalone_mode=False,
         )
         assert result.return_value.data == '{"logs": "A lot of logs"}'
@@ -67,7 +66,7 @@ class RunServiceTestCase(unittest.TestCase):
 
         result = CliRunner().invoke(
             status,
-            ["--organization-id", "1", "--workspace-id", "1", "--runner-id", "1", "--run-id", "1"],
+            ["1", "1", "1", "1"],
             standalone_mode=False,
         )
         assert result.return_value.data == {"phase": "Succeeded"}
