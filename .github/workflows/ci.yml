@@ -3,9 +3,10 @@ permissions:
   contents: read
 
 env:
-  BABYLON_SERVICE: ${{ vars.BABYLON_SERVICE }}
-  BABYLON_TOKEN: ${{ secrets.BABYLON_TOKEN }}
-  BABYLON_ORG_NAME: ${{ vars.BABYLON_ORG_NAME }}
+  API_URL: ${{ secrets.API_URL }}
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  TOKEN_URL: ${{ secrets.TOKEN_URL }}
 
 on:
   workflow_dispatch:

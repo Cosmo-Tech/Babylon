@@ -433,7 +433,7 @@ class Environment(metaclass=SingletonMeta):
                 "client_id": os.environ["CLIENT_ID"],
                 "client_secret": os.environ["CLIENT_SECRET"],
                 "token_url": os.environ["TOKEN_URL"],
-            } 
+            }
         # Log missing env vars
         logger.info("Loading configuration from Kubernetes secret")
         return self.get_config_from_k8s_secret_by_tenant(self.environ_id)

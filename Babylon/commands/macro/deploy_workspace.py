@@ -33,7 +33,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_workspace(namespace: str,file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
+def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
     _ret = [""]
     _ret.append("Workspace deployment")
     _ret.append("")
