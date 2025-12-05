@@ -46,11 +46,10 @@ def delete(
     services_state = state["services"]["api"]
     services_state["organization_id"] = organization_id or services_state["organization_id"]
     services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
-    services_state["runner_id"] = runner_id or services_state["runner_id"]
     runner_service = RunnerService(state=services_state, keycloak_token=keycloak_token, config=config)
     logger.info("Deleting runner")
-    response = runner_service.delete(force_validation=force_validation)
+    response = runner_service.delete(runner_id, force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Runner {[services_state['runner_id']]} successfully deleted")
+    logger.info(f"Runner {[runner_id]} successfully deleted")
     return CommandResponse.success(response)

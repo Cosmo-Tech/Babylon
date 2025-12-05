@@ -49,7 +49,6 @@ class WorkspaceServiceTestCase(unittest.TestCase):
         mock_get_all.return_value = the_response
 
         result = CliRunner().invoke(get_all, ["1", "1"], standalone_mode=False)
-
         assert len(result.return_value.data) == 2
 
     @mock.patch.object(WorkspaceService, "update")

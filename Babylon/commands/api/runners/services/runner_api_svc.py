@@ -18,7 +18,6 @@ class RunnerService:
         self.url = config["api_url"]
         self.organization_id = state["organization_id"]
         self.workspace_id = state["workspace_id"]
-        self.runner_id = self.state["runner_id"]
         self.keycloak_token = keycloak_token
         if not self.url:
             logger.error("api url not found verify the config in the k8s secret")
@@ -37,19 +36,19 @@ class RunnerService:
         )
         return response
 
-    def get(self):
-        check_if_runner_exists(self.runner_id)
+    def get(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}",
             self.keycloak_token,
         )
         return response
 
-    def update(self):
-        check_if_runner_exists(self.runner_id)
+    def update(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         details = self.spec["payload"]
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}",
             self.keycloak_token,
             type="PATCH",
             data=details,
@@ -66,33 +65,31 @@ class RunnerService:
         )
         return response
 
-    def delete(self, force_validation: bool):
-        check_if_runner_exists(self.runner_id)
-        if not force_validation and not confirm_deletion("runner", self.runner_id):
+    def delete(self, runner_id: str, force_validation: bool):
+        check_if_runner_exists(runner_id)
+        if not force_validation and not confirm_deletion("runner", runner_id):
             return None
 
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}",
             self.keycloak_token,
             type="DELETE",
         )
         return response
 
-    def start(self):
-        check_if_runner_exists(self.runner_id)
+    def start(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/start",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}/start",
             self.keycloak_token,
             type="POST",
         )
         return response
 
-    def stop(self):
-        check_if_runner_exists(self.runner_id)
+    def stop(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/stop",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}/stop",
             self.keycloak_token,
             type="POST",
         )

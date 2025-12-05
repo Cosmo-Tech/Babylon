@@ -313,16 +313,16 @@ class Environment(metaclass=SingletonMeta):
         state = self.store_mtime_in_state(state)
         s.write_bytes(data=yaml.dump(state).encode("utf-8"))
 
-    # def store_state_in_cloud(self, state: dict):
-    #     s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-    #     # check babylon-states container if exists
-    #     state_container = self.blob_client.get_container_client(container="babylon-states")
-    #     if not state_container.exists():
-    #         state_container.create_container()
-    #     state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
-    #     if state_blob.exists():
-    #         state_blob.delete_blob()
-    #     state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
+    def store_state_in_cloud(self, state: dict):
+        s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+        # check babylon-states container if exists
+        state_container = self.blob_client.get_container_client(container="babylon-states")
+        if not state_container.exists():
+            state_container.create_container()
+        state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
+        if state_blob.exists():
+            state_blob.delete_blob()
+        state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
 
     def get_state_from_local(self):
         state_dir = Path().home() / ".config/cosmotech/babylon"

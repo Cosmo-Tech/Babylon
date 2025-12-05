@@ -47,10 +47,9 @@ def get(
     services_state = state["services"]["api"]
     services_state["organization_id"] = organization_id or services_state["organization_id"]
     services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
-    services_state["runner_id"] = runner_id or services_state["runner_id"]
     runner_service = RunnerService(state=services_state, keycloak_token=keycloak_token, config=config)
-    logger.info(f"Retrieving runner {[services_state['runner_id']]} details")
-    response = runner_service.get()
+    logger.info(f"Retrieving runner {[runner_id]} details")
+    response = runner_service.get(runner_id)
     if response is None:
         return CommandResponse.fail()
     runner = response.json()

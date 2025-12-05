@@ -48,10 +48,9 @@ def search_parts(
     services_state = state["services"]["api"]
     services_state["organization_id"] = organization_id or services_state["organization_id"]
     services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
-    services_state["dataset_id"] = dataset_id or services_state["dataset_id"]
     logger.info(f"Searching dataset part by tag {[tag]}")
     service = DatasetService(keycloak_token=keycloak_token, state=services_state, config=config)
-    response = service.search_parts(tag=tag)
+    response = service.search_parts(dataset_id, tag=tag)
     if response is None:
         return CommandResponse.fail()
     dataset = response.json()

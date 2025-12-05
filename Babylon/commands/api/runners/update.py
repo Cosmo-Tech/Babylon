@@ -53,15 +53,14 @@ def update(
     services_state = state["services"]["api"]
     services_state["organization_id"] = organization_id or services_state["organization_id"]
     services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
-    services_state["runner_id"] = runner_id or services_state["runner_id"]
     spec = dict()
     with open(payload_file, "r") as f:
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     runner_service = RunnerService(state=services_state, spec=spec, keycloak_token=keycloak_token, config=config)
-    logger.info(f"Updating runner {[services_state['runner_id']]}")
-    response = runner_service.update()
+    logger.info(f"Updating runner {[runner_id]}")
+    response = runner_service.update(runner_id)
     if response is None:
         return CommandResponse.fail()
     runner = response.json()
-    logger.info(f"Runner {[services_state['runner_id']]} successfully updated")
+    logger.info(f"Runner {[runner_id]} successfully updated")
     return CommandResponse.success(runner)

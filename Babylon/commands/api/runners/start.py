@@ -49,10 +49,9 @@ def start(
     services_state = state["services"]["api"]
     services_state["organization_id"] = organization_id or services_state["organization_id"]
     services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
-    services_state["runner_id"] = runner_id or services_state["runner_id"]
-    logger.info(f"Starting a runner {[services_state['runner_id']]}")
+    logger.info(f"Starting a runner {[runner_id]}")
     runner_service = RunnerService(state=services_state, keycloak_token=keycloak_token, config=config)
-    response = runner_service.start()
+    response = runner_service.start(runner_id)
     if response is None:
         return CommandResponse.fail()
     runner_run = response.json()
