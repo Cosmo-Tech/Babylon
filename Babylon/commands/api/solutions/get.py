@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 
-from click import command, echo, option, style
+from click import argument, command, echo, style
 
 from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
 from Babylon.utils.credentials import pass_keycloak_token
@@ -17,22 +17,27 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "organization_id", type=str)
-@option("--solution-id", "solution_id", type=str)
+@argument("organization_id", required=True)
+@argument("solution_id", required=True)
 @retrieve_state
-def get(state: Any, keycloak_token: str, organization_id: str, solution_id: str) -> CommandResponse:
+def get(state: Any, config: Any, keycloak_token: str, organization_id: str, solution_id: str) -> CommandResponse:
     """
-    Get a solution details
+    Get a specific solution details
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       SOLUTION_ID : The unique identifier of the solution
     """
     _sol = [""]
     _sol.append("Get solution details")
     _sol.append("")
     echo(style("\n".join(_sol), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
-    service_state["api"]["solution_id"] = solution_id or service_state["api"]["solution_id"]
-    logger.info(f"Retrieving solution {[service_state['api']['solution_id']]} details")
-    organizations_service = SolutionService(state=service_state, keycloak_token=keycloak_token)
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["solution_id"] = solution_id or services_state["solution_id"]
+    logger.info(f"Retrieving solution {[services_state['solution_id']]} details")
+    organizations_service = SolutionService(state=services_state, keycloak_token=keycloak_token, config=config)
     response = organizations_service.get()
     if response is None:
         return CommandResponse.fail()

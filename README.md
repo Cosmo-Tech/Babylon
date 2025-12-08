@@ -37,5 +37,25 @@ pip install --upgrade pip
 pip install .
 ```
 
+For development mode:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
 ## Usage
 After installation, you can use the `babylon` command in your terminal.
+
+```bash
+babylon namespace use -c <context_id> -t <tenant_id> -s <state_id>
+
+babylon init
+
+babylon apply --organization project/
+
+babylon apply --solution project/
+
+babylon apply --workspace project/
+```

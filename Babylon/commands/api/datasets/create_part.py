@@ -4,7 +4,7 @@ from pathlib import Path as pathlibPath
 from typing import Any
 
 from click import Path as clickPath
-from click import argument, command, echo, option, style
+from click import argument, command, echo, style
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
@@ -19,15 +19,30 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_keycloak_token()
+@argument("organization_id", required=True)
+@argument("workspace_id", required=True)
+@argument("dataset_id", required=True)
 @argument("payload_file", type=clickPath(path_type=pathlibPath, exists=True))
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
-@option("--dataset-id", "dataset_id", type=str)
 @retrieve_state
 def create_part(
-    state: Any, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file: clickPath
+    state: Any,
+    config: Any,
+    keycloak_token: str,
+    organization_id: str,
+    workspace_id: str,
+    dataset_id: str,
+    payload_file: clickPath,
 ) -> CommandResponse:
-    """Create a dataset part"""
+    """
+    Create a dataset part
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       WORKSPACE_ID : The unique identifier of the workspace
+       DATASET_ID: The unique identifier of the datatset
+       PAYLOAD_FILE : Path to the manifest file used to create the dataset
+    """
     _data = [""]
     _data.append("Create a dataset part")
     _data.append("")
@@ -37,12 +52,11 @@ def create_part(
         spec["payload"] = env.fill_template_jsondump(data=f.read(), state=state)
     payload_string = loads(spec["payload"])
     filename = payload_string["sourceName"]
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
-    service_state["api"]["dataset_id"] = dataset_id or service_state["api"]["dataset_id"]
-    service = DatasetService(keycloak_token=keycloak_token, state=service_state, spec=spec)
-    response = service.create_part(filename)
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
+    service = DatasetService(keycloak_token=keycloak_token, state=services_state, spec=spec, config=config)
+    response = service.create_part(filename, dataset_id)
     if response is None:
         return CommandResponse.fail()
     dataset_part = response.json()

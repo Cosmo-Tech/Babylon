@@ -142,10 +142,10 @@ def injectcontext() -> Callable[..., Any]:
             help="Context Name without any special character",
         )
         @option(
-            "-p",
-            "--platform",
-            "platform",
-            help="Platform Id without any special character",
+            "-t",
+            "--tenant",
+            "tenant",
+            help="Tenant Id without any special character",
         )
         @option(
             "-s",
@@ -158,13 +158,13 @@ def injectcontext() -> Callable[..., Any]:
             context = kwargs.pop("context", None)
             if context and check_special_char(string=context):
                 env.set_context(context)
-            platform = kwargs.pop("platform", None)
-            if platform and check_special_char(string=platform):
-                env.set_environ(platform)
+            tenant = kwargs.pop("tenant", None)
+            if tenant and check_special_char(string=tenant):
+                env.set_environ(tenant)
             state_id = kwargs.pop("state_id", None)
             if state_id and check_special_char(string=state_id):
                 env.set_state_id(state_id)
-            env.get_namespace_from_local(context=context, platform=platform, state_id=state_id)
+            env.get_namespace_from_local(context=context, tenant=tenant, state_id=state_id)
             return func(*args, **kwargs)
 
         return wrapper
@@ -175,8 +175,18 @@ def injectcontext() -> Callable[..., Any]:
 def retrieve_state(func) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        state = env.retrieve_state_func(state_id=env.state_id)
+        state = env.retrieve_state_func()
         kwargs["state"] = state
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def retrieve_config(func) -> Callable[..., Any]:
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        config = env.retrieve_config()
+        kwargs["config"] = config
         return func(*args, **kwargs)
 
     return wrapper
@@ -185,16 +195,16 @@ def retrieve_state(func) -> Callable[..., Any]:
 def wrapcontext() -> Callable[..., Any]:
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
         @option("-c", "--context", "context", required=True, help="Context Name")
-        @option("-p", "--platform", "platform", required=True, help="Platform Name")
+        @option("-t", "--tenant", "tenant", required=True, help="Tenant Name")
         @option("-s", "--state-id", "state_id", required=True, help="State Id")
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
             if context and check_special_char(string=context):
                 env.set_context(context)
-            platform = kwargs.pop("platform", None)
-            if platform and check_special_char(string=platform):
-                env.set_environ(platform)
+            tenant = kwargs.pop("tenant", None)
+            if tenant and check_special_char(string=tenant):
+                env.set_environ(tenant)
             state_id = kwargs.pop("state_id", None)
             if state_id and check_special_char(string=state_id):
                 env.set_state_id(state_id)

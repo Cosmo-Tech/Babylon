@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 
-from click import command, echo, option, style
+from click import argument, command, echo, option, style
 
 from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
 from Babylon.utils.credentials import pass_keycloak_token
@@ -17,12 +17,13 @@ env = Environment()
 @injectcontext()
 @pass_keycloak_token()
 @retrieve_state
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
-@option("--runner-id", "runner_id", type=str)
+@argument("organization_id", required=True)
+@argument("workspace_id", required=True)
+@argument("runner_id", required=True)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 def delete(
     state: Any,
+    config: Any,
     organization_id: str,
     workspace_id: str,
     keycloak_token: str,
@@ -31,23 +32,24 @@ def delete(
 ) -> CommandResponse:
     """
     Delete a runner
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       WORKSPACE_ID : The unique identifier of the workspace
+       RUNNER_ID : The unique identifier of the runner
     """
     _run = [""]
     _run.append("Delete a runner")
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
-    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
-    runner_service = RunnerService(state=service_state, keycloak_token=keycloak_token)
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
+    runner_service = RunnerService(state=services_state, keycloak_token=keycloak_token, config=config)
     logger.info("Deleting runner")
-    response = runner_service.delete(force_validation=force_validation)
+    response = runner_service.delete(runner_id, force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Runner {[service_state['api']['runner_id']]} successfully deleted")
-    state["services"]["api"]["runner_id"] = ""
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
+    logger.info(f"Runner {[runner_id]} successfully deleted")
     return CommandResponse.success(response)

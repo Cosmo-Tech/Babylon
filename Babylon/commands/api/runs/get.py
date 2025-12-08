@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 
-from click import command, echo, option, style
+from click import argument, command, echo, style
 
 from Babylon.commands.api.runs.services.run_api_svc import RunService
 from Babylon.utils.credentials import pass_keycloak_token
@@ -20,12 +20,13 @@ logger = getLogger(__name__)
 @pass_keycloak_token()
 @output_to_file
 @retrieve_state
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
-@option("--runner-id", "runner_id", type=str)
-@option("--run-id", "run_id", type=str)
+@argument("organization_id", required=True)
+@argument("workspace_id", required=True)
+@argument("runner_id", required=True)
+@argument("run_id", required=True)
 def get(
     state: Any,
+    config: Any,
     organization_id: str,
     workspace_id: str,
     run_id: str,
@@ -34,18 +35,25 @@ def get(
 ) -> CommandResponse:
     """
     Get run details
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       WORKSPACE_ID : The unique identifier of the workspace
+       RUNNER_ID : The unique identifier of the runner
+       RUN_ID: The unique identifier of the run
     """
     _run = [""]
     _run.append("Get run details")
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or state["services"]["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
-    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
-    service_state["api"]["run_id"] = run_id or state["services"]["api"]["run_id"]
-    run_service = RunService(state=service_state, keycloak_token=keycloak_token)
-    logger.info(f"Retrieving run {[service_state['api']['run_id']]}")
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
+    services_state["runner_id"] = runner_id or services_state["runner_id"]
+    services_state["run_id"] = run_id or services_state["run_id"]
+    run_service = RunService(state=services_state, keycloak_token=keycloak_token, config=config)
+    logger.info(f"Retrieving run {[services_state['run_id']]}")
     response = run_service.get()
     if response is None:
         return CommandResponse.fail()

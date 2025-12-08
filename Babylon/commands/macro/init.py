@@ -7,7 +7,7 @@ from click import command, option
 
 from Babylon.utils.environment import Environment
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -21,10 +21,10 @@ def init(project_folder: str, variables_file: str):
     project_path = pathlib.Path(os.getcwd()) / project_folder
     variables_path = pathlib.Path(os.getcwd()) / variables_file
     if project_path.exists():
-        logger.info(f"[babylon] The directory '{project_path}' already exists")
+        logger.info(f"The directory '{project_path}' already exists")
         return None
     if variables_path.exists():
-        logger.info(f"[babylon] 'variables.yaml' already exists at '{variables_path}'")
+        logger.info(f"'variables.yaml' already exists at '{variables_path}'")
         return None
     project_yaml_files = ["Organization.yaml", "Solution.yaml", "Workspace.yaml", "Dataset.yaml", "Runner.yaml"]
     try:
@@ -35,6 +35,6 @@ def init(project_folder: str, variables_file: str):
             shutil.copy(deploy_file, destination)
         variables_template = pathlib.Path(env.convert_template_path("%templates%/yaml/variables.yaml"))
         shutil.copy(variables_template, variables_path)
-        logger.info(f"\n[babylon] Project successfully initialized at: {project_path}")
+        logger.info(f"\nProject successfully initialized at: {project_path}")
     except Exception as e:
-        logger.error(f"[babylon] Error while initializing the project: {e}")
+        logger.error(f"Error while initializing the project: {e}")

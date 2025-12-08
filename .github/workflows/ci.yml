@@ -3,9 +3,10 @@ permissions:
   contents: read
 
 env:
-  BABYLON_SERVICE: ${{ vars.BABYLON_SERVICE }}
-  BABYLON_TOKEN: ${{ secrets.BABYLON_TOKEN }}
-  BABYLON_ORG_NAME: ${{ vars.BABYLON_ORG_NAME }}
+  API_URL: ${{ secrets.API_URL }}
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  TOKEN_URL: ${{ secrets.TOKEN_URL }}
 
 on:
   workflow_dispatch:
@@ -33,5 +34,5 @@ jobs:
       - name: Run tests
         run: |
          . .venv/bin/activate
-         babylon namespace use -c test -p sphinx -s testid
-         CI=true pytest Babylon/test/api/organizations Babylon/test/api/solutions Babylon/test/api/workspaces Babylon/test/api/runners Babylon/test/api/runs Babylon/test/api/datasets
+         babylon namespace use -c test -t sphinx -s testid
+         CI=true pytest

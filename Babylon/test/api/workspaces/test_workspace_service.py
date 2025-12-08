@@ -18,7 +18,6 @@ env = Environment()
 class WorkspaceServiceTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
         env.get_namespace_from_local()
         env.remote = False
 
@@ -29,7 +28,7 @@ class WorkspaceServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Workspace"}'
         mock_create.return_value = the_response
         payload_file = str(env.pwd / "Babylon/test/api/workspaces/payload.json")
-        CliRunner().invoke(create, ["--organization-id", "1", payload_file], standalone_mode=False)
+        CliRunner().invoke(create, ["1", payload_file], standalone_mode=False)
         states = env.get_state_from_local()
         assert states["services"]["api"]["workspace_id"] == "1"
 
@@ -39,7 +38,7 @@ class WorkspaceServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Workspace"}'
         mock_get.return_value = the_response
 
-        result = CliRunner().invoke(get, ["--organization-id", "1", "--workspace-id", "1"], standalone_mode=False)
+        result = CliRunner().invoke(get, ["1", "1"], standalone_mode=False)
 
         assert result.return_value.data == {"id": "1", "name": "Workspace"}
 
@@ -49,8 +48,7 @@ class WorkspaceServiceTestCase(unittest.TestCase):
         the_response._content = b'[{"id": "1", "name": "Workspace 1"}, {"id": "2", "name": "Workspace 2"}]'
         mock_get_all.return_value = the_response
 
-        result = CliRunner().invoke(get_all, ["--organization-id", "1"], standalone_mode=False)
-
+        result = CliRunner().invoke(get_all, ["1", "1"], standalone_mode=False)
         assert len(result.return_value.data) == 2
 
     @mock.patch.object(WorkspaceService, "update")
@@ -60,9 +58,7 @@ class WorkspaceServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Workspace updated"}'
         mock_update.return_value = the_response
         payload_file = str(env.pwd / "Babylon/test/api/workspaces/payload.json")
-        result = CliRunner().invoke(
-            update, ["--organization-id", "1", "--workspace-id", "1", payload_file], standalone_mode=False
-        )
+        result = CliRunner().invoke(update, ["1", "1", payload_file], standalone_mode=False)
 
         assert result.return_value.data == {"id": "1", "name": "Workspace updated"}
 
@@ -73,7 +69,7 @@ class WorkspaceServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Workspace"}'
         mock_delete.return_value = the_response
 
-        CliRunner().invoke(delete, ["--organization-id", "1", "--workspace-id", "1"], standalone_mode=False)
+        CliRunner().invoke(delete, ["1", "1"], standalone_mode=False)
         states = env.get_state_from_local()
         assert states["services"]["api"]["workspace_id"] == ""
 

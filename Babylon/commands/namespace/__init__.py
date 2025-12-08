@@ -11,7 +11,7 @@ env = Environment()
 @group()
 def namespace():
     """Babylon namespace"""
-    env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
+    pass
 
 
 list_groups = [use, get_contexts, get_states]

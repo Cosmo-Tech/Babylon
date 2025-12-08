@@ -6,14 +6,14 @@ from Babylon.utils.decorators import wrapcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
 @command()
 @wrapcontext()
 def use() -> CommandResponse:
-    """Switch to a specific namespace or create a new one"""
+    """Switch to a specific Babylon namespace or create a new one"""
     env.store_namespace_in_local()
-    logger.info(f"[namespace] switched to context {[env.context_id]}, tenant {[env.environ_id]} successfully")
+    logger.info(f"switched to context {[env.context_id]}, tenant {[env.environ_id]} successfully")
     return CommandResponse.success()

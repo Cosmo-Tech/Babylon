@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any
 
-from click import command, echo, option, style
+from click import argument, command, echo, option, style
 
 from Babylon.commands.api.runs.services.run_api_svc import RunService
 from Babylon.utils.credentials import pass_keycloak_token
@@ -17,14 +17,15 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
-@option("--run-id", "run_id", type=str)
-@option("--runner-id", "runner_id", type=str)
+@argument("organization_id", required=True)
+@argument("workspace_id", required=True)
+@argument("runner_id", required=True)
+@argument("run_id", required=True)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @retrieve_state
 def delete(
     state: Any,
+    config: Any,
     keycloak_token: str,
     organization_id: str,
     workspace_id: str,
@@ -34,24 +35,27 @@ def delete(
 ) -> CommandResponse:
     """
     Delete the run
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       WORKSPACE_ID : The unique identifier of the workspace
+       RUNNER_ID : The unique identifier of the runner
+       RUN_ID: The unique identifier of the run
     """
     _run = [""]
     _run.append("Delete the Run")
     _run.append("")
     echo(style("\n".join(_run), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or state["services"]["api"]["workspace_id"]
-    service_state["api"]["runner_id"] = runner_id or state["services"]["api"]["runner_id"]
-    service_state["api"]["run_id"] = run_id or service_state["api"].get("run_id")
-    service = RunService(state=service_state, keycloak_token=keycloak_token)
-    logger.info(f"Deleting run {[service_state['api']['run_id']]}")
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
+    services_state["runner_id"] = runner_id or services_state["runner_id"]
+    services_state["run_id"] = run_id or services_state.get("run_id")
+    service = RunService(state=services_state, keycloak_token=keycloak_token, config=config)
+    logger.info(f"Deleting run {[services_state['run_id']]}")
     response = service.delete(force_validation=force_validation)
     if response is None:
         return CommandResponse.fail()
-    logger.info(f"Run {[service_state['api']['run_id']]} successfully deleted")
-    state["services"]["api"]["run_id"] = ""
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
+    logger.info(f"Run {[services_state['run_id']]} successfully deleted")
     return CommandResponse.success(response)

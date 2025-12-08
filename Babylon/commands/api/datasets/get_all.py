@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Any, Optional
 
 import jmespath
-from click import command, echo, option, style
+from click import argument, command, echo, option, style
 
 from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
 from Babylon.utils.credentials import pass_keycloak_token
@@ -18,25 +18,30 @@ env = Environment()
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "organization_id", type=str)
-@option("--workspace-id", "workspace_id", type=str)
+@argument("organization_id", required=True)
+@argument("workspace_id", required=True)
 @option("--filter", "filter", help="Filter response with a jmespath query")
 @retrieve_state
 def get_all(
-    state: Any, keycloak_token: str, organization_id: str, workspace_id: str, filter: Optional[str] = None
+    state: Any, config: Any, keycloak_token: str, organization_id: str, workspace_id: str, filter: Optional[str] = None
 ) -> CommandResponse:
     """
     Get all datasets from the organization
+
+    Args:
+
+       ORGANIZATION_ID : The unique identifier of the organization
+       WORKSPACE_ID : The unique identifier of the workspace
     """
     _data = [""]
     _data.append("Get all datasets details")
     _data.append("")
     echo(style("\n".join(_data), bold=True, fg="green"))
-    service_state = state["services"]
-    service_state["api"]["organization_id"] = organization_id or service_state["api"]["organization_id"]
-    service_state["api"]["workspace_id"] = workspace_id or service_state["api"]["workspace_id"]
-    service = DatasetService(keycloak_token=keycloak_token, state=service_state)
-    logger.info(f"Getting all datasets from organization {[service_state['api']['organization_id']]}")
+    services_state = state["services"]["api"]
+    services_state["organization_id"] = organization_id or services_state["organization_id"]
+    services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
+    service = DatasetService(keycloak_token=keycloak_token, state=services_state, config=config)
+    logger.info(f"Getting all datasets from organization {[services_state['organization_id']]}")
     response = service.get_all()
     if response is None:
         return CommandResponse.fail()

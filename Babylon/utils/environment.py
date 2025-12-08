@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -11,15 +12,16 @@ import requests
 import yaml
 from cryptography.fernet import Fernet
 from flatten_json import flatten
-from hvac import Client
+from kubernetes import client, config
+from kubernetes.client.exceptions import ApiException
+from kubernetes.config.config_exception import ConfigException
 from mako.template import Template
 
-from Babylon.config import config_files
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
-logger = logging.getLogger("Babylon")
+logger = logging.getLogger(__name__)
 
 STORE_STRING = "datastore"
 TEMPLATES_STRING = "templates"
@@ -74,7 +76,7 @@ class Environment(metaclass=SingletonMeta):
         variables_file = self.pwd / "variables.yaml"
         vars = dict()
         if variables_file.exists():
-            logger.debug(f"[babylon] Loading variables from {variables_file}")
+            logger.debug(f"Loading variables from {variables_file}")
             vars = yaml.safe_load(variables_file.open()) or dict()
         vars["secret_powerbi"] = ""
         vars["github_secret"] = ""
@@ -84,7 +86,7 @@ class Environment(metaclass=SingletonMeta):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
             for key, files in duplicate_keys.items():
-                logger.error(f"[babylon] The key '{key}' is duplicated in variable files {' and '.join(files)}")
+                logger.error(f"The key '{key}' is duplicated in variable files {' and '.join(files)}")
             sys.exit(1)
         else:
             merged_data["secret_powerbi"] = ""
@@ -92,27 +94,12 @@ class Environment(metaclass=SingletonMeta):
             return merged_data
 
     def get_ns_from_text(self, content: str):
-        result = content.replace("services", "")
-        t = Template(text=result, strict_undefined=True)
+        t = Template(text=content, strict_undefined=True)
         vars = self.get_variables()
         payload = t.render(**vars)
         payload_dict = yaml.safe_load(payload)
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
-        plt_obj = payload_dict.get("platform", {})
-        platform_id = plt_obj.get("id", "")
-        if not platform_id:
-            logger.error("[babylon] Missing required 'platform_id' please check your 'variable file' ")
-            sys.exit(1)
-        platform_url = plt_obj.get("url", "")
-        if not platform_url:
-            logger.error("[babylon] Missing required 'platform_url' please check your 'variable file' ")
-            sys.exit(1)
-        self.set_environ(environ_id=platform_id)
-        self.set_server_id()
-        self.set_org_name()
-        # self.set_blob_client()
-        return platform_url
 
     def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -175,18 +162,6 @@ class Environment(metaclass=SingletonMeta):
     def set_state_id(self, state_id: str):
         self.state_id = state_id
 
-    def set_org_name(self):
-        self.organization_name = os.environ.get("BABYLON_ORG_NAME")
-        self.tenant_id = self.get_organization_secret(self.organization_name, "tenant")
-
-    def set_server_id(self):
-        self.server_id = os.environ.get("BABYLON_SERVICE")
-        try:
-            client = Client(url=f"{self.server_id}", token=os.environ.get("BABYLON_TOKEN"))
-            self.hvac_client = client
-        except Exception as e:
-            logger.error(e)
-
     # This is deactivated for now because we need to decide where the Babylon state should be stored
     # def set_blob_client(self):
     #     try:
@@ -231,14 +206,6 @@ class Environment(metaclass=SingletonMeta):
             path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}",
             **cached,
         )
-
-    def get_platform_secret(self, platform: str, resource: str, name: str):
-        data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}"
-        )
-        if data is None:
-            return None
-        return data["data"]["secret"]
 
     def get_project_secret(self, organization_id: str, workspace_key: str, name: str):
         prefix = f"{self.organization_name}/{self.tenant_id}/projects/{self.context_id}"
@@ -291,17 +258,39 @@ class Environment(metaclass=SingletonMeta):
         self.set_users_secrets(username, internal_scope, dict(token=token_encrypt.decode("utf-8")))
         return response_json["access_token"]
 
-    def get_state_from_vault_by_platform(self, platform: str):
-        resources = config_files
-        organization_name = os.environ.get("BABYLON_ORG_NAME", "")
-        tenant_id = self.tenant_id
+    def get_config_from_k8s_secret_by_tenant(self, tenant: str):
         response_parsed = dict()
-        for r in resources:
-            response = self.hvac_client.read(path=f"{organization_name}/{tenant_id}/babylon/config/{platform}/{r}")
-            if not response:
-                logger.error(f"[babylon] platform id '{platform}' not found in vault service")
-                sys.exit(1)
-            response_parsed.setdefault(r, dict(response["data"].items()))
+        try:
+            config.load_kube_config()
+        except ConfigException as e:
+            logger.error(
+                f"Failed to load kube config: {e} \n"
+                f"Please ensure your kubeconfig is valid and your context is set. \n"
+                "Use 'kubectl config use-context' if needed"
+            )
+            sys.exit(1)
+        try:
+            v1 = client.CoreV1Api()
+            secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
+        except ApiException:
+            logger.error(
+                "\n"
+                f"Failed to read Kubernetes secret 'keycloak-babylon' in namespace '{tenant}'.\n"
+                "Please ensure your kubeconfig is valid and your context is correctly set.\n"
+                "You can switch context using: 'kubectl config use-context <context-name>'"
+            )
+            sys.exit(1)
+        except Exception:
+            logger.error(
+                "Failed to connect to the Kubernetes cluster: \n'Cluster may be down, kube-apiserver unreachable'"
+            )
+            sys.exit(1)
+        if secret.data:
+            for key, value in secret.data.items():
+                decoded_value = base64.b64decode(value).decode("utf-8")
+                response_parsed[key] = decoded_value
+        else:
+            logging.warning(f"Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
         return response_parsed
 
     def store_mtime_in_state(self, state: dict):
@@ -328,29 +317,50 @@ class Environment(metaclass=SingletonMeta):
         state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
 
     def get_state_from_local(self):
-        state_dir = Path().home() / ".config/cosmotech/babylon"
+        state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
-            return dict()
+            init_state = {
+                "context": self.context_id,
+                "id": self.state_id,
+                "tenant": self.environ_id,
+                "services": {
+                    "api": {
+                        "organization_id": "",
+                        "solution_id": "",
+                        "workspace_id": "",
+                    }
+                },
+            }
+            return init_state
         state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
         return state_data
 
     def get_all_states_from_local(self):
         state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         if not state_dir.exists():
-            logger.error(f"[babylon] directory {state_dir} not found")
+            logger.error(f"directory {state_dir} not found")
             sys.exit(1)
         else:
             return state_dir
 
-    def get_state_from_cloud(self, state: dict) -> dict:
-        if not state.get("id"):
-            return state
-        self.state_id = state.get("id")
+    def get_state_from_cloud(self) -> dict:
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
         if not state_blob.exists():
-            return state
+            init_state = {
+                "context": self.context_id,
+                "id": self.state_id,
+                "tenant": self.environ_id,
+                "services": {
+                    "api": {
+                        "organization_id": "",
+                        "solution_id": "",
+                        "workspace_id": "",
+                    }
+                },
+            }
+            return init_state
         if state_blob.exists():
             data = yaml.load(state_blob.download_blob().readall(), Loader=yaml.SafeLoader)
         return data
@@ -375,89 +385,84 @@ class Environment(metaclass=SingletonMeta):
             return vars["state_id"]
 
     def store_namespace_in_local(self):
-        ns_dir = Path().home() / ".config/cosmotech/babylon"
+        ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
-        ns = dict(state_id=self.state_id, context=self.context_id, platform=self.environ_id)
+        ns = dict(state_id=self.state_id, context=self.context_id, tenant=self.environ_id)
         s.write_bytes(data=yaml.dump(ns).encode("utf-8"))
         self.set_state_id(state_id=self.state_id)
         self.set_context(context_id=self.context_id)
         self.set_environ(environ_id=self.environ_id)
 
-    def get_namespace_from_local(self, context: str = "", platform: str = "", state_id: str = ""):
-        ns_dir = Path().home() / ".config/cosmotech/babylon"
+    def get_namespace_from_local(self, context: str = "", tenant: str = "", state_id: str = ""):
+        ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
             logger.error(
-                "[babylon] The context and the platform are not set. \
-                         Please set the platform using the 'namespace use' command."
+                "The context and the tenant are not set. \
+                         Please set the tenant using the 'namespace use' command."
             )
             sys.exit(1)
 
         ns_data = yaml.safe_load(ns_file.open("r").read())
         if ns_data:
             self.context_id = context or ns_data.get("context", "")
-            self.environ_id = platform or ns_data.get("platform", "")
+            self.environ_id = tenant or ns_data.get("tenant", "")
             self.state_id = state_id or ns_data.get("state_id", "")
             self.set_state_id(state_id=self.state_id)
-            self.set_server_id()
-            self.set_org_name()
-            # self.set_blob_client()
             return ns_data
 
-    def retrieve_state_func(self, state_id: str = ""):
-        init_state = dict()
-        final_state = dict()
-        final_state["services"] = dict()
-        data_vault = self.get_state_from_vault_by_platform(self.environ_id)
-        init_state["services"] = data_vault
-        init_state["id"] = state_id or self.get_state_id()
-        self.state_id = init_state.get("id")
-        current_state = init_state
-        local_state = self.get_state_from_local()
-        current_state.update(local_state)
+    def retrieve_config(self):
+        """Retrieve configuration. First checks environment variables; if missing, fallback to Kubernetes secret."""
+        required_env_vars = {
+            "API_URL": "API_URL",
+            "CLIENT_ID": "CLIENT_ID",
+            "CLIENT_SECRET": "CLIENT_SECRET",
+            "TOKEN_URL": "TOKEN_URL",
+        }
+        missing_vars = [var for var in required_env_vars if var not in os.environ]
+        if not missing_vars:
+            logger.info("Loading configuration from environment variables")
+            return {
+                "api_url": os.environ[required_env_vars["API_URL"]],
+                "client_id": os.environ[required_env_vars["CLIENT_ID"]],
+                "client_secret": os.environ[required_env_vars["CLIENT_SECRET"]],
+                "token_url": os.environ[required_env_vars["TOKEN_URL"]],
+            }
+        # Log missing env vars
+        logger.info("Loading configuration from Kubernetes secret")
+        return self.get_config_from_k8s_secret_by_tenant(self.environ_id)
+
+    def retrieve_state_func(self):
         if self.remote:
-            state_cloud = self.get_state_from_cloud(init_state)
-            current_state = state_cloud
-        for section, keys in current_state.get("services").items():
-            final_state["services"][section] = dict()
-            for key, _ in keys.items():
-                final_state["services"][section].update({key: current_state["services"][section][key]})
-                if key in data_vault[section] and data_vault[section][key]:
-                    final_state["services"][section].update({key: data_vault[section][key]})
-        final_state["id"] = init_state.get("id") or current_state.get("id")
-        final_state["context"] = self.context_id
-        final_state["platform"] = self.environ_id
-        self.store_state_in_local(final_state)
-        if self.remote:
-            self.store_state_in_cloud(final_state)
-        return final_state
+            state = self.get_state_from_cloud()
+        else:
+            state = self.get_state_from_local()
+        return state
 
     def set_ns_from_yaml(self, content: str, state: dict = None, ext_args: dict = None):
         ns = self.fill_template(data=content, state=state, ext_args=ext_args).get("namespace")
         context_id = ns.get("context", "")
         state_id = ns.get("state_id", "")
-        plt_obj = ns.get("platform", {})
-        platform_id = plt_obj.get("id", "")
-        if not platform_id:
-            logger.error("[babylon] platform_id is mandatory")
+        plt_obj = ns.get("tenant", {})
+        tenant_id = plt_obj.get("id", "")
+        if not tenant_id:
+            logger.error("tenant_id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
         if not platform_url:
             logger.error("url is mandatory")
             sys.exit(1)
-        url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
+        url_ = re.compile(f"https:\\/\\/{tenant_id}\\.")
         match_content = url_.match(platform_url)
         if not match_content:
-            logger.error("[babylon] url not match")
+            logger.error("url not match")
             sys.exit(1)
         self.state_id = state_id
         self.set_context(context_id=context_id)
-        self.set_environ(environ_id=platform_id)
-        self.set_server_id()
-        self.set_org_name()
+        self.set_environ(environ_id=tenant_id)
         # self.set_blob_client()
         return platform_url
 
@@ -479,7 +484,7 @@ class Environment(metaclass=SingletonMeta):
             try:
                 return yaml.safe_load(file) or {}
             except yaml.YAMLError as e:
-                logger.error(f"[babylon] File '{file_path}' is not a valid YAML file. Details: {str(e)}")
+                logger.error(f"File '{file_path}' is not a valid YAML file. Details: {str(e)}")
                 sys.exit(1)
 
     def merge_yaml_files(self, file_paths: [Path]):
@@ -488,10 +493,10 @@ class Environment(metaclass=SingletonMeta):
 
         for file_path in file_paths:
             if not file_path.endswith(".yaml"):
-                logger.error(f"[babylon] File '{file_path}' is not a valid YAML file.")
+                logger.error(f"File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:
-                logger.error(f"[babylon] File '{file_path}' is empty.")
+                logger.error(f"File '{file_path}' is empty.")
                 sys.exit(1)
 
             data = self.load_yaml_file(file_path)

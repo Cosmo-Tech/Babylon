@@ -11,16 +11,16 @@ logger = getLogger(__name__)
 
 
 class RunnerService:
-    def __init__(self, state: dict, keycloak_token: str, spec: Optional[dict] = None):
+    def __init__(self, state: dict, config: dict, keycloak_token: str, spec: Optional[dict] = None):
         self.spec = spec
         self.state = state
-        self.url = state["api"]["url"]
-        self.organization_id = state["api"]["organization_id"]
-        self.workspace_id = state["api"]["workspace_id"]
-        self.runner_id = self.state["api"]["runner_id"]
+        self.config = config
+        self.url = config["api_url"]
+        self.organization_id = state["organization_id"]
+        self.workspace_id = state["workspace_id"]
         self.keycloak_token = keycloak_token
         if not self.url:
-            logger.error("api url not found verify the state")
+            logger.error("api url not found verify the config in the k8s secret")
             sys.exit(1)
         if not self.organization_id:
             logger.error("Organization id is missing verify the state")
@@ -36,19 +36,19 @@ class RunnerService:
         )
         return response
 
-    def get(self):
-        check_if_runner_exists(self.runner_id)
+    def get(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}",
             self.keycloak_token,
         )
         return response
 
-    def update(self):
-        check_if_runner_exists(self.runner_id)
+    def update(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         details = self.spec["payload"]
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}",
             self.keycloak_token,
             type="PATCH",
             data=details,
@@ -65,40 +65,40 @@ class RunnerService:
         )
         return response
 
-    def delete(self, force_validation: bool):
-        check_if_runner_exists(self.runner_id)
-        if not force_validation and not confirm_deletion("runner", self.runner_id):
+    def delete(self, runner_id: str, force_validation: bool):
+        check_if_runner_exists(runner_id)
+        if not force_validation and not confirm_deletion("runner", runner_id):
             return None
 
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{self.runner_id}",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}",
             self.keycloak_token,
             type="DELETE",
         )
         return response
 
-    def start(self):
-        check_if_runner_exists(self.runner_id)
+    def start(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/start",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}/start",
             self.keycloak_token,
             type="POST",
         )
         return response
 
-    def stop(self):
-        check_if_runner_exists(self.runner_id)
+    def stop(self, runner_id: str):
+        check_if_runner_exists(runner_id)
         response = oauth_request(
-            f"{self.url}/organizations/{self.organization_id}/workspaces/"
-            f"{self.workspace_id}/runners/{self.runner_id}/stop",
+            f"{self.url}/organizations/{self.organization_id}/workspaces/{self.workspace_id}/runners/{runner_id}/stop",
             self.keycloak_token,
             type="POST",
         )
         return response
 
     def update_security(self, old_security: dict):
-        self.security_svc = RunnerSecurityService(keycloak_token=self.keycloak_token, state=self.state)
+        self.security_svc = RunnerSecurityService(
+            keycloak_token=self.keycloak_token, state=self.state, config=self.config
+        )
         payload = json.loads(self.spec["payload"])
         security_spec = payload.get("security")
         if not security_spec:

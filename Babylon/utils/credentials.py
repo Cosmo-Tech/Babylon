@@ -82,37 +82,32 @@ def get_azure_credentials() -> ClientSecretCredential:
 def get_keycloak_credentials() -> dict:
     """ "Logs to keycloak and saves the token as a config variable"""
     try:
-        config = env.get_state_from_vault_by_platform(env.environ_id)
-        credential = {
-            "grant_type": config["keycloak"]["grant_type"],
-            "client_id": config["keycloak"]["client_id"],
-            "client_secret": config["keycloak"]["client_secret"],
-            "scope": config["keycloak"]["scope"],
+        config = env.retrieve_config()
+        credentials = {
+            "grant_type": "client_credentials",
+            "client_id": config.get("client_id"),
+            "client_secret": config.get("client_secret"),
+            "scope": "openid",
         }
-        if not all(credential.values()):
-            missing = [k for k, v in credential.items() if not v]
+        if not all(credentials.values()):
+            missing = [k for k, v in credentials.items() if not v]
             raise AttributeError(f"Missing required Keycloak credentials: {', '.join(missing)}")
 
-        return credential
+        return credentials, config
 
     except KeyError as e:
-        error_msg = f"Missing Keycloak configuration in Vault: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"Check the Keycloak configuration in the Kubernetes secret: {e}")
     except Exception as e:
-        error_msg = f"Unexpected error getting Keycloak credentials: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"Unexpected error while retrieving Keycloak credentials: {e}")
 
 
 def get_keycloak_token() -> str:
     """Returns keycloak token"""
-    config = env.get_state_from_vault_by_platform(env.environ_id)
-    url = config["keycloak"]["url"]
     try:
-        credentials = get_keycloak_credentials()
-
+        credentials, config = get_keycloak_credentials()
+        url = config["token_url"]
         headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
         response = requests.post(url=url, data=credentials, headers=headers, timeout=30)
-
         response.raise_for_status()
 
         token_data = response.json()
@@ -121,7 +116,7 @@ def get_keycloak_token() -> str:
         )
         if not access_token:
             logger.error("Access token not found in Keycloak response")
-        return access_token
+        return access_token, config
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Keycloak request failed: {e}")
@@ -184,7 +179,9 @@ def pass_keycloak_token() -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             try:
-                kwargs["keycloak_token"] = get_keycloak_token()
+                token, config = get_keycloak_token()
+                kwargs["keycloak_token"] = token
+                kwargs["config"] = config
             except ConnectionError:
                 return CommandResponse().fail()
             return func(*args, **kwargs)

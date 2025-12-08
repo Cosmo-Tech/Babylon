@@ -3,8 +3,8 @@ import pathlib
 from logging import getLogger
 from typing import Iterable
 
-import yaml
 from click import Path, argument, command, echo, option, style
+from yaml import safe_dump, safe_load
 
 from Babylon.commands.macro.deploy_dataset import deploy_dataset
 from Babylon.commands.macro.deploy_organization import deploy_organization
@@ -14,7 +14,7 @@ from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
@@ -46,7 +46,6 @@ def apply(
     variables_files: Iterable[pathlib.Path],
 ):  # type: ignore
     """Macro Apply"""
-    env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
     files = list(pathlib.Path(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
     env.set_variable_files(variables_files)
@@ -56,9 +55,9 @@ def apply(
         with open(f) as input_file:
             content = input_file.read()
             escaped_content = content.replace("{{", "${").replace("}}", "}")
-            yaml_data = yaml.safe_load(escaped_content)
+            yaml_data = safe_load(escaped_content)
             resource["kind"] = yaml_data.get("kind")
-            resource["namespace"] = yaml.safe_dump(yaml_data.get("namespace"))
+            resource["namespace"] = safe_dump(yaml_data.get("namespace"))
             resource["content"] = escaped_content
             resources.append(resource)
     organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
