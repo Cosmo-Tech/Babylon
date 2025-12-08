@@ -4818,9 +4818,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4869,23 +4869,28 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
-<li><em>create</em>: Create a dataset</li>
-<li><em>create-part</em>: Create a dataset part</li>
+<li><em>create</em>: </li>
+<li><em>create-part</em>: </li>
 <li><em>delete</em>: Delete a dataset</li>
-<li><em>delete-part</em>: Delete a dataset part</li>
+<li><em>delete-part</em>: </li>
 <li><em>download-part</em>: Download a dataset part</li>
 <li><em>get</em>: Get a dataset</li>
 <li><em>get-all</em>: </li>
 <li><em>get-all-parts</em>: </li>
 <li><em>get-part</em>: Get a dataset part</li>
 <li><em>search</em>: Get dataset with the given tag from the organization</li>
-<li><em>search-parts</em>: Get dataset part with the given tag</li>
+<li><em>search-parts</em>: </li>
 <li><em>security</em>: Group allowing dataset security management</li>
 </ul>
 <h5 id="create">create<a class="headerlink" href="#create" title="Permanent link">&para;</a></h5>
 <p>Create a dataset</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   PAYLOAD_FILE : Path to the manifest file used to create the dataset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets create [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api datasets create [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                            PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4905,9 +4910,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4923,18 +4928,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -4944,8 +4937,14 @@
 </table>
 <h5 id="create-part">create-part<a class="headerlink" href="#create-part" title="Permanent link">&para;</a></h5>
 <p>Create a dataset part</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset
+   PAYLOAD_FILE : Path to the manifest file used to create the dataset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets create-part [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api datasets create-part [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                 DATASET_ID PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4965,33 +4964,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5004,8 +4985,12 @@
 </table>
 <h5 id="delete">delete<a class="headerlink" href="#delete" title="Permanent link">&para;</a></h5>
 <p>Delete a dataset</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets delete [OPTIONS] ORGANIZATION_ID WORKSPACE_ID DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5025,33 +5010,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5070,8 +5037,14 @@
 </table>
 <h5 id="delete-part">delete-part<a class="headerlink" href="#delete-part" title="Permanent link">&para;</a></h5>
 <p>Delete a dataset part</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset
+   DATASET_PART_ID : The unique identifier of the dataset_part_id</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets delete-part [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets delete-part [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                 DATASET_ID DATASET_PART_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5091,39 +5064,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-part-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5142,8 +5091,14 @@
 </table>
 <h5 id="download-part">download-part<a class="headerlink" href="#download-part" title="Permanent link">&para;</a></h5>
 <p>Download a dataset part</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset
+   DATASET_PART_ID : The unique identifier of the dataset_part_id</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets download-part [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets download-part [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                   DATASET_ID DATASET_PART_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5163,9 +5118,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5178,30 +5133,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-part-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5214,8 +5145,12 @@
 </table>
 <h5 id="get">get<a class="headerlink" href="#get" title="Permanent link">&para;</a></h5>
 <p>Get a dataset</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets get [OPTIONS] ORGANIZATION_ID WORKSPACE_ID DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5235,9 +5170,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5250,24 +5185,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5280,8 +5197,11 @@
 </table>
 <h5 id="get-all">get-all<a class="headerlink" href="#get-all" title="Permanent link">&para;</a></h5>
 <p>Get all datasets from the organization</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets get-all [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5301,9 +5221,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5316,18 +5236,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5346,8 +5254,13 @@
 </table>
 <h5 id="get-all-parts">get-all-parts<a class="headerlink" href="#get-all-parts" title="Permanent link">&para;</a></h5>
 <p>Get all dataset parts</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets get-all-parts [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets get-all-parts [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                   DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5367,9 +5280,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5382,24 +5295,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5412,8 +5307,14 @@
 </table>
 <h5 id="get-part">get-part<a class="headerlink" href="#get-part" title="Permanent link">&para;</a></h5>
 <p>Get a dataset part</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset
+   DATASET_PART_ID : The unique identifier of the dataset_part_id</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets get-part [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets get-part [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                              DATASET_ID DATASET_PART_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5433,9 +5334,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5451,30 +5352,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-part-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -5484,8 +5361,12 @@
 </table>
 <h5 id="search">search<a class="headerlink" href="#search" title="Permanent link">&para;</a></h5>
 <p>Get dataset with the given tag from the organization</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   TAG : A specific tag used to retrieve the dataset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets search [OPTIONS] [TAG]...
+<div class="highlight"><pre><span></span><code>babylon api datasets search [OPTIONS] ORGANIZATION_ID WORKSPACE_ID [TAG]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5505,27 +5386,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5544,8 +5413,14 @@
 </table>
 <h5 id="search-parts">search-parts<a class="headerlink" href="#search-parts" title="Permanent link">&para;</a></h5>
 <p>Get dataset part with the given tag</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset
+   TAG : A specific tag used to retrieve the dataset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets search-parts [OPTIONS] [TAG]...
+<div class="highlight"><pre><span></span><code>babylon api datasets search-parts [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                  DATASET_ID [TAG]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5565,33 +5440,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5643,8 +5500,13 @@
 </ul>
 <h6 id="add">add<a class="headerlink" href="#add" title="Permanent link">&para;</a></h6>
 <p>Add dataset users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets security add [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets security add [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                  DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5664,9 +5526,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5679,24 +5541,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5721,8 +5565,13 @@
 </table>
 <h6 id="delete_1">delete<a class="headerlink" href="#delete_1" title="Permanent link">&para;</a></h6>
 <p>Delete dataset users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets security delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets security delete [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                     DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5742,9 +5591,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5757,24 +5606,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5793,8 +5624,13 @@
 </table>
 <h6 id="get_1">get<a class="headerlink" href="#get_1" title="Permanent link">&para;</a></h6>
 <p>Get dataset user RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets security get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets security get [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                  DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5814,9 +5650,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5829,24 +5665,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5865,8 +5683,11 @@
 </table>
 <h6 id="get-all_1">get-all<a class="headerlink" href="#get-all_1" title="Permanent link">&para;</a></h6>
 <p>Get dataset users access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets security get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets security get-all [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5886,9 +5707,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5901,18 +5722,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5925,8 +5734,13 @@
 </table>
 <h6 id="set-default">set-default<a class="headerlink" href="#set-default" title="Permanent link">&para;</a></h6>
 <p>Set the dataset default security</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets security set-default [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets security set-default [OPTIONS] ORGANIZATION_ID
+                                          WORKSPACE_ID DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5946,9 +5760,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5967,24 +5781,6 @@
 <td><code>--role</code></td>
 <td>text</td>
 <td>Role RBAC</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -5997,8 +5793,13 @@
 </table>
 <h6 id="update">update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h6>
 <p>Update dataset users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   DATASET_ID: The unique identifier of the datatset</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api datasets security update [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api datasets security update [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                     DATASET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6018,9 +5819,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6036,39 +5837,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
+<td><code>--email</code></td>
+<td>text</td>
+<td>Email valid</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
 <td><code>--role</code></td>
 <td>text</td>
 <td>Role RBAC</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--email</code></td>
-<td>text</td>
-<td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--dataset-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--email</code></td>
-<td>text</td>
-<td>Email valid</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6106,14 +5883,16 @@
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em>create</em>: </li>
-<li><em>delete</em>: Delete an organization</li>
-<li><em>get</em>: Get an organization details</li>
+<li><em>delete</em>: </li>
+<li><em>get</em>: </li>
 <li><em>get-all</em>: </li>
 <li><em>security</em>: Group allowing organization security management</li>
 <li><em>update</em>: </li>
 </ul>
 <h5 id="create_1">create<a class="headerlink" href="#create_1" title="Permanent link">&para;</a></h5>
 <p>Register new organization</p>
+<p>Args:</p>
+<p>PAYLOAD_FILE : Path to the manifest file used to create the organization</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api organizations create [OPTIONS] PAYLOAD_FILE
 </code></pre></div>
@@ -6135,9 +5914,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6161,9 +5940,11 @@
 </tbody>
 </table>
 <h5 id="delete_2">delete<a class="headerlink" href="#delete_2" title="Permanent link">&para;</a></h5>
-<p>Delete an organization</p>
+<p>Delete a specific organization</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID: The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations delete [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6183,9 +5964,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6201,12 +5982,6 @@
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -6215,9 +5990,12 @@
 </tbody>
 </table>
 <h5 id="get_2">get<a class="headerlink" href="#get_2" title="Permanent link">&para;</a></h5>
-<p>Get an organization details</p>
+<p>Get the details of a specific organization.</p>
+<p>Args:</p>
+<pre><code>ORGANIZATION_ID: The unique identifier of the organization
+</code></pre>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations get [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6237,9 +6015,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6252,12 +6030,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6291,9 +6063,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6357,8 +6129,10 @@
 </ul>
 <h6 id="add_1">add<a class="headerlink" href="#add_1" title="Permanent link">&para;</a></h6>
 <p>Add organization users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations security add [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations security add [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6378,9 +6152,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6408,12 +6182,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -6423,8 +6191,10 @@
 </table>
 <h6 id="delete_3">delete<a class="headerlink" href="#delete_3" title="Permanent link">&para;</a></h6>
 <p>Delete organization users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations security delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations security delete [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6444,9 +6214,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6459,12 +6229,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6483,8 +6247,10 @@
 </table>
 <h6 id="get_3">get<a class="headerlink" href="#get_3" title="Permanent link">&para;</a></h6>
 <p>Get organization user RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations security get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations security get [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6504,9 +6270,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6528,12 +6294,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -6543,8 +6303,10 @@
 </table>
 <h6 id="get-all_3">get-all<a class="headerlink" href="#get-all_3" title="Permanent link">&para;</a></h6>
 <p>Get all RBAC access to the organization</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations security get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations security get-all [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6564,9 +6326,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6579,12 +6341,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6597,8 +6353,10 @@
 </table>
 <h6 id="set-default_1">set-default<a class="headerlink" href="#set-default_1" title="Permanent link">&para;</a></h6>
 <p>Set default RBAC access to the organization</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations security set-default [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations security set-default [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6618,9 +6376,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6639,12 +6397,6 @@
 <td><code>--role</code></td>
 <td>text</td>
 <td>Role RBAC</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6657,8 +6409,10 @@
 </table>
 <h6 id="update_1">update<a class="headerlink" href="#update_1" title="Permanent link">&para;</a></h6>
 <p>Update organization users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations security update [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api organizations security update [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6678,9 +6432,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6699,12 +6453,6 @@
 <td><code>--role</code></td>
 <td>text</td>
 <td>Role RBAC</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6722,9 +6470,12 @@
 </tbody>
 </table>
 <h5 id="update_2">update<a class="headerlink" href="#update_2" title="Permanent link">&para;</a></h5>
-<p>Update an organization</p>
+<p>Update a specific organization.</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   PAYLOAD_FILE : Path to the manifest file used to update the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api organizations update [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api organizations update [OPTIONS] ORGANIZATION_ID PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6744,9 +6495,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6759,12 +6510,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6812,8 +6557,12 @@
 </ul>
 <h5 id="create_2">create<a class="headerlink" href="#create_2" title="Permanent link">&para;</a></h5>
 <p>Create new runner</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   PAYLOAD_FILE : Path to the manifest file used to update the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners create [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api runners create [OPTIONS] ORGANIZATION_ID WORKSPACE_ID PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6833,9 +6582,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6851,18 +6600,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -6872,8 +6609,12 @@
 </table>
 <h5 id="delete_4">delete<a class="headerlink" href="#delete_4" title="Permanent link">&para;</a></h5>
 <p>Delete a runner</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners delete [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6893,33 +6634,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6938,8 +6661,12 @@
 </table>
 <h5 id="get_4">get<a class="headerlink" href="#get_4" title="Permanent link">&para;</a></h5>
 <p>Get runner details</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners get [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6959,9 +6686,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -6974,24 +6701,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7004,8 +6713,11 @@
 </table>
 <h5 id="get-all_4">get-all<a class="headerlink" href="#get-all_4" title="Permanent link">&para;</a></h5>
 <p>Get all runners in the workspace</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners get-all [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7025,9 +6737,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7040,18 +6752,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7103,8 +6803,13 @@
 </ul>
 <h6 id="add_2">add<a class="headerlink" href="#add_2" title="Permanent link">&para;</a></h6>
 <p>Add runner users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners security add [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners security add [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                 RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7124,9 +6829,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7154,24 +6859,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -7181,8 +6868,13 @@
 </table>
 <h6 id="delete_5">delete<a class="headerlink" href="#delete_5" title="Permanent link">&para;</a></h6>
 <p>Delete runner RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners security delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners security delete [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                    RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7202,9 +6894,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7223,24 +6915,6 @@
 <td><code>--email</code></td>
 <td>text</td>
 <td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7253,8 +6927,13 @@
 </table>
 <h6 id="get_5">get<a class="headerlink" href="#get_5" title="Permanent link">&para;</a></h6>
 <p>Get runner RBAC access for user</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners security get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners security get [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                 RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7274,9 +6953,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7295,24 +6974,6 @@
 <td><code>--email</code></td>
 <td>text</td>
 <td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7325,8 +6986,13 @@
 </table>
 <h6 id="get-all_5">get-all<a class="headerlink" href="#get-all_5" title="Permanent link">&para;</a></h6>
 <p>Get all runner RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners security get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners security get-all [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                     RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7346,9 +7012,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7364,24 +7030,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -7391,8 +7039,13 @@
 </table>
 <h6 id="set-default_2">set-default<a class="headerlink" href="#set-default_2" title="Permanent link">&para;</a></h6>
 <p>Set the runner default security</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners security set-default [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners security set-default [OPTIONS] ORGANIZATION_ID
+                                         WORKSPACE_ID RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7412,9 +7065,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7436,24 +7089,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -7463,8 +7098,13 @@
 </table>
 <h6 id="update_3">update<a class="headerlink" href="#update_3" title="Permanent link">&para;</a></h6>
 <p>Update runner RBAC access for user</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners security update [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners security update [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                                    RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7484,9 +7124,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7514,24 +7154,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -7541,8 +7163,12 @@
 </table>
 <h5 id="start">start<a class="headerlink" href="#start" title="Permanent link">&para;</a></h5>
 <p>Start a runner run</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners start [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners start [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7562,9 +7188,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7577,24 +7203,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7607,8 +7215,12 @@
 </table>
 <h5 id="stop">stop<a class="headerlink" href="#stop" title="Permanent link">&para;</a></h5>
 <p>Stop a runner run</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners stop [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runners stop [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7628,9 +7240,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7643,24 +7255,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7673,8 +7267,14 @@
 </table>
 <h5 id="update_4">update<a class="headerlink" href="#update_4" title="Permanent link">&para;</a></h5>
 <p>Update a runner</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner
+   PAYLOAD_FILE : Path to the manifest file used to update the runner</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runners update [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api runners update [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
+                           PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7694,9 +7294,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7709,24 +7309,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7771,8 +7353,14 @@
 </ul>
 <h5 id="delete_6">delete<a class="headerlink" href="#delete_6" title="Permanent link">&para;</a></h5>
 <p>Delete the run</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner
+   RUN_ID: The unique identifier of the run</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runs delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runs delete [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
+                        RUN_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7792,9 +7380,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7807,30 +7395,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--run-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7849,8 +7413,13 @@
 </table>
 <h5 id="get_6">get<a class="headerlink" href="#get_6" title="Permanent link">&para;</a></h5>
 <p>Get run details</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner
+   RUN_ID: The unique identifier of the run</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runs get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runs get [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID RUN_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7870,9 +7439,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7885,30 +7454,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--run-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7921,8 +7466,14 @@
 </table>
 <h5 id="get-all_6">get-all<a class="headerlink" href="#get-all_6" title="Permanent link">&para;</a></h5>
 <p>Get run details</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner
+   RUN_ID: The unique identifier of the run</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runs get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runs get-all [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
+                         RUN_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7942,9 +7493,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7957,30 +7508,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--run-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -7993,8 +7520,13 @@
 </table>
 <h5 id="logs">logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h5>
 <p>Get the logs for the Run</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner
+   RUN_ID: The unique identifier of the run</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runs logs [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runs logs [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID RUN_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8014,9 +7546,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8029,30 +7561,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--run-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8065,8 +7573,14 @@
 </table>
 <h5 id="status">status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h5>
 <p>Get the status of the Run</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   RUNNER_ID : The unique identifier of the runner
+   RUN_ID: The unique identifier of the run</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api runs status [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api runs status [OPTIONS] ORGANIZATION_ID WORKSPACE_ID RUNNER_ID
+                        RUN_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8086,9 +7600,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8101,30 +7615,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runner-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--run-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8171,8 +7661,11 @@
 </ul>
 <h5 id="create_3">create<a class="headerlink" href="#create_3" title="Permanent link">&para;</a></h5>
 <p>Register a new solution</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   PAYLOAD_FILE : Path to the manifest file used to update the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions create [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api solutions create [OPTIONS] ORGANIZATION_ID PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8192,9 +7685,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8210,12 +7703,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -8224,9 +7711,12 @@
 </tbody>
 </table>
 <h5 id="delete_7">delete<a class="headerlink" href="#delete_7" title="Permanent link">&para;</a></h5>
-<p>Delete a solution</p>
+<p>Delete a specific solution</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions delete [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8246,27 +7736,15 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8284,9 +7762,12 @@
 </tbody>
 </table>
 <h5 id="get_7">get<a class="headerlink" href="#get_7" title="Permanent link">&para;</a></h5>
-<p>Get a solution details</p>
+<p>Get a specific solution details</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions get [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8306,9 +7787,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8321,18 +7802,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8345,8 +7814,10 @@
 </table>
 <h5 id="get-all_7">get-all<a class="headerlink" href="#get-all_7" title="Permanent link">&para;</a></h5>
 <p>Get all solutions details</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions get-all [OPTIONS] ORGANIZATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8366,9 +7837,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8381,12 +7852,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8437,8 +7902,13 @@
 </ul>
 <h6 id="add_3">add<a class="headerlink" href="#add_3" title="Permanent link">&para;</a></h6>
 <p>Add runTemplates to solution</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution
+   PAYLOAD_FILE : Path to the manifest file used to add the runTemplates</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates add [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates add [OPTIONS] ORGANIZATION_ID SOLUTION_ID
+                                       PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8458,9 +7928,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8473,18 +7943,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8497,8 +7955,13 @@
 </table>
 <h6 id="delete_8">delete<a class="headerlink" href="#delete_8" title="Permanent link">&para;</a></h6>
 <p>Delete solution runtemplate by id</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution
+   RUNTEMPLATE_ID: The unique identifier of the runTemplate</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates delete [OPTIONS] ORGANIZATION_ID
+                                          SOLUTION_ID RUNTEMPLATE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8518,9 +7981,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8533,24 +7996,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runTemplate-id</code></td>
-<td>text</td>
-<td>Run Template id</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8563,8 +8008,13 @@
 </table>
 <h6 id="get_8">get<a class="headerlink" href="#get_8" title="Permanent link">&para;</a></h6>
 <p>Get RunTemplate in the solution by ID</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution
+   PAYLOAD_FILE : Path to the manifest file used to add the runTemplates</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates get [OPTIONS] ORGANIZATION_ID SOLUTION_ID
+                                       RUNTEMPLATE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8584,9 +8034,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8599,24 +8049,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runTemplate-id</code></td>
-<td>text</td>
-<td>Run Template id</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8629,8 +8061,12 @@
 </table>
 <h6 id="get-all_8">get-all<a class="headerlink" href="#get-all_8" title="Permanent link">&para;</a></h6>
 <p>Get all RunTemplates in solution</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates get-all [OPTIONS] ORGANIZATION_ID
+                                           SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8650,9 +8086,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8665,18 +8101,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8689,8 +8113,15 @@
 </table>
 <h6 id="update_5">update<a class="headerlink" href="#update_5" title="Permanent link">&para;</a></h6>
 <p>Update Run Template in the Solution by id</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution
+   RUNTEMPLATE_ID: The unique identifier of the runTemplate
+   PAYLOAD_FILE : Path to the manifest file used to add the runTemplates</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates update [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api solutions runtemplates update [OPTIONS] ORGANIZATION_ID
+                                          SOLUTION_ID RUNTEMPLATE_ID
+                                          PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8710,9 +8141,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8725,24 +8156,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--runTemplate-id</code></td>
-<td>text</td>
-<td>Run Template id</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8789,8 +8202,11 @@
 </ul>
 <h6 id="add_4">add<a class="headerlink" href="#add_4" title="Permanent link">&para;</a></h6>
 <p>Add solution users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions security add [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions security add [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8810,9 +8226,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8840,18 +8256,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -8861,8 +8265,11 @@
 </table>
 <h6 id="delete_9">delete<a class="headerlink" href="#delete_9" title="Permanent link">&para;</a></h6>
 <p>Remove the specified access from the Solution</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions security delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions security delete [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8882,9 +8289,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8903,18 +8310,6 @@
 <td><code>--email</code></td>
 <td>text</td>
 <td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8927,8 +8322,11 @@
 </table>
 <h6 id="get_9">get<a class="headerlink" href="#get_9" title="Permanent link">&para;</a></h6>
 <p>Get solution users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions security get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions security get [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8948,9 +8346,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -8972,18 +8370,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -8993,8 +8379,11 @@
 </table>
 <h6 id="get-all_9">get-all<a class="headerlink" href="#get-all_9" title="Permanent link">&para;</a></h6>
 <p>Get all RBAC access to the Solution</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions security get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions security get-all [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9014,9 +8403,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9029,18 +8418,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9053,8 +8430,11 @@
 </table>
 <h6 id="get-users">get-users<a class="headerlink" href="#get-users" title="Permanent link">&para;</a></h6>
 <p>Get the Solution security users list</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions security get-users [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions security get-users [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9074,9 +8454,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9089,18 +8469,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9113,8 +8481,12 @@
 </table>
 <h6 id="set-default_3">set-default<a class="headerlink" href="#set-default_3" title="Permanent link">&para;</a></h6>
 <p>Set the Solution default security</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions security set-default [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions security set-default [OPTIONS] ORGANIZATION_ID
+                                           SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9134,9 +8506,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9149,18 +8521,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9179,8 +8539,11 @@
 </table>
 <h6 id="update_6">update<a class="headerlink" href="#update_6" title="Permanent link">&para;</a></h6>
 <p>Update solution users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   PAYLOAD_FILE : Path to the manifest file used to update the organization</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions security update [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api solutions security update [OPTIONS] ORGANIZATION_ID SOLUTION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9200,9 +8563,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9215,18 +8578,6 @@
 <td><code>--email</code></td>
 <td>text</td>
 <td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9250,9 +8601,14 @@
 </tbody>
 </table>
 <h5 id="update_7">update<a class="headerlink" href="#update_7" title="Permanent link">&para;</a></h5>
-<p>Update a solution</p>
+<p>Update a specific solution</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   SOLUTION_ID : The unique identifier of the solution
+   PAYLOAD_FILE : Path to the manifest file used to update the solution</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api solutions update [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api solutions update [OPTIONS] ORGANIZATION_ID SOLUTION_ID
+                             PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9272,9 +8628,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9287,18 +8643,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--solution-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9343,9 +8687,12 @@
 <li><em>update</em>: </li>
 </ul>
 <h5 id="create_4">create<a class="headerlink" href="#create_4" title="Permanent link">&para;</a></h5>
-<p>Register a workspace.</p>
+<p>Register a specific workspace</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   PAYLOAD_FILE : Path to the manifest file used to update the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces create [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api workspaces create [OPTIONS] ORGANIZATION_ID PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9365,9 +8712,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9383,18 +8730,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -9403,9 +8738,12 @@
 </tbody>
 </table>
 <h5 id="delete_10">delete<a class="headerlink" href="#delete_10" title="Permanent link">&para;</a></h5>
-<p>Delete a workspace</p>
+<p>Delete a specific workspace</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces delete [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9425,9 +8763,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9443,18 +8781,6 @@
 <td><code>False</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -9464,8 +8790,11 @@
 </table>
 <h5 id="get_10">get<a class="headerlink" href="#get_10" title="Permanent link">&para;</a></h5>
 <p>Get a workspace details</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces get [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9485,9 +8814,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9500,18 +8829,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9524,8 +8841,11 @@
 </table>
 <h5 id="get-all_10">get-all<a class="headerlink" href="#get-all_10" title="Permanent link">&para;</a></h5>
 <p>Get all workspaces details</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces get-all [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9545,9 +8865,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9560,18 +8880,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9623,8 +8931,11 @@
 </ul>
 <h6 id="add_5">add<a class="headerlink" href="#add_5" title="Permanent link">&para;</a></h6>
 <p>Add workspace users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces security add [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces security add [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9644,9 +8955,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9674,18 +8985,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -9695,8 +8994,11 @@
 </table>
 <h6 id="delete_11">delete<a class="headerlink" href="#delete_11" title="Permanent link">&para;</a></h6>
 <p>Delete workspace users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces security delete [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces security delete [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9716,9 +9018,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9737,18 +9039,6 @@
 <td><code>--email</code></td>
 <td>text</td>
 <td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9761,8 +9051,11 @@
 </table>
 <h6 id="get_11">get<a class="headerlink" href="#get_11" title="Permanent link">&para;</a></h6>
 <p>Get workspace users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces security get [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces security get [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9782,9 +9075,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9803,18 +9096,6 @@
 <td><code>--email</code></td>
 <td>text</td>
 <td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9828,7 +9109,7 @@
 <h6 id="get-all_11">get-all<a class="headerlink" href="#get-all_11" title="Permanent link">&para;</a></h6>
 <p>Get all RBAC access for the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces security get-all [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces security get-all [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9848,9 +9129,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9863,18 +9144,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9887,8 +9156,12 @@
 </table>
 <h6 id="set-default_4">set-default<a class="headerlink" href="#set-default_4" title="Permanent link">&para;</a></h6>
 <p>Set default RBAC access to workspace</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces security set-default [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces security set-default [OPTIONS] ORGANIZATION_ID
+                                            WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9908,9 +9181,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9929,18 +9202,6 @@
 <td><code>--role</code></td>
 <td>text</td>
 <td>Role RBAC</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9953,8 +9214,11 @@
 </table>
 <h6 id="update_8">update<a class="headerlink" href="#update_8" title="Permanent link">&para;</a></h6>
 <p>Update workspace users RBAC access</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces security update [OPTIONS]
+<div class="highlight"><pre><span></span><code>babylon api workspaces security update [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9974,9 +9238,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -9995,24 +9259,12 @@
 <td><code>--role</code></td>
 <td>text</td>
 <td>Role RBAC</td>
-<td><code>viewer</code></td>
+<td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>--email</code></td>
 <td>text</td>
 <td>Email valid</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10024,9 +9276,14 @@
 </tbody>
 </table>
 <h5 id="update_9">update<a class="headerlink" href="#update_9" title="Permanent link">&para;</a></h5>
-<p>Update a workspace</p>
+<p>Update a specific workspace</p>
+<p>Args:</p>
+<p>ORGANIZATION_ID : The unique identifier of the organization
+   WORKSPACE_ID : The unique identifier of the workspace
+   PAYLOAD_FILE : Path to the manifest file used to update the workspace</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code>babylon api workspaces update [OPTIONS] PAYLOAD_FILE
+<div class="highlight"><pre><span></span><code>babylon api workspaces update [OPTIONS] ORGANIZATION_ID WORKSPACE_ID
+                              PAYLOAD_FILE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -10046,9 +9303,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10061,18 +9318,6 @@
 <td><code>-o</code>, <code>--output</code></td>
 <td>text</td>
 <td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--organization-id</code></td>
-<td>text</td>
-<td>N/A</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--workspace-id</code></td>
-<td>text</td>
-<td>N/A</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10106,9 +9351,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10248,9 +9493,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10380,9 +9625,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10422,9 +9667,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10470,9 +9715,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10518,9 +9763,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10613,9 +9858,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10661,9 +9906,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10732,9 +9977,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10786,9 +10031,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10840,9 +10085,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10945,9 +10190,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -10987,9 +10232,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11114,9 +10359,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11180,9 +10425,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11222,9 +10467,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11329,7 +10574,7 @@
 <ul>
 <li><em>get-contexts</em>: Display the currently active namespace</li>
 <li><em>get-states</em>: Display all states in your local machine</li>
-<li><em>use</em>: Switch to a specific namespace or create a new one</li>
+<li><em>use</em>: Switch to a specific Babylon namespace or create a new one</li>
 </ul>
 <h4 id="get-contexts">get-contexts<a class="headerlink" href="#get-contexts" title="Permanent link">&para;</a></h4>
 <p>Display the currently active namespace</p>
@@ -11380,7 +10625,7 @@
 </tbody>
 </table>
 <h4 id="use">use<a class="headerlink" href="#use" title="Permanent link">&para;</a></h4>
-<p>Switch to a specific namespace or create a new one</p>
+<p>Switch to a specific Babylon namespace or create a new one</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon namespace use [OPTIONS]
 </code></pre></div>
@@ -11402,9 +10647,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Name</td>
+<td>Tenant Name</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11515,9 +10760,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11575,9 +10820,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11635,9 +10880,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11730,9 +10975,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11796,9 +11041,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11856,9 +11101,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11910,9 +11155,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -11992,9 +11237,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12086,9 +11331,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12146,9 +11391,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12206,9 +11451,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12266,9 +11511,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12326,9 +11571,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12392,9 +11637,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12458,9 +11703,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12536,9 +11781,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12578,9 +11823,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12652,9 +11897,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12706,9 +11951,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12766,9 +12011,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12826,9 +12071,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12918,9 +12163,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -12972,9 +12217,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -13032,9 +12277,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -13099,9 +12344,9 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-p</code>, <code>--platform</code></td>
+<td><code>-t</code>, <code>--tenant</code></td>
 <td>text</td>
-<td>Platform Id without any special character</td>
+<td>Tenant Id without any special character</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
