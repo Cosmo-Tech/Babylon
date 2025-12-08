@@ -55,7 +55,7 @@ class DatasetServiceTestCase(unittest.TestCase):
             ["1", "1", "1"],
             standalone_mode=False,
         )
-        assert str(result.return_value.data.status_code) == "204"
+        assert result.return_value.data.status_code == 204
 
     @mock.patch.object(DatasetService, "search")
     def test_search(self, datasetservice_search):

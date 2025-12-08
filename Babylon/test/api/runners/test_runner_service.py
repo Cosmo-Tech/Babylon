@@ -73,7 +73,7 @@ class RunnerServiceTestCase(unittest.TestCase):
         the_response._content = b'{"code": "204", "descripton": "Successfull"}'
         mock_delete.return_value = the_response
         result = CliRunner().invoke(delete, ["1", "1", "1"], standalone_mode=False)
-        assert str(result.return_value.data.status_code) == "204"
+        assert result.return_value.data.status_code == 204
 
 
 if __name__ == "__main__":

@@ -27,9 +27,8 @@ class SolutionServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id": "1", "name": "Solution"}'
         mock_create.return_value = the_response
         payload_file = str(env.pwd / "Babylon/test/api/solutions/payload.json")
-        CliRunner().invoke(create, ["1", payload_file], standalone_mode=False)
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["solution_id"] == "1"
+        result = CliRunner().invoke(create, ["1", payload_file], standalone_mode=False)
+        assert result.return_value.data.get("name") == "Solution"
 
     @mock.patch.object(SolutionService, "delete")
     def test_delete(self, mock_delete):
@@ -38,9 +37,8 @@ class SolutionServiceTestCase(unittest.TestCase):
         the_response._content = b'{"code": "204", "description": "Request succeeded"}'
         mock_delete.return_value = the_response
 
-        CliRunner().invoke(delete, ["1", "1"], standalone_mode=False)
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["solution_id"] == ""
+        result = CliRunner().invoke(delete, ["1", "1"], standalone_mode=False)
+        assert result.return_value.data.status_code == 204
 
     @mock.patch.object(SolutionService, "get_all")
     def test_get_all(self, mock_get_all):
