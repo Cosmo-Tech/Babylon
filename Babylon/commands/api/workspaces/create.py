@@ -51,9 +51,5 @@ def create(
     if response is None:
         return CommandResponse.fail()
     workspace = response.json()
-    state["services"]["api"]["workspace_id"] = workspace.get("id")
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
     logger.info(f"Workspace {[workspace.get('id')]} successfully created")
     return CommandResponse.success(workspace)
