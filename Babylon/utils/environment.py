@@ -207,14 +207,6 @@ class Environment(metaclass=SingletonMeta):
             **cached,
         )
 
-    def get_platform_secret(self, platform: str, resource: str, name: str):
-        data = self.hvac_client.read(
-            path=f"{self.organization_name}/{self.tenant_id}/platform/{platform}/{resource}/{name}"
-        )
-        if data is None:
-            return None
-        return data["data"]["secret"]
-
     def get_project_secret(self, organization_id: str, workspace_key: str, name: str):
         prefix = f"{self.organization_name}/{self.tenant_id}/projects/{self.context_id}"
         schema = f"{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}".lower()
@@ -285,12 +277,12 @@ class Environment(metaclass=SingletonMeta):
                 "\n"
                 f"Failed to read Kubernetes secret 'keycloak-babylon' in namespace '{tenant}'.\n"
                 "Please ensure your kubeconfig is valid and your context is correctly set.\n"
-                "You can switch context using: 'kubectl config use-context <context-name>'.\n"
+                "You can switch context using: 'kubectl config use-context <context-name>'"
             )
             sys.exit(1)
-        except Exception as e:
+        except Exception:
             logger.error(
-                f"Failed to connect to the Kubernetes cluster: {e} \nCluster may be down, kube-apiserver unreachable"
+                "Failed to connect to the Kubernetes cluster: \n'Cluster may be down, kube-apiserver unreachable'"
             )
             sys.exit(1)
         if secret.data:
@@ -325,7 +317,7 @@ class Environment(metaclass=SingletonMeta):
         state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
 
     def get_state_from_local(self):
-        state_dir = Path().home() / ".config/cosmotech/babylon"
+        state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
             init_state = {
@@ -393,46 +385,51 @@ class Environment(metaclass=SingletonMeta):
             return vars["state_id"]
 
     def store_namespace_in_local(self):
-        ns_dir = Path().home() / ".config/cosmotech/babylon"
+        ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
-        ns = dict(state_id=self.state_id, context=self.context_id, platform=self.environ_id)
+        ns = dict(state_id=self.state_id, context=self.context_id, tenant=self.environ_id)
         s.write_bytes(data=yaml.dump(ns).encode("utf-8"))
         self.set_state_id(state_id=self.state_id)
         self.set_context(context_id=self.context_id)
         self.set_environ(environ_id=self.environ_id)
 
-    def get_namespace_from_local(self, context: str = "", platform: str = "", state_id: str = ""):
-        ns_dir = Path().home() / ".config/cosmotech/babylon"
+    def get_namespace_from_local(self, context: str = "", tenant: str = "", state_id: str = ""):
+        ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f"{ns_file} not found")
             logger.error(
-                "The context and the platform are not set. \
-                         Please set the platform using the 'namespace use' command."
+                "The context and the tenant are not set. \
+                         Please set the tenant using the 'namespace use' command."
             )
             sys.exit(1)
 
         ns_data = yaml.safe_load(ns_file.open("r").read())
         if ns_data:
             self.context_id = context or ns_data.get("context", "")
-            self.environ_id = platform or ns_data.get("platform", "")
+            self.environ_id = tenant or ns_data.get("tenant", "")
             self.state_id = state_id or ns_data.get("state_id", "")
             self.set_state_id(state_id=self.state_id)
             return ns_data
 
     def retrieve_config(self):
-        """Retrieve configuratio. First checks environment variables; if missing, fallback to Kubernetes secret."""
-        required_env_vars = ["API_URL", "CLIENT_ID", "CLIENT_SECRET", "TOKEN_URL"]
+        """Retrieve configuration. First checks environment variables; if missing, fallback to Kubernetes secret."""
+        required_env_vars = {
+            "API_URL": "API_URL",
+            "CLIENT_ID": "CLIENT_ID",
+            "CLIENT_SECRET": "CLIENT_SECRET",
+            "TOKEN_URL": "TOKEN_URL",
+        }
         missing_vars = [var for var in required_env_vars if var not in os.environ]
         if not missing_vars:
             logger.info("Loading configuration from environment variables")
             return {
-                "api_url": os.environ["API_URL"],
-                "client_id": os.environ["CLIENT_ID"],
-                "client_secret": os.environ["CLIENT_SECRET"],
-                "token_url": os.environ["TOKEN_URL"],
+                "api_url": os.environ[required_env_vars["API_URL"]],
+                "client_id": os.environ[required_env_vars["CLIENT_ID"]],
+                "client_secret": os.environ[required_env_vars["CLIENT_SECRET"]],
+                "token_url": os.environ[required_env_vars["TOKEN_URL"]],
             }
         # Log missing env vars
         logger.info("Loading configuration from Kubernetes secret")
@@ -449,23 +446,23 @@ class Environment(metaclass=SingletonMeta):
         ns = self.fill_template(data=content, state=state, ext_args=ext_args).get("namespace")
         context_id = ns.get("context", "")
         state_id = ns.get("state_id", "")
-        plt_obj = ns.get("platform", {})
-        platform_id = plt_obj.get("id", "")
-        if not platform_id:
-            logger.error("[babylon] platform_id is mandatory")
+        plt_obj = ns.get("tenant", {})
+        tenant_id = plt_obj.get("id", "")
+        if not tenant_id:
+            logger.error("tenant_id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
         if not platform_url:
             logger.error("url is mandatory")
             sys.exit(1)
-        url_ = re.compile(f"https:\\/\\/{platform_id}\\.")
+        url_ = re.compile(f"https:\\/\\/{tenant_id}\\.")
         match_content = url_.match(platform_url)
         if not match_content:
             logger.error("url not match")
             sys.exit(1)
         self.state_id = state_id
         self.set_context(context_id=context_id)
-        self.set_environ(environ_id=platform_id)
+        self.set_environ(environ_id=tenant_id)
         # self.set_blob_client()
         return platform_url
 

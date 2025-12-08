@@ -145,7 +145,7 @@ def injectcontext() -> Callable[..., Any]:
             "-t",
             "--tenant",
             "tenant",
-            help="tenant Id without any special character",
+            help="Tenant Id without any special character",
         )
         @option(
             "-s",
@@ -164,7 +164,7 @@ def injectcontext() -> Callable[..., Any]:
             state_id = kwargs.pop("state_id", None)
             if state_id and check_special_char(string=state_id):
                 env.set_state_id(state_id)
-            env.get_namespace_from_local(context=context, platform=tenant, state_id=state_id)
+            env.get_namespace_from_local(context=context, tenant=tenant, state_id=state_id)
             return func(*args, **kwargs)
 
         return wrapper

@@ -71,3 +71,8 @@ line-length = 120
 select = ["E", "F", "I"]
 
 [tool.ruff.format]
+
+[pytest]
+minversion = "9.0"
+pythonpath = ["Babylon"]
+testpaths = ["test"]
