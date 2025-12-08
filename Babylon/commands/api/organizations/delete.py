@@ -41,8 +41,4 @@ def delete(
     if response is None:
         return CommandResponse.fail()
     logger.info(f"Organization {[services_state['organization_id']]} successfully deleted")
-    state["services"]["api"]["organization_id"] = ""
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
     return CommandResponse.success(response)

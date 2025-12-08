@@ -36,9 +36,6 @@ def get_all(state: Any, config: Any, keycloak_token: str, filter: str) -> Comman
     organizations = response.json()
     if len(organizations) and filter:
         organizations = jmespath.search(filter, organizations)
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
     ids = [o["id"] for o in organizations]
     logger.info(f"Retrieved {ids} organizations details")
     return CommandResponse.success(organizations)

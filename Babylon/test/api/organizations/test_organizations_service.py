@@ -28,9 +28,8 @@ class OrganizationServiceTestCase(unittest.TestCase):
         the_response._content = b'{"id" : "1", "name": "My Organization"}'
         organizationservice_create.return_value = the_response
         payload = str(env.pwd / "Babylon/test/api/organizations/payload.json")
-        CliRunner().invoke(create, [payload], standalone_mode=False)
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["organization_id"] == "1"
+        result = CliRunner().invoke(create, [payload], standalone_mode=False)
+        assert result.return_value.data.get("name") == "My Organization"
 
     @mock.patch.object(OrganizationService, "delete")
     def test_delete(self, organizationservice_delete):
@@ -39,9 +38,8 @@ class OrganizationServiceTestCase(unittest.TestCase):
         the_response._content = b'{"code" : "204", "description": "Succeeded"}'
         organizationservice_delete.return_value = the_response
 
-        CliRunner().invoke(delete, ["1"], standalone_mode=False)
-        states = env.get_state_from_local()
-        assert states["services"]["api"]["organization_id"] == ""
+        result = CliRunner().invoke(delete, ["1"], standalone_mode=False)
+        assert result.return_value.data.status_code == 204
 
     @mock.patch.object(OrganizationService, "get_all")
     def test_get_all(self, organizationservice_get_all):

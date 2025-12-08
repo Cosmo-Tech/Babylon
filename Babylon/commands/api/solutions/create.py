@@ -47,9 +47,5 @@ def create(
     if response is None:
         return CommandResponse.fail()
     solution = response.json()
-    state["services"]["api"]["solution_id"] = solution.get("id")
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_cloud(state)
     logger.info(f"Solution {[solution.get('id')]} successfully created")
     return CommandResponse.success(solution)
