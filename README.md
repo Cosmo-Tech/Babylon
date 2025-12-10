@@ -58,4 +58,8 @@ babylon apply --organization project/
 babylon apply --solution project/
 
 babylon apply --workspace project/
+
+babylon apply --dataset project/
+
+babylon apply --runner project/
 ```
