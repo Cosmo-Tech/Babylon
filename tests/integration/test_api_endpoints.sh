@@ -1,7 +1,7 @@
 #!/bin/bash
 source ../../.venv/bin/activate
 
-set -ex
+set -e
 
 mkdir output
 #timestamp=$(date +"%Y-%m-%d %H:%M:%S")
