@@ -55,7 +55,7 @@ class DatasetService:
         )
         return response
 
-    def download_part(self, dataset_part_id: str, dataset_id: str):
+    def download_part(self, dataset_id: str, dataset_part_id: str):
         check_if_dataset_exists(dataset_id)
         response = oauth_request(
             f"{self.url}/organizations/{self.organization_id}/"

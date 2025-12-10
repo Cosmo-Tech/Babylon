@@ -1,6 +1,5 @@
 kind: Workspace
 namespace:
-  platform: {{platform}}
   remote: false
 spec:
   sidecars:
@@ -14,11 +13,22 @@ spec:
     sendScenarioMetadataToEventHub: true
     sendInputToDataWarehouse: true
     sendScenarioRunToEventHub: true
-    webApp:
-        url: ""
-        options:
-            charts:
-            dataSource:
-            datacontent:
-            menu:
+    additionalData:
+      webApp:
+        solution:
+          runTemplateFilter:
+          defaultRunTemplateDataset: null
+        charts:
+          workspaceId:
+          logInWithUserCredentials: false
+          scenarioViewIframeDisplayRatio: 4.514285714
+          dashboardsViewIframeDisplayRatio: 1.610062893
+          useWebappTheme: true
+          dashboardsView:
+          scenarioView:
+        menu:
+          supportUrl: 'https://support.cosmotech.com'
+          organizationUrl: 'https://cosmotech.com'
+          documentationUrl: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
+        datasetManager:
     security: {{security}}

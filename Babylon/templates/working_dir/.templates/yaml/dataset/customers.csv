@@ -1,0 +1,11 @@
+customerID,companyName,contactName,contactTitle,address,city,region,postalCode,country,phone,age
+CUST001,Blueberry Tech,Alex Greenwood,CTO,1412 Pine St,Oakridge,CA,93561,USA,555-123-4560,10
+CUST002,Riverbend Logistics,Taylor Morris,Operations Lead,89 North Ave,Greendale,NY,11105,USA,555-987-6521,25
+CUST003,Sunrise Foods,Jordan Liu,Procurement Manager,220 Cherry Road,Springdale,TX,75010,USA,555-210-7895,34
+CUST004,Skyline Textiles,Maria Petrova,Sales Director,501 Textile Lane,Newpark,FL,33012,USA,555-313-9240,59
+CUST005,Crimson Solutions,Samuel Evans,CEO,77 Baker Blvd,Woodport,GA,30310,USA,555-825-2555,48
+CUST006,FastFix Auto,Isabelle Dubois,Service Manager,42 Garage Loop,Montréal,QC,H3Z 2Y7,Canada,514-601-3300,60
+CUST007,Garden Glow Ltd,Ellie Tan,Product Specialist,180 Daisy St,Burnside,NSW,2135,Australia,02-8000-1122,27
+CUST008,Evergreen Crafts,Jasper Lee,Owner,96 Willow Way,Lakeside,BC,V2V 4W1,Canada,604-800-9988,43
+CUST009,Peak Fitness Inc,Monica Anders,Marketing Lead,311 Summit Ave,Cascade,WA,98101,USA,206-777-5544,56
+CUST010,Silverline Media,Nikhil Ajay,Account Executive,845 Market Plaza,Redhill,ENG,RH1 6JT,UK,020-7123-4098,19

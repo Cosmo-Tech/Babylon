@@ -1,9 +1,7 @@
 kind: Solution
 namespace:
-  platform: {{platform}}
   remote: false
 metadata:
-  workspace_key: "{{workspace_key}}"
   selector:
     organization_id: "{{services['api.organization_id']}}"
 spec:
@@ -14,13 +12,17 @@ spec:
     description: "{{solution_description}}"
     repository: cosmotech/brewerysamplesolution_simulator
     version: latest
+    sdkVersion: '10.4.0'
+    alwaysPull: true
+    url: 'https://webapp-url.com'
     tags:
-    - brewery
+      - brewery
     runTemplates:
-    - id: "{{run_template_id}}"
-      name: "{{runTemplate_name}}"
-      csmSimulation: AzureWebApp/AzureWebApp_Simulation
-      run: true
-      preRun: true
+      - id: "{{run_template_id}}"
+        name: "{{runTemplate_name}}"
+        csmSimulation: AzureWebApp/AzureWebApp_Simulation
+        run: true
+        preRun: true
+    parameters:
     parameterGroups:
     security: {{security}}

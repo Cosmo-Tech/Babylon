@@ -2,16 +2,6 @@
 # IMPORTANT: You can add variables here as needed!
 # Make sure they are used in the manifest YAML.
 # =========================================================
-vault_platform_id: sphinx
-platform:
-  id: sphinx
-  url: https://warp.api.cosmotech.com/sphinx/v5
-location: westeurope
-security:
-  default: none
-  accessControlList:
-    - id: mohcine.tor@cosmotech.com
-      role: admin
 # Organization
 organization_name: Babylon v5 Organization
 # Solution
@@ -24,8 +14,17 @@ simulator_version: latest
 workspace_name: Babylon v5 workspace
 workspace_key: brewerytestingwork
 workspace_description: Testing workspace for the brewery web application
+# Dataset 
+dataset_name: minimal
+dataset_description: Babylon v5 Dataset
 # Runner 
 run_template_id: minimal
 runner_name: Babylon v5 Runner
 runTemplate_name: Standard simulation
 owner_name: toto
+# ACL
+security:
+  default: none
+  accessControlList:
+    - id: mohcine.tor@cosmotech.com
+      role: admin

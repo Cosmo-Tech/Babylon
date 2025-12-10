@@ -1,8 +1,13 @@
 kind: Dataset
-namespace:
-  platform: {{platform}}
-  remote: false
 spec:
   sidecars:
   payload:
-    # TODO: waiting for the implementation of the dataset
+    id: ""
+    name: "{{dataset_name}}"
+    description: "{{dataset_description}}"
+    tags:
+      - brewery
+    parts:
+      - name: part1
+        sourceName: customers.csv
+    security: {{security}}
