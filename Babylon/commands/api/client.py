@@ -190,7 +190,7 @@ def create_workspace(
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
         workspace = api_instance.create_workspace(organization_id, workspace_create_request)
-        logger.info(f"Workspcae {workspace.id} created successfully")
+        logger.info(f"Workspace {workspace.id} created successfully")
         return CommandResponse.success(workspace.model_dump())
     except Exception as e:
         logger.error(f"Could not create workspace: {e}")
