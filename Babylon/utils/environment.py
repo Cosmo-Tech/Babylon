@@ -8,7 +8,6 @@ import uuid
 from collections import defaultdict
 from pathlib import Path
 
-import requests
 import yaml
 from cryptography.fernet import Fernet
 from flatten_json import flatten
