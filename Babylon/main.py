@@ -80,15 +80,8 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
 )
 @prepend_doc_with_ascii
 def main(interactive, log_path):
-    """CLI used for cloud interactions between CosmoTech and multiple cloud environment
-
-    The following environment variables are required:
-
-    \b
-    - BABYLON_SERVICE: Vault Service URI
-    - BABYLON_TOKEN: Access Token Vault Service
-    - BABYLON_ORG_NAME: Organization Name
     """
+    CLI used for cloud interactions between CosmoTech and multiple cloud environment"""
     sys.tracebacklimit = 0
     setup_logging(pathlibPath(log_path))
 

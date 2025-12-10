@@ -4,18 +4,7 @@ from pathlib import Path
 
 from dynaconf import Dynaconf
 
-config_files = ["api", "keycloak", "babylon", "powerbi"]
-
 pwd = Path(os.getcwd())
-
-
-def get_config_files(config_dir: Path):
-    """Retrieve all configuration files from resource"""
-    _list = list(map(lambda x: glob(str(config_dir / f"*.*.{x}.yaml")), config_files.sort()))
-    response = []
-    for item in _list:
-        response += item
-    return response
 
 
 def get_settings_by_context(
