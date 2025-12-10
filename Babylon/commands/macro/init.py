@@ -29,10 +29,16 @@ def init(project_folder: str, variables_file: str):
     project_yaml_files = ["Organization.yaml", "Solution.yaml", "Workspace.yaml", "Dataset.yaml", "Runner.yaml"]
     try:
         project_path.mkdir(parents=True, exist_ok=True)
+
         for file in project_yaml_files:
             deploy_file = pathlib.Path(env.convert_template_path(f"%templates%/yaml/{file}"))
             destination = project_path / file
             shutil.copy(deploy_file, destination)
+
+        customers_src = pathlib.Path(env.convert_template_path("%templates%/yaml/dataset/customers.csv"))
+        customers_dst = pathlib.Path(os.getcwd()) / "customers.csv"
+        shutil.copy(customers_src, customers_dst)
+
         variables_template = pathlib.Path(env.convert_template_path("%templates%/yaml/variables.yaml"))
         shutil.copy(variables_template, variables_path)
         logger.info(f"\nProject successfully initialized at: {project_path}")

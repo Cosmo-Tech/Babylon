@@ -1,10 +1,10 @@
 kind: Runner
 namespace:
-  platform: {{platform}}
   remote: false
 spec:
   sidecars:
   payload:
+    id: ""
     name: "{{runner_name}}"
     runTemplateId: "{{run_template_id}}"
     solutionId: "{{services['api.solution_id']}}"

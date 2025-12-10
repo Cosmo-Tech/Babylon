@@ -44,7 +44,7 @@ def apply(
     runner: bool,
     payload_only: bool,
     variables_files: Iterable[pathlib.Path],
-):  # type: ignore
+):
     """Macro Apply"""
     files = list(pathlib.Path(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
@@ -76,7 +76,7 @@ def apply(
         for s in solutions:
             content = s.get("content")
             namespace = s.get("namespace")
-            deploy_solution(namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only)
+            deploy_solution(namespace=namespace, file_content=content)
 
         # For the web app, we need to wait to know whether it will be deployed as a Helm chart
         # or continue as a static Azure Web App.
@@ -122,14 +122,12 @@ def apply(
         elif runner:
             for r in runners:
                 content = r.get("content")
-                namespace = r.get("namespace")
-                deploy_runner(namespace=namespace, file_content=content)
+                runner_id = deploy_runner(file_content=content)
 
         elif dataset:
             for d in datasets:
                 content = d.get("content")
-                namespace = d.get("namespace")
-                deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+                deployed_dataset_id = deploy_dataset(file_content=content)
                 if deployed_dataset_id:
                     final_datasets.append(deployed_dataset_id)
 
@@ -144,7 +142,7 @@ def apply(
     _ret.append(f"   * Solution       : {services.get('api').get('solution_id', '')}")
     _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
     if runner:
-        _ret.append(f"   * Runner         : {services.get('api').get('runner_id', '')}")
+        _ret.append(f"   * Runner         : {runner_id}")
     for id in final_datasets:
         _ret.append(f"   * Dataset        : {id}")
     # TODO: When the Helm chart for the web app is implemented in Babylon !

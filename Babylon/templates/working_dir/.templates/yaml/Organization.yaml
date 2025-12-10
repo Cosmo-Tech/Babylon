@@ -1,6 +1,5 @@
 kind: Organization
 namespace:
-  platform: {{platform}}
   remote: false
 spec:
   sidecars: 

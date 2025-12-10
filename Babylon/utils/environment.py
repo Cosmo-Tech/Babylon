@@ -226,37 +226,37 @@ class Environment(metaclass=SingletonMeta):
             return b""
         return data
 
-    def get_access_token_with_refresh_token(self, username: str = None, internal_scope: str = None):
-        state = self.get_state_from_vault_by_platform(self.environ_id)
-        cli_client_id = state["azure"]["cli_client_id"]
-        data = self.get_users_secrets(username, internal_scope)
-        if data is None:
-            return None
-        encrypted_refresh_token = data["token"]
-        encoding_key = os.environ.get("BABYLON_ENCODING_KEY")
-        if encoding_key is None:
-            logger.info("BABYLON_ENCODING_KEY is missing")
-            sys.exit(1)
-        decryoted_token = self.decrypt_content(encoding_key, encrypted_refresh_token)
-        response = requests.post(
-            url=f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token",
-            data=dict(
-                client_id=cli_client_id,
-                scope=f"{self.AZURE_SCOPES[internal_scope]} offline_access",
-                grant_type="refresh_token",
-                refresh_token=decryoted_token.decode("utf-8"),
-            ),
-        )
-        response_json = response.json()
-        if "refresh_token" not in response_json:
-            logger.info("refresh_token is missing")
-            return None
-        token_encrypt = self.working_dir.encrypt_content(
-            encoding_key=encoding_key,
-            content=bytes(response_json["refresh_token"], encoding="utf-8"),
-        )
-        self.set_users_secrets(username, internal_scope, dict(token=token_encrypt.decode("utf-8")))
-        return response_json["access_token"]
+    # def get_access_token_with_refresh_token(self, username: str = None, internal_scope: str = None):
+    #     state = self.get_state_from_vault_by_platform(self.environ_id)
+    #     cli_client_id = state["azure"]["cli_client_id"]
+    #     data = self.get_users_secrets(username, internal_scope)
+    #     if data is None:
+    #         return None
+    #     encrypted_refresh_token = data["token"]
+    #     encoding_key = os.environ.get("BABYLON_ENCODING_KEY")
+    #     if encoding_key is None:
+    #         logger.info("BABYLON_ENCODING_KEY is missing")
+    #         sys.exit(1)
+    #     decryoted_token = self.decrypt_content(encoding_key, encrypted_refresh_token)
+    #     response = requests.post(
+    #         url=f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token",
+    #         data=dict(
+    #             client_id=cli_client_id,
+    #             scope=f"{self.AZURE_SCOPES[internal_scope]} offline_access",
+    #             grant_type="refresh_token",
+    #             refresh_token=decryoted_token.decode("utf-8"),
+    #         ),
+    #     )
+    #     response_json = response.json()
+    #     if "refresh_token" not in response_json:
+    #         logger.info("refresh_token is missing")
+    #         return None
+    #     token_encrypt = self.working_dir.encrypt_content(
+    #         encoding_key=encoding_key,
+    #         content=bytes(response_json["refresh_token"], encoding="utf-8"),
+    #     )
+    #     self.set_users_secrets(username, internal_scope, dict(token=token_encrypt.decode("utf-8")))
+    #     return response_json["access_token"]
 
     def get_config_from_k8s_secret_by_tenant(self, tenant: str):
         response_parsed = dict()
@@ -374,7 +374,7 @@ class Environment(metaclass=SingletonMeta):
             state_local["id"] = id
             return state_local.get("id")
         if self.remote:
-            state_cloud = self.get_state_from_cloud(state_local)
+            state_cloud = self.get_state_from_cloud()
             if not state_cloud:
                 state_cloud = dict(id="")
             if state_local and not state_cloud.get("id", ""):

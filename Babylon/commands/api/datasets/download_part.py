@@ -49,7 +49,7 @@ def download_part(
     services_state["workspace_id"] = workspace_id or services_state["workspace_id"]
     service = DatasetService(keycloak_token=keycloak_token, state=services_state, config=config)
     logger.info(f"Downloading dataset part {dataset_part_id} from dataset {[dataset_id]}")
-    response = service.download_part(dataset_id, dataset_part_id=dataset_part_id)
+    response = service.download_part(dataset_id, dataset_part_id)
     if response is None:
         return CommandResponse.fail()
     dataset = response.content
