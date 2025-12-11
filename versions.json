@@ -2,7 +2,9 @@
   {
     "version": "5.0.0-beta.1",
     "title": "5.0.0-beta.1",
-    "aliases": []
+    "aliases": [
+      "latest"
+    ]
   },
   {
     "version": "5.0.0-alpha.1",
@@ -17,9 +19,7 @@
   {
     "version": "4.2.3",
     "title": "4.2.3",
-    "aliases": [
-      "latest"
-    ]
+    "aliases": []
   },
   {
     "version": "4.2.2",
