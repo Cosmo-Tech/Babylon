@@ -11,5 +11,9 @@ runTemplates:
 security:
   default: viewer
   accessControlList:
-    - id: diamantis.sellis@cosmotech.com
+    - id: tenant-admin
+      role: admin
+    - id: tenant-editor
+      role: viewer
+    - id: org-admin
       role: admin

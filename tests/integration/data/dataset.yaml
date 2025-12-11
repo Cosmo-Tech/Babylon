@@ -9,3 +9,12 @@ parts:
     sourceName: datasetfile2.csv
   - name: part3
     sourceName: datasetfile.csv
+security:
+  default: viewer
+  accessControlList:
+    - id: tenant-admin
+      role: admin
+    - id: tenant-editor
+      role: editor
+    - id: tenant-viewer
+      role: viewer

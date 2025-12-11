@@ -5,7 +5,11 @@ solutionName: "Updated description"
 runTemplateName: "Run template with Brewery parameters"
 ownerName: "dokimi"
 security:
-    default: viewer
+    default: editor
     accessControlList:
-        - id: diamantis.sellis@cosmotech.com
-          role: admin
+      - id: tenant-admin
+        role: admin
+      - id: tenant-editor
+        role: editor
+      - id: tenant-viewer
+        role: viewer

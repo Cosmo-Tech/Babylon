@@ -3,5 +3,9 @@ name: "Debugging organization"
 security:
   default: none
   accessControlList:
-    - id: diamantis.sellis@cosmotech.com
+    - id: tenant-admin
       role: admin
+    - id: tenant-editor
+      role: editor
+    - id: tenant-viewer
+      role: viewer
