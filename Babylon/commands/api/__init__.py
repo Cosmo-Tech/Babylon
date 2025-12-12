@@ -15,6 +15,7 @@ from .client import (
     delete_runner,
     delete_solution,
     delete_workspace,
+    download_dataset_part,
     get_dataset,
     get_dataset_part,
     get_organization,
@@ -89,5 +90,6 @@ for _command in [
     update_runner,
     update_solution,
     update_workspace,
+    download_dataset_part,
 ]:
     api.add_command(_command)

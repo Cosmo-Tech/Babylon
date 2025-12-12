@@ -1130,3 +1130,33 @@ def get_run_status(
     except Exception as e:
         logger.error(f"Could not get run status: {e}")
         return CommandResponse.fail()
+
+
+@command()
+@injectcontext()
+@output_to_file
+@pass_keycloak_token()
+@retrieve_config
+@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@argument("dataset_part_id")
+def download_dataset_part(
+    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
+) -> CommandResponse:
+    """Download dataset part"""
+    api_instance = get_dataset_api_instance(config, keycloak_token)
+    try:
+        file_content = api_instance.download_dataset_part(
+            organization_id=organization_id,
+            workspace_id=workspace_id,
+            dataset_id=dataset_id,
+            dataset_part_id=dataset_part_id,
+        )
+        with open(dataset_part_id, "wb") as f:
+            f.write(file_content)
+        logger.info(f"Dataset part downloaded successfully to {dataset_part_id}")
+        return CommandResponse.success({"file_path": dataset_part_id})
+    except Exception as e:
+        logger.error(f"Could not download dataset part: {e}")
+        return CommandResponse.fail()
