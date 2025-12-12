@@ -32,7 +32,5 @@ jobs:
           .venv/bin/pip install --upgrade pip
           .venv/bin/pip install . --group dev
       - name: Run tests
-        run: |
-         . .venv/bin/activate
-         babylon namespace use -c test -t sphinx -s testid
-         CI=true pytest
+        working-directory: tests/integration/
+        run: ./test_api_endpoints.sh

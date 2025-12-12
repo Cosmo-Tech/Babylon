@@ -1,0 +1,15 @@
+name: "Babylon testing runner"
+runTemplateId: "minimal"
+solutionId: "sol-7xgdvwq6959j"
+solutionName: "Updated description"
+runTemplateName: "Run template with Brewery parameters"
+ownerName: "dokimi"
+security:
+    default: editor
+    accessControlList:
+      - id: tenant-admin
+        role: admin
+      - id: tenant-editor
+        role: editor
+      - id: tenant-viewer
+        role: viewer

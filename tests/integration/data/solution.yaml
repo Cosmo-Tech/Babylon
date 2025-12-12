@@ -1,0 +1,19 @@
+# Solution Template
+key: testing
+name: Dev Brewery Solution
+repository: cosmotech/brewerysamplesolution_simulator
+version: latest
+alwaysPull: true
+parameters: []
+parameterGroups: []
+runTemplates:
+  - id: 'minimal'
+security:
+  default: viewer
+  accessControlList:
+    - id: tenant-admin
+      role: admin
+    - id: tenant-editor
+      role: viewer
+    - id: org-admin
+      role: admin
