@@ -33,6 +33,11 @@ jobs:
           uv venv
           . .venv/bin/activate
           uv pip install . --group dev
-      - name: Run tests
+      - name: Run unit tests
+        run: |
+          . .venv/bin/activate
+          pytest tests/unit
+      - name: Run integration tests
+
         working-directory: tests/integration/
         run: ./test_api_endpoints.sh
