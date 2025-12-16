@@ -113,8 +113,8 @@ def create_organization(config: dict, keycloak_token: str, payload_file) -> Comm
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("payload_file")
 def create_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file
@@ -146,7 +146,7 @@ def create_dataset(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @argument("payload_file")
 def create_solution(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
     """
@@ -173,8 +173,8 @@ def create_solution(config: dict, keycloak_token: str, organization_id: str, pay
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--solution-id", "-sid", required=False, default=None, type=str, help="Solution ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--solution-id", "-sid", required=True, type=str, help="Solution ID")
 @argument("payload_file")
 def create_workspace(
     config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file
@@ -202,9 +202,9 @@ def create_workspace(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--solution-id", "-sid", required=False, default=None, type=str, help="Solution ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--solution-id", "-sid", required=True, type=str, help="Solution ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("payload_file")
 def create_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, solution_id: str, payload_file
@@ -272,7 +272,7 @@ def list_organizations(config: dict, keycloak_token: str) -> CommandResponse:
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @retrieve_config
 def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """
@@ -292,8 +292,8 @@ def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> 
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @retrieve_config
 def list_datasets(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """
@@ -314,7 +314,7 @@ def list_datasets(config: dict, keycloak_token: str, organization_id: str, works
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @argument("solution_id")
 def delete_solution(config: dict, keycloak_token: str, organization_id: str, solution_id: str) -> CommandResponse:
     """Delete solution"""
@@ -333,7 +333,7 @@ def delete_solution(config: dict, keycloak_token: str, organization_id: str, sol
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @argument("workspace_id")
 def delete_workspace(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """Delete workspace"""
@@ -352,8 +352,8 @@ def delete_workspace(config: dict, keycloak_token: str, organization_id: str, wo
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("runner_id")
 def delete_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
@@ -374,8 +374,8 @@ def delete_runner(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("dataset_id")
 def delete_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
@@ -395,7 +395,7 @@ def delete_dataset(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @retrieve_config
 def list_solutions(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """List solutions"""
@@ -413,8 +413,8 @@ def list_solutions(config: dict, keycloak_token: str, organization_id: str) -> C
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @retrieve_config
 def list_runners(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """List runners"""
@@ -451,7 +451,7 @@ def get_organization(config: dict, keycloak_token: str, organization_id: str) ->
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @argument("workspace-id")
 def get_workspace(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """Get workspace"""
@@ -470,7 +470,7 @@ def get_workspace(config: dict, keycloak_token: str, organization_id: str, works
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @argument("solution-id")
 def get_solution(config: dict, keycloak_token: str, organization_id: str, solution_id: str) -> CommandResponse:
     """Get solution"""
@@ -489,8 +489,8 @@ def get_solution(config: dict, keycloak_token: str, organization_id: str, soluti
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("dataset-id")
 def get_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
@@ -513,8 +513,8 @@ def get_dataset(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("runner-id")
 def get_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
@@ -537,7 +537,7 @@ def get_runner(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
 @argument("payload_file")
 def update_organization(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
     """
@@ -563,8 +563,8 @@ def update_organization(config: dict, keycloak_token: str, organization_id: str,
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("payload_file")
 def update_workspace(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file
@@ -592,8 +592,8 @@ def update_workspace(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--solution-id", required=False, default=None, type=str, help="Solution ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--solution-id", required=True, type=str, help="Solution ID")
 @argument("payload_file")
 def update_solution(
     config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file
@@ -621,9 +621,9 @@ def update_solution(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", required=True, type=str, help="Dataset ID")
 @argument("payload_file")
 def update_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file
@@ -653,9 +653,9 @@ def update_dataset(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--runner-id", required=False, default=None, type=str, help="Runner ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--runner-id", required=True, type=str, help="Runner ID")
 @argument("payload_file")
 def update_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, payload_file
@@ -701,9 +701,9 @@ def about(config: dict, keycloak_token: str) -> CommandResponse:
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", required=True, type=str, help="Dataset ID")
 @argument("payload_file")
 def create_dataset_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file
@@ -733,9 +733,9 @@ def create_dataset_part(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", "-did", required=False, default=None, type=str, help="Dataset ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", "-did", required=True, type=str, help="Dataset ID")
 def list_dataset_parts(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
 ) -> CommandResponse:
@@ -759,9 +759,9 @@ def list_dataset_parts(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", required=True, type=str, help="Dataset ID")
 @argument("dataset_part_id")
 def get_dataset_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
@@ -787,9 +787,9 @@ def get_dataset_part(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", required=True, type=str, help="Dataset ID")
 @argument("dataset_part_id")
 def delete_dataset_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
@@ -815,9 +815,9 @@ def delete_dataset_part(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", required=True, type=str, help="Dataset ID")
 @argument("dataset_part_id")
 @argument("payload_file")
 def update_dataset_part(
@@ -854,10 +854,10 @@ def update_dataset_part(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
-@option("--dataset-part-id", required=False, default=None, type=str, help="Dataset Part ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", required=True, type=str, help="Dataset ID")
+@option("--dataset-part-id", required=True, type=str, help="Dataset Part ID")
 @option(
     "--selects",
     type=str,
@@ -952,8 +952,8 @@ def query_data(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("runner_id")
 def start_run(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
@@ -978,8 +978,8 @@ def start_run(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("runner_id")
 def stop_run(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
@@ -1004,9 +1004,9 @@ def stop_run(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--runner-id", required=False, default=None, type=str, help="Runner ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--runner-id", required=True, type=str, help="Runner ID")
 @argument("run_id")
 def get_run(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
@@ -1032,9 +1032,9 @@ def get_run(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--runner-id", required=False, default=None, type=str, help="Runner ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--runner-id", required=True, type=str, help="Runner ID")
 @argument("run_id")
 def delete_run(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
@@ -1060,8 +1060,8 @@ def delete_run(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
 @argument("runner_id")
 def list_runs(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
@@ -1081,9 +1081,9 @@ def list_runs(
 @injectcontext()
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--runner-id", required=False, default=None, type=str, help="Runner ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--runner-id", required=True, type=str, help="Runner ID")
 @argument("run_id")
 def get_run_logs(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
@@ -1109,9 +1109,9 @@ def get_run_logs(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--runner-id", required=False, default=None, type=str, help="Runner ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--runner-id", required=True, type=str, help="Runner ID")
 @argument("run_id")
 def get_run_status(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
@@ -1137,9 +1137,9 @@ def get_run_status(
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@option("--organization-id", "-oid", required=False, default=None, type=str, help="Organization ID")
-@option("--workspace-id", "-wid", required=False, default=None, type=str, help="Workspace ID")
-@option("--dataset-id", required=False, default=None, type=str, help="Dataset ID")
+@option("--organization-id", "-oid", required=True, type=str, help="Organization ID")
+@option("--workspace-id", "-wid", required=True, type=str, help="Workspace ID")
+@option("--dataset-id", required=True, type=str, help="Dataset ID")
 @argument("dataset_part_id")
 def download_dataset_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
