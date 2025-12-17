@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from click import argument, command, option
+from click import Path, argument, command, option
 from cosmotech_api import (
     ApiClient,
     Configuration,
@@ -88,7 +88,7 @@ def get_meta_api_instance(config: dict, keycloak_token: str) -> MetaApi:
 @output_to_file
 @pass_keycloak_token()
 @retrieve_config
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def create_organization(config: dict, keycloak_token: str, payload_file) -> CommandResponse:
     """
     Create organization
@@ -113,7 +113,7 @@ def create_organization(config: dict, keycloak_token: str, payload_file) -> Comm
 @retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def create_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file
 ) -> CommandResponse:
@@ -145,7 +145,7 @@ def create_dataset(
 @pass_keycloak_token()
 @retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def create_solution(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
     """
     Create solution
@@ -170,7 +170,7 @@ def create_solution(config: dict, keycloak_token: str, organization_id: str, pay
 @retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def create_workspace(
     config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file
 ) -> CommandResponse:
@@ -200,7 +200,7 @@ def create_workspace(
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def create_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, solution_id: str, payload_file
 ) -> CommandResponse:
@@ -533,7 +533,7 @@ def get_runner(
 @pass_keycloak_token()
 @retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def update_organization(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
     """
     Update organization
@@ -560,7 +560,7 @@ def update_organization(config: dict, keycloak_token: str, organization_id: str,
 @retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def update_workspace(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file
 ) -> CommandResponse:
@@ -589,7 +589,7 @@ def update_workspace(
 @retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def update_solution(
     config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file
 ) -> CommandResponse:
@@ -619,7 +619,7 @@ def update_solution(
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def update_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file
 ) -> CommandResponse:
@@ -651,7 +651,7 @@ def update_dataset(
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def update_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, payload_file
 ) -> CommandResponse:
@@ -699,7 +699,7 @@ def about(config: dict, keycloak_token: str) -> CommandResponse:
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def create_dataset_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file
 ) -> CommandResponse:
@@ -814,7 +814,7 @@ def delete_dataset_part(
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @option("--dpid", "dataset_part_id", required=True, type=str, help="Dataset Part ID")
-@argument("payload_file")
+@argument("payload_file", type=Path(exists=True))
 def update_dataset_part(
     config: dict,
     keycloak_token: str,
