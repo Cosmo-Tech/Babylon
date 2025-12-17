@@ -1,9 +1,9 @@
-import os
-import pathlib
 from logging import getLogger
+from pathlib import Path as pathlib_Path
 from typing import Iterable
 
-from click import Path, argument, command, echo, option, style
+from click import Path as click_Path
+from click import argument, command, option
 from yaml import safe_dump, safe_load
 
 from Babylon.commands.macro.deploy_organization import deploy_organization
@@ -16,7 +16,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def load_resources_from_files(files_to_deploy: list[pathlib.Path]) -> tuple[list, list, list]:
+def load_resources_from_files(files_to_deploy: list[pathlib_Path]) -> tuple[list, list, list]:
     resources = []
     for f in files_to_deploy:
         resource = {}
@@ -48,11 +48,11 @@ def deploy_objects(objects: list, object_type: str):
 
 @command()
 @injectcontext()
-@argument("deploy_dir", type=Path(dir_okay=True, exists=True))
+@argument("deploy_dir", type=click_Path(dir_okay=True, exists=True))
 @option(
     "--var-file",
     "variables_files",
-    type=Path(file_okay=True, exists=True),
+    type=click_Path(file_okay=True, exists=True),
     default=["./variables.yaml"],
     multiple=True,
     help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
@@ -61,14 +61,14 @@ def deploy_objects(objects: list, object_type: str):
 @option("--solution", is_flag=True, help="Deploy or update a solution.")
 @option("--workspace", is_flag=True, help="Deploy or update a workspace.")
 def apply(
-    deploy_dir: pathlib.Path,
+    deploy_dir: click_Path,
     organization: bool,
     solution: bool,
     workspace: bool,
-    variables_files: Iterable[pathlib.Path],
+    variables_files: Iterable[pathlib_Path],
 ):
     """Macro Apply"""
-    files = list(pathlib.Path(deploy_dir).iterdir())
+    files = list(pathlib_Path(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
     env.set_variable_files(variables_files)
 
@@ -87,24 +87,4 @@ def apply(
 
     final_state = env.get_state_from_local()
     services = final_state.get("services")
-    logger.info(f"Deployment summary: {[i for i in services.get('api')]}")
-    _ret = [""]
-    _ret.append("")
-    _ret.append("Deployments: ")
-    _ret.append("")
-    _ret.append(f"   * Organization   : {services.get('api').get('organization_id', '')}")
-    _ret.append(f"   * Solution       : {services.get('api').get('solution_id', '')}")
-    _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
-    vars = env.get_variables()
-    current_working_directory = os.getcwd()
-    logfile_path = os.path.join(current_working_directory, "babylon.log")
-    logfile_directory = os.path.dirname(logfile_path)
-    _logs = [""]
-    _logs.append("Babylon Logs: ")
-    _logs.append("")
-    if vars.get("path_logs"):
-        _logs.append(f"   * The Babylon log and error files are generated at: {vars.get('path_logs')}")
-    else:
-        _logs.append(f"   * The Babylon log and error files are generated at: {logfile_directory}")
-    echo(style("\n".join(_ret), fg="green"))
-    echo(style("\n".join(_logs), fg="green"))
+    logger.info(f"Deployment summary: {[i.id for i in services.get('api')]}")
