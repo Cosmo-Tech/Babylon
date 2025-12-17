@@ -1,31 +1,15 @@
-import os
-import pathlib
-import sys
 from json import dumps
 from logging import getLogger
 
 from click import echo, style
 
-from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-from Babylon.commands.powerbi.dataset.services.powerbi_api_svc import (
-    AzurePowerBIDatasetService,
-)
-from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import (
-    AzurePowerBIParamsService,
-)
-from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import (
-    AzurePowerBIReportService,
-)
-from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
-    AzurePowerBIWorkspaceUserService,
-)
-from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import (
-    AzurePowerBIWorkspaceService,
-)
-from Babylon.utils.credentials import (
-    get_default_powerbi_token,
-    get_keycloak_token,
-)
+from cosmotech_api.models.workspace_create_request import WorkspaceCreateRequest
+from cosmotech_api.models.workspace_update_request import WorkspaceUpdateRequest
+from cosmotech_api.models.workspace_security import WorkspaceSecurity
+
+from Babylon.commands.api.client import get_workspace_api_instance
+from Babylon.commands.macro.deploy import update_object_security
+from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -33,7 +17,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path, payload_only: bool) -> bool:
+def deploy_workspace(namespace: str, file_content: str) -> bool:
     _ret = [""]
     _ret.append("Workspace deployment")
     _ret.append("")
@@ -41,224 +25,44 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: pathlib.Path
     env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func()
     api_section = state["services"]["api"]
-    vars = env.get_variables()
-    metadata = env.get_metadata(vars=vars, content=file_content, state=state)
-    if metadata.get("selector", ""):
-        api_section["organization_id"] = metadata["selector"].get("organization_id", "")
-        api_section["solution_id"] = metadata["selector"].get("solution_id", "")
-    else:
-        if not api_section["organization_id"] and not api_section["solution_id"]:
-            logger.error(
-                f"Missing 'organization_id' and 'solution_id'in metadata -> selector field : {metadata.get('selector')}"
-            )
-            sys.exit(1)
+
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload")
-    spec = dict()
+    spec = {}
     spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
     keycloak_token, config = get_keycloak_token()
-    workspace_svc = WorkspaceService(keycloak_token=keycloak_token, spec=spec, config=config, state=api_section)
+    api_instance = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
     if not api_section["workspace_id"]:
         logger.info("Creating workspace")
-        response = workspace_svc.create()
-        if response is None:
+        workspace_create_request = WorkspaceCreateRequest.from_dict(payload)
+        workspace = api_instance.create_workspace(organization_id=api_section["organization_id"],
+                                                  workspace_create_request=workspace_create_request)
+        if workspace is None:
             return CommandResponse.fail()
-        workspace = response.json()
-        logger.info(f"Workspace {[workspace.get('id')]} successfully created")
-        state["services"]["api"]["workspace_id"] = workspace.get("id")
+        logger.info(f"Workspace {workspace.id} successfully created")
+        state["services"]["api"]["workspace_id"] = workspace.id
     else:
         logger.info(f"Updating workspace {[api_section['workspace_id']]}")
-        response = workspace_svc.update()
-        if response is None:
+        workspace_update_request = WorkspaceUpdateRequest.from_dict(payload)
+        updated = api_instance.update_workspace(
+            organization_id=api_section["organization_id"],
+            workspace_id=api_section["workspace_id"], workspace_update_request=workspace_update_request
+        )
+        if updated is None:
             return CommandResponse.fail()
-        response_json = response.json()
-        old_security = response_json.get("security")
-        security_spec = workspace_svc.update_security(old_security=old_security)
-        response_json["security"] = security_spec
-        workspace = response_json
-        logger.info(f"Workspace {[workspace['id']]} successfully updated")
+        try:
+            current_security = api_instance.get_workspace_security(workspace_id=api_section["workspace_id"])
+            update_object_security(
+                "workspace",
+                current_security=current_security,
+                desired_security=WorkspaceSecurity.from_dict(payload.get("security")),
+                api_instance=api_instance,
+                object_id=api_section["workspace_id"]
+            )
+        except Exception as e:
+            logger.error(f"Failed to update workspace security: {e}")
+            return CommandResponse.fail()
+        logger.info(f"Workspace {[api_section['workspace_id']]} successfully updated")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
-
-    # TODO: Update sidecars to support Superset in the future.
-    # For now, keeping the same implementation as Power BI until we fully understand how it works.
-    # Once clarified, we will modify this part to work with Superset.
-    sidecars = content.get("spec").get("sidecars", None)
-    if content.get("spec").get("payload") is not None and content.get("spec").get("payload").get("webApp") is not None:
-        workspaceCharts = content.get("spec").get("payload").get("webApp").get("options").get("charts") or None
-    else:
-        workspaceCharts = None
-    if sidecars and not payload_only:
-        superset_section = sidecars.get("superset", {})
-        if superset_section:
-            workspace_powerbi = superset_section.get("workspace", {})
-            if workspace_powerbi:
-                po_token = get_default_powerbi_token()
-                powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=po_token, state=state.get("services"))
-                name = workspace_powerbi.get("name", "")
-                if not name:
-                    logger.error("PowerBI workspace name is mandatory")
-                    sys.exit(1)
-                workspaceli_list_name = powerbi_svc.get_all(filter="[].name")
-                if (workspaceli_list_name is None) or (
-                    workspaceli_list_name is not None and name not in workspaceli_list_name
-                ):
-                    logger.info(f"creating PowerBI Workspace {name}")
-                    w = powerbi_svc.create(name=name)
-                    state["services"]["powerbi"]["workspace.id"] = w.get("id")
-                    state["services"]["powerbi"]["workspace.name"] = w.get("name")
-                    env.store_state_in_local(state)
-                    if env.remote:
-                        env.store_state_in_cloud(state)
-                else:
-                    logger.info(f"PowerBI Workspace '{name}' already exists")
-                work_obj = powerbi_svc.get_by_name_or_id(name=name)
-                if work_obj:
-                    state["services"]["powerbi"]["workspace.id"] = work_obj.get("id")
-                    state["services"]["powerbi"]["workspace.name"] = work_obj.get("name")
-                    env.store_state_in_local(state)
-                    if env.remote:
-                        env.store_state_in_cloud(state)
-                user_svc = AzurePowerBIWorkspaceUserService(powerbi_token=po_token, state=state.get("services"))
-                work_obj_id = state["services"]["powerbi"]["workspace.id"]
-                existing_permissions = user_svc.get_all(workspace_id=work_obj_id, filter="[].identifier")
-                spec_permissions = workspace_powerbi.get("permissions", [])
-                if len(spec_permissions):
-                    ids = [i.get("identifier") for i in spec_permissions]
-                    for g in spec_permissions:
-                        if g.get("identifier") in existing_permissions:
-                            logger.info(f"updating permissions for {g.get('identifier')}")
-                            user_svc.update(
-                                workspace_id=work_obj.get("id"),
-                                right=g.get("rights"),
-                                email=g.get("identifier"),
-                                type=g.get("type"),
-                            )
-                        if g.get("identifier") not in existing_permissions:
-                            logger.info(f"creating permissions for {g.get('identifier')}")
-                            user_svc.add(
-                                workspace_id=work_obj.get("id"),
-                                right=g.get("rights"),
-                                email=g.get("identifier"),
-                                type=g.get("type"),
-                            )
-                    for s in existing_permissions:
-                        if s not in ids:
-                            if s != state["services"]["babylon"]["principal_id"]:
-                                logger.info(f"deleting permissions for {g.get('identifier')}")
-                                user_svc.delete(
-                                    workspace_id=work_obj.get("id"),
-                                    email=s,
-                                    force_validation=True,
-                                )
-                spec_dash = workspace_powerbi.get("reports", [])
-                dashboard_view = dict()
-                scenario_view = dict()
-                if len(spec_dash):
-                    for r in spec_dash:
-                        rtype = r.get("type")
-                        name = r.get("name")
-                        path = r.get("path")
-                        rtag = r.get("tag")
-                        params = r.get("parameters", [])
-                        path_report = pathlib.Path(deploy_dir) / f"{path}"
-                        if not path_report.exists():
-                            logger.warning(f"report '{path_report}' not found")
-                        if path_report.exists():
-                            parameters_svc = AzurePowerBIParamsService(
-                                powerbi_token=po_token, state=state.get("services")
-                            )
-                            report_svc = AzurePowerBIReportService(powerbi_token=po_token, state=state.get("services"))
-                            report_obj, custom_obj = report_svc.upload(
-                                workspace_id=work_obj.get("id"),
-                                pbix_filename=path_report,
-                                report_name=name,
-                                report_type=rtype,
-                                override=True,
-                            )
-                            if workspaceCharts is not None:
-                                if not rtag:
-                                    logger.warning("Tag is missing in this report")
-                                else:
-                                    if rtype == "dashboard":
-                                        dashboard_view[rtag] = custom_obj.get("reportId")
-                                        allDashboardsViews = workspaceCharts.get("dashboardsView")
-                                        # set the good value of reportId in the reports objects inside dashboardsView
-                                        filteredTitles = list(
-                                            filter(
-                                                lambda x: x.get("reportTag") is not None and x.get("reportTag") == rtag,
-                                                allDashboardsViews,
-                                            )
-                                        )
-                                        if not filteredTitles:
-                                            logger.warning("Report tag is not found in dashboardsView Section")
-                                        else:
-                                            for item in filteredTitles:
-                                                item["reportId"] = custom_obj.get("reportId")
-                                    if rtype == "scenario":
-                                        scenario_view[rtag] = custom_obj.get("reportId")
-                                        allScenariosViews = workspaceCharts.get("scenarioView")
-                                        scenarioWithThistag = False
-                                        # set the good value of reportId in the reports objects inside scenarioView
-                                        for scenario in allScenariosViews:
-                                            if isinstance(scenario, dict):
-                                                if (
-                                                    scenario.get("reportTag") is not None
-                                                    and scenario.get("reportTag") == rtag
-                                                ):
-                                                    scenario["reportId"] = custom_obj.get("reportId")
-                                                    scenarioWithThistag = True
-                                            else:
-                                                scenarioData = allScenariosViews.get(scenario, {})
-                                                if (
-                                                    scenarioData.get("reportTag") is not None
-                                                    and scenarioData.get("reportTag") == rtag
-                                                ):
-                                                    scenarioData["reportId"] = custom_obj.get("reportId")
-                                                    scenarioWithThistag = True
-                                        if not scenarioWithThistag:
-                                            logger.warning("Report tag is not found in scenarioView Section")
-                            for d in report_obj.get("datasets", []):
-                                if d:
-                                    dataset_svc = AzurePowerBIDatasetService(
-                                        powerbi_token=po_token,
-                                        state=state.get("services"),
-                                    )
-                                    dataset_svc.take_over(
-                                        workspace_id=work_obj.get("id"),
-                                        dataset_id=d.get("id"),
-                                    )
-                                    parameters_svc = AzurePowerBIParamsService(
-                                        powerbi_token=po_token,
-                                        state=state.get("services"),
-                                    )
-                                    if len(params):
-                                        parameters_svc.update(
-                                            workspace_id=work_obj.get("id"),
-                                            dataset_id=d.get("id"),
-                                            params=params,
-                                        )
-                            logger.info(f"report {name} successfully imported")
-                state["services"]["powerbi"]["dashboard_view"] = dashboard_view
-                state["services"]["powerbi"]["scenario_view"] = scenario_view
-                env.store_state_in_local(state)
-                if env.remote:
-                    env.store_state_in_cloud(state)
-        if workspaceCharts is not None and superset_section:
-            content.get("spec").get("payload").get("webApp").get("options").get("charts")["workspaceId"] = state[
-                "services"
-            ]["powerbi"]["workspace.id"]
-            logger.info(f"updating workspace {state['services']['api']['workspace_id']} with all powerbi reports")
-            payloadUpdated: dict = content.get("spec").get("payload")
-            specUpdated = dict()
-            specUpdated["payload"] = dumps(payloadUpdated, indent=2, ensure_ascii=True)
-            workspace_svc.update_with_payload(specUpdated)
-        if sidecars:
-            run_scripts = sidecars.get("run_scripts")
-            if run_scripts:
-                data = run_scripts.get("post_deploy.sh", "")
-                if data:
-                    os.system(data)
-            if not workspace.get("id"):
-                sys.exit(1)

@@ -90,7 +90,7 @@ def apply(
             content = w.get("content")
             namespace = w.get("namespace")
             deploy_workspace(
-                namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only
+                namespace=namespace, file_content=content
             )
 
         # To do: This is not implemented yet. We are waiting for the API implementation before working on it again.
@@ -117,7 +117,7 @@ def apply(
                 content = w.get("content")
                 namespace = w.get("namespace")
                 deploy_workspace(
-                    namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only
+                    namespace=namespace, file_content=content
                 )
         elif runner:
             for r in runners:
