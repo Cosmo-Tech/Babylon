@@ -16,5 +16,5 @@ babylon namespace get-contexts
 babylon api about
 
 babylon init
-babylon apply project ./output
+babylon apply project
 babylon destroy
