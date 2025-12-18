@@ -25,14 +25,14 @@ jobs:
       - uses: astral-sh/ruff-action@v3
       - run: ruff check --output-format=github
       - run: ruff format
-      - uses: actions/setup-python@v6
-      - name: Install dependencies
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Install
         run: |
-          python -m venv .venv
-          .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install . --group dev
+          uv venv
+          . .venv/bin/activate
+          uv pip install . --group dev
       - name: Run tests
-        run: |
-         . .venv/bin/activate
-         babylon namespace use -c test -t sphinx -s testid
-         CI=true pytest
+        working-directory: tests/integration/
+        run: ./test_api_endpoints.sh

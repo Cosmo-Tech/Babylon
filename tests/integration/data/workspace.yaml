@@ -1,0 +1,13 @@
+key: dokimi
+name: "dokimi"
+solution:
+  solutionId: "sol-e"
+security:
+    default: editor
+    accessControlList:
+    - id: tenant-admin
+      role: admin
+    - id: tenant-editor
+      role: viewer
+    - id: org-admin
+      role: admin

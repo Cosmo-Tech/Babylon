@@ -1,0 +1,11 @@
+name: "Debugging organization"
+# Description: "Organization for debugging purposes"
+security:
+  default: none
+  accessControlList:
+    - id: tenant-admin
+      role: admin
+    - id: tenant-editor
+      role: editor
+    - id: tenant-viewer
+      role: viewer
