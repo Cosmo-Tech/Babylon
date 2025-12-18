@@ -61,7 +61,7 @@ def deploy_workspace(namespace: str, file_content: str) -> bool:
                     current_security=current_security,
                     desired_security=WorkspaceSecurity.from_dict(payload.get("security")),
                     api_instance=api_instance,
-                    object_id=api_section["workspace_id"],
+                    object_id=[api_section["organization_id"], api_section["workspace_id"]],
                 )
             except Exception as e:
                 logger.error(f"Failed to update workspace security: {e}")

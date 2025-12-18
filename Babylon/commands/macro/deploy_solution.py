@@ -64,7 +64,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
                     current_security=current_security,
                     desired_security=SolutionSecurity.from_dict(payload.get("security")),
                     api_instance=api_instance,
-                    object_id=api_section["solution_id"],
+                    object_id=[api_section["organization_id"], api_section["solution_id"]],
                 )
             except Exception as e:
                 logger.error(f"Failed to update solution security: {e}")

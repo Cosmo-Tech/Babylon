@@ -47,7 +47,7 @@ def update_object_security(
     current_security: OrganizationSecurity | WorkspaceSecurity | SolutionSecurity,
     desired_security: OrganizationSecurity | WorkspaceSecurity | SolutionSecurity,
     api_instance,
-    object_id: str,
+    object_id: list[str],
 ):
     """Update object security:
     if default security differs from payload
@@ -64,21 +64,23 @@ def update_object_security(
         if entry.id in to_add:
             logger.info(f"Adding access control for id {entry.id}")
             try:
-                getattr(api_instance, f"create_{object_type}_access_control")(object_id, entry)
+                getattr(api_instance, f"create_{object_type}_access_control")(*object_id, entry)
                 logger.info(f"Access control for id {entry.id} added successfully")
             except Exception as e:
                 logger.error(f"Failed to add access control for id {entry.id}: {e}")
         if entry.id in to_update:
             logger.info(f"Updating access control for id {entry.id}")
             try:
-                getattr(api_instance, f"update_{object_type}_access_control")(object_id, entry.id, {"role": entry.role})
+                getattr(api_instance, f"update_{object_type}_access_control")(
+                    *object_id, entry.id, {"role": entry.role}
+                )
                 logger.info(f"Access control for id {entry.id} updated successfully")
             except Exception as e:
                 logger.error(f"Failed to update access control for id {entry.id}: {e}")
     for entry_id in to_delete:
         logger.info(f"Deleting access control for id {entry_id}")
         try:
-            getattr(api_instance, f"delete_{object_type}_access_control")(object_id, entry_id)
+            getattr(api_instance, f"delete_{object_type}_access_control")(*object_id, entry_id)
             logger.info(f"Access control for id {entry_id} deleted successfully")
         except Exception as e:
             logger.error(f"Failed to delete access control for id {entry_id}: {e}")

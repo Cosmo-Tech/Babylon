@@ -58,7 +58,7 @@ def deploy_organization(namespace: str, file_content: str):
                     current_security=current_security,
                     desired_security=OrganizationSecurity.from_dict(payload.get("security")),
                     api_instance=api_instance,
-                    object_id=api_section["organization_id"],
+                    object_id=[api_section["organization_id"]],
                 )
             except Exception as e:
                 logger.error(f"Failed to update organization security: {e}")
