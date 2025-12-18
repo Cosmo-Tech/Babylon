@@ -41,7 +41,7 @@ def destroy(config: dict, keycloak_token: str):
     if workspace_id:
         try:
             workspace_api_instance.delete_workspace(organization_id=organization_id, workspace_id=workspace_id)
-            logger.info(f"Deleting workspace {workspace_id}")
+            logger.info(f"Deleted workspace {workspace_id}")
             state["services"]["api"]["workspace_id"] = ""
         except Exception as e:
             logger.error(f"Error deleting workspace {workspace_id}: {e}")

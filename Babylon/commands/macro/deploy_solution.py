@@ -41,30 +41,35 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
         )
         if solution is None:
             return CommandResponse.fail()
-        logger.info(f"Solution {[solution.id]} successfully created")
+        logger.info(f"Solution {solution.id} successfully created")
         state["services"]["api"]["solution_id"] = solution.id
     else:
-        logger.info(f"Updating solution {[api_section['solution_id']]}")
+        logger.info(f"Updating solution {api_section['solution_id']}")
         solution_update_request = SolutionUpdateRequest.from_dict(payload)
         updated = api_instance.update_solution(
-            solution_id=api_section["solution_id"], solution_update_request=solution_update_request
+            organization_id=api_section["organization_id"],
+            solution_id=api_section["solution_id"],
+            solution_update_request=solution_update_request,
         )
 
         if updated is None:
             return CommandResponse.fail()
-        try:
-            current_security = api_instance.get_solution_security(solution_id=api_section["solution_id"])
-            update_object_security(
-                "solution",
-                current_security=current_security,
-                desired_security=SolutionSecurity.from_dict(payload.get("security")),
-                api_instance=api_instance,
-                object_id=api_section["solution_id"],
-            )
-        except Exception as e:
-            logger.error(f"Failed to update solution security: {e}")
-            return CommandResponse.fail()
-        logger.info(f"Solution {[api_section['solution_id']]} successfully updated")
+        if payload.get("security"):
+            try:
+                current_security = api_instance.get_solution_security(
+                    organization_id=api_section["organization_id"], solution_id=api_section["solution_id"]
+                )
+                update_object_security(
+                    "solution",
+                    current_security=current_security,
+                    desired_security=SolutionSecurity.from_dict(payload.get("security")),
+                    api_instance=api_instance,
+                    object_id=api_section["solution_id"],
+                )
+            except Exception as e:
+                logger.error(f"Failed to update solution security: {e}")
+                return CommandResponse.fail()
+        logger.info(f"Solution {api_section['solution_id']} successfully updated")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)

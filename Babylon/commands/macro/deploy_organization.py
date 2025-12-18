@@ -41,26 +41,28 @@ def deploy_organization(namespace: str, file_content: str):
         logger.info(f"Organization {organization.id} successfully created")
         state["services"]["api"]["organization_id"] = organization.id
     else:
-        logger.info(f"Updating organization {[api_section['organization_id']]}")
+        logger.info(f"Updating organization {api_section['organization_id']}")
         organization_update_request = OrganizationUpdateRequest.from_dict(payload)
         updated = api_instance.update_organization(
             organization_id=api_section["organization_id"], organization_update_request=organization_update_request
         )
         if updated is None:
             return CommandResponse.fail()
-        try:
-            current_security = api_instance.get_organization_security(organization_id=api_section["organization_id"])
-            update_object_security(
-                "organization",
-                current_security=current_security,
-                desired_security=OrganizationSecurity.from_dict(payload.get("security")),
-                api_instance=api_instance,
-                object_id=api_section["organization_id"],
-            )
-        except Exception as e:
-            logger.error(f"Failed to update organization security: {e}")
-            return CommandResponse.fail()
-
+        if payload.get("security"):
+            try:
+                current_security = api_instance.get_organization_security(
+                    organization_id=api_section["organization_id"]
+                )
+                update_object_security(
+                    "organization",
+                    current_security=current_security,
+                    desired_security=OrganizationSecurity.from_dict(payload.get("security")),
+                    api_instance=api_instance,
+                    object_id=api_section["organization_id"],
+                )
+            except Exception as e:
+                logger.error(f"Failed to update organization security: {e}")
+                return CommandResponse.fail()
         logger.info(f"Organization {api_section['organization_id']} successfully updated")
     env.store_state_in_local(state)
     if env.remote:

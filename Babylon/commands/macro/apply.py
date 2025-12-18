@@ -1,8 +1,8 @@
 from logging import getLogger
-from pathlib import Path as pathlib_Path
+from pathlib import Path as PathlibPath
 from typing import Iterable
 
-from click import Path as click_Path
+from click import Path as ClickPath
 from click import argument, command, option
 from yaml import safe_dump, safe_load
 
@@ -16,7 +16,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def load_resources_from_files(files_to_deploy: list[pathlib_Path]) -> tuple[list, list, list]:
+def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list, list, list]:
     resources = []
     for f in files_to_deploy:
         resource = {}
@@ -48,11 +48,11 @@ def deploy_objects(objects: list, object_type: str):
 
 @command()
 @injectcontext()
-@argument("deploy_dir", type=click_Path(dir_okay=True, exists=True))
+@argument("deploy_dir", type=ClickPath(dir_okay=True, exists=True))
 @option(
     "--var-file",
     "variables_files",
-    type=click_Path(file_okay=True, exists=True),
+    type=ClickPath(file_okay=True, exists=True),
     default=["./variables.yaml"],
     multiple=True,
     help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
@@ -61,14 +61,14 @@ def deploy_objects(objects: list, object_type: str):
 @option("--solution", is_flag=True, help="Deploy or update a solution.")
 @option("--workspace", is_flag=True, help="Deploy or update a workspace.")
 def apply(
-    deploy_dir: click_Path,
+    deploy_dir: ClickPath,
     organization: bool,
     solution: bool,
     workspace: bool,
-    variables_files: Iterable[pathlib_Path],
+    variables_files: Iterable[PathlibPath],
 ):
     """Macro Apply"""
-    files = list(pathlib_Path(deploy_dir).iterdir())
+    files = list(PathlibPath(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
     env.set_variable_files(variables_files)
 

@@ -42,7 +42,7 @@ def deploy_workspace(namespace: str, file_content: str) -> bool:
         logger.info(f"Workspace {workspace.id} successfully created")
         state["services"]["api"]["workspace_id"] = workspace.id
     else:
-        logger.info(f"Updating workspace {[api_section['workspace_id']]}")
+        logger.info(f"Updating workspace {api_section['workspace_id']}")
         workspace_update_request = WorkspaceUpdateRequest.from_dict(payload)
         updated = api_instance.update_workspace(
             organization_id=api_section["organization_id"],
@@ -51,19 +51,22 @@ def deploy_workspace(namespace: str, file_content: str) -> bool:
         )
         if updated is None:
             return CommandResponse.fail()
-        try:
-            current_security = api_instance.get_workspace_security(workspace_id=api_section["workspace_id"])
-            update_object_security(
-                "workspace",
-                current_security=current_security,
-                desired_security=WorkspaceSecurity.from_dict(payload.get("security")),
-                api_instance=api_instance,
-                object_id=api_section["workspace_id"],
-            )
-        except Exception as e:
-            logger.error(f"Failed to update workspace security: {e}")
-            return CommandResponse.fail()
-        logger.info(f"Workspace {[api_section['workspace_id']]} successfully updated")
+        if payload.get("security"):
+            try:
+                current_security = api_instance.get_workspace_security(
+                    organization_id=api_section["organization_id"], workspace_id=api_section["workspace_id"]
+                )
+                update_object_security(
+                    "workspace",
+                    current_security=current_security,
+                    desired_security=WorkspaceSecurity.from_dict(payload.get("security")),
+                    api_instance=api_instance,
+                    object_id=api_section["workspace_id"],
+                )
+            except Exception as e:
+                logger.error(f"Failed to update workspace security: {e}")
+                return CommandResponse.fail()
+            logger.info(f"Workspace {api_section['workspace_id']} successfully updated")
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
