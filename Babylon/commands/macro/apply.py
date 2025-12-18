@@ -87,4 +87,4 @@ def apply(
 
     final_state = env.get_state_from_local()
     services = final_state.get("services")
-    logger.info(f"Deployment summary: {[i.id for i in services.get('api')]}")
+    logger.info(f"Deployment summary: {services.get('api').values()}")
