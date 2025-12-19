@@ -1,8 +1,9 @@
+import pytest
 from cosmotech_api.models.organization_access_control import OrganizationAccessControl
 from cosmotech_api.models.solution_access_control import SolutionAccessControl
 from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
 
-from Babylon.commands.macro.deploy import diff
+from Babylon.commands.macro.deploy import diff, resolve_inclusion_exclusion
 
 
 def test_organization_diff():
@@ -48,3 +49,52 @@ def test_solution_diff():
     assert to_add[0] == "titi@cosmotech.com"
     assert to_delete[0] == "tata@cosmotech.com"
     assert to_update[0] == "toto@cosmotech.com"
+
+
+def test_resolve_inclusion_exclusion_include_all_valid():
+    assert resolve_inclusion_exclusion(include=("organization", "solution", "workspace"), exclude=()) == (
+        True,
+        True,
+        True,
+    )
+
+
+def test_resolve_inclusion_exclusion_exclude_all_valid():
+    assert resolve_inclusion_exclusion(include=(), exclude=("organization", "solution", "workspace")) == (
+        False,
+        False,
+        False,
+    )
+
+
+def test_resolve_inclusion_exclusion_include_duplicates():
+    assert resolve_inclusion_exclusion(include=("organization", "organization"), exclude=()) == (True, False, False)
+
+
+def test_resolve_inclusion_exclusion_invalid_exclude_fixed():
+    with pytest.raises(
+        ValueError,
+        match="Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace.",
+    ):
+        resolve_inclusion_exclusion(include=(), exclude=("invalid",))
+
+
+def test_resolve_inclusion_exclusion_partial_include_mixed():
+    with pytest.raises(
+        ValueError,
+        match="Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace.",
+    ):
+        resolve_inclusion_exclusion(include=("organization", "invalid"), exclude=())
+
+
+def test_resolve_inclusion_exclusion_partial_exclude_mixed():
+    with pytest.raises(
+        ValueError,
+        match="Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace.",
+    ):
+        resolve_inclusion_exclusion(include=(), exclude=("workspace", "invalid"))
+
+
+def test_resolve_inclusion_exclusion_conflicting_filters_variation():
+    with pytest.raises(ValueError, match="Cannot use both --include and --exclude options together."):
+        resolve_inclusion_exclusion(include=("solution", "workspace"), exclude=("organization",))

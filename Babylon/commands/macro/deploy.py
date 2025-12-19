@@ -10,6 +10,56 @@ from cosmotech_api.models.workspace_security import WorkspaceSecurity
 logger = getLogger(__name__)
 
 
+def validate_inclusion_exclusion(
+    include: tuple[str],
+    exclude: tuple[str],
+) -> bool:
+    """Include and exclude command line options cannot be combined and should have correct spelling"""
+    if not all(i in ("organization", "solution", "workspace") for i in include + exclude):
+        logger.error(
+            "Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace."
+        )
+        raise ValueError(
+            "Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace."
+        )
+
+    if include and exclude:  # cannot combine conflicting options
+        logger.error("Cannot use both --include and --exclude options together.")
+        raise ValueError("Cannot use both --include and --exclude options together.")
+    return True
+
+
+def resolve_inclusion_exclusion(
+    include: tuple[str],
+    exclude: tuple[str],
+) -> tuple[bool, bool, bool]:
+    """Resolve command line include and exclude.
+
+    Args:
+        include (tuple[str]): which objects to include in the deployment
+        exclude (tuple[str]): which objects to exclude from the deployment
+
+    Raises:
+        ValueError: Error if incompatible options are provided
+
+    Returns:
+        tuple[bool, bool, bool]: flags to include organization, solution, workspace
+    """
+    validate_inclusion_exclusion(include, exclude)
+    organization = True
+    solution = True
+    workspace = True
+    if include:  # if only is specified include by condition
+        organization = True if "organization" in include else False
+        solution = True if "solution" in include else False
+        workspace = True if "workspace" in include else False
+    if exclude:  # if exclude is specified exclude by condition
+        organization = False if "organization" in exclude else True
+        solution = False if "solution" in exclude else True
+        workspace = False if "workspace" in exclude else True
+    return (organization, solution, workspace)
+
+
 def diff(
     acl1: OrganizationAccessControl | WorkspaceAccessControl | SolutionAccessControl,
     acl2: OrganizationAccessControl | WorkspaceAccessControl | SolutionAccessControl,

@@ -6,6 +6,7 @@ from click import Path as ClickPath
 from click import argument, command, option
 from yaml import safe_dump, safe_load
 
+from Babylon.commands.macro.deploy import resolve_inclusion_exclusion
 from Babylon.commands.macro.deploy_organization import deploy_organization
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
@@ -57,33 +58,27 @@ def deploy_objects(objects: list, object_type: str):
     multiple=True,
     help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
 )
-@option("--organization", is_flag=True, help="Deploy or update an organization.")
-@option("--solution", is_flag=True, help="Deploy or update a solution.")
-@option("--workspace", is_flag=True, help="Deploy or update a workspace.")
+@option("--include", "include", multiple=True, type=str, help="Specify the resources to deploy.")
+@option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from deployment.")
 def apply(
     deploy_dir: ClickPath,
-    organization: bool,
-    solution: bool,
-    workspace: bool,
+    include: Iterable[str],
+    exclude: Iterable[str],
     variables_files: Iterable[PathlibPath],
 ):
     """Macro Apply"""
+    organization, solution, workspace = resolve_inclusion_exclusion(include, exclude)
     files = list(PathlibPath(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
     env.set_variable_files(variables_files)
-
+    logger.info(f"organization: {organization}, solution: {solution}, workspace: {workspace}")
     organizations, solutions, workspaces = load_resources_from_files(files_to_deploy)
-    if not (organization or solution or workspace):
+    if organization:
         deploy_objects(organizations, "organization")
+    if solution:
         deploy_objects(solutions, "solution")
+    if workspace:
         deploy_objects(workspaces, "workspace")
-    else:
-        if organization:
-            deploy_objects(organizations, "organization")
-        elif solution:
-            deploy_objects(solutions, "solution")
-        elif workspace:
-            deploy_objects(workspaces, "workspace")
 
     final_state = env.get_state_from_local()
     services = final_state.get("services")
