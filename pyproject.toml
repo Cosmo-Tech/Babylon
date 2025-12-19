@@ -11,7 +11,6 @@ dependencies = [
   "azure-identity",
   "azure-mgmt-storage",
   "azure-storage-blob",
-  "hvac",
   "click",
   "click-log",
   "cryptography",
@@ -28,7 +27,7 @@ dependencies = [
   "azure-mgmt-authorization>=4.0.0",
   "azure-containerregistry>=1.2.0",
   "kubernetes>=34.1.0",
-  "cosmotech-api==5.0.0rc2"
+  "cosmotech-api==5.0.0rc3"
 ]
 dynamic = ["version"]
 readme = {file = "README.md", content-type = "text/markdown"}
