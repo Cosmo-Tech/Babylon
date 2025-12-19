@@ -1,14 +1,12 @@
-import os
-import pathlib
 from logging import getLogger
+from pathlib import Path as PathlibPath
 from typing import Iterable
 
-from click import Path, argument, command, echo, option, style
+from click import Path as ClickPath
+from click import argument, command, option
 from yaml import safe_dump, safe_load
 
-from Babylon.commands.macro.deploy_dataset import deploy_dataset
 from Babylon.commands.macro.deploy_organization import deploy_organization
-from Babylon.commands.macro.deploy_runner import deploy_runner
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.utils.decorators import injectcontext
@@ -18,40 +16,10 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-@command()
-@injectcontext()
-@argument("deploy_dir", type=Path(dir_okay=True, exists=True))
-@option(
-    "--var-file",
-    "variables_files",
-    type=Path(file_okay=True, exists=True),
-    default=["./variables.yaml"],
-    multiple=True,
-    help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
-)
-@option("--organization", is_flag=True, help="Deploy or update an organization.")
-@option("--solution", is_flag=True, help="Deploy or update a solution.")
-@option("--workspace", is_flag=True, help="Deploy or update a workspace.")
-@option("--dataset", is_flag=True, help="Deploy or update a dataset.")
-@option("--runner", is_flag=True, help="Deploy or update a runner.")
-@option("--payload-only", is_flag=True, help="Specify if you want to specify payload only")
-def apply(
-    deploy_dir: pathlib.Path,
-    organization: bool,
-    solution: bool,
-    workspace: bool,
-    dataset: bool,
-    runner: bool,
-    payload_only: bool,
-    variables_files: Iterable[pathlib.Path],
-):
-    """Macro Apply"""
-    files = list(pathlib.Path(deploy_dir).iterdir())
-    files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
-    env.set_variable_files(variables_files)
+def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list, list, list]:
     resources = []
     for f in files_to_deploy:
-        resource = dict()
+        resource = {}
         with open(f) as input_file:
             content = input_file.read()
             escaped_content = content.replace("{{", "${").replace("}}", "}")
@@ -63,102 +31,60 @@ def apply(
     organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
     solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
     workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
-    datasets = list(filter(lambda x: x.get("kind") == "Dataset", resources))
-    runners = list(filter(lambda x: x.get("kind") == "Runner", resources))
-    _ret = [""]
-    final_datasets = []
-    if not (organization or solution or workspace or dataset or runner):
-        for o in organizations:
-            content = o.get("content")
-            namespace = o.get("namespace")
+    return (organizations, solutions, workspaces)
+
+
+def deploy_objects(objects: list, object_type: str):
+    for o in objects:
+        content = o.get("content")
+        namespace = o.get("namespace")
+        if object_type == "organization":
             deploy_organization(namespace=namespace, file_content=content)
-
-        for s in solutions:
-            content = s.get("content")
-            namespace = s.get("namespace")
+        elif object_type == "solution":
             deploy_solution(namespace=namespace, file_content=content)
+        elif object_type == "workspace":
+            deploy_workspace(namespace=namespace, file_content=content)
 
-        # For the web app, we need to wait to know whether it will be deployed as a Helm chart
-        # or continue as a static Azure Web App.
 
-        # for swa in webapps:
-        #     content = swa.get("content")
-        #     namespace = swa.get("namespace")
-        #     deploy_swa(namespace=namespace, file_content=content)
+@command()
+@injectcontext()
+@argument("deploy_dir", type=ClickPath(dir_okay=True, exists=True))
+@option(
+    "--var-file",
+    "variables_files",
+    type=ClickPath(file_okay=True, exists=True),
+    default=["./variables.yaml"],
+    multiple=True,
+    help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
+)
+@option("--organization", is_flag=True, help="Deploy or update an organization.")
+@option("--solution", is_flag=True, help="Deploy or update a solution.")
+@option("--workspace", is_flag=True, help="Deploy or update a workspace.")
+def apply(
+    deploy_dir: ClickPath,
+    organization: bool,
+    solution: bool,
+    workspace: bool,
+    variables_files: Iterable[PathlibPath],
+):
+    """Macro Apply"""
+    files = list(PathlibPath(deploy_dir).iterdir())
+    files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
+    env.set_variable_files(variables_files)
 
-        for w in workspaces:
-            content = w.get("content")
-            namespace = w.get("namespace")
-            deploy_workspace(
-                namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only
-            )
-
-        # To do: This is not implemented yet. We are waiting for the API implementation before working on it again.
-
-        # for d in datasets:
-        #     content = d.get("content")
-        #     namespace = d.get("namespace")
-        #     deployed_dataset_id = deploy_dataset(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
-        #     if deployed_dataset_id:
-        #         final_datasets.append(deployed_dataset_id)
+    organizations, solutions, workspaces = load_resources_from_files(files_to_deploy)
+    if not (organization or solution or workspace):
+        deploy_objects(organizations, "organization")
+        deploy_objects(solutions, "solution")
+        deploy_objects(workspaces, "workspace")
     else:
         if organization:
-            for o in organizations:
-                content = o.get("content")
-                namespace = o.get("namespace")
-                deploy_organization(namespace=namespace, file_content=content)
+            deploy_objects(organizations, "organization")
         elif solution:
-            for s in solutions:
-                content = s.get("content")
-                namespace = s.get("namespace")
-                deploy_solution(namespace=namespace, file_content=content)
+            deploy_objects(solutions, "solution")
         elif workspace:
-            for w in workspaces:
-                content = w.get("content")
-                namespace = w.get("namespace")
-                deploy_workspace(
-                    namespace=namespace, file_content=content, deploy_dir=deploy_dir, payload_only=payload_only
-                )
-        elif runner:
-            for r in runners:
-                content = r.get("content")
-                runner_id = deploy_runner(file_content=content)
-
-        elif dataset:
-            for d in datasets:
-                content = d.get("content")
-                deployed_dataset_id = deploy_dataset(file_content=content)
-                if deployed_dataset_id:
-                    final_datasets.append(deployed_dataset_id)
+            deploy_objects(workspaces, "workspace")
 
     final_state = env.get_state_from_local()
     services = final_state.get("services")
-
-    _ret = [""]
-    _ret.append("")
-    _ret.append("Deployments: ")
-    _ret.append("")
-    _ret.append(f"   * Organization   : {services.get('api').get('organization_id', '')}")
-    _ret.append(f"   * Solution       : {services.get('api').get('solution_id', '')}")
-    _ret.append(f"   * Workspace      : {services.get('api').get('workspace_id', '')}")
-    if runner:
-        _ret.append(f"   * Runner         : {runner_id}")
-    for id in final_datasets:
-        _ret.append(f"   * Dataset        : {id}")
-    # TODO: When the Helm chart for the web app is implemented in Babylon !
-    # if services.get("webapp").get("static_domain", ""):
-    #     _ret.append("   * WebApp         ")
-    #     _ret.append(f"      * Hostname    : https://{services.get('webapp').get('static_domain', '')}")
-    vars = env.get_variables()
-    current_working_directory = os.getcwd()
-    logfile_path = os.path.join(current_working_directory, "babylon.log")
-    logfile_directory = os.path.dirname(logfile_path)
-    _logs = [""]
-    _logs.append("Babylon Logs: ")
-    _logs.append("")
-    if vars.get("path_logs"):
-        _logs.append(f"   * The Babylon log and error files are generated at: {vars.get('path_logs')}")
-    else:
-        _logs.append(f"   * The Babylon log and error files are generated at: {logfile_directory}")
-    echo(style("\n".join(_ret), fg="green"))
-    echo(style("\n".join(_logs), fg="green"))
+    logger.info(f"Deployment summary: {services.get('api').values()}")

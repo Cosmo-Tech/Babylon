@@ -1,136 +1,58 @@
-# import pathlib
 from logging import getLogger
 
 from click import command
 
-# from Babylon.commands.api.datasets.services.datasets_api_svc import DatasetService
-# from Babylon.commands.api.runners.services.runner_api_svc import RunnerService
-# from Babylon.commands.api.solutions.services.solutions_api_svc import SolutionService
-# from Babylon.commands.api.workspaces.services.workspaces_api_svc import WorkspaceService
-# from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
-# from Babylon.utils.credentials import (
-#     get_powerbi_token,
-#     pass_keycloak_token,
-# )
-# from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.commands.api.client import (
+    get_organization_api_instance,
+    get_solution_api_instance,
+    get_workspace_api_instance,
+)
+from Babylon.utils.credentials import pass_keycloak_token
+from Babylon.utils.decorators import injectcontext, retrieve_config
 from Babylon.utils.environment import Environment
+from Babylon.utils.response import CommandResponse
 
-# from Babylon.utils.response import CommandResponse
-# from Babylon.utils.yaml_utils import yaml_to_json
-
-logger = getLogger("Babylon")
+logger = getLogger(__name__)
 env = Environment()
 
 
 @command()
-# @injectcontext()
-# @pass_keycloak_token()
-# @retrieve_state
-# @option("--state-to-destroy", "state_to_destroy", type=pathlib.Path)
-# def destroy(state: dict, keycloak_token: str, state_to_destroy: pathlib.Path):
-def destroy():
+@injectcontext()
+@pass_keycloak_token()
+@retrieve_config
+def destroy(config: dict, keycloak_token: str):
     """Macro Destroy"""
-    raise NotImplementedError("Not implemented yet.")
-    # if state_to_destroy and state_to_destroy.exists():
-    #     data = state_to_destroy.open().read()
-    #     state_to_destroy_json = yaml_to_json(data)
-    #     state_to_destroy_dict = json.loads(state_to_destroy_json)
-    #     state = state_to_destroy_dict
+    state = env.retrieve_state_func()
+    organization_id = state["services"]["api"]["organization_id"]
+    workspace_id = state["services"]["api"]["workspace_id"]
+    solution_id = state["services"]["api"]["solution_id"]
 
-    # organization_id = state["services"]["api"]["organization_id"]
-    # workspace_id = state["services"]["api"]["workspace_id"]
-    # solution_id = state["services"]["api"]["solution_id"]
-    # workspace_service = WorkspaceService(state=state.get("services"), keycloak_token=keycloak_token)
-    # solution_service = SolutionService(state=state.get("services"), keycloak_token=keycloak_token)
-    # logger.info(f"Starting deletion of solution deployed in organization : {organization_id}")
-    # # deleting scenarios
-    # if workspace_id:
-    #     scenario_service = RunnerService(state=state.get("services"), keycloak_token=keycloak_token)
-    #     response = scenario_service.get_all()
-    #     scenario_json = response.json()
-    #     scenario_str = json.dumps(scenario_json)
-    #     scenarios = json.loads(scenario_str)
-    #     if scenarios:
-    #         for s in scenarios:
-    #             logger.info(f"Deleting scenario {s.get('id')}....")
-    #             scenario_service.delete(force_validation=True)
-    #     state["services"]["api"]["scenario_id"] = ""
-    # # deleting datasets
-    # if workspace_id:
-    #     response = workspace_service.get()
-    #     workspace_json = response.json()
-    #     datasets = workspace_json.get("linkedDatasetIdList", [])
-    #     if datasets:
-    #         for dataset_id in datasets:
-    #             dataset_service = DatasetService(state=state["services"], keycloak_token=keycloak_token)
-    #             logger.info(f"Deleting dataset {dataset_id}....")
-    #             dataset_service.delete(dataset_id=dataset_id, force_validation=True)
-    # env.store_state_in_local(state=state)
-    # if env.remote:
-    #     env.store_state_in_cloud(state=state)
+    organization_api_instance = get_organization_api_instance(config=config, keycloak_token=keycloak_token)
+    workspace_api_instance = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
+    solution_api_instance = get_solution_api_instance(config=config, keycloak_token=keycloak_token)
 
-    # # # deleting powerBI workspace
-    # powerbi_workspace_id = state["services"]["powerbi"]["workspace.id"]
-    # if powerbi_workspace_id:
-    #     pb_token = get_powerbi_token()
-    #     powerbi_svc = AzurePowerBIWorkspaceService(powerbi_token=pb_token, state=state.get("services"))
-    #     logger.info(f"Deleting PowerBI workspace {powerbi_workspace_id} ....")
-    #     powerbi_svc.delete(workspace_id=powerbi_workspace_id, force_validation=True)
-    #     state["services"]["powerbi"]["workspace.id"] = ""
-    #     state["services"]["powerbi"]["workspace.name"] = ""
-    # env.store_state_in_local(state=state)
-    # if env.remote:
-    #     env.store_state_in_cloud(state=state)
-
-    # # deleting workspace
-    # if workspace_id:
-    #     logger.info(f"Deleting API workspace {workspace_id} ....")
-    #     workspace_service.delete(force_validation=True)
-    #     state["services"]["api"]["workspace_id"] = ""
-    # env.store_state_in_local(state=state)
-    # if env.remote:
-    #     env.store_state_in_cloud(state=state)
-
-    # # deleting run templates
-    # if solution_id:
-    #     solution = solution_service.get()
-    #     solution_json = solution.json()
-    #     run_templates = solution_json.get("runTemplates", [])
-    #     handlers = ["parameters_handler", "preRun", "run", "engine", "postRun", "scenariodata_transform", "validator"]
-    #     for run_template in run_templates:
-    #         runtemplate_id = run_template.get("id", "")
-    #         for h in handlers:
-    #             blob = env.blob_client.get_blob_client(
-    #                 container=organization_id, blob=f"{solution_id}/{runtemplate_id}/{h}.zip"
-    #             )
-    #             if blob.exists():
-    #                 logger.info(f"Deleting run template {h} - {run_template} in solution : {solution_id}")
-    #                 blob.delete_blob()
-    #     # deleting solution
-    #     logger.info(f"Deleting solution {solution_id} ....")
-    #     solution_service.delete(force_validation=True)
-    #     state["services"]["api"]["solution_id"] = ""
-
-    # env.store_state_in_local(state=state)
-    # env.store_state_in_cloud(state=state)
-    # _ret = [""]
-    # _ret.append("")
-    # _ret.append("Deployments: ")
-    # _ret.append("")
-    # _ret.append(f"   * Organization   : {state['services'].get('api').get('organization_id', '')}")
-    # _ret.append(f"   * Solution       : {solution_id} - Deleted")
-    # _ret.append("      * RunTemplates: All Deleted")
-    # _ret.append(f"   * Workspace      : {workspace_id} - Deleted")
-    # _ret.append("      * EvenHub     : Deleted")
-    # _ret.append("      * Database    : Deleted")
-    # _ret.append("      * PowerBI     : Deleted")
-    # _ret.append("   * Datasets       : All Deleted")
-    # _ret.append("      * Storage     : All Deleted")
-    # _ret.append("   * Scenarios      : All Deleted")
-    # _ret.append("   * ScenarioRuns   : All Deleted")
-    # if state["services"].get("webapp").get("static_domain", ""):
-    #     _ret.append("   * WebApp         ")
-    #     _ret.append(f"      * Hostname    : https://{state['services'].get('webapp').get('static_domain', '')}")
-    # click.echo(click.style("\n".join(_ret), fg="green"))
-
-    # return CommandResponse.success()
+    if solution_id:
+        try:
+            solution_api_instance.delete_solution(organization_id=organization_id, solution_id=solution_id)
+            logger.info(f"Deleted solution {solution_id}")
+            state["services"]["api"]["solution_id"] = ""
+        except Exception as e:
+            logger.error(f"Error deleting solution {solution_id}: {e}")
+    if workspace_id:
+        try:
+            workspace_api_instance.delete_workspace(organization_id=organization_id, workspace_id=workspace_id)
+            logger.info(f"Deleted workspace {workspace_id}")
+            state["services"]["api"]["workspace_id"] = ""
+        except Exception as e:
+            logger.error(f"Error deleting workspace {workspace_id}: {e}")
+    if organization_id:
+        try:
+            organization_api_instance.delete_organization(organization_id=organization_id)
+            logger.info(f"Deleted organization {organization_id}")
+            state["services"]["api"]["organization_id"] = ""
+        except Exception as e:
+            logger.error(f"Error deleting organization {organization_id}: {e}")
+    env.store_state_in_local(state=state)
+    if env.remote:
+        env.store_state_in_cloud(state=state)
+    return CommandResponse.success()
