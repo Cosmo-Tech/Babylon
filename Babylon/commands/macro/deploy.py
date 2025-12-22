@@ -50,13 +50,13 @@ def resolve_inclusion_exclusion(
     solution = True
     workspace = True
     if include:  # if only is specified include by condition
-        organization = True if "organization" in include else False
-        solution = True if "solution" in include else False
-        workspace = True if "workspace" in include else False
+        organization = "organization" in include
+        solution = "solution" in include
+        workspace = "workspace" in include
     if exclude:  # if exclude is specified exclude by condition
-        organization = False if "organization" in exclude else True
-        solution = False if "solution" in exclude else True
-        workspace = False if "workspace" in exclude else True
+        organization = "organization" not in exclude
+        solution = "solution" not in exclude
+        workspace = "workspace" not in exclude
     return (organization, solution, workspace)
 
 

@@ -1,6 +1,5 @@
 from logging import getLogger
 from pathlib import Path as PathlibPath
-from typing import Iterable
 
 from click import Path as ClickPath
 from click import argument, command, option
@@ -62,16 +61,15 @@ def deploy_objects(objects: list, object_type: str):
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from deployment.")
 def apply(
     deploy_dir: ClickPath,
-    include: Iterable[str],
-    exclude: Iterable[str],
-    variables_files: Iterable[PathlibPath],
+    include: tuple[str],
+    exclude: tuple[str],
+    variables_files: tuple[PathlibPath],
 ):
     """Macro Apply"""
     organization, solution, workspace = resolve_inclusion_exclusion(include, exclude)
     files = list(PathlibPath(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
     env.set_variable_files(variables_files)
-    logger.info(f"organization: {organization}, solution: {solution}, workspace: {workspace}")
     organizations, solutions, workspaces = load_resources_from_files(files_to_deploy)
     if organization:
         deploy_objects(organizations, "organization")

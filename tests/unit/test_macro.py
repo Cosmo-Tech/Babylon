@@ -51,6 +51,10 @@ def test_solution_diff():
     assert to_update[0] == "toto@cosmotech.com"
 
 
+def test_resolve_inclusion_exclusion_no_filters():
+    assert resolve_inclusion_exclusion(include=(), exclude=()) == (True, True, True)
+
+
 def test_resolve_inclusion_exclusion_include_all_valid():
     assert resolve_inclusion_exclusion(include=("organization", "solution", "workspace"), exclude=()) == (
         True,
@@ -71,7 +75,7 @@ def test_resolve_inclusion_exclusion_include_duplicates():
     assert resolve_inclusion_exclusion(include=("organization", "organization"), exclude=()) == (True, False, False)
 
 
-def test_resolve_inclusion_exclusion_invalid_exclude_fixed():
+def test_resolve_inclusion_exclusion_invalid_exclude():
     with pytest.raises(
         ValueError,
         match="Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace.",
