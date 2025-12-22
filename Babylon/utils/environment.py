@@ -59,7 +59,7 @@ class Environment(metaclass=SingletonMeta):
         self.server_id: str = ""
         self.tenant_id: str = ""
         self.organization_name: str = ""
-        self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir/.templates"
+        self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir" / ".templates"
         self.dry_run = False
         self.is_verbose = True
         self.AZURE_SCOPES = {
@@ -297,7 +297,7 @@ class Environment(metaclass=SingletonMeta):
         return state
 
     def store_state_in_local(self, state: dict):
-        state_dir = Path().home() / ".config/cosmotech/babylon"
+        state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         if not state_dir.exists():
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"

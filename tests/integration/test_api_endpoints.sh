@@ -1,10 +1,14 @@
-#!/bin/bash
-source ../../.venv/bin/activate
+#!/usr/bin/env bash
 
 set -e
 
+if [ -f "../../.venv/Scripts/activate" ]; then
+    . ../../.venv/Scripts/activate
+  else
+    . ../../.venv/bin/activate
+fi
+
 mkdir output
-#timestamp=$(date +"%Y-%m-%d %H:%M:%S")
 
 # Set testing namespace
 export CONTEXT="integration"

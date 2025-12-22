@@ -34,18 +34,16 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Install
-        run: |
-          uv venv
-          . .venv/bin/activate
-          uv pip install . --group dev
       - name: Run unit tests
         run: |
-          . .venv/bin/activate
-          pytest tests/unit
+          uv run --group dev pytest
   integration-and-end2end-tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
     needs: unit-tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
@@ -54,11 +52,13 @@ jobs:
       - name: Install
         run: |
           uv venv
-          . .venv/bin/activate
           uv pip install .
+        shell: bash
       - name: Run integration tests
         working-directory: tests/integration/
         run: ./test_api_endpoints.sh
+        shell: bash
       - name: End-to-end tests
         working-directory: tests/e2e/
         run: ./test_e2e.sh
+        shell: bash
