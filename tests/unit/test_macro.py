@@ -1,4 +1,5 @@
 import pytest
+from click import Abort
 from cosmotech_api.models.organization_access_control import OrganizationAccessControl
 from cosmotech_api.models.solution_access_control import SolutionAccessControl
 from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
@@ -76,29 +77,20 @@ def test_resolve_inclusion_exclusion_include_duplicates():
 
 
 def test_resolve_inclusion_exclusion_invalid_exclude():
-    with pytest.raises(
-        ValueError,
-        match="Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace.",
-    ):
+    with pytest.raises(Abort):
         resolve_inclusion_exclusion(include=(), exclude=("invalid",))
 
 
 def test_resolve_inclusion_exclusion_partial_include_mixed():
-    with pytest.raises(
-        ValueError,
-        match="Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace.",
-    ):
+    with pytest.raises(Abort):
         resolve_inclusion_exclusion(include=("organization", "invalid"), exclude=())
 
 
 def test_resolve_inclusion_exclusion_partial_exclude_mixed():
-    with pytest.raises(
-        ValueError,
-        match="Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace.",
-    ):
+    with pytest.raises(Abort):
         resolve_inclusion_exclusion(include=(), exclude=("workspace", "invalid"))
 
 
 def test_resolve_inclusion_exclusion_conflicting_filters_variation():
-    with pytest.raises(ValueError, match="Cannot use both --include and --exclude options together."):
+    with pytest.raises(Abort):
         resolve_inclusion_exclusion(include=("solution", "workspace"), exclude=("organization",))

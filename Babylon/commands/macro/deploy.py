@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from click import Abort
 from cosmotech_api.models.organization_access_control import OrganizationAccessControl
 from cosmotech_api.models.organization_security import OrganizationSecurity
 from cosmotech_api.models.solution_access_control import SolutionAccessControl
@@ -15,17 +16,19 @@ def validate_inclusion_exclusion(
     exclude: tuple[str],
 ) -> bool:
     """Include and exclude command line options cannot be combined and should have correct spelling"""
-    if not all(i in ("organization", "solution", "workspace") for i in include + exclude):
-        logger.error(
-            "Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace."
-        )
-        raise ValueError(
-            "Invalid value in --include or --exclude options. Allowed values are: organization, solution, workspace."
-        )
-
     if include and exclude:  # cannot combine conflicting options
         logger.error("Cannot use both --include and --exclude options together.")
-        raise ValueError("Cannot use both --include and --exclude options together.")
+        raise Abort()
+
+    allowed_values = ("organization", "solution", "workspace")
+    invalid_items = [i for i in include + exclude if i not in allowed_values]
+    if invalid_items:
+        message = (
+            f"Invalid value in --include or --exclude options: [{', '.join(invalid_items)}]\n"
+            f"Allowed values are: {', '.join(allowed_values)}"
+        )
+        logger.error(message)
+        raise Abort()
     return True
 
 
