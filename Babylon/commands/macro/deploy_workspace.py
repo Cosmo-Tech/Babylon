@@ -42,7 +42,6 @@ def deploy_workspace(namespace: str, file_content: str) -> bool:
         logger.info(f"Workspace {workspace.id} successfully created")
         state["services"]["api"]["workspace_id"] = workspace.id
     else:
-        logger.info(f"Updating workspace {api_section['workspace_id']}")
         workspace_update_request = WorkspaceUpdateRequest.from_dict(payload)
         updated = api_instance.update_workspace(
             organization_id=api_section["organization_id"],

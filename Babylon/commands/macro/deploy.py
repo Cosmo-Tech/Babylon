@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from click import Abort
 from cosmotech_api.models.organization_access_control import OrganizationAccessControl
 from cosmotech_api.models.organization_security import OrganizationSecurity
 from cosmotech_api.models.solution_access_control import SolutionAccessControl
@@ -8,6 +9,58 @@ from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
 from cosmotech_api.models.workspace_security import WorkspaceSecurity
 
 logger = getLogger(__name__)
+
+
+def validate_inclusion_exclusion(
+    include: tuple[str],
+    exclude: tuple[str],
+) -> bool:
+    """Include and exclude command line options cannot be combined and should have correct spelling"""
+    if include and exclude:  # cannot combine conflicting options
+        logger.error("Cannot use both --include and --exclude options together.")
+        raise Abort()
+
+    allowed_values = ("organization", "solution", "workspace")
+    invalid_items = [i for i in include + exclude if i not in allowed_values]
+    if invalid_items:
+        message = (
+            f"Invalid value in --include or --exclude options: [{', '.join(invalid_items)}]\n"
+            f"Allowed values are: {', '.join(allowed_values)}"
+        )
+        logger.error(message)
+        raise Abort()
+    return True
+
+
+def resolve_inclusion_exclusion(
+    include: tuple[str],
+    exclude: tuple[str],
+) -> tuple[bool, bool, bool]:
+    """Resolve command line include and exclude.
+
+    Args:
+        include (tuple[str]): which objects to include in the deployment
+        exclude (tuple[str]): which objects to exclude from the deployment
+
+    Raises:
+        ValueError: Error if incompatible options are provided
+
+    Returns:
+        tuple[bool, bool, bool]: flags to include organization, solution, workspace
+    """
+    validate_inclusion_exclusion(include, exclude)
+    organization = True
+    solution = True
+    workspace = True
+    if include:  # if only is specified include by condition
+        organization = "organization" in include
+        solution = "solution" in include
+        workspace = "workspace" in include
+    if exclude:  # if exclude is specified exclude by condition
+        organization = "organization" not in exclude
+        solution = "solution" not in exclude
+        workspace = "workspace" not in exclude
+    return (organization, solution, workspace)
 
 
 def diff(
