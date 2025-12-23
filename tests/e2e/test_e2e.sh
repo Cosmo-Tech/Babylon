@@ -1,7 +1,12 @@
-#!/bin/bash
-source ../../.venv/bin/activate
+#!/usr/bin/env bash
 
 set -e
+
+if [ -f "../../.venv/Scripts/activate" ]; then
+    . ../../.venv/Scripts/activate
+  else
+    . ../../.venv/bin/activate
+fi
 
 # Set testing namespace
 export CONTEXT="e2e"

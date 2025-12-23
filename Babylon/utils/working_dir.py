@@ -21,7 +21,7 @@ class WorkingDir:
         """
         self.files_to_deploy = []
         self.initial_path = working_dir_path
-        self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir/.templates"
+        self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir" / ".templates"
         self.original_config_dir = ORIGINAL_CONFIG_FOLDER_PATH
         self.template_path = working_dir_path / ".templates"
         self.encoding_key = None
