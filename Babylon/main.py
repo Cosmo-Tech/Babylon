@@ -2,6 +2,7 @@
 import logging
 import sys
 from pathlib import Path as pathlibPath
+from re import sub
 
 import click_log
 from click import Path as clickPath
@@ -16,10 +17,24 @@ from Babylon.utils.interactive import INTERACTIVE_ARG_VALUE, interactive_run
 from Babylon.version import VERSION
 
 logger = logging.getLogger()
+logging.getLogger("azure").setLevel(logging.WARNING)
 env = Environment()
 
 
-def print_version(ctx, param, value):
+class CleanFormatter(logging.Formatter):
+    """Formatter that removes [color] tags for file logs."""
+
+    def format(self, record):
+        original_msg = record.msg
+        if isinstance(record.msg, str):
+            record.msg = sub(r"\[\/?[a-zA-Z0-9 #]+\]", "", record.msg)
+
+        result = super().format(record)
+        record.msg = original_msg
+        return result
+
+
+def print_version(ctx, _, value):
     if not value or ctx.resilient_parsing:
         return
     echo(VERSION)
@@ -30,16 +45,31 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     import click  # noqa F401
 
     log_path.mkdir(parents=True, exist_ok=True)
-    log_file_handler = logging.FileHandler(log_path / "babylon.log")
+    file_format = "%(asctime)s - %(levelname)s - %(name)s - %(lineno)d - %(message)s"
+    date_format = "%Y-%m-%d %H:%M:%S"
+    file_formatter = CleanFormatter(fmt=file_format, datefmt=date_format)
+
+    log_file_handler = logging.FileHandler(log_path / "babylon_info.log")
     log_file_handler.setLevel(logging.INFO)
-    error_file_handler = logging.FileHandler(log_path / "babylon.error")
+    log_file_handler.setFormatter(file_formatter)
+
+    error_file_handler = logging.FileHandler(log_path / "babylon_error.log")
     error_file_handler.setLevel(logging.WARNING)
+    error_file_handler.setFormatter(file_formatter)
     logging.basicConfig(
-        format="%(asctime)s:%(levelname)s:%(name)s:%(message)s",
+        format="%(message)s",
         handlers=[
             log_file_handler,
             error_file_handler,
-            RichHandler(show_time=False, rich_tracebacks=True, tracebacks_suppress=[click], omit_repeated_times=False),
+            RichHandler(
+                show_time=False,
+                rich_tracebacks=True,
+                tracebacks_suppress=[click],
+                omit_repeated_times=False,
+                show_level=False,
+                show_path=False,
+                markup=True,
+            ),
         ],
     )
 

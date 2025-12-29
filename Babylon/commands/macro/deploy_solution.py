@@ -17,45 +17,56 @@ env = Environment()
 
 
 def deploy_solution(namespace: str, file_content: str) -> bool:
-    _ret = [""]
-    _ret.append("Solution deployment")
-    _ret.append("")
-    echo(style("\n".join(_ret), bold=True, fg="green"))
+    echo(style(f"\n🚀 Deploying Solution in namespace: {env.environ_id}", bold=True, fg="cyan"))
+
+    # Retrieve the state
     env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func()
-
-    keycloak_token, config = get_keycloak_token()
     content = env.fill_template(data=file_content, state=state)
+
+    # Authentication and API client initialization
+    keycloak_token, config = get_keycloak_token()
     payload: dict = content.get("spec").get("payload")
     api_section = state["services"]["api"]
-    api_section["solution_id"] = payload.get("id") or api_section.get("solution_id", "")
 
+    # Determine if we are performing a Create or Update based on state
+    api_section["solution_id"] = payload.get("id") or api_section.get("solution_id", "")
     spec = {}
     spec["payload"] = dumps(payload, indent=2, ensure_ascii=True)
     api_instance = get_solution_api_instance(config=config, keycloak_token=keycloak_token)
+
+    # --- Deployment Logic ---
     if not api_section["solution_id"]:
-        logger.info("Creating solution")
+        # Case: New Solution
+        logger.info("  [dim]→ No existing solution ID found. Creating...[/dim]")
         solution_create_request = SolutionCreateRequest.from_dict(payload)
         solution = api_instance.create_solution(
             organization_id=api_section["organization_id"], solution_create_request=solution_create_request
         )
         if solution is None:
+            logger.error("  [bold red]✘ Failed to create solution[/bold red]")
             return CommandResponse.fail()
-        logger.info(f"Solution {solution.id} successfully created")
+        # Save the newly generated ID to state
+        logger.info(f"  [bold green]✔[/bold green] Solution [bold magenta]{solution.id}[/bold magenta] created")
         state["services"]["api"]["solution_id"] = solution.id
     else:
-        logger.info(f"Updating solution {api_section['solution_id']}")
+        # Case: Update Existing Solution
+        logger.info(
+            f"  [dim]→ Existing ID [bold cyan]{api_section['solution_id']}[/bold cyan] found. Updating...[/dim]"
+        )
         solution_update_request = SolutionUpdateRequest.from_dict(payload)
         updated = api_instance.update_solution(
             organization_id=api_section["organization_id"],
             solution_id=api_section["solution_id"],
             solution_update_request=solution_update_request,
         )
-
         if updated is None:
+            logger.error(f"  [bold red]✘ Failed to update solution {api_section['solution_id']}[/bold red]")
             return CommandResponse.fail()
+        # Handle Security Policy synchronization if provided in payload
         if payload.get("security"):
             try:
+                logger.info("  [dim]→ Syncing security policies...[/dim]")
                 current_security = api_instance.get_solution_security(
                     organization_id=api_section["organization_id"], solution_id=api_section["solution_id"]
                 )
@@ -67,9 +78,13 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
                     object_id=[api_section["organization_id"], api_section["solution_id"]],
                 )
             except Exception as e:
-                logger.error(f"Failed to update solution security: {e}")
+                logger.error(f"  [bold red]✘ Security update failed:[/bold red] {e}")
                 return CommandResponse.fail()
-        logger.info(f"Solution {api_section['solution_id']} successfully updated")
+        logger.info(
+            f"  [bold green]✔[/bold green] Solution [bold magenta]{api_section['solution_id']}[/bold magenta] updated"
+        )
+    # --- State Persistence ---
+    # Ensure the local and remote states are synchronized after successful API calls
     env.store_state_in_local(state)
     if env.remote:
         env.store_state_in_cloud(state)
