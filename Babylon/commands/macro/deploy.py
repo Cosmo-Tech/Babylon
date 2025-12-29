@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from click import Abort
+from click import Abort, echo, style
 from cosmotech_api.models.organization_access_control import OrganizationAccessControl
 from cosmotech_api.models.organization_security import OrganizationSecurity
 from cosmotech_api.models.solution_access_control import SolutionAccessControl
@@ -17,17 +17,18 @@ def validate_inclusion_exclusion(
 ) -> bool:
     """Include and exclude command line options cannot be combined and should have correct spelling"""
     if include and exclude:  # cannot combine conflicting options
-        logger.error("Cannot use both --include and --exclude options together.")
+        echo(style("\n  ✘ Argument Conflict", fg="red", bold=True))
+        logger.error("  Cannot use [bold]--include[/bold] and [bold]--exclude[/bold] at the same time")
         raise Abort()
 
     allowed_values = ("organization", "solution", "workspace")
     invalid_items = [i for i in include + exclude if i not in allowed_values]
     if invalid_items:
-        message = (
-            f"Invalid value in --include or --exclude options: [{', '.join(invalid_items)}]\n"
-            f"Allowed values are: {', '.join(allowed_values)}"
-        )
-        logger.error(message)
+        echo(style("\n  ✘ Invalid Arguments Detected", fg="red", bold=True))
+        # List the errors
+        for item in invalid_items:
+            logger.error(f"  • [yellow] {item}[/yellow] is not a valid resource type")
+        logger.error(f"  Allowed values are: [cyan]{', '.join(allowed_values)}[/cyan]")
         raise Abort()
     return True
 
@@ -87,12 +88,12 @@ def update_default_security(
 ) -> None:
     if desired_security.default != current_security.default:
         try:
-            getattr(api_instance, f"update_{object_type}_default_security")(
-                object_id, {"role": desired_security.default}
-            )
-            logger.info(f"Updated {object_type} default security")
+            getattr(api_instance, f"update_{object_type}_default_security")(object_id, desired_security.default)
+            logger.info(f"  [bold green]✔[/bold green] Updated [magenta]{object_type}[/magenta] default security")
         except Exception as e:
-            logger.error(f"Failed to update {object_type} default security: {e}")
+            logger.error(
+                f"  [bold red]✘[/bold red] Failed to update [magenta]{object_type}[/magenta] default security: {e}"
+            )
 
 
 def update_object_security(
@@ -115,25 +116,37 @@ def update_object_security(
     (to_add, to_delete, to_update) = diff(current_security.access_control_list, desired_security.access_control_list)
     for entry in desired_security.access_control_list:
         if entry.id in to_add:
-            logger.info(f"Adding access control for id {entry.id}")
             try:
                 getattr(api_instance, f"create_{object_type}_access_control")(*object_id, entry)
-                logger.info(f"Access control for id {entry.id} added successfully")
+                logger.info(
+                    f"  [bold green]✔[/bold green] Access control"
+                    f" for id [magenta]{entry.id}[/magenta] added successfully"
+                )
             except Exception as e:
-                logger.error(f"Failed to add access control for id {entry.id}: {e}")
+                logger.error(
+                    f"  [bold red]✘[/bold red] Failed to add access control for id [magenta]{entry.id}[/magenta]: {e}"
+                )
         if entry.id in to_update:
-            logger.info(f"Updating access control for id {entry.id}")
             try:
                 getattr(api_instance, f"update_{object_type}_access_control")(
                     *object_id, entry.id, {"role": entry.role}
                 )
-                logger.info(f"Access control for id {entry.id} updated successfully")
+                logger.info(
+                    f"  [bold green]✔[/bold green] Access control"
+                    f" for id [magenta]{entry.id}[/magenta] updated successfully"
+                )
             except Exception as e:
-                logger.error(f"Failed to update access control for id {entry.id}: {e}")
+                logger.error(
+                    f"  [bold red]✘[/bold red] Failed to update access control"
+                    f" for id [magenta]{entry.id}[/magenta]: {e}"
+                )
     for entry_id in to_delete:
-        logger.info(f"Deleting access control for id {entry_id}")
         try:
             getattr(api_instance, f"delete_{object_type}_access_control")(*object_id, entry_id)
-            logger.info(f"Access control for id {entry_id} deleted successfully")
+            logger.info(
+                f"  [bold green]✔[/bold green] Access control for id [magenta]{entry_id}[/magenta] deleted successfully"
+            )
         except Exception as e:
-            logger.error(f"Failed to delete access control for id {entry_id}: {e}")
+            logger.error(
+                f"  [bold red]✘[/bold red] Failed to delete access control for id [magenta]{entry_id}[/magenta]: {e}"
+            )

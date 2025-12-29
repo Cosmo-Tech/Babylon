@@ -2,7 +2,7 @@ from logging import getLogger
 from pathlib import Path as PathlibPath
 
 from click import Path as ClickPath
-from click import argument, command, option
+from click import argument, command, echo, option, style
 from yaml import safe_dump, safe_load
 
 from Babylon.commands.macro.deploy import resolve_inclusion_exclusion
@@ -80,4 +80,18 @@ def apply(
 
     final_state = env.get_state_from_local()
     services = final_state.get("services")
-    logger.info(f"Deployment summary: {services.get('api').values()}")
+    api_data = services.get("api")
+    echo(style("\n📋 Deployment Summary", bold=True, fg="yellow"))
+    for key, value in api_data.items():
+        if not value:
+            continue
+        # 1. Prepare the Label
+        label = f"  • {key.replace('_', ' ').title()}"
+
+        # 2. Style the Label (Cyan & Bold)
+        # We pad the label to 20 chars to keep the colons aligned
+        styled_label = style(f"{label:<20}:", fg="cyan", bold=True)
+        clean_value = str(value).strip()
+        styled_value = style(clean_value, fg="white")
+        echo(f"{styled_label} {styled_value}")
+    echo(style("\n✨ Deployment process complete", fg="white", bold=True))

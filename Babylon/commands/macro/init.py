@@ -1,9 +1,9 @@
-import os
-import pathlib
-import shutil
 from logging import getLogger
+from os import getcwd
+from pathlib import Path
+from shutil import copy
 
-from click import command, option
+from click import command, echo, option, style
 
 from Babylon.utils.environment import Environment
 
@@ -16,31 +16,42 @@ env = Environment()
 @option("--variables-file", default="variables.yaml", help="Name of the variables file (default: 'variables.yaml').")
 def init(project_folder: str, variables_file: str):
     """
-    Create a Babylon project structure using YAML templates.
+    Scaffolds a new Babylon project structure using YAML templates.
     """
-    project_path = pathlib.Path(os.getcwd()) / project_folder
-    variables_path = pathlib.Path(os.getcwd()) / variables_file
+    project_path = Path(getcwd()) / project_folder
+    variables_path = Path(getcwd()) / variables_file
     if project_path.exists():
-        logger.info(f"The directory '{project_path}' already exists")
+        logger.warning(f"The directory [bold]{project_path}[/bold] already exists")
         return None
     if variables_path.exists():
-        logger.info(f"'variables.yaml' already exists at '{variables_path}'")
+        logger.warning(f"Configuration file [bold]{variables_file}[/bold] already exists.")
         return None
     project_yaml_files = ["Organization.yaml", "Solution.yaml", "Workspace.yaml", "Dataset.yaml", "Runner.yaml"]
     try:
+        # Create project directory
         project_path.mkdir(parents=True, exist_ok=True)
-
+        logger.info(f"  [dim]→ Created directory: {project_path}[/dim]")
+        # Copy Core YAML Templates
         for file in project_yaml_files:
-            deploy_file = pathlib.Path(env.convert_template_path(f"%templates%/yaml/{file}"))
+            deploy_file = Path(env.convert_template_path(f"%templates%/yaml/{file}"))
             destination = project_path / file
-            shutil.copy(deploy_file, destination)
+            copy(deploy_file, destination)
+            logger.info(f"  [green]✔[/green] Generated [white]{file}[/white]")
 
-        customers_src = pathlib.Path(env.convert_template_path("%templates%/yaml/dataset/customers.csv"))
-        customers_dst = pathlib.Path(os.getcwd()) / "customers.csv"
-        shutil.copy(customers_src, customers_dst)
+        customers_src = Path(env.convert_template_path("%templates%/yaml/dataset/customers.csv"))
+        customers_dst = Path(getcwd()) / "customers.csv"
+        copy(customers_src, customers_dst)
+        logger.info("  [green]✔[/green] Generated [white]customers.csv[/white]")
 
-        variables_template = pathlib.Path(env.convert_template_path("%templates%/yaml/variables.yaml"))
-        shutil.copy(variables_template, variables_path)
-        logger.info(f"\nProject successfully initialized at: {project_path}")
+        variables_template = Path(env.convert_template_path("%templates%/yaml/variables.yaml"))
+        copy(variables_template, variables_path)
+        logger.info(f"  [green]✔[/green] Generated [white]{variables_file}[/white]")
+
+        # --- 3. Success Summary ---
+        echo(style("\n🚀 Project successfully initialized!", fg="green", bold=True))
+        echo(style(f"   Path: {project_path}", fg="white", dim=True))
+        echo(style("\nNext steps:", fg="white", bold=True))
+        echo(style(f"  1. Edit your variables in {variables_file}", fg="cyan"))
+        echo(style("  2. Run your first deployment command", fg="cyan"))
     except Exception as e:
-        logger.error(f"Error while initializing the project: {e}")
+        logger.error(f"  An error occurred while scaffolding: {e}")
