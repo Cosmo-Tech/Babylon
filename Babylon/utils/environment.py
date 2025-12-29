@@ -1,26 +1,27 @@
-import base64
-import json
-import logging
 import os
-import re
 import sys
-import uuid
+from base64 import b64decode
 from collections import defaultdict
+from json import loads
+from logging import getLogger
 from pathlib import Path
+from re import compile
+from uuid import uuid4
 
-import yaml
+from azure.storage.blob import BlobServiceClient
 from cryptography.fernet import Fernet
 from flatten_json import flatten
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
 from kubernetes.config.config_exception import ConfigException
 from mako.template import Template
+from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
 from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 STORE_STRING = "datastore"
 TEMPLATES_STRING = "templates"
@@ -51,8 +52,7 @@ class Environment(metaclass=SingletonMeta):
     def __init__(self):
         self.remote = False
         self.pwd = Path.cwd()
-        self.hvac_client = None
-        # self.blob_client = None
+        self.blob_client = None
         self.state_id: str = ""
         self.context_id: str = ""
         self.environ_id: str = ""
@@ -76,7 +76,7 @@ class Environment(metaclass=SingletonMeta):
         vars = dict()
         if variables_file.exists():
             logger.debug(f"Loading variables from {variables_file}")
-            vars = yaml.safe_load(variables_file.open()) or dict()
+            vars = safe_load(variables_file.open()) or dict()
         vars["secret_powerbi"] = ""
         vars["github_secret"] = ""
         return vars
@@ -96,9 +96,10 @@ class Environment(metaclass=SingletonMeta):
         t = Template(text=content, strict_undefined=True)
         vars = self.get_variables()
         payload = t.render(**vars)
-        payload_dict = yaml.safe_load(payload)
+        payload_dict = safe_load(payload)
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
+        self.set_blob_client()
 
     def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -124,11 +125,11 @@ class Environment(metaclass=SingletonMeta):
             flattenstate = flatten(state.get("services", {}), separator=".")
         payload = t.render(**vars, services=flattenstate)
         payload_json = yaml_to_json(payload)
-        payload_dict = json.loads(payload_json)
+        payload_dict = loads(payload_json)
         return payload_dict
 
     def convert_template_path(self, query) -> str:
-        check_regex = re.compile(f"{PATH_SYMBOL}({TEMPLATES_STRING}){PATH_SYMBOL}(.+)")
+        check_regex = compile(f"{PATH_SYMBOL}({TEMPLATES_STRING}){PATH_SYMBOL}(.+)")
         match_content = check_regex.match(query)
         if not match_content:
             return None
@@ -161,58 +162,18 @@ class Environment(metaclass=SingletonMeta):
     def set_state_id(self, state_id: str):
         self.state_id = state_id
 
-    # This is deactivated for now because we need to decide where the Babylon state should be stored
-    # def set_blob_client(self):
-    #     try:
-    #         state = self.get_state_from_vault_by_platform(self.environ_id)
-    #         storage_name = state["azure"]["storage_account_name"]
-    #         account_secret = self.get_platform_secret(self.environ_id, resource="storage", name="account")
-    #         prefix = f"DefaultEndpointsProtocol=https;AccountName={storage_name}"
-    #         connection_str = (f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net")
-    #         self.blob_client = BlobServiceClient.from_connection_string(connection_str)
-    #     except Exception as e:
-    #         logger.error(e)
-
-    def get_organization_secret(self, organization_name: str, name: str):
-        data = self.hvac_client.read(path=f"organization/{organization_name}")
-        if data is None:
-            logger.error(f"Message: organization {self.organization_name} not found")
+    def set_blob_client(self):
+        try:
+            storage_name = os.getenv("STORAGE_NAME", "").strip()
+            account_secret = os.getenv("ACCOUNT_SECRET", "").strip()
+            if not storage_name and not account_secret:
+                raise EnvironmentError("Missing environment variables: 'STORAGE_NAME' and 'ACCOUNT_SECRET'")
+            prefix = f"DefaultEndpointsProtocol=https;AccountName={storage_name}"
+            connection_str = (f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net")
+            self.blob_client = BlobServiceClient.from_connection_string(connection_str)
+        except Exception as e:
+            logger.error(f"Failed to initialize BlobServiceClient: {e}")
             sys.exit(1)
-        result = data["data"][name]
-        return result
-
-    def get_env_babylon(self, name: str, environ_id: str = ""):
-        env_id = environ_id or self.environ_id
-        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/babylon/{env_id}/{name}")
-        if data is None:
-            return None
-        return data["data"]["secret"]
-
-    def get_global_secret(self, resource: str, name: str):
-        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/global/{resource}/{name}")
-        if data is None:
-            return None
-        return data["data"]["secret"]
-
-    def get_users_secrets(self, email: str, scope: str):
-        data = self.hvac_client.read(path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}")
-        if data:
-            return data["data"]
-        return None
-
-    def set_users_secrets(self, email: str, scope: str, cached: dict):
-        self.hvac_client.write(
-            path=f"{self.organization_name}/{self.tenant_id}/users/{email}/{scope}",
-            **cached,
-        )
-
-    def get_project_secret(self, organization_id: str, workspace_key: str, name: str):
-        prefix = f"{self.organization_name}/{self.tenant_id}/projects/{self.context_id}"
-        schema = f"{prefix}/{self.environ_id}/{organization_id}/{workspace_key}/{name}".lower()
-        data = self.hvac_client.read(path=schema)
-        if data is None:
-            return None
-        return data["data"]["secret"]
 
     def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
         if not content:
@@ -224,38 +185,6 @@ class Environment(metaclass=SingletonMeta):
             logger.error("Could not decrypt content, wrong key ?")
             return b""
         return data
-
-    # def get_access_token_with_refresh_token(self, username: str = None, internal_scope: str = None):
-    #     state = self.get_state_from_vault_by_platform(self.environ_id)
-    #     cli_client_id = state["azure"]["cli_client_id"]
-    #     data = self.get_users_secrets(username, internal_scope)
-    #     if data is None:
-    #         return None
-    #     encrypted_refresh_token = data["token"]
-    #     encoding_key = os.environ.get("BABYLON_ENCODING_KEY")
-    #     if encoding_key is None:
-    #         logger.info("BABYLON_ENCODING_KEY is missing")
-    #         sys.exit(1)
-    #     decryoted_token = self.decrypt_content(encoding_key, encrypted_refresh_token)
-    #     response = requests.post(
-    #         url=f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token",
-    #         data=dict(
-    #             client_id=cli_client_id,
-    #             scope=f"{self.AZURE_SCOPES[internal_scope]} offline_access",
-    #             grant_type="refresh_token",
-    #             refresh_token=decryoted_token.decode("utf-8"),
-    #         ),
-    #     )
-    #     response_json = response.json()
-    #     if "refresh_token" not in response_json:
-    #         logger.info("refresh_token is missing")
-    #         return None
-    #     token_encrypt = self.working_dir.encrypt_content(
-    #         encoding_key=encoding_key,
-    #         content=bytes(response_json["refresh_token"], encoding="utf-8"),
-    #     )
-    #     self.set_users_secrets(username, internal_scope, dict(token=token_encrypt.decode("utf-8")))
-    #     return response_json["access_token"]
 
     def get_config_from_k8s_secret_by_tenant(self, tenant: str):
         response_parsed = dict()
@@ -286,10 +215,10 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
         if secret.data:
             for key, value in secret.data.items():
-                decoded_value = base64.b64decode(value).decode("utf-8")
+                decoded_value = b64decode(value).decode("utf-8")
                 response_parsed[key] = decoded_value
         else:
-            logging.warning(f"Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
+            logger.warning(f"Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
         return response_parsed
 
     def store_mtime_in_state(self, state: dict):
@@ -302,27 +231,27 @@ class Environment(metaclass=SingletonMeta):
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state = self.store_mtime_in_state(state)
-        s.write_bytes(data=yaml.dump(state).encode("utf-8"))
+        s.write_bytes(data=dump(state).encode("utf-8"))
 
     def store_state_in_cloud(self, state: dict):
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        # check babylon-states container if exists
         state_container = self.blob_client.get_container_client(container="babylon-states")
         if not state_container.exists():
             state_container.create_container()
         state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
         if state_blob.exists():
             state_blob.delete_blob()
-        state_blob.upload_blob(data=yaml.dump(state).encode("utf-8"))
+        state_blob.upload_blob(data=dump(state).encode("utf-8"))
 
     def get_state_from_local(self):
         state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
-            init_state = {
+            return {
                 "context": self.context_id,
                 "id": self.state_id,
                 "tenant": self.environ_id,
+                "remote": self.remote,
                 "services": {
                     "api": {
                         "organization_id": "",
@@ -331,8 +260,7 @@ class Environment(metaclass=SingletonMeta):
                     }
                 },
             }
-            return init_state
-        state_data = yaml.load(state_file.open("r"), Loader=yaml.SafeLoader)
+        state_data = load(state_file.open("r"), Loader=SafeLoader)
         return state_data
 
     def get_all_states_from_local(self):
@@ -346,11 +274,13 @@ class Environment(metaclass=SingletonMeta):
     def get_state_from_cloud(self) -> dict:
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
-        if not state_blob.exists():
-            init_state = {
+        exists = state_blob.exists()
+        if not exists:
+            return {
                 "context": self.context_id,
                 "id": self.state_id,
                 "tenant": self.environ_id,
+                "remote": self.remote,
                 "services": {
                     "api": {
                         "organization_id": "",
@@ -359,13 +289,11 @@ class Environment(metaclass=SingletonMeta):
                     }
                 },
             }
-            return init_state
-        if state_blob.exists():
-            data = yaml.load(state_blob.download_blob().readall(), Loader=yaml.SafeLoader)
+        data = load(state_blob.download_blob().readall(), Loader=SafeLoader)
         return data
 
     def get_state_id(self):
-        id = str(uuid.uuid4())
+        id = str(uuid4())
         state_local = self.get_state_from_local()
         if not state_local:
             state_local = dict(id="")
@@ -389,7 +317,7 @@ class Environment(metaclass=SingletonMeta):
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
         ns = dict(state_id=self.state_id, context=self.context_id, tenant=self.environ_id)
-        s.write_bytes(data=yaml.dump(ns).encode("utf-8"))
+        s.write_bytes(data=dump(ns).encode("utf-8"))
         self.set_state_id(state_id=self.state_id)
         self.set_context(context_id=self.context_id)
         self.set_environ(environ_id=self.environ_id)
@@ -405,7 +333,7 @@ class Environment(metaclass=SingletonMeta):
             )
             sys.exit(1)
 
-        ns_data = yaml.safe_load(ns_file.open("r").read())
+        ns_data = safe_load(ns_file.open("r").read())
         if ns_data:
             self.context_id = context or ns_data.get("context", "")
             self.environ_id = tenant or ns_data.get("tenant", "")
@@ -454,7 +382,7 @@ class Environment(metaclass=SingletonMeta):
         if not platform_url:
             logger.error("url is mandatory")
             sys.exit(1)
-        url_ = re.compile(f"https:\\/\\/{tenant_id}\\.")
+        url_ = compile(f"https:\\/\\/{tenant_id}\\.")
         match_content = url_.match(platform_url)
         if not match_content:
             logger.error("url not match")
@@ -471,7 +399,7 @@ class Environment(metaclass=SingletonMeta):
         flattenstate = flatten(state.get("services", {}), separator=".")
         payload = t.render(**vars, services=flattenstate)
         payload_json = yaml_to_json(payload)
-        payload_dict: dict = json.loads(payload_json)
+        payload_dict: dict = loads(payload_json)
         metadata = payload_dict.get("metadata", {})
         return metadata
 
@@ -481,8 +409,8 @@ class Environment(metaclass=SingletonMeta):
     def load_yaml_file(self, file_path: Path):
         with open(file_path, "r") as file:
             try:
-                return yaml.safe_load(file) or {}
-            except yaml.YAMLError as e:
+                return safe_load(file) or {}
+            except YAMLError as e:
                 logger.error(f"File '{file_path}' is not a valid YAML file. Details: {str(e)}")
                 sys.exit(1)
 
