@@ -7,6 +7,8 @@ env:
   CLIENT_ID: ${{ secrets.CLIENT_ID }}
   CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
   TOKEN_URL: ${{ secrets.TOKEN_URL }}
+  STORAGE_NAME: ${{ secrets.STORAGE_NAME }}
+  ACCOUNT_SECRET: ${{ secrets.ACCOUNT_SECRET }}
 
 on:
   workflow_dispatch:
