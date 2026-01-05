@@ -54,4 +54,4 @@ def init(project_folder: str, variables_file: str):
         echo(style(f"  1. Edit your variables in {variables_file}", fg="cyan"))
         echo(style("  2. Run your first deployment command", fg="cyan"))
     except Exception as e:
-        logger.error(f"  An error occurred while scaffolding: {e}")
+        logger.error(f"  [bold red]✘[/bold red] An error occurred while scaffolding: {e}")

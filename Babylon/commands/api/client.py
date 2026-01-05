@@ -87,22 +87,29 @@ def get_meta_api_instance(config: dict, keycloak_token: str) -> MetaApi:
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @argument("payload_file", type=Path(exists=True))
 def create_organization(config: dict, keycloak_token: str, payload_file) -> CommandResponse:
     """
-    Create organization
+    Create an organization using a YAML payload file.
     """
+    # Load and parse the payload
     with open(payload_file, "r") as f:
         payload = safe_load(f)
+    # Initialize API 
     organization_create_request = OrganizationCreateRequest.from_dict(payload)
     api_instance = get_organization_api_instance(config, keycloak_token)
-    try:
+    try:         
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         organization = api_instance.create_organization(organization_create_request)
-        logger.info(f"Organization {organization.id} created successfully")
+        
+        if not organization:
+            logger.error("  [bold red]✘[/bold red] API returned no data.")
+            return CommandResponse.fail()
+        
+        logger.info(f"  [bold green]✔[/bold green] Organization [bold cyan]{organization.id}[/bold cyan] successfully created")
         return CommandResponse.success(organization.model_dump())
     except Exception as e:
-        logger.error(f"Could not create organization: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -110,7 +117,6 @@ def create_organization(config: dict, keycloak_token: str, payload_file) -> Comm
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @argument("payload_file", type=Path(exists=True))
@@ -118,7 +124,7 @@ def create_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file
 ) -> CommandResponse:
     """
-    Create dataset
+    Create an dataset using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
@@ -126,16 +132,21 @@ def create_dataset(
     file_contents_list = [part["sourceName"] for part in payload["parts"]]
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         dataset = api_instance.create_dataset(
             organization_id=organization_id,
             workspace_id=workspace_id,
             dataset_create_request=dataset_create_request,
             files=file_contents_list,
         )
-        logger.info(f"Dataset {dataset.id} created successfully")
+        if not dataset:
+            logger.error("  [bold red]✘[/bold red] API returned no data.")
+            return CommandResponse.fail()
+        
+        logger.info(f"  [bold green]✔[/bold green] Dataset [bold cyan]{dataset.id}[/bold cyan] successfully created")
         return CommandResponse.success(dataset.model_dump())
     except Exception as e:
-        logger.error(f"Could not create dataset: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -143,23 +154,28 @@ def create_dataset(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @argument("payload_file", type=Path(exists=True))
 def create_solution(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
     """
-    Create solution
+    Create an solution using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
     solution_create_request = SolutionCreateRequest.from_dict(payload)
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         solution = api_instance.create_solution(organization_id, solution_create_request)
-        logger.info(f"Solution {solution.id} created successfully")
+
+        if not solution:
+            logger.error("  [bold red]✘[/bold red] API returned no data.")
+            return CommandResponse.fail()
+        
+        logger.info(f"  [bold green]✔[/bold green] Solution [bold cyan]{solution.id}[/bold cyan] successfully created")
         return CommandResponse.success(solution.model_dump())
     except Exception as e:
-        logger.error(f"Could not create solution: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -167,7 +183,6 @@ def create_solution(config: dict, keycloak_token: str, organization_id: str, pay
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
 @argument("payload_file", type=Path(exists=True))
@@ -175,20 +190,25 @@ def create_workspace(
     config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file
 ) -> CommandResponse:
     """
-    Create workspace
+    Create an workspace using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
+
     payload["solution"]["solutionId"] = solution_id
     workspace_create_request = WorkspaceCreateRequest.from_dict(payload)
-
     api_instance = get_workspace_api_instance(config, keycloak_token)
+    
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         workspace = api_instance.create_workspace(organization_id, workspace_create_request)
-        logger.info(f"Workspace {workspace.id} created successfully")
+        if not workspace:
+            logger.error("  [bold red]✘[/bold red] API returned no data.")
+            return CommandResponse.fail()
+        logger.info(f"  [bold green]✔[/bold green] Workspace [bold cyan]{workspace.id}[/bold cyan] successfully created")
         return CommandResponse.success(workspace.model_dump())
     except Exception as e:
-        logger.error(f"Could not create workspace: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -196,7 +216,6 @@ def create_workspace(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
@@ -205,42 +224,48 @@ def create_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, solution_id: str, payload_file
 ) -> CommandResponse:
     """
-    Create runner
+    Create an runner using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
+
     payload["solutionId"] = solution_id
     runner_create_request = RunnerCreateRequest.from_dict(payload)
-
     api_instance = get_runner_api_instance(config, keycloak_token)
+
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         runner = api_instance.create_runner(
             organization_id=organization_id, workspace_id=workspace_id, runner_create_request=runner_create_request
         )
-        logger.info(f"Runner {runner.id} created successfully")
+        if not runner:
+            logger.error("  [bold red]✘[/bold red] API returned no data.")
+            return CommandResponse.fail()
+        
+        logger.info(f"  [bold green]✔[/bold green] Runner [bold cyan]{runner.id}[/bold cyan] successfully created")
         return CommandResponse.success(runner.model_dump())
     except Exception as e:
-        logger.error(f"Could not create runner: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 def delete_organization(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """
-    Delete organization
+    Delete an organization by ID
     """
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
+        # API Execution 
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_organization(organization_id)
-        logger.info(f"Organization {organization_id} deleted successfully")
+        logger.info(f"  [bold green]✔[/bold green] Organization [bold red]{organization_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not delete organization: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -248,18 +273,20 @@ def delete_organization(config: dict, keycloak_token: str, organization_id: str)
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 def list_organizations(config: dict, keycloak_token: str) -> CommandResponse:
     """
-    List organizations
+    List all organizations
     """
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         organizations = api_instance.list_organizations()
-        logger.info(f"Organizations retrieved successfully {[org.id for org in organizations]}")
-        return CommandResponse.success({org.id: org.model_dump() for org in organizations})
+        count = len(organizations)
+        logger.info(f"  [green]✔[/green] [bold]{count}[/bold] organization(s) retrieved successfully")
+        data_list = [org.model_dump() for org in organizations]
+        return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"Could not list organizations: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -268,18 +295,20 @@ def list_organizations(config: dict, keycloak_token: str) -> CommandResponse:
 @output_to_file
 @pass_keycloak_token()
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@retrieve_config
 def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """
-    List workspaces
+    List all workspaces
     """
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         workspaces = api_instance.list_workspaces(organization_id=organization_id)
-        logger.info(f"Workspaces retrieved successfully {[workspace.id for workspace in workspaces]}")
-        return CommandResponse.success({ws.id: ws.model_dump() for ws in workspaces})
+        count = len(workspaces)
+        logger.info(f"  [green]✔[/green] [bold]{count}[/bold] workspace(s) retrieved successfully")
+        data_list = [ws.model_dump() for ws in workspaces]
+        return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"Could not list workspaces: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -289,100 +318,98 @@ def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> 
 @pass_keycloak_token()
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@retrieve_config
 def list_datasets(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """
-    List datasets
+    List all datasets
     """
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         datasets = api_instance.list_datasets(organization_id=organization_id, workspace_id=workspace_id)
-        logger.info(f"Datasets retrieved successfully {[dataset.id for dataset in datasets]}")
-        return CommandResponse.success({ds.id: ds.model_dump() for ds in datasets})
+        count = len(datasets)
+        logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Dataset(s) retrieved successfully")
+        data_list = [ds.model_dump() for ds in datasets]
+        return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"Could not list datasets: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
 def delete_solution(config: dict, keycloak_token: str, organization_id: str, solution_id: str) -> CommandResponse:
-    """Delete solution"""
+    """Delete a solution by ID"""
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_solution(organization_id=organization_id, solution_id=solution_id)
-        logger.info("Solution deleted successfully")
+        logger.info(f"  [bold green]✔[/bold green] Solution [bold red]{solution_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not delete solution: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 def delete_workspace(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
-    """Delete workspace"""
+    """Delete a workspace by ID"""
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_workspace(organization_id=organization_id, workspace_id=workspace_id)
-        logger.info("Workspace deleted successfully")
+        logger.info(f"  [bold green]✔[/bold green] Workspace [bold red]{workspace_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not delete workspace: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
 def delete_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
 ) -> CommandResponse:
-    """Delete runner"""
+    """Delete a runner by ID"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_runner(organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id)
-        logger.info("Runner deleted successfully")
+        logger.info(f"  [bold green]✔[/bold green] Runner [bold red]{runner_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not delete runner: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
 def delete_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
 ) -> CommandResponse:
-    """Delete dataset"""
+    """Delete a dataset by ID"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_dataset(organization_id=organization_id, workspace_id=workspace_id, dataset_id=dataset_id)
-        logger.info("Dataset deleted successfully")
+        logger.info(f"  [bold green]✔[/bold green] Dataset [bold red]{dataset_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not delete dataset: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -391,16 +418,18 @@ def delete_dataset(
 @output_to_file
 @pass_keycloak_token()
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@retrieve_config
 def list_solutions(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """List solutions"""
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         solutions = api_instance.list_solutions(organization_id=organization_id)
-        logger.info(f"Solutions retrieved successfully {[solution.id for solution in solutions]}")
-        return CommandResponse.success({sol.id: sol.model_dump() for sol in solutions})
+        count = len(solutions)
+        logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Solution(s) retrieved successfully")
+        data_list = [ds.model_dump() for ds in solutions]
+        return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"Could not list solutions: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -415,11 +444,14 @@ def list_runners(config: dict, keycloak_token: str, organization_id: str, worksp
     """List runners"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         runners = api_instance.list_runners(organization_id=organization_id, workspace_id=workspace_id)
-        logger.info(f"Runners retrieved successfully {[runner.id for runner in runners]}")
-        return CommandResponse.success({runner.id: runner.model_dump() for runner in runners})
+        count = len(runners)
+        logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Runner(s) retrieved successfully")
+        data_list = [ds.model_dump() for ds in runners]
+        return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"Could not list runners: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -427,17 +459,17 @@ def list_runners(config: dict, keycloak_token: str, organization_id: str, worksp
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 def get_organization(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """Get organization"""
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         organization = api_instance.get_organization(organization_id=organization_id)
-        logger.info(f"Organization retrieved successfully {organization.id}")
+        logger.info(f"  [green]✔[/green] Organization [bold cyan]{organization.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({organization.id: organization.model_dump()})
     except Exception as e:
-        logger.error(f"Could not retrieve organization: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Organization Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -445,18 +477,18 @@ def get_organization(config: dict, keycloak_token: str, organization_id: str) ->
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 def get_workspace(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """Get workspace"""
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         workspace = api_instance.get_workspace(organization_id=organization_id, workspace_id=workspace_id)
-        logger.info(f"Workspace retrieved successfully {workspace.id}")
+        logger.info(f"  [green]✔[/green] Workspace [bold cyan]{workspace.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({workspace.id: workspace.model_dump()})
     except Exception as e:
-        logger.error(f"Could not retrieve workspace: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Workspace Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -464,18 +496,18 @@ def get_workspace(config: dict, keycloak_token: str, organization_id: str, works
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
 def get_solution(config: dict, keycloak_token: str, organization_id: str, solution_id: str) -> CommandResponse:
     """Get solution"""
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         solution = api_instance.get_solution(organization_id=organization_id, solution_id=solution_id)
-        logger.info(f"Solution retrieved successfully {solution.id}")
+        logger.info(f"  [green]✔[/green] Solution [bold cyan]{solution.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({solution.id: solution.model_dump()})
     except Exception as e:
-        logger.error(f"Could not retrieve solution: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Solution Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -483,7 +515,6 @@ def get_solution(config: dict, keycloak_token: str, organization_id: str, soluti
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -493,13 +524,14 @@ def get_dataset(
     """Get dataset"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         dataset = api_instance.get_dataset(
             organization_id=organization_id, workspace_id=workspace_id, dataset_id=dataset_id
         )
-        logger.info(f"Dataset retrieved successfully {dataset.id}")
+        logger.info(f"  [green]✔[/green] Dataset [bold cyan]{dataset.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(dataset.model_dump())
     except Exception as e:
-        logger.error(f"Could not retrieve dataset: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Dataset Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -507,7 +539,6 @@ def get_dataset(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -517,13 +548,14 @@ def get_runner(
     """Get runner"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         runner = api_instance.get_runner(
             organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id
         )
-        logger.info(f"Runner retrieved successfully {runner.id}")
+        logger.info(f"  [green]✔[/green] Runner [bold cyan]{runner.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(runner.model_dump())
     except Exception as e:
-        logger.error(f"Could not retrieve runner: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Runner Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -531,7 +563,6 @@ def get_runner(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @argument("payload_file", type=Path(exists=True))
 def update_organization(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
@@ -543,13 +574,14 @@ def update_organization(config: dict, keycloak_token: str, organization_id: str,
     organization_update_request = OrganizationUpdateRequest.from_dict(payload)
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         updated = api_instance.update_organization(
             organization_id=organization_id, organization_update_request=organization_update_request
         )
-        logger.info(f"Organization {updated.id} updated successfully")
+        logger.info(f"  [green]✔[/green] Organization [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"Could not update organization: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Update Organization Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -557,7 +589,6 @@ def update_organization(config: dict, keycloak_token: str, organization_id: str,
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @argument("payload_file", type=Path(exists=True))
@@ -570,15 +601,16 @@ def update_workspace(
     workspace_update_request = WorkspaceUpdateRequest.from_dict(payload)
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         updated = api_instance.update_workspace(
             organization_id=organization_id,
             workspace_id=workspace_id,
             workspace_update_request=workspace_update_request,
         )
-        logger.info(f"Workspace {updated.id} updated successfully")
+        logger.info(f"  [green]✔[/green] Workspace [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"Could not update workspace: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Update Workspace Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -586,7 +618,6 @@ def update_workspace(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
 @argument("payload_file", type=Path(exists=True))
@@ -599,15 +630,16 @@ def update_solution(
     solution_update_request = SolutionUpdateRequest.from_dict(payload)
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         updated = api_instance.update_solution(
             organization_id=organization_id,
             solution_id=solution_id,
             solution_update_request=solution_update_request,
         )
-        logger.info(f"Solution {updated.id} updated successfully")
+        logger.info(f"  [green]✔[/green] Solution [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"Could not update solution: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Update Solution Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -615,7 +647,6 @@ def update_solution(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -629,6 +660,7 @@ def update_dataset(
     dataset_update_request = DatasetUpdateRequest.from_dict(payload)
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         updated = api_instance.update_dataset(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -636,10 +668,10 @@ def update_dataset(
             dataset_update_request=dataset_update_request,
             files=[part["sourceName"] for part in payload["parts"]],
         )
-        logger.info(f"Dataset {updated.id} updated successfully")
+        logger.info(f"  [green]✔[/green] Dataset [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"Could not update dataset: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Update Dataset Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -647,7 +679,6 @@ def update_dataset(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -661,16 +692,17 @@ def update_runner(
     runner_update_request = RunnerUpdateRequest.from_dict(payload)
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         updated = api_instance.update_runner(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
             runner_update_request=runner_update_request,
         )
-        logger.info(f"Runner {updated.id} updated successfully")
+        logger.info(f"  [green]✔[/green] Runner [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"Could not update runner: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Update Runner Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -678,16 +710,16 @@ def update_runner(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 def about(config: dict, keycloak_token: str) -> CommandResponse:
     """Get API about information"""
     api_instance = get_meta_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         about_info: AboutInfo = api_instance.about()
-        logger.info(f"API About Information: {about_info}")
+        logger.info(f"  [green]✔[/green] API About Information: {about_info}")
         return CommandResponse.success(about_info.to_dict())
     except Exception as e:
-        logger.error(f"Could not retrieve about information: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not retrieve about information: {e}")
         return CommandResponse.fail()
 
 
@@ -695,7 +727,6 @@ def about(config: dict, keycloak_token: str) -> CommandResponse:
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -709,6 +740,7 @@ def create_dataset_part(
     dataset_part_create_request = DatasetPartCreateRequest.from_dict(payload)
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         created = api_instance.create_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -716,10 +748,13 @@ def create_dataset_part(
             dataset_part_create_request=dataset_part_create_request,
             file=payload["sourceName"],
         )
-        logger.info(f"Dataset part {created.id} created successfully")
+        if not created:
+            logger.error("  [bold red]✘ API returned no data.[/bold red]")
+            return CommandResponse.fail()
+        logger.info(f"  [bold green]✔[/bold green] Dataset [bold cyan]{created.id}[/bold cyan] successfully created")
         return CommandResponse.success(created.model_dump())
     except Exception as e:
-        logger.error(f"Could not create dataset part: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -727,7 +762,6 @@ def create_dataset_part(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -737,15 +771,18 @@ def list_dataset_parts(
     """List dataset parts"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         dataset_parts = api_instance.list_dataset_parts(
             organization_id=organization_id,
             workspace_id=workspace_id,
             dataset_id=dataset_id,
         )
-        logger.info(f"Dataset parts retrieved successfully {[part.id for part in dataset_parts]}")
-        return CommandResponse.success({dp.id: dp.model_dump() for dp in dataset_parts})
+        count = len(dataset_parts)
+        logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Dataset parts retrieved successfully")
+        data_list = [ds.model_dump() for ds in dataset_parts]
+        return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"Could not list dataset parts: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -753,7 +790,6 @@ def list_dataset_parts(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -764,24 +800,23 @@ def get_dataset_part(
     """Get dataset part"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         dataset_part = api_instance.get_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
             dataset_id=dataset_id,
             dataset_part_id=dataset_part_id,
         )
-        logger.info(f"Dataset part retrieved successfully {dataset_part.id}")
+        logger.info(f"  [green]✔[/green] Dataset parts [bold]{dataset_part.id}[/bold] retrieved successfully")
         return CommandResponse.success(dataset_part.model_dump())
     except Exception as e:
-        logger.error(f"Could not retrieve dataset part: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Dataset part Failed Reason: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -789,19 +824,20 @@ def get_dataset_part(
 def delete_dataset_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
 ) -> CommandResponse:
-    """Delete dataset part"""
+    """Delete dataset part by ID"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
             dataset_id=dataset_id,
             dataset_part_id=dataset_part_id,
         )
-        logger.info("Dataset part deleted successfully")
+        logger.info(f"  [green]✔[/green] Dataset parts [bold]{dataset_part_id}[/bold] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not delete dataset part: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -809,7 +845,6 @@ def delete_dataset_part(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -830,6 +865,7 @@ def update_dataset_part(
     dataset_part_update_request = DatasetPartUpdateRequest.from_dict(payload)
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         updated = api_instance.update_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -837,18 +873,16 @@ def update_dataset_part(
             dataset_part_id=dataset_part_id,
             dataset_part_update_request=dataset_part_update_request,
         )
-        logger.info(f"Dataset part {updated.id} updated successfully")
+        logger.info(f"  [green]✔[/green] Dataset part [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"Could not update dataset part: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Update Runner Failed Reason: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -919,6 +953,7 @@ def query_data(
     """Query data from a dataset part"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending query to API...[/dim]")
         query_result = api_instance.query_data(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -935,18 +970,16 @@ def query_data(
             group_bys=list(group_bys) if group_bys else None,
             order_bys=list(order_bys) if order_bys else None,
         )
-        logger.info(f"Query result: {query_result}")
+        logger.info(f"  [green]✔[/green] Query result: {query_result}")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not query data: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not query data: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -956,23 +989,22 @@ def start_run(
     """Start a run"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         run = api_instance.start_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
         )
-        logger.info(f"Run {run.id} started successfully")
+        logger.info(f"  [green]✔[/green] Run [bold cyan]{run.id}[/bold cyan] started successfully")
         return CommandResponse.success(run.model_dump())
     except Exception as e:
-        logger.error(f"Could not start run: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not start run: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -982,15 +1014,16 @@ def stop_run(
     """Stop a run"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.stop_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
         )
-        logger.info(f"Run {runner_id} stopped successfully")
+        logger.info(f"  [green]✔[/green] Run [bold cyan]{runner_id}[/bold cyan] stopped successfully")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not stop run: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not stop run: {e}")
         return CommandResponse.fail()
 
 
@@ -998,7 +1031,6 @@ def stop_run(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -1009,24 +1041,23 @@ def get_run(
     """Get a run"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         run = api_instance.get_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
             run_id=run_id,
         )
-        logger.info(f"Run {run.id} retrieved successfully")
+        logger.info(f"  [green]✔[/green] Run [bold cyan]{run.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(run.model_dump())
     except Exception as e:
-        logger.error(f"Could not get run: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not get run: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -1037,16 +1068,17 @@ def delete_run(
     """Delete a run"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
             run_id=run_id,
         )
-        logger.info(f"Run {run_id} deleted successfully")
+        logger.info(f"  [green]✔[/green] Run {run_id} deleted successfully")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not delete run: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not delete run: {e}")
         return CommandResponse.fail()
 
 
@@ -1054,7 +1086,6 @@ def delete_run(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -1064,18 +1095,20 @@ def list_runs(
     """List runs"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         runs = api_instance.list_runs(organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id)
-        logger.info(f"Runs retrieved successfully {[run.id for run in runs]}")
-        return CommandResponse.success({run.id: run.model_dump() for run in runs})
+        count = len(runs)
+        logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Run(s) retrieved successfully")
+        data_list = [ds.model_dump() for ds in runs]
+        return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"Could not list runs: {e}")
+        logger.error(f"   [bold red]✘[/bold red] Could not list runs: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -1086,16 +1119,19 @@ def get_run_logs(
     """Get run logs"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
+        logger.info(f"  [green]✔[/green] Fetching logs for Run [magenta]{run_id}[/magenta]")
+        logger.info(f"  [dim]→ Runner ID: {runner_id}[/dim]")
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         logs = api_instance.get_run_logs(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
             run_id=run_id,
         )
-        logger.info(f"Run logs retrieved successfully {logs}")
+        logger.info(f"  [green]✔[/green] Run logs retrieved successfully { logs}")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"Could not get run logs: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not get run logs: {e}")
         return CommandResponse.fail()
 
 
@@ -1103,7 +1139,6 @@ def get_run_logs(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
@@ -1114,24 +1149,25 @@ def get_run_status(
     """Get run status"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
+        logger.info(f"  [green]✔[/green] Checking status for Run [magenta]{run_id}[/magenta]")
+        logger.info(f"  [dim]→ Runner ID: {runner_id}[/dim]")
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         status = api_instance.get_run_status(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
             run_id=run_id,
         )
-        logger.info(f"Run status retrieved successfully {status}")
+        logger.info(f"  [green]✔[/green] Run status retrieved successfully is [bold cyan]{status.phase}[/bold cyan]")
         return CommandResponse.success(status.model_dump())
     except Exception as e:
-        logger.error(f"Could not get run status: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not get run status: {e}")
         return CommandResponse.fail()
 
 
 @command()
 @injectcontext()
-@output_to_file
 @pass_keycloak_token()
-@retrieve_config
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
@@ -1142,6 +1178,7 @@ def download_dataset_part(
     """Download dataset part"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
+        logger.info("  [dim]→ Sending request to API...[/dim]")
         file_content = api_instance.download_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -1150,8 +1187,8 @@ def download_dataset_part(
         )
         with open(dataset_part_id, "wb") as f:
             f.write(file_content)
-        logger.info(f"Dataset part downloaded successfully to {dataset_part_id}")
+        logger.info(f"  [green]✔[/green] Dataset part downloaded successfully to {dataset_part_id}")
         return CommandResponse.success({"file_path": dataset_part_id})
     except Exception as e:
-        logger.error(f"Could not download dataset part: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not download dataset part: {e}")
         return CommandResponse.fail()

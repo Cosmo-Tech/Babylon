@@ -52,7 +52,7 @@ def destroy(
                 logger.info(f"  [bold green]✔[/bold green] Solution [magenta]{solution_id}[/magenta] deleted")
                 state["services"]["api"]["solution_id"] = ""
             except Exception as e:
-                logger.error(f"  [bold red]Error deleting solution {solution_id}:[/bold red] {e}")
+                logger.error(f"  [bold red]✘[/bold red]] Error deleting solution {solution_id} reason: {e}")
         else:
             logger.warning("  [yellow]⚠[/yellow] [dim]No Solution ID found in state! skipping deletion[dim]")
     # --- 2. Delete Workspace ---
@@ -65,7 +65,7 @@ def destroy(
                 logger.info(f"  [bold green]✔[/bold green] Workspace [magenta]{workspace_id}[/magenta] deleted")
                 state["services"]["api"]["workspace_id"] = ""
             except Exception as e:
-                logger.error(f"  [bold red]Error deleting workspace {workspace_id}:[/bold red] {e}")
+                logger.error(f"  [bold red]✘[/bold red]] Error deleting workspace {workspace_id} reason: {e}")
         else:
             logger.warning("  [yellow]⚠[/yellow] [dim]No Workspace ID found in state! skipping deletion[dim]")
     # --- 3. Delete Organization ---
@@ -77,7 +77,7 @@ def destroy(
                 logger.info(f"  [bold green]✔[/bold green] Organization [magenta]{organization_id}[/magenta] deleted")
                 state["services"]["api"]["organization_id"] = ""
             except Exception as e:
-                logger.error(f"  [bold red]Error deleting organization {organization_id}:[/bold red] {e}")
+                logger.error(f"  [bold red]✘[/bold red]] Error deleting organization {organization_id} reason: {e}")
         else:
             logger.warning("  [yellow]⚠[/yellow] [dim]No Organization ID found in state! skipping deletion[dim]")
     # --- State Persistence ---

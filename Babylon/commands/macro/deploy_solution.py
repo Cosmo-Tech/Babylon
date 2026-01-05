@@ -44,7 +44,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
             organization_id=api_section["organization_id"], solution_create_request=solution_create_request
         )
         if solution is None:
-            logger.error("  [bold red]✘ Failed to create solution[/bold red]")
+            logger.error("  [bold red]✘[/bold red] Failed to create solution")
             return CommandResponse.fail()
         # Save the newly generated ID to state
         logger.info(f"  [bold green]✔[/bold green] Solution [bold magenta]{solution.id}[/bold magenta] created")
@@ -61,7 +61,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
             solution_update_request=solution_update_request,
         )
         if updated is None:
-            logger.error(f"  [bold red]✘ Failed to update solution {api_section['solution_id']}[/bold red]")
+            logger.error(f"  [bold red]✘[/bold red] Failed to update solution {api_section['solution_id']}")
             return CommandResponse.fail()
         # Handle Security Policy synchronization if provided in payload
         if payload.get("security"):
@@ -78,7 +78,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
                     object_id=[api_section["organization_id"], api_section["solution_id"]],
                 )
             except Exception as e:
-                logger.error(f"  [bold red]✘ Security update failed:[/bold red] {e}")
+                logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
                 return CommandResponse.fail()
         logger.info(
             f"  [bold green]✔[/bold green] Solution [bold magenta]{api_section['solution_id']}[/bold magenta] updated"

@@ -42,7 +42,7 @@ def deploy_organization(namespace: str, file_content: str):
         organization_create_request = OrganizationCreateRequest.from_dict(payload)
         organization = api_instance.create_organization(organization_create_request)
         if organization is None:
-            logger.error("  [bold red]✘ Failed to create organization[/bold red]")
+            logger.error("  [bold red]✘[/bold red] Failed to create organization")
             return CommandResponse.fail()
         # Save the newly generated ID to state
         logger.info(f"  [bold green]✔[/bold green] Organization [bold magenta]{organization.id}[/bold magenta] created")
@@ -57,7 +57,7 @@ def deploy_organization(namespace: str, file_content: str):
             organization_id=api_section["organization_id"], organization_update_request=organization_update_request
         )
         if updated is None:
-            logger.error(f"  [bold red]✘ Failed to update organization {api_section['organization_id']}[/bold red]")
+            logger.error(f"  [bold red]✘[/bold red] Failed to update organization {api_section['organization_id']}")
             return CommandResponse.fail()
         # Handle Security Policy synchronization if provided in payload
         if payload.get("security"):
@@ -74,7 +74,7 @@ def deploy_organization(namespace: str, file_content: str):
                     object_id=[api_section["organization_id"]],
                 )
             except Exception as e:
-                logger.error(f"  [bold red]✘ Security update failed:[/bold red] {e}")
+                logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
                 return CommandResponse.fail()
         logger.info(
             f"  [bold green]✔[/bold green] Organization"
