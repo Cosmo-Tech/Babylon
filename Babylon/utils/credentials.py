@@ -91,14 +91,14 @@ def get_keycloak_credentials() -> dict:
         }
         if not all(credentials.values()):
             missing = [k for k, v in credentials.items() if not v]
-            raise AttributeError(f"Missing required Keycloak credentials: {', '.join(missing)}")
+            raise AttributeError(f"  [bold red]✘[/bold red] Missing required Keycloak credentials: {', '.join(missing)}")
 
         return credentials, config
 
     except KeyError as e:
-        logger.error(f"Check the Keycloak configuration in the Kubernetes secret: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Check the Keycloak configuration in the Kubernetes secret: {e}")
     except Exception as e:
-        logger.error(f"Unexpected error while retrieving Keycloak credentials: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error while retrieving Keycloak credentials: {e}")
 
 
 def get_keycloak_token() -> str:
@@ -115,11 +115,11 @@ def get_keycloak_token() -> str:
             "access_token",
         )
         if not access_token:
-            logger.error("Access token not found in Keycloak response")
+            logger.error("  [bold red]✘[/bold red] Access token not found in Keycloak response")
         return access_token, config
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Keycloak request failed: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Keycloak request failed: {e}")
 
 
 def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:
