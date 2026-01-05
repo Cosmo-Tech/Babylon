@@ -75,7 +75,7 @@ class Environment(metaclass=SingletonMeta):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
             for key, files in duplicate_keys.items():
-                logger.error(f"The key '{key}' is duplicated in variable files {' and '.join(files)}")
+                logger.error(f"  [bold red]✘[/bold red] The key [bold cyan]'{key}'[/bold cyan] is duplicated in variable files {' and '.join(files)}")
             sys.exit(1)
         else:
             merged_data["secret_powerbi"] = ""
@@ -134,7 +134,7 @@ class Environment(metaclass=SingletonMeta):
         response = dict(zip(vars, checkers))
         for i, k in response.items():
             if not k:
-                logger.error(f"{i} environment variable is missing")
+                logger.error(f"[bold red]✘[/bold red] [bold cyan]{i}[/bold cyan] environment variable is missing")
             else:
                 if "SERVICE" in i:
                     self.set_server_id()
@@ -166,7 +166,7 @@ class Environment(metaclass=SingletonMeta):
             )
             self.blob_client = BlobServiceClient.from_connection_string(connection_str)
         except Exception as e:
-            logger.error(f"Failed to initialize BlobServiceClient: {e}")
+            logger.error(f"  [bold red]✘[/bold red] Failed to initialize BlobServiceClient: {e}")
             sys.exit(1)
 
     def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
@@ -176,7 +176,7 @@ class Environment(metaclass=SingletonMeta):
             decoder = Fernet(encoding_key)
             data = decoder.decrypt(content)
         except Exception:
-            logger.error("Could not decrypt content, wrong key ?")
+            logger.error("  [bold red]✘[/bold red] Could not decrypt content, wrong key ?")
             return b""
         return data
 
@@ -185,26 +185,26 @@ class Environment(metaclass=SingletonMeta):
         try:
             config.load_kube_config()
         except ConfigException as e:
-            logger.error(
-                f"Failed to load kube config: {e} \n"
-                f"Please ensure your kubeconfig is valid and your context is set. \n"
-                "Use 'kubectl config use-context' if needed"
-            )
+            logger.error(f"\n[bold red]✘[/bold red] Failed to load kube config")
+            logger.error(f"  [red]Reason:[/red] {e}")
+            logger.info("\n[bold white]💡 Troubleshooting:[/bold white]")
+            logger.info("  • Ensure your kubeconfig file is valid")
+            logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
             sys.exit(1)
         try:
             v1 = client.CoreV1Api()
             secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
         except ApiException:
-            logger.error(
-                "\n"
-                f"Failed to read Kubernetes secret 'keycloak-babylon' in namespace '{tenant}'.\n"
-                "Please ensure your kubeconfig is valid and your context is correctly set.\n"
-                "You can switch context using: 'kubectl config use-context <context-name>'"
-            )
+            logger.error(f"\n[bold red]✘[/bold red] Resource Not Found")
+            logger.error(f"  Secret [green]keycloak-babylon[/green] could not be found in namespace [green]{tenant}[/green]")
+            logger.info("\n[bold white]💡 Troubleshooting:[/bold white]")
+            logger.info("  • Please ensure your kubeconfig is valid")
+            logger.info("  • Check that your context is correctly set [cyan]kubectl config current-context[/cyan]")
+            logger.info("  • You can set context using [cyan]kubectl config use-context <context-name>[/cyan]")
             sys.exit(1)
         except Exception:
             logger.error(
-                "Failed to connect to the Kubernetes cluster: \n'Cluster may be down, kube-apiserver unreachable'"
+                "  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: 'Cluster may be down, kube-apiserver unreachable'"
             )
             sys.exit(1)
         if secret.data:
@@ -212,7 +212,7 @@ class Environment(metaclass=SingletonMeta):
                 decoded_value = b64decode(value).decode("utf-8")
                 response_parsed[key] = decoded_value
         else:
-            logger.warning(f"Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
+            logger.warning(f"  [yellow]⚠[/yellow] Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
         return response_parsed
 
     def store_mtime_in_state(self, state: dict):
@@ -320,11 +320,9 @@ class Environment(metaclass=SingletonMeta):
         ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         ns_file = ns_dir / "namespace.yaml"
         if not ns_file.exists():
-            logger.error(f"{ns_file} not found")
-            logger.error(
-                "The context and the tenant are not set. \
-                         Please set the tenant using the 'namespace use' command."
-            )
+            logger.error(f" [bold red]✘[/bold red] [cyan]{ns_file}[/cyan] not found")
+            logger.info("  Run the following command to set your active namespace:")
+            logger.info("  [cyan]babylon namespace use <tenant-name>[/cyan]")
             sys.exit(1)
 
         ns_data = safe_load(ns_file.open("r").read())
@@ -345,7 +343,7 @@ class Environment(metaclass=SingletonMeta):
         }
         missing_vars = [var for var in required_env_vars if var not in os.environ]
         if not missing_vars:
-            logger.info("Loading configuration from environment variables")
+            logger.info("  [dim]→ Loading configuration from environment variables...[/dim]")
             return {
                 "api_url": os.environ[required_env_vars["API_URL"]],
                 "client_id": os.environ[required_env_vars["CLIENT_ID"]],
@@ -353,7 +351,7 @@ class Environment(metaclass=SingletonMeta):
                 "token_url": os.environ[required_env_vars["TOKEN_URL"]],
             }
         # Log missing env vars
-        logger.info("Loading configuration from Kubernetes secret")
+        logger.info("  [dim]→ Loading configuration from Kubernetes secret... [/dim]")
         return self.get_config_from_k8s_secret_by_tenant(self.environ_id)
 
     def retrieve_state_func(self):
@@ -370,16 +368,16 @@ class Environment(metaclass=SingletonMeta):
         plt_obj = ns.get("tenant", {})
         tenant_id = plt_obj.get("id", "")
         if not tenant_id:
-            logger.error("tenant_id is mandatory")
+            logger.error("  [bold red]✘[/bold red] tenant_id is mandatory")
             sys.exit(1)
         platform_url = plt_obj.get("url", "")
         if not platform_url:
-            logger.error("url is mandatory")
+            logger.error("  [bold red]✘[/bold red] url is mandatory")
             sys.exit(1)
         url_ = compile(f"https:\\/\\/{tenant_id}\\.")
         match_content = url_.match(platform_url)
         if not match_content:
-            logger.error("url not match")
+            logger.error("  [bold red]✘[/bold red] url not match")
             sys.exit(1)
         self.state_id = state_id
         self.set_context(context_id=context_id)
@@ -405,7 +403,7 @@ class Environment(metaclass=SingletonMeta):
             try:
                 return safe_load(file) or {}
             except YAMLError as e:
-                logger.error(f"File '{file_path}' is not a valid YAML file. Details: {str(e)}")
+                logger.error(f"  [bold red]✘[/bold red] File '{file_path}' is not a valid YAML file. Details: {str(e)}")
                 sys.exit(1)
 
     def merge_yaml_files(self, file_paths: [Path]):
@@ -414,10 +412,10 @@ class Environment(metaclass=SingletonMeta):
 
         for file_path in file_paths:
             if not file_path.endswith(".yaml"):
-                logger.error(f"File '{file_path}' is not a valid YAML file.")
+                logger.error(f"  [bold red]✘[/bold red] File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:
-                logger.error(f"File '{file_path}' is empty.")
+                logger.error(f"  [bold red]✘[/bold red] File '{file_path}' is empty.")
                 sys.exit(1)
 
             data = self.load_yaml_file(file_path)

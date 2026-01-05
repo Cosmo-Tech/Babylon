@@ -18,6 +18,12 @@ from Babylon.version import VERSION
 
 logger = logging.getLogger()
 logging.getLogger("azure").setLevel(logging.WARNING)
+u_log = logging.getLogger("urllib3")
+k_log = logging.getLogger("kubernetes")
+
+# On bloque la propagation vers le haut (le root logger qui affiche dans la console)
+u_log.propagate = False
+k_log.propagate = False
 env = Environment()
 
 
