@@ -44,7 +44,7 @@ def deploy_workspace(namespace: str, file_content: str) -> bool:
             organization_id=api_section["organization_id"], workspace_create_request=workspace_create_request
         )
         if workspace is None:
-            logger.error("  [bold red]✘ Failed to create workspace[/bold red]")
+            logger.error("  [bold red]✘[/bold red] Failed to create workspace")
             return CommandResponse.fail()
         # Save the newly generated ID to state
         logger.info(f"  [bold green]✔[/bold green] Workspace [bold magenta]{workspace.id}[/bold magenta] created")
@@ -61,7 +61,7 @@ def deploy_workspace(namespace: str, file_content: str) -> bool:
             workspace_update_request=workspace_update_request,
         )
         if updated is None:
-            logger.error(f"  [bold red]✘ Failed to update workspace {api_section['workspace_id']}[/bold red]")
+            logger.error(f"  [bold red]✘[/bold red] Failed to update workspace {api_section['workspace_id']}")
             return CommandResponse.fail()
         # Handle Security Policy synchronization if provided in payload
         if payload.get("security"):
@@ -78,7 +78,7 @@ def deploy_workspace(namespace: str, file_content: str) -> bool:
                     object_id=[api_section["organization_id"], api_section["workspace_id"]],
                 )
             except Exception as e:
-                logger.error(f"  [bold red]✘ Security update failed:[/bold red] {e}")
+                logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
                 return CommandResponse.fail()
         logger.info(
             f"  [bold green]✔[/bold green] Workspace [bold magenta]{api_section['workspace_id']}[/bold magenta] updated"

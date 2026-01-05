@@ -85,10 +85,8 @@ def apply(
     for key, value in api_data.items():
         if not value:
             continue
-        # 1. Prepare the Label
         label = f"  • {key.replace('_', ' ').title()}"
-
-        # 2. Style the Label (Cyan & Bold)
+        
         # We pad the label to 20 chars to keep the colons aligned
         styled_label = style(f"{label:<20}:", fg="cyan", bold=True)
         clean_value = str(value).strip()
