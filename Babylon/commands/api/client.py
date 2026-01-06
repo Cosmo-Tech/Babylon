@@ -985,6 +985,7 @@ def query_data(
 
 @command()
 @injectcontext()
+@output_to_file
 @pass_keycloak_token()
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")

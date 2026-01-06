@@ -24,21 +24,21 @@ babylon api about
 
 # Create an organization, solution, workspace, dataset,runner and start a run
 
-babylon api create-organization data/organization.yaml -o output/created_org.json
+babylon api create-organization data/organization.yaml -f output/created_org.json
 export O=$(cat output/created_org.json | jq -r '.id')
-babylon api create-solution --oid $O data/solution.yaml -o output/created_sol.json
+babylon api create-solution --oid $O data/solution.yaml -f output/created_sol.json
 export S=$(cat output/created_sol.json | jq -r '.id')
-babylon api create-workspace --oid $O --sid $S data/workspace.yaml -o output/created_ws.json
+babylon api create-workspace --oid $O --sid $S data/workspace.yaml -f output/created_ws.json
 export W=$(cat output/created_ws.json | jq -r '.id')
-babylon api create-dataset --oid $O --wid $W data/dataset.yaml -o output/created_ds.json
+babylon api create-dataset --oid $O --wid $W data/dataset.yaml -f output/created_ds.json
 export D=$(cat output/created_ds.json | jq -r '.id')
-babylon api create-dataset-part --oid $O --wid $W --did $D data/dataset_part.yaml -o output/created_dp.json
+babylon api create-dataset-part --oid $O --wid $W --did $D data/dataset_part.yaml -f output/created_dp.json
 export DPF=$(cat output/created_dp.json | jq -r '.id')
-babylon api create-dataset-part --oid $O --wid $W --did $D data/dataset_part_db.yaml -o output/created_dp_db.json
+babylon api create-dataset-part --oid $O --wid $W --did $D data/dataset_part_db.yaml -f output/created_dp_db.json
 export DPD=$(cat output/created_dp_db.json | jq -r '.id')
-babylon api create-runner --oid $O --sid $S --wid $W data/runner.yaml -o output/created_rn.json
+babylon api create-runner --oid $O --sid $S --wid $W data/runner.yaml -f output/created_rn.json
 export R=$(cat output/created_rn.json | jq -r '.id')
-babylon api start-run --oid $O --wid $W --rid $R -o output/started_run.json
+babylon api start-run --oid $O --wid $W --rid $R -f output/started_run.json
 export RR=$(cat output/started_run.json | jq -r '.id')
 
 # Test all the list endpoints
@@ -50,9 +50,14 @@ babylon api list-dataset-parts --oid $O --wid $W --did $D
 babylon api list-runners --oid $O --wid $W
 babylon api list-runs --oid $O --wid $W --rid $R
 
+# Test output format 
+babylon api list-organizations -o wide
+
 # Test the get endpoints
 babylon api get-organization --oid $O
+babylon api get-organization --oid $O -o json
 babylon api get-solution --oid $O --sid $S
+babylon api get-solution --oid $O --sid $S -o yaml
 babylon api get-workspace --oid $O --wid $W
 babylon api get-dataset --oid $O --wid $W --did $D
 babylon api get-runner --oid $O --wid $W --rid $R
@@ -82,4 +87,4 @@ babylon api delete-solution --oid $O --sid $S
 babylon api delete-organization --oid $O
 
 rm -rf ./output
-rm babylon.log babylon.error
+rm babylon_error.log babylon_info.log
