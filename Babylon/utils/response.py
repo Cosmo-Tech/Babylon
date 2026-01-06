@@ -1,20 +1,22 @@
-from datetime import datetime
 import json
 import logging
 import pathlib
 import shutil
 import tempfile
+from datetime import datetime
 from typing import Any, Optional
 
 import yaml
 from click import get_current_context
+from rich.console import Console
 from rich.pretty import pprint
 from rich.table import Table
-from rich.console import Console
+
 from .environment import Environment
 
 logger = logging.getLogger(__name__)
 console = Console()
+
 
 class CommandResponse:
     """
@@ -52,7 +54,7 @@ class CommandResponse:
 
     def toYAML(self) -> str:
         return yaml.dump(self.data)
-    
+
     def print_table(self):
         """
         Handles the display of Organization data.
@@ -78,9 +80,9 @@ class CommandResponse:
                 is_api_info = True
 
         table = Table(
-            show_header=True, 
-            header_style="bold white", 
-            box=None, 
+            show_header=True,
+            header_style="bold white",
+            box=None,
             padding=(0, 2),
             show_edge=False,
             collapse_padding=True,
@@ -109,11 +111,7 @@ class CommandResponse:
                     dt = datetime.fromtimestamp(raw_ts / 1000.0)
                     created_at = dt.strftime("%Y-%m-%d %H:%M")
 
-                row = [
-                    str(item.get("id", "N/A")),
-                    str(item.get("name", "N/A")),
-                    created_at
-                ]
+                row = [str(item.get("id", "N/A")), str(item.get("name", "N/A")), created_at]
                 table.add_row(*row)
 
         console.print(table)

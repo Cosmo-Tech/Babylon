@@ -95,18 +95,20 @@ def create_organization(config: dict, keycloak_token: str, payload_file) -> Comm
     # Load and parse the payload
     with open(payload_file, "r") as f:
         payload = safe_load(f)
-    # Initialize API 
+    # Initialize API
     organization_create_request = OrganizationCreateRequest.from_dict(payload)
     api_instance = get_organization_api_instance(config, keycloak_token)
-    try:         
+    try:
         logger.info("  [dim]→ Sending request to API...[/dim]")
         organization = api_instance.create_organization(organization_create_request)
-        
+
         if not organization:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
             return CommandResponse.fail()
-        
-        logger.info(f"  [bold green]✔[/bold green] Organization [bold cyan]{organization.id}[/bold cyan] successfully created")
+
+        logger.info(
+            f"  [bold green]✔[/bold green] Organization [bold cyan]{organization.id}[/bold cyan] successfully created"
+        )
         return CommandResponse.success(organization.model_dump())
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
@@ -142,7 +144,7 @@ def create_dataset(
         if not dataset:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
             return CommandResponse.fail()
-        
+
         logger.info(f"  [bold green]✔[/bold green] Dataset [bold cyan]{dataset.id}[/bold cyan] successfully created")
         return CommandResponse.success(dataset.model_dump())
     except Exception as e:
@@ -171,7 +173,7 @@ def create_solution(config: dict, keycloak_token: str, organization_id: str, pay
         if not solution:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
             return CommandResponse.fail()
-        
+
         logger.info(f"  [bold green]✔[/bold green] Solution [bold cyan]{solution.id}[/bold cyan] successfully created")
         return CommandResponse.success(solution.model_dump())
     except Exception as e:
@@ -198,14 +200,16 @@ def create_workspace(
     payload["solution"]["solutionId"] = solution_id
     workspace_create_request = WorkspaceCreateRequest.from_dict(payload)
     api_instance = get_workspace_api_instance(config, keycloak_token)
-    
+
     try:
         logger.info("  [dim]→ Sending request to API...[/dim]")
         workspace = api_instance.create_workspace(organization_id, workspace_create_request)
         if not workspace:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
             return CommandResponse.fail()
-        logger.info(f"  [bold green]✔[/bold green] Workspace [bold cyan]{workspace.id}[/bold cyan] successfully created")
+        logger.info(
+            f"  [bold green]✔[/bold green] Workspace [bold cyan]{workspace.id}[/bold cyan] successfully created"
+        )
         return CommandResponse.success(workspace.model_dump())
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
@@ -241,7 +245,7 @@ def create_runner(
         if not runner:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
             return CommandResponse.fail()
-        
+
         logger.info(f"  [bold green]✔[/bold green] Runner [bold cyan]{runner.id}[/bold cyan] successfully created")
         return CommandResponse.success(runner.model_dump())
     except Exception as e:
@@ -259,10 +263,12 @@ def delete_organization(config: dict, keycloak_token: str, organization_id: str)
     """
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
-        # API Execution 
+        # API Execution
         logger.info("  [dim]→ Sending request to API...[/dim]")
         api_instance.delete_organization(organization_id)
-        logger.info(f"  [bold green]✔[/bold green] Organization [bold red]{organization_id}[/bold red] successfully deleted")
+        logger.info(
+            f"  [bold green]✔[/bold green] Organization [bold red]{organization_id}[/bold red] successfully deleted"
+        )
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
@@ -1128,7 +1134,7 @@ def get_run_logs(
             runner_id=runner_id,
             run_id=run_id,
         )
-        logger.info(f"  [green]✔[/green] Run logs retrieved successfully { logs}")
+        logger.info(f"  [green]✔[/green] Run logs retrieved successfully {logs}")
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Could not get run logs: {e}")

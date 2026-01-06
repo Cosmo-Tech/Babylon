@@ -86,7 +86,7 @@ def apply(
         if not value:
             continue
         label = f"  • {key.replace('_', ' ').title()}"
-        
+
         # We pad the label to 20 chars to keep the colons aligned
         styled_label = style(f"{label:<20}:", fg="cyan", bold=True)
         clean_value = str(value).strip()

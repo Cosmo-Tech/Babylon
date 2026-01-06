@@ -1,16 +1,18 @@
 import datetime
-from json import dumps
 import logging
 import pathlib
 import shutil
 import time
 from functools import wraps
+from json import dumps
 from typing import Any, Callable
+
+from click import Choice, get_current_context, option
 from rich.console import Console
-from rich.syntax import Syntax
-from click import get_current_context, option, Choice
-from yaml import dump
 from rich.padding import Padding
+from rich.syntax import Syntax
+from yaml import dump
+
 from Babylon.utils.checkers import check_special_char
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -19,6 +21,7 @@ from Babylon.version import get_version
 logger = logging.getLogger("Babylon")
 env = Environment()
 console = Console()
+
 
 def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
     """
@@ -77,7 +80,7 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         if output_file:
             path_file = pathlib.Path(output_file)
             ext_file = path_file.suffix.lower()
-            
+
             if ".json" in ext_file:
                 response.dump_json(path_file)
             else:
@@ -86,20 +89,20 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         # Display in terminal ---
         if output_format in ["json", "yaml"]:
             logger.info(f"  [dim]→ output in {output_format}...[/dim]")
-            
+
             if output_format == "json":
                 content = dumps(response.data, indent=4)
                 lexer = "json"
             else:
                 content = dump(response.data, sort_keys=False, default_flow_style=False)
                 lexer = "yaml"
-            
+
             # Render highlighted syntax with indentation
             syntax = Syntax(content, lexer, theme="monokai", background_color="default")
             padded_content = Padding(syntax, (0, 0, 0, 7))
             console.print(padded_content)
         elif not output_file and output_format:
-                response.print_table()
+            response.print_table()
 
         return response
 
