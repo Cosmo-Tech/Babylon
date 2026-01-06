@@ -75,7 +75,10 @@ class Environment(metaclass=SingletonMeta):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
             for key, files in duplicate_keys.items():
-                logger.error(f"  [bold red]✘[/bold red] The key [bold cyan]'{key}'[/bold cyan] is duplicated in variable files {' and '.join(files)}")
+                logger.error(
+                    f"  [bold red]✘[/bold red] The key [bold cyan]'{key}'[/bold cyan]"
+                    f" is duplicated in variable files {' and '.join(files)}"
+                )
             sys.exit(1)
         else:
             merged_data["secret_powerbi"] = ""
@@ -185,7 +188,7 @@ class Environment(metaclass=SingletonMeta):
         try:
             config.load_kube_config()
         except ConfigException as e:
-            logger.error(f"\n[bold red]✘[/bold red] Failed to load kube config")
+            logger.error("\n[bold red]✘[/bold red] Failed to load kube config")
             logger.error(f"  [red]Reason:[/red] {e}")
             logger.info("\n[bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Ensure your kubeconfig file is valid")
@@ -195,8 +198,10 @@ class Environment(metaclass=SingletonMeta):
             v1 = client.CoreV1Api()
             secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
         except ApiException:
-            logger.error(f"\n[bold red]✘[/bold red] Resource Not Found")
-            logger.error(f"  Secret [green]keycloak-babylon[/green] could not be found in namespace [green]{tenant}[/green]")
+            logger.error("\n[bold red]✘[/bold red] Resource Not Found")
+            logger.error(
+                f"  Secret [green]keycloak-babylon[/green] could not be found in namespace [green]{tenant}[/green]"
+            )
             logger.info("\n[bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Please ensure your kubeconfig is valid")
             logger.info("  • Check that your context is correctly set [cyan]kubectl config current-context[/cyan]")
@@ -204,7 +209,8 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
         except Exception:
             logger.error(
-                "  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: 'Cluster may be down, kube-apiserver unreachable'"
+                "  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: " \
+                "'Cluster may be down, kube-apiserver unreachable'"
             )
             sys.exit(1)
         if secret.data:
