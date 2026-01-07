@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import io
 import logging
 import sys
 from pathlib import Path as pathlibPath
@@ -56,11 +55,11 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     date_format = "%Y-%m-%d %H:%M:%S"
     file_formatter = CleanFormatter(fmt=file_format, datefmt=date_format)
 
-    log_file_handler = logging.FileHandler(log_path / "babylon_info.log")
+    log_file_handler = logging.FileHandler(log_path / "babylon_info.log", encoding="utf-8")
     log_file_handler.setLevel(logging.INFO)
     log_file_handler.setFormatter(file_formatter)
 
-    error_file_handler = logging.FileHandler(log_path / "babylon_error.log")
+    error_file_handler = logging.FileHandler(log_path / "babylon_error.log", encoding="utf-8")
     error_file_handler.setLevel(logging.WARNING)
     error_file_handler.setFormatter(file_formatter)
     logging.basicConfig(
@@ -80,12 +79,6 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
         ],
     )
 
-def setup_windows_unicode():
-    """Force UTF-8 encoding on Windows to avoid UnicodeEncodeError."""
-    tmp = sys.platform == "win32"
-    if tmp:
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 @group(name="babylon", invoke_without_command=False)
 @click_log.simple_verbosity_option(logger)
@@ -135,5 +128,4 @@ for _group in list_groups:
     main.add_command(_group)
 
 if __name__ == "__main__":
-    setup_windows_unicode()
     main()
