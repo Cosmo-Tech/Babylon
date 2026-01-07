@@ -2105,13 +2105,13 @@
 <li><em>create-runner</em>: </li>
 <li><em>create-solution</em>: </li>
 <li><em>create-workspace</em>: </li>
-<li><em>delete-dataset</em>: Delete dataset</li>
-<li><em>delete-dataset-part</em>: Delete dataset part</li>
+<li><em>delete-dataset</em>: Delete a dataset by ID</li>
+<li><em>delete-dataset-part</em>: Delete dataset part by ID</li>
 <li><em>delete-organization</em>: </li>
 <li><em>delete-run</em>: Delete a run</li>
-<li><em>delete-runner</em>: Delete runner</li>
-<li><em>delete-solution</em>: Delete solution</li>
-<li><em>delete-workspace</em>: Delete workspace</li>
+<li><em>delete-runner</em>: Delete a runner by ID</li>
+<li><em>delete-solution</em>: Delete a solution by ID</li>
+<li><em>delete-workspace</em>: Delete a workspace by ID</li>
 <li><em>download-dataset-part</em>: Download dataset part</li>
 <li><em>get-dataset</em>: Get dataset</li>
 <li><em>get-dataset-part</em>: Get dataset part</li>
@@ -2175,8 +2175,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2188,7 +2194,7 @@
 </tbody>
 </table>
 <h4 id="create-dataset">create-dataset<a class="headerlink" href="#create-dataset" title="Permanent link">&para;</a></h4>
-<p>Create dataset</p>
+<p>Create a dataset using a YAML payload file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api create-dataset [OPTIONS] PAYLOAD_FILE
 </code></pre></div>
@@ -2223,8 +2229,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2283,8 +2295,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2314,7 +2332,7 @@
 </tbody>
 </table>
 <h4 id="create-organization">create-organization<a class="headerlink" href="#create-organization" title="Permanent link">&para;</a></h4>
-<p>Create organization</p>
+<p>Create an organization using a YAML payload file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api create-organization [OPTIONS] PAYLOAD_FILE
 </code></pre></div>
@@ -2349,8 +2367,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2362,7 +2386,7 @@
 </tbody>
 </table>
 <h4 id="create-runner">create-runner<a class="headerlink" href="#create-runner" title="Permanent link">&para;</a></h4>
-<p>Create runner</p>
+<p>Create a runner using a YAML payload file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api create-runner [OPTIONS] PAYLOAD_FILE
 </code></pre></div>
@@ -2397,8 +2421,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2428,7 +2458,7 @@
 </tbody>
 </table>
 <h4 id="create-solution">create-solution<a class="headerlink" href="#create-solution" title="Permanent link">&para;</a></h4>
-<p>Create solution</p>
+<p>Create a solution using a YAML payload file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api create-solution [OPTIONS] PAYLOAD_FILE
 </code></pre></div>
@@ -2463,8 +2493,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2482,7 +2518,7 @@
 </tbody>
 </table>
 <h4 id="create-workspace">create-workspace<a class="headerlink" href="#create-workspace" title="Permanent link">&para;</a></h4>
-<p>Create workspace</p>
+<p>Create a workspace using a YAML payload file.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api create-workspace [OPTIONS] PAYLOAD_FILE
 </code></pre></div>
@@ -2517,8 +2553,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2542,7 +2584,7 @@
 </tbody>
 </table>
 <h4 id="delete-dataset">delete-dataset<a class="headerlink" href="#delete-dataset" title="Permanent link">&para;</a></h4>
-<p>Delete dataset</p>
+<p>Delete a dataset by ID</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api delete-dataset [OPTIONS]
 </code></pre></div>
@@ -2576,12 +2618,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--oid</code></td>
 <td>text</td>
 <td>Organization ID</td>
@@ -2608,7 +2644,7 @@
 </tbody>
 </table>
 <h4 id="delete-dataset-part">delete-dataset-part<a class="headerlink" href="#delete-dataset-part" title="Permanent link">&para;</a></h4>
-<p>Delete dataset part</p>
+<p>Delete dataset part by ID</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api delete-dataset-part [OPTIONS]
 </code></pre></div>
@@ -2639,12 +2675,6 @@
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2680,7 +2710,7 @@
 </tbody>
 </table>
 <h4 id="delete-organization">delete-organization<a class="headerlink" href="#delete-organization" title="Permanent link">&para;</a></h4>
-<p>Delete organization</p>
+<p>Delete an organization by ID</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api delete-organization [OPTIONS]
 </code></pre></div>
@@ -2711,12 +2741,6 @@
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -2768,12 +2792,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--oid</code></td>
 <td>text</td>
 <td>Organization ID</td>
@@ -2806,7 +2824,7 @@
 </tbody>
 </table>
 <h4 id="delete-runner">delete-runner<a class="headerlink" href="#delete-runner" title="Permanent link">&para;</a></h4>
-<p>Delete runner</p>
+<p>Delete a runner by ID</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api delete-runner [OPTIONS]
 </code></pre></div>
@@ -2840,12 +2858,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--oid</code></td>
 <td>text</td>
 <td>Organization ID</td>
@@ -2872,7 +2884,7 @@
 </tbody>
 </table>
 <h4 id="delete-solution">delete-solution<a class="headerlink" href="#delete-solution" title="Permanent link">&para;</a></h4>
-<p>Delete solution</p>
+<p>Delete a solution by ID</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api delete-solution [OPTIONS]
 </code></pre></div>
@@ -2906,12 +2918,6 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
 <td><code>--oid</code></td>
 <td>text</td>
 <td>Organization ID</td>
@@ -2932,7 +2938,7 @@
 </tbody>
 </table>
 <h4 id="delete-workspace">delete-workspace<a class="headerlink" href="#delete-workspace" title="Permanent link">&para;</a></h4>
-<p>Delete workspace</p>
+<p>Delete a workspace by ID</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api delete-workspace [OPTIONS]
 </code></pre></div>
@@ -2963,12 +2969,6 @@
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3023,12 +3023,6 @@
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3099,8 +3093,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3165,8 +3165,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3237,8 +3243,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3291,8 +3303,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3429,8 +3447,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3501,8 +3525,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3567,8 +3597,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3627,8 +3663,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3687,8 +3729,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3718,7 +3766,7 @@
 </tbody>
 </table>
 <h4 id="list-datasets">list-datasets<a class="headerlink" href="#list-datasets" title="Permanent link">&para;</a></h4>
-<p>List datasets</p>
+<p>List all datasets</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api list-datasets [OPTIONS]
 </code></pre></div>
@@ -3753,8 +3801,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3778,7 +3832,7 @@
 </tbody>
 </table>
 <h4 id="list-organizations">list-organizations<a class="headerlink" href="#list-organizations" title="Permanent link">&para;</a></h4>
-<p>List organizations</p>
+<p>List all organizations</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api list-organizations [OPTIONS]
 </code></pre></div>
@@ -3813,8 +3867,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3861,8 +3921,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3921,8 +3987,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -3987,8 +4059,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4006,7 +4084,7 @@
 </tbody>
 </table>
 <h4 id="list-workspaces">list-workspaces<a class="headerlink" href="#list-workspaces" title="Permanent link">&para;</a></h4>
-<p>List workspaces</p>
+<p>List all workspaces</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon api list-workspaces [OPTIONS]
 </code></pre></div>
@@ -4041,8 +4119,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4091,12 +4175,6 @@
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4227,8 +4305,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4289,12 +4373,6 @@
 <td><code>-s</code>, <code>--state-id</code></td>
 <td>text</td>
 <td>State Id</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>-o</code>, <code>--output</code></td>
-<td>text</td>
-<td>File to which content should be outputted</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4359,8 +4437,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4425,8 +4509,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4497,8 +4587,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4551,8 +4647,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4617,8 +4719,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4677,8 +4785,14 @@
 </tr>
 <tr>
 <td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
 <td>text</td>
-<td>File to which content should be outputted</td>
+<td>Path to the file to save the response</td>
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
@@ -4796,6 +4910,18 @@
 <td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
+<td><code>--include</code></td>
+<td>text</td>
+<td>Specify the resources to destroy.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--exclude</code></td>
+<td>text</td>
+<td>Specify the resources to exclude from destroction.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -4804,7 +4930,7 @@
 </tbody>
 </table>
 <h3 id="init">init<a class="headerlink" href="#init" title="Permanent link">&para;</a></h3>
-<p>Create a Babylon project structure using YAML templates.</p>
+<p>Scaffolds a new Babylon project structure using YAML templates.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code>babylon init [OPTIONS]
 </code></pre></div>
