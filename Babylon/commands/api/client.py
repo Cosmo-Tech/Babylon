@@ -126,7 +126,7 @@ def create_dataset(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file
 ) -> CommandResponse:
     """
-    Create an dataset using a YAML payload file.
+    Create a dataset using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
@@ -160,7 +160,7 @@ def create_dataset(
 @argument("payload_file", type=Path(exists=True))
 def create_solution(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
     """
-    Create an solution using a YAML payload file.
+    Create a solution using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
@@ -192,7 +192,7 @@ def create_workspace(
     config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file
 ) -> CommandResponse:
     """
-    Create an workspace using a YAML payload file.
+    Create a workspace using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)
@@ -228,7 +228,7 @@ def create_runner(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, solution_id: str, payload_file
 ) -> CommandResponse:
     """
-    Create an runner using a YAML payload file.
+    Create a runner using a YAML payload file.
     """
     with open(payload_file, "r") as f:
         payload = safe_load(f)

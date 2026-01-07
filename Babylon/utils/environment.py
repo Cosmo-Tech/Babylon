@@ -188,9 +188,9 @@ class Environment(metaclass=SingletonMeta):
         try:
             config.load_kube_config()
         except ConfigException as e:
-            logger.error("\n[bold red]✘[/bold red] Failed to load kube config")
+            logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
             logger.error(f"  [red]Reason:[/red] {e}")
-            logger.info("\n[bold white]💡 Troubleshooting:[/bold white]")
+            logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Ensure your kubeconfig file is valid")
             logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
             sys.exit(1)
@@ -198,11 +198,11 @@ class Environment(metaclass=SingletonMeta):
             v1 = client.CoreV1Api()
             secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
         except ApiException:
-            logger.error("\n[bold red]✘[/bold red] Resource Not Found")
+            logger.error("\n  [bold red]✘[/bold red] Resource Not Found")
             logger.error(
                 f"  Secret [green]keycloak-babylon[/green] could not be found in namespace [green]{tenant}[/green]"
             )
-            logger.info("\n[bold white]💡 Troubleshooting:[/bold white]")
+            logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Please ensure your kubeconfig is valid")
             logger.info("  • Check that your context is correctly set [cyan]kubectl config current-context[/cyan]")
             logger.info("  • You can set context using [cyan]kubectl config use-context <context-name>[/cyan]")
