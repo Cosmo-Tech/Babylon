@@ -71,16 +71,6 @@ class Environment(metaclass=SingletonMeta):
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
         self.variable_files: [Path] = []
 
-    def get_variables_for_logs(self):
-        variables_file = self.pwd / "variables.yaml"
-        vars = dict()
-        if variables_file.exists():
-            logger.debug(f"Loading variables from {variables_file}")
-            vars = safe_load(variables_file.open()) or dict()
-        vars["secret_powerbi"] = ""
-        vars["github_secret"] = ""
-        return vars
-
     def get_variables(self):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
@@ -168,8 +158,12 @@ class Environment(metaclass=SingletonMeta):
             account_secret = os.getenv("ACCOUNT_SECRET", "").strip()
             if not storage_name and not account_secret:
                 raise EnvironmentError("Missing environment variables: 'STORAGE_NAME' and 'ACCOUNT_SECRET'")
-            prefix = f"DefaultEndpointsProtocol=https;AccountName={storage_name}"
-            connection_str = (f"{prefix};AccountKey={account_secret};EndpointSuffix=core.windows.net")
+            connection_str = (
+                f"DefaultEndpointsProtocol=https;"
+                f"AccountName={storage_name};"
+                f"AccountKey={account_secret};"
+                f"EndpointSuffix=core.windows.net"
+            )
             self.blob_client = BlobServiceClient.from_connection_string(connection_str)
         except Exception as e:
             logger.error(f"Failed to initialize BlobServiceClient: {e}")
