@@ -91,7 +91,8 @@ class Environment(metaclass=SingletonMeta):
         payload_dict = safe_load(payload)
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
-        self.set_blob_client()
+        if remote:
+            self.set_blob_client()
 
     def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
