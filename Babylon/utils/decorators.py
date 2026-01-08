@@ -81,7 +81,7 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
             path_file = pathlib.Path(output_file)
             ext_file = path_file.suffix.lower()
 
-            if  ext_file == ".json":
+            if ext_file == ".json":
                 response.dump_json(path_file)
             else:
                 response.dump_yaml(path_file)

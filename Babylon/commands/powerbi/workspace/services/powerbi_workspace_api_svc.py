@@ -70,17 +70,3 @@ class AzurePowerBIWorkspaceService:
             logger.error(f"{workspace_id} not found")
             return None
         return workspace_data
-
-    def get_by_name_or_id(self, name: str, workspace_id: str = ""):
-        url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
-        params = {"$filter": f"id eq '{workspace_id}'"} if workspace_id else {"$filter": f"name eq '{name}'"}
-        response = oauth_request(url_groups, self.powerbi_token, params=params)
-        if response is None:
-            logger.warning("[powerbi] Cannot get the PowerBI workspace by name or id")
-            return None
-        workspace_data = response.json().get("value")
-        if not workspace_data:
-            logger.error(f"{name} not found")
-            return None
-        if len(workspace_data):
-            return workspace_data[0]

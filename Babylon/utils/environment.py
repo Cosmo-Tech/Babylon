@@ -58,7 +58,6 @@ class Environment(metaclass=SingletonMeta):
         self.environ_id: str = ""
         self.server_id: str = ""
         self.tenant_id: str = ""
-        self.organization_name: str = ""
         self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir" / ".templates"
         self.dry_run = False
         self.is_verbose = True
@@ -209,7 +208,7 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
         except Exception:
             logger.error(
-                "  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: " \
+                "  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: "
                 "'Cluster may be down, kube-apiserver unreachable'"
             )
             sys.exit(1)

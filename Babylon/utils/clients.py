@@ -1,10 +1,7 @@
 import logging
-import os
-import sys
 from functools import wraps
 from typing import Any, Callable
 
-import hvac
 from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlobServiceClient
@@ -14,26 +11,6 @@ from .environment import Environment
 
 logger = logging.getLogger("Babylon")
 env = Environment()
-
-
-def pass_hvac_client(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Grab hvac client"""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        client = None
-        try:
-            client = hvac.Client(url=env.server_id, token=os.environ.get("BABYLON_TOKEN"))
-            if not client.is_authenticated():
-                logger.info("Forbidden. Check your credentials")
-                sys.exit(1)
-        except Exception as e:
-            logger.info(e)
-            client = None
-        kwargs["hvac_client"] = client
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 def pass_blob_client(func: Callable[..., Any]) -> Callable[..., Any]:
