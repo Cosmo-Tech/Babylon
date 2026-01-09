@@ -71,7 +71,7 @@ def delete(
             runner_id=runner_id,
             run_id=run_id,
         )
-        logger.info(f"  [green]✔[/green] Run {run_id} deleted successfully")
+        logger.info(f"  [green]✔[/green] Run [bold red]{run_id}[/bold red] deleted successfully")
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Could not delete run: {e}")
@@ -98,7 +98,7 @@ def list_runs(
         data_list = [ds.model_dump() for ds in runs]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"   [bold red]✘[/bold red] Could not list runs: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Could not list runs: {e}")
         return CommandResponse.fail()
 
 
