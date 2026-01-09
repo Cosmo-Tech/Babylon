@@ -189,7 +189,9 @@ def create_part(
         if not created:
             logger.error("  [bold red]✘ API returned no data.[/bold red]")
             return CommandResponse.fail()
-        logger.info(f"  [bold green]✔[/bold green] Dataset [bold cyan]{created.id}[/bold cyan] successfully created")
+        logger.info(
+            f"  [bold green]✔[/bold green] Dataset part [bold cyan]{created.id}[/bold cyan] successfully created"
+        )
         return CommandResponse.success(created.model_dump())
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
@@ -217,7 +219,7 @@ def get_part(
             dataset_id=dataset_id,
             dataset_part_id=dataset_part_id,
         )
-        logger.info(f"  [green]✔[/green] Dataset parts [bold]{dataset_part.id}[/bold] retrieved successfully")
+        logger.info(f"  [green]✔[/green] Dataset part [bold]{dataset_part.id}[/bold] retrieved successfully")
         return CommandResponse.success(dataset_part.model_dump())
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Retrieve Dataset part Failed Reason: {e}")
@@ -244,7 +246,7 @@ def delete_part(
             dataset_id=dataset_id,
             dataset_part_id=dataset_part_id,
         )
-        logger.info(f"  [green]✔[/green] Dataset parts [bold]{dataset_part_id}[/bold] successfully deleted")
+        logger.info(f"  [green]✔[/green] Dataset part [bold]{dataset_part_id}[/bold] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
@@ -286,7 +288,7 @@ def update_part(
         logger.info(f"  [green]✔[/green] Dataset part [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Update Runner Failed Reason: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Update Dataset part Failed Reason: {e}")
         return CommandResponse.fail()
 
 

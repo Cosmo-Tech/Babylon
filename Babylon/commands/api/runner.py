@@ -201,7 +201,9 @@ def stop(config: dict, keycloak_token: str, organization_id: str, workspace_id: 
             workspace_id=workspace_id,
             runner_id=runner_id,
         )
-        logger.info(f"  [green]✔[/green] Run [bold cyan]{runner_id}[/bold cyan] stopped successfully")
+        logger.info(
+            f"  [green]✔[/green] Last run stopped successfully for runner [bold cyan]{runner_id}[/bold cyan]"
+        )
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Could not stop run: {e}")
