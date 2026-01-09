@@ -7,7 +7,7 @@ from functools import wraps
 from json import dumps
 from typing import Any, Callable
 
-from click import Choice, get_current_context, option
+from click import Choice, ClickException, get_current_context, option
 from rich.console import Console
 from rich.padding import Padding
 from rich.syntax import Syntax
@@ -103,6 +103,9 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
             console.print(padded_content)
         elif not output_file and output_format:
             response.print_table()
+
+        if response.has_failed():
+            raise ClickException(f"Command {response.command} failed")
 
         return response
 
