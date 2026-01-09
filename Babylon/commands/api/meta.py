@@ -1,11 +1,7 @@
 from logging import getLogger
 
 from click import command
-from cosmotech_api import (
-    ApiClient,
-    Configuration,
-    MetaApi,
-)
+from cosmotech_api import ApiClient, Configuration, MetaApi
 from cosmotech_api.models.about_info import AboutInfo
 
 from Babylon.utils.credentials import pass_keycloak_token

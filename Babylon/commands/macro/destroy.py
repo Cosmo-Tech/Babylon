@@ -2,11 +2,9 @@ from logging import getLogger
 
 from click import command, echo, option, style
 
-from Babylon.commands.api.client import (
-    get_organization_api_instance,
-    get_solution_api_instance,
-    get_workspace_api_instance,
-)
+from Babylon.commands.api.organization import get_organization_api_instance
+from Babylon.commands.api.solution import get_solution_api_instance
+from Babylon.commands.api.workspace import get_workspace_api_instance
 from Babylon.commands.macro.deploy import resolve_inclusion_exclusion
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
