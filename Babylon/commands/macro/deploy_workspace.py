@@ -6,7 +6,7 @@ from cosmotech_api.models.workspace_create_request import WorkspaceCreateRequest
 from cosmotech_api.models.workspace_security import WorkspaceSecurity
 from cosmotech_api.models.workspace_update_request import WorkspaceUpdateRequest
 
-from Babylon.commands.api.client import get_workspace_api_instance
+from Babylon.commands.api.workspace import get_workspace_api_instance
 from Babylon.commands.macro.deploy import update_object_security
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.environment import Environment

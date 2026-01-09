@@ -1,47 +1,12 @@
 from click import group
 
-from .client import (
-    about,
-    create_dataset,
-    create_dataset_part,
-    create_organization,
-    create_runner,
-    create_solution,
-    create_workspace,
-    delete_dataset,
-    delete_dataset_part,
-    delete_organization,
-    delete_run,
-    delete_runner,
-    delete_solution,
-    delete_workspace,
-    download_dataset_part,
-    get_dataset,
-    get_dataset_part,
-    get_organization,
-    get_run,
-    get_run_logs,
-    get_run_status,
-    get_runner,
-    get_solution,
-    get_workspace,
-    list_dataset_parts,
-    list_datasets,
-    list_organizations,
-    list_runners,
-    list_runs,
-    list_solutions,
-    list_workspaces,
-    query_data,
-    start_run,
-    stop_run,
-    update_dataset,
-    update_dataset_part,
-    update_organization,
-    update_runner,
-    update_solution,
-    update_workspace,
-)
+from .dataset import datasets
+from .meta import about
+from .organization import organizations
+from .run import runs
+from .runner import runners
+from .solution import solutions
+from .workspace import workspaces
 
 
 @group()
@@ -50,46 +15,5 @@ def api():
     pass
 
 
-for _command in [
-    about,
-    create_dataset,
-    create_dataset_part,
-    create_organization,
-    create_runner,
-    create_solution,
-    create_workspace,
-    delete_dataset,
-    delete_dataset_part,
-    delete_organization,
-    delete_run,
-    delete_runner,
-    delete_solution,
-    delete_workspace,
-    get_dataset,
-    get_dataset_part,
-    get_organization,
-    get_run,
-    get_run_logs,
-    get_run_status,
-    get_runner,
-    get_solution,
-    get_workspace,
-    list_dataset_parts,
-    list_datasets,
-    list_organizations,
-    list_runners,
-    list_runs,
-    list_solutions,
-    list_workspaces,
-    query_data,
-    start_run,
-    stop_run,
-    update_dataset,
-    update_dataset_part,
-    update_organization,
-    update_runner,
-    update_solution,
-    update_workspace,
-    download_dataset_part,
-]:
+for _command in [organizations, solutions, workspaces, datasets, runners, runs, about]:
     api.add_command(_command)
