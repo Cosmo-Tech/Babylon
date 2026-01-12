@@ -27,7 +27,7 @@ def powerbi():
     Environment variable to get access token with a user email\n
     - BABYLON_ENCODING_KEY
     """
-    env.check_environ(["BABYLON_SERVICE", "BABYLON_TOKEN", "BABYLON_ORG_NAME"])
+    pass
 
 
 for _command in list_commands:

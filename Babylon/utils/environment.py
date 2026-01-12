@@ -6,10 +6,8 @@ from json import loads
 from logging import getLogger
 from pathlib import Path
 from re import compile
-from uuid import uuid4
 
 from azure.storage.blob import BlobServiceClient
-from cryptography.fernet import Fernet
 from flatten_json import flatten
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
@@ -94,19 +92,6 @@ class Environment(metaclass=SingletonMeta):
         if remote:
             self.set_blob_client()
 
-    def fill_template_jsondump(self, data: str, state: dict = None, ext_args: dict = None):
-        result = data.replace("{{", "${").replace("}}", "}")
-        t = Template(text=result, strict_undefined=True)
-        vars = self.get_variables()
-        flattenstate = dict()
-        if ext_args:
-            vars.update(ext_args)
-        if state:
-            flattenstate = flatten(state.get("services", {}), separator=".")
-        payload = t.render(**vars, services=flattenstate)
-        payload_json = yaml_to_json(payload)
-        return payload_json
-
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
@@ -130,21 +115,6 @@ class Environment(metaclass=SingletonMeta):
         templates_path = self.original_template_path.absolute().as_posix()
         templates_path += b
         return templates_path
-
-    def check_environ(self, list_to_check: list):
-        vars = list_to_check
-        checkers = [k in os.environ for k in vars]
-        response = dict(zip(vars, checkers))
-        for i, k in response.items():
-            if not k:
-                logger.error(f"[bold red]✘[/bold red] [bold cyan]{i}[/bold cyan] environment variable is missing")
-            else:
-                if "SERVICE" in i:
-                    self.set_server_id()
-                if "ORG_NAME" in i and "TOKEN":
-                    self.set_org_name()
-        if not all(checkers):
-            sys.exit(1)
 
     def set_context(self, context_id):
         self.context_id = context_id
@@ -171,17 +141,6 @@ class Environment(metaclass=SingletonMeta):
         except Exception as e:
             logger.error(f"  [bold red]✘[/bold red] Failed to initialize BlobServiceClient: {e}")
             sys.exit(1)
-
-    def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
-        if not content:
-            return b""
-        try:
-            decoder = Fernet(encoding_key)
-            data = decoder.decrypt(content)
-        except Exception:
-            logger.error("  [bold red]✘[/bold red] Could not decrypt content, wrong key ?")
-            return b""
-        return data
 
     def get_config_from_k8s_secret_by_tenant(self, tenant: str):
         response_parsed = dict()
@@ -292,25 +251,6 @@ class Environment(metaclass=SingletonMeta):
         data = load(state_blob.download_blob().readall(), Loader=SafeLoader)
         return data
 
-    def get_state_id(self):
-        id = str(uuid4())
-        state_local = self.get_state_from_local()
-        if not state_local:
-            state_local = dict(id="")
-        if not state_local.get("id", ""):
-            state_local["id"] = id
-            return state_local.get("id")
-        if self.remote:
-            state_cloud = self.get_state_from_cloud()
-            if not state_cloud:
-                state_cloud = dict(id="")
-            if state_local and not state_cloud.get("id", ""):
-                state_cloud["id"] = state_local.get("id", "") or id
-            return state_cloud.get("id")
-        else:
-            vars = self.get_variables()
-            return vars["state_id"]
-
     def store_namespace_in_local(self):
         ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         if not ns_dir.exists():
@@ -366,40 +306,6 @@ class Environment(metaclass=SingletonMeta):
         else:
             state = self.get_state_from_local()
         return state
-
-    def set_ns_from_yaml(self, content: str, state: dict = None, ext_args: dict = None):
-        ns = self.fill_template(data=content, state=state, ext_args=ext_args).get("namespace")
-        context_id = ns.get("context", "")
-        state_id = ns.get("state_id", "")
-        plt_obj = ns.get("tenant", {})
-        tenant_id = plt_obj.get("id", "")
-        if not tenant_id:
-            logger.error("  [bold red]✘[/bold red] tenant_id is mandatory")
-            sys.exit(1)
-        platform_url = plt_obj.get("url", "")
-        if not platform_url:
-            logger.error("  [bold red]✘[/bold red] url is mandatory")
-            sys.exit(1)
-        url_ = compile(f"https:\\/\\/{tenant_id}\\.")
-        match_content = url_.match(platform_url)
-        if not match_content:
-            logger.error("  [bold red]✘[/bold red] url not match")
-            sys.exit(1)
-        self.state_id = state_id
-        self.set_context(context_id=context_id)
-        self.set_environ(environ_id=tenant_id)
-        # self.set_blob_client()
-        return platform_url
-
-    def get_metadata(self, vars: dict, content: str, state: dict):
-        result = content.replace("{{", "${").replace("}}", "}")
-        t = Template(text=result, strict_undefined=True)
-        flattenstate = flatten(state.get("services", {}), separator=".")
-        payload = t.render(**vars, services=flattenstate)
-        payload_json = yaml_to_json(payload)
-        payload_dict: dict = loads(payload_json)
-        metadata = payload_dict.get("metadata", {})
-        return metadata
 
     def set_variable_files(self, variable_files_updated: [Path]):
         self.variable_files = variable_files_updated
