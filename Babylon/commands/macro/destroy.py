@@ -32,7 +32,6 @@ def destroy(
     # Header for the destructive operation
     echo(style(f"\n🔥 Starting Destruction Process in namespace: {env.environ_id}", bold=True, fg="red"))
     keycloak_token, config = get_keycloak_token()
-    env.set_blob_client()
 
     # Initialize API clients
     organization_api_instance = get_organization_api_instance(config=config, keycloak_token=keycloak_token)
@@ -85,6 +84,7 @@ def destroy(
     remote = state["remote"]
     if remote:
         logger.info("  [dim]☁ Syncing state cleanup to cloud...[/dim]")
+        env.set_blob_client()
         env.store_state_in_cloud(state=state)
 
     # --- Final Destruction Summary ---
