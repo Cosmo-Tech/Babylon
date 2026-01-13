@@ -171,19 +171,18 @@ class Environment(metaclass=SingletonMeta):
         return response_parsed
 
     def store_state_in_local(self, state: dict):
-        state_dir = self.state_dir
-        if not state_dir.exists():
-            state_dir.mkdir(parents=True, exist_ok=True)
-        s = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+        state_file = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+        self.state_dir.mkdir(parents=True, exist_ok=True)
+        s = self.state_dir / state_file
         state["files"] = self.working_dir.files_to_deploy
         s.write_bytes(data=dump(state).encode("utf-8"))
 
     def store_state_in_cloud(self, state: dict):
-        s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+        state_file = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         state_container = self.blob_client.get_container_client(container="babylon-states")
         if not state_container.exists():
             state_container.create_container()
-        state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
+        state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=state_file)
         if state_blob.exists():
             state_blob.delete_blob()
         state_blob.upload_blob(data=dump(state).encode("utf-8"))
