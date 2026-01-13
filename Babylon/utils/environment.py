@@ -96,7 +96,7 @@ class Environment(metaclass=SingletonMeta):
         result = data.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
         variables = self.get_variables()
-        flattenstate = []
+        flattenstate = {}
         if ext_args:
             variables.update(ext_args)
         if state:
@@ -133,7 +133,7 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
 
     def get_config_from_k8s_secret_by_tenant(self, tenant: str):
-        response_parsed = []
+        response_parsed = {}
         try:
             config.load_kube_config()
         except ConfigException as e:
@@ -232,7 +232,7 @@ class Environment(metaclass=SingletonMeta):
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
-        ns = {"state_id":self.state_id, "context":self.context_id, "tenant":self.environ_id}
+        ns = {"state_id": self.state_id, "context": self.context_id, "tenant": self.environ_id}
         s.write_bytes(data=dump(ns).encode("utf-8"))
         self.set_state_id(state_id=self.state_id)
         self.set_context(context_id=self.context_id)
