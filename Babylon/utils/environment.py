@@ -170,16 +170,12 @@ class Environment(metaclass=SingletonMeta):
             logger.warning(f"  [yellow]⚠[/yellow] Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
         return response_parsed
 
-    def store_mtime_in_state(self, state: dict):
-        state["files"] = self.working_dir.files_to_deploy
-        return state
-
     def store_state_in_local(self, state: dict):
         state_dir = self.state_dir
         if not state_dir.exists():
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        state = self.store_mtime_in_state(state)
+        state["files"] = self.working_dir.files_to_deploy
         s.write_bytes(data=dump(state).encode("utf-8"))
 
     def store_state_in_cloud(self, state: dict):
