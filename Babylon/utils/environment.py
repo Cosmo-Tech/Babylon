@@ -65,6 +65,7 @@ class Environment(metaclass=SingletonMeta):
             "powerbi": "https://analysis.windows.net/powerbi/api/.default",
             "csm_api": "",
         }
+        self.state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
         self.variable_files: [Path] = []
 
@@ -185,7 +186,7 @@ class Environment(metaclass=SingletonMeta):
         return state
 
     def store_state_in_local(self, state: dict):
-        state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
+        state_dir = self.state_dir
         if not state_dir.exists():
             state_dir.mkdir(parents=True, exist_ok=True)
         s = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
@@ -203,8 +204,7 @@ class Environment(metaclass=SingletonMeta):
         state_blob.upload_blob(data=dump(state).encode("utf-8"))
 
     def get_state_from_local(self):
-        state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
-        state_file = state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+        state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
             return {
                 "context": self.context_id,
@@ -221,14 +221,6 @@ class Environment(metaclass=SingletonMeta):
             }
         state_data = load(state_file.open("r"), Loader=SafeLoader)
         return state_data
-
-    def get_all_states_from_local(self):
-        state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
-        if not state_dir.exists():
-            logger.error(f"directory {state_dir} not found")
-            sys.exit(1)
-        else:
-            return state_dir
 
     def get_state_from_cloud(self) -> dict:
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
@@ -252,7 +244,7 @@ class Environment(metaclass=SingletonMeta):
         return data
 
     def store_namespace_in_local(self):
-        ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
+        ns_dir = self.state_dir
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
@@ -263,8 +255,7 @@ class Environment(metaclass=SingletonMeta):
         self.set_environ(environ_id=self.environ_id)
 
     def get_namespace_from_local(self, context: str = "", tenant: str = "", state_id: str = ""):
-        ns_dir = Path().home() / ".config" / "cosmotech" / "babylon"
-        ns_file = ns_dir / "namespace.yaml"
+        ns_file = self.state_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f" [bold red]✘[/bold red] [cyan]{ns_file}[/cyan] not found")
             logger.info("  Run the following command to set your active namespace:")
