@@ -6,7 +6,7 @@ from cosmotech_api.models.organization_create_request import OrganizationCreateR
 from cosmotech_api.models.organization_security import OrganizationSecurity
 from cosmotech_api.models.organization_update_request import OrganizationUpdateRequest
 
-from Babylon.commands.api.client import get_organization_api_instance
+from Babylon.commands.api.organization import get_organization_api_instance
 from Babylon.commands.macro.deploy import update_object_security
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.environment import Environment
