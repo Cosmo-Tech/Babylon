@@ -5,7 +5,6 @@ from collections import defaultdict
 from json import loads
 from logging import getLogger
 from pathlib import Path
-from re import compile
 
 from azure.storage.blob import BlobServiceClient
 from flatten_json import flatten
@@ -15,7 +14,7 @@ from kubernetes.config.config_exception import ConfigException
 from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
-from Babylon.utils import ORIGINAL_TEMPLATE_FOLDER_PATH
+from Babylon.utils import ORIGINAL_CONFIG_FOLDER_PATH, ORIGINAL_TEMPLATE_FOLDER_PATH
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -65,7 +64,7 @@ class Environment(metaclass=SingletonMeta):
             "powerbi": "https://analysis.windows.net/powerbi/api/.default",
             "csm_api": "",
         }
-        self.state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
+        self.state_dir = ORIGINAL_CONFIG_FOLDER_PATH
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
         self.variable_files: list[Path] = []
 
@@ -106,16 +105,6 @@ class Environment(metaclass=SingletonMeta):
         payload_json = yaml_to_json(payload)
         payload_dict = loads(payload_json)
         return payload_dict
-
-    def convert_template_path(self, query) -> str:
-        check_regex = compile(f"{PATH_SYMBOL}({TEMPLATES_STRING}){PATH_SYMBOL}(.+)")
-        match_content = check_regex.match(query)
-        if not match_content:
-            return None
-        _, b = match_content.groups()
-        templates_path = self.original_template_path.absolute().as_posix()
-        templates_path += b
-        return templates_path
 
     def set_context(self, context_id):
         self.context_id = context_id
@@ -298,7 +287,7 @@ class Environment(metaclass=SingletonMeta):
             state = self.get_state_from_local()
         return state
 
-    def set_variable_files(self, variable_files_updated: [Path]):
+    def set_variable_files(self, variable_files_updated: list[Path]):
         self.variable_files = variable_files_updated
 
     def load_yaml_file(self, file_path: Path):
