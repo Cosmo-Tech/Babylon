@@ -33,17 +33,17 @@ def init(project_folder: str, variables_file: str):
         logger.info(f"  [dim]→ Created directory: {project_path}[/dim]")
         # Copy Core YAML Templates
         for file in project_yaml_files:
-            deploy_file = Path(env.convert_template_path(f"%templates%/yaml/{file}"))
+            deploy_file = env.original_template_path / "yaml" / file
             destination = project_path / file
             copy(deploy_file, destination)
             logger.info(f"  [green]✔[/green] Generated [white]{file}[/white]")
 
-        customers_src = Path(env.convert_template_path("%templates%/yaml/dataset/customers.csv"))
+        customers_src = env.original_template_path / "yaml" / "dataset" / "customers.csv"
         customers_dst = Path(getcwd()) / "customers.csv"
         copy(customers_src, customers_dst)
         logger.info("  [green]✔[/green] Generated [white]customers.csv[/white]")
 
-        variables_template = Path(env.convert_template_path("%templates%/yaml/variables.yaml"))
+        variables_template = env.original_template_path / "yaml" / "variables.yaml"
         copy(variables_template, variables_path)
         logger.info(f"  [green]✔[/green] Generated [white]{variables_file}[/white]")
 
