@@ -67,7 +67,7 @@ class Environment(metaclass=SingletonMeta):
         }
         self.state_dir = Path().home() / ".config" / "cosmotech" / "babylon"
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
-        self.variable_files: [Path] = []
+        self.variable_files: list[Path] = []
 
     def get_variables(self):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
@@ -85,8 +85,8 @@ class Environment(metaclass=SingletonMeta):
 
     def get_ns_from_text(self, content: str):
         t = Template(text=content, strict_undefined=True)
-        vars = self.get_variables()
-        payload = t.render(**vars)
+        variables = self.get_variables()
+        payload = t.render(**variables)
         payload_dict = safe_load(payload)
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
@@ -96,13 +96,13 @@ class Environment(metaclass=SingletonMeta):
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
-        vars = self.get_variables()
-        flattenstate = dict()
+        variables = self.get_variables()
+        flattenstate = []
         if ext_args:
-            vars.update(ext_args)
+            variables.update(ext_args)
         if state:
             flattenstate = flatten(state.get("services", {}), separator=".")
-        payload = t.render(**vars, services=flattenstate)
+        payload = t.render(**variables, services=flattenstate)
         payload_json = yaml_to_json(payload)
         payload_dict = loads(payload_json)
         return payload_dict
@@ -112,7 +112,7 @@ class Environment(metaclass=SingletonMeta):
         match_content = check_regex.match(query)
         if not match_content:
             return None
-        a, b = match_content.groups()
+        _, b = match_content.groups()
         templates_path = self.original_template_path.absolute().as_posix()
         templates_path += b
         return templates_path
@@ -144,7 +144,7 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
 
     def get_config_from_k8s_secret_by_tenant(self, tenant: str):
-        response_parsed = dict()
+        response_parsed = []
         try:
             config.load_kube_config()
         except ConfigException as e:
@@ -248,7 +248,7 @@ class Environment(metaclass=SingletonMeta):
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
-        ns = dict(state_id=self.state_id, context=self.context_id, tenant=self.environ_id)
+        ns = {"state_id":self.state_id, "context":self.context_id, "tenant":self.environ_id}
         s.write_bytes(data=dump(ns).encode("utf-8"))
         self.set_state_id(state_id=self.state_id)
         self.set_context(context_id=self.context_id)
@@ -309,7 +309,7 @@ class Environment(metaclass=SingletonMeta):
                 logger.error(f"  [bold red]✘[/bold red] File '{file_path}' is not a valid YAML file. Details: {str(e)}")
                 sys.exit(1)
 
-    def merge_yaml_files(self, file_paths: [Path]):
+    def merge_yaml_files(self, file_paths: list[Path]):
         merged_data = {}
         keys_tracker = defaultdict(list)
 
