@@ -55,10 +55,7 @@ class CommandResponse:
     def toYAML(self) -> str:
         return yaml.dump(self.data)
 
-    def print_table(self):
-        """
-        Handles the display of Organization data.
-        """
+    def _get_normalized_items(self) -> list:
         raw_data = self.data
         if isinstance(raw_data, dict):
             items = [raw_data] if "id" in raw_data or "version" in raw_data else list(raw_data.values())
@@ -66,53 +63,53 @@ class CommandResponse:
             items = raw_data
         else:
             items = []
+        return [i for i in items if i and isinstance(i, dict)]
 
-        items = [i for i in items if i and isinstance(i, dict)]
+    def _is_api_info_type(self, first_item: dict) -> bool:
+        version_content = first_item.get("version", {})
+        return isinstance(version_content, dict) and "release" in version_content
 
+    def _add_resource_row(self, table: Table, item: dict):
+        raw_ts = item.get("create_info", {}).get("timestamp")
+        created_at = "N/A"
+        if raw_ts:
+            dt = datetime.fromtimestamp(raw_ts / 1000.0)
+            created_at = dt.strftime("%Y-%m-%d %H:%M")
+
+        table.add_row(
+            str(item.get("id", "N/A")), 
+            str(item.get("name", "N/A")), 
+            created_at
+        )
+    
+    def print_table(self):
+        """
+        Handles the display of Organization data.
+        """
+
+        items = self._get_normalized_items()
         if not items:
             return
-
-        first_item = items[0]
-        is_api_info = False
-        if "version" in first_item:
-            version_content = first_item.get("version", {})
-            if isinstance(version_content, dict) and "release" in version_content:
-                is_api_info = True
-
-        table = Table(
-            show_header=True,
-            header_style="bold white",
-            box=None,
-            padding=(0, 2),
-            show_edge=False,
-            collapse_padding=True,
-            expand=False,
-        )
-
+        
+        is_api_info = self._is_api_info_type(items[0])
+        table = Table(show_header=True, header_style="bold white", box=None, 
+                      padding=(0, 2), show_edge=False, expand=False)
         if is_api_info:
-            table.add_column("PROPERTY", justify="left", no_wrap=True)
-            table.add_column("VALUE", justify="left")
-        else:
-            table.add_column("ID", no_wrap=True)
-            table.add_column("NAME")
-            table.add_column("CREATED", no_wrap=True)
-        for item in items:
-            if is_api_info:
+            table.add_column("PROPERTY")
+            table.add_column("VALUE")
+            for item in items:
                 v = item.get("version", {})
                 if isinstance(v, dict):
                     table.add_row("Full Version", v.get("full", "N/A"))
                     table.add_row("Release", v.get("release", "N/A"))
                 else:
                     table.add_row("Version", str(v))
-            else:
-                raw_ts = item.get("create_info", {}).get("timestamp")
-                created_at = "N/A"
-                if raw_ts:
-                    dt = datetime.fromtimestamp(raw_ts / 1000.0)
-                    created_at = dt.strftime("%Y-%m-%d %H:%M")
-
-                row = [str(item.get("id", "N/A")), str(item.get("name", "N/A")), created_at]
-                table.add_row(*row)
+        else:
+            table.add_column("ID", no_wrap=True)
+            table.add_column("NAME")
+            table.add_column("CREATED", no_wrap=True)
+            for item in items:
+                self._add_resource_row(table, item)
 
         console.print(table)
 

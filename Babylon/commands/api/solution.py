@@ -12,6 +12,8 @@ from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 
+# Define the constant to avoids duplicating the literal
+API_REQUEST_MESSAGE = "  [dim]→ Sending request to API...[/dim]"
 
 def get_solution_api_instance(config: dict, keycloak_token: str) -> SolutionApi:
     configuration = Configuration(host=config.get("api_url"))
@@ -41,7 +43,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, payload_file
     solution_create_request = SolutionCreateRequest.from_dict(payload)
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         solution = api_instance.create_solution(organization_id, solution_create_request)
 
         if not solution:
@@ -64,7 +66,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str, solution_id:
     """Delete a solution by ID"""
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_solution(organization_id=organization_id, solution_id=solution_id)
         logger.info(f"  [bold green]✔[/bold green] Solution [bold red]{solution_id}[/bold red] successfully deleted")
         return CommandResponse.success()
@@ -82,7 +84,7 @@ def list_solutions(config: dict, keycloak_token: str, organization_id: str) -> C
     """List solutions"""
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         solutions = api_instance.list_solutions(organization_id=organization_id)
         count = len(solutions)
         logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Solution(s) retrieved successfully")
@@ -103,7 +105,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, solution_id: st
     """Get solution"""
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         solution = api_instance.get_solution(organization_id=organization_id, solution_id=solution_id)
         logger.info(f"  [green]✔[/green] Solution [bold cyan]{solution.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({solution.id: solution.model_dump()})
@@ -126,7 +128,7 @@ def update(config: dict, keycloak_token: str, organization_id: str, solution_id:
     solution_update_request = SolutionUpdateRequest.from_dict(payload)
     api_instance = get_solution_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         updated = api_instance.update_solution(
             organization_id=organization_id,
             solution_id=solution_id,

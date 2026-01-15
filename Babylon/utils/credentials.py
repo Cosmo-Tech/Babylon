@@ -79,7 +79,7 @@ def get_azure_credentials() -> ClientSecretCredential:
     return credential
 
 
-def get_keycloak_credentials() -> dict:
+def get_keycloak_credentials() -> tuple[dict, dict]:
     """ "Logs to keycloak and saves the token as a config variable"""
     try:
         config = env.retrieve_config()
@@ -103,7 +103,7 @@ def get_keycloak_credentials() -> dict:
         logger.error(f"  [bold red]✘[/bold red] Unexpected error while retrieving Keycloak credentials: {e}")
 
 
-def get_keycloak_token() -> str:
+def get_keycloak_token() -> tuple[str, dict]:
     """Returns keycloak token"""
     try:
         credentials, config = get_keycloak_credentials()

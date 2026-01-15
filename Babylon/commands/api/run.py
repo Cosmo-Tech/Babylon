@@ -9,6 +9,8 @@ from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 
+# Define the constant to avoids duplicating the literal
+API_REQUEST_MESSAGE = "  [dim]→ Sending request to API...[/dim]"
 
 def get_run_api_instance(config: dict, keycloak_token: str) -> RunApi:
     configuration = Configuration(host=config.get("api_url"))
@@ -37,7 +39,7 @@ def get(
     """Get a run"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         run = api_instance.get_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -64,7 +66,7 @@ def delete(
     """Delete a run"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -91,7 +93,7 @@ def list_runs(
     """List runs"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         runs = api_instance.list_runs(organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id)
         count = len(runs)
         logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Run(s) retrieved successfully")
@@ -117,7 +119,7 @@ def get_logs(
     try:
         logger.info(f"  [green]✔[/green] Fetching logs for Run [magenta]{run_id}[/magenta]")
         logger.info(f"  [dim]→ Runner ID: {runner_id}[/dim]")
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         logs = api_instance.get_run_logs(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -147,7 +149,7 @@ def get_status(
     try:
         logger.info(f"  [green]✔[/green] Checking status for Run [magenta]{run_id}[/magenta]")
         logger.info(f"  [dim]→ Runner ID: {runner_id}[/dim]")
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         status = api_instance.get_run_status(
             organization_id=organization_id,
             workspace_id=workspace_id,

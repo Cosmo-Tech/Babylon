@@ -15,6 +15,25 @@ logger = getLogger(__name__)
 env = Environment()
 
 
+def _delete_resource(api_call, resource_name: str, org_id: str, resource_id: str, state: dict, state_key: str):
+    """Helper to handle repetitive deletion logic and error handling."""
+    if not resource_id:
+        logger.warning(f"  [yellow]⚠[/yellow] [dim]No {resource_name} ID found in state! skipping deletion[dim]")
+        return
+
+    try:
+        logger.info(f"  [dim]→ Existing ID [bold cyan]{resource_id}[/bold cyan] found. Deleting...[/dim]")
+        if org_id and resource_name != "Organization":
+            api_call(organization_id=org_id, **{f"{resource_name.lower()}_id": resource_id})
+        else:
+            api_call(organization_id=resource_id)
+            
+        logger.info(f"  [bold green]✔[/bold green] {resource_name} [magenta]{resource_id}[/magenta] deleted")
+        state["services"]["api"][state_key] = ""
+    except Exception as e:
+        logger.error(f"  [bold red]✘[/bold red]] Error deleting {resource_name.lower()} {resource_id} reason: {e}")
+
+
 @command()
 @injectcontext()
 @retrieve_state
@@ -31,56 +50,25 @@ def destroy(
     echo(style(f"\n🔥 Starting Destruction Process in namespace: {env.environ_id}", bold=True, fg="red"))
     keycloak_token, config = get_keycloak_token()
 
-    # Initialize API clients
-    organization_api_instance = get_organization_api_instance(config=config, keycloak_token=keycloak_token)
-    workspace_api_instance = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
-    solution_api_instance = get_solution_api_instance(config=config, keycloak_token=keycloak_token)
-
     # We need the Org ID for most sub-resource deletions
-    organization_id = state["services"]["api"]["organization_id"]
+    api_state = state["services"]["api"]
+    org_id = api_state["organization_id"]
 
-    # --- 1. Delete Solution ---
+    # 1. Targeted Deletions using the helper
     if solution:
-        solution_id = state["services"]["api"]["solution_id"]
-        if solution_id:
-            try:
-                logger.info(f"  [dim]→ Existing ID [bold cyan]{solution_id}[/bold cyan] found. Deleting...[/dim]")
-                solution_api_instance.delete_solution(organization_id=organization_id, solution_id=solution_id)
-                logger.info(f"  [bold green]✔[/bold green] Solution [magenta]{solution_id}[/magenta] deleted")
-                state["services"]["api"]["solution_id"] = ""
-            except Exception as e:
-                logger.error(f"  [bold red]✘[/bold red]] Error deleting solution {solution_id} reason: {e}")
-        else:
-            logger.warning("  [yellow]⚠[/yellow] [dim]No Solution ID found in state! skipping deletion[dim]")
-    # --- 2. Delete Workspace ---
+        api = get_solution_api_instance(config=config, keycloak_token=keycloak_token)
+        _delete_resource(api.delete_solution, "Solution", org_id, api_state["solution_id"], state, "solution_id")
     if workspace:
-        workspace_id = state["services"]["api"]["workspace_id"]
-        if workspace_id:
-            try:
-                logger.info(f"  [dim]→ Existing ID [bold cyan]{workspace_id}[/bold cyan] found. Deleting...[/dim]")
-                workspace_api_instance.delete_workspace(organization_id=organization_id, workspace_id=workspace_id)
-                logger.info(f"  [bold green]✔[/bold green] Workspace [magenta]{workspace_id}[/magenta] deleted")
-                state["services"]["api"]["workspace_id"] = ""
-            except Exception as e:
-                logger.error(f"  [bold red]✘[/bold red]] Error deleting workspace {workspace_id} reason: {e}")
-        else:
-            logger.warning("  [yellow]⚠[/yellow] [dim]No Workspace ID found in state! skipping deletion[dim]")
-    # --- 3. Delete Organization ---
+        api = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
+        _delete_resource(api.delete_workspace, "Workspace", org_id, api_state["workspace_id"], state, "workspace_id")
+
     if organization:
-        if organization_id:
-            try:
-                logger.info(f"  [dim]→ Existing ID [bold cyan]{organization_id}[/bold cyan] found. Deleting...[/dim]")
-                organization_api_instance.delete_organization(organization_id=organization_id)
-                logger.info(f"  [bold green]✔[/bold green] Organization [magenta]{organization_id}[/magenta] deleted")
-                state["services"]["api"]["organization_id"] = ""
-            except Exception as e:
-                logger.error(f"  [bold red]✘[/bold red]] Error deleting organization {organization_id} reason: {e}")
-        else:
-            logger.warning("  [yellow]⚠[/yellow] [dim]No Organization ID found in state! skipping deletion[dim]")
+        api = get_organization_api_instance(config=config, keycloak_token=keycloak_token)
+        _delete_resource(api.delete_organization, "Organization", None, org_id, state, "organization_id")
+
     # --- State Persistence ---
     env.store_state_in_local(state=state)
-    remote = state["remote"]
-    if remote:
+    if state.get("remote"):
         logger.info("  [dim]☁ Syncing state cleanup to cloud...[/dim]")
         env.set_blob_client()
         env.store_state_in_cloud(state=state)

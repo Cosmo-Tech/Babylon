@@ -52,6 +52,29 @@ def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
+def _handle_file_output(response: Any, output_file: str):
+    """Handles the file writing logic."""
+    if not output_file:
+        return
+
+    path_file = pathlib.Path(output_file)
+    if path_file.suffix.lower() == ".json":
+        response.dump_json(path_file)
+    else:
+        response.dump_yaml(path_file)
+
+def _display_formatted_output(response: Any, output_format: str):
+    """Handles syntax highlighting and terminal rendering."""
+    if output_format not in ["json", "yaml"]:
+        return
+
+    is_json = output_format == "json"
+    content = dumps(response.data, indent=4) if is_json else dump(response.data, sort_keys=False)
+    lexer = "json" if is_json else "yaml"
+
+    syntax = Syntax(content, lexer, theme="monokai", background_color="default")
+    console.print(Padding(syntax, (0, 0, 0, 7)))
+
 def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
     """Add output to file option to a command"""
 
@@ -76,37 +99,19 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
 
         response: CommandResponse = func(*args, **kwargs)
 
-        # Save to file ---
-        if output_file:
-            path_file = pathlib.Path(output_file)
-            ext_file = path_file.suffix.lower()
+        # 3. Handle File Output
+        _handle_file_output(response, output_file)
 
-            if ext_file == ".json":
-                response.dump_json(path_file)
-            else:
-                response.dump_yaml(path_file)
-
-        # Display in terminal ---
-        if output_format in ["json", "yaml"]:
-            logger.info(f"  [dim]→ output in {output_format}...[/dim]")
-
-            if output_format == "json":
-                content = dumps(response.data, indent=4)
-                lexer = "json"
-            else:
-                content = dump(response.data, sort_keys=False, default_flow_style=False)
-                lexer = "yaml"
-
-            # Render highlighted syntax with indentation
-            syntax = Syntax(content, lexer, theme="monokai", background_color="default")
-            padded_content = Padding(syntax, (0, 0, 0, 7))
-            console.print(padded_content)
-        elif not output_file and output_format:
+        # 4. Handle Terminal Display
+        if output_format == "wide" and not output_file:
             response.print_table()
+        else:
+            _display_formatted_output(response, output_format)
 
+        # 5. Handle Failures
         if response.has_failed():
             raise ClickException(f"Command {response.command} failed")
-
+        
         return response
 
     return wrapper
