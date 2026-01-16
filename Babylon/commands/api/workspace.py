@@ -6,6 +6,7 @@ from cosmotech_api.models.workspace_create_request import WorkspaceCreateRequest
 from cosmotech_api.models.workspace_update_request import WorkspaceUpdateRequest
 from yaml import safe_load
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file
 from Babylon.utils.response import CommandResponse
@@ -45,7 +46,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, solution_id:
     api_instance = get_workspace_api_instance(config, keycloak_token)
 
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         workspace = api_instance.create_workspace(organization_id, workspace_create_request)
         if not workspace:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
@@ -70,7 +71,7 @@ def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> 
     """
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         workspaces = api_instance.list_workspaces(organization_id=organization_id)
         count = len(workspaces)
         logger.info(f"  [green]✔[/green] [bold]{count}[/bold] workspace(s) retrieved successfully")
@@ -90,7 +91,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id
     """Delete a workspace by ID"""
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_workspace(organization_id=organization_id, workspace_id=workspace_id)
         logger.info(f"  [bold green]✔[/bold green] Workspace [bold red]{workspace_id}[/bold red] successfully deleted")
         return CommandResponse.success()
@@ -113,7 +114,7 @@ def update(config: dict, keycloak_token: str, organization_id: str, workspace_id
     workspace_update_request = WorkspaceUpdateRequest.from_dict(payload)
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         updated = api_instance.update_workspace(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -136,7 +137,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
     """Get workspace"""
     api_instance = get_workspace_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         workspace = api_instance.get_workspace(organization_id=organization_id, workspace_id=workspace_id)
         logger.info(f"  [green]✔[/green] Workspace [bold cyan]{workspace.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({workspace.id: workspace.model_dump()})

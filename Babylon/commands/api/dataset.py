@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from logging import getLogger
 
 from click import Path, argument, group, option
@@ -8,6 +9,7 @@ from cosmotech_api.models.dataset_part_update_request import DatasetPartUpdateRe
 from cosmotech_api.models.dataset_update_request import DatasetUpdateRequest
 from yaml import safe_load
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file
 from Babylon.utils.response import CommandResponse
@@ -45,7 +47,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, workspace_id
     file_contents_list = [part["sourceName"] for part in payload["parts"]]
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         dataset = api_instance.create_dataset(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -75,7 +77,7 @@ def list_datasets(config: dict, keycloak_token: str, organization_id: str, works
     """
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         datasets = api_instance.list_datasets(organization_id=organization_id, workspace_id=workspace_id)
         count = len(datasets)
         logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Dataset(s) retrieved successfully")
@@ -98,7 +100,7 @@ def delete(
     """Delete a dataset by ID"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_dataset(organization_id=organization_id, workspace_id=workspace_id, dataset_id=dataset_id)
         logger.info(f"  [bold green]✔[/bold green] Dataset [bold red]{dataset_id}[/bold red] successfully deleted")
         return CommandResponse.success()
@@ -118,7 +120,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
     """Get dataset"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         dataset = api_instance.get_dataset(
             organization_id=organization_id, workspace_id=workspace_id, dataset_id=dataset_id
         )
@@ -146,7 +148,7 @@ def update(
     dataset_update_request = DatasetUpdateRequest.from_dict(payload)
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         updated = api_instance.update_dataset(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -178,7 +180,7 @@ def create_part(
     dataset_part_create_request = DatasetPartCreateRequest.from_dict(payload)
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         created = api_instance.create_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -212,7 +214,7 @@ def get_part(
     """Get dataset part"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         dataset_part = api_instance.get_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -239,7 +241,7 @@ def delete_part(
     """Delete dataset part by ID"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -277,7 +279,7 @@ def update_part(
     dataset_part_update_request = DatasetPartUpdateRequest.from_dict(payload)
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         updated = api_instance.update_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -290,6 +292,24 @@ def update_part(
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Update Dataset part Failed Reason: {e}")
         return CommandResponse.fail()
+
+
+@dataclass
+class QueryPagination:
+    offset: int = 0
+    limit: int = 100
+    group_bys: tuple = ()
+    order_bys: tuple = ()
+
+
+@dataclass
+class QueryMetrics:
+    selects: tuple = ()
+    sums: tuple = ()
+    avgs: tuple = ()
+    counts: tuple = ()
+    mins: tuple = ()
+    maxs: tuple = ()
 
 
 @datasets.command()
@@ -351,18 +371,25 @@ def query_data(
     workspace_id: str,
     dataset_id: str,
     dataset_part_id: str,
-    selects: tuple,
-    sums: tuple,
-    avgs: tuple,
-    counts: tuple,
-    mins: tuple,
-    maxs: tuple,
-    offset: int,
-    limit: int,
-    group_bys: tuple,
-    order_bys: tuple,
+    **kwargs,
 ) -> CommandResponse:
     """Query data from a dataset part"""
+
+    metrics = QueryMetrics(
+        selects=kwargs.get("selects", ()),
+        sums=kwargs.get("sums", ()),
+        avgs=kwargs.get("avgs", ()),
+        counts=kwargs.get("counts", ()),
+        mins=kwargs.get("mins", ()),
+        maxs=kwargs.get("maxs", ()),
+    )
+
+    pagination = QueryPagination(
+        offset=kwargs.get("offset", 0),
+        limit=kwargs.get("limit", 100),
+        group_bys=kwargs.get("group_bys", ()),
+        order_bys=kwargs.get("order_bys", ()),
+    )
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
         logger.info("  [dim]→ Sending query to API...[/dim]")
@@ -371,16 +398,16 @@ def query_data(
             workspace_id=workspace_id,
             dataset_id=dataset_id,
             dataset_part_id=dataset_part_id,
-            selects=list(selects) if selects else None,
-            sums=list(sums) if sums else None,
-            avgs=list(avgs) if avgs else None,
-            counts=list(counts) if counts else None,
-            mins=list(mins) if mins else None,
-            maxs=list(maxs) if maxs else None,
-            offset=offset,
-            limit=limit,
-            group_bys=list(group_bys) if group_bys else None,
-            order_bys=list(order_bys) if order_bys else None,
+            selects=list(metrics.selects) if metrics.selects else None,
+            sums=list(metrics.sums) if metrics.sums else None,
+            avgs=list(metrics.avgs) if metrics.avgs else None,
+            counts=list(metrics.counts) if metrics.counts else None,
+            mins=list(metrics.mins) if metrics.mins else None,
+            maxs=list(metrics.maxs) if metrics.maxs else None,
+            offset=pagination.offset,
+            limit=pagination.limit,
+            group_bys=list(pagination.group_bys) if pagination.group_bys else None,
+            order_bys=list(pagination.order_bys) if pagination.order_bys else None,
         )
         logger.info(f"  [green]✔[/green] Query result: {query_result}")
         return CommandResponse.success()
@@ -402,7 +429,7 @@ def download_part(
     """Download dataset part"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         file_content = api_instance.download_dataset_part(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -431,7 +458,7 @@ def list_parts(
     """List dataset parts"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         dataset_parts = api_instance.list_dataset_parts(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -442,5 +469,5 @@ def list_parts(
         data_list = [ds.model_dump() for ds in dataset_parts]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
+        logger.error(f"  [bold red]✘[/bold red] Retrieve Parts Failed Reason: {e}")
         return CommandResponse.fail()

@@ -6,6 +6,7 @@ from cosmotech_api.models.runner_create_request import RunnerCreateRequest
 from cosmotech_api.models.runner_update_request import RunnerUpdateRequest
 from yaml import safe_load
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config
 from Babylon.utils.response import CommandResponse
@@ -48,7 +49,7 @@ def create(
     api_instance = get_runner_api_instance(config, keycloak_token)
 
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         runner = api_instance.create_runner(
             organization_id=organization_id, workspace_id=workspace_id, runner_create_request=runner_create_request
         )
@@ -75,7 +76,7 @@ def delete(
     """Delete a runner by ID"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_runner(organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id)
         logger.info(f"  [bold green]✔[/bold green] Runner [bold red]{runner_id}[/bold red] successfully deleted")
         return CommandResponse.success()
@@ -95,7 +96,7 @@ def list_runners(config: dict, keycloak_token: str, organization_id: str, worksp
     """List runners"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         runners = api_instance.list_runners(organization_id=organization_id, workspace_id=workspace_id)
         count = len(runners)
         logger.info(f"  [green]✔[/green] [bold]{count}[/bold] Runner(s) retrieved successfully")
@@ -117,7 +118,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
     """Get runner"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         runner = api_instance.get_runner(
             organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id
         )
@@ -145,7 +146,7 @@ def update(
     runner_update_request = RunnerUpdateRequest.from_dict(payload)
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         updated = api_instance.update_runner(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -172,7 +173,7 @@ def start(
     """Start a run"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         run = api_instance.start_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
@@ -195,15 +196,13 @@ def stop(config: dict, keycloak_token: str, organization_id: str, workspace_id: 
     """Stop a run"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.stop_run(
             organization_id=organization_id,
             workspace_id=workspace_id,
             runner_id=runner_id,
         )
-        logger.info(
-            f"  [green]✔[/green] Last run stopped successfully for runner [bold cyan]{runner_id}[/bold cyan]"
-        )
+        logger.info(f"  [green]✔[/green] Last run stopped successfully for runner [bold cyan]{runner_id}[/bold cyan]")
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Could not stop run: {e}")

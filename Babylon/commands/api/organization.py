@@ -6,6 +6,7 @@ from cosmotech_api.models.organization_create_request import OrganizationCreateR
 from cosmotech_api.models.organization_update_request import OrganizationUpdateRequest
 from yaml import safe_load
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file
 from Babylon.utils.response import CommandResponse
@@ -42,7 +43,7 @@ def create(config: dict, keycloak_token: str, payload_file) -> CommandResponse:
     organization_create_request = OrganizationCreateRequest.from_dict(payload)
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         organization = api_instance.create_organization(organization_create_request)
 
         if not organization:
@@ -69,7 +70,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str) -> CommandRe
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
         # API Execution
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_organization(organization_id)
         logger.info(
             f"  [bold green]✔[/bold green] Organization [bold red]{organization_id}[/bold red] successfully deleted"
@@ -90,7 +91,7 @@ def list_organizations(config: dict, keycloak_token: str) -> CommandResponse:
     """
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         organizations = api_instance.list_organizations()
         count = len(organizations)
         logger.info(f"  [green]✔[/green] [bold]{count}[/bold] organization(s) retrieved successfully")
@@ -110,7 +111,7 @@ def get(config: dict, keycloak_token: str, organization_id: str) -> CommandRespo
     """Get organization"""
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         organization = api_instance.get_organization(organization_id=organization_id)
         logger.info(f"  [green]✔[/green] Organization [bold cyan]{organization.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({organization.id: organization.model_dump()})
@@ -134,7 +135,7 @@ def update(config: dict, keycloak_token: str, organization_id: str, payload_file
     organization_update_request = OrganizationUpdateRequest.from_dict(payload)
     api_instance = get_organization_api_instance(config, keycloak_token)
     try:
-        logger.info("  [dim]→ Sending request to API...[/dim]")
+        logger.info(API_REQUEST_MESSAGE)
         updated = api_instance.update_organization(
             organization_id=organization_id, organization_update_request=organization_update_request
         )
