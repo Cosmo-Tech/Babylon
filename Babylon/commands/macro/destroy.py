@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Callable
 
 from click import command, echo, option, style
 
@@ -15,7 +16,9 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def _delete_resource(api_call, resource_name: str, org_id: str, resource_id: str, state: dict, state_key: str):
+def _delete_resource(
+    api_call: Callable[..., None], resource_name: str, org_id: str | None, resource_id: str, state: dict, state_key: str
+):
     """Helper to handle repetitive deletion logic and error handling."""
     if not resource_id:
         logger.warning(f"  [yellow]⚠[/yellow] [dim]No {resource_name} ID found in state! skipping deletion[dim]")
@@ -27,7 +30,7 @@ def _delete_resource(api_call, resource_name: str, org_id: str, resource_id: str
             api_call(organization_id=org_id, **{f"{resource_name.lower()}_id": resource_id})
         else:
             api_call(organization_id=resource_id)
-            
+
         logger.info(f"  [bold green]✔[/bold green] {resource_name} [magenta]{resource_id}[/magenta] deleted")
         state["services"]["api"][state_key] = ""
     except Exception as e:

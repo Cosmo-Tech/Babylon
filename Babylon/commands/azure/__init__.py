@@ -19,6 +19,7 @@ def azure():
     """Group allowing communication with Microsoft Azure Cloud"""
     pass
 
+
 for _group in list_groups:
     azure.add_command(_group)
 

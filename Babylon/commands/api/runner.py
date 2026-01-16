@@ -6,14 +6,13 @@ from cosmotech_api.models.runner_create_request import RunnerCreateRequest
 from cosmotech_api.models.runner_update_request import RunnerUpdateRequest
 from yaml import safe_load
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file, retrieve_config
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 
-# Define the constant to avoids duplicating the literal
-API_REQUEST_MESSAGE = "  [dim]→ Sending request to API...[/dim]"
 
 def get_runner_api_instance(config: dict, keycloak_token: str) -> RunnerApi:
     configuration = Configuration(host=config.get("api_url"))
@@ -203,9 +202,7 @@ def stop(config: dict, keycloak_token: str, organization_id: str, workspace_id: 
             workspace_id=workspace_id,
             runner_id=runner_id,
         )
-        logger.info(
-            f"  [green]✔[/green] Last run stopped successfully for runner [bold cyan]{runner_id}[/bold cyan]"
-        )
+        logger.info(f"  [green]✔[/green] Last run stopped successfully for runner [bold cyan]{runner_id}[/bold cyan]")
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Could not stop run: {e}")

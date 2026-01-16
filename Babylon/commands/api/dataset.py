@@ -9,14 +9,13 @@ from cosmotech_api.models.dataset_part_update_request import DatasetPartUpdateRe
 from cosmotech_api.models.dataset_update_request import DatasetUpdateRequest
 from yaml import safe_load
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 
-# Define the constant to avoids duplicating the literal
-API_REQUEST_MESSAGE = "  [dim]→ Sending request to API...[/dim]"
 
 def get_dataset_api_instance(config: dict, keycloak_token: str) -> DatasetApi:
     configuration = Configuration(host=config.get("api_url"))
@@ -296,18 +295,12 @@ def update_part(
 
 
 @dataclass
-class QueryContext:
-    organization_id: str
-    workspace_id: str
-    dataset_id: str
-    dataset_part_id: str
-
-@dataclass
 class QueryPagination:
     offset: int = 0
     limit: int = 100
     group_bys: tuple = ()
     order_bys: tuple = ()
+
 
 @dataclass
 class QueryMetrics:
@@ -315,8 +308,9 @@ class QueryMetrics:
     sums: tuple = ()
     avgs: tuple = ()
     counts: tuple = ()
-    mins:tuple = ()
+    mins: tuple = ()
     maxs: tuple = ()
+
 
 @datasets.command()
 @injectcontext()
@@ -377,7 +371,7 @@ def query_data(
     workspace_id: str,
     dataset_id: str,
     dataset_part_id: str,
-    **kwargs
+    **kwargs,
 ) -> CommandResponse:
     """Query data from a dataset part"""
 
@@ -389,7 +383,7 @@ def query_data(
         mins=kwargs.get("mins", ()),
         maxs=kwargs.get("maxs", ()),
     )
-    
+
     pagination = QueryPagination(
         offset=kwargs.get("offset", 0),
         limit=kwargs.get("limit", 100),

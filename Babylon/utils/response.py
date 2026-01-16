@@ -76,12 +76,8 @@ class CommandResponse:
             dt = datetime.fromtimestamp(raw_ts / 1000.0)
             created_at = dt.strftime("%Y-%m-%d %H:%M")
 
-        table.add_row(
-            str(item.get("id", "N/A")), 
-            str(item.get("name", "N/A")), 
-            created_at
-        )
-    
+        table.add_row(str(item.get("id", "N/A")), str(item.get("name", "N/A")), created_at)
+
     def print_table(self):
         """
         Handles the display of Organization data.
@@ -90,10 +86,11 @@ class CommandResponse:
         items = self._get_normalized_items()
         if not items:
             return
-        
+
         is_api_info = self._is_api_info_type(items[0])
-        table = Table(show_header=True, header_style="bold white", box=None, 
-                      padding=(0, 2), show_edge=False, expand=False)
+        table = Table(
+            show_header=True, header_style="bold white", box=None, padding=(0, 2), show_edge=False, expand=False
+        )
         if is_api_info:
             table.add_column("PROPERTY")
             table.add_column("VALUE")

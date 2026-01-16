@@ -6,14 +6,13 @@ from cosmotech_api.models.workspace_create_request import WorkspaceCreateRequest
 from cosmotech_api.models.workspace_update_request import WorkspaceUpdateRequest
 from yaml import safe_load
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 
-# Define the constant to avoids duplicating the literal
-API_REQUEST_MESSAGE = "  [dim]→ Sending request to API...[/dim]"
 
 def get_workspace_api_instance(config: dict, keycloak_token: str) -> WorkspaceApi:
     configuration = Configuration(host=config.get("api_url"))

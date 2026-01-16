@@ -8,6 +8,7 @@ from json import dumps
 from typing import Any, Callable
 
 from click import Choice, ClickException, get_current_context, option
+from click import Path as ClickPath
 from rich.console import Console
 from rich.padding import Padding
 from rich.syntax import Syntax
@@ -52,16 +53,15 @@ def prepend_doc_with_ascii(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-def _handle_file_output(response: Any, output_file: str):
+def _handle_file_output(response: Any, output_file: pathlib.Path):
     """Handles the file writing logic."""
     if not output_file:
         return
-
-    path_file = pathlib.Path(output_file)
-    if path_file.suffix.lower() == ".json":
-        response.dump_json(path_file)
+    if output_file.suffix.lower() == ".json":
+        response.dump_json(output_file)
     else:
-        response.dump_yaml(path_file)
+        response.dump_yaml(output_file)
+
 
 def _display_formatted_output(response: Any, output_format: str):
     """Handles syntax highlighting and terminal rendering."""
@@ -74,6 +74,7 @@ def _display_formatted_output(response: Any, output_format: str):
 
     syntax = Syntax(content, lexer, theme="monokai", background_color="default")
     console.print(Padding(syntax, (0, 0, 0, 7)))
+
 
 def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
     """Add output to file option to a command"""
@@ -89,16 +90,12 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         "-f",
         "--file",
         "output_file",
-        type=str,
+        type=ClickPath(path_type=pathlib.Path),
         help="Path to the file to save the response",
     )
     @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        output_format = kwargs.pop("output_format", None)
-        output_file = kwargs.pop("output_file", None)
-
+    def wrapper(output_format: Choice, output_file: pathlib.Path, *args: Any, **kwargs: Any) -> Any:
         response: CommandResponse = func(*args, **kwargs)
-
         # 3. Handle File Output
         _handle_file_output(response, output_file)
 
@@ -111,7 +108,7 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         # 5. Handle Failures
         if response.has_failed():
             raise ClickException(f"Command {response.command} failed")
-        
+
         return response
 
     return wrapper

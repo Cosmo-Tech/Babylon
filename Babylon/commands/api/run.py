@@ -3,14 +3,13 @@ from logging import getLogger
 from click import group, option
 from cosmotech_api import ApiClient, Configuration, RunApi
 
+from Babylon.utils import API_REQUEST_MESSAGE
 from Babylon.utils.credentials import pass_keycloak_token
 from Babylon.utils.decorators import injectcontext, output_to_file
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 
-# Define the constant to avoids duplicating the literal
-API_REQUEST_MESSAGE = "  [dim]→ Sending request to API...[/dim]"
 
 def get_run_api_instance(config: dict, keycloak_token: str) -> RunApi:
     configuration = Configuration(host=config.get("api_url"))
