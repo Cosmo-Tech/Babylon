@@ -14,8 +14,11 @@ from Babylon.utils.decorators import prepend_doc_with_ascii
 from Babylon.utils.dry_run import display_dry_run
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import INTERACTIVE_ARG_VALUE, interactive_run
+from Babylon.utils.telemetry import setup_telemetry
 from Babylon.version import VERSION
 
+trace = setup_telemetry()
+tracer = trace.get_tracer(__name__)
 logger = logging.getLogger()
 logging.getLogger("azure").setLevel(logging.WARNING)
 u_log = logging.getLogger("urllib3")

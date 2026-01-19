@@ -9,6 +9,7 @@ from typing import Any, Callable
 
 from click import Choice, ClickException, get_current_context, option
 from click import Path as ClickPath
+from opentelemetry import trace
 from rich.console import Console
 from rich.padding import Padding
 from rich.syntax import Syntax
@@ -19,6 +20,7 @@ from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 from Babylon.version import get_version
 
+tracer = trace.get_tracer(__name__)
 logger = logging.getLogger("Babylon")
 env = Environment()
 console = Console()
@@ -196,17 +198,19 @@ def injectcontext() -> Callable[..., Any]:
         )
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
-            context = kwargs.pop("context", None)
-            if context and check_special_char(string=context):
-                env.set_context(context)
-            tenant = kwargs.pop("tenant", None)
-            if tenant and check_special_char(string=tenant):
-                env.set_environ(tenant)
-            state_id = kwargs.pop("state_id", None)
-            if state_id and check_special_char(string=state_id):
-                env.set_state_id(state_id)
-            env.get_namespace_from_local(context=context, tenant=tenant, state_id=state_id)
-            return func(*args, **kwargs)
+            span_name = f"{func.__module__}.{func.__qualname__}"
+            with tracer.start_as_current_span(span_name):
+                context = kwargs.pop("context", None)
+                if context and check_special_char(string=context):
+                    env.set_context(context)
+                tenant = kwargs.pop("tenant", None)
+                if tenant and check_special_char(string=tenant):
+                    env.set_environ(tenant)
+                state_id = kwargs.pop("state_id", None)
+                if state_id and check_special_char(string=state_id):
+                    env.set_state_id(state_id)
+                env.get_namespace_from_local(context=context, tenant=tenant, state_id=state_id)
+                return func(*args, **kwargs)
 
         return wrapper
 

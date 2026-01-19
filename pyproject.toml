@@ -23,8 +23,12 @@ dependencies = [
   "flatten_json",
   "dynaconf",
   "azure-mgmt-authorization>=4.0.0",
+  "azure-containerregistry>=1.2.0",
   "kubernetes>=35.0.0",
-  "cosmotech-api==5.0.0rc4"
+  "cosmotech-api==5.0.0rc4",
+  "opentelemetry-api",
+  "opentelemetry-sdk",
+  "opentelemetry-exporter-otlp"
 ]
 dynamic = ["version"]
 readme = {file = "README.md", content-type = "text/markdown"}
