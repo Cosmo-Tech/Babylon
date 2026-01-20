@@ -1,11 +1,8 @@
 from click import group
 
-from .create import create
-from .delete import delete
-from .get_all import get_all
 from .upload import upload
 
-list_commands = [delete, create, get_all, upload]
+list_commands = [upload]
 
 
 @group()

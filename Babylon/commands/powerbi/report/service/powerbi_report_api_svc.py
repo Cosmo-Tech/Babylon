@@ -2,7 +2,6 @@ import logging
 import os
 from pathlib import Path
 
-import jmespath
 import polling2
 import requests
 
@@ -55,16 +54,14 @@ class AzurePowerBIReportService:
         logger.info(f"[powerbi] report {report_id} was saved as {output_path}")
         return output_path
 
-    def get_all(self, workspace_id: str, filter: str = ""):
+    def get_all(self, workspace_id: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
             logger.error("[powerbi] failed to get all reports")
             return None
-        output_data = response.json().get("value")
-        if filter:
-            output_data = jmespath.search(filter, output_data)
+        return response
 
     def get(self, workspace_id: str, report_id: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
@@ -84,8 +81,7 @@ class AzurePowerBIReportService:
             logger.info("[powerbi] report id not found")
             return None
         output_data = response.json()
-        pagesnames = jmespath.search("value[?order==`0`]", output_data)
-        pagesname = pagesnames[0] if len(pagesnames) else "ReportSection"
+        pagesname = output_data[0] if len(output_data) else "ReportSection"
         obj = {"en": f"{pagesname['name']}", "fr": f"{pagesname['name']}"}
         return obj
 

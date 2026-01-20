@@ -1,7 +1,5 @@
 import logging
 
-import jmespath
-
 from Babylon.utils.environment import Environment
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
@@ -44,7 +42,7 @@ class AzurePowerBIWorkspaceService:
             return CommandResponse.fail()
         return response
 
-    def get_all(self, filter: bool = False):
+    def get_all(self):
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:
@@ -53,8 +51,6 @@ class AzurePowerBIWorkspaceService:
             )
             return None
         output_data = response.json().get("value")
-        if len(output_data) and filter:
-            output_data = jmespath.search(filter, output_data)
         return output_data
 
     def get_current(self):
