@@ -1,7 +1,5 @@
 import logging
 
-import jmespath
-
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 
@@ -25,7 +23,7 @@ class AzurePowerBIDatasetService:
             return None
         return response
 
-    def get_all(self, workspace_id: str, filter: bool):
+    def get_all(self, workspace_id: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
         response = oauth_request(url, self.powerbi_token)
@@ -33,8 +31,6 @@ class AzurePowerBIDatasetService:
             logger.error("[powerbi] failed to get all datasets")
             return None
         output_data = response.json().get("value")
-        if filter:
-            output_data = jmespath.search(filter, output_data)
         return output_data
 
     def get(self, workspace_id: str, dataset_id: str):

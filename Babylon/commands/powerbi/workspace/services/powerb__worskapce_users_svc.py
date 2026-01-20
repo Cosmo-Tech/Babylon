@@ -1,7 +1,5 @@
 import logging
 
-import jmespath
-
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request
 
@@ -39,7 +37,7 @@ class AzurePowerBIWorkspaceUserService:
             return None
         logger.info("[powerbi] identifier successfully removed")
 
-    def get_all(self, workspace_id: str, filter: bool = False):
+    def get_all(self, workspace_id: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users"
         response = oauth_request(url_users, self.powerbi_token)
@@ -47,8 +45,6 @@ class AzurePowerBIWorkspaceUserService:
             logger.error("[powerbi] failed to get all identifier")
             return None
         output_data = response.json().get("value")
-        if filter:
-            output_data = jmespath.search(filter, output_data)
         return output_data
 
     def update(self, workspace_id: str, right: str, type: str, email: str):
