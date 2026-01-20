@@ -61,6 +61,7 @@ class AzurePowerBIReportService:
         if response is None:
             logger.error("[powerbi] failed to get all reports")
             return None
+        return response
 
     def get(self, workspace_id: str, report_id: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
