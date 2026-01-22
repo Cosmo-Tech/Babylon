@@ -13,8 +13,14 @@ from Babylon.version import VERSION
 logger = getLogger(__name__)
 
 
-def setup_telemetry():
-    """Setup OpenTelemetry tracing."""
+def setup_telemetry() -> trace.Tracer:
+    """Prepare telemetry configuration. Two environment variables are used to configure telemetry:
+    - BABYLON_DISABLE_TELEMETRY: If set to "true", telemetry is disabled.
+    - OTEL_EXPORTER_OTLP_ENDPOINT: Specifies the endpoint to which telemetry data is sent.
+
+    Returns:
+        trace.Tracer: The configured tracer instance.
+    """
     if getenv("BABYLON_DISABLE_TELEMETRY", "false").lower() == "true":
         logger.info("Telemetry is disabled")
         return trace

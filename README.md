@@ -77,3 +77,6 @@ To release a new version follow the checklist:
 - Make a git tag, `git tag -a -m "5.0.0-beta.2" 5.0.0-beta.2`
 - Push the tag `git push tag 5.0.0-beta.2`
 - Write release notes publish on [GitHub](https://github.com/Cosmo-Tech/Babylon/releases)
+
+## Data Collection
+Telemetry configuration is on by default, to opt out set the environment variable BABYLON_DISABLE_TELEMETRY to false. No personal identifiable information is collected. Our privacy statement is located at [Cosmo-Tech](https://cosmotech.com/privacy-policy/)
