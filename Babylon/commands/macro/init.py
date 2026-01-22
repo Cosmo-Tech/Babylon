@@ -4,9 +4,11 @@ from pathlib import Path
 from shutil import copy
 
 from click import command, echo, option, style
+from opentelemetry import trace
 
 from Babylon.utils.environment import Environment
 
+tracer = trace.get_tracer(__name__)
 logger = getLogger(__name__)
 env = Environment()
 
@@ -14,6 +16,7 @@ env = Environment()
 @command()
 @option("--project-folder", default="project", help="Name of the project folder to create (default: 'project').")
 @option("--variables-file", default="variables.yaml", help="Name of the variables file (default: 'variables.yaml').")
+@tracer.start_as_current_span("macro_init_command")
 def init(project_folder: str, variables_file: str):
     """
     Scaffolds a new Babylon project structure using YAML templates.
