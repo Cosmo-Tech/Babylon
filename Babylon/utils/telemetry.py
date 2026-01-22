@@ -7,6 +7,7 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from opentelemetry.sdk.resources import OS_TYPE, SERVICE_NAME, SERVICE_VERSION, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from requests import get
 
 from Babylon.version import VERSION
 
@@ -21,8 +22,17 @@ def setup_telemetry() -> trace.Tracer:
     Returns:
         trace.Tracer: The configured tracer instance.
     """
+
     if getenv("BABYLON_DISABLE_TELEMETRY", "false").lower() == "true":
         logger.info("Telemetry is disabled")
+        return trace
+
+    endpoint = getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://telemetry.westeurope.azurecontainer.io:4318/v1/traces")
+
+    try:
+        get(endpoint, timeout=2)
+    except Exception as e:
+        logger.warning(f"Telemetry endpoint {endpoint} is not reachable: {e}. Continuing without telemetry.")
         return trace
 
     resource = Resource.create(
@@ -35,9 +45,7 @@ def setup_telemetry() -> trace.Tracer:
 
     try:
         otlp_exporter = OTLPSpanExporter(
-            endpoint=getenv(
-                "OTEL_EXPORTER_OTLP_ENDPOINT", "http://telemetry.westeurope.azurecontainer.io:4318/v1/traces"
-            ),
+            endpoint=endpoint,
             timeout=2,
         )
         span_processor = BatchSpanProcessor(otlp_exporter, export_timeout_millis=5000)
