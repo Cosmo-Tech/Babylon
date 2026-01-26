@@ -169,7 +169,7 @@ requires-dist = [
     { name = "azure-storage-blob", specifier = ">=12.28.0" },
     { name = "click" },
     { name = "click-log" },
-    { name = "cosmotech-api", specifier = "==5.0.0rc4" },
+    { name = "cosmotech-api", specifier = "==5.0.0rc5" },
     { name = "cryptography" },
     { name = "dynaconf" },
     { name = "flatten-json" },
@@ -383,7 +383,7 @@ wheels = [
 
 [[package]]
 name = "cosmotech-api"
-version = "5.0.0rc4"
+version = "5.0.0rc5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
@@ -391,9 +391,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/c2/bdb0757171ef78c1318a40955f92baba6755e6a115e70a69f4bf33ccf16e/cosmotech_api-5.0.0rc4.tar.gz", hash = "sha256:b95f58de80ae1147df8b9aacbde118d96958a848811a681eaeda52bb73535bdd", size = 212971, upload-time = "2026-01-08T08:40:16.039Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/04/36/4f3635f3b7e75d6eaa6aa66ca72cb199011e74004d8227e514e64f80d85f/cosmotech_api-5.0.0rc5.tar.gz", hash = "sha256:73c76d8371fc41d8866ab514c242f4ae41956ea9eb41cd7a1974a3db8935a862", size = 213222, upload-time = "2026-01-20T10:14:21.209Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a4/1c/0b7038828fa66b218b49e3855200de4d7ef2bc97e82950017e07fe3deb8c/cosmotech_api-5.0.0rc4-py3-none-any.whl", hash = "sha256:47e457286d593a759a6ea176a09e08d701e45014765b5d5ddee60d086eee4b9f", size = 623396, upload-time = "2026-01-08T08:40:13.989Z" },
+    { url = "https://files.pythonhosted.org/packages/59/ea/de404b4eb09248bb052ad97557bea8c57e7a71fa048ef316b65ad6f2ebf5/cosmotech_api-5.0.0rc5-py3-none-any.whl", hash = "sha256:2bb7d10f5d5533fd484698590ca3c6b7be1a43d6e1534f0ba067f4c9c27db367", size = 623676, upload-time = "2026-01-20T10:14:19.393Z" },
 ]
 
 [[package]]
