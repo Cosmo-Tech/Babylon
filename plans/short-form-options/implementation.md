@@ -1,3 +1,23 @@
+# Add -h Short-Form Help Option
+
+## Goal
+Enable `-h` as a short-form alias for `--help` across all Babylon commands by adding Click `context_settings` on the root CLI group.
+
+## Prerequisites
+Make sure you are on branch `feature/add-h-help-alias`. If the branch does not exist, create it from `main`.
+
+### Step-by-Step Instructions
+
+#### Step 1: Add global help alias and create tests
+- [ ] Ensure you are on branch `feature/add-h-help-alias` (create it if necessary):
+
+```bash
+git checkout -b feature/add-h-help-alias
+```
+
+- [ ] Replace the contents of `Babylon/main.py` with the complete code block below (this adds `context_settings` to the root group so `-h` and `--help` are both available throughout the CLI):
+
+```python
 #!/usr/bin/env python3
 import logging
 import sys
@@ -129,3 +149,75 @@ for _group in list_groups:
 
 if __name__ == "__main__":
     main()
+```
+
+- [ ] Create the test file `tests/unit/test_help_shortform.py` with the content below. This test uses Click's `CliRunner` and programmatically iterates the command hierarchy to verify that `-h` and `--help` both exit successfully and produce identical output.
+
+```python
+import pytest
+from click.testing import CliRunner
+from Babylon.main import main
+
+
+def collect_paths(cmd, prefix=None):
+    if prefix is None:
+        prefix = []
+    paths = [prefix]
+    if getattr(cmd, "commands", None):
+        for name, sub in cmd.commands.items():
+            paths.extend(collect_paths(sub, prefix + [name]))
+    return paths
+
+
+def test_help_shortform_matches_longform():
+    runner = CliRunner()
+    paths = collect_paths(main)
+    # dedupe
+    seen = set()
+    unique_paths = []
+    for p in paths:
+        key = tuple(p)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_paths.append(p)
+
+    for path in unique_paths:
+        short_args = path + ["-h"]
+        long_args = path + ["--help"]
+        res_short = runner.invoke(main, short_args)
+        res_long = runner.invoke(main, long_args)
+        assert res_short.exit_code == 0, (
+            f"Command {' '.join(path) or 'main'} -h exited non-zero; exception: {res_short.exception}"
+        )
+        assert res_long.exit_code == 0, (
+            f"Command {' '.join(path) or 'main'} --help exited non-zero; exception: {res_long.exception}"
+        )
+        assert res_short.output == res_long.output, (
+            f"Help output mismatch for {' '.join(path) or 'main'}; -h vs --help"
+        )
+```
+
+##### Step 1 Verification Checklist
+- [ ] `git status` shows the intended changes staged before commit
+- [ ] `python -m pytest tests/unit/test_help_shortform.py -q` exits with code 0 (run after manual verification step below)
+- [ ] Spot-check several commands manually before running full tests:
+
+```bash
+# Manual spot checks (do these first):
+python -m Babylon.main -h
+python -m Babylon.main --help
+python -m Babylon.main api -h
+python -m Babylon.main api organizations get -h
+```
+
+#### Step 1 STOP & COMMIT
+**STOP & COMMIT:** Stage and commit the changes now. Example:
+
+```bash
+git add Babylon/main.py tests/unit/test_help_shortform.py
+git commit -m "Add -h alias for help via context_settings; add help shortform tests"
+```
+
+After committing, run the tests described above. If tests pass, proceed to update docs and open a PR.
+
