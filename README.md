@@ -71,6 +71,7 @@ To release a new version follow the checklist:
 - Verify that:
   - CI tests are green [Github Actions](https://github.com/Cosmo-Tech/Babylon/actions)
   - Sonarqube quality gate passes [sonarqube](https://sonarqube.cosmotech.com/dashboard?id=Babylon-main)
+  - Make sure dependencies are up to date `uv lock --upgrade`
   - Dependency track has no critical vulnerabilities [DependencyTrack](https://dep-track.cosmotech.com/projects/b79e84bb-f445-4b32-a56c-5c82c0064aff)
 - Increment the version number (`VERSION`) `/Babylon/version.py` following [semver](https://semver.org/) rules
 - Generate lock file `uv lock`
