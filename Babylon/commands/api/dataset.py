@@ -34,8 +34,8 @@ def datasets():
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @argument("payload_file", type=Path(exists=True))
 def create(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file) -> CommandResponse:
     """
@@ -69,8 +69,8 @@ def create(config: dict, keycloak_token: str, organization_id: str, workspace_id
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 def list_datasets(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """
     List all datasets
@@ -91,9 +91,9 @@ def list_datasets(config: dict, keycloak_token: str, organization_id: str, works
 @datasets.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 def delete(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
 ) -> CommandResponse:
@@ -113,9 +113,9 @@ def delete(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str) -> CommandResponse:
     """Get dataset"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
@@ -135,9 +135,9 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @argument("payload_file", type=Path(exists=True))
 def update(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file
@@ -167,9 +167,9 @@ def update(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @argument("payload_file", type=Path(exists=True))
 def create_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, payload_file
@@ -204,9 +204,9 @@ def create_part(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @option("--dpid", "dataset_part_id", required=True, type=str, help="Dataset Part ID")
 def get_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
@@ -231,9 +231,9 @@ def get_part(
 @datasets.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @option("--dpid", "dataset_part_id", required=True, type=str, help="Dataset Part ID")
 def delete_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
@@ -259,9 +259,9 @@ def delete_part(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @option("--dpid", "dataset_part_id", required=True, type=str, help="Dataset Part ID")
 @argument("payload_file", type=Path(exists=True))
 def update_part(
@@ -315,9 +315,9 @@ class QueryMetrics:
 @datasets.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @option("--dpid", "dataset_part_id", required=True, type=str, help="Dataset Part ID")
 @option(
     "--selects",
@@ -419,9 +419,9 @@ def query_data(
 @datasets.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 @option("--dpid", "dataset_part_id", required=True, type=str, help="Dataset Part ID")
 def download_part(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str, dataset_part_id: str
@@ -449,9 +449,9 @@ def download_part(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-d", "--did", "dataset_id", required=True, type=str, help="Dataset ID")
 def list_parts(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
 ) -> CommandResponse:

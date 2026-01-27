@@ -31,7 +31,7 @@ def workspaces():
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
 @argument("payload_file", type=Path(exists=True))
 def create(config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file) -> CommandResponse:
@@ -64,7 +64,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, solution_id:
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
 def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """
     List all workspaces
@@ -85,8 +85,8 @@ def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> 
 @workspaces.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """Delete a workspace by ID"""
     api_instance = get_workspace_api_instance(config, keycloak_token)
@@ -104,8 +104,8 @@ def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @argument("payload_file", type=Path(exists=True))
 def update(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, payload_file) -> CommandResponse:
     """Update workspace"""
@@ -131,8 +131,8 @@ def update(config: dict, keycloak_token: str, organization_id: str, workspace_id
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """Get workspace"""
     api_instance = get_workspace_api_instance(config, keycloak_token)

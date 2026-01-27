@@ -28,10 +28,10 @@ def runs():
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-@option("--rnid", "run_id", required=True, type=str, help="Run ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-R", "--rnid", "run_id", required=True, type=str, help="Run ID")
 def get(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
 ) -> CommandResponse:
@@ -55,10 +55,10 @@ def get(
 @runs.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-@option("--rnid", "run_id", required=True, type=str, help="Run ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-R", "--rnid", "run_id", required=True, type=str, help="Run ID")
 def delete(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
 ) -> CommandResponse:
@@ -83,9 +83,9 @@ def delete(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
 def list_runs(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
 ) -> CommandResponse:
@@ -106,10 +106,10 @@ def list_runs(
 @runs.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-@option("--rnid", "run_id", required=True, type=str, help="Run ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-R", "--rnid", "run_id", required=True, type=str, help="Run ID")
 def get_logs(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
 ) -> CommandResponse:
@@ -136,10 +136,10 @@ def get_logs(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-@option("--rnid", "run_id", required=True, type=str, help="Run ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-R", "--rnid", "run_id", required=True, type=str, help="Run ID")
 def get_status(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
 ) -> CommandResponse:

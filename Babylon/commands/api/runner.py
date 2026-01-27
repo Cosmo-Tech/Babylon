@@ -31,9 +31,9 @@ def runners():
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--sid", "solution_id", required=True, type=str, help="Solution ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @argument("payload_file", type=Path(exists=True))
 def create(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, solution_id: str, payload_file
@@ -67,9 +67,9 @@ def create(
 @runners.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
 def delete(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
 ) -> CommandResponse:
@@ -89,8 +89,8 @@ def delete(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @retrieve_config
 def list_runners(config: dict, keycloak_token: str, organization_id: str, workspace_id: str) -> CommandResponse:
     """List runners"""
@@ -111,9 +111,9 @@ def list_runners(config: dict, keycloak_token: str, organization_id: str, worksp
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
 def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str) -> CommandResponse:
     """Get runner"""
     api_instance = get_runner_api_instance(config, keycloak_token)
@@ -133,9 +133,9 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
 @argument("payload_file", type=Path(exists=True))
 def update(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, payload_file
@@ -164,9 +164,9 @@ def update(
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
 def start(
     config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
 ) -> CommandResponse:
@@ -189,9 +189,9 @@ def start(
 @runners.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
-@option("--rid", "runner_id", required=True, type=str, help="Runner ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-W", "--wid", "workspace_id", required=True, type=str, help="Workspace ID")
+@option("-r", "--rid", "runner_id", required=True, type=str, help="Runner ID")
 def stop(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str) -> CommandResponse:
     """Stop a run"""
     api_instance = get_runner_api_instance(config, keycloak_token)
