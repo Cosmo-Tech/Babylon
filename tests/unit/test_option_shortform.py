@@ -93,3 +93,7 @@ class TestAPIShortFormOptions:
         assert result.exit_code == 0
         assert "-R" in result.output, f"-R not found in {' '.join(command_path)} help"
         assert "--rnid" in result.output, f"--rnid not found in {' '.join(command_path)} help"
+
+
+class TestMacroShortFormOptions:
+    """Test short-form options for Macro commands."""

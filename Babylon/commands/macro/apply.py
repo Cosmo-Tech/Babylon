@@ -49,6 +49,7 @@ def deploy_objects(objects: list, object_type: str):
 @command()
 @injectcontext()
 @argument("deploy_dir", type=ClickPath(dir_okay=True, exists=True))
+@option("-N", "--namespace", "namespace", required=False, type=str, help="The namespace to apply")
 @option(
     "--var-file",
     "variables_files",
@@ -61,11 +62,15 @@ def deploy_objects(objects: list, object_type: str):
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from deployment.")
 def apply(
     deploy_dir: ClickPath,
+    namespace: str | None,
     include: tuple[str],
     exclude: tuple[str],
     variables_files: tuple[PathlibPath],
 ):
     """Macro Apply"""
+    # If a namespace is provided, set it for the environment
+    if namespace:
+        env.get_ns_from_text(content=namespace)
     organization, solution, workspace = resolve_inclusion_exclusion(include, exclude)
     files = list(PathlibPath(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))

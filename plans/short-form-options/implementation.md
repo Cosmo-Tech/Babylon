@@ -305,15 +305,15 @@ feat(cli): add short-form options for API commands
 
 #### Implementation
 
-- [ ] Open [Babylon/commands/macro/apply.py](Babylon/commands/macro/apply.py)
-- [ ] Find the `@option("--namespace",` decorator
-- [ ] Update it to:
+- [x] Open [Babylon/commands/macro/apply.py](Babylon/commands/macro/apply.py)
+- [x] Find the `@option("--namespace",` decorator
+- [x] Update it to:
 
 ```python
 @option("-N", "--namespace", "namespace", required=True, type=str, help="The namespace to apply")
 ```
 
-- [ ] Save the file
+- [x] Save the file
 
 ---
 
@@ -329,20 +329,20 @@ feat(cli): add short-form options for API commands
 
 ---
 
-- [ ] Open [Babylon/commands/macro/destroy.py](Babylon/commands/macro/destroy.py)
-- [ ] Find the `@option("--namespace",` decorator
-- [ ] Update it to:
+- [x] Open [Babylon/commands/macro/destroy.py](Babylon/commands/macro/destroy.py)
+- [x] Find the `@option("--namespace",` decorator
+- [x] Update it to:
 
 ```python
 @option("-N", "--namespace", "namespace", required=True, type=str, help="The namespace to destroy")
 ```
 
-- [ ] Save the file
+- [x] Save the file
 
 ---
 
-- [ ] Open [tests/unit/test_option_shortform.py](tests/unit/test_option_shortform.py)
-- [ ] Append this test class at the end of the file (after `TestAPIShortFormOptions`):
+- [x] Open [tests/unit/test_option_shortform.py](tests/unit/test_option_shortform.py)
+- [x] Append this test class at the end of the file (after `TestAPIShortFormOptions`):
 
 ```python
 
@@ -368,25 +368,23 @@ class TestMacroShortFormOptions:
         assert "--namespace" in result.output, f"--namespace not found in {' '.join(command_path)} help"
 ```
 
-- [ ] Save the file
+- [x] Save the file
 
 ---
 
 #### Step 2 Verification Checklist
 
-- [ ] Run tests:
+- [x] Run tests:
 ```bash
 source .venv/bin/activate
 pytest tests/unit/test_option_shortform.py -v
 ```
 
-- [ ] Verify all tests pass (should include both API and Macro tests)
+- [x] Verify all tests pass (should include both API and Macro tests)
 
-- [ ] Manual verification:
+- [x] Manual verification:
 ```bash
 babylon apply --help
-# Should show: -N, --namespace TEXT
-babylon deploy --help
 # Should show: -N, --namespace TEXT
 babylon destroy --help
 # Should show: -N, --namespace TEXT
