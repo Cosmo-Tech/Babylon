@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
+@option("-w", "--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
 @argument("dataset_id", type=str)
 @retrieve_state
 def take_over(

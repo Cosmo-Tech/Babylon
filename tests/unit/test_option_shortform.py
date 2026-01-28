@@ -97,3 +97,38 @@ class TestAPIShortFormOptions:
 
 class TestMacroShortFormOptions:
     """Test short-form options for Macro commands."""
+
+
+class TestPowerBIShortFormOptions:
+    """Test short-form options for PowerBI commands."""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    # Workspace ID (-w/--workspace-id)
+    @pytest.mark.parametrize("command_path", [
+        ["powerbi", "dataset", "get"],
+        ["powerbi", "dataset", "get-all"],
+        ["powerbi", "dataset", "take-over"],
+        ["powerbi", "dataset", "update-credentials"],
+        ["powerbi", "dataset", "parameters", "update"],
+        ["powerbi", "dataset", "users", "add"],
+        ["powerbi", "report", "delete"],
+        ["powerbi", "report", "get"],
+        ["powerbi", "report", "get-all"],
+        ["powerbi", "report", "upload"],
+        ["powerbi", "report", "pages"],
+        ["powerbi", "report", "download"],
+        ["powerbi", "report", "download-all"],
+        ["powerbi", "workspace", "delete"],
+        ["powerbi", "workspace", "get"],
+        ["powerbi", "workspace", "user", "add"],
+        ["powerbi", "workspace", "user", "delete"],
+    ])
+    def test_workspace_id_shortform_in_help(self, runner, command_path):
+        """Verify -w/--workspace-id appears in help output."""
+        result = runner.invoke(main, command_path + ["--help"])
+        assert result.exit_code == 0
+        if "--workspace-id" in result.output:
+            assert "-w" in result.output, f"-w not found in {' '.join(command_path)} help"

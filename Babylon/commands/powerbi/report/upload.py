@@ -27,7 +27,7 @@ env = Environment()
     required=True,
     help="Your report file",
 )
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option(
     "--override",
     "override",

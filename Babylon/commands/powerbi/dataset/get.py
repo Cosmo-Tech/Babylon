@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 @injectcontext()
 @pass_powerbi_token()
 @argument("dataset_id", type=str)
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @output_to_file
 @retrieve_state
 def get(

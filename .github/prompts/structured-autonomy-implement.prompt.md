@@ -1,7 +1,7 @@
 ---
 name: sa-implement
 description: 'Structured Autonomy Implementation Prompt'
-model: Auto (copilot)
+model: GPT-5 mini (copilot)
 agent: agent
 ---
 

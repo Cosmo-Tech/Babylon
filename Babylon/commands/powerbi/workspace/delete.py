@@ -20,7 +20,7 @@ env = Environment()
 @injectcontext()
 @pass_powerbi_token()
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
-@option("--workspace-id", "workspace_id", type=str, help="Workspace Id PowerBI")
+@option("-w", "--workspace-id", "workspace_id", type=str, help="Workspace Id PowerBI")
 @retrieve_state
 def delete(state: Any, powerbi_token: str, workspace_id: str, force_validation: bool) -> CommandResponse:
     """

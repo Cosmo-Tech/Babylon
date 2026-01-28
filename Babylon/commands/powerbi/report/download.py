@@ -23,7 +23,7 @@ logger = logging.getLogger("Babylon")
     default="powerbi",
     help="Output folder",
 )
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @argument("report_id", type=str)
 @retrieve_state
 def download(

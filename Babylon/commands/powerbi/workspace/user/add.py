@@ -19,7 +19,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", type=str, help="Workspace Id PowerBI")
+@option("-w", "--workspace-id", "workspace_id", type=str, help="Workspace Id PowerBI")
 @argument("identifier", type=str)
 @argument("type", type=Choice(["App", "Group", "User", "None"], case_sensitive=False))
 @argument(

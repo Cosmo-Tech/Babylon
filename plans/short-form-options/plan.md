@@ -37,17 +37,10 @@ These letters are already used globally by decorators or main.py:
 | `--rid` (runner_id) | `-r` | ✅ Available |
 | `--rnid` (run_id) | `-R` | ✅ Available |
 | `--dpid` (dataset_part_id) | `-p` | ✅ Available |
-| `--powerbi-name` | `-P` | ✅ Available |
-| `--dataset-id` (PowerBI) | `-i` | ✅ Available |
-| `--report-id` (PowerBI) | `-I` | ✅ Available |
 | `--namespace` | `-N` | ✅ Available |
-| `--email` | `-e` | ✅ Available |
 | `--log-path` | `-l` | ✅ Available |
-| `--principal-type` | `-T` | ✅ Available |
-| `--access-right` | `-a` | ✅ Available |
-| `--account-name` | `-A` | ✅ Available |
-| `--container-name` | `-C` | ✅ Available (Azure only) |
-| `--blob-path` | `-b` | ✅ Available |
+| `--workspace-id` (PowerBI) | `-w` | ✅ Available |
+| `--email` | `-e` | ✅ Available |
 
 ## Conflicts Identified (NO CHANGES - Document Only)
 
@@ -55,17 +48,34 @@ These letters are already used globally by decorators or main.py:
 |------|--------|-----------------|
 | `powerbi/report/download.py` | `--output/-o` | Already defined locally, would conflict with `output_to_file` decorator |
 | `powerbi/report/download_all.py` | `--output/-o` | Already defined locally, would conflict with `output_to_file` decorator |
-| `powerbi/dataset/parameters/get.py` | `--powerbi-name` | Duplicated option definition (bug - needs separate fix) |
+| `powerbi/dataset/parameters/get.py` | `--workspace-id` | Duplicated option definition (bug - needs separate fix) |
 
-**Decisions (per clarifications):**
-- Keep the PowerBI `--output/-o` definitions as-is; only document them as conflicts.
-- Mention the duplicated `--powerbi-name` option in documentation; do not fix it in this plan.
-- Test all short-form vs long-form behaviours (not just help output) in the new test suite.
+## ⚠️ IMPORTANT: Only Modify `@option` Decorators
+
+This plan ONLY modifies `@option(...)` decorators to add short forms. 
+
+**DO NOT modify:**
+- `@argument(...)` decorators - arguments don't have short forms
+- Function signatures
+- Function bodies
+- Import statements
+- Any other code
+
+**Pattern for changes:**
+```python
+# BEFORE:
+@option("--long-name", "variable_name", ...)
+
+# AFTER (add short form as first parameter):
+@option("-X", "--long-name", "variable_name", ...)
+```
+
+---
 
 ## Implementation Steps
 
 > ⚠️ **Workflow for Each Step:**
-> 1. Implement the code changes
+> 1. Make ONLY the specified `@option` changes (one line each)
 > 2. Create/update test file with detailed tests for that step
 > 3. Run tests: `source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v`
 > 4. If tests pass → **STOP and wait for user to commit**
@@ -73,216 +83,58 @@ These letters are already used globally by decorators or main.py:
 
 ---
 
-### Step 1: API Commands - Add Short-Form Options
+### Step 1: API Commands - Add Short-Form Options ✅ COMPLETED
 
-**Files to modify:**
-- `Babylon/commands/api/dataset.py`
-- `Babylon/commands/api/organization.py`
-- `Babylon/commands/api/run.py`
-- `Babylon/commands/api/runner.py`
-- `Babylon/commands/api/solution.py`
-- `Babylon/commands/api/workspace.py`
-
-**What:** Add short-form options to all `@click.option` decorators:
-- `--oid` → `-O/--oid`
-- `--wid` → `-W/--wid`
-- `--sid` → `-S/--sid`
-- `--did` → `-d/--did`
-- `--rid` → `-r/--rid`
-- `--rnid` → `-R/--rnid`
-- `--dpid` → `-p/--dpid`
-
-**Test file to create:** `tests/unit/test_option_shortform.py`
-
-**Test code for Step 1:**
-```python
-import pytest
-from click.testing import CliRunner
-from Babylon.main import main
-
-
-class TestAPIShortFormOptions:
-    """Test short-form options for API commands."""
-
-    @pytest.fixture
-    def runner(self):
-        return CliRunner()
-
-    # Organization ID (-O/--oid)
-    @pytest.mark.parametrize("command_path,short,long", [
-        (["api", "organizations", "get"], "-O", "--oid"),
-        (["api", "solutions", "get"], "-O", "--oid"),
-        (["api", "solutions", "get-all"], "-O", "--oid"),
-        (["api", "workspaces", "get"], "-O", "--oid"),
-        (["api", "workspaces", "get-all"], "-O", "--oid"),
-        (["api", "datasets", "get"], "-O", "--oid"),
-        (["api", "datasets", "get-all"], "-O", "--oid"),
-        (["api", "runners", "get"], "-O", "--oid"),
-        (["api", "runners", "get-all"], "-O", "--oid"),
-        (["api", "runs", "get"], "-O", "--oid"),
-        (["api", "runs", "get-all"], "-O", "--oid"),
-    ])
-    def test_oid_shortform_in_help(self, runner, command_path, short, long):
-        """Verify -O/--oid appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        assert short in result.output, f"{short} not found in {' '.join(command_path)} help"
-        assert long in result.output, f"{long} not found in {' '.join(command_path)} help"
-
-    # Workspace ID (-W/--wid)
-    @pytest.mark.parametrize("command_path", [
-        ["api", "workspaces", "get"],
-        ["api", "datasets", "get"],
-        ["api", "datasets", "get-all"],
-        ["api", "runners", "get"],
-        ["api", "runners", "get-all"],
-        ["api", "runs", "get"],
-        ["api", "runs", "get-all"],
-    ])
-    def test_wid_shortform_in_help(self, runner, command_path):
-        """Verify -W/--wid appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        assert "-W" in result.output, f"-W not found in {' '.join(command_path)} help"
-        assert "--wid" in result.output, f"--wid not found in {' '.join(command_path)} help"
-
-    # Solution ID (-S/--sid)
-    @pytest.mark.parametrize("command_path", [
-        ["api", "solutions", "get"],
-    ])
-    def test_sid_shortform_in_help(self, runner, command_path):
-        """Verify -S/--sid appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        assert "-S" in result.output, f"-S not found in {' '.join(command_path)} help"
-        assert "--sid" in result.output, f"--sid not found in {' '.join(command_path)} help"
-
-    # Dataset ID (-d/--did)
-    @pytest.mark.parametrize("command_path", [
-        ["api", "datasets", "get"],
-    ])
-    def test_did_shortform_in_help(self, runner, command_path):
-        """Verify -d/--did appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        assert "-d" in result.output, f"-d not found in {' '.join(command_path)} help"
-        assert "--did" in result.output, f"--did not found in {' '.join(command_path)} help"
-
-    # Runner ID (-r/--rid)
-    @pytest.mark.parametrize("command_path", [
-        ["api", "runners", "get"],
-        ["api", "runs", "get"],
-        ["api", "runs", "get-all"],
-    ])
-    def test_rid_shortform_in_help(self, runner, command_path):
-        """Verify -r/--rid appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        assert "-r" in result.output, f"-r not found in {' '.join(command_path)} help"
-        assert "--rid" in result.output, f"--rid not found in {' '.join(command_path)} help"
-
-    # Run ID (-R/--rnid)
-    @pytest.mark.parametrize("command_path", [
-        ["api", "runs", "get"],
-    ])
-    def test_rnid_shortform_in_help(self, runner, command_path):
-        """Verify -R/--rnid appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        assert "-R" in result.output, f"-R not found in {' '.join(command_path)} help"
-        assert "--rnid" in result.output, f"--rnid not found in {' '.join(command_path)} help"
-```
-
-**Execution:**
-```bash
-source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v
-```
-
-**✅ On success:** Stop and wait for user commit before proceeding to Step 2.
+**Status:** Already implemented in previous commits.
 
 ---
 
-### Step 2: Macro Commands - Add Short-Form Options
+### Step 2: Macro Commands - Add Short-Form Options ✅ COMPLETED
 
-**Files to modify:**
-- `Babylon/commands/macro/apply.py`
-- `Babylon/commands/macro/deploy.py`
-- `Babylon/commands/macro/destroy.py`
-
-**What:** Add short-form options:
-- `--namespace` → `-N/--namespace`
-
-**Test code to append to `tests/unit/test_option_shortform.py`:**
-```python
-class TestMacroShortFormOptions:
-    """Test short-form options for Macro commands."""
-
-    @pytest.fixture
-    def runner(self):
-        return CliRunner()
-
-    # Namespace (-N/--namespace)
-    @pytest.mark.parametrize("command_path", [
-        ["apply"],
-        ["deploy"],
-        ["destroy"],
-    ])
-    def test_namespace_shortform_in_help(self, runner, command_path):
-        """Verify -N/--namespace appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        assert "-N" in result.output, f"-N not found in {' '.join(command_path)} help"
-        assert "--namespace" in result.output, f"--namespace not found in {' '.join(command_path)} help"
-```
-
-**Execution:**
-```bash
-source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v
-```
-
-**✅ On success:** Stop and wait for user commit before proceeding to Step 3.
+**Status:** Already implemented in previous commits.
 
 ---
 
-### Step 3: PowerBI Commands - Add Short-Form Options
+### Step 3: PowerBI Commands - Add Short-Form to `--workspace-id` Option
 
-**Files to modify:**
-- `Babylon/commands/powerbi/resume.py`
-- `Babylon/commands/powerbi/suspend.py`
-- `Babylon/commands/powerbi/dataset/delete.py`
-- `Babylon/commands/powerbi/dataset/get.py`
-- `Babylon/commands/powerbi/dataset/get_all.py`
-- `Babylon/commands/powerbi/dataset/refresh.py`
-- `Babylon/commands/powerbi/dataset/take_over.py`
-- `Babylon/commands/powerbi/dataset/parameters/get.py`
-- `Babylon/commands/powerbi/dataset/parameters/update.py`
-- `Babylon/commands/powerbi/dataset/users/add.py`
-- `Babylon/commands/powerbi/report/delete.py`
-- `Babylon/commands/powerbi/report/get.py`
-- `Babylon/commands/powerbi/report/get_all.py`
-- `Babylon/commands/powerbi/report/rebind.py`
-- `Babylon/commands/powerbi/report/upload.py`
-- `Babylon/commands/powerbi/workspace/create.py`
-- `Babylon/commands/powerbi/workspace/delete.py`
-- `Babylon/commands/powerbi/workspace/get.py`
-- `Babylon/commands/powerbi/workspace/get_all.py`
-- `Babylon/commands/powerbi/workspace/get_current.py`
-- `Babylon/commands/powerbi/workspace/user/add.py`
-- `Babylon/commands/powerbi/workspace/user/delete.py`
-- `Babylon/commands/powerbi/workspace/user/get_all.py`
-- `Babylon/commands/powerbi/workspace/user/update.py`
+**What:** Add `-w` short form to all `--workspace-id` options in PowerBI commands.
 
-**What:** Add short-form options:
-- `--powerbi-name` → `-P/--powerbi-name`
-- `--dataset-id` → `-i/--dataset-id`
-- `--report-id` → `-I/--report-id`
-- `--email` → `-e/--email`
-- `--principal-type` → `-T/--principal-type`
-- `--access-right` → `-a/--access-right`
+**Files and EXACT line changes:**
 
-**Skip files with conflicts:** `download.py`, `download_all.py`
+Each change is a single-line modification to an `@option` decorator.
 
-**Test code to append to `tests/unit/test_option_shortform.py`:**
+| File | Line | Before | After |
+|------|------|--------|-------|
+| `Babylon/commands/powerbi/dataset/get.py` | 18 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/dataset/get_all.py` | 18 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/dataset/take_over.py` | 17 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/dataset/update_credentials.py` | 17 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/dataset/parameters/update.py` | 25 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/dataset/users/add.py` | 19 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/report/delete.py` | 17 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/report/get.py` | 24 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/report/get_all.py` | 18 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/report/upload.py` | 30 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/report/pages.py` | 30 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/report/download.py` | 26 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/report/download_all.py` | 20 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/workspace/delete.py` | 23 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/workspace/get.py` | 22 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/workspace/user/add.py` | 21 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+| `Babylon/commands/powerbi/workspace/user/delete.py` | 19 | `@option("--workspace-id", ...)` | `@option("-w", "--workspace-id", ...)` |
+
+**SKIP** `Babylon/commands/powerbi/dataset/parameters/get.py` - has duplicated option definition (bug).
+
+**Example change (dataset/get.py line 18):**
+```python
+# BEFORE:
+@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+
+# AFTER:
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+```
+
+**Test code to add to `tests/unit/test_option_shortform.py`:**
 ```python
 class TestPowerBIShortFormOptions:
     """Test short-form options for PowerBI commands."""
@@ -291,78 +143,67 @@ class TestPowerBIShortFormOptions:
     def runner(self):
         return CliRunner()
 
-    # PowerBI Name (-P/--powerbi-name)
+    # Workspace ID (-w/--workspace-id)
     @pytest.mark.parametrize("command_path", [
-        ["powerbi", "resume"],
-        ["powerbi", "suspend"],
-        ["powerbi", "dataset", "delete"],
         ["powerbi", "dataset", "get"],
         ["powerbi", "dataset", "get-all"],
-        ["powerbi", "dataset", "refresh"],
         ["powerbi", "dataset", "take-over"],
-        ["powerbi", "dataset", "parameters", "get"],
+        ["powerbi", "dataset", "update-credentials"],
         ["powerbi", "dataset", "parameters", "update"],
         ["powerbi", "dataset", "users", "add"],
         ["powerbi", "report", "delete"],
         ["powerbi", "report", "get"],
         ["powerbi", "report", "get-all"],
-        ["powerbi", "report", "rebind"],
         ["powerbi", "report", "upload"],
-        ["powerbi", "workspace", "create"],
+        ["powerbi", "report", "pages"],
+        ["powerbi", "report", "download"],
+        ["powerbi", "report", "download-all"],
         ["powerbi", "workspace", "delete"],
         ["powerbi", "workspace", "get"],
-        ["powerbi", "workspace", "get-all"],
-        ["powerbi", "workspace", "get-current"],
         ["powerbi", "workspace", "user", "add"],
         ["powerbi", "workspace", "user", "delete"],
-        ["powerbi", "workspace", "user", "get-all"],
-        ["powerbi", "workspace", "user", "update"],
     ])
-    def test_powerbi_name_shortform_in_help(self, runner, command_path):
-        """Verify -P/--powerbi-name appears in help output."""
+    def test_workspace_id_shortform_in_help(self, runner, command_path):
+        """Verify -w/--workspace-id appears in help output."""
         result = runner.invoke(main, command_path + ["--help"])
         assert result.exit_code == 0
-        # Check if this command has --powerbi-name option
-        if "--powerbi-name" in result.output:
-            assert "-P" in result.output, f"-P not found in {' '.join(command_path)} help"
+        if "--workspace-id" in result.output:
+            assert "-w" in result.output, f"-w not found in {' '.join(command_path)} help"
+```
 
-    # Dataset ID (-i/--dataset-id)
-    @pytest.mark.parametrize("command_path", [
-        ["powerbi", "dataset", "delete"],
-        ["powerbi", "dataset", "get"],
-        ["powerbi", "dataset", "refresh"],
-        ["powerbi", "dataset", "take-over"],
-        ["powerbi", "dataset", "parameters", "get"],
-        ["powerbi", "dataset", "parameters", "update"],
-        ["powerbi", "dataset", "users", "add"],
-        ["powerbi", "report", "rebind"],
-    ])
-    def test_dataset_id_shortform_in_help(self, runner, command_path):
-        """Verify -i/--dataset-id appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        if "--dataset-id" in result.output:
-            assert "-i" in result.output, f"-i not found in {' '.join(command_path)} help"
+**Execution:**
+```bash
+source .venv/bin/activate && pytest tests/unit/test_option_shortform.py::TestPowerBIShortFormOptions -v
+```
 
-    # Report ID (-I/--report-id)
-    @pytest.mark.parametrize("command_path", [
-        ["powerbi", "report", "delete"],
-        ["powerbi", "report", "get"],
-        ["powerbi", "report", "rebind"],
-    ])
-    def test_report_id_shortform_in_help(self, runner, command_path):
-        """Verify -I/--report-id appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        if "--report-id" in result.output:
-            assert "-I" in result.output, f"-I not found in {' '.join(command_path)} help"
+**✅ On success:** Stop and wait for user commit before proceeding to Step 4.
 
+---
+
+### Step 4: PowerBI Dataset Users - Add Short-Form to `--email` Option
+
+**What:** Add `-e` short form to `--email` option.
+
+**Files and EXACT line changes:**
+
+| File | Line | Before | After |
+|------|------|--------|-------|
+| `Babylon/commands/powerbi/dataset/users/add.py` | 20 | `@option("--email", ...)` | `@option("-e", "--email", ...)` |
+
+**Example change:**
+```python
+# BEFORE:
+@option("--email", "email", type=str, help="Email valid")
+
+# AFTER:
+@option("-e", "--email", "email", type=str, help="Email valid")
+```
+
+**Test code to add:**
+```python
     # Email (-e/--email)
     @pytest.mark.parametrize("command_path", [
         ["powerbi", "dataset", "users", "add"],
-        ["powerbi", "workspace", "user", "add"],
-        ["powerbi", "workspace", "user", "delete"],
-        ["powerbi", "workspace", "user", "update"],
     ])
     def test_email_shortform_in_help(self, runner, command_path):
         """Verify -e/--email appears in help output."""
@@ -370,57 +211,38 @@ class TestPowerBIShortFormOptions:
         assert result.exit_code == 0
         if "--email" in result.output:
             assert "-e" in result.output, f"-e not found in {' '.join(command_path)} help"
-
-    # Principal Type (-T/--principal-type)
-    @pytest.mark.parametrize("command_path", [
-        ["powerbi", "dataset", "users", "add"],
-        ["powerbi", "workspace", "user", "add"],
-        ["powerbi", "workspace", "user", "update"],
-    ])
-    def test_principal_type_shortform_in_help(self, runner, command_path):
-        """Verify -T/--principal-type appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        if "--principal-type" in result.output:
-            assert "-T" in result.output, f"-T not found in {' '.join(command_path)} help"
-
-    # Access Right (-a/--access-right)
-    @pytest.mark.parametrize("command_path", [
-        ["powerbi", "dataset", "users", "add"],
-        ["powerbi", "workspace", "user", "add"],
-        ["powerbi", "workspace", "user", "update"],
-    ])
-    def test_access_right_shortform_in_help(self, runner, command_path):
-        """Verify -a/--access-right appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        if "--access-right" in result.output:
-            assert "-a" in result.output, f"-a not found in {' '.join(command_path)} help"
 ```
 
 **Execution:**
 ```bash
-source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v
+source .venv/bin/activate && pytest tests/unit/test_option_shortform.py::TestPowerBIShortFormOptions -v
 ```
 
-**✅ On success:** Stop and wait for user commit before proceeding to Step 4.
+**✅ On success:** Stop and wait for user commit before proceeding to Step 5.
 
 ---
 
-### Step 4: Azure Commands - Add Short-Form Options
+### Step 5: Azure Commands - Add Short-Form to `--email` Option
 
-**Files to modify:**
-- `Babylon/commands/azure/permission/set.py`
-- `Babylon/commands/azure/token/get.py`
-- `Babylon/commands/azure/token/store.py`
-- `Babylon/commands/azure/storage/container/upload.py`
+**What:** Add `-e` short form to `--email` option in Azure token commands.
 
-**What:** Add short-form options:
-- `--account-name` → `-A/--account-name`
-- `--container-name` → `-C/--container-name`
-- `--blob-path` → `-b/--blob-path`
+**Files and EXACT line changes:**
 
-**Test code to append to `tests/unit/test_option_shortform.py`:**
+| File | Line | Before | After |
+|------|------|--------|-------|
+| `Babylon/commands/azure/token/get.py` | 17 | `@option("--email", ...)` | `@option("-e", "--email", ...)` |
+| `Babylon/commands/azure/token/store.py` | 17 | `@option("--email", ...)` | `@option("-e", "--email", ...)` |
+
+**Example change:**
+```python
+# BEFORE:
+@option("--email", "email", help="User email")
+
+# AFTER:
+@option("-e", "--email", "email", help="User email")
+```
+
+**Test code to add to `tests/unit/test_option_shortform.py`:**
 ```python
 class TestAzureShortFormOptions:
     """Test short-form options for Azure commands."""
@@ -429,57 +251,61 @@ class TestAzureShortFormOptions:
     def runner(self):
         return CliRunner()
 
-    # Account Name (-A/--account-name)
+    # Email (-e/--email)
     @pytest.mark.parametrize("command_path", [
-        ["azure", "storage", "container", "upload"],
+        ["azure", "token", "get"],
+        ["azure", "token", "store"],
     ])
-    def test_account_name_shortform_in_help(self, runner, command_path):
-        """Verify -A/--account-name appears in help output."""
+    def test_email_shortform_in_help(self, runner, command_path):
+        """Verify -e/--email appears in help output."""
         result = runner.invoke(main, command_path + ["--help"])
         assert result.exit_code == 0
-        if "--account-name" in result.output:
-            assert "-A" in result.output, f"-A not found in {' '.join(command_path)} help"
-
-    # Container Name (-C/--container-name)
-    @pytest.mark.parametrize("command_path", [
-        ["azure", "storage", "container", "upload"],
-    ])
-    def test_container_name_shortform_in_help(self, runner, command_path):
-        """Verify -C/--container-name appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        if "--container-name" in result.output:
-            assert "-C" in result.output, f"-C not found in {' '.join(command_path)} help"
-
-    # Blob Path (-b/--blob-path)
-    @pytest.mark.parametrize("command_path", [
-        ["azure", "storage", "container", "upload"],
-    ])
-    def test_blob_path_shortform_in_help(self, runner, command_path):
-        """Verify -b/--blob-path appears in help output."""
-        result = runner.invoke(main, command_path + ["--help"])
-        assert result.exit_code == 0
-        if "--blob-path" in result.output:
-            assert "-b" in result.output, f"-b not found in {' '.join(command_path)} help"
+        if "--email" in result.output:
+            assert "-e" in result.output, f"-e not found in {' '.join(command_path)} help"
 ```
 
 **Execution:**
 ```bash
-source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v
+source .venv/bin/activate && pytest tests/unit/test_option_shortform.py::TestAzureShortFormOptions -v
 ```
 
-**✅ On success:** Stop and wait for user commit before proceeding to Step 5.
+**✅ On success:** Stop and wait for user commit before proceeding to Step 6.
 
 ---
 
-### Step 5: Main CLI - Add Short-Form for --log-path
+### Step 6: Main CLI - Add Short-Form for `--log-path`
 
-**Files to modify:**
-- `Babylon/main.py`
+**What:** Add `-l` short form for `--log-path` option in main.py.
 
-**What:** Add `-l` short form for `--log-path` option
+**File and EXACT line change:**
 
-**Test code to append to `tests/unit/test_option_shortform.py`:**
+| File | Line | Before | After |
+|------|------|--------|-------|
+| `Babylon/main.py` | ~98 | `@option("--log-path", ...)` | `@option("-l", "--log-path", ...)` |
+
+**Example change:**
+```python
+# BEFORE:
+@option(
+    "--log-path",
+    "log_path",
+    type=clickPath(file_okay=False, dir_okay=True, writable=True, path_type=pathlibPath),
+    default=pathlibPath.cwd(),
+    help="Path to the directory where log files will be stored...",
+)
+
+# AFTER:
+@option(
+    "-l",
+    "--log-path",
+    "log_path",
+    type=clickPath(file_okay=False, dir_okay=True, writable=True, path_type=pathlibPath),
+    default=pathlibPath.cwd(),
+    help="Path to the directory where log files will be stored...",
+)
+```
+
+**Test code to add to `tests/unit/test_option_shortform.py`:**
 ```python
 class TestMainCLIShortFormOptions:
     """Test short-form options for main CLI."""
@@ -494,39 +320,25 @@ class TestMainCLIShortFormOptions:
         assert result.exit_code == 0
         assert "-l" in result.output, "-l not found in main help"
         assert "--log-path" in result.output, "--log-path not found in main help"
-
-    def test_log_path_short_and_long_equivalent(self, runner):
-        """Verify -l and --log-path produce equivalent behavior."""
-        # Using --help to avoid side effects
-        result_short = runner.invoke(main, ["-l", "/tmp/test.log", "--help"])
-        result_long = runner.invoke(main, ["--log-path", "/tmp/test.log", "--help"])
-        assert result_short.exit_code == 0
-        assert result_long.exit_code == 0
-        # Both should show help output without errors
-        assert "Usage:" in result_short.output
-        assert "Usage:" in result_long.output
 ```
 
 **Execution:**
 ```bash
-source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v
+source .venv/bin/activate && pytest tests/unit/test_option_shortform.py::TestMainCLIShortFormOptions -v
 ```
 
-**✅ On success:** Stop and wait for user commit before proceeding to Step 6.
+**✅ On success:** Stop and wait for user commit before proceeding to Step 7.
 
 ---
 
-### Step 6: Documentation - Create Changes Report
+### Step 7: Documentation - Create Changes Report
 
 **Files to create:**
 - `plans/short-form-options/changes.md` (new file)
 
-**What:** Document:
-1. All options that received short forms (before/after)
-2. All options with conflicts (not changed)
-3. Rationale for each conflict
+**What:** Document all options that received short forms and conflicts.
 
-**Content template:**
+**Content:**
 ```markdown
 # Short-Form Options Changes Report
 
@@ -536,20 +348,15 @@ source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v
 |-----------------|-------------|--------------|----------------|
 | API | `--oid` | `-O` | dataset.py, organization.py, run.py, runner.py, solution.py, workspace.py |
 | API | `--wid` | `-W` | dataset.py, run.py, runner.py, workspace.py |
-| API | `--sid` | `-S` | solution.py |
+| API | `--sid` | `-S` | solution.py, workspace.py, runner.py |
 | API | `--did` | `-d` | dataset.py |
 | API | `--rid` | `-r` | run.py, runner.py |
 | API | `--rnid` | `-R` | run.py |
+| API | `--dpid` | `-p` | dataset.py |
 | Macro | `--namespace` | `-N` | apply.py, deploy.py, destroy.py |
-| PowerBI | `--powerbi-name` | `-P` | 24 files |
-| PowerBI | `--dataset-id` | `-i` | 8 files |
-| PowerBI | `--report-id` | `-I` | 3 files |
-| PowerBI | `--email` | `-e` | 4 files |
-| PowerBI | `--principal-type` | `-T` | 3 files |
-| PowerBI | `--access-right` | `-a` | 3 files |
-| Azure | `--account-name` | `-A` | upload.py |
-| Azure | `--container-name` | `-C` | upload.py |
-| Azure | `--blob-path` | `-b` | upload.py |
+| PowerBI | `--workspace-id` | `-w` | 17 files |
+| PowerBI | `--email` | `-e` | dataset/users/add.py |
+| Azure | `--email` | `-e` | token/get.py, token/store.py |
 | Main | `--log-path` | `-l` | main.py |
 
 ## Conflicts (Not Modified)
@@ -558,7 +365,7 @@ source .venv/bin/activate && pytest tests/unit/test_option_shortform.py -v
 |------|--------|-----------------|
 | `powerbi/report/download.py` | `--output/-o` | Conflicts with `output_to_file` decorator |
 | `powerbi/report/download_all.py` | `--output/-o` | Conflicts with `output_to_file` decorator |
-| `powerbi/dataset/parameters/get.py` | `--powerbi-name` | Duplicated option definition (separate bug) |
+| `powerbi/dataset/parameters/get.py` | `--workspace-id` | Duplicated option definition (separate bug) |
 
 ## Reserved Letters
 
@@ -574,93 +381,32 @@ source .venv/bin/activate && pytest tests/unit/test_option_shortform.py tests/un
 
 ---
 
-## Summary of Changes by Step
+## Summary of Remaining Steps
 
-| Step | Category | Files Modified | Short Options Added | Test Classes |
-|------|----------|---------------|---------------------|--------------|
-| 1 | API Commands | 6 files | ~35 short options | `TestAPIShortFormOptions` |
-| 2 | Macro Commands | 3 files | ~5 short options | `TestMacroShortFormOptions` |
-| 3 | PowerBI Commands | 24 files | ~30 short options | `TestPowerBIShortFormOptions` |
-| 4 | Azure Commands | 4 files | ~10 short options | `TestAzureShortFormOptions` |
-| 5 | Main CLI | 1 file | 1 short option | `TestMainCLIShortFormOptions` |
-| 6 | Documentation | 1 new file | Changes report | N/A |
-
----
-
-## Workflow Summary
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    FOR EACH STEP (1-6)                      │
-├─────────────────────────────────────────────────────────────┤
-│  1. Implement code changes                                  │
-│  2. Create/append test class to test_option_shortform.py    │
-│  3. Run: pytest tests/unit/test_option_shortform.py -v      │
-│  4. ✅ Tests pass? → STOP for user commit                   │
-│  5. ❌ Tests fail? → Fix issues and re-run                  │
-│  6. User commits → Proceed to next step                     │
-└─────────────────────────────────────────────────────────────┘
-```
+| Step | Category | Files to Modify | Options to Add Short Forms |
+|------|----------|----------------|---------------------------|
+| 3 | PowerBI Commands | 17 files | `--workspace-id` → `-w` |
+| 4 | PowerBI Dataset Users | 1 file | `--email` → `-e` |
+| 5 | Azure Commands | 2 files | `--email` → `-e` |
+| 6 | Main CLI | 1 file | `--log-path` → `-l` |
+| 7 | Documentation | 1 new file | Changes report |
 
 ---
 
-## Verification Checklist
+## Critical Rules
 
-**After each step, verify:**
-```bash
-# Activate environment
-source .venv/bin/activate
+1. **ONLY modify `@option` lines** - Never touch `@argument`, function signatures, or function bodies
+2. **One parameter addition** - Add the short form as the FIRST parameter in the `@option` call
+3. **Preserve everything else** - Keep all other parameters exactly as they are
+4. **Test after each step** - Run the test suite before committing
 
-# Run step-specific tests
-pytest tests/unit/test_option_shortform.py -v
+**Correct pattern:**
+```python
+# Before:
+@option("--long-name", "var_name", type=str, help="Description")
 
-# Verify no regression on existing tests
-pytest tests/unit/test_help_shortform.py -v
+# After:
+@option("-X", "--long-name", "var_name", type=str, help="Description")
+#       ^^^^
+#       Only this is added, everything else stays the same
 ```
-
-**Final verification (after Step 6):**
-```bash
-# Full test suite
-pytest tests/unit/ -v
-
-# Manual spot checks
-babylon api organizations get --help  # Should show -O/--oid
-babylon apply --help                   # Should show -N/--namespace
-babylon powerbi dataset get --help     # Should show -P, -i
-babylon --help                         # Should show -l/--log-path
-```
-
----
-
-## Implementation Strategy
-
-⚠️ **Critical Workflow Rules:**
-
-1. **One step at a time** - Complete each step fully before moving to the next
-2. **Test immediately** - After implementing changes, create/update tests and run them
-3. **Wait for commit** - After tests pass, STOP and wait for user to commit
-4. **Incremental test file** - Build `tests/unit/test_option_shortform.py` incrementally, adding one test class per step
-
-**Commands to run after each step:**
-```bash
-source .venv/bin/activate
-pytest tests/unit/test_option_shortform.py -v
-```
-
-**Commit message format:**
-```
-feat(cli): add short-form options for {category} commands
-
-- Add {list of short options}
-- Add tests for {category} short-form options
-```
----
-
-## Notes
-
-1. **Backward Compatibility**: All long-form options continue working unchanged
-2. **Naming Convention**: Uppercase for resource IDs (`-O`, `-W`, `-S`), lowercase for other options
-3. **Already Implemented**: `-D` for force-delete in PowerBI, `-h` for help
-4. **Test Pattern**: Follows existing `test_help_shortform.py` approach
-5. **Conflicts Documented**: Options with conflicts listed in `changes.md` with rationale
-
