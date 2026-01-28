@@ -132,3 +132,14 @@ class TestPowerBIShortFormOptions:
         assert result.exit_code == 0
         if "--workspace-id" in result.output:
             assert "-w" in result.output, f"-w not found in {' '.join(command_path)} help"
+
+    # Email (-e/--email)
+    @pytest.mark.parametrize("command_path", [
+        ["powerbi", "dataset", "users", "add"],
+    ])
+    def test_email_shortform_in_help(self, runner, command_path):
+        """Verify -e/--email appears in help output."""
+        result = runner.invoke(main, command_path + ["--help"])
+        assert result.exit_code == 0
+        if "--email" in result.output:
+            assert "-e" in result.output, f"-e not found in {' '.join(command_path)} help"
