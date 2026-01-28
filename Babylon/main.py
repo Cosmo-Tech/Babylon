@@ -101,6 +101,7 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     help="Print version number and return.",
 )
 @option(
+    "-l",
     "--log-path",
     "log_path",
     type=clickPath(file_okay=False, dir_okay=True, writable=True, path_type=pathlibPath),

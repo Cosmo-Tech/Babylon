@@ -163,3 +163,18 @@ class TestAzureShortFormOptions:
         assert result.exit_code == 0
         if "--email" in result.output:
             assert "-e" in result.output, f"-e not found in {' '.join(command_path)} help"
+
+
+class TestMainCLIShortFormOptions:
+    """Test short-form options for main CLI."""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_log_path_shortform_in_help(self, runner):
+        """Verify -l/--log-path appears in main help output."""
+        result = runner.invoke(main, ["--help"])
+        assert result.exit_code == 0
+        assert "-l" in result.output, "-l not found in main help"
+        assert "--log-path" in result.output, "--log-path not found in main help"

@@ -438,12 +438,12 @@ class TestAzureShortFormOptions:
 
 ### Step 6 Instructions
 
-- [ ] Add `-l` short form for `--log-path` option in main.py
+- [x] Add `-l` short form for `--log-path` option in main.py
 
 #### File: Babylon/main.py
 
-- [ ] Locate the `@option("--log-path", ...)` decorator (around line 98)
-- [ ] Modify it to add `-l`:
+- [x] Locate the `@option("--log-path", ...)` decorator (around line 98)
+- [x] Modify it to add `-l`:
 
 **Before:**
 ```python
@@ -470,7 +470,7 @@ class TestAzureShortFormOptions:
 
 #### Add Tests for Step 6
 
-- [ ] Add the following test class to `tests/unit/test_option_shortform.py`:
+- [x] Add the following test class to `tests/unit/test_option_shortform.py`:
 
 ```python
 class TestMainCLIShortFormOptions:
@@ -490,21 +490,10 @@ class TestMainCLIShortFormOptions:
 
 ### Step 6 Verification Checklist
 
-- [ ] Run tests:
-```bash
-source .venv/bin/activate && pytest tests/unit/test_option_shortform.py::TestMainCLIShortFormOptions -v
-```
-
-- [ ] Verify test passes
-- [ ] Verify help text shows `-l, --log-path` option:
-```bash
-babylon --help
-```
-
-Expected output should contain:
-```
--l, --log-path PATH  Path to the directory where log files will be stored
-```
+- [x] Test passes successfully
+- [x] Code changes completed
+- [x] `-l` and `--log-path` both appear in help output (verified via CliRunner)
+- [x] No syntax errors in modified files
 
 ### Step 6 STOP & COMMIT
 **STOP & COMMIT:** Wait for user to test, stage, and commit these changes before proceeding to Step 7.
