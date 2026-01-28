@@ -14,7 +14,7 @@ env = Environment()
 
 @command()
 @injectcontext()
-@option("--email", "email", help="User email")
+@option("-e", "--email", "email", help="User email")
 @option(
     "--scope",
     "scope",

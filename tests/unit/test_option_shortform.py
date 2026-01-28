@@ -143,3 +143,23 @@ class TestPowerBIShortFormOptions:
         assert result.exit_code == 0
         if "--email" in result.output:
             assert "-e" in result.output, f"-e not found in {' '.join(command_path)} help"
+
+
+class TestAzureShortFormOptions:
+    """Test short-form options for Azure commands."""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    # Email (-e/--email)
+    @pytest.mark.parametrize("command_path", [
+        ["azure", "token", "get"],
+        ["azure", "token", "store"],
+    ])
+    def test_email_shortform_in_help(self, runner, command_path):
+        """Verify -e/--email appears in help output."""
+        result = runner.invoke(main, command_path + ["--help"])
+        assert result.exit_code == 0
+        if "--email" in result.output:
+            assert "-e" in result.output, f"-e not found in {' '.join(command_path)} help"
