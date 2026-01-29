@@ -495,7 +495,7 @@ class TestMainCLIShortFormOptions:
 - [x] `-l` and `--log-path` both appear in help output (verified via CliRunner)
 - [x] No syntax errors in modified files
 
-### Step 6 STOP & COMMIT
+### Step 6 STOP & COMMITsource
 **STOP & COMMIT:** Wait for user to test, stage, and commit these changes before proceeding to Step 7.
 
 ---

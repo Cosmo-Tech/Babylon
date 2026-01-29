@@ -53,6 +53,6 @@ Macros ([Babylon/commands/macro/](Babylon/commands/macro/)) are for complex work
 
 ## Additional Resources
 If you cannot find the information you need in these instructions, refer to the following comprehensive guides:
-- [Project_Architecture_Blueprint.md](Project_Architecture_Blueprint.md): For a deep dive into the system's architecture, layers, and design decisions.
-- [exemplars.md](exemplars.md): For high-quality code examples demonstrating standard patterns and best practices.
+- [Project_Architecture_Blueprint.md](plans/doc_copilot/Project_Architecture_Blueprint.md): For a deep dive into the system's architecture, layers, and design decisions.
+- [exemplars.md](plans/doc_copilot/exemplars.md): For high-quality code examples demonstrating standard patterns and best practices.
 

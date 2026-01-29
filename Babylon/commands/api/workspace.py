@@ -32,7 +32,7 @@ def workspaces():
 @output_to_file
 @pass_keycloak_token()
 @option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
-@option("--sid", "solution_id", required=True, type=str, help="Solution ID")
+@option("-S", "--sid", "solution_id", required=True, type=str, help="Solution ID")
 @argument("payload_file", type=Path(exists=True))
 def create(config: dict, keycloak_token: str, organization_id: str, solution_id: str, payload_file) -> CommandResponse:
     """

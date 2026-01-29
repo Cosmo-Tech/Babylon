@@ -14,12 +14,6 @@
 | `--rnid` | `-R` | run.py |
 | `--dpid` | `-p` | dataset.py |
 
-### Macro Commands (Steps 1-2, Previously Completed)
-
-| Long Option | Short Option | Files Modified |
-|-------------|--------------|----------------|
-| `--namespace` | `-N` | apply.py, deploy.py, destroy.py |
-
 ### PowerBI Commands (Step 3)
 
 | Long Option | Short Option | Files Modified |
@@ -46,9 +40,9 @@
 
 ## Total Summary
 
-- **Total options with short forms:** 11 unique options
-- **Total files modified:** ~35 files
-- **Commands affected:** API, Macro, PowerBI, Azure, Main CLI
+- **Total options with short forms:** 10 unique options
+- **Total files modified:** ~33 files
+- **Commands affected:** API, PowerBI, Azure, Main CLI
 
 ## Conflicts (Not Modified)
 

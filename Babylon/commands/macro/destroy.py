@@ -40,19 +40,14 @@ def _delete_resource(
 @command()
 @injectcontext()
 @retrieve_state
-@option("-N", "--namespace", "namespace", required=False, type=str, help="The namespace to destroy")
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to destroy.")
-@option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destroction.")
+@option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destruction.")
 def destroy(
     state: dict,
-    namespace: str | None,
     include: tuple[str],
     exclude: tuple[str],
 ):
     """Macro Destroy"""
-    # If a namespace is provided, set it for the environment before using state
-    if namespace:
-        env.get_ns_from_text(content=namespace)
     organization, solution, workspace = resolve_inclusion_exclusion(include, exclude)
     # Header for the destructive operation
     echo(style(f"\n🔥 Starting Destruction Process in namespace: {env.environ_id}", bold=True, fg="red"))
