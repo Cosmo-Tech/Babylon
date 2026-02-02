@@ -18,7 +18,7 @@ workspace_description: Testing workspace for the brewery web application
 dataset_name: minimal
 dataset_description: Babylon v5 Dataset
 # Runner 
-run_template_id: minimal
+run_template_id: standalone
 runner_name: Babylon v5 Runner
 runTemplate_name: Standard simulation
 owner_name: toto

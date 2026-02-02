@@ -76,5 +76,5 @@ To release a new version follow the checklist:
 - Increment the version number (`VERSION`) `/Babylon/version.py` following [semver](https://semver.org/) rules
 - Generate lock file `uv lock`
 - Make a git tag, `git tag -a -m "5.0.0-beta.2" 5.0.0-beta.2`
-- Push the tag `git push tag 5.0.0-beta.2`
+- Push the tag `git push origin tag 5.0.0-beta.2`
 - Write release notes publish on [GitHub](https://github.com/Cosmo-Tech/Babylon/releases)
