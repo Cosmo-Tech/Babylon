@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from click import command, argument, Choice, echo, style
+from click import Choice, argument, command, echo, style
 
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -13,12 +13,12 @@ env = Environment()
 @argument("target", type=Choice(["local", "remote"], case_sensitive=False))
 def get_states(target: str) -> CommandResponse:
     """Display states from local machine or Azure remote storage."""
-    
+
     results_found = False
     if target == "local":
         echo(style("\n 📂 Local States", bold=True, fg="cyan"))
         states_dir = env.state_dir
-        
+
         if not states_dir.exists():
             logger.error(f"  [bold red]✘[/bold red] Directory not found: [dim]{states_dir}[/dim]")
         else:
@@ -29,7 +29,7 @@ def get_states(target: str) -> CommandResponse:
                 for f in local_files:
                     echo(style("  • ", fg="green") + f.name)
                     results_found = True
-                    
+
     elif target == "remote":
         echo(style("\n ☁️  Remote States", bold=True, fg="cyan"))
         try:
