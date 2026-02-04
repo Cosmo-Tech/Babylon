@@ -22,6 +22,16 @@ run_template_id: standalone
 runner_name: Babylon v5 Runner
 runTemplate_name: Standard simulation
 owner_name: toto
+# Webapp
+cloud_provider: azure
+cluster_name: warpvy52ww
+cluster_domain: warp.api.cosmotech.com
+tenant: sphinx
+webapp_name: business
+organization_id: o-xxxxxxxxxxx
+azure_subscription_id: a24b131f-bd0b-42e8-872a-bded9b91ab74
+azure_entra_tenant_id: e413b834-8be8-4822-a370-be619545cb49
+powerbi_app_deploy: false
 # ACL
 security:
   default: none

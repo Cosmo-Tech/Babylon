@@ -1,0 +1,14 @@
+kind: Webapp
+namespace:
+  remote: false
+spec:
+  payload:
+    cloud_provider: "azure"
+    cluster_name: "{{cluster_name}}"
+    cluster_domain: "{{cluster_domain}}"
+    tenant: "{{tenant}}"
+    webapp_name: "{{webapp_name}}"
+    organization_id: "{{services['api.organization_id']}}"
+    azure_subscription_id: "{{azure_subscription_id}}"
+    azure_entra_tenant_id: "{{azure_entra_tenant_id}}"
+    powerbi_app_deploy: false
