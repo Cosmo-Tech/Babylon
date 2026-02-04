@@ -187,6 +187,18 @@ class Environment(metaclass=SingletonMeta):
             state_blob.delete_blob()
         state_blob.upload_blob(data=dump(state).encode("utf-8"))
 
+    def list_remote_states(self) -> list[str]:
+        """Liste les noms des fichiers de state présents dans le container Azure."""
+        try:
+            self.set_blob_client()
+            container_client = self.blob_client.get_container_client(container="babylon-states")
+            # On filtre pour ne prendre que les fichiers state.*.yaml
+            blobs = container_client.list_blobs(name_starts_with="state.")
+            return [b.name for b in blobs if b.name.endswith(".yaml")]
+        except Exception as e:
+            logger.error(f"  [bold red]✘[/bold red] Impossible de lister les states distants: {e}")
+            return []
+    
     def get_state_from_local(self):
         state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
