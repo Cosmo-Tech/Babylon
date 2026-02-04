@@ -19,7 +19,7 @@ env = Environment()
 
 
 def _destroy_webapp(state: dict):
-    """Interne: Lance le process Terraform Destroy"""
+    """Run the Terraform destroy process for WebApp resources"""
     logger.info("  [dim]→ Running Terraform destroy for WebApp resources...[/dim]")
     webapp_state = state.get("services", {}).get("webapp", {})
     webapp_neme = webapp_state.get("webapp_name")
