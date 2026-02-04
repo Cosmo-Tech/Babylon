@@ -21,5 +21,5 @@ babylon namespace get-contexts
 babylon api about
 
 babylon init
-babylon apply project
+babylon apply --exclude webapp project
 babylon destroy

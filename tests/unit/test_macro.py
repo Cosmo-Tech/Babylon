@@ -53,11 +53,12 @@ def test_solution_diff():
 
 
 def test_resolve_inclusion_exclusion_no_filters():
-    assert resolve_inclusion_exclusion(include=(), exclude=()) == (True, True, True)
+    assert resolve_inclusion_exclusion(include=(), exclude=()) == (True, True, True, True)
 
 
 def test_resolve_inclusion_exclusion_include_all_valid():
-    assert resolve_inclusion_exclusion(include=("organization", "solution", "workspace"), exclude=()) == (
+    assert resolve_inclusion_exclusion(include=("organization", "solution", "workspace", "webapp"), exclude=()) == (
+        True,
         True,
         True,
         True,
@@ -65,7 +66,8 @@ def test_resolve_inclusion_exclusion_include_all_valid():
 
 
 def test_resolve_inclusion_exclusion_exclude_all_valid():
-    assert resolve_inclusion_exclusion(include=(), exclude=("organization", "solution", "workspace")) == (
+    assert resolve_inclusion_exclusion(include=(), exclude=("organization", "solution", "workspace", "webapp")) == (
+        False,
         False,
         False,
         False,
@@ -73,7 +75,12 @@ def test_resolve_inclusion_exclusion_exclude_all_valid():
 
 
 def test_resolve_inclusion_exclusion_include_duplicates():
-    assert resolve_inclusion_exclusion(include=("organization", "organization"), exclude=()) == (True, False, False)
+    assert resolve_inclusion_exclusion(include=("organization", "organization"), exclude=()) == (
+        True,
+        False,
+        False,
+        False,
+    )
 
 
 def test_resolve_inclusion_exclusion_invalid_exclude():
