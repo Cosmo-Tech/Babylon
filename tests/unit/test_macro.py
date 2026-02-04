@@ -75,12 +75,8 @@ def test_resolve_inclusion_exclusion_exclude_all_valid():
 
 
 def test_resolve_inclusion_exclusion_include_duplicates():
-    assert resolve_inclusion_exclusion(include=("organization", "organization"), exclude=()) == (
-        True,
-        False,
-        False,
-        False,
-    )
+    assert resolve_inclusion_exclusion(include=("organization", "organization"), exclude=()) == (True, False, False, False)
+
 
 def test_resolve_inclusion_exclusion_invalid_exclude():
     with pytest.raises(Abort):
