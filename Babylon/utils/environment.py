@@ -198,7 +198,7 @@ class Environment(metaclass=SingletonMeta):
         except Exception as e:
             logger.error(f"  [bold red]✘[/bold red] Impossible de lister les states distants: {e}")
             return []
-    
+
     def get_state_from_local(self):
         state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
         if not state_file.exists():
