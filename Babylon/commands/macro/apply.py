@@ -8,6 +8,7 @@ from yaml import safe_dump, safe_load
 from Babylon.commands.macro.deploy import resolve_inclusion_exclusion
 from Babylon.commands.macro.deploy_organization import deploy_organization
 from Babylon.commands.macro.deploy_solution import deploy_solution
+from Babylon.commands.macro.deploy_webapp import deploy_webapp
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
@@ -31,7 +32,8 @@ def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list,
     organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
     solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
     workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
-    return (organizations, solutions, workspaces)
+    webapps = list(filter(lambda x: x.get("kind") == "Webapp", resources))
+    return (organizations, solutions, workspaces, webapps)
 
 
 def deploy_objects(objects: list, object_type: str):
@@ -44,6 +46,23 @@ def deploy_objects(objects: list, object_type: str):
             deploy_solution(namespace=namespace, file_content=content)
         elif object_type == "workspace":
             deploy_workspace(namespace=namespace, file_content=content)
+        elif object_type == "webapp":
+            deploy_webapp(namespace=namespace, file_content=content)
+
+
+def print_section(data: dict, highlight_urls: bool = False):
+    for key, value in data.items():
+        if not value:
+            continue
+        label = f"  • {key.replace('_', ' ').title()}"
+        styled_label = style(f"{label:<20}:", fg="cyan", bold=True)
+
+        if highlight_urls and "url" in key.lower():
+            styled_value = style(str(value).strip(), fg="bright_blue", underline=True)
+        else:
+            styled_value = style(str(value).strip(), fg="white")
+
+        echo(f"{styled_label} {styled_value}")
 
 
 @command()
@@ -66,30 +85,24 @@ def apply(
     variables_files: tuple[PathlibPath],
 ):
     """Macro Apply"""
-    organization, solution, workspace = resolve_inclusion_exclusion(include, exclude)
+    organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
     files = list(PathlibPath(deploy_dir).iterdir())
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
     env.set_variable_files(variables_files)
-    organizations, solutions, workspaces = load_resources_from_files(files_to_deploy)
+    organizations, solutions, workspaces, webapps = load_resources_from_files(files_to_deploy)
     if organization:
         deploy_objects(organizations, "organization")
     if solution:
         deploy_objects(solutions, "solution")
     if workspace:
         deploy_objects(workspaces, "workspace")
-
+    if webapp:
+        deploy_objects(webapps, "webapp")
     final_state = env.get_state_from_local()
-    services = final_state.get("services")
-    api_data = services.get("api")
+    services = final_state.get("services", {})
+    api_data = services.get("api", {})
+    webapp_data = services.get("webapp", {})
     echo(style("\n📋 Deployment Summary", bold=True, fg="yellow"))
-    for key, value in api_data.items():
-        if not value:
-            continue
-        label = f"  • {key.replace('_', ' ').title()}"
-
-        # We pad the label to 20 chars to keep the colons aligned
-        styled_label = style(f"{label:<20}:", fg="cyan", bold=True)
-        clean_value = str(value).strip()
-        styled_value = style(clean_value, fg="white")
-        echo(f"{styled_label} {styled_value}")
+    print_section(api_data)
+    print_section(webapp_data)
     echo(style("\n✨ Deployment process complete", fg="white", bold=True))

@@ -200,7 +200,11 @@ class Environment(metaclass=SingletonMeta):
                         "organization_id": "",
                         "solution_id": "",
                         "workspace_id": "",
-                    }
+                    },
+                    "webapp": {
+                        "webapp_name": "",
+                        "webapp_url": "",
+                    },
                 },
             }
         state_data = load(state_file.open("r"), Loader=SafeLoader)
@@ -221,7 +225,11 @@ class Environment(metaclass=SingletonMeta):
                         "organization_id": "",
                         "solution_id": "",
                         "workspace_id": "",
-                    }
+                    },
+                    "webapp": {
+                        "webapp_name": "",
+                        "webapp_url": "",
+                    },
                 },
             }
         data = load(state_blob.download_blob().readall(), Loader=SafeLoader)

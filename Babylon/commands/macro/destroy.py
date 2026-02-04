@@ -1,4 +1,6 @@
+import subprocess
 from logging import getLogger
+from pathlib import Path
 from typing import Callable
 
 from click import command, echo, option, style
@@ -14,6 +16,53 @@ from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 env = Environment()
+
+
+def _destroy_webapp(state: dict):
+    """Interne: Lance le process Terraform Destroy"""
+    logger.info("  [dim]→ Running Terraform destroy for WebApp resources...[/dim]")
+    webapp_state = state.get("services", {}).get("webapp", {})
+    webapp_neme = webapp_state.get("webapp_name")
+    if not webapp_neme:
+        logger.warning("  [yellow]⚠[/yellow] [dim]No WebApp found in state! skipping deletion [dim]")
+        return
+    tf_dir = Path(str(env.working_dir)).parent / "terraform-webapp"
+
+    if not tf_dir.exists():
+        logger.error(f"  [bold red]✘[/bold red] Terraform directory not found at {tf_dir}")
+        return
+    try:
+        process = subprocess.Popen(
+            ["terraform", "destroy", "-auto-approve"],
+            cwd=tf_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        for line in process.stdout:
+            clean_line = line.strip()
+            if not clean_line:
+                continue
+
+            if "Destroy complete!" in clean_line or "Resources:" in clean_line:
+                echo(style(f"   {clean_line}", fg="green"))
+            elif "Error" in clean_line:
+                echo(style(f"   {clean_line}", fg="red", bold=True))
+            else:
+                echo(style(f"   {clean_line}", fg="white"))
+
+        process.wait()
+        if process.returncode == 0:
+            # Nettoyage du state webapp
+            state["services"]["webapp"]["webapp_name"] = ""
+            state["services"]["webapp"]["webapp_url"] = ""
+            logger.info(f"   [green]✔[/green] WebApp [magenta]{webapp_neme}[/magenta] destroyed")
+        else:
+            logger.error(f"  [bold red]✘[/bold red] Terraform destroy failed (Code {process.returncode})")
+
+    except Exception as e:
+        logger.error(f"  [bold red]✘[/bold red] Error during WebApp destruction: {e}")
 
 
 def _delete_resource(
@@ -34,7 +83,14 @@ def _delete_resource(
         logger.info(f"  [bold green]✔[/bold green] {resource_name} [magenta]{resource_id}[/magenta] deleted")
         state["services"]["api"][state_key] = ""
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red]] Error deleting {resource_name.lower()} {resource_id} reason: {e}")
+        error_msg = str(e)
+        if "404" in error_msg or "Not Found" in error_msg:
+            logger.info(
+                f"  [bold yellow]⚠[/bold yellow] {resource_name} [magenta]{resource_id}[/magenta] already deleted (404)"
+            )
+            state["services"]["api"][state_key] = ""
+        else:
+            logger.error(f"  [bold red]✘[/bold red] Error deleting {resource_name.lower()} {resource_id} reason: {e}")
 
 
 @command()
@@ -48,7 +104,7 @@ def destroy(
     exclude: tuple[str],
 ):
     """Macro Destroy"""
-    organization, solution, workspace = resolve_inclusion_exclusion(include, exclude)
+    organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
     # Header for the destructive operation
     echo(style(f"\n🔥 Starting Destruction Process in namespace: {env.environ_id}", bold=True, fg="red"))
     keycloak_token, config = get_keycloak_token()
@@ -57,7 +113,6 @@ def destroy(
     api_state = state["services"]["api"]
     org_id = api_state["organization_id"]
 
-    # 1. Targeted Deletions using the helper
     if solution:
         api = get_solution_api_instance(config=config, keycloak_token=keycloak_token)
         _delete_resource(api.delete_solution, "Solution", org_id, api_state["solution_id"], state, "solution_id")
@@ -68,6 +123,9 @@ def destroy(
     if organization:
         api = get_organization_api_instance(config=config, keycloak_token=keycloak_token)
         _delete_resource(api.delete_organization, "Organization", None, org_id, state, "organization_id")
+
+    if webapp:
+        _destroy_webapp(state)
 
     # --- State Persistence ---
     env.store_state_in_local(state=state)
@@ -87,10 +145,15 @@ def destroy(
         # We check if the ID is now empty (which means it was deleted)
         status = "DELETED" if not value else value
         color = "red" if status == "DELETED" else "green"
+        echo(f"{style(f'{label_text:<20}:', fg='cyan', bold=True)} {style(status, fg=color)}")
 
-        styled_label = style(f"{label_text:<20}:", fg="cyan", bold=True)
-        styled_status = style(status, fg=color)
-        echo(f"{styled_label} {styled_status}")
+    # Affichage WebApp
+    webapp_data = services.get("webapp", {})
+    webapp_id = webapp_data.get("webapp_name")
+    label_text = "  • Webapp Name"
+    status = "DELETED" if not webapp_id else webapp_id
+    color = "red" if status == "DELETED" else "green"
+    echo(f"{style(f'{label_text:<20}:', fg='cyan', bold=True)} {style(status, fg=color)}")
 
     echo(style("\n✨ Cleanup process complete", fg="white", bold=True))
     return CommandResponse.success()

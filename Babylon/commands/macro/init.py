@@ -1,3 +1,4 @@
+import subprocess
 from logging import getLogger
 from os import getcwd
 from pathlib import Path
@@ -26,7 +27,23 @@ def init(project_folder: str, variables_file: str):
     if variables_path.exists():
         logger.warning(f"Configuration file [bold]{variables_file}[/bold] already exists.")
         return None
-    project_yaml_files = ["Organization.yaml", "Solution.yaml", "Workspace.yaml", "Dataset.yaml", "Runner.yaml"]
+    tf_webapp_path = Path(getcwd()) / "terraform-webapp"
+    repo_url = "https://github.com/Cosmo-Tech/terraform-webapp.git"
+    if not tf_webapp_path.exists():
+        logger.info("  [dim]→ Cloning Terraform WebApp module...[/dim]")
+        try:
+            subprocess.run(["git", "clone", "-q", repo_url, str(tf_webapp_path)], check=True, stdout=subprocess.DEVNULL)
+            logger.info("  [green]✔[/green] Terraform WebApp module cloned")
+        except Exception as e:
+            logger.error(f"  [bold red]✘[/bold red] Failed to clone Terraform repo: {e}")
+    project_yaml_files = [
+        "Organization.yaml",
+        "Solution.yaml",
+        "Workspace.yaml",
+        "Dataset.yaml",
+        "Runner.yaml",
+        "Webapp.yaml",
+    ]
     try:
         # Create project directory
         project_path.mkdir(parents=True, exist_ok=True)
