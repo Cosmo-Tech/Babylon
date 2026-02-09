@@ -14,7 +14,7 @@ logger = logging.getLogger("Babylon")
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option("-D", "force_validation", is_flag=True, help="Force Delete")
 @argument("report_id", type=str)
 @retrieve_state

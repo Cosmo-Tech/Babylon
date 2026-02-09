@@ -41,7 +41,7 @@ def _delete_resource(
 @injectcontext()
 @retrieve_state
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to destroy.")
-@option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destroction.")
+@option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destruction.")
 def destroy(
     state: dict,
     include: tuple[str],

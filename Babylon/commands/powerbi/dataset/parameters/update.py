@@ -22,7 +22,7 @@ logger = logging.getLogger("Babylon")
     required=True,
     help="Report parameter",
 )
-@option("--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
+@option("-w", "--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
 @argument("dataset_id", type=str)
 @retrieve_state
 def update(

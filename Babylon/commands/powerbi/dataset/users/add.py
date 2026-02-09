@@ -16,8 +16,8 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
-@option("--email", "email", type=str, help="Email valid")
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("-e", "--email", "email", type=str, help="Email valid")
 @argument("dataset_id", type=str)
 @retrieve_state
 def add(

@@ -80,7 +80,7 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     )
 
 
-@group(name="babylon", invoke_without_command=False)
+@group(name="babylon", invoke_without_command=False, context_settings={'help_option_names': ['-h', '--help']})
 @click_log.simple_verbosity_option(logger)
 @option(
     "-n",
@@ -101,6 +101,7 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     help="Print version number and return.",
 )
 @option(
+    "-l",
     "--log-path",
     "log_path",
     type=clickPath(file_okay=False, dir_okay=True, writable=True, path_type=pathlibPath),

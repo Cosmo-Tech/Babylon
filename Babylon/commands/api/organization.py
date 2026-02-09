@@ -62,7 +62,7 @@ def create(config: dict, keycloak_token: str, payload_file) -> CommandResponse:
 @organizations.command()
 @injectcontext()
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
 def delete(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """
     Delete an organization by ID
@@ -106,7 +106,7 @@ def list_organizations(config: dict, keycloak_token: str) -> CommandResponse:
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
 def get(config: dict, keycloak_token: str, organization_id: str) -> CommandResponse:
     """Get organization"""
     api_instance = get_organization_api_instance(config, keycloak_token)
@@ -124,7 +124,7 @@ def get(config: dict, keycloak_token: str, organization_id: str) -> CommandRespo
 @injectcontext()
 @output_to_file
 @pass_keycloak_token()
-@option("--oid", "organization_id", required=True, type=str, help="Organization ID")
+@option("-O", "--oid", "organization_id", required=True, type=str, help="Organization ID")
 @argument("payload_file", type=Path(exists=True))
 def update(config: dict, keycloak_token: str, organization_id: str, payload_file) -> CommandResponse:
     """

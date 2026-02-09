@@ -17,7 +17,7 @@ env = Environment()
 @command()
 @injectcontext()
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @option(
     "-o",
     "--output",

@@ -15,7 +15,7 @@ logger = logging.getLogger("Babylon")
 @injectcontext()
 @output_to_file
 @pass_powerbi_token()
-@option("--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
+@option("-w", "--workspace-id", "workspace_id", help="PowerBI workspace ID", type=str)
 @retrieve_state
 def get_all(state: Any, powerbi_token: str, workspace_id: str) -> CommandResponse:
     """
