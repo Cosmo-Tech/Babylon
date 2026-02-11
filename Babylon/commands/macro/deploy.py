@@ -7,6 +7,7 @@ from cosmotech_api.models.solution_access_control import SolutionAccessControl
 from cosmotech_api.models.solution_security import SolutionSecurity
 from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
 from cosmotech_api.models.workspace_security import WorkspaceSecurity
+from kubernetes import client, config
 
 logger = getLogger(__name__)
 
@@ -181,3 +182,21 @@ def dict_to_tfvars(payload: dict) -> str:
         else:
             lines.append(f'{key} = "{value}"')
     return "\n".join(lines)
+
+
+def get_postgres_service_host(namespace: str) -> str:
+    """Discovers the PostgreSQL service name in a namespace to build its FQDN"""
+    try:
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+        services = v1.list_namespaced_service(namespace)
+        
+        for svc in services.items:
+            if "postgresql" in svc.metadata.name or svc.metadata.labels.get("app.kubernetes.io/name") == "postgresql":
+                logger.info(f"  [dim]→ Found PostgreSQL service {svc.metadata.name}[/dim]")
+                return f"{svc.metadata.name}.{namespace}.svc.cluster.local"
+        
+        return f"postgresql.{namespace}.svc.cluster.local"
+    except Exception as e:
+        logger.warning(f"  [bold yellow]![/bold yellow] Service discovery failed: {e}. Using default")
+        return f"postgresql.{namespace}.svc.cluster.local"
