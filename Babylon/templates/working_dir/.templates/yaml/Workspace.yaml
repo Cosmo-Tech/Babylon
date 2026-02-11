@@ -3,6 +3,12 @@ namespace:
   remote: false
 spec:
   sidecars:
+    postgres:
+        schema:
+          create: false
+          jobs:
+            - name: k8s_job.yaml
+              path: postgres/jobs
   payload:
     key: "{{workspace_key}}"
     name: "{{workspace_name}}"

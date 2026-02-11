@@ -55,6 +55,13 @@ def init(project_folder: str, variables_file: str):
             copy(deploy_file, destination)
             logger.info(f"  [green]✔[/green] Generated [white]{file}[/white]")
 
+        postgres_jobs_path = project_path / "postgres" / "jobs"
+        postgres_jobs_path.mkdir(parents=True, exist_ok=True)
+        k8s_template = env.original_template_path / "yaml" / "k8s_job.yaml"
+        if k8s_template.exists():
+            copy(k8s_template, postgres_jobs_path / "k8s_job.yaml")
+            logger.info("  [green]✔[/green] Generated [white]postgres/jobs/k8s_job.yaml[/white]")
+        
         customers_src = env.original_template_path / "yaml" / "dataset" / "customers.csv"
         customers_dst = Path(getcwd()) / "customers.csv"
         copy(customers_src, customers_dst)
