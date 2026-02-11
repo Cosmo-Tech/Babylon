@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-init-${job_name}
+  namespace: ${namespace}
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      containers:
+        - name: postgresql-init
+          image: postgres:17-trixie
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} -c "CREATE SCHEMA IF NOT EXISTS ${workspace_schema} AUTHORIZATION ${cosmotech_api_writer_username};"
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} -c "GRANT USAGE ON SCHEMA ${workspace_schema} TO ${cosmotech_api_reader_username};"
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-cosmotechapi
+                  key: admin-password
+      restartPolicy: Never
