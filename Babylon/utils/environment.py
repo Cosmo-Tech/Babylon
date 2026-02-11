@@ -139,7 +139,7 @@ class Environment(metaclass=SingletonMeta):
             logger.error(f"  [bold red]✘[/bold red] Failed to initialize BlobServiceClient: {e}")
             sys.exit(1)
 
-    def get_config_from_k8s_secret_by_tenant(self, tenant: str):
+    def get_config_from_k8s_secret_by_tenant(self, secret_name: str, tenant: str):
         response_parsed = {}
         try:
             config.load_kube_config()
@@ -152,11 +152,11 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
         try:
             v1 = client.CoreV1Api()
-            secret = v1.read_namespaced_secret(name="keycloak-babylon", namespace=tenant)
+            secret = v1.read_namespaced_secret(name=secret_name, namespace=tenant)
         except ApiException:
             logger.error("\n  [bold red]✘[/bold red] Resource Not Found")
             logger.error(
-                f"  Secret [green]keycloak-babylon[/green] could not be found in namespace [green]{tenant}[/green]"
+                f"  Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]"
             )
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Please ensure your kubeconfig is valid")
@@ -174,7 +174,7 @@ class Environment(metaclass=SingletonMeta):
                 decoded_value = b64decode(value).decode("utf-8")
                 response_parsed[key] = decoded_value
         else:
-            logger.warning(f"  [yellow]⚠[/yellow] Secret 'keycloak-babylon' in namespace '{tenant}' has no data")
+            logger.warning(f"  [yellow]⚠[/yellow] Secret {secret_name} in namespace '{tenant}' has no data")
         return response_parsed
 
     def store_state_in_local(self, state: dict):
@@ -299,7 +299,7 @@ class Environment(metaclass=SingletonMeta):
             }
         # Log missing env vars
         logger.info("  [dim]→ Loading configuration from Kubernetes secret... [/dim]")
-        return self.get_config_from_k8s_secret_by_tenant(self.environ_id)
+        return self.get_config_from_k8s_secret_by_tenant("keycloak-babylon", self.environ_id)
 
     def retrieve_state_func(self):
         if self.remote:
