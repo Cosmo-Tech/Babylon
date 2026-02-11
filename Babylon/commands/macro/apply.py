@@ -36,7 +36,7 @@ def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list,
     return (organizations, solutions, workspaces, webapps)
 
 
-def deploy_objects(objects: list, object_type: str):
+def deploy_objects(objects: list, object_type: str, deploy_dir: PathlibPath):
     for o in objects:
         content = o.get("content")
         namespace = o.get("namespace")
@@ -45,7 +45,7 @@ def deploy_objects(objects: list, object_type: str):
         elif object_type == "solution":
             deploy_solution(namespace=namespace, file_content=content)
         elif object_type == "workspace":
-            deploy_workspace(namespace=namespace, file_content=content)
+            deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
         elif object_type == "webapp":
             deploy_webapp(namespace=namespace, file_content=content)
 
@@ -91,13 +91,13 @@ def apply(
     env.set_variable_files(variables_files)
     organizations, solutions, workspaces, webapps = load_resources_from_files(files_to_deploy)
     if organization:
-        deploy_objects(organizations, "organization")
+        deploy_objects(organizations, "organization", deploy_dir)
     if solution:
-        deploy_objects(solutions, "solution")
+        deploy_objects(solutions, "solution", deploy_dir)
     if workspace:
-        deploy_objects(workspaces, "workspace")
+        deploy_objects(workspaces, "workspace", deploy_dir)
     if webapp:
-        deploy_objects(webapps, "webapp")
+        deploy_objects(webapps, "webapp", deploy_dir)
     final_state = env.get_state_from_local()
     services = final_state.get("services", {})
     api_data = services.get("api", {})
