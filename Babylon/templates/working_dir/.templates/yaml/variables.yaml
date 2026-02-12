@@ -14,14 +14,6 @@ simulator_version: latest
 workspace_name: Babylon v5 workspace
 workspace_key: brewerytestingwork
 workspace_description: Testing workspace for the brewery web application
-# Dataset 
-dataset_name: minimal
-dataset_description: Babylon v5 Dataset
-# Runner 
-run_template_id: standalone
-runner_name: Babylon v5 Runner
-runTemplate_name: Standard simulation
-owner_name: toto
 # Webapp
 cloud_provider: azure
 cluster_name: warpvy52ww
