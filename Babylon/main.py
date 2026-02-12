@@ -55,19 +55,17 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     date_format = "%Y-%m-%d %H:%M:%S"
     file_formatter = CleanFormatter(fmt=file_format, datefmt=date_format)
 
-    log_file_handler = logging.FileHandler(log_path / "babylon_info.log", encoding="utf-8")
-    log_file_handler.setLevel(logging.INFO)
-    log_file_handler.setFormatter(file_formatter)
+    file_handler = logging.FileHandler(log_path / "babylon.log", encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(file_formatter)
 
-    error_file_handler = logging.FileHandler(log_path / "babylon_error.log", encoding="utf-8")
-    error_file_handler.setLevel(logging.WARNING)
-    error_file_handler.setFormatter(file_formatter)
     logging.basicConfig(
+        level=logging.DEBUG,
         format="%(message)s",
         handlers=[
-            log_file_handler,
-            error_file_handler,
+            file_handler,
             RichHandler(
+                level=logging.INFO,
                 show_time=False,
                 rich_tracebacks=True,
                 tracebacks_suppress=[click],
