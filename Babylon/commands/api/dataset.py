@@ -94,9 +94,7 @@ def list_datasets(config: dict, keycloak_token: str, organization_id: str, works
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
-def delete(
-    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
-) -> CommandResponse:
+def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str) -> CommandResponse:
     """Delete a dataset by ID"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
@@ -121,9 +119,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:
         logger.info(API_REQUEST_MESSAGE)
-        dataset = api_instance.get_dataset(
-            organization_id=organization_id, workspace_id=workspace_id, dataset_id=dataset_id
-        )
+        dataset = api_instance.get_dataset(organization_id=organization_id, workspace_id=workspace_id, dataset_id=dataset_id)
         logger.info(f"  [green]✔[/green] Dataset [bold cyan]{dataset.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(dataset.model_dump())
     except Exception as e:
@@ -191,9 +187,7 @@ def create_part(
         if not created:
             logger.error("  [bold red]✘ API returned no data.[/bold red]")
             return CommandResponse.fail()
-        logger.info(
-            f"  [bold green]✔[/bold green] Dataset part [bold cyan]{created.id}[/bold cyan] successfully created"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Dataset part [bold cyan]{created.id}[/bold cyan] successfully created")
         return CommandResponse.success(created.model_dump())
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
@@ -452,9 +446,7 @@ def download_part(
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--did", "dataset_id", required=True, type=str, help="Dataset ID")
-def list_parts(
-    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str
-) -> CommandResponse:
+def list_parts(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, dataset_id: str) -> CommandResponse:
     """List dataset parts"""
     api_instance = get_dataset_api_instance(config, keycloak_token)
     try:

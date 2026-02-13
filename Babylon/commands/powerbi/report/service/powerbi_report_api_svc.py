@@ -101,8 +101,7 @@ class AzurePowerBIReportService:
         }
         name_conflict = "CreateOrOverwrite" if override else "Abort"
         route = (
-            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
-            f"/imports?datasetDisplayName={name}&nameConflict={name_conflict}"
+            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports?datasetDisplayName={name}&nameConflict={name_conflict}"
         )
         session = requests.Session()
         with open(pbix_filename, "rb") as _f:

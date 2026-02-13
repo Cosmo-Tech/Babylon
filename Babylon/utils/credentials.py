@@ -91,9 +91,7 @@ def get_keycloak_credentials() -> tuple[dict, dict]:
         }
         if not all(credentials.values()):
             missing = [k for k, v in credentials.items() if not v]
-            raise AttributeError(
-                f"  [bold red]✘[/bold red] Missing required Keycloak credentials: {', '.join(missing)}"
-            )
+            raise AttributeError(f"  [bold red]✘[/bold red] Missing required Keycloak credentials: {', '.join(missing)}")
 
         return credentials, config
 

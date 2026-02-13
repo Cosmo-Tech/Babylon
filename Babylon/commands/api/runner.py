@@ -70,9 +70,7 @@ def create(
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-def delete(
-    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
-) -> CommandResponse:
+def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str) -> CommandResponse:
     """Delete a runner by ID"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
@@ -119,9 +117,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:
         logger.info(API_REQUEST_MESSAGE)
-        runner = api_instance.get_runner(
-            organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id
-        )
+        runner = api_instance.get_runner(organization_id=organization_id, workspace_id=workspace_id, runner_id=runner_id)
         logger.info(f"  [green]✔[/green] Runner [bold cyan]{runner.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(runner.model_dump())
     except Exception as e:
@@ -167,9 +163,7 @@ def update(
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-def start(
-    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
-) -> CommandResponse:
+def start(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str) -> CommandResponse:
     """Start a run"""
     api_instance = get_runner_api_instance(config, keycloak_token)
     try:

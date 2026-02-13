@@ -62,7 +62,7 @@ babylon = "Babylon.main:main"
 path = "Babylon/version.py"
 
 [tool.ruff]
-line-length = 120
+line-length = 135
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]

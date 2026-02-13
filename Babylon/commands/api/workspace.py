@@ -51,9 +51,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, solution_id:
         if not workspace:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
             return CommandResponse.fail()
-        logger.info(
-            f"  [bold green]✔[/bold green] Workspace [bold cyan]{workspace.id}[/bold cyan] successfully created"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Workspace [bold cyan]{workspace.id}[/bold cyan] successfully created")
         return CommandResponse.success(workspace.model_dump())
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")

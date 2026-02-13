@@ -49,9 +49,7 @@ def deploy_organization(namespace: str, file_content: str):
         state["services"]["api"]["organization_id"] = organization.id
     else:
         # Case: Update Existing Organization
-        logger.info(
-            f"  [dim]→ Existing ID [bold cyan]{api_section['organization_id']}[/bold cyan] found. Updating...[/dim]"
-        )
+        logger.info(f"  [dim]→ Existing ID [bold cyan]{api_section['organization_id']}[/bold cyan] found. Updating...[/dim]")
         organization_update_request = OrganizationUpdateRequest.from_dict(payload)
         updated = api_instance.update_organization(
             organization_id=api_section["organization_id"], organization_update_request=organization_update_request
@@ -63,9 +61,7 @@ def deploy_organization(namespace: str, file_content: str):
         if payload.get("security"):
             try:
                 logger.info("  [dim]→ Syncing security policies...[/dim]")
-                current_security = api_instance.get_organization_security(
-                    organization_id=api_section["organization_id"]
-                )
+                current_security = api_instance.get_organization_security(organization_id=api_section["organization_id"])
                 update_object_security(
                     "organization",
                     current_security=current_security,
@@ -76,10 +72,7 @@ def deploy_organization(namespace: str, file_content: str):
             except Exception as e:
                 logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
                 return CommandResponse.fail()
-        logger.info(
-            f"  [bold green]✔[/bold green] Organization"
-            f" [bold magenta]{api_section['organization_id']}[/bold magenta] updated"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Organization [bold magenta]{api_section['organization_id']}[/bold magenta] updated")
     # --- State Persistence ---
     # Ensure the local and remote states are synchronized after successful API calls
     env.store_state_in_local(state)

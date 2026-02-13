@@ -61,7 +61,7 @@ def init(project_folder: str, variables_file: str):
         if k8s_template.exists():
             copy(k8s_template, postgres_jobs_path / "k8s_job.yaml")
             logger.info("  [green]✔[/green] Generated [white]postgres/jobs/k8s_job.yaml[/white]")
-        
+
         customers_src = env.original_template_path / "yaml" / "dataset" / "customers.csv"
         customers_dst = Path(getcwd()) / "customers.csv"
         copy(customers_src, customers_dst)

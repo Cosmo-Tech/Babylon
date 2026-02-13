@@ -22,7 +22,6 @@ def add(plugin_path: pathlib.Path) -> CommandResponse:
         logger.info(f"Plugin {plugin_name} was added to config")
         return CommandResponse.success()
     logger.error(
-        "Plugin was not added to the config, make sure the folder is a correct plugin "
-        "or that no plugin with the same name exists"
+        "Plugin was not added to the config, make sure the folder is a correct plugin or that no plugin with the same name exists"
     )
     return CommandResponse.fail()

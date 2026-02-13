@@ -1,34 +1,33 @@
 import subprocess
 from logging import getLogger
 from pathlib import Path
-from typing import Callable
 from string import Template
-from kubernetes import client, utils, config as kube_config
-from yaml import safe_load
+from typing import Callable
+
 from click import command, echo, option, style
+from kubernetes import client, utils
+from kubernetes import config as kube_config
+from yaml import safe_load
+
 from Babylon.commands.api.organization import get_organization_api_instance
 from Babylon.commands.api.solution import get_solution_api_instance
 from Babylon.commands.api.workspace import get_workspace_api_instance
-from Babylon.commands.macro.deploy import resolve_inclusion_exclusion
+from Babylon.commands.macro.deploy import get_postgres_service_host, resolve_inclusion_exclusion
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
-from Babylon.commands.macro.deploy import get_postgres_service_host
-
 logger = getLogger(__name__)
 env = Environment()
 
-def _destroy_schema(
-    schema_name: str,
-    state: dict
-) -> bool:
+
+def _destroy_schema(schema_name: str, state: dict) -> bool:
     """
     Destroy PostgreSQL schema for a workspace.
     """
     if not schema_name:
-        logger.warning(f"  [yellow]⚠[/yellow] [dim]No schema found ! skipping deletion[/dim]")
+        logger.warning("  [yellow]⚠[/yellow] [dim]No schema found ! skipping deletion[/dim]")
         return
     workspace_id_tmp = f"{schema_name.replace('_', '-')}"
     db_host = get_postgres_service_host(env.environ_id)
@@ -39,8 +38,8 @@ def _destroy_schema(
 
     if not pg_config or not api_config:
         logger.error("  [bold red]✘[/bold red] Failed to retrieve postgreSQL configuration from secrets")
-        return 
-    
+        return
+
     mapping = {
         "namespace": env.environ_id,
         "db_host": db_host,
@@ -51,57 +50,67 @@ def _destroy_schema(
         "cosmotech_api_writer_username": api_config.get("writer-username"),
         "cosmotech_api_reader_username": api_config.get("reader-username"),
         "workspace_schema": schema_name,
-        "job_name": workspace_id_tmp
+        "job_name": workspace_id_tmp,
     }
     destroy_jobs = env.original_template_path / "yaml" / "k8s_job_destroy.yaml"
     k8s_job_name = f"postgresql-destroy-{workspace_id_tmp}"
-    kube_config.load_kube_config() 
+    kube_config.load_kube_config()
     k8s_client = client.ApiClient()
-    with open(destroy_jobs, 'r') as f:
+    with open(destroy_jobs, "r") as f:
         raw_content = f.read()
-    
+
     templated_yaml = Template(raw_content).safe_substitute(mapping)
     yaml_dict = safe_load(templated_yaml)
-    logger.info(f"  [dim]→ Applying kubernetes destroy job...[/dim]")
-    try: 
+    logger.info("  [dim]→ Applying kubernetes destroy job...[/dim]")
+    try:
         utils.create_from_dict(k8s_client, yaml_dict, namespace=env.environ_id)
         logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
         wait_process = subprocess.run(
-            ["kubectl", "wait", "--for=condition=complete", "job", k8s_job_name, 
-            f"--namespace={env.environ_id}", "--timeout=300s"],
+            [
+                "kubectl",
+                "wait",
+                "--for=condition=complete",
+                "job",
+                k8s_job_name,
+                f"--namespace={env.environ_id}",
+                "--timeout=300s",
+            ],
             capture_output=True,
             text=True,
         )
         if wait_process.returncode == 0:
             # Job completed, now check the logs for error
-            logger.info(f"  [dim]→ Checking job logs for errors...[/dim]")
+            logger.info("  [dim]→ Checking job logs for errors...[/dim]")
             logs_process = subprocess.run(
-                ["kubectl", "logs", f"job/{k8s_job_name}", f"-n", env.environ_id],
+                ["kubectl", "logs", f"job/{k8s_job_name}", "-n", env.environ_id],
                 capture_output=True,
                 text=True,
             )
             if logs_process.returncode == 0:
                 job_logs = logs_process.stdout if logs_process.stdout else logs_process.stderr
                 if "ERROR" in job_logs or "error" in job_logs:
-                    logger.error(f"  [bold red]✘[/bold red] Schema destruction failed inside the container")
+                    logger.error("  [bold red]✘[/bold red] Schema destruction failed inside the container")
                     logger.debug(f"  [bold red]✘[/bold red] Job logs : {job_logs}")
                 elif "does not exist" in job_logs:
-                    logger.info(f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] does not exist (nothing to clean)[/dim]")
+                    logger.info(
+                        f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] does not exist (nothing to clean)[/dim]"
+                    )
                     state["services"]["postgres"]["schema_name"] = ""
-                else: 
+                else:
                     logger.info(f"  [green]✔[/green] Schema destruction [magenta]{schema_name}[/magenta] completed successfully")
                     state["services"]["postgres"]["schema_name"] = ""
-            else: 
-                logger.error(f" [bold red]✘[/bold red] Failed to retrieve logs for job {k8s_job_name}") 
-                logger.debug(f" [bold red]✘[/bold red] Logs retrieval output {logs_process.stdout} {logs_process.stderr}")
+            else:
+                logger.error(f"  [bold red]✘[/bold red] Failed to retrieve logs for job {k8s_job_name}")
+                logger.debug(f"  [bold red]✘[/bold red] Logs retrieval output {logs_process.stdout} {logs_process.stderr}")
 
-        else: 
-            logger.error(f" [bold red]✘[/bold red] Job {k8s_job_name} did not complete successfully see babylon logs for details")
-            logger.debug(f" [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
+        else:
+            logger.error(f"  [bold red]✘[/bold red] Job {k8s_job_name} did not complete successfully see babylon logs for details")
+            logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
 
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
+        logger.error("  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
         logger.debug(f"  [bold red]✘[/bold red] {e}")
+
 
 def _destroy_webapp(state: dict):
     """Terraform Destroy webapp"""
@@ -174,9 +183,7 @@ def _delete_resource(
     except Exception as e:
         error_msg = str(e)
         if "404" in error_msg or "Not Found" in error_msg:
-            logger.info(
-                f"  [bold yellow]⚠[/bold yellow] {resource_name} [magenta]{resource_id}[/magenta] already deleted (404)"
-            )
+            logger.info(f"  [bold yellow]⚠[/bold yellow] {resource_name} [magenta]{resource_id}[/magenta] already deleted (404)")
             state["services"]["api"][state_key] = ""
         else:
             logger.error(f"  [bold red]✘[/bold red] Error deleting {resource_name.lower()} {resource_id} reason: {e}")
@@ -187,11 +194,7 @@ def _delete_resource(
 @retrieve_state
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to destroy.")
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destruction.")
-def destroy(
-    state: dict,
-    include: tuple[str],
-    exclude: tuple[str]
-):
+def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
     """Macro Destroy"""
     organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
     # Header for the destructive operation

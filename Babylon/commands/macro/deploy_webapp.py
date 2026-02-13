@@ -48,9 +48,7 @@ def deploy_webapp(namespace: str, file_content: str):
         return
     logger.info("  [dim]→ Running Terraform deployment...[/dim]")
     try:
-        process = subprocess.Popen(
-            executable, cwd=tf_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1
-        )
+        process = subprocess.Popen(executable, cwd=tf_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
         for line in process.stdout:
             clean_line = line.strip()
             if not clean_line:
@@ -74,9 +72,7 @@ def deploy_webapp(namespace: str, file_content: str):
         services["webapp"]["webapp_name"] = f"webapp-{webapp_name}"
         services["webapp"]["webapp_url"] = webapp_url
         if return_code == 0:
-            logger.info(
-                f"  [bold green]✔[/bold green] WebApp [bold white]{webapp_name}[/bold white] deployed successfully"
-            )
+            logger.info(f"  [bold green]✔[/bold green] WebApp [bold white]{webapp_name}[/bold white] deployed successfully")
             env.store_state_in_local(state)
             if env.remote:
                 env.store_state_in_cloud(state)

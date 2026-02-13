@@ -50,9 +50,7 @@ def create(config: dict, keycloak_token: str, payload_file) -> CommandResponse:
             logger.error("  [bold red]✘[/bold red] API returned no data.")
             return CommandResponse.fail()
 
-        logger.info(
-            f"  [bold green]✔[/bold green] Organization [bold cyan]{organization.id}[/bold cyan] successfully created"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Organization [bold cyan]{organization.id}[/bold cyan] successfully created")
         return CommandResponse.success(organization.model_dump())
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
@@ -72,9 +70,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str) -> CommandRe
         # API Execution
         logger.info(API_REQUEST_MESSAGE)
         api_instance.delete_organization(organization_id)
-        logger.info(
-            f"  [bold green]✔[/bold green] Organization [bold red]{organization_id}[/bold red] successfully deleted"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Organization [bold red]{organization_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
