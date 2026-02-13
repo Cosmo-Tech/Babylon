@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-destroy-${job_name}
+  namespace: ${namespace}
+spec:
+  ttlSecondsAfterFinished: 180
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+        - name: postgresql-cleanup
+          image: postgres:17-trixie
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              echo "INFO:  Starting cleanup for schema ${workspace_schema}"
+              SCHEMA_EXISTS=$(psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name = '${workspace_schema}'")
+
+              if [ "$SCHEMA_EXISTS" != "1" ]; then
+                echo "INFO:  Schema ${workspace_schema} does not exist. Nothing to clean."
+                exit 0
+              fi
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} \
+                -c "REVOKE ALL PRIVILEGES ON SCHEMA ${workspace_schema} FROM ${cosmotech_api_reader_username}, ${cosmotech_api_writer_username};" \
+                && echo "SUCCESS:  Permissions revoked successfully" || echo "ERROR:  Failed to revoke permissions"
+
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} \
+                -c "DROP SCHEMA IF EXISTS ${workspace_schema} CASCADE;" \
+                && echo "SUCCESS:  Schema dropped successfully" || echo "ERROR:  Failed to drop schema"
+
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-cosmotechapi
+                  key: admin-password
+      restartPolicy: Never
