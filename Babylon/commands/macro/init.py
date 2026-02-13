@@ -40,8 +40,6 @@ def init(project_folder: str, variables_file: str):
         "Organization.yaml",
         "Solution.yaml",
         "Workspace.yaml",
-        "Dataset.yaml",
-        "Runner.yaml",
         "Webapp.yaml",
     ]
     try:
@@ -62,11 +60,6 @@ def init(project_folder: str, variables_file: str):
             copy(k8s_template, postgres_jobs_path / "k8s_job.yaml")
             logger.info("  [green]✔[/green] Generated [white]postgres/jobs/k8s_job.yaml[/white]")
 
-        customers_src = env.original_template_path / "yaml" / "dataset" / "customers.csv"
-        customers_dst = Path(getcwd()) / "customers.csv"
-        copy(customers_src, customers_dst)
-        logger.info("  [green]✔[/green] Generated [white]customers.csv[/white]")
-
         variables_template = env.original_template_path / "yaml" / "variables.yaml"
         copy(variables_template, variables_path)
         logger.info(f"  [green]✔[/green] Generated [white]{variables_file}[/white]")
@@ -78,4 +71,5 @@ def init(project_folder: str, variables_file: str):
         echo(style(f"  1. Edit your variables in {variables_file}", fg="cyan"))
         echo(style("  2. Run your first deployment command", fg="cyan"))
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] An error occurred while scaffolding: {e}")
+        logger.error("  [bold red]✘[/bold red] An error occurred while scaffolding see babylon logs for details")
+        logger.debug(f"  [bold red]✘[/bold red] Error details: {e}", exc_info=True)
