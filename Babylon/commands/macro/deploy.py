@@ -156,7 +156,22 @@ def update_object_security(
 
 
 def dict_to_tfvars(payload: dict) -> str:
-    """Transforme un dictionnaire en format texte key = "value" pour Terraform HCL"""
+    """Convert a dictionary to Terraform HCL tfvars format (key = "value").
+    
+    Currently handles simple data structures:
+    - Booleans: converted to lowercase (true/false)
+    - Numbers: integers and floats as-is
+    - Strings: wrapped in double quotes
+    
+    Note: Complex nested structures (lists, dicts) are not yet supported.
+    This is sufficient for current WebApp tfvars which only use simple scalar values.
+    
+    Args:
+        payload (dict): Dictionary with simple key-value pairs
+        
+    Returns:
+        str: Terraform HCL formatted variable assignments
+    """
     lines = []
     for key, value in payload.items():
         if isinstance(value, bool):

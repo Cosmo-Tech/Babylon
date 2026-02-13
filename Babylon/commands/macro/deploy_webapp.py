@@ -2,7 +2,6 @@ import os
 import subprocess
 import sys
 from logging import getLogger
-from pathlib import Path
 
 from click import echo, style
 
@@ -21,17 +20,19 @@ def deploy_webapp(namespace: str, file_content: str):
     content = env.fill_template(data=file_content, state=state)
     payload: dict = content.get("spec").get("payload", {})
     current_os = sys.platform
-    tf_dir = Path(str(env.working_dir)).parent / "terraform-webapp"
+    tf_dir = env.working_dir.template_path.parent / "terraform-webapp"
     tfvars_path = tf_dir / "terraform.tfvars"
 
-    if "win" in current_os:
+    if current_os == "win32":
         script_name = "_run-terraform.ps1"
         executable = ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", f"./{script_name}"]
-    else:
+    elif current_os == "linux":
         script_name = "_run-terraform.sh"
         executable = ["/bin/bash", f"./{script_name}"]
         if (tf_dir / script_name).exists():
             os.chmod(tf_dir / script_name, 0o755)
+    else:
+        raise RuntimeError(f"  Unsupported operating system: {current_os}")
 
     script_path = tf_dir / script_name
 
