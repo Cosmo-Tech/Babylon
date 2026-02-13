@@ -87,4 +87,4 @@ babylon api solutions delete --oid $O --sid $S
 babylon api organizations delete --oid $O
 
 rm -rf ./output
-rm babylon_error.log babylon_info.log
+rm babylon.log

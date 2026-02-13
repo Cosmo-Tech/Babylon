@@ -57,9 +57,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
         state["services"]["api"]["workspace_id"] = workspace.id
     else:
         # Case: Update Existing Workspace
-        logger.info(
-            f"  [dim]→ Existing ID [bold cyan]{api_section['workspace_id']}[/bold cyan] found. Updating...[/dim]"
-        )
+        logger.info(f"  [dim]→ Existing ID [bold cyan]{api_section['workspace_id']}[/bold cyan] found. Updating...[/dim]")
         workspace_update_request = WorkspaceUpdateRequest.from_dict(payload)
         updated = api_instance.update_workspace(
             organization_id=api_section["organization_id"],
@@ -86,9 +84,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
             except Exception as e:
                 logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
                 return CommandResponse.fail()
-        logger.info(
-            f"  [bold green]✔[/bold green] Workspace [bold magenta]{api_section['workspace_id']}[/bold magenta] updated"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Workspace [bold magenta]{api_section['workspace_id']}[/bold magenta] updated")
     workspace_id = state["services"]["api"]["workspace_id"]
     spec = content.get("spec") or {}
     sidecars = spec.get("sidecars") or {}
@@ -148,9 +144,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
                                 f"  [bold red]✘[/bold red] Job {k8s_job_name} did not complete successfully"
                                 f" see babylon logs for details"
                             )
-                            logger.debug(
-                                f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}"
-                            )
+                            logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
                         else:
                             # Job completed, now check the logs for error
                             logger.info("  [dim]→ Checking job logs for errors...[/dim]")
@@ -183,18 +177,14 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
                     except FailToCreateError as e:
                         for inner_exception in e.api_exceptions:
                             if inner_exception.status == 409:
-                                logger.warning(
-                                    f"  [yellow]⚠[/yellow] [dim]Job [cyan]{k8s_job_name}[/cyan] already exists.[/dim]"
-                                )
+                                logger.warning(f"  [yellow]⚠[/yellow] [dim]Job [cyan]{k8s_job_name}[/cyan] already exists.[/dim]")
                             else:
                                 logger.error(
                                     f"  [bold red]✘[/bold red] K8s Error ({inner_exception.status}): {inner_exception.reason}"
                                 )
                                 logger.debug(f"  Detail: {inner_exception.body}")
                     except Exception as e:
-                        logger.error(
-                            "  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details"
-                        )
+                        logger.error("  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
                         logger.debug(f"  [bold red]✘[/bold red] {e}")
 
     # --- State Persistence ---
