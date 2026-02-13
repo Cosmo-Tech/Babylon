@@ -223,6 +223,9 @@ class Environment(metaclass=SingletonMeta):
                         "webapp_name": "",
                         "webapp_url": "",
                     },
+                    "postgres": {
+                        "schema_name": "",
+                    },
                 },
             }
         state_data = load(state_file.open("r"), Loader=SafeLoader)
@@ -247,6 +250,9 @@ class Environment(metaclass=SingletonMeta):
                     "webapp": {
                         "webapp_name": "",
                         "webapp_url": "",
+                    },
+                    "postgres": {
+                        "schema_name": "",
                     },
                 },
             }
