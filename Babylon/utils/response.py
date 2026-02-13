@@ -88,9 +88,7 @@ class CommandResponse:
             return
 
         is_api_info = self._is_api_info_type(items[0])
-        table = Table(
-            show_header=True, header_style="bold white", box=None, padding=(0, 2), show_edge=False, expand=False
-        )
+        table = Table(show_header=True, header_style="bold white", box=None, padding=(0, 2), show_edge=False, expand=False)
         if is_api_info:
             table.add_column("PROPERTY")
             table.add_column("VALUE")

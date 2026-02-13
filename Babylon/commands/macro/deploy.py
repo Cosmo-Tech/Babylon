@@ -95,9 +95,7 @@ def update_default_security(
             getattr(api_instance, f"update_{object_type}_default_security")(object_id, desired_security.default)
             logger.info(f"  [bold green]✔[/bold green] Updated [magenta]{object_type}[/magenta] default security")
         except Exception as e:
-            logger.error(
-                f"  [bold red]✘[/bold red] Failed to update [magenta]{object_type}[/magenta] default security: {e}"
-            )
+            logger.error(f"  [bold red]✘[/bold red] Failed to update [magenta]{object_type}[/magenta] default security: {e}")
 
 
 def update_object_security(
@@ -122,38 +120,21 @@ def update_object_security(
         if entry.id in to_add:
             try:
                 getattr(api_instance, f"create_{object_type}_access_control")(*object_id, entry)
-                logger.info(
-                    f"  [bold green]✔[/bold green] Access control"
-                    f" for id [magenta]{entry.id}[/magenta] added successfully"
-                )
+                logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry.id}[/magenta] added successfully")
             except Exception as e:
-                logger.error(
-                    f"  [bold red]✘[/bold red] Failed to add access control for id [magenta]{entry.id}[/magenta]: {e}"
-                )
+                logger.error(f"  [bold red]✘[/bold red] Failed to add access control for id [magenta]{entry.id}[/magenta]: {e}")
         if entry.id in to_update:
             try:
-                getattr(api_instance, f"update_{object_type}_access_control")(
-                    *object_id, entry.id, {"role": entry.role}
-                )
-                logger.info(
-                    f"  [bold green]✔[/bold green] Access control"
-                    f" for id [magenta]{entry.id}[/magenta] updated successfully"
-                )
+                getattr(api_instance, f"update_{object_type}_access_control")(*object_id, entry.id, {"role": entry.role})
+                logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry.id}[/magenta] updated successfully")
             except Exception as e:
-                logger.error(
-                    f"  [bold red]✘[/bold red] Failed to update access control"
-                    f" for id [magenta]{entry.id}[/magenta]: {e}"
-                )
+                logger.error(f"  [bold red]✘[/bold red] Failed to update access control for id [magenta]{entry.id}[/magenta]: {e}")
     for entry_id in to_delete:
         try:
             getattr(api_instance, f"delete_{object_type}_access_control")(*object_id, entry_id)
-            logger.info(
-                f"  [bold green]✔[/bold green] Access control for id [magenta]{entry_id}[/magenta] deleted successfully"
-            )
+            logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry_id}[/magenta] deleted successfully")
         except Exception as e:
-            logger.error(
-                f"  [bold red]✘[/bold red] Failed to delete access control for id [magenta]{entry_id}[/magenta]: {e}"
-            )
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete access control for id [magenta]{entry_id}[/magenta]: {e}")
 
 
 def dict_to_tfvars(payload: dict) -> str:
@@ -190,12 +171,12 @@ def get_postgres_service_host(namespace: str) -> str:
         config.load_kube_config()
         v1 = client.CoreV1Api()
         services = v1.list_namespaced_service(namespace)
-        
+
         for svc in services.items:
             if "postgresql" in svc.metadata.name or svc.metadata.labels.get("app.kubernetes.io/name") == "postgresql":
                 logger.info(f"  [dim]→ Found PostgreSQL service {svc.metadata.name}[/dim]")
                 return f"{svc.metadata.name}.{namespace}.svc.cluster.local"
-        
+
         return f"postgresql.{namespace}.svc.cluster.local"
     except Exception as e:
         logger.warning(f"  [bold yellow]![/bold yellow] Service discovery failed: {e}. Using default")

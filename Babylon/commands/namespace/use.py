@@ -16,7 +16,6 @@ def use() -> CommandResponse:
     """Switch to a specific Babylon namespace or create a new one"""
     env.store_namespace_in_local()
     logger.info(
-        f"  [green]✔[/green] Switched to context [green]{env.context_id}[/green],"
-        f" tenant [green]{env.environ_id}[/green] successfully",
+        f"  [green]✔[/green] Switched to context [green]{env.context_id}[/green], tenant [green]{env.environ_id}[/green] successfully",
     )
     return CommandResponse.success()

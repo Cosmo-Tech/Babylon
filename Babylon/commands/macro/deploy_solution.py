@@ -51,9 +51,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
         state["services"]["api"]["solution_id"] = solution.id
     else:
         # Case: Update Existing Solution
-        logger.info(
-            f"  [dim]→ Existing ID [bold cyan]{api_section['solution_id']}[/bold cyan] found. Updating...[/dim]"
-        )
+        logger.info(f"  [dim]→ Existing ID [bold cyan]{api_section['solution_id']}[/bold cyan] found. Updating...[/dim]")
         solution_update_request = SolutionUpdateRequest.from_dict(payload)
         updated = api_instance.update_solution(
             organization_id=api_section["organization_id"],
@@ -80,9 +78,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
             except Exception as e:
                 logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
                 return CommandResponse.fail()
-        logger.info(
-            f"  [bold green]✔[/bold green] Solution [bold magenta]{api_section['solution_id']}[/bold magenta] updated"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Solution [bold magenta]{api_section['solution_id']}[/bold magenta] updated")
     # --- State Persistence ---
     # Ensure the local and remote states are synchronized after successful API calls
     env.store_state_in_local(state)

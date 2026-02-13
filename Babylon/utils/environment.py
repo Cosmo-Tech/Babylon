@@ -155,9 +155,7 @@ class Environment(metaclass=SingletonMeta):
             secret = v1.read_namespaced_secret(name=secret_name, namespace=tenant)
         except ApiException:
             logger.error("\n  [bold red]✘[/bold red] Resource Not Found")
-            logger.error(
-                f"  Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]"
-            )
+            logger.error(f"  Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]")
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Please ensure your kubeconfig is valid")
             logger.info("  • Check that your context is correctly set [cyan]kubectl config current-context[/cyan]")

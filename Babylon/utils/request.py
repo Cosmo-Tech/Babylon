@@ -41,9 +41,7 @@ def oauth_request(
         logger.error("[api] Unauthorized (401): token missing or expired. Refresh token or check client credentials.")
         return None
     if response.status_code == 403:
-        logger.error(
-            "[api] Forbidden (403): token valid but lacks required roles/scopes. Check Keycloak client permissions."
-        )
+        logger.error("[api] Forbidden (403): token valid but lacks required roles/scopes. Check Keycloak client permissions.")
         return None
     if not response.ok:
         logger.warning(f"[api] Request failed ({response.status_code}): {response.text}")

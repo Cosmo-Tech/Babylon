@@ -32,9 +32,7 @@ def runs():
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
 @option("--rnid", "run_id", required=True, type=str, help="Run ID")
-def get(
-    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
-) -> CommandResponse:
+def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str) -> CommandResponse:
     """Get a run"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
@@ -59,9 +57,7 @@ def get(
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
 @option("--rnid", "run_id", required=True, type=str, help="Run ID")
-def delete(
-    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str
-) -> CommandResponse:
+def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str, run_id: str) -> CommandResponse:
     """Delete a run"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
@@ -86,9 +82,7 @@ def delete(
 @option("--oid", "organization_id", required=True, type=str, help="Organization ID")
 @option("--wid", "workspace_id", required=True, type=str, help="Workspace ID")
 @option("--rid", "runner_id", required=True, type=str, help="Runner ID")
-def list_runs(
-    config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str
-) -> CommandResponse:
+def list_runs(config: dict, keycloak_token: str, organization_id: str, workspace_id: str, runner_id: str) -> CommandResponse:
     """List runs"""
     api_instance = get_run_api_instance(config, keycloak_token)
     try:
