@@ -166,7 +166,11 @@ def dict_to_tfvars(payload: dict) -> str:
 
 
 def get_postgres_service_host(namespace: str) -> str:
-    """Discovers the PostgreSQL service name in a namespace to build its FQDN"""
+    """Discovers the PostgreSQL service name in a namespace to build its FQDN
+    
+    Note: This function assumes PostgreSQL is running within the same Kubernetes cluster.
+    External database clusters are not currently supported.
+    """
     try:
         config.load_kube_config()
         v1 = client.CoreV1Api()
@@ -179,5 +183,6 @@ def get_postgres_service_host(namespace: str) -> str:
 
         return f"postgresql.{namespace}.svc.cluster.local"
     except Exception as e:
-        logger.warning(f"  [bold yellow]![/bold yellow] Service discovery failed: {e}. Using default")
+        logger.warning("  [bold yellow]⚠[/bold yellow] Service discovery failed ! default will be used.")
+        logger.debug(f"  Exception details: {e}", exc_info=True)
         return f"postgresql.{namespace}.svc.cluster.local"
