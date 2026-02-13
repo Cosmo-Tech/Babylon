@@ -46,6 +46,9 @@ class SingletonMeta(type):
 
 
 class Environment(metaclass=SingletonMeta):
+    # Azure Blob Storage configuration
+    STATE_CONTAINER = "babylon-states"
+    
     def __init__(self):
         self.remote = False
         self.pwd = Path.cwd()
@@ -67,6 +70,10 @@ class Environment(metaclass=SingletonMeta):
         self.state_dir = ORIGINAL_CONFIG_FOLDER_PATH
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
         self.variable_files: list[Path] = []
+
+    def _get_state_blob_client(self, blob_name: str):
+        """Get a blob client for state management"""
+        return self.blob_client.get_blob_client(container=self.STATE_CONTAINER, blob=blob_name)
 
     def get_variables(self):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
@@ -179,24 +186,23 @@ class Environment(metaclass=SingletonMeta):
 
     def store_state_in_cloud(self, state: dict):
         state_file = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        state_container = self.blob_client.get_container_client(container="babylon-states")
+        state_container = self.blob_client.get_container_client(container=self.STATE_CONTAINER)
         if not state_container.exists():
             state_container.create_container()
-        state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=state_file)
+        state_blob = self._get_state_blob_client(state_file)
         if state_blob.exists():
             state_blob.delete_blob()
         state_blob.upload_blob(data=dump(state).encode("utf-8"))
 
     def list_remote_states(self) -> list[str]:
-        """Liste les noms des fichiers de state présents dans le container Azure."""
+        """List state file names present in the Azure blob container."""
         try:
             self.set_blob_client()
-            container_client = self.blob_client.get_container_client(container="babylon-states")
-            # On filtre pour ne prendre que les fichiers state.*.yaml
+            container_client = self.blob_client.get_container_client(container=self.STATE_CONTAINER)
             blobs = container_client.list_blobs(name_starts_with="state.")
             return [b.name for b in blobs if b.name.endswith(".yaml")]
         except Exception as e:
-            logger.error(f"  [bold red]✘[/bold red] Impossible de lister les states distants: {e}")
+            logger.error(f"  [bold red]✘[/bold red] Failed to list remote states: {e}")
             return []
 
     def get_state_from_local(self):
@@ -224,7 +230,7 @@ class Environment(metaclass=SingletonMeta):
 
     def get_state_from_cloud(self) -> dict:
         s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        state_blob = self.blob_client.get_blob_client(container="babylon-states", blob=s)
+        state_blob = self._get_state_blob_client(s)
         exists = state_blob.exists()
         if not exists:
             return {
