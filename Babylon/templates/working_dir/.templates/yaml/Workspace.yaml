@@ -20,7 +20,7 @@ spec:
     sendInputToDataWarehouse: true
     sendScenarioRunToEventHub: true
     additionalData:
-      webApp:
+      webapp:
         solution:
           runTemplateFilter:
           defaultRunTemplateDataset: null
@@ -36,5 +36,6 @@ spec:
           supportUrl: 'https://support.cosmotech.com'
           organizationUrl: 'https://cosmotech.com'
           documentationUrl: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
-        datasetManager:
+        datasetManager: 'removeToDisableDatasetManager'
+        datasourceFilter: []
     security: {{security}}
