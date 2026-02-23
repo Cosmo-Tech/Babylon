@@ -5,7 +5,7 @@ spec:
   sidecars:
     postgres:
         schema:
-          create: false
+          create: true
           jobs:
             - name: k8s_job.yaml
               path: postgres/jobs
