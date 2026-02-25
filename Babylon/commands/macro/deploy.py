@@ -1,3 +1,4 @@
+import subprocess
 from logging import getLogger
 
 from click import Abort, echo, style
@@ -9,7 +10,13 @@ from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
 from cosmotech_api.models.workspace_security import WorkspaceSecurity
 from kubernetes import client, config
 
+from Babylon.utils.environment import Environment
+
 logger = getLogger(__name__)
+
+env = Environment()
+
+# Helper functions for workspace deployment
 
 
 def validate_inclusion_exclusion(
@@ -137,37 +144,12 @@ def update_object_security(
             logger.error(f"  [bold red]✘[/bold red] Failed to delete access control for id [magenta]{entry_id}[/magenta]: {e}")
 
 
-def dict_to_tfvars(payload: dict) -> str:
-    """Convert a dictionary to Terraform HCL tfvars format (key = "value").
-    
-    Currently handles simple data structures:
-    - Booleans: converted to lowercase (true/false)
-    - Numbers: integers and floats as-is
-    - Strings: wrapped in double quotes
-    
-    Note: Complex nested structures (lists, dicts) are not yet supported.
-    This is sufficient for current WebApp tfvars which only use simple scalar values.
-    
-    Args:
-        payload (dict): Dictionary with simple key-value pairs
-        
-    Returns:
-        str: Terraform HCL formatted variable assignments
-    """
-    lines = []
-    for key, value in payload.items():
-        if isinstance(value, bool):
-            lines.append(f"{key} = {str(value).lower()}")
-        elif isinstance(value, (int, float)):
-            lines.append(f"{key} = {value}")
-        else:
-            lines.append(f'{key} = "{value}"')
-    return "\n".join(lines)
+# Helper functions for workspace deployment
 
 
 def get_postgres_service_host(namespace: str) -> str:
     """Discovers the PostgreSQL service name in a namespace to build its FQDN
-    
+
     Note: This function assumes PostgreSQL is running within the same Kubernetes cluster.
     External database clusters are not currently supported.
     """
@@ -186,3 +168,84 @@ def get_postgres_service_host(namespace: str) -> str:
         logger.warning("  [bold yellow]⚠[/bold yellow] Service discovery failed ! default will be used.")
         logger.debug(f"  Exception details: {e}", exc_info=True)
         return f"postgresql.{namespace}.svc.cluster.local"
+
+
+# Helper functions for web application deployment
+
+
+def dict_to_tfvars(payload: dict) -> str:
+    """Convert a dictionary to Terraform HCL tfvars format (key = "value").
+
+    Currently handles simple data structures:
+    - Booleans: converted to lowercase (true/false)
+    - Numbers: integers and floats as-is
+    - Strings: wrapped in double quotes
+
+    Note: Complex nested structures (lists, dicts) are not yet supported.
+    This is sufficient for current WebApp tfvars which only use simple scalar values.
+
+    Args:
+        payload (dict): Dictionary with simple key-value pairs
+
+    Returns:
+        str: Terraform HCL formatted variable assignments
+    """
+    lines = []
+    for key, value in payload.items():
+        if isinstance(value, bool):
+            lines.append(f"{key} = {str(value).lower()}")
+        elif isinstance(value, (int, float)):
+            lines.append(f"{key} = {value}")
+        else:
+            lines.append(f'{key} = "{value}"')
+    return "\n".join(lines)
+
+
+def _run_terraform_process(executable, cwd, payload, state):
+    """Helper function to reduce the size of the main function (Clean Code)"""
+    try:
+        process = subprocess.Popen(executable, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+
+        # Color mapping to avoid if/else statements in the loop
+        status_colors = {
+            "Initializing": "white",
+            "Upgrading": "white",
+            "Finding": "white",
+            "Refreshing": "white",
+            "Success": "green",
+            "complete": "green",
+            "Resources:": "green",
+            "Error": "red",
+            "error": "red",
+        }
+
+        for line in process.stdout:
+            clean_line = line.strip()
+            if not clean_line:
+                continue
+
+            color = next((status_colors[k] for k in status_colors if k in clean_line), "white")
+            is_bold = color == "red"
+            echo(style(f"   {clean_line}", fg=color, bold=is_bold))
+
+        if process.wait() == 0:
+            _finalize_deployment(payload, state)
+        else:
+            logger.error("  [bold red]✘[/bold red] Deployment failed")
+
+    except Exception as e:
+        logger.error(f"  [bold red]✘[/bold red] Execution error: {e}")
+
+
+def _finalize_deployment(payload, state):
+    """Handles the update of the final state"""
+    webapp_name = payload.get("webapp_name")
+    url = f"https://{payload.get('cluster_domain')}/tenant-{payload.get('tenant')}/webapp-{webapp_name}"
+
+    services = state.setdefault("services", {})
+    services["webapp"] = {"webapp_name": f"webapp-{webapp_name}", "webapp_url": url}
+
+    logger.info(f"  [bold green]✔[/bold green] WebApp [bold white]{webapp_name}[/bold white] deployed")
+    env.store_state_in_local(state)
+    if env.remote:
+        env.store_state_in_cloud(state)

@@ -48,7 +48,7 @@ class SingletonMeta(type):
 class Environment(metaclass=SingletonMeta):
     # Azure Blob Storage configuration
     STATE_CONTAINER = "babylon-states"
-    
+
     def __init__(self):
         self.remote = False
         self.pwd = Path.cwd()
