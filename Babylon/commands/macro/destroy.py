@@ -134,18 +134,18 @@ def _destroy_webapp(state: dict):
             text=True,
             bufsize=1,
         )
-        
+
         line_handlers = {
             "Destroy complete!": "green",
             "Resources:": "green",
             "Error": "red",
         }
-        
+
         for line in process.stdout:
             clean_line = line.strip()
             if not clean_line:
                 continue
-            
+
             color = next((color for key, color in line_handlers.items() if key in clean_line), "white")
             bold = color == "red"
             echo(style(f"   {clean_line}", fg=color, bold=bold))
