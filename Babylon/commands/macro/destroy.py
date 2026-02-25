@@ -22,7 +22,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def _destroy_schema(schema_name: str, state: dict) -> bool:
+def _destroy_schema(schema_name: str, state: dict) -> None:
     """
     Destroy PostgreSQL schema for a workspace.
     """
