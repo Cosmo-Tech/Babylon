@@ -11,8 +11,8 @@ spec:
     name: "{{solution_name}}"
     description: "{{solution_description}}"
     repository: cosmotech/brewerysamplesolution_simulator
-    version: latest
-    sdkVersion: '10.4.0'
+    version: "{{simulator_version}}"
+    sdkVersion: '12.0.0'
     alwaysPull: true
     url: 'https://webapp-url.com'
     tags:
