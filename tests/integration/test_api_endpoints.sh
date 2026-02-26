@@ -12,7 +12,7 @@ mkdir output
 
 # Set testing namespace
 export CONTEXT="integration"
-export TENANT="sphinx"
+export TENANT="tenant-sphinx"
 export STATE="teststate"
 
 babylon namespace use -c ${CONTEXT} -t ${TENANT} -s $STATE

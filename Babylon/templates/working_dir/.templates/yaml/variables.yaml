@@ -6,18 +6,18 @@
 organization_name: Babylon v5 Organization
 # Solution
 solution_name: Babylon v5 Solution
-simulator_repository: cosmotech/brewerysamplesolution_simulator
+simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
 solution_description: Brewery Testing babylon v5 Solution PLT
 solution_key: breweryTesting
-simulator_version: latest
+simulator_version: 3.0.0
 # Workspace
 workspace_name: Babylon v5 workspace
 workspace_key: brewerytestingwork
 workspace_description: Testing workspace for the brewery web application
 # Webapp
 cloud_provider: azure
-cluster_name: warpvy52ww
-cluster_domain: warp.api.cosmotech.com
+cluster_name: aks-dev-luxor
+cluster_domain: aks-dev-luxor.azure.platform.cosmotech.com
 tenant: sphinx
 webapp_name: business
 organization_id: o-xxxxxxxxxxx

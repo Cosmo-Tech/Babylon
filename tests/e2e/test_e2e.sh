@@ -10,7 +10,7 @@ fi
 
 # Set testing namespace
 export CONTEXT="e2e"
-export TENANT="sphinx"
+export TENANT="tenant-sphinx"
 export STATE="teststate"
 
 babylon namespace use -c ${CONTEXT} -t ${TENANT} -s $STATE
