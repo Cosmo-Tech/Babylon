@@ -1,8 +1,8 @@
 # Solution Template
 key: testing
 name: Dev Brewery Solution
-repository: cosmotech/brewerysamplesolution_simulator
-version: latest
+repository: tenant-sphinx/brewerysamplesolution_simulator
+version: 3.0.0
 alwaysPull: true
 parameters: []
 parameterGroups: []
