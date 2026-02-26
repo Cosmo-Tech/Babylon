@@ -1,5 +1,5 @@
 name: "Babylon testing runner"
-runTemplateId: "minimal"
+runTemplateId: "standalone"
 solutionId: "sol-7xgdvwq6959j"
 solutionName: "Updated description"
 runTemplateName: "Run template with Brewery parameters"
