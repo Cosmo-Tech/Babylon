@@ -1,6 +1,4 @@
 name: Continuous Integration
-permissions:
-  contents: read
 
 env:
   API_URL: ${{ secrets.API_URL }}
@@ -19,6 +17,9 @@ on:
     branches:
       - "main"
 
+permissions:
+  id-token: write
+  contents: read
 jobs:
   code-quality:
     runs-on: ubuntu-latest
