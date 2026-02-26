@@ -1,10 +1,6 @@
 name: Continuous Integration
 
 env:
-  API_URL: ${{ secrets.API_URL }}
-  CLIENT_ID: ${{ secrets.CLIENT_ID }}
-  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-  TOKEN_URL: ${{ secrets.TOKEN_URL }}
   STORAGE_NAME: ${{ secrets.STORAGE_NAME }}
   ACCOUNT_SECRET: ${{ secrets.ACCOUNT_SECRET }}
 
