@@ -7,7 +7,7 @@ alwaysPull: true
 parameters: []
 parameterGroups: []
 runTemplates:
-  - id: 'minimal'
+  - id: 'standalone'
 security:
   default: viewer
   accessControlList:

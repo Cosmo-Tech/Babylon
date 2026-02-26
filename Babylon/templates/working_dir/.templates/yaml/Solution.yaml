@@ -10,7 +10,7 @@ spec:
     key: "{{solution_key}}"
     name: "{{solution_name}}"
     description: "{{solution_description}}"
-    repository: cosmotech/brewerysamplesolution_simulator
+    repository: "{{simulator_repository}}"
     version: "{{simulator_version}}"
     sdkVersion: '12.0.0'
     alwaysPull: true
