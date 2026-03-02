@@ -28,6 +28,8 @@ spec:
 
               psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} -c "GRANT USAGE ON SCHEMA ${workspace_schema} TO ${cosmotech_api_reader_username};"
               echo "SUCCESS:  Permissions granted"
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${workspace_schema} GRANT SELECT ON TABLES TO  ${cosmotech_api_reader_username};"
+              echo "SUCCESS:  Default privileges set successfully"
           env:
             - name: PGPASSWORD
               valueFrom:
