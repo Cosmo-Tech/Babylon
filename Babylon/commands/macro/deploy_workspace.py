@@ -14,7 +14,12 @@ from kubernetes.utils import FailToCreateError
 from yaml import safe_load
 
 from Babylon.commands.api.workspace import get_workspace_api_instance
-from Babylon.commands.macro.deploy import get_postgres_service_host, update_object_security
+from Babylon.commands.macro.deploy import (
+    create_coal_configmap,
+    create_workspace_secret,
+    get_postgres_service_host,
+    update_object_security,
+)
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
@@ -93,7 +98,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
     should_create_schema = schema_config.get("create", False)
     if should_create_schema:
         db_host = get_postgres_service_host(env.environ_id)
-        logger.info(f"  [dim]→ Initializing PostgreSQL schema for workspace {workspace_id}...[/dim]")
+        logger.info(f"  [dim]→ Initializing PostgreSQL schema for workspace [bold cyan]{workspace_id}[/bold cyan]...[/dim]")
         pg_config = env.get_config_from_k8s_secret_by_tenant("postgresql-config", env.environ_id)
         api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
         if pg_config and api_config:
@@ -102,11 +107,11 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
                 "namespace": env.environ_id,
                 "db_host": db_host,
                 "db_port": "5432",
-                "cosmotech_api_database": api_config.get("database-name"),
-                "cosmotech_api_admin_username": api_config.get("admin-username"),
-                "cosmotech_api_admin_password": api_config.get("admin-password"),
-                "cosmotech_api_writer_username": api_config.get("writer-username"),
-                "cosmotech_api_reader_username": api_config.get("reader-username"),
+                "cosmotech_api_database": api_config.get("database-name", ""),
+                "cosmotech_api_admin_username": api_config.get("admin-username", ""),
+                "cosmotech_api_admin_password": api_config.get("admin-password", ""),
+                "cosmotech_api_writer_username": api_config.get("writer-username", ""),
+                "cosmotech_api_reader_username": api_config.get("reader-username", ""),
                 "workspace_schema": schema_name,
                 "job_name": workspace_id,
             }
@@ -186,6 +191,33 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
                     except Exception as e:
                         logger.error("  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
                         logger.debug(f"  [bold red]✘[/bold red] {e}")
+
+            # --- Workspace Secret & CoAL ConfigMap ---
+            organization_id = api_section["organization_id"]
+            api_url = config.get("api_url", "")
+            writer_username = api_config.get("writer-username", "")
+            writer_password = api_config.get("writer-password", "")
+            db_name = api_config.get("database-name", "")
+
+            logger.info(f"  [dim]→ Creating workspace secret for [cyan]{workspace_id}[/cyan]...[/dim]")
+            create_workspace_secret(
+                namespace=env.environ_id,
+                organization_id=organization_id,
+                workspace_id=workspace_id,
+                writer_password=writer_password,
+            )
+
+            logger.info(f"  [dim]→ Creating CoAL ConfigMap for [cyan]{workspace_id}[/cyan]...[/dim]")
+            create_coal_configmap(
+                namespace=env.environ_id,
+                organization_id=organization_id,
+                workspace_id=workspace_id,
+                db_host=db_host,
+                db_port="5432",
+                db_name=db_name,
+                schema_name=schema_name,
+                writer_username=writer_username,
+            )
 
     # --- State Persistence ---
     # Ensure the local and remote states are synchronized after successful API calls

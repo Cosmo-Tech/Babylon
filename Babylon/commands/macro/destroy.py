@@ -12,7 +12,7 @@ from yaml import safe_load
 from Babylon.commands.api.organization import get_organization_api_instance
 from Babylon.commands.api.solution import get_solution_api_instance
 from Babylon.commands.api.workspace import get_workspace_api_instance
-from Babylon.commands.macro.deploy import get_postgres_service_host, resolve_inclusion_exclusion
+from Babylon.commands.macro.deploy import delete_kubernetes_resources, get_postgres_service_host, resolve_inclusion_exclusion
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
@@ -31,7 +31,7 @@ def _destroy_schema(schema_name: str, state: dict) -> None:
         return
     workspace_id_tmp = f"{schema_name.replace('_', '-')}"
     db_host = get_postgres_service_host(env.environ_id)
-    logger.info(f"  [dim]→ Destroying postgreSQL schema for workspace {workspace_id_tmp}...[/dim]")
+    logger.info(f"  [dim]→ Destroying postgreSQL schema for workspace [bold cyan]{workspace_id_tmp}[/bold cyan]...[/dim]")
 
     pg_config = env.get_config_from_k8s_secret_by_tenant("postgresql-config", env.environ_id)
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
@@ -212,6 +212,11 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
 
     if workspace:
         _destroy_schema(schema_state["schema_name"], state)
+        delete_kubernetes_resources(
+            namespace=env.environ_id,
+            organization_id=org_id,
+            workspace_id=api_state["workspace_id"],
+        )
         api = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
         _delete_resource(api.delete_workspace, "Workspace", org_id, api_state["workspace_id"], state, "workspace_id")
 

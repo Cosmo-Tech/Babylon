@@ -1,5 +1,7 @@
+from base64 import b64encode
 import subprocess
 from logging import getLogger
+from textwrap import dedent
 
 from click import Abort, echo, style
 from cosmotech_api.models.organization_access_control import OrganizationAccessControl
@@ -170,6 +172,165 @@ def get_postgres_service_host(namespace: str) -> str:
         return f"postgresql.{namespace}.svc.cluster.local"
 
 
+def create_workspace_secret(
+    namespace: str,
+    organization_id: str,
+    workspace_id: str,
+    writer_password: str,
+) -> bool:
+    """Create a Kubernetes Secret for a workspace containing API and PostgreSQL credentials.
+
+    The secret is named ``<organization_id>-<workspace_id>`` and holds all
+    environment variables required by workspace.
+
+    Returns:
+        bool: True if the secret was created or already exists, False on error.
+    """
+    secret_name = f"{organization_id}-{workspace_id}"
+    data = {
+        "POSTGRES_USER_PASSWORD": writer_password,
+    }
+    encoded_data = {k: b64encode(v.encode("utf-8")).decode("utf-8") for k, v in data.items()}
+
+    secret = client.V1Secret(
+        api_version="v1",
+        kind="Secret",
+        metadata=client.V1ObjectMeta(name=secret_name, namespace=namespace),
+        type="Opaque",
+        data=encoded_data,
+    )
+
+    try:
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+        v1.create_namespaced_secret(namespace=namespace, body=secret)
+        logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] created")
+        return True
+    except client.ApiException as e:
+        if e.status == 409:
+            logger.warning(f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] already exists[/dim]")
+            return True
+        logger.error(f"  [bold red]✘[/bold red] Failed to create secret {secret_name}: {e.reason}")
+        return False
+    except Exception as e:
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error creating secret {secret_name}")
+        logger.debug(f"  Detail: {e}", exc_info=True)
+        return False
+
+
+def create_coal_configmap(
+    namespace: str,
+    organization_id: str,
+    workspace_id: str,
+    db_host: str,
+    db_port: str,
+    db_name: str,
+    schema_name: str,
+    writer_username: str,
+) -> bool:
+    """Create a CoAL ConfigMap for a workspace.
+
+    The ConfigMap is named ``<organization_id>-<workspace_id>-coal-config`` and
+    contains a ``coal-config.toml`` key with Postgres output configuration.  The
+    ``user_password`` value is deliberately set to the literal string
+    ``env.POSTGRES_USER_PASSWORD`` so that the CoAL runtime resolves it from the
+    environment at execution time.
+
+    Returns:
+        bool: True if the ConfigMap was created or already exists, False on error.
+    """
+    configmap_name = f"{organization_id}-{workspace_id}-coal-config"
+    coal_toml = dedent(f"""\
+        [[outputs]]
+        type = "postgres"
+        [outputs.conf.postgres]
+        host = "{db_host}"
+        port = "{db_port}"
+        db_name = "{db_name}"
+        db_schema = "{schema_name}"
+        user_name = "{writer_username}"
+        user_password = "env.POSTGRES_USER_PASSWORD"
+    """)
+
+    configmap = client.V1ConfigMap(
+        api_version="v1",
+        kind="ConfigMap",
+        metadata=client.V1ObjectMeta(name=configmap_name, namespace=namespace),
+        data={"coal-config.toml": coal_toml},
+    )
+
+    try:
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+        v1.create_namespaced_config_map(namespace=namespace, body=configmap)
+        logger.info(f"  [bold green]✔[/bold green] ConfigMap [magenta]{configmap_name}[/magenta] created")
+        return True
+    except client.ApiException as e:
+        if e.status == 409:
+            logger.warning(
+                f"  [yellow]⚠[/yellow] [dim]ConfigMap [magenta]{configmap_name}[/magenta] already exists[/dim]"
+            )
+            return True
+        logger.error(f"  [bold red]✘[/bold red] Failed to create ConfigMap {configmap_name}: {e.reason}")
+        return False
+    except Exception as e:
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error creating ConfigMap {configmap_name}")
+        logger.debug(f"  Detail: {e}", exc_info=True)
+        return False
+
+
+def delete_kubernetes_resources(namespace: str, organization_id: str, workspace_id: str) -> None:
+    """Delete the Workspace Secret and CoAL ConfigMap created during deployment.
+
+    Targets:
+      - Secret:    ``<organization_id>-<workspace_id>``
+      - ConfigMap: ``<organization_id>-<workspace_id>-coal-config``
+
+    If a resource is already gone (404), a warning is logged and execution
+    continues without error.
+    """
+    secret_name = f"{organization_id}-{workspace_id}"
+    configmap_name = f"{organization_id}-{workspace_id}-coal-config"
+
+    try:
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+    except Exception as e:
+        logger.error("  [bold red]✘[/bold red] Failed to initialise Kubernetes client")
+        logger.debug(f"  Detail: {e}", exc_info=True)
+        return
+
+    # --- Delete Secret ---
+    try:
+        logger.info(f"  [dim]→ Deleting workspace Secret ...[/dim]")
+        v1.delete_namespaced_secret(name=secret_name, namespace=namespace)
+        logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] deleted")
+    except client.ApiException as e:
+        if e.status == 404:
+            logger.warning(f"  [yellow]⚠[/yellow] [dim]Secret not found (already deleted)[/dim]")
+        else:
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete secret {secret_name}: {e.reason}")
+    except Exception as e:
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting secret {secret_name}")
+        logger.debug(f"  Detail: {e}", exc_info=True)
+
+    # --- Delete ConfigMap ---
+    try:
+        logger.info(f"  [dim]→ Deleting workspace ConfigMap ...[/dim]")
+        v1.delete_namespaced_config_map(name=configmap_name, namespace=namespace)
+        logger.info(f"  [bold green]✔[/bold green] ConfigMap [magenta]{configmap_name}[/magenta] deleted")
+    except client.ApiException as e:
+        if e.status == 404:
+            logger.warning(
+                f"  [yellow]⚠[/yellow] [dim]ConfigMap not found (already deleted)[/dim]"
+            )
+        else:
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete ConfigMap {configmap_name}: {e.reason}")
+    except Exception as e:
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting ConfigMap {configmap_name}")
+        logger.debug(f"  Detail: {e}", exc_info=True)
+
+
 # Helper functions for web application deployment
 
 
@@ -240,7 +401,7 @@ def _run_terraform_process(executable, cwd, payload, state):
 def _finalize_deployment(payload, state):
     """Handles the update of the final state"""
     webapp_name = payload.get("webapp_name")
-    url = f"https://{payload.get('cluster_domain')}/tenant-{payload.get('tenant')}/webapp-{webapp_name}"
+    url = f"https://{payload.get('cluster_name')}.{payload.get('domain_zone')}/tenant-{payload.get('tenant')}/webapp-{webapp_name}"
 
     services = state.setdefault("services", {})
     services["webapp"] = {"webapp_name": f"webapp-{webapp_name}", "webapp_url": url}
