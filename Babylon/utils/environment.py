@@ -160,6 +160,7 @@ class Environment(metaclass=SingletonMeta):
             # Show current kubectl context to help users spot a misconfiguration
             try:
                 from kubernetes.config.kube_config import list_kube_config_contexts
+
                 _, active_context = list_kube_config_contexts()
                 current_k8s_ctx = active_context["name"] if active_context else "unknown"
             except Exception:

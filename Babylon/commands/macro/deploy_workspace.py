@@ -194,7 +194,6 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
 
             # --- Workspace Secret & CoAL ConfigMap ---
             organization_id = api_section["organization_id"]
-            api_url = config.get("api_url", "")
             writer_username = api_config.get("writer-username", "")
             writer_password = api_config.get("writer-password", "")
             db_name = api_config.get("database-name", "")

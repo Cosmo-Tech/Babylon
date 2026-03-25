@@ -1,5 +1,5 @@
-from base64 import b64encode
 import subprocess
+from base64 import b64encode
 from logging import getLogger
 from textwrap import dedent
 
@@ -267,9 +267,7 @@ def create_coal_configmap(
         return True
     except client.ApiException as e:
         if e.status == 409:
-            logger.warning(
-                f"  [yellow]⚠[/yellow] [dim]ConfigMap [magenta]{configmap_name}[/magenta] already exists[/dim]"
-            )
+            logger.warning(f"  [yellow]⚠[/yellow] [dim]ConfigMap [magenta]{configmap_name}[/magenta] already exists[/dim]")
             return True
         logger.error(f"  [bold red]✘[/bold red] Failed to create ConfigMap {configmap_name}: {e.reason}")
         return False
@@ -302,12 +300,12 @@ def delete_kubernetes_resources(namespace: str, organization_id: str, workspace_
 
     # --- Delete Secret ---
     try:
-        logger.info(f"  [dim]→ Deleting workspace Secret ...[/dim]")
+        logger.info("  [dim]→ Deleting workspace Secret ...[/dim]")
         v1.delete_namespaced_secret(name=secret_name, namespace=namespace)
         logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] deleted")
     except client.ApiException as e:
         if e.status == 404:
-            logger.warning(f"  [yellow]⚠[/yellow] [dim]Secret not found (already deleted)[/dim]")
+            logger.warning("  [yellow]⚠[/yellow] [dim]Secret not found (already deleted)[/dim]")
         else:
             logger.error(f"  [bold red]✘[/bold red] Failed to delete secret {secret_name}: {e.reason}")
     except Exception as e:
@@ -316,14 +314,12 @@ def delete_kubernetes_resources(namespace: str, organization_id: str, workspace_
 
     # --- Delete ConfigMap ---
     try:
-        logger.info(f"  [dim]→ Deleting workspace ConfigMap ...[/dim]")
+        logger.info("  [dim]→ Deleting workspace ConfigMap ...[/dim]")
         v1.delete_namespaced_config_map(name=configmap_name, namespace=namespace)
         logger.info(f"  [bold green]✔[/bold green] ConfigMap [magenta]{configmap_name}[/magenta] deleted")
     except client.ApiException as e:
         if e.status == 404:
-            logger.warning(
-                f"  [yellow]⚠[/yellow] [dim]ConfigMap not found (already deleted)[/dim]"
-            )
+            logger.warning("  [yellow]⚠[/yellow] [dim]ConfigMap not found (already deleted)[/dim]")
         else:
             logger.error(f"  [bold red]✘[/bold red] Failed to delete ConfigMap {configmap_name}: {e.reason}")
     except Exception as e:
