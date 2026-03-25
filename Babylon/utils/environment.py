@@ -156,10 +156,42 @@ class Environment(metaclass=SingletonMeta):
         except ApiException:
             logger.error("\n  [bold red]✘[/bold red] Resource Not Found")
             logger.error(f"  Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]")
+
+            # Show current kubectl context to help users spot a misconfiguration
+            try:
+                from kubernetes.config.kube_config import list_kube_config_contexts
+                _, active_context = list_kube_config_contexts()
+                current_k8s_ctx = active_context["name"] if active_context else "unknown"
+            except Exception:
+                current_k8s_ctx = "unknown"
+
+            # Show current Babylon namespace from local config
+            ns_file = self.state_dir / "namespace.yaml"
+            if ns_file.exists():
+                try:
+                    ns_data = safe_load(ns_file.open("r").read()) or {}
+                    babylon_ctx = ns_data.get("context", "")
+                    babylon_tenant = ns_data.get("tenant", "")
+                    babylon_state = ns_data.get("state_id", "")
+                    babylon_ns_info = (
+                        f"context=[bold cyan]{babylon_ctx}[/bold cyan]  "
+                        f"tenant=[bold cyan]{babylon_tenant}[/bold cyan]  "
+                        f"state-id=[bold cyan]{babylon_state}[/bold cyan]"
+                    )
+                except Exception:
+                    babylon_ctx = babylon_tenant = babylon_state = ""
+                    babylon_ns_info = "[dim]unavailable[/dim]"
+            else:
+                babylon_ctx = babylon_tenant = babylon_state = ""
+                babylon_ns_info = "[dim]not set[/dim]"
+
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
-            logger.info("  • Please ensure your kubeconfig is valid")
-            logger.info("  • Check that your context is correctly set [cyan]kubectl config current-context[/cyan]")
-            logger.info("  • You can set context using [cyan]kubectl config use-context <context-name>[/cyan]")
+            logger.info(f"  • Active kubectl context : [cyan]{current_k8s_ctx}[/cyan]")
+            logger.info(f"  • Active Babylon namespace: {babylon_ns_info}")
+            logger.info("  • If the kubectl context is wrong, switch it:")
+            logger.info("    [cyan]kubectl config use-context <context-name>[/cyan]")
+            logger.info("  • If the Babylon namespace is wrong, switch it:")
+            logger.info("    [cyan]babylon namespace use -c <context> -t <tenant> -s <state-id>[/cyan]")
             sys.exit(1)
         except Exception:
             logger.error(
