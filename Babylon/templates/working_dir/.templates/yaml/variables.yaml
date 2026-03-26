@@ -17,7 +17,7 @@ workspace_description: Testing workspace for the brewery web application
 # Webapp
 cloud_provider: azure
 cluster_name: aks-dev-luxor
-cluster_domain: aks-dev-luxor.azure.platform.cosmotech.com
+domain_zone: azure.platform.cosmotech.com
 tenant: sphinx
 webapp_name: business
 organization_id: o-xxxxxxxxxxx
