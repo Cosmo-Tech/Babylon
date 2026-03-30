@@ -169,7 +169,7 @@ requires-dist = [
     { name = "azure-storage-blob", specifier = ">=12.28.0" },
     { name = "click" },
     { name = "click-log" },
-    { name = "cosmotech-api", specifier = "==5.0.0" },
+    { name = "cosmotech-api", specifier = "==5.0.1" },
     { name = "cryptography" },
     { name = "dynaconf" },
     { name = "flatten-json" },
@@ -399,7 +399,7 @@ wheels = [
 
 [[package]]
 name = "cosmotech-api"
-version = "5.0.0"
+version = "5.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
@@ -407,9 +407,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/85/07/4cfc51935a2cf9278f6f51d1fb59b402c26895dafc5923fdebe99f77afcb/cosmotech_api-5.0.0.tar.gz", hash = "sha256:182b6801a4a5008feeb7e20b367c5420005421978ef79e69edeacf7495456d5a", size = 219103, upload-time = "2026-02-23T15:50:44.042Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fd/fe/63d70c38d0c6b1a0319bf0b967883c4ff1ca3146e1c9933d3986eb84eb4f/cosmotech_api-5.0.1.tar.gz", hash = "sha256:f399350288e8708074bdd65e32e35adee139ef00dd3daf71789b7a54453f524a", size = 218883, upload-time = "2026-03-26T11:22:47.705Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/7e/1294914773dd6407395d22ae9734a68455443d55e526ceaff3d9a08b0b3c/cosmotech_api-5.0.0-py3-none-any.whl", hash = "sha256:1e41ea2c9ab09ea678e1861e5751c6976430989f51f34496dce4b8e1772c0b0f", size = 625091, upload-time = "2026-02-23T15:50:42.546Z" },
+    { url = "https://files.pythonhosted.org/packages/05/0c/a2170429bcc84061422c8c2f95d839312cbaaaebfd902af15b959945c15c/cosmotech_api-5.0.1-py3-none-any.whl", hash = "sha256:91338003e8ee7fe4444d24d8af1c8601b715ebb6e1dfe258758d34cf718350b7", size = 624861, upload-time = "2026-03-26T11:22:46.079Z" },
 ]
 
 [[package]]
@@ -1099,11 +1099,11 @@ wheels = [
 
 [[package]]
 name = "pygments"
-version = "2.19.2"
+version = "2.20.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631, upload-time = "2025-06-21T13:39:12.283Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/b2/bc9c9196916376152d655522fdcebac55e66de6603a76a02bca1b6414f6c/pygments-2.20.0.tar.gz", hash = "sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f", size = 4955991, upload-time = "2026-03-29T13:29:33.898Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217, upload-time = "2025-06-21T13:39:07.939Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/7e/a72dd26f3b0f4f2bf1dd8923c85f7ceb43172af56d63c7383eb62b332364/pygments-2.20.0-py3-none-any.whl", hash = "sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176", size = 1231151, upload-time = "2026-03-29T13:29:30.038Z" },
 ]
 
 [[package]]
