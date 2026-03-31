@@ -1,0 +1,41 @@
+# =========================================================
+# IMPORTANT: You can add variables here as needed!
+# Make sure they are used in the manifest YAML.
+# =========================================================
+# Organization
+organization_name: Babylon v5 Organization
+# Solution
+solution_name: Babylon v5 Solution
+simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
+solution_description: Brewery Testing babylon v5 Solution PLT
+solution_key: breweryTesting
+simulator_version: 3.0.0
+# Workspace
+workspace_name: Babylon v5 workspace
+workspace_key: brewerytestingwork
+workspace_description: Testing workspace for the brewery web application
+# Webapp
+# These variables are used to render your Webapp.yaml manifest and can be mapped to the
+# terraform module variables (terraform.tfvars) used by the terraform-webapp module.
+# See the module's example tfvars for reference:
+# https://github.com/Cosmo-Tech/terraform-webapp/blob/main/terraform.tfvars
+
+## VARIABLES EXAMPLE FOR KOB (= On-Premise)
+cloud_provider: kob
+cluster_name: kubernetes
+domain_zone: onpremise.platform.cosmotech.com
+tenant: test0
+webapp_name: business
+organization_id: o-xxxxxxxxxxxx
+state_host: https://cosmotechstates.onpremise.platform.cosmotech.com
+
+# ACL
+security:
+  default: none
+  accessControlList:
+    - id: tenant-admin 
+      role: admin
+    - id: tenant-editor
+      role: editor
+    - id: tenant-viewer 
+      role: viewer

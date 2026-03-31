@@ -1,0 +1,43 @@
+# =========================================================
+# IMPORTANT: You can add variables here as needed!
+# Make sure they are used in the manifest YAML.
+# =========================================================
+# Organization
+organization_name: Babylon v5 Organization
+# Solution
+solution_name: Babylon v5 Solution
+simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
+solution_description: Brewery Testing babylon v5 Solution PLT
+solution_key: breweryTesting
+simulator_version: 3.0.0
+# Workspace
+workspace_name: Babylon v5 workspace
+workspace_key: brewerytestingwork
+workspace_description: Testing workspace for the brewery web application
+# Webapp
+# These variables are used to render your Webapp.yaml manifest and can be mapped to the
+# terraform module variables (terraform.tfvars) used by the terraform-webapp module.
+# See the module's example tfvars for reference:
+# https://github.com/Cosmo-Tech/terraform-webapp/blob/main/terraform.tfvars
+
+## VARIABLES EXAMPLE FOR AZURE
+cloud_provider: azure
+cluster_name: aks-dev-luxor
+domain_zone: azure.platform.cosmotech.com
+tenant: sphinx
+webapp_name: business
+organization_id: o-xxxxxxxxxxx
+azure_subscription_id: a24b131f-bd0b-42e8-872a-bded9b91ab74
+azure_entra_tenant_id: e413b834-8be8-4822-a370-be619545cb49
+powerbi_app_deploy: false
+
+# ACL
+security:
+  default: none
+  accessControlList:
+    - id: tenant-admin 
+      role: admin
+    - id: tenant-editor
+      role: editor
+    - id: tenant-viewer 
+      role: viewer
