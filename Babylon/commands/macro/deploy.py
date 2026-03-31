@@ -405,4 +405,4 @@ def _finalize_deployment(payload, state):
     logger.info(f"  [bold green]✔[/bold green] WebApp [bold white]{webapp_name}[/bold white] deployed")
     env.store_state_in_local(state)
     if env.remote:
-        env.store_state_in_cloud(state)
+        env.store_state_in_kubernetes(state)

@@ -6,7 +6,6 @@ from json import loads
 from logging import getLogger
 from pathlib import Path
 
-from azure.storage.blob import BlobServiceClient
 from flatten_json import flatten
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
@@ -15,6 +14,7 @@ from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
 from Babylon.utils import ORIGINAL_CONFIG_FOLDER_PATH, ORIGINAL_TEMPLATE_FOLDER_PATH
+from Babylon.utils.kubernetes_state import get_state_from_kubernetes, store_state_in_kubernetes
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -53,7 +53,6 @@ class Environment(metaclass=SingletonMeta):
         self.remote = False
         self.pwd = Path.cwd()
         self.blob_client = None
-        self.state_id: str = ""
         self.context_id: str = ""
         self.environ_id: str = ""
         self.server_id: str = ""
@@ -70,10 +69,6 @@ class Environment(metaclass=SingletonMeta):
         self.state_dir = ORIGINAL_CONFIG_FOLDER_PATH
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
         self.variable_files: list[Path] = []
-
-    def _get_state_blob_client(self, blob_name: str):
-        """Get a blob client for state management"""
-        return self.blob_client.get_blob_client(container=self.STATE_CONTAINER, blob=blob_name)
 
     def get_variables(self):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
@@ -96,8 +91,6 @@ class Environment(metaclass=SingletonMeta):
         payload_dict = safe_load(payload)
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
-        if remote:
-            self.set_blob_client()
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
@@ -119,26 +112,6 @@ class Environment(metaclass=SingletonMeta):
     def set_environ(self, environ_id):
         self.environ_id = environ_id
 
-    def set_state_id(self, state_id: str):
-        self.state_id = state_id
-
-    def set_blob_client(self):
-        try:
-            storage_name = os.getenv("STORAGE_NAME", "").strip()
-            account_secret = os.getenv("ACCOUNT_SECRET", "").strip()
-            if not storage_name and not account_secret:
-                raise EnvironmentError("Missing environment variables: 'STORAGE_NAME' and 'ACCOUNT_SECRET'")
-            connection_str = (
-                f"DefaultEndpointsProtocol=https;"
-                f"AccountName={storage_name};"
-                f"AccountKey={account_secret};"
-                f"EndpointSuffix=core.windows.net"
-            )
-            self.blob_client = BlobServiceClient.from_connection_string(connection_str)
-        except Exception as e:
-            logger.error(f"  [bold red]✘[/bold red] Failed to initialize BlobServiceClient: {e}")
-            sys.exit(1)
-
     def get_config_from_k8s_secret_by_tenant(self, secret_name: str, tenant: str):
         response_parsed = {}
         try:
@@ -155,7 +128,7 @@ class Environment(metaclass=SingletonMeta):
             secret = v1.read_namespaced_secret(name=secret_name, namespace=tenant)
         except ApiException:
             logger.error("\n  [bold red]✘[/bold red] Resource Not Found")
-            logger.error(f"  Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]")
+            logger.error(f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green].")
 
             # Show current kubectl context to help users spot a misconfiguration
             try:
@@ -173,17 +146,13 @@ class Environment(metaclass=SingletonMeta):
                     ns_data = safe_load(ns_file.open("r").read()) or {}
                     babylon_ctx = ns_data.get("context", "")
                     babylon_tenant = ns_data.get("tenant", "")
-                    babylon_state = ns_data.get("state_id", "")
                     babylon_ns_info = (
                         f"context=[bold cyan]{babylon_ctx}[/bold cyan]  "
                         f"tenant=[bold cyan]{babylon_tenant}[/bold cyan]  "
-                        f"state-id=[bold cyan]{babylon_state}[/bold cyan]"
                     )
                 except Exception:
-                    babylon_ctx = babylon_tenant = babylon_state = ""
                     babylon_ns_info = "[dim]unavailable[/dim]"
             else:
-                babylon_ctx = babylon_tenant = babylon_state = ""
                 babylon_ns_info = "[dim]not set[/dim]"
 
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
@@ -192,7 +161,7 @@ class Environment(metaclass=SingletonMeta):
             logger.info("  • If the kubectl context is wrong, switch it:")
             logger.info("    [cyan]kubectl config use-context <context-name>[/cyan]")
             logger.info("  • If the Babylon namespace is wrong, switch it:")
-            logger.info("    [cyan]babylon namespace use -c <context> -t <tenant> -s <state-id>[/cyan]")
+            logger.info("    [cyan]babylon namespace use -c <context> -t <tenant>[/cyan]")
             sys.exit(1)
         except Exception:
             logger.error(
@@ -209,39 +178,66 @@ class Environment(metaclass=SingletonMeta):
         return response_parsed
 
     def store_state_in_local(self, state: dict):
-        state_file = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+        state_file = f"state.{self.context_id}.{self.environ_id}.yaml"
         self.state_dir.mkdir(parents=True, exist_ok=True)
         s = self.state_dir / state_file
-        state["files"] = self.working_dir.files_to_deploy
         s.write_bytes(data=dump(state).encode("utf-8"))
 
-    def store_state_in_cloud(self, state: dict):
-        state_file = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        state_container = self.blob_client.get_container_client(container=self.STATE_CONTAINER)
-        if not state_container.exists():
-            state_container.create_container()
-        state_blob = self._get_state_blob_client(state_file)
-        if state_blob.exists():
-            state_blob.delete_blob()
-        state_blob.upload_blob(data=dump(state).encode("utf-8"))
+    def store_state_in_kubernetes(self, state: dict, namespace: str = "", secret_name: str = "") -> None:
+        """Persist *state* as a Kubernetes Secret.
+        """
+        ns = namespace or self.environ_id
+        name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
+        store_state_in_kubernetes(namespace=ns, secret_name=name, state_data=state)
 
-    def list_remote_states(self) -> list[str]:
-        """List state file names present in the Azure blob container."""
-        try:
-            self.set_blob_client()
-            container_client = self.blob_client.get_container_client(container=self.STATE_CONTAINER)
-            blobs = container_client.list_blobs(name_starts_with="state.")
-            return [b.name for b in blobs if b.name.endswith(".yaml")]
-        except Exception as e:
-            logger.error(f"  [bold red]✘[/bold red] Failed to list remote states: {e}")
-            return []
+    def get_state_from_kubernetes(self, namespace: str = "", secret_name: str = "") -> dict:
+        """Retrieve state from a Kubernetes Secret.
+
+        Returns the stored dictionary, or an empty default state when the
+        secret does not exist yet (mirrors the behaviour of
+        ``get_state_from_local`` and ``get_state_from_cloud``).
+        """
+        ns = namespace or self.environ_id
+        name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
+        result = get_state_from_kubernetes(namespace=ns, secret_name=name)
+        if result is None:
+            return {
+                "context": self.context_id,
+                "tenant": self.environ_id,
+                "remote": self.remote,
+                "services": {
+                    "api": {
+                        "organization_id": "",
+                        "solution_id": "",
+                        "workspace_id": "",
+                    },
+                    "webapp": {
+                        "webapp_name": "",
+                        "webapp_url": "",
+                    },
+                    "postgres": {
+                        "schema_name": "",
+                    },
+                },
+            }
+        return result
+
+    # def list_remote_states(self) -> list[str]:
+    #     """List state file names present in the Azure blob container."""
+    #     try:
+    #         self.set_blob_client()
+    #         container_client = self.blob_client.get_container_client(container=self.STATE_CONTAINER)
+    #         blobs = container_client.list_blobs(name_starts_with="state.")
+    #         return [b.name for b in blobs if b.name.endswith(".yaml")]
+    #     except Exception as e:
+    #         logger.error(f"  [bold red]✘[/bold red] Failed to list remote states: {e}")
+    #         return []
 
     def get_state_from_local(self):
-        state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
+        state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
         if not state_file.exists():
             return {
                 "context": self.context_id,
-                "id": self.state_id,
                 "tenant": self.environ_id,
                 "remote": self.remote,
                 "services": {
@@ -262,46 +258,17 @@ class Environment(metaclass=SingletonMeta):
         state_data = load(state_file.open("r"), Loader=SafeLoader)
         return state_data
 
-    def get_state_from_cloud(self) -> dict:
-        s = f"state.{self.context_id}.{self.environ_id}.{self.state_id}.yaml"
-        state_blob = self._get_state_blob_client(s)
-        exists = state_blob.exists()
-        if not exists:
-            return {
-                "context": self.context_id,
-                "id": self.state_id,
-                "tenant": self.environ_id,
-                "remote": self.remote,
-                "services": {
-                    "api": {
-                        "organization_id": "",
-                        "solution_id": "",
-                        "workspace_id": "",
-                    },
-                    "webapp": {
-                        "webapp_name": "",
-                        "webapp_url": "",
-                    },
-                    "postgres": {
-                        "schema_name": "",
-                    },
-                },
-            }
-        data = load(state_blob.download_blob().readall(), Loader=SafeLoader)
-        return data
-
     def store_namespace_in_local(self):
         ns_dir = self.state_dir
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
         s = ns_dir / "namespace.yaml"
-        ns = {"state_id": self.state_id, "context": self.context_id, "tenant": self.environ_id}
+        ns = {"context": self.context_id, "tenant": self.environ_id}
         s.write_bytes(data=dump(ns).encode("utf-8"))
-        self.set_state_id(state_id=self.state_id)
         self.set_context(context_id=self.context_id)
         self.set_environ(environ_id=self.environ_id)
 
-    def get_namespace_from_local(self, context: str = "", tenant: str = "", state_id: str = ""):
+    def get_namespace_from_local(self, context: str = "", tenant: str = ""):
         ns_file = self.state_dir / "namespace.yaml"
         if not ns_file.exists():
             logger.error(f" [bold red]✘[/bold red] [cyan]{ns_file}[/cyan] not found")
@@ -313,8 +280,6 @@ class Environment(metaclass=SingletonMeta):
         if ns_data:
             self.context_id = context or ns_data.get("context", "")
             self.environ_id = tenant or ns_data.get("tenant", "")
-            self.state_id = state_id or ns_data.get("state_id", "")
-            self.set_state_id(state_id=self.state_id)
             return ns_data
 
     def retrieve_config(self):
@@ -340,7 +305,7 @@ class Environment(metaclass=SingletonMeta):
 
     def retrieve_state_func(self):
         if self.remote:
-            state = self.get_state_from_cloud()
+            state = self.get_state_from_kubernetes()
         else:
             state = self.get_state_from_local()
         return state

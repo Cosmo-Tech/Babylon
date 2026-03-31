@@ -222,4 +222,4 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: PathlibPath)
     # Ensure the local and remote states are synchronized after successful API calls
     env.store_state_in_local(state)
     if env.remote:
-        env.store_state_in_cloud(state)
+        env.store_state_in_kubernetes(state)

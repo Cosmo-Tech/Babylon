@@ -230,9 +230,8 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
     # --- State Persistence ---
     env.store_state_in_local(state=state)
     if state.get("remote"):
-        logger.info("  [dim]☁ Syncing state cleanup to cloud...[/dim]")
-        env.set_blob_client()
-        env.store_state_in_cloud(state=state)
+        logger.info("  [dim]☁ Syncing state cleanup to kubernetes...[/dim]")
+        env.store_state_in_kubernetes(state=state)
 
     # --- Final Destruction Summary ---
     echo(style("\n📋 Destruction Summary", bold=True, fg="white"))
