@@ -188,12 +188,6 @@ def injectcontext() -> Callable[..., Any]:
             "tenant",
             help="Tenant Id without any special character",
         )
-        @option(
-            "-s",
-            "--state-id",
-            "state_id",
-            help="State Id",
-        )
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
@@ -202,10 +196,7 @@ def injectcontext() -> Callable[..., Any]:
             tenant = kwargs.pop("tenant", None)
             if tenant and check_special_char(string=tenant):
                 env.set_environ(tenant)
-            state_id = kwargs.pop("state_id", None)
-            if state_id and check_special_char(string=state_id):
-                env.set_state_id(state_id)
-            env.get_namespace_from_local(context=context, tenant=tenant, state_id=state_id)
+            env.get_namespace_from_local(context=context, tenant=tenant)
             return func(*args, **kwargs)
 
         return wrapper
@@ -235,9 +226,8 @@ def retrieve_config(func) -> Callable[..., Any]:
 
 def wrapcontext() -> Callable[..., Any]:
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-        @option("-c", "--context", "context", required=True, help="Context Name")
-        @option("-t", "--tenant", "tenant", required=True, help="Tenant Name")
-        @option("-s", "--state-id", "state_id", required=True, help="State Id")
+        @option("-c", "--context", "context", required=True, help="A unique identifier to isolate the project state (e.g., 'feature-x', 'prod-v1').")
+        @option("-t", "--tenant", "tenant", required=True, help="The tenant name (Kubernetes namespace) where the project will be deployed.")
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)
@@ -246,9 +236,6 @@ def wrapcontext() -> Callable[..., Any]:
             tenant = kwargs.pop("tenant", None)
             if tenant and check_special_char(string=tenant):
                 env.set_environ(tenant)
-            state_id = kwargs.pop("state_id", None)
-            if state_id and check_special_char(string=state_id):
-                env.set_state_id(state_id)
             return func(*args, **kwargs)
 
         return wrapper
