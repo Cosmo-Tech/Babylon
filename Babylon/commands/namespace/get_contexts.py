@@ -13,8 +13,8 @@ env = Environment()
 def get_contexts() -> CommandResponse:
     """Display the currently active namespace"""
     namespace = env.get_namespace_from_local()
-    headers = ["CURRENT", "CONTEXT", "TENANT", "STATE ID"]
-    values = ["*", namespace.get("context", ""), namespace.get("tenant", ""), namespace.get("state_id", "")]
+    headers = ["CURRENT", "CONTEXT", "TENANT"]
+    values = ["*", namespace.get("context", ""), namespace.get("tenant", "")]
     col_widths = [max(len(h), len(v)) + 2 for h, v in zip(headers, values)]
     header_line = "".join(h.ljust(w) for h, w in zip(headers, col_widths))
     value_line = "".join(v.ljust(w) for v, w in zip(values, col_widths))
