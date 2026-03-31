@@ -1,0 +1,13 @@
+kind: Webapp
+namespace:
+  remote: false
+spec:
+  payload:
+    cloud_provider: "kob"
+    cluster_name: "{{cluster_name}}"
+    domain_zone: "{{domain_zone}}"
+    tenant: "{{tenant}}"
+    webapp_name: "{{webapp_name}}"
+    organization_id: "{{services['api.organization_id']}}"
+    state_host: "{{state_host}}"
+    powerbi_app_deploy: false
