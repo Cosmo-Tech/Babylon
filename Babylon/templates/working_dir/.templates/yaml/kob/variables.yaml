@@ -27,6 +27,7 @@ domain_zone: onpremise.platform.cosmotech.com
 tenant: test0
 webapp_name: business
 organization_id: o-xxxxxxxxxxxx
+azure_entra_tenant_id: e413b834-8be8-4822-a370-be619545cb49
 state_host: https://cosmotechstates.onpremise.platform.cosmotech.com
 
 # ACL
