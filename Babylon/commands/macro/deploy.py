@@ -1,6 +1,7 @@
 import subprocess
 from base64 import b64encode
 from logging import getLogger
+from sys import exit
 from textwrap import dedent
 
 from click import Abort, echo, style
@@ -384,6 +385,8 @@ def _run_terraform_process(executable, cwd, payload, state):
             color = next((status_colors[k] for k in status_colors if k in clean_line), "white")
             is_bold = color == "red"
             echo(style(f"   {clean_line}", fg=color, bold=is_bold))
+            if "Error" in clean_line or "error" in clean_line:
+                exit(1)
 
         if process.wait() == 0:
             _finalize_deployment(payload, state)

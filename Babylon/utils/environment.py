@@ -14,7 +14,7 @@ from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
 from Babylon.utils import ORIGINAL_CONFIG_FOLDER_PATH, ORIGINAL_TEMPLATE_FOLDER_PATH
-from Babylon.utils.kubernetes_state import get_state_from_kubernetes, store_state_in_kubernetes
+from Babylon.utils.kubernetes_state import STATE_LABEL_KEY, STATE_LABEL_VALUE, get_state_from_kubernetes, store_state_in_kubernetes
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -23,6 +23,7 @@ logger = getLogger(__name__)
 STORE_STRING = "datastore"
 TEMPLATES_STRING = "templates"
 PATH_SYMBOL = "%"
+NAMESPACE_FILE = "namespace.yaml"
 
 
 class SingletonMeta(type):
@@ -112,52 +113,39 @@ class Environment(metaclass=SingletonMeta):
     def set_environ(self, environ_id):
         self.environ_id = environ_id
 
-    def get_config_from_k8s_secret_by_tenant(self, secret_name: str, tenant: str):
-        response_parsed = {}
+    def _get_active_kubectl_context(self) -> str:
         try:
-            config.load_kube_config()
-        except ConfigException as e:
-            logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
-            logger.error(f"  [red]Reason:[/red] {e}")
-            logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
-            logger.info("  • Ensure your kubeconfig file is valid")
-            logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
-            sys.exit(1)
+            from kubernetes.config.kube_config import list_kube_config_contexts
+
+            _, active_context = list_kube_config_contexts()
+            return active_context["name"] if active_context else "unknown"
+        except Exception:
+            return "unknown"
+
+    def _get_babylon_namespace_info(self) -> str:
+        ns_file = self.state_dir / NAMESPACE_FILE
+        if not ns_file.exists():
+            return "[dim]not set[/dim]"
+        try:
+            ns_data = safe_load(ns_file.open("r").read()) or {}
+            babylon_ctx = ns_data.get("context", "")
+            babylon_tenant = ns_data.get("tenant", "")
+            return (
+                f"context=[bold cyan]{babylon_ctx}[/bold cyan]  "
+                f"tenant=[bold cyan]{babylon_tenant}[/bold cyan]  "
+            )
+        except Exception:
+            return "[dim]unavailable[/dim]"
+
+    def _load_k8s_secret(self, secret_name: str, tenant: str):
         try:
             v1 = client.CoreV1Api()
-            secret = v1.read_namespaced_secret(name=secret_name, namespace=tenant)
+            return v1.read_namespaced_secret(name=secret_name, namespace=tenant)
         except ApiException:
-            logger.error("\n  [bold red]✘[/bold red] Resource Not Found")
             logger.error(f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green].")
-
-            # Show current kubectl context to help users spot a misconfiguration
-            try:
-                from kubernetes.config.kube_config import list_kube_config_contexts
-
-                _, active_context = list_kube_config_contexts()
-                current_k8s_ctx = active_context["name"] if active_context else "unknown"
-            except Exception:
-                current_k8s_ctx = "unknown"
-
-            # Show current Babylon namespace from local config
-            ns_file = self.state_dir / "namespace.yaml"
-            if ns_file.exists():
-                try:
-                    ns_data = safe_load(ns_file.open("r").read()) or {}
-                    babylon_ctx = ns_data.get("context", "")
-                    babylon_tenant = ns_data.get("tenant", "")
-                    babylon_ns_info = (
-                        f"context=[bold cyan]{babylon_ctx}[/bold cyan]  "
-                        f"tenant=[bold cyan]{babylon_tenant}[/bold cyan]  "
-                    )
-                except Exception:
-                    babylon_ns_info = "[dim]unavailable[/dim]"
-            else:
-                babylon_ns_info = "[dim]not set[/dim]"
-
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
-            logger.info(f"  • Active kubectl context : [cyan]{current_k8s_ctx}[/cyan]")
-            logger.info(f"  • Active Babylon namespace: {babylon_ns_info}")
+            logger.info(f"  • Active kubectl context : [cyan]{self._get_active_kubectl_context()}[/cyan]")
+            logger.info(f"  • Active Babylon namespace: {self._get_babylon_namespace_info()}")
             logger.info("  • If the kubectl context is wrong, switch it:")
             logger.info("    [cyan]kubectl config use-context <context-name>[/cyan]")
             logger.info("  • If the Babylon namespace is wrong, switch it:")
@@ -169,13 +157,25 @@ class Environment(metaclass=SingletonMeta):
                 "'Cluster may be down, kube-apiserver unreachable'"
             )
             sys.exit(1)
-        if secret.data:
-            for key, value in secret.data.items():
-                decoded_value = b64decode(value).decode("utf-8")
-                response_parsed[key] = decoded_value
-        else:
+
+    def get_config_from_k8s_secret_by_tenant(self, secret_name: str, tenant: str):
+        try:
+            config.load_kube_config()
+        except ConfigException as e:
+            logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
+            logger.error(f"  [red]Reason:[/red] {e}")
+            logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
+            logger.info("  • Ensure your kubeconfig file is valid")
+            logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
+            sys.exit(1)
+
+        secret = self._load_k8s_secret(secret_name, tenant)
+
+        if not secret.data:
             logger.warning(f"  [yellow]⚠[/yellow] Secret {secret_name} in namespace '{tenant}' has no data")
-        return response_parsed
+            return {}
+
+        return {key: b64decode(value).decode("utf-8") for key, value in secret.data.items()}
 
     def store_state_in_local(self, state: dict):
         state_file = f"state.{self.context_id}.{self.environ_id}.yaml"
@@ -222,16 +222,23 @@ class Environment(metaclass=SingletonMeta):
             }
         return result
 
-    # def list_remote_states(self) -> list[str]:
-    #     """List state file names present in the Azure blob container."""
-    #     try:
-    #         self.set_blob_client()
-    #         container_client = self.blob_client.get_container_client(container=self.STATE_CONTAINER)
-    #         blobs = container_client.list_blobs(name_starts_with="state.")
-    #         return [b.name for b in blobs if b.name.endswith(".yaml")]
-    #     except Exception as e:
-    #         logger.error(f"  [bold red]✘[/bold red] Failed to list remote states: {e}")
-    #         return []
+    def list_remote_states(self) -> list[str]:
+        """List state secret names matching 'babylon-state-*' in the current namespace.
+
+        Uses a server-side label selector so only matching secrets are transferred
+        over the wire — no client-side filtering needed.
+        """
+        try:
+            config.load_kube_config()
+            v1 = client.CoreV1Api()
+            secrets = v1.list_namespaced_secret(
+                namespace=self.environ_id,
+                label_selector=f"{STATE_LABEL_KEY}={STATE_LABEL_VALUE}",
+            )
+            return [s.metadata.name for s in secrets.items]
+        except Exception as e:
+            logger.error(f"  [bold red]✘[/bold red] Failed to list remote states: {e}")
+            return []
 
     def get_state_from_local(self):
         state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
@@ -262,14 +269,14 @@ class Environment(metaclass=SingletonMeta):
         ns_dir = self.state_dir
         if not ns_dir.exists():
             ns_dir.mkdir(parents=True, exist_ok=True)
-        s = ns_dir / "namespace.yaml"
+        s = ns_dir / NAMESPACE_FILE
         ns = {"context": self.context_id, "tenant": self.environ_id}
         s.write_bytes(data=dump(ns).encode("utf-8"))
         self.set_context(context_id=self.context_id)
         self.set_environ(environ_id=self.environ_id)
 
     def get_namespace_from_local(self, context: str = "", tenant: str = ""):
-        ns_file = self.state_dir / "namespace.yaml"
+        ns_file = self.state_dir / NAMESPACE_FILE
         if not ns_file.exists():
             logger.error(f" [bold red]✘[/bold red] [cyan]{ns_file}[/cyan] not found")
             logger.info("  Run the following command to set your active namespace:")

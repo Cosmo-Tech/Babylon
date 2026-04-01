@@ -22,6 +22,47 @@ logger = getLogger(__name__)
 env = Environment()
 
 
+def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> None:
+    """Fetch job logs and update state based on their content."""
+    logs_process = subprocess.run(
+        ["kubectl", "logs", f"job/{k8s_job_name}", "-n", env.environ_id],
+        capture_output=True,
+        text=True,
+    )
+    if logs_process.returncode != 0:
+        logger.error(f"  [bold red]✘[/bold red] Failed to retrieve logs for job {k8s_job_name}")
+        logger.debug(f"  [bold red]✘[/bold red] Logs retrieval output {logs_process.stdout} {logs_process.stderr}")
+        return
+
+    job_logs = logs_process.stdout or logs_process.stderr
+    if "ERROR" in job_logs or "error" in job_logs:
+        logger.error("  [bold red]✘[/bold red] Schema destruction failed inside the container")
+        logger.debug(f"  [bold red]✘[/bold red] Job logs : {job_logs}")
+    elif "does not exist" in job_logs:
+        logger.info(f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] does not exist (nothing to clean)[/dim]")
+        state["services"]["postgres"]["schema_name"] = ""
+    else:
+        logger.info(f"  [green]✔[/green] Schema destruction [magenta]{schema_name}[/magenta] completed successfully")
+        state["services"]["postgres"]["schema_name"] = ""
+
+
+def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
+    """Wait for the destroy job to complete, then inspect its logs."""
+    logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
+    wait_process = subprocess.run(
+        ["kubectl", "wait", "--for=condition=complete", "job", k8s_job_name, f"--namespace={env.environ_id}", "--timeout=300s"],
+        capture_output=True,
+        text=True,
+    )
+    if wait_process.returncode != 0:
+        logger.error(f"  [bold red]✘[/bold red] Job {k8s_job_name} did not complete successfully see babylon logs for details")
+        logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
+        return
+
+    logger.info("  [dim]→ Checking job logs for errors...[/dim]")
+    _handle_destroy_job_logs(k8s_job_name, schema_name, state)
+
+
 def _destroy_schema(schema_name: str, state: dict) -> None:
     """
     Destroy PostgreSQL schema for a workspace.
@@ -29,7 +70,8 @@ def _destroy_schema(schema_name: str, state: dict) -> None:
     if not schema_name:
         logger.warning("  [yellow]⚠[/yellow] [dim]No schema found ! skipping deletion[/dim]")
         return
-    workspace_id_tmp = f"{schema_name.replace('_', '-')}"
+
+    workspace_id_tmp = schema_name.replace("_", "-")
     db_host = get_postgres_service_host(env.environ_id)
     logger.info(f"  [dim]→ Destroying postgreSQL schema for workspace [bold cyan]{workspace_id_tmp}[/bold cyan]...[/dim]")
 
@@ -56,6 +98,7 @@ def _destroy_schema(schema_name: str, state: dict) -> None:
     k8s_job_name = f"postgresql-destroy-{workspace_id_tmp}"
     kube_config.load_kube_config()
     k8s_client = client.ApiClient()
+
     with open(destroy_jobs, "r") as f:
         raw_content = f.read()
 
@@ -64,49 +107,7 @@ def _destroy_schema(schema_name: str, state: dict) -> None:
     logger.info("  [dim]→ Applying kubernetes destroy job...[/dim]")
     try:
         utils.create_from_dict(k8s_client, yaml_dict, namespace=env.environ_id)
-        logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
-        wait_process = subprocess.run(
-            [
-                "kubectl",
-                "wait",
-                "--for=condition=complete",
-                "job",
-                k8s_job_name,
-                f"--namespace={env.environ_id}",
-                "--timeout=300s",
-            ],
-            capture_output=True,
-            text=True,
-        )
-        if wait_process.returncode == 0:
-            # Job completed, now check the logs for error
-            logger.info("  [dim]→ Checking job logs for errors...[/dim]")
-            logs_process = subprocess.run(
-                ["kubectl", "logs", f"job/{k8s_job_name}", "-n", env.environ_id],
-                capture_output=True,
-                text=True,
-            )
-            if logs_process.returncode == 0:
-                job_logs = logs_process.stdout if logs_process.stdout else logs_process.stderr
-                if "ERROR" in job_logs or "error" in job_logs:
-                    logger.error("  [bold red]✘[/bold red] Schema destruction failed inside the container")
-                    logger.debug(f"  [bold red]✘[/bold red] Job logs : {job_logs}")
-                elif "does not exist" in job_logs:
-                    logger.info(
-                        f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] does not exist (nothing to clean)[/dim]"
-                    )
-                    state["services"]["postgres"]["schema_name"] = ""
-                else:
-                    logger.info(f"  [green]✔[/green] Schema destruction [magenta]{schema_name}[/magenta] completed successfully")
-                    state["services"]["postgres"]["schema_name"] = ""
-            else:
-                logger.error(f"  [bold red]✘[/bold red] Failed to retrieve logs for job {k8s_job_name}")
-                logger.debug(f"  [bold red]✘[/bold red] Logs retrieval output {logs_process.stdout} {logs_process.stderr}")
-
-        else:
-            logger.error(f"  [bold red]✘[/bold red] Job {k8s_job_name} did not complete successfully see babylon logs for details")
-            logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
-
+        _wait_and_check_destroy_job(k8s_job_name, schema_name, state)
     except Exception as e:
         logger.error("  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
         logger.debug(f"  [bold red]✘[/bold red] {e}")
@@ -127,7 +128,7 @@ def _destroy_webapp(state: dict):
         return
     try:
         process = subprocess.Popen(
-            ["terraform", "destroy", "-auto-approve"],
+            ["terraform", "destroy", "-auto-approve", "-lock=false", "-input=false"],
             cwd=tf_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

@@ -31,6 +31,9 @@ logger = getLogger(__name__)
 
 # The key name stored inside the Kubernetes Secret's data map.
 STATE_KEY = "state.yaml"
+# Label applied to every Babylon state secret enables fast server-side listing.
+STATE_LABEL_KEY = "app.kubernetes.io/managed-by"
+STATE_LABEL_VALUE = "babylon-state"
 
 
 # ---------------------------------------------------------------------------
@@ -84,7 +87,11 @@ def _build_secret(namespace: str, secret_name: str, encoded_value: str) -> clien
         api_version="v1",
         kind="Secret",
         type="Opaque",
-        metadata=client.V1ObjectMeta(name=secret_name, namespace=namespace),
+        metadata=client.V1ObjectMeta(
+            name=secret_name,
+            namespace=namespace,
+            labels={STATE_LABEL_KEY: STATE_LABEL_VALUE},
+        ),
         data={STATE_KEY: encoded_value},
     )
 
