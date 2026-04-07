@@ -159,8 +159,8 @@ def create_workspace_secret(
         v1.create_namespaced_secret(namespace=namespace, body=secret)
         logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] created")
         return True
-    except client.ApiException as e:
-        if e.status == 409:
+    except client.exceptions.ApiException as e:
+        if getattr(e, "status", None) == 409:
             logger.warning(f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] already exists[/dim]")
             return True
         logger.error(f"  [bold red]✘[/bold red] Failed to create secret {secret_name}: {e.reason}")
@@ -297,7 +297,8 @@ def get_postgres_service_host(namespace: str) -> str:
         services = v1.list_namespaced_service(namespace)
 
         for svc in services.items:
-            if "postgresql" in svc.metadata.name or svc.metadata.labels.get("app.kubernetes.io/name") == "postgresql":
+            labels = svc.metadata.labels or {}
+            if "postgresql" in svc.metadata.name or labels.get("app.kubernetes.io/name") == "postgresql":
                 logger.info(f"  [dim]→ Found PostgreSQL service {svc.metadata.name}[/dim]")
                 return f"{svc.metadata.name}.{namespace}.svc.cluster.local"
 

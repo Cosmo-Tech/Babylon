@@ -153,14 +153,14 @@ def _print_success_summary(project_path: Path, variables_file: str) -> None:
 @command()
 @option("--project-folder", default="project", help="Name of the project folder to create (default: 'project').")
 @option("--variables-file", default="variables.yaml", help="Name of the variables file (default: 'variables.yaml').")
-@argument("cloud_provider", type=Choice(["aws", "azure", "gcp", "kob"], case_sensitive=False))
+@argument("cloud_provider", type=Choice(["azure", "kob"], case_sensitive=False))
 def init(project_folder: str, variables_file: str, cloud_provider: str):
     """
     Scaffolds a new Babylon project structure using YAML templates.
 
     arguments:
 
-      cloud_provider: Target cloud provider for webapp deployment (e.g., 'aws', 'azure', 'gcp', 'kob').
+      cloud_provider: Target cloud provider for webapp deployment (e.g. 'azure', 'kob').
     """
     cwd = Path(getcwd())
     project_path = cwd / project_folder
