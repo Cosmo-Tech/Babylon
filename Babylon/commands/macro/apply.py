@@ -5,11 +5,11 @@ from click import Path as ClickPath
 from click import argument, command, echo, option, style
 from yaml import safe_dump, safe_load
 
-from Babylon.commands.macro.deploy import resolve_inclusion_exclusion
 from Babylon.commands.macro.deploy_organization import deploy_organization
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_webapp import deploy_webapp
 from Babylon.commands.macro.deploy_workspace import deploy_workspace
+from Babylon.commands.macro.helpers.common import resolve_inclusion_exclusion
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 

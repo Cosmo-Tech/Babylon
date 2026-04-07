@@ -13,9 +13,8 @@ mkdir output
 # Set testing namespace
 export CONTEXT="integration"
 export TENANT="tenant-sphinx"
-export STATE="teststate"
 
-babylon namespace use -c ${CONTEXT} -t ${TENANT} -s $STATE
+babylon namespace use -c ${CONTEXT} -t ${TENANT}
 babylon namespace get-states local
 babylon namespace get-contexts
 

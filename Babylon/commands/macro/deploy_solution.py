@@ -7,7 +7,7 @@ from cosmotech_api.models.solution_security import SolutionSecurity
 from cosmotech_api.models.solution_update_request import SolutionUpdateRequest
 
 from Babylon.commands.api.solution import get_solution_api_instance
-from Babylon.commands.macro.deploy import update_object_security
+from Babylon.commands.macro.helpers.common import update_object_security
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse

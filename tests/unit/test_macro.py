@@ -4,7 +4,7 @@ from cosmotech_api.models.organization_access_control import OrganizationAccessC
 from cosmotech_api.models.solution_access_control import SolutionAccessControl
 from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
 
-from Babylon.commands.macro.deploy import diff, resolve_inclusion_exclusion
+from Babylon.commands.macro.helpers.common import diff, resolve_inclusion_exclusion
 
 
 def test_organization_diff():

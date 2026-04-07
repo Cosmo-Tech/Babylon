@@ -5,7 +5,7 @@ from re import MULTILINE, sub
 
 from click import echo, style
 
-from Babylon.commands.macro.deploy import _run_terraform_process, dict_to_tfvars
+from Babylon.commands.macro.helpers.webapp import dict_to_tfvars, run_terraform_process
 from Babylon.utils.environment import Environment
 
 logger = getLogger(__name__)
@@ -47,7 +47,7 @@ def deploy_webapp(namespace: str, file_content: str):
         if content != updated_content:
             script_path.write_text(updated_content)
             if sys.platform == "linux":
-                os.chmod(script_path, 0o755)
+                os.chmod(script_path, 0o700)
     except IOError as e:
         logger.error(f"  [bold red]✘[/bold red] Script modification failed: {e}")
         return
@@ -59,4 +59,4 @@ def deploy_webapp(namespace: str, file_content: str):
         return
 
     logger.info("  [dim]→ Running Terraform deployment...[/dim]")
-    _run_terraform_process(executable, tf_dir, payload, state)
+    run_terraform_process(executable, tf_dir, payload, state)
