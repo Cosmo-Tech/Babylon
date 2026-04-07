@@ -95,7 +95,9 @@ def _build_secret(namespace: str, secret_name: str, encoded_value: str) -> clien
         data={STATE_KEY: encoded_value},
     )
 
+
 # Public API
+
 
 def store_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict) -> None:
     """Persist *state_data* as a Kubernetes Secret in *namespace*.
@@ -114,28 +116,17 @@ def store_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict
         v1.read_namespaced_secret(name=secret_name, namespace=namespace)
         # Secret exists → replace it.
         v1.replace_namespaced_secret(name=secret_name, namespace=namespace, body=secret)
-        logger.info(
-            f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] "
-            f"updated in namespace [cyan]{namespace}[/cyan]"
-        )
+        logger.info(f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] updated in namespace [cyan]{namespace}[/cyan]")
     except ApiException as exc:
         if exc.status == 404:
             # Secret does not exist → create it.
             v1.create_namespaced_secret(namespace=namespace, body=secret)
-            logger.info(
-                f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] "
-                f"created in namespace [cyan]{namespace}[/cyan]"
-            )
+            logger.info(f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] created in namespace [cyan]{namespace}[/cyan]")
         else:
-            logger.error(
-                f"  [bold red]✘[/bold red] Kubernetes API error while storing state "
-                f"(HTTP {exc.status}): {exc.reason}"
-            )
+            logger.error(f"  [bold red]✘[/bold red] Kubernetes API error while storing state (HTTP {exc.status}): {exc.reason}")
             sys.exit(1)
     except Exception as exc:
-        logger.error(
-            f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}"
-        )
+        logger.error(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
         sys.exit(1)
 
 
@@ -153,31 +144,21 @@ def get_state_from_kubernetes(namespace: str, secret_name: str) -> dict | None:
     except ApiException as exc:
         if exc.status == 404:
             logger.warning(
-                f"  [yellow]⚠[/yellow] State secret [cyan]{secret_name}[/cyan] "
-                f"not found in namespace [cyan]{namespace}[/cyan]"
+                f"  [yellow]⚠[/yellow] State secret [cyan]{secret_name}[/cyan] not found in namespace [cyan]{namespace}[/cyan]"
             )
             return None
-        logger.error(
-            f"  [bold red]✘[/bold red] Kubernetes API error while retrieving state "
-            f"(HTTP {exc.status}): {exc.reason}"
-        )
+        logger.error(f"  [bold red]✘[/bold red] Kubernetes API error while retrieving state (HTTP {exc.status}): {exc.reason}")
         sys.exit(1)
     except Exception as exc:
-        logger.error(
-            f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}"
-        )
+        logger.error(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
         sys.exit(1)
 
     if not secret.data or STATE_KEY not in secret.data:
         logger.warning(
-            f"  [yellow]⚠[/yellow] State secret [cyan]{secret_name}[/cyan] exists "
-            f"but contains no [cyan]{STATE_KEY}[/cyan] key"
+            f"  [yellow]⚠[/yellow] State secret [cyan]{secret_name}[/cyan] exists but contains no [cyan]{STATE_KEY}[/cyan] key"
         )
         return None
 
     state = _decode(secret.data[STATE_KEY])
-    logger.info(
-        f"  [green]✔[/green] State loaded from secret [cyan]{secret_name}[/cyan] "
-        f"in namespace [cyan]{namespace}[/cyan]"
-    )
+    logger.info(f"  [green]✔[/green] State loaded from secret [cyan]{secret_name}[/cyan] in namespace [cyan]{namespace}[/cyan]")
     return state

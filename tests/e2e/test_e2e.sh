@@ -11,15 +11,14 @@ fi
 # Set testing namespace
 export CONTEXT="e2e"
 export TENANT="tenant-sphinx"
-export STATE="teststate"
 
-babylon namespace use -c ${CONTEXT} -t ${TENANT} -s $STATE
+babylon namespace use -c ${CONTEXT} -t ${TENANT}
 babylon namespace get-states local
 babylon namespace get-contexts
 
 # Get version
 babylon api about
 
-babylon init
+babylon init azure
 babylon apply --exclude webapp project
 babylon destroy

@@ -226,8 +226,20 @@ def retrieve_config(func) -> Callable[..., Any]:
 
 def wrapcontext() -> Callable[..., Any]:
     def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
-        @option("-c", "--context", "context", required=True, help="A unique identifier to isolate the project state (e.g., 'feature-x', 'prod-v1').")
-        @option("-t", "--tenant", "tenant", required=True, help="The tenant name (Kubernetes namespace) where the project will be deployed.")
+        @option(
+            "-c",
+            "--context",
+            "context",
+            required=True,
+            help="A unique identifier to isolate the project state (e.g., 'feature-x', 'prod-v1').",
+        )
+        @option(
+            "-t",
+            "--tenant",
+            "tenant",
+            required=True,
+            help="The tenant name (Kubernetes namespace) where the project will be deployed.",
+        )
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             context = kwargs.pop("context", None)

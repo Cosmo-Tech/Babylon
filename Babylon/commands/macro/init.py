@@ -4,7 +4,7 @@ from os import getcwd
 from pathlib import Path
 from shutil import copy
 
-from click import command, echo, option, style, argument, Choice
+from click import Choice, argument, command, echo, option, style
 
 from Babylon.utils.environment import Environment
 
@@ -27,6 +27,7 @@ _PROJECT_YAML_FILES = [
 _SUPPORTED_CLOUD_PROVIDERS = {"azure", "kob"}
 
 # Private helpers
+
 
 def _get_provider_template(cloud_provider: str, filename: str) -> Path:
     """Return the template path for *filename* scoped to *cloud_provider* when available,
@@ -82,7 +83,9 @@ def _ensure_variables_file(variables_path: Path, variables_file: str, cloud_prov
         logger.error(f"  [bold red]✘[/bold red] Failed to generate variables file: {exc}")
 
 
-def _scaffold_project(project_path: Path, variables_path: Path, variables_file: str, tf_webapp_path: Path, cloud_provider: str) -> None:
+def _scaffold_project(
+    project_path: Path, variables_path: Path, variables_file: str, tf_webapp_path: Path, cloud_provider: str
+) -> None:
     """Create the full project directory structure and copy all template files."""
     try:
         _create_project_dir(project_path)
@@ -146,13 +149,11 @@ def _print_success_summary(project_path: Path, variables_file: str) -> None:
     echo(style(f"  1. Edit your variables in {variables_file}", fg="cyan"))
     echo(style("  2. Run your first deployment command", fg="cyan"))
 
+
 @command()
 @option("--project-folder", default="project", help="Name of the project folder to create (default: 'project').")
 @option("--variables-file", default="variables.yaml", help="Name of the variables file (default: 'variables.yaml').")
-@argument(
-    "cloud_provider", 
-    type=Choice(['aws', 'azure', 'gcp', 'kob'], case_sensitive=False)
-)
+@argument("cloud_provider", type=Choice(["aws", "azure", "gcp", "kob"], case_sensitive=False))
 def init(project_folder: str, variables_file: str, cloud_provider: str):
     """
     Scaffolds a new Babylon project structure using YAML templates.
@@ -175,6 +176,3 @@ def init(project_folder: str, variables_file: str, cloud_provider: str):
 
     # Scaffold mode: nothing exists yet — build everything from scratch.
     _scaffold_project(project_path, variables_path, variables_file, tf_webapp_path, cloud_provider)
-
-
-

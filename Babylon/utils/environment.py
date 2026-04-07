@@ -130,10 +130,7 @@ class Environment(metaclass=SingletonMeta):
             ns_data = safe_load(ns_file.open("r").read()) or {}
             babylon_ctx = ns_data.get("context", "")
             babylon_tenant = ns_data.get("tenant", "")
-            return (
-                f"context=[bold cyan]{babylon_ctx}[/bold cyan]  "
-                f"tenant=[bold cyan]{babylon_tenant}[/bold cyan]  "
-            )
+            return f"context=[bold cyan]{babylon_ctx}[/bold cyan]  tenant=[bold cyan]{babylon_tenant}[/bold cyan]  "
         except Exception:
             return "[dim]unavailable[/dim]"
 
@@ -142,7 +139,9 @@ class Environment(metaclass=SingletonMeta):
             v1 = client.CoreV1Api()
             return v1.read_namespaced_secret(name=secret_name, namespace=tenant)
         except ApiException:
-            logger.error(f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green].")
+            logger.error(
+                f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]."
+            )
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info(f"  • Active kubectl context : [cyan]{self._get_active_kubectl_context()}[/cyan]")
             logger.info(f"  • Active Babylon namespace: {self._get_babylon_namespace_info()}")
@@ -184,8 +183,7 @@ class Environment(metaclass=SingletonMeta):
         s.write_bytes(data=dump(state).encode("utf-8"))
 
     def store_state_in_kubernetes(self, state: dict, namespace: str = "", secret_name: str = "") -> None:
-        """Persist *state* as a Kubernetes Secret.
-        """
+        """Persist *state* as a Kubernetes Secret."""
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
         store_state_in_kubernetes(namespace=ns, secret_name=name, state_data=state)
