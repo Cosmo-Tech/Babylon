@@ -34,7 +34,7 @@ license = "MIT"
 [dependency-groups]
 dev = [
   "ruff>=0.15.7",
-  "pytest>=9.0.2",
+  "pytest>=9.0.3",
 ]
 doc = [
   "mkdocs",
