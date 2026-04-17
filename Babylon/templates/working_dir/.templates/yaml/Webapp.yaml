@@ -5,7 +5,7 @@ spec:
   payload:
     cloud_provider: "{{cloud_provider}}"
     cluster_name: "{{cluster_name}}"
-    cluster_domain: "{{cluster_domain}}"
+    domain_zone: "{{domain_zone}}"
     tenant: "{{tenant}}"
     webapp_name: "{{webapp_name}}"
     organization_id: "{{services['api.organization_id']}}"
