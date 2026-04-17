@@ -33,7 +33,7 @@ license = "MIT"
 
 [dependency-groups]
 dev = [
-  "ruff>=0.15.7",
+  "ruff>=0.15.11",
   "pytest>=9.0.2",
 ]
 doc = [
