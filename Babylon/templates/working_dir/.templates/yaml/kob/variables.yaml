@@ -24,11 +24,14 @@ workspace_description: Testing workspace for the brewery web application
 cloud_provider: kob
 cluster_name: kubernetes
 domain_zone: onpremise.platform.cosmotech.com
-tenant: test0
+tenant: sphinx
 webapp_name: business
 organization_id: o-xxxxxxxxxxxx
 azure_entra_tenant_id: e413b834-8be8-4822-a370-be619545cb49
 state_host: https://cosmotechstates.onpremise.platform.cosmotech.com
+
+# Remote state
+remote: true
 
 # ACL
 security:

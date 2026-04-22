@@ -14,7 +14,7 @@ from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
 from Babylon.utils import ORIGINAL_CONFIG_FOLDER_PATH, ORIGINAL_TEMPLATE_FOLDER_PATH
-from Babylon.utils.kubernetes_state import STATE_LABEL_KEY, STATE_LABEL_VALUE, get_state_from_kubernetes, store_state_in_kubernetes
+from Babylon.utils.kubernetes_state import STATE_LABEL_KEY, STATE_LABEL_VALUE, retrieve_state_from_kubernetes, save_state_in_kubernetes
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -186,18 +186,18 @@ class Environment(metaclass=SingletonMeta):
         """Persist *state* as a Kubernetes Secret."""
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
-        store_state_in_kubernetes(namespace=ns, secret_name=name, state_data=state)
+        save_state_in_kubernetes(namespace=ns, secret_name=name, state_data=state)
 
     def get_state_from_kubernetes(self, namespace: str = "", secret_name: str = "") -> dict:
         """Retrieve state from a Kubernetes Secret.
 
         Returns the stored dictionary, or an empty default state when the
         secret does not exist yet (mirrors the behaviour of
-        ``get_state_from_local`` and ``get_state_from_cloud``).
+        ``get_state_from_local`` and ``get_state_from_kubernetes``).
         """
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
-        result = get_state_from_kubernetes(namespace=ns, secret_name=name)
+        result = retrieve_state_from_kubernetes(namespace=ns, secret_name=name)
         if result is None:
             return {
                 "context": self.context_id,

@@ -1,6 +1,6 @@
 kind: Solution
 namespace:
-  remote: false
+  remote: {{remote}}
 metadata:
   selector:
     organization_id: "{{services['api.organization_id']}}"

@@ -1,6 +1,6 @@
 kind: Workspace
 namespace:
-  remote: false
+  remote: {{remote}}
 spec:
   sidecars:
     postgres:

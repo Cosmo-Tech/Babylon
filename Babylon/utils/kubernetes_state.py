@@ -40,7 +40,6 @@ STATE_LABEL_VALUE = "babylon-state"
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-
 def _load_kube_config() -> None:
     """Load kubeconfig, with a clear error message on failure."""
     try:
@@ -67,11 +66,6 @@ def _encode(data: dict) -> str:
 
 def _decode(raw: bytes | str) -> dict:
     """Decode a base64 value coming from a Secret's ``data`` field.
-
-    The kubernetes-client already base64-decodes ``data`` values when it
-    parses the API response, so *raw* may arrive as plain bytes or as a
-    base64 string depending on the client version.  This helper handles
-    both cases gracefully.
     """
     if isinstance(raw, (bytes, bytearray)):
         yaml_str = raw.decode("utf-8")
@@ -99,12 +93,8 @@ def _build_secret(namespace: str, secret_name: str, encoded_value: str) -> clien
 # Public API
 
 
-def store_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict) -> None:
+def save_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict) -> None:
     """Persist *state_data* as a Kubernetes Secret in *namespace*.
-
-    If the secret already exists it is **updated** (replaced) rather than
-    causing an error.  The secret type is ``Opaque`` and the state is stored
-    under the key ``state.yaml`` as a base64-encoded YAML string.
     """
     _load_kube_config()
     v1 = _core_v1()
@@ -112,11 +102,11 @@ def store_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict
     secret = _build_secret(namespace, secret_name, encoded)
 
     try:
-        # Check whether the secret exists first.
-        v1.read_namespaced_secret(name=secret_name, namespace=namespace)
-        # Secret exists → replace it.
-        v1.replace_namespaced_secret(name=secret_name, namespace=namespace, body=secret)
-        logger.info(f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] updated in namespace [cyan]{namespace}[/cyan]")
+        existing_secret = v1.read_namespaced_secret(name=secret_name, namespace=namespace)
+        if existing_secret.metadata and secret.metadata:
+            secret.metadata.resource_version = existing_secret.metadata.resource_version
+            v1.replace_namespaced_secret(name=secret_name, namespace=namespace, body=secret)
+            logger.info(f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] updated in namespace [cyan]{namespace}[/cyan]")
     except ApiException as exc:
         if exc.status == 404:
             # Secret does not exist → create it.
@@ -130,7 +120,7 @@ def store_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict
         sys.exit(1)
 
 
-def get_state_from_kubernetes(namespace: str, secret_name: str) -> dict | None:
+def retrieve_state_from_kubernetes(namespace: str, secret_name: str) -> dict | None:
     """Read state from a Kubernetes Secret and return it as a dictionary.
 
     Returns ``None`` when the secret does not exist so the caller can decide

@@ -1,6 +1,5 @@
 import subprocess
 from logging import getLogger
-from os import getcwd
 from pathlib import Path
 from shutil import copy
 
@@ -162,7 +161,7 @@ def init(project_folder: str, variables_file: str, cloud_provider: str):
 
       cloud_provider: Target cloud provider for webapp deployment (e.g. 'azure', 'kob').
     """
-    cwd = Path(getcwd())
+    cwd = Path.cwd()
     project_path = cwd / project_folder
     variables_path = cwd / variables_file
     tf_webapp_path = cwd / _TF_WEBAPP_DIR
