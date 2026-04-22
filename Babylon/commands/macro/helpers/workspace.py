@@ -11,7 +11,7 @@ Helpers for workspace deployment and teardown, organised by concern:
 import subprocess
 from base64 import b64encode
 from logging import getLogger
-from pathlib import Path as PathlibPath
+from pathlib import Path
 from string import Template
 from textwrap import dedent
 from typing import Callable
@@ -353,7 +353,7 @@ def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -
     _handle_init_job_logs(k8s_job_name, schema_name, state)
 
 
-def _run_schema_init_job(script_path: PathlibPath, mapping: dict, workspace_id: str, schema_name: str, state: dict) -> None:
+def _run_schema_init_job(script_path: Path, mapping: dict, workspace_id: str, schema_name: str, state: dict) -> None:
     """Apply a single K8s init job from *script_path* and wait for its outcome."""
     k8s_job_name = f"postgresql-init-{workspace_id}"
     kube_config.load_kube_config()
@@ -378,7 +378,7 @@ def _run_schema_init_job(script_path: PathlibPath, mapping: dict, workspace_id: 
         logger.debug(f"  [bold red]✘[/bold red] {e}")
 
 
-def deploy_postgres_schema(workspace_id: str, schema_config: dict, api_section: dict, deploy_dir: PathlibPath, state: dict) -> None:
+def deploy_postgres_schema(workspace_id: str, schema_config: dict, api_section: dict, deploy_dir: Path, state: dict) -> None:
     """Initialise the PostgreSQL schema and create the associated K8s resources."""
     db_host = get_postgres_service_host(env.environ_id)
     logger.info(f"  [dim]→ Initializing PostgreSQL schema for workspace [bold cyan]{workspace_id}[/bold cyan]...[/dim]")
@@ -402,7 +402,7 @@ def deploy_postgres_schema(workspace_id: str, schema_config: dict, api_section: 
         "job_name": workspace_id,
     }
 
-    deploy_dir = deploy_dir if isinstance(deploy_dir, PathlibPath) else PathlibPath(deploy_dir)
+    deploy_dir = deploy_dir if isinstance(deploy_dir, Path) else Path(deploy_dir)
     for job in schema_config.get("jobs", []):
         script_path = deploy_dir / job.get("path", "") / job.get("name", "")
         if script_path.exists():
