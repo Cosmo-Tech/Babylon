@@ -15,14 +15,12 @@ dependencies = [
   "click-log",
   "cryptography",
   "pyyaml",
-  "requests>=2.32.5",
+  "requests>=2.33.1",
   "rich",
   "Mako",
   "polling2",
-  "inquirer",
   "flatten_json",
   "dynaconf",
-  "azure-mgmt-authorization>=4.0.0",
   "kubernetes>=35.0.0",
   "cosmotech-api==5.0.1"
 ]
