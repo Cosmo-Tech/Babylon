@@ -28,6 +28,7 @@ def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list,
             resource["kind"] = yaml_data.get("kind")
             resource["namespace"] = safe_dump(yaml_data.get("namespace"))
             resource["content"] = escaped_content
+            resource["file_path"] = f
             resources.append(resource)
     organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
     solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
@@ -45,7 +46,7 @@ def deploy_objects(objects: list, object_type: str, deploy_dir: PathlibPath):
         elif object_type == "solution":
             deploy_solution(namespace=namespace, file_content=content)
         elif object_type == "workspace":
-            deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
+            deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir, file_path=o.get("file_path"))
         elif object_type == "webapp":
             deploy_webapp(namespace=namespace, file_content=content)
 

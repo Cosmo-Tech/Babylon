@@ -6,15 +6,24 @@ Helpers for workspace deployment and teardown, organised by concern:
   2. Kubernetes resources  — Secret and ConfigMap lifecycle (create / delete)
   3. Kubernetes PostgreSQL — service discovery + schema init-job orchestration
                            — schema teardown (used by destroy)
+  4. Superset           — sequential component import + Workspace.yaml ID feedback loop
+  5. PowerBI            — report publish + Workspace.yaml ID feedback loop
 """
 
+
 import subprocess
+from tempfile import mkdtemp
+from zipfile import ZipFile
 from base64 import b64encode
 from logging import getLogger
 from pathlib import Path
 from string import Template
 from textwrap import dedent
 from typing import Callable
+from pathlib import Path
+
+import requests
+
 
 from cosmotech_api.models.workspace_create_request import WorkspaceCreateRequest
 from cosmotech_api.models.workspace_security import WorkspaceSecurity
@@ -24,6 +33,7 @@ from kubernetes import config as kube_config
 from kubernetes.utils import FailToCreateError
 from yaml import safe_load
 
+from Babylon.utils.credentials import get_superset_token
 from Babylon.commands.macro.helpers.common import update_object_security
 from Babylon.utils.environment import Environment
 
@@ -525,3 +535,267 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
     except Exception as e:
         logger.error("  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
         logger.debug(f"  [bold red]✘[/bold red] {e}")
+
+
+# ---------------------------------------------------------------------------
+# Superset helpers
+# Superset sequential deployment (databases → datasets → charts → dashboards)
+# ---------------------------------------------------------------------------
+
+def _get_superset_csrf_token(base_url: str, bearer_token: str) -> str | None:
+    """Fetches a CSRF token from Superset (required for import endpoints)."""
+    url = f"{base_url.rstrip('/')}/api/v1/security/csrf_token/"
+    try:
+        response = requests.get(
+            url,
+            headers={"Authorization": f"Bearer {bearer_token}"},
+            timeout=10,
+        )
+        response.raise_for_status()
+        csrf = response.json().get("result")
+        if not csrf:
+            logger.error("  [bold red]✘[/bold red] CSRF token not found in Superset response")
+        return csrf
+    except Exception as exp:
+        logger.error(f"  [bold red]✘[/bold red] Failed to fetch Superset CSRF token: {exp}")
+        return None
+
+
+def create_postgres_datasource(
+    superset_config: dict,
+    superset_jwt: str | None = None,
+) -> dict | None:
+    """
+    Creates a new PostgreSQL database connection in Superset via REST API.
+    """
+
+    base_url = (superset_config.get("superset_url") or "").rstrip("/")
+    if not base_url:
+        logger.error("  [bold red]✘[/bold red] Superset base_url not found in superset_config")
+        return None
+
+    if superset_jwt:
+        logger.debug("  [dim]→ Reusing existing Superset JWT for datasource creation[/dim]")
+    else:
+        superset_jwt = get_superset_token(base_url=base_url, config=superset_config)
+        if not superset_jwt:
+            logger.error("  [bold red]✘[/bold red] Could not obtain Superset JWT for datasource creation")
+            return None
+
+    # Superset CSRF token (Superset requires it for all write operations)
+    csrf_token = _get_superset_csrf_token(base_url, superset_jwt)
+    if not csrf_token:
+        logger.error("  [bold red]✘[/bold red] Could not obtain Superset CSRF token for datasource creation")
+        return None
+
+    url = f"{base_url}/api/v1/database/"
+    headers = {
+        "Authorization": f"Bearer {superset_jwt}",
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrf_token,
+        "Referer": base_url,
+    }
+
+    api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
+    db_name = api_config.get("database-name")
+
+    display_name = f"PostgreSQL-{env.environ_id}"
+    sqlalchemy_uri = (
+        f"postgresql+psycopg2://{api_config.get('writer-username')}:{api_config.get('writer-password')}"
+        f"@{get_postgres_service_host(env.environ_id)}:5432/{db_name}"
+    )
+    payload = {
+        "database_name": display_name,
+        "sqlalchemy_uri": sqlalchemy_uri,
+        "expose_in_sqllab": True,
+        "allow_run_async": False,
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        response.raise_for_status()
+        logger.info(f"  [bold green]✔[/bold green] Superset datasource '{display_name}' created successfully")
+        return response.json()
+    except Exception as exp:
+        logger.error(f"  [bold red]✘[/bold red] Failed to create Superset datasource: {exp}")
+        if hasattr(exp, "response") and exp.response is not None:
+            logger.debug(f"  Response details: {exp.response.text}")
+        return None
+
+# # Component types imported in dependency order
+# _SUPERSET_COMPONENT_ORDER = ("databases", "datasets", "charts", "dashboards")
+
+# # Map component type → Superset per-type import endpoint
+# _SUPERSET_IMPORT_ENDPOINTS: dict[str, str] = {
+#     "databases": "/api/v1/database/import/",
+#     "datasets": "/api/v1/dataset/import/",
+#     "charts": "/api/v1/chart/import/",
+#     "dashboards": "/api/v1/dashboard/import/",
+# }
+
+
+# def _patch_postgres_uri_in_dir(tmp_dir: Path, sqlalchemy_uri: str) -> None:
+#     """Patch sqlalchemy_uri in every YAML file found under tmp_dir/databases/."""
+#     db_dir = tmp_dir / "databases"
+#     if not db_dir.is_dir():
+#         logger.warning("  [yellow]⚠[/yellow] No 'databases/' folder found inside the ZIP skipping URI patch")
+#         return
+
+#     ruamel = YAML()
+#     ruamel.preserve_quotes = True
+
+#     for yaml_file in db_dir.glob("*.yaml"):
+#         try:
+#             with yaml_file.open("r", encoding="utf-8") as fh:
+#                 data = ruamel.load(fh)
+
+#             if isinstance(data, dict) and "sqlalchemy_uri" in data:
+#                 data["sqlalchemy_uri"] = sqlalchemy_uri
+#                 with yaml_file.open("w", encoding="utf-8") as fh:
+#                     ruamel.dump(data, fh)
+#                 logger.info(f"  [dim]→ Patched sqlalchemy_uri in {yaml_file.name}[/dim]")
+#         except Exception as exc:
+#             logger.warning(f"  [yellow]⚠[/yellow] Could not patch {yaml_file.name}: {exc}")
+
+def deploy_superset_dashboard_sequential(
+    superset_token: str,
+    reports: list,
+    state: dict,
+    superset_config: dict,
+    deploy_dir: Path,
+    workspace_yaml_path: Path | None,
+) -> bool:
+    """
+    Deploy Superset dashboard assets sequentially to respect object dependencies.
+
+    Flow per report:
+      1. Retrieve CSRF token.
+      2. Resolve the PostgreSQL sqlalchemy_uri from the K8s secret.
+      3. Extract the export ZIP to a temp directory.
+      4. Patch databases/*.yaml with the correct sqlalchemy_uri.
+      5. Import each component in order: databases → datasets → charts → dashboards.
+      6. Fetch the deployed dashboard ID + native filter IDs.
+      7. Update Workspace.yaml via ruamel.yaml (comments preserved).
+      8. Clean up the temp directory.
+
+    Args:
+        superset_token: Superset JWT obtained from Keycloak exchange.
+        reports: List of dicts with 'name' and 'path' keys.
+        state: Full Babylon state dict.
+        deploy_dir: Root deployment directory (used to resolve relative report paths).
+        workspace_yaml_path: Absolute path to the Workspace.yaml on disk.
+    Returns:
+        True if all reports deployed successfully, False otherwise.
+    """
+    base_url = superset_config.get("superset_url", "").rstrip("/")
+
+    if not base_url:
+        logger.error("  [bold red]✘[/bold red] Superset base_url not found in superset_config")
+        return False
+
+    logger.info(f"  [dim]→ Sequential Superset deployment for {len(reports)} zip file(s)...[/dim]")
+
+    # CSRF token shared for the whole session
+    csrf_token = _get_superset_csrf_token(base_url, superset_token)
+    if not csrf_token:
+        return False
+
+    # PostgreSQL datasource created once with the already-exchanged Superset JWT
+    datasource = create_postgres_datasource(
+        superset_config=superset_config,
+        superset_jwt=superset_token,
+    )
+    if datasource is None:
+        logger.error("  [bold red]✘[/bold red] Aborting: datasource creation failed")
+        return False
+    # # Build sqlalchemy_uri from K8s secrets
+    # api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
+    # if not api_config:
+    #     logger.error("  [bold red]✘[/bold red] PostgreSQL API config secret not found")
+    #     return False
+
+    # db_host = get_postgres_service_host(env.environ_id)
+    # sqlalchemy_uri = (
+    #     f"postgresql+psycopg2://{api_config.get('writer-username')}:{api_config.get('writer-password')}"
+    #     f"@{db_host}:5432/{api_config.get('database-name')}"
+    # )
+
+    # all_ok = True
+    # abs_deploy_dir = Path(deploy_dir).resolve()
+    # for report in reports:
+    #     name: str = report.get("name", "")
+    #     rel_path: str = report.get("path", "")
+    #     zip_path = (abs_deploy_dir / rel_path).resolve() if not Path(rel_path).is_absolute() else Path(rel_path).resolve()
+    #     logger.info(f"  [dim]→ Processing report: '{name}' → {rel_path}[/dim]")
+
+    #     if not zip_path.exists():
+    #         logger.error(f"  [bold red]✘[/bold red] ZIP not found: {zip_path}")
+    #         logger.debug(f"  [bold red]✘[/bold red] deploy_dir resolved to: {abs_deploy_dir}")
+    #         all_ok = False
+    #         continue
+
+    #     tmp_dir = Path(mkdtemp(prefix="babylon_superset_"))
+    #     try:
+    #         with ZipFile(zip_path, "r") as zf:
+    #             zf.extractall(tmp_dir)
+
+    #         top_level = [p for p in tmp_dir.iterdir() if p.is_dir()]
+    #         content_dir = top_level[0] if len(top_level) == 1 else tmp_dir
+            
+    #         _patch_postgres_uri_in_dir(content_dir, sqlalchemy_uri)
+
+    #     finally:
+    #         shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    # return all_ok
+
+
+def deploy_superset(
+    reports: list,
+    state: dict,
+    superset_config: dict,
+    deploy_dir: Path,
+    workspace_yaml_path: Path | None,
+) -> bool:
+    """Authenticate with Superset (db provider) and deploy dashboard ZIPs sequentially."""
+
+    base_url = superset_config.get("superset_url", "").rstrip("/")
+    if not base_url:
+        logger.error("  [bold red]✘[/bold red] Superset base_url not found in superset_config")
+        return False
+
+    valid_reports = [r for r in reports if isinstance(r, dict) and r.get("name") and r.get("path")]
+    if not valid_reports:
+        logger.warning("  [yellow]⚠[/yellow] Superset create is true but no valid reports found")
+        return True
+
+    superset_token = get_superset_token(base_url=base_url, config=superset_config)
+    if not superset_token:
+        logger.error("  [bold red]✘[/bold red] Failed to retrieve Superset token")
+        return False
+
+    return deploy_superset_dashboard_sequential(
+        superset_token=superset_token,
+        reports=valid_reports,
+        superset_config=superset_config,
+        state=state,
+        deploy_dir=deploy_dir,
+        workspace_yaml_path=workspace_yaml_path,
+    )
+
+def deploy_dashboard(
+    provider: str,
+    reports: list,
+    state: dict,
+    superset_config: dict,
+    deploy_dir: Path,
+    workspace_yaml_path: Path | None,
+) -> bool:
+    """Dispatch dashboard deployment to the correct provider handler."""
+    if provider == "superset":
+        return deploy_superset(reports, state, superset_config, deploy_dir, workspace_yaml_path)
+    if provider == "powerbi":
+        pass
+        # return _deploy_powerbi(reports, state, workspace_yaml_path)
+    logger.error(f"  [bold red]✘[/bold red] Unknown dashboard provider: '{provider}'")
+    return False

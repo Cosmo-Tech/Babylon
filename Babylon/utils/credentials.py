@@ -43,6 +43,61 @@ def get_powerbi_token(email: str = None) -> str:
     return token.token
 
 
+def get_superset_token(base_url: str, config: dict) -> str | None:
+    """
+    Obtain a Superset-internal JWT for machine-to-machine API access.
+
+    Uses ``provider: db`` (the only provider supported by Superset's REST login
+    endpoint) with a local service-account whose credentials are expected in
+    ``config`` under the keys ``superset_admin_username`` / ``superset_admin_password``
+
+    These keys must be present in the ``keycloak-babylon`` K8s secret.
+
+    Args:
+        base_url (str): Superset base URL (e.g. https://superset-<cluster>.<domain>).
+        config (dict): Config dict from the K8s secret (via ``env.retrieve_config()``).
+    Returns:
+        str: Superset JWT access_token, or None on failure.
+    """
+    username = config.get("superset_admin_username") or ""
+    password = config.get("superset_admin_password") or ""
+
+    if not username or not password:
+        logger.error(
+            "  [bold red]✘[/bold red] Superset admin credentials not found in config. "
+        )
+        return None
+
+    url = f"{base_url.rstrip('/')}/api/v1/security/login"
+    payload = {
+        "username": username,
+        "password": password,
+        "provider": "db",
+        "refresh": True,
+    }
+
+    try:
+        logger.debug(f"  [dim]→ Authenticating to Superset (db provider) at {url}[/dim]")
+        response = requests.post(url, json=payload, timeout=10)
+        if not response.ok:
+            logger.error(
+                f"  [bold red]✘[/bold red] Superset login failed "
+                f"({response.status_code}): {response.text}"
+            )
+            return None
+
+        token = response.json().get("access_token")
+        if not token:
+            logger.error("  [bold red]✘[/bold red] access_token not found in Superset login response")
+            return None
+
+        logger.info("  [bold green]✔[/bold green] Superset JWT obtained successfully")
+        return token
+
+    except Exception as exp:
+        logger.error(f"  [bold red]✘[/bold red] Could not authenticate to Superset: {exp}")
+        return None
+
 def get_azure_token(scope: str = "default") -> str:
     """Returns an azure token"""
     credentials = get_azure_credentials()
@@ -83,10 +138,12 @@ def get_keycloak_credentials() -> tuple[dict, dict]:
     """ "Logs to keycloak and saves the token as a config variable"""
     try:
         config = env.retrieve_config()
+        client_id = config.get("api_client_id")
+        client_secret = config.get("api_client_secret")
         credentials = {
             "grant_type": "client_credentials",
-            "client_id": config.get("client_id"),
-            "client_secret": config.get("client_secret"),
+            "client_id": client_id,
+            "client_secret": client_secret,
             "scope": "openid",
         }
         if not all(credentials.values()):
