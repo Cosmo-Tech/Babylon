@@ -4,11 +4,17 @@ namespace:
 spec:
   sidecars:
     postgres:
-        schema:
-          create: true
-          jobs:
-            - name: k8s_job.yaml
-              path: postgres/jobs
+      schema:
+        create: true
+        jobs:
+          - name: k8s_job.yaml
+            path: postgres/jobs
+    dashboards:
+      provider: superset
+      create: true
+      reports:
+        - name: dashboard_export_20260429T122243
+          path: dashboard/superset/dashboard_export_20260429T122243.zip
   payload:
     key: "{{workspace_key}}"
     name: "{{workspace_name}}"
@@ -26,6 +32,7 @@ spec:
           defaultRunTemplateDataset: null
         charts:
           workspaceId:
+          supersetDomain: 'https://superset-{{cluster_name}}.{{domain_zone}}'
           logInWithUserCredentials: false
           scenarioViewIframeDisplayRatio: 4.514285714
           dashboardsViewIframeDisplayRatio: 1.610062893

@@ -22,7 +22,8 @@ _PROJECT_YAML_FILES = [
     "Workspace.yaml",
 ]
 
-# Cloud providers that have their own yaml sub-directory
+# Dashboard sub-directories to scaffold under <project>/dashboard/
+_DASHBOARD_PROVIDERS = ["superset", "powerbi"]
 _SUPPORTED_CLOUD_PROVIDERS = {"azure", "kob"}
 
 # Private helpers
@@ -90,6 +91,7 @@ def _scaffold_project(
         _create_project_dir(project_path)
         _copy_yaml_templates(project_path, cloud_provider)
         _create_postgres_jobs(project_path)
+        _create_dashboard_dirs(project_path)
         _copy_variables_template(variables_path, variables_file, cloud_provider)
         _ensure_webapp(tf_webapp_path)
         _print_success_summary(project_path, variables_file)
@@ -130,6 +132,17 @@ def _create_postgres_jobs(project_path: Path) -> None:
     if k8s_template.exists():
         copy(k8s_template, postgres_jobs_path / "k8s_job.yaml")
         logger.info("  [green]✔[/green] Generated [white]postgres/jobs/k8s_job.yaml[/white]")
+
+
+def _create_dashboard_dirs(project_path: Path) -> None:
+    """Create dashboard/<provider>/ sub-directories for each supported provider."""
+    for provider in _DASHBOARD_PROVIDERS:
+        provider_path = project_path / "dashboard" / provider
+        provider_path.mkdir(parents=True, exist_ok=True)
+        if provider_path.exists():
+            logger.info(f"  [dim]→ Created directory: dashboard/{provider}[/dim]")
+        else:
+            logger.error(f"  [bold red]✘[/bold red] Failed to create directory: dashboard/{provider}")
 
 
 def _copy_variables_template(variables_path: Path, variables_file: str, cloud_provider: str) -> None:
