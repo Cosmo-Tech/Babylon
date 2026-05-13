@@ -22,7 +22,8 @@ dependencies = [
   "flatten_json",
   "dynaconf",
   "kubernetes>=35.0.0",
-  "cosmotech-api==5.0.1"
+  "cosmotech-api==5.0.1",
+  "ruamel.yaml"
 ]
 dynamic = ["version"]
 readme = {file = "README.md", content-type = "text/markdown"}

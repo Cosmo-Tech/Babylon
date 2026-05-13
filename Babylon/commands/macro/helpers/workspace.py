@@ -21,6 +21,9 @@ from string import Template
 from textwrap import dedent
 from typing import Callable
 from pathlib import Path
+from ruamel.yaml import YAML
+from io import BytesIO
+from shutil import rmtree
 
 import requests
 
@@ -561,6 +564,21 @@ def _get_superset_csrf_token(base_url: str, bearer_token: str) -> str | None:
         return None
 
 
+def _get_existing_datasource(base_url: str, superset_jwt: str, display_name: str) -> dict | None:
+    """Return the existing Superset database entry matching *display_name*, or None."""
+    url = f"{base_url}/api/v1/database/"
+    headers = {"Authorization": f"Bearer {superset_jwt}"}
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        for db in response.json().get("result", []):
+            if db.get("database_name") == display_name:
+                return db
+    except Exception as exp:
+        logger.debug(f"  [dim]Could not list Superset databases: {exp}[/dim]")
+    return None
+
+
 def create_postgres_datasource(
     superset_config: dict,
     superset_jwt: str | None = None,
@@ -600,6 +618,16 @@ def create_postgres_datasource(
     db_name = api_config.get("database-name")
 
     display_name = f"PostgreSQL-{env.environ_id}"
+
+    # Check if the datasource already exists skip creation if so
+    existing = _get_existing_datasource(base_url, superset_jwt, display_name)
+    if existing:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] Superset datasource '{display_name}' already exists "
+            f"(id={existing.get('id')}) skipping creation !"
+        )
+        return existing
+
     sqlalchemy_uri = (
         f"postgresql+psycopg2://{api_config.get('writer-username')}:{api_config.get('writer-password')}"
         f"@{get_postgres_service_host(env.environ_id)}:5432/{db_name}"
@@ -634,28 +662,39 @@ def create_postgres_datasource(
 # }
 
 
-# def _patch_postgres_uri_in_dir(tmp_dir: Path, sqlalchemy_uri: str) -> None:
-#     """Patch sqlalchemy_uri in every YAML file found under tmp_dir/databases/."""
-#     db_dir = tmp_dir / "databases"
-#     if not db_dir.is_dir():
-#         logger.warning("  [yellow]⚠[/yellow] No 'databases/' folder found inside the ZIP skipping URI patch")
-#         return
+def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
+    """Repack the contents of *tmp_dir* back into *zip_path*, replacing it in-place.
+    """
+    buf = BytesIO()
+    with ZipFile(buf, "w", compression=8) as zf:  # 8 = ZIP_DEFLATED
+        for file in sorted(tmp_dir.rglob("*")):
+            if file.is_file():
+                zf.write(file, file.relative_to(tmp_dir))
+    zip_path.write_bytes(buf.getvalue())
 
-#     ruamel = YAML()
-#     ruamel.preserve_quotes = True
 
-#     for yaml_file in db_dir.glob("*.yaml"):
-#         try:
-#             with yaml_file.open("r", encoding="utf-8") as fh:
-#                 data = ruamel.load(fh)
+def _patch_postgres_uri_in_dir(tmp_dir: Path, sqlalchemy_uri: str) -> None:
+    """Patch sqlalchemy_uri in every YAML file found under tmp_dir/databases/."""
+    db_dir = tmp_dir / "databases"
+    if not db_dir.is_dir():
+        logger.warning("  [yellow]⚠[/yellow] No 'databases/' folder found inside the ZIP skipping URI patch")
+        return
 
-#             if isinstance(data, dict) and "sqlalchemy_uri" in data:
-#                 data["sqlalchemy_uri"] = sqlalchemy_uri
-#                 with yaml_file.open("w", encoding="utf-8") as fh:
-#                     ruamel.dump(data, fh)
-#                 logger.info(f"  [dim]→ Patched sqlalchemy_uri in {yaml_file.name}[/dim]")
-#         except Exception as exc:
-#             logger.warning(f"  [yellow]⚠[/yellow] Could not patch {yaml_file.name}: {exc}")
+    ruamel = YAML()
+    ruamel.preserve_quotes = True
+
+    for yaml_file in db_dir.glob("*.yaml"):
+        try:
+            with yaml_file.open("r", encoding="utf-8") as fh:
+                data = ruamel.load(fh)
+
+            if isinstance(data, dict) and "sqlalchemy_uri" in data:
+                data["sqlalchemy_uri"] = sqlalchemy_uri
+                with yaml_file.open("w", encoding="utf-8") as fh:
+                    ruamel.dump(data, fh)
+                logger.info(f"  [dim]→ Patched sqlalchemy_uri in {yaml_file.name}[/dim]")
+        except Exception as exc:
+            logger.warning(f"  [yellow]⚠[/yellow] Could not patch {yaml_file.name}: {exc}")
 
 def deploy_superset_dashboard_sequential(
     superset_token: str,
@@ -708,46 +747,50 @@ def deploy_superset_dashboard_sequential(
     if datasource is None:
         logger.error("  [bold red]✘[/bold red] Aborting: datasource creation failed")
         return False
-    # # Build sqlalchemy_uri from K8s secrets
-    # api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
-    # if not api_config:
-    #     logger.error("  [bold red]✘[/bold red] PostgreSQL API config secret not found")
-    #     return False
+    # Build sqlalchemy_uri from K8s secrets
+    api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
+    if not api_config:
+        logger.error("  [bold red]✘[/bold red] PostgreSQL API config secret not found")
+        return False
 
-    # db_host = get_postgres_service_host(env.environ_id)
-    # sqlalchemy_uri = (
-    #     f"postgresql+psycopg2://{api_config.get('writer-username')}:{api_config.get('writer-password')}"
-    #     f"@{db_host}:5432/{api_config.get('database-name')}"
-    # )
+    db_host = get_postgres_service_host(env.environ_id)
+    sqlalchemy_uri = (
+        f"postgresql+psycopg2://{api_config.get('writer-username')}:{api_config.get('writer-password')}"
+        f"@{db_host}:5432/{api_config.get('database-name')}"
+    )
 
-    # all_ok = True
-    # abs_deploy_dir = Path(deploy_dir).resolve()
-    # for report in reports:
-    #     name: str = report.get("name", "")
-    #     rel_path: str = report.get("path", "")
-    #     zip_path = (abs_deploy_dir / rel_path).resolve() if not Path(rel_path).is_absolute() else Path(rel_path).resolve()
-    #     logger.info(f"  [dim]→ Processing report: '{name}' → {rel_path}[/dim]")
+    all_ok = True
+    abs_deploy_dir = Path(deploy_dir).resolve()
+    for report in reports:
+        name: str = report.get("name", "")
+        rel_path: str = report.get("path", "")
+        zip_path = (abs_deploy_dir / rel_path).resolve() if not Path(rel_path).is_absolute() else Path(rel_path).resolve()
+        logger.info(f"  [dim]→ Processing report: '{name}' → {rel_path}[/dim]")
 
-    #     if not zip_path.exists():
-    #         logger.error(f"  [bold red]✘[/bold red] ZIP not found: {zip_path}")
-    #         logger.debug(f"  [bold red]✘[/bold red] deploy_dir resolved to: {abs_deploy_dir}")
-    #         all_ok = False
-    #         continue
+        if not zip_path.exists():
+            logger.error(f"  [bold red]✘[/bold red] ZIP not found: {zip_path}")
+            logger.debug(f"  [bold red]✘[/bold red] deploy_dir resolved to: {abs_deploy_dir}")
+            all_ok = False
+            continue
 
-    #     tmp_dir = Path(mkdtemp(prefix="babylon_superset_"))
-    #     try:
-    #         with ZipFile(zip_path, "r") as zf:
-    #             zf.extractall(tmp_dir)
+        tmp_dir = Path(mkdtemp(prefix="babylon_superset_"))
+        try:
+            with ZipFile(zip_path, "r") as zf:
+                zf.extractall(tmp_dir)
 
-    #         top_level = [p for p in tmp_dir.iterdir() if p.is_dir()]
-    #         content_dir = top_level[0] if len(top_level) == 1 else tmp_dir
-            
-    #         _patch_postgres_uri_in_dir(content_dir, sqlalchemy_uri)
+            top_level = [p for p in tmp_dir.iterdir() if p.is_dir()]
+            content_dir = top_level[0] if len(top_level) == 1 else tmp_dir
 
-    #     finally:
-    #         shutil.rmtree(tmp_dir, ignore_errors=True)
+            _patch_postgres_uri_in_dir(content_dir, sqlalchemy_uri)
 
-    # return all_ok
+            # Repack the patched content back into the original ZIP on disk
+            _repack_zip(zip_path, tmp_dir)
+            logger.info(f"  [dim]→ Repacked patched ZIP: {zip_path.name}[/dim]")
+
+        finally:
+            rmtree(tmp_dir, ignore_errors=True)
+
+    return all_ok
 
 
 def deploy_superset(
