@@ -10,7 +10,7 @@ description = "A CLI made to simplify the deployment and management of the Cosmo
 dependencies = [
   "azure-identity",
   "azure-mgmt-storage",
-  "azure-storage-blob>=12.28.0",
+  "azure-storage-blob>=12.29.0",
   "click",
   "click-log",
   "cryptography",
