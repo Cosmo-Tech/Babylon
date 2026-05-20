@@ -91,7 +91,7 @@ def get_superset_token(base_url: str, config: dict) -> str | None:
             logger.error("  [bold red]✘[/bold red] access_token not found in Superset login response")
             return None
 
-        logger.info("  [bold green]✔[/bold green] Superset JWT obtained successfully")
+        logger.debug("  [bold green]✔[/bold green] Superset JWT obtained successfully")
         return token
 
     except Exception as exp:
