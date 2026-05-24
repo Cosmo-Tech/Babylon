@@ -12,10 +12,11 @@ Helpers for workspace deployment and teardown, organised by concern:
 
 
 import subprocess
-from re import compile, MULTILINE, IGNORECASE
-from tempfile import mkdtemp
-from zipfile import ZipFile
+from re import MULTILINE, IGNORECASE, sub, compile
 from base64 import b64encode
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile, ZIP_DEFLATED, BadZipFile
+
 from logging import getLogger
 from pathlib import Path
 from string import Template
@@ -26,7 +27,8 @@ from pathlib import Path
 from io import BytesIO
 from shutil import rmtree
 import uuid as _uuid_mod
-
+from requests.exceptions import RequestException
+from tempfile import TemporaryDirectory
 import requests
 
 
@@ -45,6 +47,12 @@ from Babylon.utils.environment import Environment
 logger = getLogger(__name__)
 env = Environment()
 
+# Matches the top-level ``uuid`` field in a Superset export YAML.
+# Superset always writes it as:  uuid: <hex-uuid>  (no quotes, one per file)
+_UUID_FIELD_RE = compile(
+    r"^uuid:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*$",
+    MULTILINE | IGNORECASE,
+)
 
 # ---------------------------------------------------------------------------
 # Cosmotech API helpers
@@ -577,7 +585,7 @@ def _get_existing_datasource(base_url: str, superset_jwt: str, display_name: str
             if db.get("database_name") == display_name:
                 return db
     except Exception as exp:
-        logger.debug(f"  [dim] Could not list Superset databases: {exp}[/dim]")
+        logger.debug(f"  [dim]→ Could not list Superset databases: {exp}[/dim]")
     return None
 
 
@@ -625,8 +633,8 @@ def create_postgres_datasource(
     existing = _get_existing_datasource(base_url, superset_jwt, display_name)
     if existing:
         logger.warning(
-            f"  [yellow]⚠[/yellow] Superset datasource '{display_name}' already exists "
-            f"(id={existing.get('id')}) skipping creation!"
+            f"  [yellow]⚠[/yellow] [dim]Superset datasource '{display_name}' already exists "
+            f"(id={existing.get('id')}) skipping creation![/dim]"
         )
         return existing
 
@@ -652,159 +660,419 @@ def create_postgres_datasource(
             logger.debug(f"  Response details: {exp.response.text}")
         return None
 
-def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
-    """Repack the contents of *tmp_dir* back into *zip_path*, replacing it in-place.
+def _read_uuids_from_zip(zip_path: Path) -> set[str]:
+    """Read all top-level entity UUIDs directly from YAML entries inside *zip_path*.
+
+    Returns:
+        A set of lowercase UUID strings found in the ZIP.
     """
-    buf = BytesIO()
-    with ZipFile(buf, "w", compression=8) as zf:  # 8 = ZIP_DEFLATED
-        for file in sorted(tmp_dir.rglob("*")):
-            if file.is_file():
-                zf.write(file, file.relative_to(tmp_dir))
-    zip_path.write_bytes(buf.getvalue())
+    uuids: set[str] = set()
+    try:
+        with ZipFile(zip_path, "r") as zf:
+            for member in zf.namelist():
+                if not member.endswith(".yaml"):
+                    continue
+                raw = zf.read(member).decode("utf-8", errors="replace")
+                match = _UUID_FIELD_RE.search(raw)
+                if match:
+                    uuids.add(match.group(1).lower())
+    except Exception as exc:
+        logger.debug(f"  [dim]→ Could not read UUIDs from {zip_path.name}: {exc}[/dim]")
+    return uuids
 
 
-def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str) -> None:
-    """Patch ``sqlalchemy_uri`` and ``database_name`` in every YAML file under tmp_dir/databases/."""
+def _assets_exist_in_superset(base_url: str, superset_jwt: str, uuids: set[str]) -> dict[str, bool]:
+    """Check which asset types from the export ZIP already exist in Superset.
 
-    db_dir = tmp_dir / "databases"
-    if not db_dir.is_dir():
-        logger.warning("  [yellow]⚠[/yellow] No 'databases/' folder found inside the ZIP skipping URI patch!")
+    Queries datasets, charts, and dashboards endpoints independently and
+    cross-references each result set against *uuids*`.
+
+    The returned mapping is consumed by :func:`_regenerate_superset_uuids` so
+    that UUIDs are only regenerated for components that are **not** yet deployed.
+
+    Endpoints checked:
+      - ``GET /api/v1/dataset/``   → key ``"datasets"``
+      - ``GET /api/v1/chart/``     → key ``"charts"``
+      - ``GET /api/v1/dashboard/`` → key ``"dashboards"``
+
+    Returns:
+        A dict ``{"datasets": bool, "charts": bool, "dashboards": bool}``
+        where ``True`` means at least one UUID from the ZIP already exists
+        in Superset for that component type.  On API failure the value
+        defaults to ``False`` (safe path: regenerate UUIDs).
+    """
+    result: dict[str, bool] = {"datasets": False, "charts": False, "dashboards": False}
+    if not uuids:
+        return result
+
+    headers = {"Authorization": f"Bearer {superset_jwt}"}
+
+    # (folder_key, endpoint, uuid_field_in_response)
+    _checks: list[tuple[str, str, str]] = [
+        ("datasets",   "/api/v1/dataset/",   "uuid"),
+        ("charts",     "/api/v1/chart/",     "uuid"),
+        ("dashboards", "/api/v1/dashboard/", "uuid"),
+    ]
+
+    for folder_key, endpoint, uuid_field in _checks:
+        try:
+            response = requests.get(
+                f"{base_url}{endpoint}",
+                headers=headers,
+                params={"page_size": 1000},
+                timeout=10,
+            )
+            response.raise_for_status()
+            existing = {
+                (item.get(uuid_field) or "").lower()
+                for item in response.json().get("result", [])
+            }
+            matched = uuids & existing
+            if matched:
+                result[folder_key] = True
+                logger.debug(
+                    f"  [dim]→ {folder_key}: {len(matched)} existing UUID(s) found "
+                    f"UUIDs will NOT be regenerated for this component[/dim]"
+                )
+            else:
+                logger.debug(f"  [dim]→ {folder_key}: no existing UUIDs will regenerate[/dim]")
+        except Exception as exc:
+            # Failure → treat as "not deployed" so UUID regen proceeds safely.
+            logger.debug(f"  [dim]→ Could not query Superset {folder_key} endpoint: {exc}[/dim]")
+
+    deployed = [k for k, v in result.items() if v]
+    missing  = [k for k, v in result.items() if not v]
+    if deployed:
+        logger.info(f"  [yellow]⚠[/yellow] Already deployed in Superset {', '.join(deployed)}")
+    if missing:
+        logger.info(f"  [dim]→ Not yet deployed (will patch + regen UUIDs) {', '.join(missing)}[/dim]")
+
+    return result
+
+
+def _import_zip_to_superset(
+    base_url: str,
+    superset_jwt: str,
+    csrf_token: str,
+    zip_path: Path,
+) -> bool:
+    """POST a zip bundle to the Superset API to import all assets at once.
+
+        Args:
+            base_url:     Superset base URL (no trailing slash).
+            superset_jwt: Valid Superset Bearer token.
+            csrf_token:   CSRF token (refreshed immediately before this call).
+            zip_path:     Path to the (patched) Superset export ZIP.
+
+        Returns:
+            True on successful import (HTTP 2xx), False on any error.
+    """
+
+    url = f"{base_url}/api/v1/assets/import/"
+    headers = {
+        "Authorization": f"Bearer {superset_jwt}",
+        "X-CSRFToken": csrf_token,
+        "Referer": base_url,
+    }
+    data  = {"overwrite": "true"}
+    try:
+        with zip_path.open("rb") as fh:
+            files = {"bundle": (zip_path.name, fh, "application/zip")}
+            response = requests.post(url, headers=headers, files=files, data=data, timeout=60)
+
+        response.raise_for_status()
+        logger.info(f"  [bold green]✔[/bold green] Zip imported '{zip_path.name}' into Superset successfully")
+        return True
+    
+    except RequestException as exp:
+        logger.error(f"  [bold red]✘[/bold red] Failed to import '{zip_path.name}' into Superset: {exp}")
+        if exp.response is not None:
+            try:
+                logger.debug(f"  Response details: {exp.response.json()}")
+            except ValueError:
+                logger.debug(f"  Response details (raw): {exp.response.text[:2000]}")
+            return False
+
+    except Exception as exp:
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error importing '{zip_path.name}': {exp}")
+        return False
+
+
+def _patch_metadata(content_dir: Path) -> None:
+    """Ensure metadata.yaml declares ``type: assets`` for the assets import endpoint.
+
+    Superset's ``/api/v1/assets/import/`` endpoint calls
+    ``validate_metadata_type(metadata, "assets", ...)`` and rejects ZIPs whose
+    ``metadata.yaml`` has any other type (e.g. ``type: Dashboard``).  This
+    function rewrites the ``type:`` field in-place using pure regex so YAML
+    formatting is preserved.
+    """
+    meta_file = content_dir / "metadata.yaml"
+
+    if not meta_file.is_file():
+        logger.warning("  [yellow]⚠[/yellow] [dim]metadata.yaml not found — skipping type patch![/dim]")
         return
 
-    # Matches:  sqlalchemy_uri: <anything to end of line>
-    _uri_re = compile(r"^(sqlalchemy_uri:\s*).*$", MULTILINE)
-    # Matches:  database_name: <anything to end of line>
-    _name_re = compile(r"^(database_name:\s*).*$", MULTILINE)
+    try:
+        raw = meta_file.read_text(encoding="utf-8")
+        
+        # Matches 'type: ' followed by anything until the end of the line.
+        # This safely catches multi-word or quoted types like 'type: "Dashboard"'.
+        patched = sub(
+            pattern=r"^(type:\s*).*$", 
+            repl=r"\g<1>assets", 
+            string=raw, 
+            flags=MULTILINE
+        )
+        
+        if patched != raw:
+            meta_file.write_text(patched, encoding="utf-8")
+            logger.debug("  [dim]→ Patched 'metadata.yaml' type 'assets'[/dim]")
+        
+    except OSError as exp:
+        logger.error(f"  [bold red]✘[/bold red] File system error while patching 'metadata.yaml': {exp}")
+
+def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
+    """Repack the contents of *tmp_dir* back into *zip_path*, replacing it in-place.
+
+    The ZIP therefore MUST have exactly one root folder, and after stripping
+    the entries must be ``charts/X.yaml``, ``datasets/Y.yaml``,
+    ``metadata.yaml``, etc.
+    """
+    root_name = zip_path.stem
+
+    # If there is exactly one item in the extracted contents and it's a directory,
+    # use it as the base so we don't double-nest. Otherwise, treat tmp_dir as the base.
+    tmp_items = list(tmp_dir.iterdir())
+    if len(tmp_items) == 1 and tmp_items[0].is_dir():
+        base = tmp_items[0]
+    else:
+        base = tmp_dir
+
+    try:
+        # Write directly to disk instead of buffering the whole ZIP in memory
+        with ZipFile(zip_path, "w", compression=ZIP_DEFLATED) as zf:
+            for file in sorted(base.rglob("*")):
+                if file.is_file():
+                    # .as_posix() ensures forward slashes in the ZIP, even on Windows
+                    arcname = f"{root_name}/{file.relative_to(base).as_posix()}"
+                    zf.write(file, arcname)
+                    
+        logger.info(f"  [bold green]✔[/bold green] Successfully repacked a ZIP [dim]{zip_path.name}[/dim]")
+        
+    except OSError as exp:
+        logger.error(f"  [bold red]✘[/bold red] File system error while repacking '{zip_path.name}': {exp}")
+        raise
+
+
+def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str, db_uuid: str = "") -> None:
+    """Patch connection fields and pin the UUID in every YAML under tmp_dir/databases/.
+
+    Fields updated per file:
+    - ``sqlalchemy_uri:`` — replaced with the current environment URI.
+    - ``database_name:``  — replaced with *database_name* (``env.environ_id``).
+    - ``uuid:``           — replaced with *db_uuid* when provided, so the
+      imported record matches the Superset-assigned UUID of the already-created
+      database connection and no duplicate is created on import.
+
+    Args:
+        tmp_dir:        Root of the unzipped export.
+        sqlalchemy_uri: Full SQLAlchemy connection string for the target env.
+        database_name:  Superset display name for the database (``env.environ_id``).
+        db_uuid:        UUID returned by the Superset database API after
+                        creation/lookup.  Pass an empty string to skip UUID pinning.
+    """
+    db_dir = tmp_dir / "databases"
+    if not db_dir.is_dir():
+        logger.warning("  [yellow]⚠[/yellow] No 'databases/' folder found inside the ZIP skipping database patch!")
+        return
+
+    _uri_re  = compile(r"^(sqlalchemy_uri:\s*).*$",              MULTILINE)
+    _name_re = compile(r"^(database_name:\s*).*$",               MULTILINE)
+    _uuid_re = compile(r"^(uuid:\s*)([0-9a-f-]{36})\s*$",        MULTILINE | IGNORECASE)
+
     patched_files: list[str] = []
     for yaml_file in db_dir.glob("*.yaml"):
         try:
             raw = yaml_file.read_text(encoding="utf-8")
             result = raw
+
             if "sqlalchemy_uri" in result:
-                result = _uri_re.sub(rf"\g<1>{sqlalchemy_uri}", result)
+                result = _uri_re.sub(lambda m: f"{m.group(1)}{sqlalchemy_uri}", result)
+                
             if "database_name" in result:
-                result = _name_re.sub(rf"\g<1>{database_name}", result)
+                result = _name_re.sub(lambda m: f"{m.group(1)}{database_name}", result)
+                
+            if db_uuid and "uuid" in result:
+                result = _uuid_re.sub(lambda m: f"{m.group(1)}{db_uuid}", result)
+
             if result != raw:
                 yaml_file.write_text(result, encoding="utf-8")
                 patched_files.append(yaml_file.name)
                 logger.debug(f"  [dim]→ Patched databases/{yaml_file.name}[/dim]")
+
         except Exception as exc:
             logger.warning(f"  [yellow]⚠[/yellow] Could not patch {yaml_file.name}: {exc}")
 
     if patched_files:
+        uuid_note = f", uuid='{db_uuid}'" if db_uuid else ""
         logger.info(
             f"  [bold green]✔[/bold green] Database YAML patched "
-            f"database_name='{database_name}', 'sqlalchemy_uri' updated"
-            f" in {len(patched_files)} file(s)"
+            f"(database_name='{database_name}', sqlalchemy_uri updated{uuid_note}) "
+            f"in {len(patched_files)} file(s)"
         )
     else:
-        logger.warning("  [yellow]⚠[/yellow] No database YAML files required patching")
+        logger.warning("  [yellow]⚠[/yellow] [dim]No database YAML files required patching![/dim]")
 
-def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str) -> None:
-    """Patch the ``schema`` field in every dataset YAML under tmp_dir/datasets/.
+def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str = "") -> None:
+    """Patch schema references and pin the database UUID in every dataset YAML.
 
-    This function replaces the old schema value with the *schema_name* of the current workspace so the imported
-    datasets point at the right schema in the target environment.
+    Two passes over ``tmp_dir/datasets/**/*.yaml``:
+
+    1. **Schema patch** finds the first ``schema: <value>`` line in the file,
+       treats that value as the source schema name, and replaces *every*
+       occurrence of it in the file (covers both the ``schema:`` field and any
+       inline SQL that references ``old_schema.table_name``).
+
+    2. **database_uuid patch** when *db_uuid* is supplied, replaces the
+       ``database_uuid: <any-uuid>`` field with the real Superset-assigned UUID
+       so every dataset correctly references the already-created DB connection.
+
+    Args:
+        tmp_dir:     Root of the unzipped export.
+        schema_name: Target PostgreSQL schema for the current workspace.
+        db_uuid:     Superset database UUID.  Pass an empty string to skip the
+                     ``database_uuid:`` pin (e.g. when the UUID is not yet known).
     """
     datasets_dir = tmp_dir / "datasets"
     if not datasets_dir.is_dir():
-        logger.warning("  [yellow]⚠[/yellow] No 'datasets/' folder found inside the ZIP skipping schema patch")
+        logger.warning("  [yellow]⚠[/yellow] No 'datasets/' folder found inside the ZIP skipping dataset patch!")
         return
 
-    # Matches:  schema: <old_value>
-    # The value is a bare word (no quotes) Superset always writes it that way.
-    _schema_re = compile(r"^(schema:\s*)(\S+)\s*$", MULTILINE)
+    _schema_re      = compile(r"^(schema:\s*)(\S+)\s*$",                     MULTILINE)
+    _db_uuid_re     = compile(r"^(database_uuid:\s*)([0-9a-f-]{36})\s*$",    MULTILINE | IGNORECASE)
 
-    patched_files: list[str] = []
+    schema_patched: list[str] = []
+    db_uuid_patched: int      = 0
+
     for yaml_file in datasets_dir.rglob("*.yaml"):
         try:
             raw = yaml_file.read_text(encoding="utf-8")
-            match = _schema_re.search(raw)
-            if not match:
-                continue
-            old_schema = match.group(2)
-            if old_schema == schema_name:
-                continue  # already correct, skip
-            patched = raw.replace(old_schema, schema_name)
-            yaml_file.write_text(patched, encoding="utf-8")
-            patched_files.append(yaml_file.name)
-            logger.debug(f"  [dim]→ Patched schema in {yaml_file.name}: '{old_schema}' → '{schema_name}'[/dim]")
-        except Exception as exc:
-            logger.warning(f"  [yellow]⚠[/yellow] Could not patch schema in {yaml_file.name}: {exc}")
+            result = raw
 
-    if patched_files:
+            # --- Schema replacement (field + all SQL occurrences) ----------
+            match = _schema_re.search(result)
+            if match:
+                old_schema = match.group(2)
+                if old_schema != schema_name:
+                    result = result.replace(old_schema, schema_name)
+                    schema_patched.append(yaml_file.name)
+                    logger.debug(
+                        f"  [dim]→ Patched schema in {yaml_file.name}: "
+                        f"'{old_schema}' → '{schema_name}'[/dim]"
+                    )
+
+            # --- database_uuid replacement ---------------------------------
+            if db_uuid and "database_uuid" in result:
+                new_result = _db_uuid_re.sub(rf"\g<1>{db_uuid}", result)
+                if new_result != result:
+                    db_uuid_patched += 1
+                    logger.debug(
+                        f"  [dim]→ Patched 'database_uuid' in {yaml_file.name} → {db_uuid}[/dim]"
+                    )
+                    result = new_result
+
+            if result != raw:
+                yaml_file.write_text(result, encoding="utf-8")
+
+        except Exception as exc:
+            logger.warning(f"  [yellow]⚠[/yellow] Could not patch dataset {yaml_file.name}: {exc}")
+
+    if schema_patched:
         logger.info(
             f"  [bold green]✔[/bold green] Dataset schema patched "
-            f"'{schema_name}' in {len(patched_files)} file(s)"
+            f"'{schema_name}' in {len(schema_patched)} file(s)"
         )
     else:
-        logger.info("  [yellow]⚠[/yellow] No datasets YAML files required schema patching")
+        logger.info("  [yellow]⚠[/yellow] [dim]No dataset YAML files required schema patching![/dim]")
 
-# Matches the top-level ``uuid`` field in a Superset export YAML.
-# Superset always writes it as:  uuid: <hex-uuid>  (no quotes, one per file)
-_UUID_FIELD_RE = compile(
-    r"^uuid:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*$",
-    MULTILINE | IGNORECASE,
-)
+    if db_uuid_patched:
+        logger.info(
+            f"  [bold green]✔[/bold green] Dataset 'database_uuid' patched "
+            f"'{db_uuid}' in {db_uuid_patched} file(s)"
+        )
+    elif db_uuid:
+        logger.debug("  [dim]→ No dataset files had a 'database_uuid' field to pin[/dim]")
 
+def _regenerate_superset_uuids(base_dir_path: str | Path, existing: dict[str, bool] | None = None) -> dict:
+    """Regenerate UUIDs for Superset components that haven't been deployed yet.
 
-def _regenerate_superset_uuids(base_dir_path: str | Path) -> dict:
-    """Regenerate all entity UUIDs in an unzipped Superset export directory.
-
-    Superset exports form a strict dependency chain:
-        Databases → Datasets (database_uuid) → Charts (dataset_uuid)
-          → Dashboards (position[*].meta.uuid + native_filter_configuration targets)
-
-    Strategy **pure text substitution, no YAML parse/dump**:
-      Pass 1 : Scan every file's raw text for the top-level ``uuid:`` field.
-               For each one found, generate a new uuid4() and record
-               {old_uuid: new_uuid} in ``uuid_mapping``.
-      Pass 2 : For every file, replace ALL occurrences of every old UUID
-               with its corresponding new UUID using plain str.replace().
-               Because UUIDs are 36-char hex strings that cannot appear
-               accidentally in SQL or other content, this is safe and leaves
-               every other byte of the file (multi-line SQL, escaped chars,
-               indentation, comments) completely untouched.
+    Skips the 'databases' folder and any folders marked as deployed in the `existing` map. 
+    Generates new UUIDs for the remaining active components, then updates all YAML files 
+    so that cross-references (e.g., a chart pointing to a dataset) remain unbroken.
 
     Args:
-        base_dir_path: Path to the root of the unzipped Superset export
-                       (the directory that contains charts/, dashboards/,
-                       databases/, datasets/, metadata.yaml).
+        base_dir_path: Root directory of the unzipped Superset export.
+        existing: Optional map of {folder_name: is_deployed} (e.g., {"charts": True}).
 
     Returns:
-        The ``uuid_mapping`` dict {old_uuid: new_uuid} for logging.
+        A dictionary mapping {old_uuid: new_uuid}. Returns empty if none were regenerated.
     """
     base_dir = Path(base_dir_path)
+    existing = existing or {}
 
-    # Pass 1: Discover entity-owner UUIDs and build the mapping
-    uuid_mapping: dict[str, str] = {}
+    # "databases" is always skipped; others are skipped if marked True in `existing`
+    skip_folders = {"databases"} | {folder for folder, deployed in existing.items() if deployed}
+    # "themes" is optional present in some ZIPs, absent in others always regenerate when found
+    active = sorted({"datasets", "charts", "dashboards", "themes"} - skip_folders)
+
+    logger.debug(f"  [dim]→ UUID regen active: {active or 'none'}, skipped: {sorted(skip_folders)}[/dim]")
+
     all_files: list[Path] = sorted(base_dir.rglob("*.yaml"))
+    uuid_mapping: dict[str, str] = {}
 
     for yaml_file in all_files:
-        raw = yaml_file.read_text(encoding="utf-8")
-        match = _UUID_FIELD_RE.search(raw)
-        if match:
-            old_uuid = match.group(1).lower()
-            uuid_mapping[old_uuid] = str(_uuid_mod.uuid4())
+        try:
+            top_folder = yaml_file.relative_to(base_dir).parts[0]
+        except (ValueError, IndexError):
+            top_folder = ""
+
+        if top_folder in skip_folders:
+            continue  # preserve existing UUID for this component
+        try:
+            raw = yaml_file.read_text(encoding="utf-8")
+            match = _UUID_FIELD_RE.search(raw)
+            if match:
+                # Group 1 is the only capture group: the 36-character UUID string
+                old_uuid = match.group(1).lower()
+                uuid_mapping[old_uuid] = str(_uuid_mod.uuid4())
+        except (OSError, UnicodeError) as exc:
+            logger.warning(f"  [yellow]⚠[/yellow] Could not read {yaml_file.name} for UUID extraction: {exc}")
 
     if not uuid_mapping:
-        logger.warning("  [yellow]⚠[/yellow] No UUIDs found in Superset export skipping regeneration")
+        logger.info("  [dim]→ No UUIDs required regeneration (all components already deployed)[/dim]")
         return {}
-
-    # Pass 2: Replace every occurrence of every old UUID in every file
+    
+    # Pass 2 Replace every collected UUID across ALL files so that
+    # cross-references (e.g. chart → dataset_uuid) stay consistent.
     for yaml_file in all_files:
-        raw = yaml_file.read_text(encoding="utf-8")
-        patched = raw
-        for old_uuid, new_uuid in uuid_mapping.items():
-            # Replace both lower-case and upper-case variants defensively
-            patched = patched.replace(old_uuid, new_uuid)
-            patched = patched.replace(old_uuid.upper(), new_uuid)
-        if patched != raw:
-            yaml_file.write_text(patched, encoding="utf-8")
+        try:
+            raw = yaml_file.read_text(encoding="utf-8")
+            patched = raw
+            
+            for old_uuid, new_uuid in uuid_mapping.items():
+                patched = patched.replace(old_uuid, new_uuid)
+                patched = patched.replace(old_uuid.upper(), new_uuid)
+                
+            if patched != raw:
+                yaml_file.write_text(patched, encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            logger.warning(f"  [yellow]⚠[/yellow] Could not update UUIDs in {yaml_file.name}: {exc}")
 
     logger.info(
-        f"  [dim]→ Regenerated and remapped {len(uuid_mapping)} UUIDs "
-        f"across {len(all_files)} files in '{base_dir.name}'[/dim]"
+        f"  [bold green]✔[/bold green] Regenerated {len(uuid_mapping)} UUID(s) "
+        f"for {', '.join(active) or 'none'} "
+        f"across {len(all_files)} file(s)"
     )
     return uuid_mapping
 
@@ -816,47 +1084,30 @@ def deploy_superset_multiple_assets(
     deploy_dir: Path,
     workspace_yaml_path: Path | None,
 ) -> bool:
-    """Deploy Superset dashboard assets (patch-only, sequential per ZIP).
+    """Deploy Superset dashboard assets sequentially.
 
-    This function performs the local preparation steps required before a
-    Superset import. For each provided export ZIP it:
+        Pre-flight (once per call):
+        - Validates superset_url and obtains a CSRF token.
+        - Idempotently creates the PostgreSQL datasource.
+        - Builds the sqlalchemy_uri and schema_name from state/secrets.
 
-      1. Validates Superset base URL and fetches a CSRF token for write operations.
-      2. Ensures a PostgreSQL datasource exists in Superset.
-      3. Builds the target ``sqlalchemy_uri`` from Kubernetes secrets.
-      4. Extracts the export ZIP to a temporary directory and normalises the content.
-      5. Patches ``databases/*.yaml`` to set the correct
-         ``sqlalchemy_uri`` and ``database_name`` so the exported database
-         entry matches the datasource created in Superset.
-      6. Patches all dataset YAML files to replace the source PostgreSQL
-         schema name with the current workspace schema name.
-      7. Regenerates all entity UUIDs in the export (databases, datasets,
-         charts, dashboards) so each import uses a fresh set of UUIDs and
-         avoids collisions on re-import or across environments.
-      8. Re-packs the patched content back into the original ZIP file.
-      9. Cleans up the temporary extraction directory.
+        Per-ZIP processing:
+        1. Queries Superset to find which component types are already deployed.
+        2. Extracts the ZIP to a temporary directory.
+        3. Regenerates UUIDs (skipping components already in Superset).
+        4. Patches metadata and connection fields (schema, URI, db UUID).
+        5. Repacks the patched content and imports it via the Superset API.
 
-    Important notes:
-      - This function does NOT currently perform the HTTP "import" of the
-        patched ZIP into Superset. It prepares and repacks the ZIP so an
-        import step can be performed later (TODO: import wiring).
-      - All file mutations use pure text substitution (no YAML parse/dump)
-        to preserve multi-line SQL and original file formatting.
+        Args:
+            superset_token:      Superset JWT obtained from Keycloak exchange.
+            reports:             List of dicts with 'name' and 'path' keys.
+            state:               Full Babylon state dict.
+            superset_config:     Dict with at least 'superset_url'.
+            deploy_dir:          Root deployment directory used to resolve report paths.
+            workspace_yaml_path: Absolute path to Workspace.yaml (for future use).
 
-    Args:
-        superset_token: Superset JWT obtained from Keycloak exchange.
-        reports: List of dicts with 'name' and 'path' keys (paths are
-            relative to ``deploy_dir`` when not absolute).
-        state: Full Babylon state dict (used to derive the workspace_id →
-            schema name).
-        deploy_dir: Root deployment directory used to resolve report paths.
-        workspace_yaml_path: Absolute path to the Workspace.yaml on disk
-            (currently unused by this function but kept for future wiring).
-
-    Returns:
-        True if all reports were processed (extracted, patched, UUIDs
-        regenerated and repacked) successfully; False if any ZIP was
-        missing or an unrecoverable error occurred while preparing files.
+        Returns:
+            True if every report was processed and imported successfully, False otherwise.
     """
     base_url = superset_config.get("superset_url", "").rstrip("/")
 
@@ -879,6 +1130,16 @@ def deploy_superset_multiple_assets(
     if datasource is None:
         logger.error("  [bold red]✘[/bold red] Aborting: datasource creation failed")
         return False
+
+    # Safely extract the UUID Superset assigned to this database connection
+    _ds_body = datasource.get("result") or datasource
+    db_uuid: str = (_ds_body.get("uuid") or "").lower()
+
+    if db_uuid:
+        logger.debug(f"  [dim]→ Superset database UUID: {db_uuid}[/dim]")
+    else:
+        logger.warning("  [yellow]⚠[/yellow] Could not extract UUID from datasource response. Database UUID will not be pinned!")
+    
     # Build sqlalchemy_uri from K8s secrets
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
     if not api_config:
@@ -896,10 +1157,15 @@ def deploy_superset_multiple_assets(
 
     all_ok = True
     abs_deploy_dir = Path(deploy_dir).resolve()
+
     for report in reports:
         name: str = report.get("name", "")
         rel_path: str = report.get("path", "")
-        zip_path = (abs_deploy_dir / rel_path).resolve() if not Path(rel_path).is_absolute() else Path(rel_path).resolve()
+
+        # Resolve ZIP path
+        path_obj = Path(rel_path)
+        # zip_path = (abs_deploy_dir / rel_path).resolve() if not Path(rel_path).is_absolute() else Path(rel_path).resolve()
+        zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
         logger.info(f"  [dim]→ Preparing dashboard '{name}' for deployment...[/dim]")
 
         if not zip_path.exists():
@@ -908,24 +1174,37 @@ def deploy_superset_multiple_assets(
             all_ok = False
             continue
 
-        tmp_dir = Path(mkdtemp(prefix="babylon_superset_"))
+        # Step 1 Query Superset to find which component types are already deployed.
+        zip_uuids = _read_uuids_from_zip(zip_path)
+        existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids)
+
+        # Step 2 Extract, patch, and selectively regenerate UUIDs.
         try:
-            with ZipFile(zip_path, "r") as zf:
-                zf.extractall(tmp_dir)
+            with TemporaryDirectory(prefix="babylon_superset_") as tmp_dir_str:
+                tmp_dir = Path(tmp_dir_str)
 
-            top_level = [p for p in tmp_dir.iterdir() if p.is_dir()]
-            content_dir = top_level[0] if len(top_level) == 1 else tmp_dir
+                with ZipFile(zip_path, "r") as zf:
+                    zf.extractall(tmp_dir)
 
-            _patch_database_dir(content_dir, sqlalchemy_uri, database_name=env.environ_id)
-            _patch_schema_in_datasets_dir(content_dir, schema_name)
-            _regenerate_superset_uuids(content_dir)
+                # Robust folder resolution
+                tmp_items = list(tmp_dir.iterdir())
+                if len(tmp_items) == 1 and tmp_items[0].is_dir():
+                    content_dir = tmp_items[0]
+                else:
+                    content_dir = tmp_dir
 
-            # Repack the patched content back into the original ZIP on disk
-            _repack_zip(zip_path, tmp_dir)
-            logger.info(f"  [bold green]✔[/bold green] Repacked patched ZIP [dim]{zip_path.name}[/dim]")
+                _regenerate_superset_uuids(content_dir, existing_map)
+                _patch_metadata(content_dir)
+                _patch_database_dir(content_dir, sqlalchemy_uri, database_name=env.environ_id, db_uuid=db_uuid)
+                _patch_schema_in_datasets_dir(content_dir, schema_name, db_uuid=db_uuid)
+                _repack_zip(zip_path, tmp_dir)
 
-        finally:
-            rmtree(tmp_dir, ignore_errors=True)
+        except (OSError, BadZipFile) as exc:
+            logger.error(f"  [bold red]✘[/bold red] File system or ZIP error while processing '{zip_path.name}': {exc}")
+            all_ok = False
+            continue
+        if not _import_zip_to_superset(base_url, superset_token, csrf_token, zip_path):
+            all_ok = False
 
     return all_ok
 
