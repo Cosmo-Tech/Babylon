@@ -21,7 +21,7 @@ dependencies = [
   "polling2",
   "flatten_json",
   "dynaconf",
-  "kubernetes>=35.0.0",
+  "kubernetes>=36.0.1",
   "cosmotech-api==5.0.1"
 ]
 dynamic = ["version"]
