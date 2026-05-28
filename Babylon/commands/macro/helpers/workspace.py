@@ -12,7 +12,7 @@ Helpers for workspace deployment and teardown, organised by concern:
 
 
 import subprocess
-from re import MULTILINE, IGNORECASE, sub, compile
+from re import MULTILINE, IGNORECASE, sub, compile, findall
 from base64 import b64encode
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile, ZIP_DEFLATED, BadZipFile
@@ -22,14 +22,11 @@ from pathlib import Path
 from string import Template
 from textwrap import dedent
 from typing import Callable
-from pathlib import Path
-# from ruamel.yaml import YAML
-from io import BytesIO
-from shutil import rmtree
 import uuid as _uuid_mod
+from io import StringIO
 from requests.exceptions import RequestException
-from tempfile import TemporaryDirectory
 import requests
+from ruamel.yaml import YAML as _RYAML
 
 
 from cosmotech_api.models.workspace_create_request import WorkspaceCreateRequest
@@ -798,6 +795,398 @@ def _import_zip_to_superset(
         return False
 
 
+def update_variables_file_entry(
+    variables_path: Path,
+    key: str,
+    uuid: str,
+    original_id: str | None = None,
+) -> bool:
+    """Update a single dashboard entry in a Babylon variables YAML file in-place.
+
+    Uses ``ruamel.yaml`` to preserve **all** existing formatting, comments, and
+    template variables verbatim.  Only the target ``key`` block is touched no
+    other keys, comments, or blank lines are affected.
+
+    If ``key`` already exists as a mapping it updates only the ``uuid`` (and
+    ``original_id`` when supplied).  If ``key`` is absent a new mapping block
+    is appended at the end of the file.
+
+    The function deliberately never writes to ``.tpl`` or template files; it
+    accepts only the concrete variables YAML path.
+
+    Args:
+        variables_path: Absolute path to the Babylon ``variables.yaml`` file.
+                        Must **not** be a template (``.tpl``) file.
+        key:            Sanitised dashboard name used as the YAML key
+                        (e.g. ``"expertview"``).
+        uuid:           New embedded dashboard UUID to write.
+        original_id:    Superset integer dashboard ID (as string).  When
+                        ``None`` the field is left unchanged if already present,
+                        or omitted from new entries.
+
+    Returns:
+        ``True`` on success, ``False`` on any error.
+    """
+    if not variables_path.is_file():
+        logger.error(f"  [bold red]✘[/bold red] Variables file not found: {variables_path}")
+        return False
+
+    # Guard: refuse to touch template files
+    if variables_path.suffix in {".tpl", ".tmpl", ".template"}:
+        logger.error(f"  [bold red]✘[/bold red] Refusing to modify a template file: {variables_path}")
+        return False
+
+    try:
+        ry = _RYAML()
+        ry.preserve_quotes = True   # keep all quoted strings as-is
+        ry.width = 4096             # prevent unexpected line-wrapping
+        ry.best_map_flow_style = False
+
+        raw = variables_path.read_text(encoding="utf-8")
+        data = ry.load(raw)
+        if data is None:
+            data = ry.load("{}")  # empty file → start with an empty mapping
+
+        entry = data.get(key)
+        if isinstance(entry, dict):
+            # Key already exists update only uuid (and original_id if given)
+            entry["uuid"] = uuid
+            if original_id is not None:
+                entry["original_id"] = str(original_id)
+        else:
+            # Key absent or not a dict insert/overwrite with full block
+            new_entry: dict = {"uuid": uuid}
+            if original_id is not None:
+                new_entry["original_id"] = str(original_id)
+            data[key] = new_entry
+
+        buf = StringIO()
+        ry.dump(data, buf)
+        variables_path.write_text(buf.getvalue(), encoding="utf-8")
+        return True
+
+    except OSError as exc:
+        logger.error(f"  [bold red]✘[/bold red] File system error updating '{variables_path.name}': {exc}")
+    except Exception as exc:
+        logger.error(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
+    return False
+
+
+# ---------------------------------------------------------------------------
+# Superset embedded-UUID fetch helpers  (extracted for SonarQube compliance)
+# ---------------------------------------------------------------------------
+
+def _get_filtered_dashboards(
+    base_url: str,
+    headers: dict,
+    zip_uuids: set[str] | None,
+) -> list[dict] | None:
+    """Fetch all Superset dashboards and filter to those present in *zip_uuids*.
+
+    Args:
+        base_url:   Superset base URL (no trailing slash).
+        headers:    Pre-built auth headers for the request.
+        zip_uuids:  Set of dashboard UUIDs to keep.  ``None`` keeps all.
+
+    Returns:
+        Filtered list of dashboard dicts, or ``None`` on API error.
+    """
+    try:
+        resp = requests.get(
+            f"{base_url}/api/v1/dashboard/",
+            headers=headers,
+            params={"page_size": 1000},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        all_dashboards: list[dict] = resp.json().get("result", [])
+    except Exception as exc:
+        logger.error(f"  [bold red]✘[/bold red] Could not list Superset dashboards: {exc}")
+        return None
+
+    if not zip_uuids:
+        return all_dashboards
+
+    filtered = [d for d in all_dashboards if (d.get("uuid") or "").lower() in zip_uuids]
+    logger.debug(
+        f"  [dim]→ Filtered to {len(filtered)}/{len(all_dashboards)} "
+        "dashboards matching ZIP UUIDs[/dim]"
+    )
+    return filtered
+
+
+def _enable_dashboard_embedding(
+    base_url: str,
+    superset_jwt: str,
+    auth_headers: dict,
+    integer_id: int,
+    name: str,
+) -> bool:
+    """Enable embedding on a single Superset dashboard.
+
+    Args:
+        base_url:     Superset base URL.
+        superset_jwt: Valid Superset Bearer token (used to refresh the CSRF token).
+        auth_headers: Pre-built ``Authorization`` headers dict.
+        integer_id:   Superset integer dashboard ID.
+        name:         Human-readable dashboard name (used in log messages only).
+
+    Returns:
+        ``True`` if the POST succeeded (2xx), ``False`` otherwise.
+    """
+    csrf = _get_superset_csrf_token(base_url, superset_jwt)
+    post_headers = {
+        **auth_headers,
+        "X-CSRFToken": csrf or "",
+        "Referer": base_url,
+        "Content-Type": "application/json",
+    }
+    enable_resp = requests.post(
+        f"{base_url}/api/v1/dashboard/{integer_id}/embedded",
+        headers=post_headers,
+        json={"allowed_domains": []},
+        timeout=10,
+    )
+    if not enable_resp.ok:
+        logger.error(f"  [bold red]✘[/bold red] Could not enable embedding for '{name}' (id={integer_id}).")
+        logger.debug(
+            f"  [dim]→ Embedding failure details for '{name}' (id={integer_id}): "
+            f"Status Code: {enable_resp.status_code}, Response: {enable_resp.text[:200]}[/dim]"
+        )
+        return False
+    return True
+
+
+def _get_embedded_uuid_for_dashboard(
+    base_url: str,
+    superset_jwt: str,
+    auth_headers: dict,
+    dashboard: dict,
+) -> tuple[str, str, str] | None:
+    """Enable embedding for one dashboard and return its embedded UUID details.
+
+    Performs two calls:
+    1. ``POST /api/v1/dashboard/{id}/embedded`` -> enables embedding (idempotent).
+    2. ``GET  /api/v1/dashboard/{id}/embedded`` -> reads the embedded UUID back.
+
+    Args:
+        base_url:     Superset base URL.
+        superset_jwt: Valid Superset Bearer token.
+        auth_headers: Pre-built ``Authorization`` headers dict.
+        dashboard:    A single dashboard dict from ``GET /api/v1/dashboard/``.
+
+    Returns:
+        A ``(key, embedded_uuid, original_id)`` tuple on success, or ``None``
+        when the dashboard should be skipped (missing fields, embedding failed,
+        or no UUID returned).
+    """
+
+    name: str = (dashboard.get("dashboard_title") or dashboard.get("slug") or "").strip()
+    dash_uuid: str = (dashboard.get("uuid") or "").lower()
+    integer_id: int | None = dashboard.get("id")
+
+    if not dash_uuid or not name or not integer_id:
+        logger.warning(f"  [yellow]⚠[/yellow] [dim]Skipping dashboard with missing name/uuid/id: {dashboard}[/dim]")
+        return None
+
+    key = sub(r"[^a-z0-9]", "", name.lower())
+    if not key:
+        logger.warning(f"  [yellow]⚠[/yellow] [dim]Dashboard '{name}' produced an empty key, skipping![/dim]")
+        return None
+
+    if not _enable_dashboard_embedding(base_url, superset_jwt, auth_headers, integer_id, name):
+        return None
+
+    try:
+        emb_resp = requests.get(
+            f"{base_url}/api/v1/dashboard/{integer_id}/embedded",
+            headers=auth_headers,
+            timeout=10,
+        )
+        emb_resp.raise_for_status()
+    except Exception as exc:
+        logger.error(f"  [bold red]✘[/bold red] Could not fetch embedded UUID for dashboard '{name}' (id={integer_id}).")
+        logger.debug(
+            f"  [dim]→ Fetch embedded UUID exception for '{name}' (id={integer_id}): {exc}[/dim]"
+        )
+        return None
+
+    result_block: dict = emb_resp.json().get("result") or {}
+    embedded_uuid: str = (result_block.get("uuid") or "").strip()
+
+    if not embedded_uuid:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] [dim]Dashboard '{name}' (id={integer_id}): "
+            "no embedded UUID.[/dim]"
+        )
+        return None
+
+    original_id = str(result_block.get("dashboard_id") or integer_id)
+    logger.info(
+        f"  [bold green]✔[/bold green] Embedding enabled for dashboard"
+        f"'{name}' (key='{key}', uuid='{embedded_uuid}')"
+    )
+    return key, embedded_uuid, original_id
+
+
+def _write_dashboard_updates_to_yaml(
+    variables_yaml_path: Path,
+    updates: dict[str, dict],
+) -> bool:
+    """Persist a ``{key: {uuid, original_id}}`` mapping into the variables YAML.
+
+    Args:
+        variables_yaml_path: Absolute path to the Babylon variables YAML file.
+        updates:             Dict of ``{sanitised_key: {"uuid": ..., "original_id": ...}}``.
+
+    Returns:
+        ``True`` if at least one entry was written successfully, ``False`` otherwise.
+    """
+    if not variables_yaml_path.is_file():
+        logger.error(f"  [bold red]✘[/bold red] Variables file not found: {variables_yaml_path}")
+        return False
+
+    any_written = False
+    for key, entry in updates.items():
+        ok = update_variables_file_entry(
+            variables_path=variables_yaml_path,
+            key=key,
+            uuid=entry["uuid"],
+            original_id=entry.get("original_id"),
+        )
+        if not ok:
+            logger.warning(f"  [yellow]⚠[/yellow] [dim]Could not write '{key}' to '{variables_yaml_path.name}'[/dim]")
+            continue
+        any_written = True
+        logger.debug(
+            f"  [dim]→ Write success details for '{key}': "
+            f"original_id={entry.get('original_id')}, "
+            f"uuid={entry.get('uuid')}, "
+            f"full_path='{variables_yaml_path}'[/dim]"
+        )
+
+    return any_written
+
+
+def _fetch_and_store_embedded_dashboard_uuids(
+    base_url: str,
+    superset_jwt: str,
+    zip_uuids: set[str] | None = None,
+) -> bool:
+    """Enable embedding and fetch the embedded UUID for dashboards imported from
+    the ZIP, then persist them into the Babylon variables file.
+
+    YAML structure written per dashboard::
+
+        expertview:
+          uuid: "abc-embedded-token-uuid"
+          original_id: "42"
+
+    Args:
+        base_url:     Superset base URL.
+        superset_jwt: Valid Superset Bearer token.
+        zip_uuids:    Set of dashboard UUIDs read from the imported ZIP.
+                      When provided, only dashboards matching this set are
+                      processed.  Pass ``None`` to process all (not recommended).
+
+    Returns:
+        True if at least one embedded UUID was written; False on total failure.
+    """
+    if not env.variable_files:
+        logger.warning(
+            "  [yellow]⚠[/yellow] [dim]No variable files registered "
+            "cannot store embedded dashboard UUIDs[/dim]"
+        )
+        return False
+
+    variables_yaml_path = Path(env.variable_files[0])
+    auth_headers = {"Authorization": f"Bearer {superset_jwt}"}
+
+    # Step 1 Fetch and filter dashboards to only those from the ZIP
+    dashboards = _get_filtered_dashboards(base_url, auth_headers, zip_uuids)
+    if dashboards is None:
+        return False
+    if not dashboards:
+        logger.warning("  [yellow]⚠[/yellow] [dim]No matching dashboards found in Superset skipping UUID feedback[/dim]")
+        return False
+
+    # Step 2 Enable embedding and collect the embedded UUID for each dashboard
+    updates: dict[str, dict] = {}
+    for dashboard in dashboards:
+        result = _get_embedded_uuid_for_dashboard(base_url, superset_jwt, auth_headers, dashboard)
+        if result is None:
+            continue
+        key, embedded_uuid, original_id = result
+        updates[key] = {"uuid": embedded_uuid, "original_id": original_id}
+
+    if not updates:
+        logger.warning("  [yellow]⚠[/yellow] [dim]No embedded UUIDs retrieved, variables file not updated[/dim]")
+        return False
+
+    # Step 3 Persist the collected UUIDs into the variables YAML
+    if not _write_dashboard_updates_to_yaml(variables_yaml_path, updates):
+        return False
+
+    logger.info(
+        f"  [bold green]✔[/bold green] Variable file "
+        f"[dim]'{variables_yaml_path.name}'[/dim] updated with "
+        f"{len(updates)} embedded dashboard UUID(s)"
+    )
+    return True
+
+
+def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | None:
+    """Safely retrieve the embedded UUID for a dashboard from loaded YAML data.
+
+    The *yaml_data* dict is expected to contain entries written by
+    :func:`_fetch_and_store_embedded_dashboard_uuids` in the shape::
+
+        expertview:
+          uuid: "abc-embedded-uuid"
+          original_id: "42"
+
+    A flat string value (legacy format ``expertview: "abc-uuid"``) is also
+    accepted so old variables files don't break.
+
+    Args:
+        yaml_data:      Dict loaded from the Babylon variables YAML file.
+        sanitised_key:  The sanitised dashboard name used as the YAML key
+                        (e.g. ``"expertview"``).
+
+    Returns:
+        The embedded UUID string, or ``None`` if the key / uuid is absent.
+    """
+    if not yaml_data or not sanitised_key:
+        return None
+
+    entry = yaml_data.get(sanitised_key)
+    if entry is None:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] [dim]Dashboard key '{sanitised_key}' not found in variables "
+            "UUID not available yet[/dim]"
+        )
+        return None
+
+    # Flat legacy format: key → "uuid-string"
+    if isinstance(entry, str):
+        return entry or None
+
+    # Current format: key → {uuid: ..., original_id: ...}
+    if isinstance(entry, dict):
+        uuid = entry.get("uuid")
+        if not uuid:
+            logger.warning(
+                f"  [yellow]⚠[/yellow] [dim]Dashboard '{sanitised_key}' found in variables "
+                "but 'uuid' field is empty[/dim]"
+            )
+        return uuid or None
+
+    logger.warning(
+        f"  [yellow]⚠[/yellow] [dim]Unexpected type for dashboard key '{sanitised_key}' "
+        f"in variables: {type(entry).__name__}[/dim]"
+    )
+    return None
+
 def _patch_metadata(content_dir: Path) -> None:
     """Ensure metadata.yaml declares ``type: assets`` for the assets import endpoint.
 
@@ -1076,137 +1465,242 @@ def _regenerate_superset_uuids(base_dir_path: str | Path, existing: dict[str, bo
     )
     return uuid_mapping
 
-def deploy_superset_multiple_assets(
-    superset_token: str,
-    reports: list,
-    state: dict,
-    superset_config: dict,
-    deploy_dir: Path,
-    workspace_yaml_path: Path | None,
-) -> bool:
-    """Deploy Superset dashboard assets sequentially.
 
-        Pre-flight (once per call):
-        - Validates superset_url and obtains a CSRF token.
-        - Idempotently creates the PostgreSQL datasource.
-        - Builds the sqlalchemy_uri and schema_name from state/secrets.
-
-        Per-ZIP processing:
-        1. Queries Superset to find which component types are already deployed.
-        2. Extracts the ZIP to a temporary directory.
-        3. Regenerates UUIDs (skipping components already in Superset).
-        4. Patches metadata and connection fields (schema, URI, db UUID).
-        5. Repacks the patched content and imports it via the Superset API.
-
-        Args:
-            superset_token:      Superset JWT obtained from Keycloak exchange.
-            reports:             List of dicts with 'name' and 'path' keys.
-            state:               Full Babylon state dict.
-            superset_config:     Dict with at least 'superset_url'.
-            deploy_dir:          Root deployment directory used to resolve report paths.
-            workspace_yaml_path: Absolute path to Workspace.yaml (for future use).
-
-        Returns:
-            True if every report was processed and imported successfully, False otherwise.
-    """
-    base_url = superset_config.get("superset_url", "").rstrip("/")
-
-    if not base_url:
-        logger.error("  [bold red]✘[/bold red] Superset base_url not found in superset_config")
-        return False
-
-    logger.info(f"  [dim]→ Superset dashboard deployment for {len(reports)} zip file(s)...[/dim]")
-
-    # CSRF token shared for the whole session
+def _setup_database_and_csrf(
+    base_url: str, 
+    superset_token: str, 
+    superset_config: dict
+) -> tuple[str | None, str | None, str | None]:
+    """Handles pre-flight checks: CSRF, Datasource creation, and DB URI building."""
+    
     csrf_token = _get_superset_csrf_token(base_url, superset_token)
     if not csrf_token:
-        return False
+        logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token.")
+        return None, None, None
 
-    # PostgreSQL datasource created once with the already-exchanged Superset JWT
     datasource = create_postgres_datasource(
         superset_config=superset_config,
         superset_jwt=superset_token,
     )
+    
     if datasource is None:
-        logger.error("  [bold red]✘[/bold red] Aborting: datasource creation failed")
-        return False
+        logger.error("  [bold red]✘[/bold red] Aborting: datasource creation failed.")
+        return None, None, None
 
-    # Safely extract the UUID Superset assigned to this database connection
     _ds_body = datasource.get("result") or datasource
     db_uuid: str = (_ds_body.get("uuid") or "").lower()
 
     if db_uuid:
-        logger.debug(f"  [dim]→ Superset database UUID: {db_uuid}[/dim]")
+        logger.debug(f"  [dim]→ Superset database UUID resolved: {db_uuid}[/dim]")
     else:
-        logger.warning("  [yellow]⚠[/yellow] Could not extract UUID from datasource response. Database UUID will not be pinned!")
-    
-    # Build sqlalchemy_uri from K8s secrets
+        logger.warning(f"  [yellow]⚠[/yellow] [dim]Could not extract UUID from datasource response.[/dim]")
+        logger.debug(f"  [dim]→ Database UUID will not be pinned. Raw datasource: {_ds_body}[/dim]")
+
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
     if not api_config:
-        logger.error("  [bold red]✘[/bold red] PostgreSQL API config secret not found")
-        return False
+        logger.error("  [bold red]✘[/bold red] PostgreSQL API config secret not found.")
+        return None, None, None
 
     db_host = get_postgres_service_host(env.environ_id)
     sqlalchemy_uri = (
         f"postgresql+psycopg2://{api_config.get('writer-username')}:{api_config.get('writer-password')}"
         f"@{db_host}:5432/{api_config.get('database-name')}"
     )
+    
+    return csrf_token, db_uuid, sqlalchemy_uri
+
+
+def _process_dashboard_zip(
+    report: dict,
+    abs_deploy_dir: Path,
+    base_url: str,
+    superset_token: str,
+    csrf_token: str,
+    sqlalchemy_uri: str,
+    db_uuid: str,
+    schema_name: str,
+) -> tuple[bool, set[str]]:
+    """Handles the extraction, patching, repacking, and importing of a single ZIP."""
+    
+    name: str = report.get("name", "")
+    rel_path: str = report.get("path", "")
+    
+    path_obj = Path(rel_path)
+    zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
+    
+    logger.info(f"  [dim]→ Preparing dashboard '{name}' for deployment...[/dim]")
+
+    if not zip_path.exists():
+        logger.error(f"  [bold red]✘[/bold red] ZIP not found: {zip_path.name}")
+        logger.debug(f"  [dim]→ Deploy dir resolved to {abs_deploy_dir}. Missing file: {zip_path}[/dim]")
+        return False, set()
+
+    zip_uuids = _read_uuids_from_zip(zip_path)
+    existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids)
+    new_dashboard_uuids: set[str] = set()
+
+    try:
+        with TemporaryDirectory(prefix="babylon_superset_") as tmp_dir_str:
+            tmp_dir = Path(tmp_dir_str)
+
+            with ZipFile(zip_path, "r") as zf:
+                zf.extractall(tmp_dir)
+
+            tmp_items = list(tmp_dir.iterdir())
+            content_dir = tmp_items[0] if len(tmp_items) == 1 and tmp_items[0].is_dir() else tmp_dir
+
+            _regenerate_superset_uuids(content_dir, existing_map)
+            _patch_metadata(content_dir)
+            _patch_database_dir(content_dir, sqlalchemy_uri, database_name=env.environ_id, db_uuid=db_uuid)
+            _patch_schema_in_datasets_dir(content_dir, schema_name, db_uuid=db_uuid)
+
+            dashboards_dir = content_dir / "dashboards"
+            if dashboards_dir.is_dir():
+                for df in dashboards_dir.rglob("*.yaml"):
+                    try:
+                        raw = df.read_text(encoding="utf-8")
+                        m = _UUID_FIELD_RE.search(raw)
+                        if m:
+                            new_dashboard_uuids.add(m.group(1).lower())
+                    except OSError as e:
+                        logger.warning(f"  [yellow]⚠[/yellow] [dim]Could not read YAML file '{df.name}': {e}[/dim]")
+
+            _repack_zip(zip_path, tmp_dir)
+
+    except (OSError, BadZipFile) as exc:
+        logger.error(f"  [bold red]✘[/bold red] File system or ZIP error while processing '{zip_path.name}'.")
+        logger.debug(f"  [dim]→ Exception details for '{zip_path.name}': {exc}[/dim]")
+        return False, set()
+
+    if not _import_zip_to_superset(base_url, superset_token, csrf_token, zip_path):
+        logger.error(f"  [bold red]✘[/bold red] Failed to import ZIP '{zip_path.name}' to Superset.")
+        return False, set()
+
+    return True, new_dashboard_uuids
+
+
+def _build_dashboard_ext_args(fallback_empty: bool = False, template_content: str = "") -> dict:
+    """Extract embedded dashboard UUIDs from the Babylon variables file.
+
+        Args:
+            fallback_empty:   If True, missing UUIDs and unresolved template variables 
+                            are mapped to empty strings (safe phase-1 render).
+            template_content: Raw Workspace template string, used to discover missing
+                            variables when fallback_empty is True.
+
+        Returns:
+            A dictionary mapping template keys to UUID strings (or empty strings).
+    """
+    if not env.variable_files:
+        return {}
+    try:
+        raw = Path(env.variable_files[0]).read_text(encoding="utf-8")
+        variables: dict = safe_load(raw) or {}
+    except OSError:
+        return {}
+
+    ext: dict = {}
+
+    # Only treat entries that carry both "uuid" and "original_id" as dashboard
+    # records.  This prevents misidentifying other dict-valued keys (e.g. the
+    # "security:" ACL block) as dashboard entries.
+    for key, value in variables.items():
+        if not isinstance(value, dict):
+            continue
+        if "uuid" not in value or "original_id" not in value:
+            continue  # not a dashboard entry skip
+        uuid = get_dashboard_embedded_uuid(variables, key)
+        if uuid:
+            ext[key] = uuid
+        elif fallback_empty:
+            ext[key] = ""
+
+    # When rendering phase-1 (fallback_empty=True), also pre-populate every
+    # variable reference found in the template that is not already resolved by
+    # the variables file or ext dict.
+    # NOTE: file_content arrives pre-escaped ({{ → ${ , }} → }) from apply.py,
+    # so we scan for Mako-style ${varname} syntax, not {{varname}}.
+    if fallback_empty and template_content:
+        known = variables.keys() | ext.keys()
+        for var in findall(r"\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}", template_content):
+            if var not in known:
+                ext[var] = ""
+
+    return ext
+
+def deploy_superset_multiple_assets(
+    superset_token: str,
+    reports: list,
+    state: dict,
+    superset_config: dict,
+    deploy_dir: Path,
+) -> tuple[bool, set[str]]:
+    """Deploy Superset dashboard assets.
+
+    Pre-flight (once per call):
+    - Validates superset_url and obtains a CSRF token.
+    - Idempotently creates the PostgreSQL datasource.
+    - Builds the sqlalchemy_uri and schema_name from state/secrets.
+
+    Per-ZIP processing:
+    1. Queries Superset to find which component types are already deployed.
+    2. Extracts the ZIP to a temporary directory.
+    3. Regenerates UUIDs (skipping components already in Superset).
+    4. Patches metadata and connection fields (schema, URI, db UUID).
+    5. Repacks the patched content and imports it via the Superset API.
+
+    Args:
+        superset_token:      Superset JWT obtained from Keycloak exchange.
+        reports:             List of dicts with 'name' and 'path' keys.
+        state:               Full Babylon state dict.
+        superset_config:     Dict with at least 'superset_url'.
+        deploy_dir:          Root deployment directory used to resolve report paths.
+
+    Returns:
+        A tuple: (True if every report imported successfully, Set of all processed dashboard UUIDs)
+    """
+    base_url = superset_config.get("superset_url", "").rstrip("/")
+
+    if not base_url:
+        logger.error("  [bold red]✘[/bold red] Superset base_url not found in configuration.")
+        logger.debug(f"  [dim]→ Provided superset_config: {superset_config}[/dim]")
+        return False, set()
+
+    logger.info(f"  [dim]→ Superset dashboard deployment for {len(reports)} zip file(s)...[/dim]")
+
+    # 1. Pre-flight Setup
+    csrf_token, db_uuid, sqlalchemy_uri = _setup_database_and_csrf(
+        base_url, superset_token, superset_config
+    )
+    if not csrf_token or not sqlalchemy_uri:
+        return False, set()
 
     workspace_id = (state.get("services", {}).get("api", {}).get("workspace_id") or "")
     schema_name = workspace_id.replace("-", "_")
 
+    # 2. Process all ZIPs
     all_ok = True
+    all_zip_uuids: set[str] = set()
     abs_deploy_dir = Path(deploy_dir).resolve()
 
     for report in reports:
-        name: str = report.get("name", "")
-        rel_path: str = report.get("path", "")
-
-        # Resolve ZIP path
-        path_obj = Path(rel_path)
-        # zip_path = (abs_deploy_dir / rel_path).resolve() if not Path(rel_path).is_absolute() else Path(rel_path).resolve()
-        zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
-        logger.info(f"  [dim]→ Preparing dashboard '{name}' for deployment...[/dim]")
-
-        if not zip_path.exists():
-            logger.error(f"  [bold red]✘[/bold red] ZIP not found {zip_path}")
-            logger.debug(f"  [bold red]✘[/bold red] deploy_dir resolved to {abs_deploy_dir}")
+        success, new_uuids = _process_dashboard_zip(
+            report=report,
+            abs_deploy_dir=abs_deploy_dir,
+            base_url=base_url,
+            superset_token=superset_token,
+            csrf_token=csrf_token,
+            sqlalchemy_uri=sqlalchemy_uri,
+            db_uuid=db_uuid or "",
+            schema_name=schema_name,
+        )
+        
+        if not success:
             all_ok = False
-            continue
+            
+        all_zip_uuids |= new_uuids
 
-        # Step 1 Query Superset to find which component types are already deployed.
-        zip_uuids = _read_uuids_from_zip(zip_path)
-        existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids)
-
-        # Step 2 Extract, patch, and selectively regenerate UUIDs.
-        try:
-            with TemporaryDirectory(prefix="babylon_superset_") as tmp_dir_str:
-                tmp_dir = Path(tmp_dir_str)
-
-                with ZipFile(zip_path, "r") as zf:
-                    zf.extractall(tmp_dir)
-
-                # Robust folder resolution
-                tmp_items = list(tmp_dir.iterdir())
-                if len(tmp_items) == 1 and tmp_items[0].is_dir():
-                    content_dir = tmp_items[0]
-                else:
-                    content_dir = tmp_dir
-
-                _regenerate_superset_uuids(content_dir, existing_map)
-                _patch_metadata(content_dir)
-                _patch_database_dir(content_dir, sqlalchemy_uri, database_name=env.environ_id, db_uuid=db_uuid)
-                _patch_schema_in_datasets_dir(content_dir, schema_name, db_uuid=db_uuid)
-                _repack_zip(zip_path, tmp_dir)
-
-        except (OSError, BadZipFile) as exc:
-            logger.error(f"  [bold red]✘[/bold red] File system or ZIP error while processing '{zip_path.name}': {exc}")
-            all_ok = False
-            continue
-        if not _import_zip_to_superset(base_url, superset_token, csrf_token, zip_path):
-            all_ok = False
-
-    return all_ok
+    return all_ok, all_zip_uuids
 
 
 def deploy_superset(
@@ -1214,10 +1708,14 @@ def deploy_superset(
     state: dict,
     superset_config: dict,
     deploy_dir: Path,
-    workspace_yaml_path: Path | None,
-) -> bool:
-    """Authenticate with Superset (db provider) and deploy dashboard ZIPs sequentially."""
+) -> tuple[bool, set[str]]:
+    """Authenticate with Superset (db provider) and deploy dashboard ZIPs sequentially.
 
+    Returns:
+        A tuple ``(success, zip_uuids)`` where *zip_uuids* is the union of all
+        dashboard UUIDs read from every processed ZIP used by the caller to
+        filter the embedded-UUID fetch to only the imported dashboards.
+    """
     base_url = superset_config.get("superset_url", "").rstrip("/")
     if not base_url:
         logger.error("  [bold red]✘[/bold red] Superset base_url not found in superset_config")
@@ -1238,8 +1736,7 @@ def deploy_superset(
         reports=valid_reports,
         superset_config=superset_config,
         state=state,
-        deploy_dir=deploy_dir,
-        workspace_yaml_path=workspace_yaml_path,
+        deploy_dir=deploy_dir
     )
 
 def deploy_dashboard(
@@ -1248,11 +1745,16 @@ def deploy_dashboard(
     state: dict,
     superset_config: dict,
     deploy_dir: Path,
-    workspace_yaml_path: Path | None,
-) -> bool:
-    """Dispatch dashboard deployment to the correct provider handler."""
+) -> tuple[bool, set[str]]:
+    """Dispatch dashboard deployment to the correct provider handler.
+
+    Returns:
+        A tuple ``(success, zip_uuids)``.  *zip_uuids* is only populated for
+        the ``"superset"`` provider and contains the union of all dashboard
+        UUIDs from the processed ZIPs.
+    """
     if provider == "superset":
-        return deploy_superset(reports, state, superset_config, deploy_dir, workspace_yaml_path)
+        return deploy_superset(reports, state, superset_config, deploy_dir)
     if provider == "powerbi":
         pass
         # return _deploy_powerbi(reports, state, workspace_yaml_path)
