@@ -46,7 +46,7 @@ def deploy_objects(objects: list, object_type: str, deploy_dir: PathlibPath):
         elif object_type == "solution":
             deploy_solution(namespace=namespace, file_content=content)
         elif object_type == "workspace":
-            deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir, file_path=o.get("file_path"))
+            deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
         elif object_type == "webapp":
             deploy_webapp(namespace=namespace, file_content=content)
 

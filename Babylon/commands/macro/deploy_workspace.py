@@ -9,25 +9,32 @@ from Babylon.commands.macro.helpers.workspace import (
     deploy_postgres_schema,
     deploy_dashboard,
     update_workspace,
+    _fetch_and_store_embedded_dashboard_uuids,
+    _build_dashboard_ext_args
 )
-from Babylon.utils.credentials import get_keycloak_token
+from Babylon.utils.credentials import get_keycloak_token, get_superset_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
 logger = getLogger(__name__)
 env = Environment()
 
+
 def deploy_workspace(
     namespace: str,
     file_content: str,
-    deploy_dir: Path,
-    file_path: Path | None = None,
+    deploy_dir: Path
 ) -> bool:
     echo(style(f"\n🚀 Deploying Workspace in namespace: {env.environ_id}", bold=True, fg="cyan"))
 
     env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func()
-    content = env.fill_template(data=file_content, state=state)
+
+    # Phase 1 render dashboard UUID variables may not exist yet (first deploy).
+    # Pass template_content so every {{var}} reference is pre-filled with "" when
+    # the key is absent from variables.yaml, preventing strict_undefined crashes.
+    pre_ext = _build_dashboard_ext_args(fallback_empty=True, template_content=file_content)
+    content = env.fill_template(data=file_content, state=state, ext_args=pre_ext or None)
 
     keycloak_token, config = get_keycloak_token()
     payload: dict = content.get("spec").get("payload")
@@ -51,19 +58,37 @@ def deploy_workspace(
     if schema_config.get("create", False):
         deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state)
 
-    # --- Dashboard Deployment (provider-based dispatch: superset | powerbi) ---
+    # Dashboard Deployment (provider-based dispatch: superset | powerbi)
     dashboard_config = sidecars.get("dashboards", {})
     if dashboard_config.get("create", False):
         provider = (dashboard_config.get("provider") or "").lower()
-        if not deploy_dashboard(
+        # deploy_dashboard returns (success, zip_uuids)
+        ok, zip_uuids = deploy_dashboard(
             provider=provider,
             reports=dashboard_config.get("reports", []),
             state=state,
             superset_config=config,
-            deploy_dir=deploy_dir,
-            workspace_yaml_path=file_path,
-        ):
-          return CommandResponse.fail()
+            deploy_dir=deploy_dir
+        )
+        if not ok:
+            return CommandResponse.fail()
+
+        # Superset: fetch embedded UUIDs then push an updated workspace
+        if provider == "superset":
+            base_url = (config.get("superset_url") or "").rstrip("/")
+            superset_jwt = get_superset_token(base_url=base_url, config=config)
+            if superset_jwt and base_url:
+                # Pass zip_uuids so only dashboards from our ZIP are queried
+                _fetch_and_store_embedded_dashboard_uuids(base_url, superset_jwt, zip_uuids=zip_uuids)
+
+            # Phase 2 render variables file now contains real UUIDs.
+            # fallback_empty=False: only include keys that have a real value.
+            ext = _build_dashboard_ext_args(fallback_empty=False)
+            content2 = env.fill_template(data=file_content, state=state, ext_args=ext or None)
+            payload2 = content2.get("spec", {}).get("payload", {})
+            if not update_workspace(api_instance, api_section, payload2):
+                return CommandResponse.fail()
+
     # --- State Persistence ---
     env.store_state_in_local(state)
     if env.remote:
