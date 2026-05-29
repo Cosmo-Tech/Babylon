@@ -40,6 +40,7 @@ STATE_LABEL_VALUE = "babylon-state"
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _load_kube_config() -> None:
     """Load kubeconfig, with a clear error message on failure."""
     try:
@@ -65,8 +66,7 @@ def _encode(data: dict) -> str:
 
 
 def _decode(raw: bytes | str) -> dict:
-    """Decode a base64 value coming from a Secret's ``data`` field.
-    """
+    """Decode a base64 value coming from a Secret's ``data`` field."""
     if isinstance(raw, (bytes, bytearray)):
         yaml_str = raw.decode("utf-8")
     else:
@@ -94,8 +94,7 @@ def _build_secret(namespace: str, secret_name: str, encoded_value: str) -> clien
 
 
 def save_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict) -> None:
-    """Persist *state_data* as a Kubernetes Secret in *namespace*.
-    """
+    """Persist *state_data* as a Kubernetes Secret in *namespace*."""
     _load_kube_config()
     v1 = _core_v1()
     encoded = _encode(state_data)

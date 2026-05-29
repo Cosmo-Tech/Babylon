@@ -41,16 +41,16 @@ from logging import getLogger
 from pathlib import Path
 from re import IGNORECASE, MULTILINE, compile, findall, sub
 from tempfile import TemporaryDirectory
-from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
+from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
 
 import requests
 from requests.exceptions import RequestException
 from ruamel.yaml import YAML as _RYAML
 from yaml import safe_load
 
+from Babylon.commands.macro.helpers.workspace.kubernetes_helper import get_postgres_service_host
 from Babylon.utils.credentials import get_superset_token
 from Babylon.utils.environment import Environment
-from Babylon.commands.macro.helpers.workspace.kubernetes_helper import get_postgres_service_host
 
 logger = getLogger(__name__)
 env = Environment()
@@ -175,7 +175,7 @@ def deploy_superset_multiple_assets(
     if not csrf_token or not sqlalchemy_uri:
         return False, set()
 
-    workspace_id = (state.get("services", {}).get("api", {}).get("workspace_id") or "")
+    workspace_id = state.get("services", {}).get("api", {}).get("workspace_id") or ""
     schema_name = workspace_id.replace("-", "_")
 
     all_ok = True
@@ -282,10 +282,7 @@ def create_postgres_datasource(
     display_name = env.environ_id
     existing = _get_existing_datasource(base_url, superset_jwt, display_name)
     if existing:
-        logger.info(
-            f"  [yellow]⚠[/yellow] [dim]Datasource '{display_name}' is already configured "
-            f"(id={existing.get('id')}) ![/dim]"
-        )
+        logger.info(f"  [yellow]⚠[/yellow] [dim]Datasource '{display_name}' is already configured (id={existing.get('id')}) ![/dim]")
         return existing
 
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
@@ -372,7 +369,9 @@ def _process_dashboard_zip(
     is_update = any(existing_map.values())
     if is_update:
         updating = [k for k, v in existing_map.items() if v]
-        logger.info(f"  [yellow]⚠[/yellow] [dim]Dashboard [magenta]{name}[/magenta] is already deployed updating '{', '.join(updating)}'[/dim]")
+        logger.info(
+            f"  [yellow]⚠[/yellow] [dim]Dashboard [magenta]{name}[/magenta] is already deployed updating '{', '.join(updating)}'[/dim]"
+        )
     else:
         logger.info(f"  [dim]→ Dashboard [magenta]{name}[/magenta]' first deployment creating all assets... [/dim]")
     new_dashboard_uuids: set[str] = set()
@@ -458,8 +457,8 @@ def _assets_exist_in_superset(base_url: str, superset_jwt: str, uuids: set[str])
 
     headers = {"Authorization": f"Bearer {superset_jwt}"}
     _checks: list[tuple[str, str, str]] = [
-        ("datasets",   "/api/v1/dataset/",   "uuid"),
-        ("charts",     "/api/v1/chart/",     "uuid"),
+        ("datasets", "/api/v1/dataset/", "uuid"),
+        ("charts", "/api/v1/chart/", "uuid"),
         ("dashboards", "/api/v1/dashboard/", "uuid"),
     ]
 
@@ -476,10 +475,7 @@ def _assets_exist_in_superset(base_url: str, superset_jwt: str, uuids: set[str])
             matched = uuids & existing
             if matched:
                 result[folder_key] = True
-                logger.debug(
-                    f"  {folder_key}: {len(matched)} existing UUID(s) found "
-                    "UUIDs will NOT be regenerated for this component"
-                )
+                logger.debug(f"  {folder_key}: {len(matched)} existing UUID(s) found UUIDs will NOT be regenerated for this component")
             else:
                 logger.debug(f"  {folder_key}: no existing UUIDs will regenerate")
         except Exception as exc:
@@ -551,10 +547,7 @@ def _regenerate_superset_uuids(
         except (OSError, UnicodeError) as exc:
             logger.warning(f"  [yellow]⚠[/yellow] Could not update UUIDs in {yaml_file.name}: {exc}")
 
-    logger.debug(
-        f"  Regenerated {len(uuid_mapping)} UUID(s) "
-        f"for {', '.join(active) or 'none'} across {len(all_files)} file(s)"
-    )
+    logger.debug(f"  Regenerated {len(uuid_mapping)} UUID(s) for {', '.join(active) or 'none'} across {len(all_files)} file(s)")
     return uuid_mapping
 
 
@@ -595,9 +588,9 @@ def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str, 
         logger.warning("  [yellow]⚠[/yellow] No 'databases/' directory found in ZIP skipping database patch")
         return
 
-    _uri_re  = compile(r"^(sqlalchemy_uri:\s*).*$",            MULTILINE)
-    _name_re = compile(r"^(database_name:\s*).*$",             MULTILINE)
-    _uuid_re = compile(r"^(uuid:\s*)([0-9a-f-]{36})\s*$",      MULTILINE | IGNORECASE)
+    _uri_re = compile(r"^(sqlalchemy_uri:\s*).*$", MULTILINE)
+    _name_re = compile(r"^(database_name:\s*).*$", MULTILINE)
+    _uuid_re = compile(r"^(uuid:\s*)([0-9a-f-]{36})\s*$", MULTILINE | IGNORECASE)
 
     patched_files: list[str] = []
     for yaml_file in db_dir.glob("*.yaml"):
@@ -643,8 +636,8 @@ def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str 
         logger.warning("  [yellow]⚠[/yellow] No 'datasets/' directory found in ZIP skipping dataset schema patch")
         return
 
-    _schema_re  = compile(r"^(schema:\s*)(\S+)\s*$",                   MULTILINE)
-    _db_uuid_re = compile(r"^(database_uuid:\s*)([0-9a-f-]{36})\s*$",  MULTILINE | IGNORECASE)
+    _schema_re = compile(r"^(schema:\s*)(\S+)\s*$", MULTILINE)
+    _db_uuid_re = compile(r"^(database_uuid:\s*)([0-9a-f-]{36})\s*$", MULTILINE | IGNORECASE)
 
     schema_patched: list[str] = []
     db_uuid_patched: int = 0
@@ -798,10 +791,7 @@ def _fetch_and_store_embedded_dashboard_uuids(
         True if at least one embedded UUID was written; False on total failure.
     """
     if not env.variable_files:
-        logger.warning(
-            "  [yellow]⚠[/yellow] No variable files configured "
-            "embedded dashboard UUIDs cannot be persisted"
-        )
+        logger.warning("  [yellow]⚠[/yellow] No variable files configured embedded dashboard UUIDs cannot be persisted")
         return False
 
     variables_yaml_path = Path(env.variable_files[0])
@@ -864,10 +854,7 @@ def _get_filtered_dashboards(
         return all_dashboards
 
     filtered = [d for d in all_dashboards if (d.get("uuid") or "").lower() in zip_uuids]
-    logger.debug(
-        f"  Filtered to {len(filtered)}/{len(all_dashboards)} "
-        "dashboards matching ZIP UUIDs"
-    )
+    logger.debug(f"  Filtered to {len(filtered)}/{len(all_dashboards)} dashboards matching ZIP UUIDs")
     return filtered
 
 
@@ -947,9 +934,7 @@ def _enable_dashboard_embedding(
     )
     if not enable_resp.ok:
         logger.error(f"  [bold red]✘[/bold red] Could not enable embedding for '{name}' (id={integer_id}).")
-        logger.debug(
-            f"  Status: {enable_resp.status_code}, Response: {enable_resp.text[:200]}"
-        )
+        logger.debug(f"  Status: {enable_resp.status_code}, Response: {enable_resp.text[:200]}")
         return False
     return True
 
@@ -984,10 +969,7 @@ def _write_dashboard_updates_to_yaml(
             logger.warning(f"  [yellow]⚠[/yellow] Failed to write entry '{key}' to '{variables_yaml_path.name}'")
             continue
         any_written = True
-        logger.debug(
-            f"  '{key}': original_id={entry.get('original_id')}, "
-            f"uuid={entry.get('uuid')}, path='{variables_yaml_path}'"
-        )
+        logger.debug(f"  '{key}': original_id={entry.get('original_id')}, uuid={entry.get('uuid')}, path='{variables_yaml_path}'")
     return any_written
 
 
@@ -1117,20 +1099,14 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
 
     entry = yaml_data.get(sanitised_key)
     if entry is None:
-        logger.warning(
-            f"  [yellow]⚠[/yellow] Dashboard key '{sanitised_key}' not found in variables file "
-            "UUID is not yet available"
-        )
+        logger.warning(f"  [yellow]⚠[/yellow] Dashboard key '{sanitised_key}' not found in variables file UUID is not yet available")
         return None
     if isinstance(entry, str):
         return entry or None
     if isinstance(entry, dict):
         uuid = entry.get("uuid")
         if not uuid:
-            logger.warning(
-                f"  [yellow]⚠[/yellow] Dashboard '{sanitised_key}' found in variables "
-                "but 'uuid' field is empty"
-            )
+            logger.warning(f"  [yellow]⚠[/yellow] Dashboard '{sanitised_key}' found in variables but 'uuid' field is empty")
         return uuid or None
 
     logger.warning(
@@ -1159,12 +1135,8 @@ def get_uuid_by_dashboard_id(yaml_data: dict, target_id: str | int) -> str | Non
         if str(entry.get("original_id") or "") == target:
             uuid = entry.get("uuid")
             if uuid:
-                logger.debug(
-                    f"  get_uuid_by_dashboard_id: found key='{key}', uuid='{uuid}' for id={target}"
-                )
+                logger.debug(f"  get_uuid_by_dashboard_id: found key='{key}', uuid='{uuid}' for id={target}")
             return uuid or None
 
-    logger.warning(
-        f"  [yellow]⚠[/yellow] No dashboard entry with original_id='{target}' found in variables"
-    )
+    logger.warning(f"  [yellow]⚠[/yellow] No dashboard entry with original_id='{target}' found in variables")
     return None

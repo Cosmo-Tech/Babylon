@@ -23,12 +23,12 @@ Cascade organisation (top → bottom = high-level → low-level):
 """
 
 import subprocess
+from base64 import b64encode
 from logging import getLogger
 from pathlib import Path
 from string import Template
 from textwrap import dedent
 
-from base64 import b64encode
 from kubernetes import client, config, utils
 from kubernetes import config as kube_config
 from kubernetes.utils import FailToCreateError
@@ -171,7 +171,9 @@ def create_workspace_secret(
         return True
     except client.exceptions.ApiException as e:
         if getattr(e, "status", None) == 409:
-            logger.warning(f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] is already configured skipping creation[/dim]")
+            logger.warning(
+                f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] is already configured skipping creation[/dim]"
+            )
             return True
         logger.error(f"  [bold red]✘[/bold red] Failed to create secret {secret_name}: {e.reason}")
         return False
@@ -230,7 +232,10 @@ def create_coal_configmap(
         return True
     except client.ApiException as e:
         if e.status == 409:
-            logger.warning(f"  [yellow]⚠[/yellow] [dim]ConfigMap [magenta]{configmap_name}[/magenta] is already configured skipping creation[/dim]")
+            logger.warning(
+                f"  [yellow]⚠[/yellow] [dim]ConfigMap [magenta]{configmap_name}[/magenta] is already "
+                f"configured skipping creation[/dim]"
+            )
             return True
         logger.error(f"  [bold red]✘[/bold red] Failed to create ConfigMap '{configmap_name}': {e.reason}")
         return False
@@ -281,8 +286,11 @@ def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -
     logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
     wait_process = subprocess.run(
         [
-            "kubectl", "wait", "--for=condition=complete",
-            "job", k8s_job_name,
+            "kubectl",
+            "wait",
+            "--for=condition=complete",
+            "job",
+            k8s_job_name,
             f"--namespace={env.environ_id}",
             "--timeout=50s",
         ],
@@ -291,8 +299,7 @@ def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -
     )
     if wait_process.returncode != 0:
         logger.error(
-            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout "
-            "check 'babylon.log' for details"
+            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout check 'babylon.log' for details"
         )
         logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
         return
@@ -318,8 +325,7 @@ def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> N
         logger.debug(f"  Job logs: {job_logs}")
     elif "already exists" in job_logs:
         logger.info(
-            f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] "
-            "is already initialised skipping creation[/dim]"
+            f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] is already initialised skipping creation[/dim]"
         )
     else:
         logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] initialised successfully")
@@ -344,10 +350,7 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
 
     workspace_id_tmp = schema_name.replace("_", "-")
     db_host = get_postgres_service_host(env.environ_id)
-    logger.info(
-        f"  [dim]→ Destroying postgreSQL schema for workspace "
-        f"[bold cyan]{workspace_id_tmp}[/bold cyan]...[/dim]"
-    )
+    logger.info(f"  [dim]→ Destroying postgreSQL schema for workspace [bold cyan]{workspace_id_tmp}[/bold cyan]...[/dim]")
 
     pg_config = env.get_config_from_k8s_secret_by_tenant("postgresql-config", env.environ_id)
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
@@ -396,8 +399,11 @@ def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict
     logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
     wait_process = subprocess.run(
         [
-            "kubectl", "wait", "--for=condition=complete",
-            "job", k8s_job_name,
+            "kubectl",
+            "wait",
+            "--for=condition=complete",
+            "job",
+            k8s_job_name,
             f"--namespace={env.environ_id}",
             "--timeout=300s",
         ],
@@ -406,8 +412,7 @@ def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict
     )
     if wait_process.returncode != 0:
         logger.error(
-            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout "
-            "check 'babylon.log' for details"
+            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout check 'babylon.log' for details"
         )
         logger.debug(f"  kubectl wait stdout: {wait_process.stdout} stderr: {wait_process.stderr}")
         return
@@ -425,9 +430,7 @@ def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -
     )
     if logs_process.returncode != 0:
         logger.error(f"  [bold red]✘[/bold red] Failed to retrieve logs for job '{k8s_job_name}'")
-        logger.debug(
-            f"  kubectl logs stdout: {logs_process.stdout} stderr: {logs_process.stderr}"
-        )
+        logger.debug(f"  kubectl logs stdout: {logs_process.stdout} stderr: {logs_process.stderr}")
         return
 
     job_logs = logs_process.stdout or logs_process.stderr
@@ -435,10 +438,7 @@ def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -
         logger.error("  [bold red]✘[/bold red] Schema destruction failed the container reported an error")
         logger.debug(f"  Job logs: {job_logs}")
     elif "does not exist" in job_logs:
-        logger.info(
-            f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] "
-            "does not exist nothing to remove"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] does not exist nothing to remove")
         state["services"]["postgres"]["schema_name"] = ""
     else:
         logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] destroyed successfully")
