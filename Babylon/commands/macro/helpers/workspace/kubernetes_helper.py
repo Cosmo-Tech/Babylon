@@ -82,7 +82,7 @@ def deploy_postgres_schema(
             _run_schema_init_job(script_path, mapping, workspace_id, schema_name, state)
 
     organization_id = api_section["organization_id"]
-    logger.info(f"  [dim]→ Creating workspace secret for [cyan]{workspace_id}[/cyan]...[/dim]")
+    logger.info(f"  [dim]→ Creating workspace Secret for [cyan]{workspace_id}[/cyan]...[/dim]")
     create_workspace_secret(
         namespace=env.environ_id,
         organization_id=organization_id,
@@ -126,7 +126,7 @@ def get_postgres_service_host(namespace: str) -> str:
 
         return f"postgresql.{namespace}.svc.cluster.local"
     except Exception as e:
-        logger.warning("  [bold yellow]⚠[/bold yellow] Service discovery failed ! default will be used.")
+        logger.warning("  [yellow]⚠[/yellow] PostgreSQL service discovery failed falling back to default hostname")
         logger.debug(f"  Exception details: {e}", exc_info=True)
         return f"postgresql.{namespace}.svc.cluster.local"
 
@@ -171,12 +171,12 @@ def create_workspace_secret(
         return True
     except client.exceptions.ApiException as e:
         if getattr(e, "status", None) == 409:
-            logger.warning(f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] already exists[/dim]")
+            logger.warning(f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] is already configured skipping creation[/dim]")
             return True
         logger.error(f"  [bold red]✘[/bold red] Failed to create secret {secret_name}: {e.reason}")
         return False
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error creating secret {secret_name}")
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error creating Secret '{secret_name}'")
         logger.debug(f"  Detail: {e}", exc_info=True)
         return False
 
@@ -230,12 +230,12 @@ def create_coal_configmap(
         return True
     except client.ApiException as e:
         if e.status == 409:
-            logger.warning(f"  [yellow]⚠[/yellow] [dim]ConfigMap [magenta]{configmap_name}[/magenta] already exists[/dim]")
+            logger.warning(f"  [yellow]⚠[/yellow] [dim]ConfigMap [magenta]{configmap_name}[/magenta] is already configured skipping creation[/dim]")
             return True
-        logger.error(f"  [bold red]✘[/bold red] Failed to create ConfigMap {configmap_name}: {e.reason}")
+        logger.error(f"  [bold red]✘[/bold red] Failed to create ConfigMap '{configmap_name}': {e.reason}")
         return False
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error creating ConfigMap {configmap_name}")
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error creating ConfigMap '{configmap_name}'")
         logger.debug(f"  Detail: {e}", exc_info=True)
         return False
 
@@ -269,11 +269,11 @@ def _run_schema_init_job(
             if inner_exception.status == 409:
                 logger.warning(f"  [yellow]⚠[/yellow] [dim]Job [cyan]{k8s_job_name}[/cyan] already exists.[/dim]")
             else:
-                logger.error(f"  [bold red]✘[/bold red] K8s Error ({inner_exception.status}): {inner_exception.reason}")
+                logger.error(f"  [bold red]✘[/bold red] Kubernetes API error ({inner_exception.status}): {inner_exception.reason}")
                 logger.debug(f"  Detail: {inner_exception.body}")
     except Exception as e:
-        logger.error("  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
-        logger.debug(f"  [bold red]✘[/bold red] {e}")
+        logger.error("  [bold red]✘[/bold red] Unexpected error submitting Kubernetes job see 'babylon.log' for details")
+        logger.debug(f"  {e}")
 
 
 def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
@@ -291,12 +291,12 @@ def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -
     )
     if wait_process.returncode != 0:
         logger.error(
-            f"  [bold red]✘[/bold red] Job {k8s_job_name} did not complete successfully "
-            "see babylon logs for details"
+            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout "
+            "check 'babylon.log' for details"
         )
         logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
         return
-    logger.info("  [dim]→ Checking job logs for errors...[/dim]")
+    logger.debug(f"  Inspecting logs for job '{k8s_job_name}'...")
     _handle_init_job_logs(k8s_job_name, schema_name, state)
 
 
@@ -308,21 +308,21 @@ def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> N
         text=True,
     )
     if logs_process.returncode != 0:
-        logger.error(f" [bold red]✘[/bold red] Failed to retrieve logs for job {k8s_job_name}")
-        logger.debug(f" [bold red]✘[/bold red] Logs retrieval output {logs_process.stdout} {logs_process.stderr}")
+        logger.error(f"  [bold red]✘[/bold red] Failed to retrieve logs for job '{k8s_job_name}'")
+        logger.debug(f"  kubectl logs stdout: {logs_process.stdout} stderr: {logs_process.stderr}")
         return
 
     job_logs = logs_process.stdout or logs_process.stderr
     if "ERROR" in job_logs or "error" in job_logs:
-        logger.error("  [bold red]✘[/bold red] Schema creation failed inside the container")
-        logger.debug(f"  [bold red]✘[/bold red] Job logs : {job_logs}")
+        logger.error("  [bold red]✘[/bold red] Schema initialisation failed the container reported an error")
+        logger.debug(f"  Job logs: {job_logs}")
     elif "already exists" in job_logs:
         logger.info(
             f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] "
-            "already exists (skipping creation)[/dim]"
+            "is already initialised skipping creation[/dim]"
         )
     else:
-        logger.info(f"  [green]✔[/green] Schema creation [magenta]{schema_name}[/magenta] completed successfully")
+        logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] initialised successfully")
         state["services"]["postgres"]["schema_name"] = schema_name
 
 
@@ -382,8 +382,8 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
         utils.create_from_dict(k8s_client, yaml_dict, namespace=env.environ_id)
         _wait_and_check_destroy_job(k8s_job_name, schema_name, state)
     except Exception as e:
-        logger.error("  [bold red]✘[/bold red] Unexpected error please check babylon logs file for details")
-        logger.debug(f"  [bold red]✘[/bold red] {e}")
+        logger.error("  [bold red]✘[/bold red] Unexpected error submitting the destroy job see 'babylon.log' for details")
+        logger.debug(f"  {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -406,13 +406,13 @@ def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict
     )
     if wait_process.returncode != 0:
         logger.error(
-            f"  [bold red]✘[/bold red] Job {k8s_job_name} did not complete successfully "
-            "see babylon logs for details"
+            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout "
+            "check 'babylon.log' for details"
         )
-        logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
+        logger.debug(f"  kubectl wait stdout: {wait_process.stdout} stderr: {wait_process.stderr}")
         return
 
-    logger.info("  [dim]→ Checking job logs for errors...[/dim]")
+    logger.debug(f"  Inspecting logs for job '{k8s_job_name}'...")
     _handle_destroy_job_logs(k8s_job_name, schema_name, state)
 
 
@@ -424,24 +424,24 @@ def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -
         text=True,
     )
     if logs_process.returncode != 0:
-        logger.error(f"  [bold red]✘[/bold red] Failed to retrieve logs for job {k8s_job_name}")
+        logger.error(f"  [bold red]✘[/bold red] Failed to retrieve logs for job '{k8s_job_name}'")
         logger.debug(
-            f"  [bold red]✘[/bold red] Logs retrieval output {logs_process.stdout} {logs_process.stderr}"
+            f"  kubectl logs stdout: {logs_process.stdout} stderr: {logs_process.stderr}"
         )
         return
 
     job_logs = logs_process.stdout or logs_process.stderr
     if "ERROR" in job_logs or "error" in job_logs:
-        logger.error("  [bold red]✘[/bold red] Schema destruction failed inside the container")
-        logger.debug(f"  [bold red]✘[/bold red] Job logs : {job_logs}")
+        logger.error("  [bold red]✘[/bold red] Schema destruction failed the container reported an error")
+        logger.debug(f"  Job logs: {job_logs}")
     elif "does not exist" in job_logs:
         logger.info(
-            f"  [yellow]⚠[/yellow] [dim]Schema [magenta]{schema_name}[/magenta] "
-            "does not exist (nothing to clean)[/dim]"
+            f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] "
+            "does not exist nothing to remove"
         )
         state["services"]["postgres"]["schema_name"] = ""
     else:
-        logger.info(f"  [green]✔[/green] Schema destruction [magenta]{schema_name}[/magenta] completed successfully")
+        logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] destroyed successfully")
         state["services"]["postgres"]["schema_name"] = ""
 
 
@@ -483,11 +483,11 @@ def _delete_secret(v1: client.CoreV1Api, secret_name: str, namespace: str) -> No
         logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] deleted")
     except client.ApiException as e:
         if e.status == 404:
-            logger.warning("  [yellow]⚠[/yellow] [dim]Secret not found (already deleted)[/dim]")
+            logger.warning("  [yellow]⚠[/yellow] [dim]Secret not found already deleted[/dim]")
         else:
-            logger.error(f"  [bold red]✘[/bold red] Failed to delete secret {secret_name}: {e.reason}")
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete Secret '{secret_name}': {e.reason}")
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting secret {secret_name}")
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting Secret '{secret_name}'")
         logger.debug(f"  Detail: {e}", exc_info=True)
 
 
@@ -499,9 +499,9 @@ def _delete_configmap(v1: client.CoreV1Api, configmap_name: str, namespace: str)
         logger.info(f"  [bold green]✔[/bold green] ConfigMap [magenta]{configmap_name}[/magenta] deleted")
     except client.ApiException as e:
         if e.status == 404:
-            logger.warning("  [yellow]⚠[/yellow] [dim]ConfigMap not found (already deleted)[/dim]")
+            logger.warning("  [yellow]⚠[/yellow] [dim]ConfigMap not found already deleted[/dim]")
         else:
-            logger.error(f"  [bold red]✘[/bold red] Failed to delete ConfigMap {configmap_name}: {e.reason}")
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete ConfigMap '{configmap_name}': {e.reason}")
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting ConfigMap {configmap_name}")
+        logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting ConfigMap '{configmap_name}'")
         logger.debug(f"  Detail: {e}", exc_info=True)
