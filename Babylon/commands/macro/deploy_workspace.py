@@ -5,12 +5,12 @@ from click import echo, style
 
 from Babylon.commands.api.workspace import get_workspace_api_instance
 from Babylon.commands.macro.helpers.workspace import (
-    create_workspace,
-    deploy_postgres_schema,
-    deploy_dashboard,
-    update_workspace,
+    _build_dashboard_ext_args,
     _fetch_and_store_embedded_dashboard_uuids,
-    _build_dashboard_ext_args
+    create_workspace,
+    deploy_dashboard,
+    deploy_postgres_schema,
+    update_workspace,
 )
 from Babylon.utils.credentials import get_keycloak_token, get_superset_token
 from Babylon.utils.environment import Environment
@@ -20,11 +20,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_workspace(
-    namespace: str,
-    file_content: str,
-    deploy_dir: Path
-) -> bool:
+def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path) -> bool:
     echo(style(f"\n🚀 Deploying Workspace in namespace: {env.environ_id}", bold=True, fg="cyan"))
 
     env.get_ns_from_text(content=namespace)
@@ -64,11 +60,7 @@ def deploy_workspace(
         provider = (dashboard_config.get("provider") or "").lower()
         # deploy_dashboard returns (success, zip_uuids)
         ok, zip_uuids = deploy_dashboard(
-            provider=provider,
-            reports=dashboard_config.get("reports", []),
-            state=state,
-            superset_config=config,
-            deploy_dir=deploy_dir
+            provider=provider, reports=dashboard_config.get("reports", []), state=state, superset_config=config, deploy_dir=deploy_dir
         )
         if not ok:
             return CommandResponse.fail()

@@ -63,9 +63,7 @@ def get_superset_token(base_url: str, config: dict) -> str | None:
     password = config.get("superset_admin_password") or ""
 
     if not username or not password:
-        logger.error(
-            "  [bold red]✘[/bold red] Superset admin credentials not found in config. "
-        )
+        logger.error("  [bold red]✘[/bold red] Superset admin credentials not found in config. ")
         return None
 
     url = f"{base_url.rstrip('/')}/api/v1/security/login"
@@ -80,10 +78,7 @@ def get_superset_token(base_url: str, config: dict) -> str | None:
         logger.debug(f"  [dim]→ Authenticating to Superset (db provider) at {url}[/dim]")
         response = requests.post(url, json=payload, timeout=10)
         if not response.ok:
-            logger.error(
-                f"  [bold red]✘[/bold red] Superset login failed "
-                f"({response.status_code}): {response.text}"
-            )
+            logger.error(f"  [bold red]✘[/bold red] Superset login failed ({response.status_code}): {response.text}")
             return None
 
         token = response.json().get("access_token")
@@ -97,6 +92,7 @@ def get_superset_token(base_url: str, config: dict) -> str | None:
     except Exception as exp:
         logger.error(f"  [bold red]✘[/bold red] Could not authenticate to Superset: {exp}")
         return None
+
 
 def get_azure_token(scope: str = "default") -> str:
     """Returns an azure token"""
