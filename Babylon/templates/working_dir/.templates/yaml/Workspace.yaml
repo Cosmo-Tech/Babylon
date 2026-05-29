@@ -11,7 +11,7 @@ spec:
             path: postgres/jobs
     dashboards:
       provider: superset
-      create: true
+      create: false
       reports:
         - name: dashboard_export_20260429T122243
           path: dashboard/superset/dashboard_export_20260429T122243.zip
