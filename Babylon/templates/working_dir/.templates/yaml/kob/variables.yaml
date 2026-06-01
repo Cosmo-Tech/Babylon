@@ -30,6 +30,11 @@ organization_id: o-xxxxxxxxxxxx
 azure_entra_tenant_id: e413b834-8be8-4822-a370-be619545cb49
 state_host: https://cosmotechstates.onpremise.platform.cosmotech.com
 
+# Webapp module version — pinned to a specific release of terraform-webapp.
+# Override with --tf-webapp-version on 'babylon init', or edit this value directly.
+# See available versions: https://github.com/Cosmo-Tech/terraform-webapp/releases
+tf_webapp_version: "0.2.0"
+
 # Remote state
 remote: true
 

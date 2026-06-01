@@ -12,3 +12,4 @@ spec:
     organization_id: "{{services['api.organization_id']}}"
     state_host: "{{state_host}}"
     powerbi_app_deploy: {{powerbi_app_deploy}}
+    tf_webapp_version: "{{tf_webapp_version}}"
