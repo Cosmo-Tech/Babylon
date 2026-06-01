@@ -6,6 +6,7 @@ Covers:
 - Running a Terraform subprocess and streaming its output
 - Finalising state after a successful Terraform apply
 - Destroying WebApp infrastructure via Terraform
+- Switching the local terraform-webapp clone to a specific version
 """
 
 import subprocess
@@ -19,6 +20,23 @@ from Babylon.utils.environment import Environment
 
 logger = getLogger(__name__)
 env = Environment()
+
+
+def ensure_tf_webapp_version(tf_dir: Path, version: str) -> None:
+    """Checkout *version* in the local terraform-webapp clone.
+
+    Silently succeeds if already on that commit/tag.
+    """
+    try:
+        subprocess.run(
+            ["git", "-C", str(tf_dir), "checkout", "-q", version],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        logger.debug(f"  terraform-webapp version [cyan]{version}[/cyan] checked out")
+    except subprocess.CalledProcessError as exc:
+        logger.error(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
 
 
 def dict_to_tfvars(payload: dict) -> str:

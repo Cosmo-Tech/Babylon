@@ -14,6 +14,7 @@ env = Environment()
 
 _TF_WEBAPP_DIR = "terraform-webapp"
 _TF_WEBAPP_REPO_URL = "https://github.com/Cosmo-Tech/terraform-webapp.git"
+_TF_WEBAPP_DEFAULT_VERSION = "0.2.0"
 _VARIABLES_TEMPLATE = "variables.yaml"
 
 _PROJECT_YAML_FILES = [
@@ -38,30 +39,50 @@ def _get_provider_template(cloud_provider: str, filename: str) -> Path:
     return env.original_template_path / "yaml" / filename
 
 
-def _clone_webapp(tf_webapp_path: Path) -> None:
-    """Clone the Terraform WebApp repository into *tf_webapp_path*."""
-    logger.info("  [dim]→ Cloning Terraform WebApp module...[/dim]")
+def _clone_webapp(tf_webapp_path: Path, version: str) -> None:
+    """Clone the Terraform WebApp repository at *version* into *tf_webapp_path*."""
+    logger.info(f"  [dim]→ Cloning Terraform WebApp module (version [cyan]{version}[/cyan])...[/dim]")
     try:
         subprocess.run(
             ["git", "clone", "-q", _TF_WEBAPP_REPO_URL, str(tf_webapp_path)],
             check=True,
             stdout=subprocess.DEVNULL,
         )
+        subprocess.run(
+            ["git", "-C", str(tf_webapp_path), "checkout", "-q", version],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         if tf_webapp_path.exists():
-            logger.info("  [green]✔[/green] Terraform WebApp module cloned")
+            logger.info(f"  [green]✔[/green] Terraform WebApp module cloned at version [cyan]{version}[/cyan]")
         else:
             logger.error("  [bold red]✘[/bold red] Terraform WebApp module was not created after cloning")
     except subprocess.CalledProcessError as exc:
         logger.error(f"  [bold red]✘[/bold red] Failed to clone Terraform repo: {exc}")
 
 
-def _ensure_webapp(tf_webapp_path: Path) -> None:
-    """Log success when *tf_webapp_path* exists, otherwise clone it."""
+def _ensure_webapp(tf_webapp_path: Path, version: str) -> None:
+    """Ensure *tf_webapp_path* exists at the requested *version*.
+
+    - If the directory does not exist, clone it and check out *version*.
+    - If it already exists, switch to *version* (no-op if already on it).
+    """
     if tf_webapp_path.exists():
         logger.info("  [green]✔[/green] Webapp directory [cyan]terraform-webapp[/cyan] already exists.")
+        try:
+            subprocess.run(
+                ["git", "-C", str(tf_webapp_path), "checkout", "-q", version],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            logger.info(f"  [green]✔[/green] Terraform WebApp version set to [cyan]{version}[/cyan]")
+        except subprocess.CalledProcessError as exc:
+            logger.error(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
     else:
         logger.warning("  [bold yellow]![/bold yellow] Webapp directory not found")
-        _clone_webapp(tf_webapp_path)
+        _clone_webapp(tf_webapp_path, version)
 
 
 def _ensure_variables_file(variables_path: Path, variables_file: str, cloud_provider: str) -> None:
@@ -84,7 +105,7 @@ def _ensure_variables_file(variables_path: Path, variables_file: str, cloud_prov
 
 
 def _scaffold_project(
-    project_path: Path, variables_path: Path, variables_file: str, tf_webapp_path: Path, cloud_provider: str
+    project_path: Path, variables_path: Path, variables_file: str, tf_webapp_path: Path, cloud_provider: str, tf_webapp_version: str
 ) -> None:
     """Create the full project directory structure and copy all template files."""
     try:
@@ -93,7 +114,7 @@ def _scaffold_project(
         _create_postgres_jobs(project_path)
         _create_dashboard_dirs(project_path)
         _copy_variables_template(variables_path, variables_file, cloud_provider)
-        _ensure_webapp(tf_webapp_path)
+        _ensure_webapp(tf_webapp_path, tf_webapp_version)
         _print_success_summary(project_path, variables_file)
     except OSError as exc:
         logger.error("  [bold red]✘[/bold red] An error occurred while scaffolding see babylon logs for details")
@@ -165,8 +186,15 @@ def _print_success_summary(project_path: Path, variables_file: str) -> None:
 @command()
 @option("--project-folder", default="project", help="Name of the project folder to create (default: 'project').")
 @option("--variables-file", default="variables.yaml", help="Name of the variables file (default: 'variables.yaml').")
+@option(
+    "--tf-webapp-version",
+    "tf_webapp_version",
+    default=_TF_WEBAPP_DEFAULT_VERSION,
+    show_default=True,
+    help=f"Version (tag) of the terraform-webapp module to clone/checkout. Default: {_TF_WEBAPP_DEFAULT_VERSION}.",
+)
 @argument("cloud_provider", type=Choice(["azure", "kob"], case_sensitive=False))
-def init(project_folder: str, variables_file: str, cloud_provider: str):
+def init(project_folder: str, variables_file: str, tf_webapp_version: str, cloud_provider: str):
     """
     Scaffolds a new Babylon project structure using YAML templates.
 
@@ -182,9 +210,9 @@ def init(project_folder: str, variables_file: str, cloud_provider: str):
     # Validation mode: project folder already exists — check each component.
     if project_path.exists():
         logger.info(f"  [green]✔[/green] Project directory [cyan]{project_folder}[/cyan] already exists.")
-        _ensure_webapp(tf_webapp_path)
+        _ensure_webapp(tf_webapp_path, tf_webapp_version)
         _ensure_variables_file(variables_path, variables_file, cloud_provider)
         return None
 
     # Scaffold mode: nothing exists yet — build everything from scratch.
-    _scaffold_project(project_path, variables_path, variables_file, tf_webapp_path, cloud_provider)
+    _scaffold_project(project_path, variables_path, variables_file, tf_webapp_path, cloud_provider, tf_webapp_version)
