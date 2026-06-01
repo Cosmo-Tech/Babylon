@@ -12,3 +12,4 @@ spec:
     azure_subscription_id: "{{azure_subscription_id}}"
     azure_entra_tenant_id: "{{azure_entra_tenant_id}}"
     powerbi_app_deploy: {{powerbi_app_deploy}}
+    tf_webapp_version: "{{tf_webapp_version}}"
