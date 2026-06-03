@@ -13,8 +13,12 @@ spec:
       provider: superset
       create: false
       reports:
-        - name: dashboard_export_20260429T122243
-          path: dashboard/superset/dashboard_export_20260429T122243.zip
+        - name: dashboard_satisfaction
+          path: dashboard/superset/dashboard_satisfaction.zip
+        - name: dashboard_scenarioView
+          path: dashboard/superset/dashboard_scenarioView.zip
+        - name: dashboard_stock
+          path: dashboard/superset/dashboard_stock.zip
   payload:
     key: "{{workspace_key}}"
     name: "{{workspace_name}}"
@@ -25,24 +29,243 @@ spec:
     sendScenarioMetadataToEventHub: true
     sendInputToDataWarehouse: true
     sendScenarioRunToEventHub: true
+    datasetCopy: false
     additionalData:
       webapp:
         solution:
           runTemplateFilter:
-          defaultRunTemplateDataset: null
+            - full_demo
+            - standalone
         charts:
-          workspaceId:
           supersetDomain: 'https://superset-{{cluster_name}}.{{domain_zone}}'
-          logInWithUserCredentials: false
-          scenarioViewIframeDisplayRatio: 4.514285714
-          dashboardsViewIframeDisplayRatio: 1.610062893
-          useWebappTheme: true
-          dashboardsView:
+          dashboards:
+            - id: '{{qadashboardsatisfaction}}'
+              width: 100%
+              filters:
+                - id: YYAjEQr9vU5hY6JDURdd5
+                  operator: ==
+                  column: Simulation_run
+                  value: lastRunId
+            - id: '{{qadashboardscenarioview}}'
+              width: 100%
+              filters:
+                - id: RU4aRKyBZNo-VOvm-RlGr
+                  operator: ==
+                  column: Simulation_run
+                  value: lastRunId
+            - id: '{{qadashboardstocks}}'
+              width: 100%
+              filters:
+                - id: CguNPknZV8LkJoV-kSJ1t
+                  operator: ==
+                  column: Simulation_run
+                  value: lastRunId
+              hideFilters: true
+              expandFilters: false
           scenarioView:
+            default: '{{qadashboardscenarioview}}'
+          dashboardView:
+            - id: '{{qadashboardsatisfaction}}'
+              title:
+                en: Customers Overview
+                fr: Aperçu des clients
+            - id: '{{qadashboardstocks}}'
+              title:
+                en: Stocks Overview
+                fr: Aperçu des stocks
         menu:
           supportUrl: 'https://support.cosmotech.com'
           organizationUrl: 'https://cosmotech.com'
-          documentationUrl: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
-        datasetManager: 'removeToDisableDatasetManager'
-        datasourceFilter: []
+          documentationUrl: '{{documentation_url}}'
+        datasetManager:
+          kpiCards:
+            - name:
+                en: Number of customers
+                fr: Nombre de clients
+              id: count_Name
+              queryId: count_customers
+            - name:
+                en: Number of events
+                fr: Nombre d'événements
+              id: count_Event Name
+              queryId: count_events
+          categories:
+            - previewTable:
+                columns:
+                  - headerName: Name
+                    field: Name
+                    type:
+                      - string
+                  - headerName: Date of birth
+                    field: Date of birth
+                    type:
+                      - date
+                  - headerName: Age
+                    field: Age
+                    type:
+                      - int
+                  - headerName: Preferred drink
+                    field: Preferred drink
+                    type:
+                      - enum
+                    enumValues:
+                      - Beer
+                      - Cocktail
+                      - Softs
+                      - Wine
+                      - Champagne
+                  - headerName: Satisfaction
+                    field: Satisfaction
+                    type:
+                      - number
+                  - headerName: Thirsty
+                    field: Thirsty
+                    type:
+                      - bool
+                  - headerName: Service Wave
+                    field: Service Wave
+                    type:
+                      - enum
+                    enumValues:
+                      - Happy Hour
+                      - Evening
+                      - Late Night
+                      - Afternoon
+                queryId: customers_table
+              name:
+                en: Customers
+                fr: Clients
+              description:
+                en: Customers are individuals visiting a bar, consuming drinks, interacting with each other...
+                fr: Les clients sont des personnes fréquentant un bar...
+              attributes:
+                - Name
+                - Age
+                - Preferred drink
+                - Satisfaction
+              id: customers
+              type: entity
+              kpis:
+                - name:
+                    en: 'Preferred drinks:'
+                    fr: 'Boissons préférées :'
+                  id: Preferred drink
+                  queryId: pref_drink
+                - name:
+                    en: 'Average age:'
+                    fr: 'Age moyen :'
+                  id: avg_Age
+                  queryId: avg_age
+                - name:
+                    en: 'Average satisfaction:'
+                    fr: 'Satisfaction moyenne :'
+                  id: avg_Satisfaction
+                  queryId: avg_satisfaction
+                - name:
+                    en: 'Maximal satisfaction:'
+                    fr: 'Satisfaction maximale :'
+                  id: max_Satisfaction
+                  queryId: maxs_satisfaction
+                - name:
+                    en: 'Minimal satisfaction:'
+                    fr: 'Satisfaction minimale :'
+                  id: min_Satisfaction
+                  queryId: mins_satisfaction
+            - previewTable:
+                columns:
+                  - headerName: Event Name
+                    field: Event Name
+                    type:
+                      - string
+                  - headerName: Event Type
+                    field: Event Type
+                    type:
+                      - enum
+                    enumValues:
+                      - After-work
+                      - Birthday
+                      - Ceremony
+                      - Christmas
+                      - Halloween
+                      - Pool party
+                      - Wedding
+                  - headerName: Maximum capacity
+                    field: Maximum capacity
+                    type:
+                      - int
+                  - headerName: Current Reservations
+                    field: Current Reservations
+                    type:
+                      - int
+                  - headerName: Notes
+                    field: Notes
+                    type:
+                      - string
+                    acceptsEmptyFields: true
+                  - headerName: Zone
+                    field: Zone
+                    type:
+                      - enum
+                    enumValues:
+                      - Private Room
+                      - Terrace
+                      - Basement
+                      - Bar
+                      - Ball Room
+                queryId: events_table
+              name:
+                en: Events
+                fr: Evénements
+              id: events
+              type: entity
+          queries:
+            - options:
+                selects: Name,Date of birth,Age,Preferred drink,Satisfaction,Thirsty,Service Wave
+              datasetPartName: Customer
+              id: customers_table
+            - options:
+                selects: Event Name,Event Type,Maximum capacity,Current Reservations,Notes,Zone
+              datasetPartName: Events
+              id: events_table
+            - options:
+                counts: Name
+              datasetPartName: Customer
+              id: count_customers
+            - options:
+                avgs: Satisfaction
+              datasetPartName: Customer
+              id: avg_satisfaction
+            - options:
+                avgs: Age
+              datasetPartName: Customer
+              id: avg_age
+            - options:
+                counts: Event Name
+              datasetPartName: Events
+              id: count_events
+            - options:
+                selects: Preferred drink*
+              datasetPartName: Customer
+              id: pref_drink
+            - options:
+                mins: Satisfaction
+              datasetPartName: Customer
+              id: mins_satisfaction
+            - options:
+                maxs: Satisfaction
+              datasetPartName: Customer
+              id: maxs_satisfaction
+            - options:
+                selects: Event Type*
+              datasetPartName: Events
+              id: list_event_types
+            - options:
+                sums: Current Reservations
+              datasetPartName: Events
+              id: sum_reservations
+          datasourceFilter:
+            - FileUploadToDataset
+            - None
+            - etl_zip2db
+            - etl_allfields
     security: {{security}}
