@@ -12,17 +12,654 @@ spec:
     description: "{{solution_description}}"
     repository: "{{simulator_repository}}"
     version: "{{simulator_version}}"
-    sdkVersion: '12.0.0'
+    sdkVersion: '12.1.0'
     alwaysPull: true
-    url: 'https://webapp-url.com'
+    url: 'https://{{cluster_name}}.{{domain_zone}}/tenant-{{tenant}}/webapp-{{webapp_name}}'
     tags:
       - brewery
     runTemplates:
+      - id: full_demo
+        parameterGroups:
+          - bar_complete
+          - customers_complete
+          - events_complete
+          - simulation_parameters
+        name: Complete Brewery
+        labels:
+          fr: Brewery - Tous les paramètres
+          en: Brewery - All parameters
+        description: This template contains all the parameters type for QA tests or for demonstrations
+        tags:
+          - QA
+          - Demonstration
+        computeSize: null
+        runSizing: null
+        executionTimeout: null
       - id: standalone
-        name: Standard simulation
-        csmSimulation: AzureWebApp/AzureWebApp_Simulation
-        run: true
-        preRun: true
+        parameterGroups: []
+        name: Run template without parameters
+        labels:
+          fr: Run template sans paramètres
+          en: Run template without parameters
+        description: Run template without parameters or outputs
+        tags:
+          - standalone
+          - No param
+        computeSize: null
+        runSizing: null
+        executionTimeout: null
+      - id: hidden test run template
+        parameterGroups: []
+        name: Hidden test run template without parameters
+        labels:
+          fr: Run template masqué sans paramètres
+          en: Hidden test run template without parameters
+        description: Run template without parameters
+        tags: null
+        computeSize: null
+        runSizing: null
+        executionTimeout: null
+      - id: etl_zip2db
+        parameterGroups:
+          - etl_param_group_local_file
+        name: etl_zip2db
+        labels:
+          fr: ETL - Générateur de dataset type DB
+          en: ETL - DB parts generator
+        description: This ETL split any .zip file in DB part, one for each .csv file provided in the .zip
+        tags:
+          - datasource
+        computeSize: null
+        runSizing: null
+        executionTimeout: null
+      - id: etl_allfields
+        parameterGroups:
+          - etl_param_group_all_fields
+        name: ELT - All fields
+        labels:
+          fr: ETL - Tous types de champs
+          en: ETL - All fields
+        description: This ETL is only used to test all the field types in the dataset creation wizard
+        tags:
+          - datasource
+        computeSize: null
+        runSizing: null
+        executionTimeout: null
+      - id: etl_sub_dataset_dynamic_fields
+        parameterGroups:
+          - etl_param_group_dynamic_subdatasets
+        name: ETL - Subdatasets dynamic filters
+        labels:
+          fr: ETL - Subdatasets avec filtres dynamiques
+          en: ETL - Subdatasets dynamic filters
+        description: The non dynamic fields are tested in the dataset creation ETL, here it's only the dynamic fields.
+        tags:
+          - subdatasource
+        computeSize: null
+        runSizing: null
+        executionTimeout: null
     parameters:
+      - id: stock
+        labels:
+          fr: Stock
+          en: Stock
+        varType: int
+        defaultValue: '50'
+      - id: restock_qty
+        labels:
+          fr: Restock
+          en: Restock
+        varType: int
+        defaultValue: '25'
+      - id: nb_waiters
+        labels:
+          fr: Serveurs
+          en: Waiters
+        varType: int
+        defaultValue: '5'
+      - id: etl_param_bar_instance
+        varType: '%DATASET_PART_ID_FILE%'
+        description: null
+        labels:
+          fr: fichier d'instance
+          en: instance file
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          description: Initial stock dataset part
+          defaultFileTypeFilter: .zip
+          shouldRenameFileOnUpload: true
+      - id: bar_name
+        varType: string
+        description: Name of the bar
+        labels:
+          fr: Nom du bar
+          en: Bar name
+        defaultValue: Default Name
+        minValue: null
+        maxValue: null
+        additionalData:
+          minLength: 1
+          maxLength: 100
+      - id: available_waiters
+        varType: number
+        description: Number of available waiters
+        labels:
+          fr: Nombre de serveurs disponibles
+          en: Number of available waiters
+        defaultValue: "10"
+        minValue: "0"
+        maxValue: "15"
+        additionalData:
+          subType: SLIDER
+      - id: min_tip
+        varType: enum
+        description: Minimal tip
+        labels:
+          fr: Pourboire minimal
+          en: Minimal tip
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          subType: RADIO
+          enumValues:
+            - key: "5"
+              value: 5%
+            - key: "10"
+              value: 10%
+            - key: "15"
+              value: 15%
+      - id: licence
+        varType: enum
+        description: Licence  Category
+        labels:
+          fr: Categorie de Licence
+          en: Licence  Category
+        defaultValue: Licence III
+        minValue: null
+        maxValue: null
+        additionalData:
+          enumValues:
+            - key: No
+              value: No licence
+            - key: "1"
+              value: Licence I
+            - key: "3"
+              value: Licence III
+            - key: "4"
+              value: Licence IV
+      - id: age_restriction
+        varType: bool
+        description: Legal age restriction
+        labels:
+          fr: Age légal à 21 ans
+          en: 21 years old legislation
+        defaultValue: "false"
+        minValue: null
+        maxValue: null
+        additionalData: null
+      - id: restock_date
+        varType: date
+        description: Last restock date
+        labels:
+          fr: Date du dernier réapprovisionnement du bar
+          en: Date of the last bar restock
+        defaultValue: "2025-12-31T00:00:00.000Z"
+        minValue: "2020-01-01T00:00:00.000Z"
+        maxValue: "2030-12-31T00:00:00.000Z"
+        additionalData: {}
+      - id: discount
+        varType: number
+        description: Discount rate
+        labels:
+          fr: Taux de remise
+          en: Discount rate
+        defaultValue: "50"
+        minValue: "0"
+        maxValue: "100"
+        additionalData: {}
+      - id: MoodDay
+        varType: string
+        description: Mood of the day
+        labels:
+          fr: Humeur du jour
+          en: Mood of the day
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          maxLength: 100
+      - id: scenario_bar_compare
+        varType: enum
+        description: Scenario comparison
+        labels:
+          fr: Choisissez scénario
+          en: Select scenario
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          subType: SCENARIOS
+          runTemplateFilter:
+            - full_demo
+          tooltipText:
+            fr: Choisissez le scénario avec lequel les données seront comparées
+            en: Choose the scenario to compare data with
+      - id: restock_values
+        varType: '%DATASET_PART_ID_FILE%'
+        description: Restock values
+        labels:
+          fr: Valeurs de réapprovisionnement
+          en: Restock values
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          defaultFileTypeFilter: .zip,.csv,.json,.xls,.xlsx
+          tooltipText:
+            fr: Importez le fichier contenant les informations de réapprovisionnement
+            en: Import file with restock information
+      - id: customers_dynamic_table
+        varType: '%DATASET_PART_ID_FILE%'
+        description: null
+        labels:
+          fr: Clients
+          en: Customers
+        defaultValue: "true"
+        minValue: null
+        maxValue: null
+        additionalData:
+          subType: TABLE
+          dateFormat: yyyy-MM-dd
+          dynamicValues:
+            datasetPartName: Customer
+          columns:
+            - field: Name
+              headerName: Name
+              type:
+                - string
+                - nonEditable
+            - field: Date of birth
+              headerName: Date of birth
+              type:
+                - date
+              maxValue: "2008-01-01"
+              acceptsEmptyFields: true
+            - field: Age
+              headerName: Age
+              type:
+                - int
+              minValue: 18
+              acceptsEmptyFields: false
+            - field: Preferred drink
+              headerName: Preferred drink
+              type:
+                - enum
+                - nonSortable
+              enumValues:
+                - Beer
+                - Cocktail
+                - Softs
+                - Wine
+                - Champagne
+              acceptsEmptyFields: false
+            - field: Satisfaction
+              headerName: Satisfaction
+              type:
+                - number
+              minValue: 0
+              maxValue: 10
+              acceptsEmptyFields: true
+            - field: Thirsty
+              headerName: Thirsty
+              type:
+                - bool
+                - nonSortable
+              acceptsEmptyFields: false
+            - field: Service Wave
+              headerName: Service Wave
+              type:
+                - enum
+              enumValues:
+                - Happy Hour
+                - Evening
+                - Late Night
+                - Afternoon
+              acceptsEmptyFields: false
+      - id: events_dynamic_table
+        varType: '%DATASET_PART_ID_FILE%'
+        description: null
+        labels:
+          fr: Evènements programmés
+          en: Planned events
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          canChangeRowsNumber: true
+          subType: TABLE
+          dynamicValues:
+            datasetPartName: Events
+          columns:
+            - field: Event Name
+              headerName: Event Name
+              type:
+                - string
+              defaultValue: Event Name
+              acceptsEmptyFields: false
+            - field: Event Type
+              headerName: Event Type
+              type:
+                - enum
+              defaultValue: Christmas
+              enumValues:
+                - After-work
+                - Birthday
+                - Ceremony
+                - Christmas
+                - Halloween
+                - Pool party
+                - Wedding
+              acceptsEmptyFields: false
+            - headerName: Capacity
+              children:
+                - field: Maximum capacity
+                  headerName: Maximum capacity
+                  type:
+                    - int
+                  minValue: 0
+                  maxValue: 500
+                  acceptsEmptyFields: true
+                - field: Current Reservations
+                  headerName: Current Reservations
+                  type:
+                    - int
+                  minValue: 0
+                  maxValue: 500
+                  acceptsEmptyFields: true
+                - field: Notes
+                  headerName: Notes
+                  type:
+                    - string
+                  columnGroupShow: open
+                  acceptsEmptyFields: true
+            - field: Zone
+              headerName: Zone
+              type:
+                - enum
+              defaultValue: Bar
+              enumValues:
+                - Private Room
+                - Terrace
+                - Basement
+                - Bar
+                - Ball Room
+              acceptsEmptyFields: false
+      - id: additional_customers
+        varType: '%DATASET_PART_ID_FILE%'
+        description: null
+        labels:
+          fr: Ajouter des clients
+          en: Add customers
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          canChangeRowsNumber: true
+          subType: TABLE
+          dateFormat: yyyy-MM-dd
+          columns:
+            - field: Name
+              headerName: Name
+              type:
+                - string
+              defaultValue: Customer Name
+              acceptsEmptyFields: false
+            - field: Age
+              headerName: Age
+              type:
+                - int
+                - nonSortable
+              minValue: "18"
+              acceptsEmptyFields: true
+            - field: Preferred drink
+              headerName: Preferred drink
+              type:
+                - enum
+              enumValues:
+                - Beer
+                - Cocktail
+                - Softs
+                - Wine
+                - Champagne
+              defaultValue: Softs
+              acceptsEmptyFields: false
+            - field: Thirsty
+              headerName: Thirsty
+              type:
+                - bool
+                - nonSortable
+              acceptsEmptyFields: false
+      - id: bar_capacity
+        varType: int
+        description: null
+        labels:
+          fr: Capacité d'accueil maximale du bar
+          en: Maximum occupancy of the bar
+        defaultValue: "350"
+        minValue: "1"
+        maxValue: "500"
+        additionalData: {}
+      - id: available_event_types
+        varType: list
+        description: null
+        labels:
+          fr: Types d'évènement disponibles
+          en: Event types available
+        defaultValue: '["Afterworks","Christmas","Weddings"]'
+        minValue: null
+        maxValue: null
+        additionalData:
+          enumValues:
+            - key: Afterworks
+              value: Afterworks
+            - key: Birthday
+              value: Birthday
+            - key: Ceremonies
+              value: Ceremonies
+            - key: Christmas
+              value: Christmas
+            - key: Halloween
+              value: Halloween
+            - key: Pool parties
+              value: Pool parties
+            - key: Weddings
+              value: Weddings
+          tooltipText:
+            fr: Choisissez toutes les catégories d'énènement proposés par le bar
+            en: Select all event types offered by the bar
+      - id: event_manager_dynamic_list
+        varType: list
+        description: null
+        labels:
+          fr: Sélectionnez le(s) responsable(s) pour l'évènement
+          en: Select the event manager(s)
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          dynamicEnumValues:
+            type: dbDatasetPart
+            datasetPartName: Customer
+            resultKey: Name
+            options:
+              selects: Name
+      - id: etl_param_string_barName
+        varType: string
+        description: null
+        labels:
+          fr: Nom du bar
+          en: Bar name
+        defaultValue: Candy Canes Tavern
+        minValue: null
+        maxValue: null
+        additionalData: null
+      - id: etl_param_enum_barCapacity
+        varType: enum
+        description: null
+        labels:
+          fr: Capacité du bar
+          en: Bar capacity
+        minValue: null
+        maxValue: null
+        additionalData:
+          enumValues:
+            - key: "1"
+              value: "100"
+            - key: "2"
+              value: "200"
+            - key: "3"
+              value: "300"
+            - key: "4"
+              value: "400"
+            - key: "5"
+              value: "500"
+          tooltipText:
+            fr: Sélectionnez la capacité maximale du bar en cas d'énènement
+            en: Select the maximum capacity of the bar in case of events
+      - id: etl_param_list_eventTypes
+        varType: list
+        description: null
+        labels:
+          fr: Types d'évènement disponibles
+          en: Event types available
+        minValue: null
+        maxValue: null
+        additionalData:
+          enumValues:
+            - key: Afterworks
+              value: Afterworks
+            - key: Birthday
+              value: Birthday
+            - key: Ceremonies
+              value: Ceremonies
+            - key: Christmas
+              value: Christmas
+            - key: Halloween
+              value: Halloween
+            - key: Pool parties
+              value: Pool parties
+            - key: Weddings
+              value: Weddings
+          tooltipText:
+            fr: Choisissez toutes les catégories d'énènement proposés par le bar
+            en: Select all event types offered by the bar
+      - id: etl_param_list_dynamic_customers
+        varType: list
+        description: null
+        labels:
+          fr: Sélectionnez le(s) clients à conserver
+          en: Select the customer(s) to keep
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          dynamicEnumValues:
+            type: dbDatasetPart
+            datasetPartName: Customer
+            resultKey: Name
+            options:
+              selects: Name
+      - id: etl_param_enum_dynamic_drink
+        varType: enum
+        description: null
+        labels:
+          fr: Sélectionnez le type de boisson
+          en: Select drink type
+        defaultValue: null
+        minValue: null
+        maxValue: null
+        additionalData:
+          dynamicEnumValues:
+            type: dbDatasetPart
+            datasetPartName: Customer
+            resultKey: Preferred drink
+            options:
+              selects: Preferred drink*
     parameterGroups:
+      - id: simulation_parameters
+        parameters:
+          - stock
+          - restock_qty
+          - nb_waiters
+        description: null
+        labels:
+          fr: Paramètres de simulation
+          en: Simulation Parameters
+      - id: etl_param_group_local_file
+        parameters:
+          - etl_param_bar_instance
+        description: null
+        labels:
+          fr: local_file
+          en: local_file
+        additionalData: null
+      - id: bar_complete
+        parameters:
+          - bar_name
+          - available_waiters
+          - min_tip
+          - licence
+          - age_restriction
+          - restock_date
+          - restock_values
+          - discount
+          - MoodDay
+          - scenario_bar_compare
+        description: null
+        labels:
+          fr: Bar
+          en: Bar
+        additionalData: null
+      - id: customers_complete
+        parameters:
+          - customers_dynamic_table
+          - bar_capacity
+          - additional_customers
+        description: null
+        labels:
+          fr: Clients
+          en: Customers
+        additionalData: null
+      - id: events_complete
+        parameters:
+          - events_dynamic_table
+          - available_event_types
+          - event_manager_dynamic_list
+        description: null
+        labels:
+          fr: Evènements
+          en: Events
+        additionalData: null
+      - id: etl_param_group_all_fields
+        parameters:
+          - etl_param_string_barName
+          - etl_param_enum_barCapacity
+          - etl_param_list_eventTypes
+        description: null
+        labels:
+          fr: local_file
+          en: local_file
+        additionalData: null
+      - id: etl_param_group_dynamic_subdatasets
+        parameters:
+          - etl_param_list_dynamic_customers
+          - etl_param_enum_dynamic_drink
+        description: The non dynamic fields are tested in the dataset creation ETL, here it's only the dynamic fields.
+        labels:
+          fr: local_file
+          en: local_file
+        additionalData: null
     security: {{security}}

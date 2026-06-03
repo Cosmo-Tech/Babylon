@@ -9,7 +9,7 @@ solution_name: Babylon v5 Solution
 simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
 solution_description: Brewery Testing babylon v5 Solution PLT
 solution_key: breweryTesting
-simulator_version: 3.0.0
+simulator_version: 3.0.1
 # Workspace
 workspace_name: Babylon v5 workspace
 workspace_key: brewerytestingwork
@@ -31,13 +31,16 @@ azure_subscription_id: a24b131f-bd0b-42e8-872a-bded9b91ab74
 azure_entra_tenant_id: e413b834-8be8-4822-a370-be619545cb49
 powerbi_app_deploy: false
 
-# Webapp module version — pinned to a specific release of terraform-webapp.
+# Webapp module version pinned to a specific release of terraform-webapp.
 # Override with --tf-webapp-version on 'babylon init', or edit this value directly.
 # See available versions: https://github.com/Cosmo-Tech/terraform-webapp/releases
-tf_webapp_version: "0.2.0"
+tf_webapp_version: "1.0.0"
 
 # Remote state
 remote: true
+
+# documentation url 
+documentation_url: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
 
 # ACL
 security:
