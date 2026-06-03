@@ -1,7 +1,6 @@
 import os
 import sys
 from logging import getLogger
-from re import MULTILINE, sub
 
 from click import echo, style
 
@@ -34,12 +33,16 @@ def deploy_webapp(namespace: str, file_content: str):
             f"  [yellow]⚠[/yellow] terraform-webapp directory not found at {tf_dir} "
             "run 'babylon init' first or clone it manually"
         )
+
     OS_CONFIGS = {
         "win32": {
             "script": "_run-terraform.ps1",
-            "exec": lambda s: ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", f"./{s}"],
+            "exec": lambda s: ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", f"./{s}", "--apply"],
         },
-        "linux": {"script": "_run-terraform.sh", "exec": lambda s: ["/bin/bash", f"./{s}"]},
+        "linux": {
+            "script": "_run-terraform.sh",
+            "exec": lambda s: ["/bin/bash", f"./{s}", "--apply"],
+        },
     }
     config = OS_CONFIGS.get(sys.platform)
     if not config:
@@ -52,17 +55,9 @@ def deploy_webapp(namespace: str, file_content: str):
     if not script_path.exists():
         logger.error(f"  [bold red]✘[/bold red] Script not found at {script_path}")
         return
-    try:
-        content = script_path.read_text()
-        updated_content = sub(r"^#\s*(terraform apply.*)", r"\1", content, flags=MULTILINE)
 
-        if content != updated_content:
-            script_path.write_text(updated_content)
-            if sys.platform == "linux":
-                os.chmod(script_path, 0o700)
-    except IOError as e:
-        logger.error(f"  [bold red]✘[/bold red] Script modification failed: {e}")
-        return
+    if sys.platform == "linux":
+        os.chmod(script_path, 0o700)
 
     try:
         tfvars_path.write_text(dict_to_tfvars(payload))
