@@ -40,6 +40,36 @@ export R=$(cat output/created_rn.json | jq -r '.id')
 babylon api runners start --oid $O --wid $W --rid $R -f output/started_run.json
 export RR=$(cat output/started_run.json | jq -r '.id')
 
+# Wait for the simulation pod to reach a terminal state before proceeding
+echo "Waiting for run $RR to complete..."
+POLL_INTERVAL=30   # seconds between status checks
+MAX_WAIT=1800      # maximum total wait time in seconds (30 minutes)
+ELAPSED=0
+while true; do
+    babylon api runs get-status --oid $O --wid $W --rid $R --rnid $RR -f output/run_status.json
+    PHASE=$(cat output/run_status.json | jq -r '.phase // "Unknown"')
+    echo "  [${ELAPSED}s] Run phase: ${PHASE}"
+    case "$PHASE" in
+        Succeeded)
+            echo "✔ Run $RR completed successfully (phase: Succeeded)"
+            break
+            ;;
+        Failed|Error)
+            echo "✘ Run $RR finished with failure (phase: ${PHASE})" >&2
+            babylon api runs get-logs --oid $O --wid $W --rid $R --rnid $RR || true
+            exit 1
+            ;;
+        *)
+            if [ "$ELAPSED" -ge "$MAX_WAIT" ]; then
+                echo "✘ Timed out after ${MAX_WAIT}s waiting for run $RR (last phase: ${PHASE})" >&2
+                exit 1
+            fi
+            sleep "$POLL_INTERVAL"
+            ELAPSED=$((ELAPSED + POLL_INTERVAL))
+            ;;
+    esac
+done
+
 # Test all the list endpoints
 babylon api organizations list
 babylon api solutions list --oid $O
