@@ -306,7 +306,7 @@ class Environment(metaclass=SingletonMeta):
             }
         # Log missing env vars
         logger.info("  [dim]→ Loading configuration from Kubernetes secret... [/dim]")
-        return self.get_config_from_k8s_secret_by_tenant("keycloak-babylon-superset", self.environ_id)
+        return self.get_config_from_k8s_secret_by_tenant("keycloak-babylon", self.environ_id)
 
     def retrieve_state_func(self):
         if self.remote:
