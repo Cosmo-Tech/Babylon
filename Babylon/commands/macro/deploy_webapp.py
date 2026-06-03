@@ -5,8 +5,8 @@ from logging import getLogger
 from click import echo, style
 
 from Babylon.commands.macro.helpers.webapp import dict_to_tfvars, ensure_tf_webapp_version, run_terraform_process
-from Babylon.utils.environment import Environment
 from Babylon.commands.macro.init import _TF_WEBAPP_DEFAULT_VERSION
+from Babylon.utils.environment import Environment
 
 logger = getLogger(__name__)
 env = Environment()
@@ -30,8 +30,7 @@ def deploy_webapp(namespace: str, file_content: str):
         ensure_tf_webapp_version(tf_dir, tf_webapp_version)
     else:
         logger.warning(
-            f"  [yellow]⚠[/yellow] terraform-webapp directory not found at {tf_dir} "
-            "run 'babylon init' first or clone it manually"
+            f"  [yellow]⚠[/yellow] terraform-webapp directory not found at {tf_dir} run 'babylon init' first or clone it manually"
         )
 
     OS_CONFIGS = {
