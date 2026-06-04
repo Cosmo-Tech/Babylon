@@ -291,22 +291,22 @@ class Environment(metaclass=SingletonMeta):
         """Retrieve configuration. First checks environment variables; if missing, fallback to Kubernetes secret."""
         required_env_vars = {
             "API_URL": "API_URL",
-            "CLIENT_ID": "CLIENT_ID",
-            "CLIENT_SECRET": "CLIENT_SECRET",
-            "TOKEN_URL": "TOKEN_URL",
+            "KEYCLOAK_CLIENT_ID": "KEYCLOAK_CLIENT_ID",
+            "KEYCLOAK_CLIENT_SECRET": "KEYCLOAK_CLIENT_SECRET",
+            "KEYCLOAK_TOKEN_URL": "KEYCLOAK_TOKEN_URL",
         }
         missing_vars = [var for var in required_env_vars if var not in os.environ]
         if not missing_vars:
             logger.info("  [dim]→ Loading configuration from environment variables...[/dim]")
             return {
                 "api_url": os.environ[required_env_vars["API_URL"]],
-                "client_id": os.environ[required_env_vars["CLIENT_ID"]],
-                "client_secret": os.environ[required_env_vars["CLIENT_SECRET"]],
-                "token_url": os.environ[required_env_vars["TOKEN_URL"]],
+                "keycloak_client_id": os.environ[required_env_vars["KEYCLOAK_CLIENT_ID"]],
+                "keycloak_client_secret": os.environ[required_env_vars["KEYCLOAK_CLIENT_SECRET"]],
+                "keycloak_token_url": os.environ[required_env_vars["KEYCLOAK_TOKEN_URL"]],
             }
         # Log missing env vars
         logger.info("  [dim]→ Loading configuration from Kubernetes secret... [/dim]")
-        return self.get_config_from_k8s_secret_by_tenant("keycloak-babylon", self.environ_id)
+        return self.get_config_from_k8s_secret_by_tenant("babylon-config", self.environ_id)
 
     def retrieve_state_func(self):
         if self.remote:

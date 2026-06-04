@@ -134,8 +134,8 @@ def get_keycloak_credentials() -> tuple[dict, dict]:
     """ "Logs to keycloak and saves the token as a config variable"""
     try:
         config = env.retrieve_config()
-        client_id = config.get("api_client_id")
-        client_secret = config.get("api_client_secret")
+        client_id = config.get("keycloak_client_id")
+        client_secret = config.get("keycloak_client_secret")
         credentials = {
             "grant_type": "client_credentials",
             "client_id": client_id,
@@ -158,7 +158,7 @@ def get_keycloak_token() -> tuple[str, dict]:
     """Returns keycloak token"""
     try:
         credentials, config = get_keycloak_credentials()
-        url = config["token_url"]
+        url = config["keycloak_token_url"]
         headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
         response = requests.post(url=url, data=credentials, headers=headers, timeout=30)
         response.raise_for_status()
