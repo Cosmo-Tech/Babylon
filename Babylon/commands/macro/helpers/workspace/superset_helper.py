@@ -241,7 +241,7 @@ def _setup_database_and_csrf(
 
     db_host = get_postgres_service_host(env.environ_id)
     sqlalchemy_uri = (
-        f"postgresql+psycopg2://{api_config.get('writer-username')}:{api_config.get('writer-password')}"
+        f"postgresql+psycopg2://{api_config.get('reader-username')}:{api_config.get('reader-password')}"
         f"@{db_host}:5432/{api_config.get('database-name')}"
     )
     return csrf_token, db_uuid, sqlalchemy_uri
