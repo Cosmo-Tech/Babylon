@@ -14,7 +14,7 @@ env = Environment()
 
 _TF_WEBAPP_DIR = "terraform-webapp"
 _TF_WEBAPP_REPO_URL = "https://github.com/Cosmo-Tech/terraform-webapp.git"
-_TF_WEBAPP_DEFAULT_VERSION = "1.0.0"
+_TF_WEBAPP_DEFAULT_VERSION = "0.2.0"
 _VARIABLES_TEMPLATE = "variables.yaml"
 
 _PROJECT_YAML_FILES = [
