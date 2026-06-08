@@ -46,8 +46,8 @@ POLL_INTERVAL=30   # seconds between status checks
 MAX_WAIT=1800      # maximum total wait time in seconds (30 minutes)
 ELAPSED=0
 while true; do
-    babylon api runs get-status --oid $O --wid $W --rid $R --rnid $RR -f output/run_status.json
-    PHASE=$(cat output/run_status.json | jq -r '.phase // "Unknown"')
+    babylon api runs get-status --oid $O --wid $W --rid $R --rnid $RR -f run_status.json
+    PHASE=$(cat run_status.json | jq -r '.phase // "Unknown"')
     echo "  [${ELAPSED}s] Run phase: ${PHASE}"
     case "$PHASE" in
         Succeeded)
