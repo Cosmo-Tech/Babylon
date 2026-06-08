@@ -26,10 +26,20 @@ spec:
                 echo "SUCCESS:  Schema created successfully"
               fi
 
-              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} -c "GRANT USAGE ON SCHEMA ${workspace_schema} TO ${cosmotech_api_reader_username};"
-              echo "SUCCESS:  Permissions granted"
-              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${workspace_schema} GRANT SELECT ON TABLES TO  ${cosmotech_api_reader_username};"
-              echo "SUCCESS:  Default privileges set successfully"
+              # Grant access to the schema for the reader role
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} \
+                -c "GRANT USAGE ON SCHEMA ${workspace_schema} TO ${cosmotech_api_reader_username};"
+              echo "SUCCESS: Schema usage granted to reader"
+
+              # Grant SELECT permissions on all existing tables in the schema
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} \
+                -c "GRANT SELECT ON ALL TABLES IN SCHEMA ${workspace_schema} TO ${cosmotech_api_reader_username};"
+              echo "SUCCESS: Existing tables permissions granted"
+
+              # Ensure future tables created by the writer role automatically grant SELECT to the reader role
+              psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_admin_username} -d ${cosmotech_api_database} \
+                -c "ALTER DEFAULT PRIVILEGES FOR ROLE ${cosmotech_api_writer_username} IN SCHEMA ${workspace_schema} GRANT SELECT ON TABLES TO ${cosmotech_api_reader_username};"
+              echo "SUCCESS: Default privileges set for future tables"
           env:
             - name: PGPASSWORD
               valueFrom:
