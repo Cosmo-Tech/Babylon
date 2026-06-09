@@ -130,49 +130,84 @@ def get_azure_credentials() -> ClientSecretCredential:
     return credential
 
 
+def _build_keycloak_client_credentials(config: dict) -> dict:
+    """Build and validate Keycloak client credentials payload from a config dict."""
+    payload = {
+        "grant_type": "client_credentials",
+        "client_id": config.get("keycloak_client_id"),
+        "client_secret": config.get("keycloak_client_secret"),
+        "scope": "openid",
+    }
+    missing = [k for k, v in payload.items() if not v]
+    if missing:
+        raise ValueError(f"Missing required Keycloak credentials: {', '.join(missing)}")
+    return payload
+
+
+def _request_keycloak_access_token(token_url: str, credentials: dict) -> str:
+    """Request a Keycloak token and return the access token value."""
+    headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
+
+    try:
+        response = requests.post(url=token_url, data=credentials, headers=headers, timeout=30)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Keycloak request failed: {e}") from e
+
+    access_token = response.json().get("access_token")
+    if not access_token:
+        raise RuntimeError("access_token not found in Keycloak response")
+
+    return access_token
+
+
 def get_keycloak_credentials() -> tuple[dict, dict]:
-    """ "Logs to keycloak and saves the token as a config variable"""
+    """Resolve and validate Keycloak credentials payload from runtime configuration."""
     try:
         config = env.retrieve_config()
-        client_id = config.get("keycloak_client_id")
-        client_secret = config.get("keycloak_client_secret")
-        credentials = {
-            "grant_type": "client_credentials",
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "scope": "openid",
-        }
-        if not all(credentials.values()):
-            missing = [k for k, v in credentials.items() if not v]
-            raise AttributeError(f"  [bold red]✘[/bold red] Missing required Keycloak credentials: {', '.join(missing)}")
-
+        credentials = _build_keycloak_client_credentials(config)
         return credentials, config
-
-    except KeyError as e:
-        logger.error(f"  [bold red]✘[/bold red] Check the Keycloak configuration in the Kubernetes secret: {e}")
-    except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error while retrieving Keycloak credentials: {e}")
+    except (ValueError, RuntimeError) as e:
+        raise ConnectionError(str(e)) from e
 
 
 def get_keycloak_token() -> tuple[str, dict]:
-    """Returns keycloak token"""
+    """Return (access_token, config) using current runtime config resolution."""
     try:
         credentials, config = get_keycloak_credentials()
-        url = config["keycloak_token_url"]
-        headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
-        response = requests.post(url=url, data=credentials, headers=headers, timeout=30)
-        response.raise_for_status()
+        token_url = config.get("keycloak_token_url")
+        if not token_url:
+            raise ValueError("Missing required config key: keycloak_token_url")
 
-        token_data = response.json()
-        access_token = token_data.get(
-            "access_token",
-        )
-        if not access_token:
-            logger.error("  [bold red]✘[/bold red] Access token not found in Keycloak response")
+        access_token = _request_keycloak_access_token(token_url=token_url, credentials=credentials)
         return access_token, config
+    except (ValueError, RuntimeError) as e:
+        logger.error(f"  [bold red]✘[/bold red] {e}")
+        raise ConnectionError(str(e)) from e
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"  [bold red]✘[/bold red] Keycloak request failed: {e}")
+
+def get_keycloak_token_from_config(config: dict) -> str:
+    """
+    Pure function: obtain a Keycloak access token from an already-resolved
+    config dictionary.
+
+    Args:
+        config: Dict with at least the keys ``keycloak_client_id``,
+                ``keycloak_client_secret``, and ``keycloak_token_url``.
+
+    Returns:
+        A valid Keycloak Bearer token string.
+
+    Raises:
+        ValueError: If any required config key is missing or empty.
+        RuntimeError: If the Keycloak HTTP request fails or returns no token.
+    """
+    token_url = config.get("keycloak_token_url")
+    if not token_url:
+        raise ValueError("Missing required config key: keycloak_token_url")
+
+    credentials = _build_keycloak_client_credentials(config)
+    return _request_keycloak_access_token(token_url=token_url, credentials=credentials)
 
 
 def pass_azure_credentials(func: Callable[..., Any]) -> Callable[..., Any]:

@@ -138,10 +138,12 @@ class Environment(metaclass=SingletonMeta):
         try:
             v1 = client.CoreV1Api()
             return v1.read_namespaced_secret(name=secret_name, namespace=tenant)
-        except ApiException:
-            logger.error(
-                f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]."
+        except ApiException as e:
+            msg = (
+                f"Secret '{secret_name}' could not be found in namespace '{tenant}'. "
+                f"Active kubectl context: {self._get_active_kubectl_context()}"
             )
+            logger.error(f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green].")
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info(f"  • Active kubectl context : [cyan]{self._get_active_kubectl_context()}[/cyan]")
             logger.info(f"  • Active Babylon namespace: {self._get_babylon_namespace_info()}")
@@ -149,24 +151,52 @@ class Environment(metaclass=SingletonMeta):
             logger.info("    [cyan]kubectl config use-context <context-name>[/cyan]")
             logger.info("  • If the Babylon namespace is wrong, switch it:")
             logger.info("    [cyan]babylon namespace use -c <context> -t <tenant>[/cyan]")
-            sys.exit(1)
-        except Exception:
-            logger.error(
-                "  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: "
-                "'Cluster may be down, kube-apiserver unreachable'"
-            )
-            sys.exit(1)
+            raise RuntimeError(msg) from e
+        except Exception as e:
+            msg = "Failed to connect to the Kubernetes cluster: cluster may be down or kube-apiserver unreachable."
+            logger.error(f"  [bold red]✘[/bold red] {msg}")
+            raise RuntimeError(msg) from e
+
+    def _load_k8s_config(self) -> str:
+        """
+        Load the appropriate Kubernetes client configuration and return a
+        human-readable string describing which mode was used.
+
+        Returns:
+            ``"incluster"`` or ``"kubeconfig"``
+
+        Raises:
+            RuntimeError: if the applicable config strategy fails to load.
+        """
+        if os.environ.get("KUBERNETES_SERVICE_HOST"):
+            # In-cluster mode (API running inside a K8s pod)
+            try:
+                config.load_incluster_config()
+                logger.debug("  [dim]→ Kubernetes auth: in-cluster ServiceAccount token[/dim]")
+                return "incluster"
+            except ConfigException as e:
+                raise RuntimeError(
+                    "Running inside a Kubernetes pod but failed to load in-cluster config. "
+                    "Ensure the pod has a ServiceAccount with the required RBAC permissions. "
+                    f"Detail: {e}"
+                ) from e
+        else:
+            # Out-of-cluster mode (CLI on a developer machine)
+            try:
+                config.load_kube_config()
+                logger.debug("  [dim]→ Kubernetes auth: local kubeconfig file[/dim]")
+                return "kubeconfig"
+            except ConfigException as e:
+                msg = f"Failed to load kube config: {e}"
+                logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
+                logger.error(f"  [red]Reason:[/red] {e}")
+                logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
+                logger.info("  • Ensure your kubeconfig file is valid")
+                logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
+                raise RuntimeError(msg) from e
 
     def get_config_from_k8s_secret_by_tenant(self, secret_name: str, tenant: str):
-        try:
-            config.load_kube_config()
-        except ConfigException as e:
-            logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
-            logger.error(f"  [red]Reason:[/red] {e}")
-            logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
-            logger.info("  • Ensure your kubeconfig file is valid")
-            logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
-            sys.exit(1)
+        self._load_k8s_config()
 
         secret = self._load_k8s_secret(secret_name, tenant)
 
