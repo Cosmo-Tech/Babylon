@@ -11,9 +11,11 @@ Cascade organisation (top → bottom = high-level → low-level):
                      └─ create_postgres_datasource
                           └─ _get_existing_datasource
                           └─ _get_superset_csrf_token
+                └─ _is_cross_workspace_deployment  (once, before loop)
+                     └─ _read_uuids_from_zip
                 └─ _process_dashboard_zip
                      └─ _read_uuids_from_zip
-                     └─ _assets_exist_in_superset
+                     └─ _assets_exist_in_superset  (skipped if cross-workspace)
                      └─ _regenerate_superset_uuids
                      └─ _patch_metadata
                      └─ _patch_database_dir
@@ -182,6 +184,20 @@ def deploy_superset_multiple_assets(
     all_zip_uuids: set[str] = set()
     abs_deploy_dir = Path(deploy_dir).resolve()
 
+    # -- Cross-workspace pre-check (BEFORE any import) ----------------------
+    #    Determine once whether this is a cross-workspace deployment by
+    #    checking chart/dashboard UUIDs from ALL ZIPs against Superset.
+    #    This MUST happen before any ZIP is imported, because importing the
+    #    first ZIP would create datasets in the target schema and pollute the
+    #    check for subsequent ZIPs.
+    force_new_uuids = _is_cross_workspace_deployment(
+        reports=reports,
+        abs_deploy_dir=abs_deploy_dir,
+        base_url=base_url,
+        superset_token=superset_token,
+        schema_name=schema_name,
+    )
+
     for report in reports:
         success, new_uuids = _process_dashboard_zip(
             report=report,
@@ -192,6 +208,7 @@ def deploy_superset_multiple_assets(
             sqlalchemy_uri=sqlalchemy_uri,
             db_uuid=db_uuid or "",
             schema_name=schema_name,
+            force_new_uuids=force_new_uuids,
         )
         if not success:
             all_ok = False
@@ -332,6 +349,104 @@ def _get_existing_datasource(base_url: str, superset_jwt: str, display_name: str
 
 
 # ---------------------------------------------------------------------------
+# Cross-workspace pre-check
+# ---------------------------------------------------------------------------
+
+
+def _is_cross_workspace_deployment(
+    reports: list,
+    abs_deploy_dir: Path,
+    base_url: str,
+    superset_token: str,
+    schema_name: str,
+) -> bool:
+    """Determine whether this batch of ZIPs targets a different workspace.
+
+    Must be called **before** any ZIP is imported so that Superset state is
+    still clean (no datasets from the current batch exist yet).
+
+    Logic:
+    1. Collect chart/dashboard UUIDs from ALL ZIPs.
+    2. Check if any of them already exist in Superset.
+    3. If yes: check whether datasets in the target schema exist.
+       - Yes → same workspace redeploy → return False.
+       - No  → cross-workspace → return True.
+    4. If no UUIDs match → first deploy → return False.
+
+    Returns:
+        ``True`` when all ZIPs should regenerate UUIDs (cross-workspace).
+    """
+    if not schema_name:
+        return False
+
+    # Collect all UUIDs from every ZIP in the batch.
+    all_uuids: set[str] = set()
+    for report in reports:
+        rel_path = report.get("path", "")
+        path_obj = Path(rel_path)
+        zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
+        if zip_path.exists():
+            all_uuids |= _read_uuids_from_zip(zip_path)
+
+    if not all_uuids:
+        return False
+
+    headers = {"Authorization": f"Bearer {superset_token}"}
+
+    # Check if any chart/dashboard UUID already exists in Superset.
+    any_matched = False
+    for endpoint in ("/api/v1/chart/", "/api/v1/dashboard/"):
+        try:
+            resp = requests.get(
+                f"{base_url}{endpoint}",
+                headers=headers,
+                params={"page_size": 1000},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            existing = {(item.get("uuid") or "").lower() for item in resp.json().get("result", [])}
+            if all_uuids & existing:
+                any_matched = True
+                break
+        except Exception:
+            pass
+
+    if not any_matched:
+        logger.debug("  Cross-workspace pre-check: no existing chart/dashboard UUIDs found first deployment")
+        return False
+
+    # Chart/dashboard UUIDs exist → check if datasets in the target schema exist.
+    try:
+        resp = requests.get(
+            f"{base_url}/api/v1/dataset/",
+            headers=headers,
+            params={"page_size": 1000},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        has_target_schema = any(
+            (d.get("schema") or "").strip() == schema_name
+            for d in resp.json().get("result", [])
+        )
+    except Exception:
+        has_target_schema = False
+
+    if has_target_schema:
+        logger.debug(
+            f"  Cross-workspace pre-check: chart/dashboard UUIDs exist and datasets "
+            f"found in schema '{schema_name}' — same-workspace redeploy"
+        )
+        return False
+
+    logger.info(
+        f"  [yellow]⚠[/yellow] [dim]Cross-workspace deployment detected: "
+        f"chart/dashboard UUIDs exist in Superset but no datasets in "
+        f"target schema '{schema_name}' — all UUIDs will be regenerated[/dim]"
+    )
+    return True
+
+
+# ---------------------------------------------------------------------------
 # Per-ZIP processing
 # ---------------------------------------------------------------------------
 
@@ -345,8 +460,13 @@ def _process_dashboard_zip(
     sqlalchemy_uri: str,
     db_uuid: str,
     schema_name: str,
+    force_new_uuids: bool = False,
 ) -> tuple[bool, set[str]]:
     """Extract, patch, repack, and import a single dashboard ZIP.
+
+    Args:
+        force_new_uuids: When ``True``, skip the Superset existence check and
+                         regenerate all UUIDs unconditionally (cross-workspace).
 
     Returns:
         ``(success, new_dashboard_uuids)`` where *new_dashboard_uuids* are the
@@ -365,7 +485,13 @@ def _process_dashboard_zip(
         return False, set()
 
     zip_uuids = _read_uuids_from_zip(zip_path)
-    existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids)
+
+    if force_new_uuids:
+        existing_map = {"datasets": False, "charts": False, "dashboards": False}
+        logger.debug(f"  Cross-workspace mode: all UUIDs will be regenerated for '{name}'")
+    else:
+        existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids, schema_name=schema_name)
+
     is_update = any(existing_map.values())
     if is_update:
         updating = [k for k, v in existing_map.items() if v]
@@ -443,21 +569,31 @@ def _read_uuids_from_zip(zip_path: Path) -> set[str]:
     return uuids
 
 
-def _assets_exist_in_superset(base_url: str, superset_jwt: str, uuids: set[str]) -> dict[str, bool]:
+def _assets_exist_in_superset(
+    base_url: str,
+    superset_jwt: str,
+    uuids: set[str],
+    schema_name: str = "",
+) -> dict[str, bool]:
     """Check which asset types from the export ZIP already exist in Superset.
 
-    Returns:
-        ``{"datasets": bool, "charts": bool, "dashboards": bool}`` where
-        ``True`` means at least one UUID from the ZIP already exists in Superset.
-        On API failure the value defaults to ``False`` (safe path: regenerate UUIDs).
+    Cross-workspace detection is handled upfront by
+    ``_is_cross_workspace_deployment`` — this function is only called when
+    we already know we are in a same-workspace context.
+
+    **Dataset detection:**
+    The dataset list endpoint does NOT return ``uuid``, so datasets are
+    inferred as existing when charts or dashboards from this ZIP match
+    (proving this specific dashboard was deployed before for this workspace).
     """
     result: dict[str, bool] = {"datasets": False, "charts": False, "dashboards": False}
     if not uuids:
         return result
 
     headers = {"Authorization": f"Bearer {superset_jwt}"}
+
+    # -- Charts & Dashboards (UUID-based) -----------------------------------
     _checks: list[tuple[str, str, str]] = [
-        ("datasets", "/api/v1/dataset/", "uuid"),
         ("charts", "/api/v1/chart/", "uuid"),
         ("dashboards", "/api/v1/dashboard/", "uuid"),
     ]
@@ -480,6 +616,16 @@ def _assets_exist_in_superset(base_url: str, superset_jwt: str, uuids: set[str])
                 logger.debug(f"  {folder_key}: no existing UUIDs will regenerate")
         except Exception as exc:
             logger.debug(f"  Could not query Superset {folder_key} endpoint: {exc}")
+
+    # -- Datasets (inferred from charts/dashboards) -------------------------
+    #    Since dataset UUIDs are not queryable, tie them to chart/dashboard
+    #    existence: if this ZIP's charts or dashboards already exist, their
+    #    associated datasets also exist.
+    if result["charts"] or result["dashboards"]:
+        result["datasets"] = True
+        logger.debug("  datasets: inferred as existing (charts/dashboards from this ZIP matched)")
+    else:
+        logger.debug("  datasets: no charts/dashboards matched treating as first deployment, will regenerate")
 
     deployed = [k for k, v in result.items() if v]
     missing = [k for k, v in result.items() if not v]
