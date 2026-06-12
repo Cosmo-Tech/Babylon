@@ -9,7 +9,7 @@ solution_name: Babylon v5 Solution
 simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
 solution_description: Brewery Testing babylon v5 Solution PLT
 solution_key: breweryTesting
-simulator_version: 3.0.1
+simulator_version: 3.0.2
 sdkVersion: 12.2.0
 # Workspace
 workspace_name: Babylon v5 workspace
