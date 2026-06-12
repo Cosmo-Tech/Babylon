@@ -1,40 +1,5 @@
 """
 Superset helpers for dashboard deployment and embedded-UUID feedback.
-
-Cascade organisation (top → bottom = high-level → low-level):
-
-  Public entry points:
-    deploy_dashboard
-      └─ deploy_superset
-           └─ deploy_superset_multiple_assets
-                └─ _setup_database_and_csrf
-                     └─ create_postgres_datasource
-                          └─ _get_existing_datasource
-                          └─ _get_superset_csrf_token
-                └─ _is_cross_workspace_deployment  (once, before loop)
-                     └─ _read_uuids_from_zip
-                └─ _process_dashboard_zip
-                     └─ _read_uuids_from_zip
-                     └─ _assets_exist_in_superset  (skipped if cross-workspace)
-                     └─ _regenerate_superset_uuids
-                     └─ _patch_metadata
-                     └─ _patch_database_dir
-                     └─ _patch_schema_in_datasets_dir
-                     └─ _repack_zip
-                     └─ _import_zip_to_superset
-
-    _fetch_and_store_embedded_dashboard_uuids
-      └─ _get_filtered_dashboards
-      └─ _get_embedded_uuid_for_dashboard
-           └─ _enable_dashboard_embedding
-                └─ _get_superset_csrf_token
-      └─ _write_dashboard_updates_to_yaml
-           └─ update_variables_file_entry
-
-  Read helpers (used by deploy_workspace.py):
-    _build_dashboard_ext_args
-      └─ get_dashboard_embedded_uuid
-    get_uuid_by_dashboard_id
 """
 
 import uuid as _uuid_mod
@@ -87,7 +52,7 @@ def deploy_dashboard(
         return deploy_superset(reports, state, superset_config, deploy_dir)
     if provider == "powerbi":
         pass  # return _deploy_powerbi(reports, state)
-    logger.error(f"  [bold red]✘[/bold red] Unsupported dashboard provider '{provider}'. Supported providers: superset.")
+    logger.error("  [bold red]✘[/bold red] Unsupported dashboard provider '%s'", provider)
     return False, set()
 
 
@@ -111,12 +76,12 @@ def deploy_superset(
     """
     base_url = superset_config.get("superset_url", "").rstrip("/")
     if not base_url:
-        logger.error("  [bold red]✘[/bold red] Superset base_url not found in superset_config")
+        logger.error("  [bold red]✘[/bold red] superset_url not configured")
         return False, set()
 
     valid_reports = [r for r in reports if isinstance(r, dict) and r.get("name") and r.get("path")]
     if not valid_reports:
-        logger.warning("  [yellow]⚠[/yellow] No valid report entries found each entry must have a 'name' and 'path' field")
+        logger.warning("  [yellow]⚠[/yellow] No valid report entries each entry must have 'name' and 'path'")
         return True, set()
 
     superset_token = get_superset_token(base_url=base_url, config=superset_config)
@@ -167,11 +132,10 @@ def deploy_superset_multiple_assets(
     base_url = superset_config.get("superset_url", "").rstrip("/")
 
     if not base_url:
-        logger.error("  [bold red]✘[/bold red] Superset base_url not found in configuration.")
-        logger.debug(f"  Provided superset_config: {superset_config}")
+        logger.error("  [bold red]✘[/bold red] superset_url not configured")
         return False, set()
 
-    logger.info(f"  [dim]→ Deploying {len(reports)} dashboard ZIP(s) to Superset...[/dim]")
+    logger.info("  [dim]→ Deploying %d dashboard ZIP(s) to Superset...[/dim]", len(reports))
 
     csrf_token, db_uuid, sqlalchemy_uri = _setup_database_and_csrf(base_url, superset_token, superset_config)
     if not csrf_token or not sqlalchemy_uri:
@@ -184,12 +148,6 @@ def deploy_superset_multiple_assets(
     all_zip_uuids: set[str] = set()
     abs_deploy_dir = Path(deploy_dir).resolve()
 
-    # -- Cross-workspace pre-check (BEFORE any import) ----------------------
-    #    Determine once whether this is a cross-workspace deployment by
-    #    checking chart/dashboard UUIDs from ALL ZIPs against Superset.
-    #    This MUST happen before any ZIP is imported, because importing the
-    #    first ZIP would create datasets in the target schema and pollute the
-    #    check for subsequent ZIPs.
     force_new_uuids = _is_cross_workspace_deployment(
         reports=reports,
         abs_deploy_dir=abs_deploy_dir,
@@ -216,12 +174,6 @@ def deploy_superset_multiple_assets(
 
     return all_ok, all_zip_uuids
 
-
-# ---------------------------------------------------------------------------
-# Pre-flight setup
-# ---------------------------------------------------------------------------
-
-
 def _setup_database_and_csrf(
     base_url: str,
     superset_token: str,
@@ -239,21 +191,18 @@ def _setup_database_and_csrf(
 
     datasource = create_postgres_datasource(superset_config=superset_config, superset_jwt=superset_token)
     if datasource is None:
-        logger.error("  [bold red]✘[/bold red] Aborting: datasource creation failed.")
+        logger.error("  [bold red]✘[/bold red] Datasource creation failed Aborting")
         return None, None, None
 
     _ds_body = datasource.get("result") or datasource
     db_uuid: str = (_ds_body.get("uuid") or "").lower()
 
-    if db_uuid:
-        logger.debug(f"  Superset database UUID resolved: {db_uuid}")
-    else:
-        logger.warning("  [yellow]⚠[/yellow] Datasource UUID not found in API response database UUID pinning will be skipped")
-        logger.debug(f"  Raw datasource response: {_ds_body}")
+    if not db_uuid:
+        logger.warning("  [yellow]⚠[/yellow] Datasource UUID not found UUID pinning will be skipped")
 
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
     if not api_config:
-        logger.error("  [bold red]✘[/bold red] PostgreSQL API config secret not found.")
+        logger.error("  [bold red]✘[/bold red] PostgreSQL API config secret not found")
         return None, None, None
 
     db_host = get_postgres_service_host(env.environ_id)
@@ -280,12 +229,10 @@ def create_postgres_datasource(
     """
     base_url = (superset_config.get("superset_url") or "").rstrip("/")
     if not base_url:
-        logger.error("  [bold red]✘[/bold red] Superset base_url not found in superset_config")
+        logger.error("  [bold red]✘[/bold red] superset_url not configured")
         return None
 
-    if superset_jwt:
-        logger.debug("  Reusing existing Superset JWT for datasource creation")
-    else:
+    if not superset_jwt:
         superset_jwt = get_superset_token(base_url=base_url, config=superset_config)
         if not superset_jwt:
             logger.error("  [bold red]✘[/bold red] Could not obtain Superset JWT for datasource creation")
@@ -293,13 +240,13 @@ def create_postgres_datasource(
 
     csrf_token = _get_superset_csrf_token(base_url, superset_jwt)
     if not csrf_token:
-        logger.error("  [bold red]✘[/bold red] Could not obtain Superset CSRF token for datasource creation")
+        logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token for datasource creation")
         return None
 
     display_name = env.environ_id
     existing = _get_existing_datasource(base_url, superset_jwt, display_name)
     if existing:
-        logger.info(f"  [yellow]⚠[/yellow] [dim]Datasource '{display_name}' is already configured (id={existing.get('id')}) ![/dim]")
+        logger.info("  [yellow]⚠[/yellow] [dim]Datasource '%s' already configured (id=%s)[/dim]", display_name, existing.get("id"))
         return existing
 
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
@@ -325,12 +272,10 @@ def create_postgres_datasource(
     try:
         response = requests.post(f"{base_url}/api/v1/database/", headers=headers, json=payload, timeout=15)
         response.raise_for_status()
-        logger.info(f"  [bold green]✔[/bold green] Superset datasource [cyan]{display_name}[/cyan] created successfully")
+        logger.info("  [bold green]✔[/bold green] Datasource '%s' created", display_name)
         return response.json()
     except Exception as exp:
-        logger.error(f"  [bold red]✘[/bold red] Failed to create Superset datasource: {exp}")
-        if hasattr(exp, "response") and exp.response is not None:
-            logger.debug(f"  Response details: {exp.response.text}")
+        logger.error("  [bold red]✘[/bold red] Failed to create datasource '%s': %s", display_name, exp)
         return None
 
 
@@ -412,7 +357,6 @@ def _is_cross_workspace_deployment(
             pass
 
     if not any_matched:
-        logger.debug("  Cross-workspace pre-check: no existing chart/dashboard UUIDs found first deployment")
         return False
 
     # Chart/dashboard UUIDs exist → check if datasets in the target schema exist.
@@ -432,16 +376,11 @@ def _is_cross_workspace_deployment(
         has_target_schema = False
 
     if has_target_schema:
-        logger.debug(
-            f"  Cross-workspace pre-check: chart/dashboard UUIDs exist and datasets "
-            f"found in schema '{schema_name}' — same-workspace redeploy"
-        )
         return False
 
     logger.info(
-        f"  [yellow]⚠[/yellow] [dim]Cross-workspace deployment detected: "
-        f"chart/dashboard UUIDs exist in Superset but no datasets in "
-        f"target schema '{schema_name}' — all UUIDs will be regenerated[/dim]"
+        "  [bold yellow]⚠[/bold yellow] [dim]Cross-workspace deployment detected: New Schema '%s'. Forcing UUID regeneration.[/dim]",
+        schema_name,
     )
     return True
 
@@ -477,29 +416,23 @@ def _process_dashboard_zip(
     path_obj = Path(rel_path)
     zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
 
-    logger.debug(f"  Preparing '{name}' for deployment...")
-
     if not zip_path.exists():
-        logger.error(f"  [bold red]✘[/bold red] ZIP not found: {zip_path.name}")
-        logger.debug(f"  Deploy dir resolved to {abs_deploy_dir}. Missing file: {zip_path}")
+        logger.error("  [bold red]✘[/bold red] ZIP not found: %s", zip_path)
         return False, set()
 
     zip_uuids = _read_uuids_from_zip(zip_path)
 
     if force_new_uuids:
         existing_map = {"datasets": False, "charts": False, "dashboards": False}
-        logger.debug(f"  Cross-workspace mode: all UUIDs will be regenerated for '{name}'")
     else:
         existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids, schema_name=schema_name)
 
     is_update = any(existing_map.values())
     if is_update:
         updating = [k for k, v in existing_map.items() if v]
-        logger.info(
-            f"  [yellow]⚠[/yellow] [dim]Dashboard [magenta]{name}[/magenta] is already deployed updating '{', '.join(updating)}'[/dim]"
-        )
+        logger.info("  [yellow]⚠[/yellow] [dim]Dashboard [magenta]%s[/magenta] already deployed updating: '%s'[/dim]", name, ", ".join(updating))
     else:
-        logger.info(f"  [dim]→ Dashboard [magenta]{name}[/magenta]' first deployment creating all assets... [/dim]")
+        logger.info("  [dim]→ Dashboard [magenta]%s[/magenta] first deployment, creating all assets[/dim]", name)
     new_dashboard_uuids: set[str] = set()
 
     try:
@@ -528,16 +461,14 @@ def _process_dashboard_zip(
                     except OSError as e:
                         logger.warning(f"  [yellow]⚠[/yellow] Skipping unreadable YAML file '{df.name}'")
                         logger.debug(f"  Could not read YAML file '{df.name}': {e}")
-
+                        
             _repack_zip(zip_path, tmp_dir)
 
     except (OSError, BadZipFile) as exc:
-        logger.error(f"  [bold red]✘[/bold red] File system or ZIP error while processing '{zip_path.name}'.")
-        logger.debug(f"  Exception details for '{zip_path.name}': {exc}")
+        logger.error("  [bold red]✘[/bold red] ZIP processing error for '%s': %s", zip_path.name, exc)
         return False, set()
 
     if not _import_zip_to_superset(base_url, superset_token, csrf_token, zip_path):
-        logger.error(f"  [bold red]✘[/bold red] Failed to import ZIP '{zip_path.name}' to Superset.")
         return False, set()
 
     return True, new_dashboard_uuids
@@ -565,7 +496,7 @@ def _read_uuids_from_zip(zip_path: Path) -> set[str]:
                 if match:
                     uuids.add(match.group(1).lower())
     except Exception as exc:
-        logger.debug(f"  Could not read UUIDs from {zip_path.name}: {exc}")
+        logger.error(f"  [bold red]✘[/bold red] Could not read UUIDs from {zip_path.name}: {exc}")
     return uuids
 
 
@@ -592,7 +523,6 @@ def _assets_exist_in_superset(
 
     headers = {"Authorization": f"Bearer {superset_jwt}"}
 
-    # -- Charts & Dashboards (UUID-based) -----------------------------------
     _checks: list[tuple[str, str, str]] = [
         ("charts", "/api/v1/chart/", "uuid"),
         ("dashboards", "/api/v1/dashboard/", "uuid"),
@@ -608,31 +538,13 @@ def _assets_exist_in_superset(
             )
             response.raise_for_status()
             existing = {(item.get(uuid_field) or "").lower() for item in response.json().get("result", [])}
-            matched = uuids & existing
-            if matched:
+            if uuids & existing:
                 result[folder_key] = True
-                logger.debug(f"  {folder_key}: {len(matched)} existing UUID(s) found UUIDs will NOT be regenerated for this component")
-            else:
-                logger.debug(f"  {folder_key}: no existing UUIDs will regenerate")
         except Exception as exc:
-            logger.debug(f"  Could not query Superset {folder_key} endpoint: {exc}")
+            logger.error(f"  [bold red]✘[/bold red] Could not query Superset {folder_key}: {exc}")
 
-    # -- Datasets (inferred from charts/dashboards) -------------------------
-    #    Since dataset UUIDs are not queryable, tie them to chart/dashboard
-    #    existence: if this ZIP's charts or dashboards already exist, their
-    #    associated datasets also exist.
     if result["charts"] or result["dashboards"]:
         result["datasets"] = True
-        logger.debug("  datasets: inferred as existing (charts/dashboards from this ZIP matched)")
-    else:
-        logger.debug("  datasets: no charts/dashboards matched treating as first deployment, will regenerate")
-
-    deployed = [k for k, v in result.items() if v]
-    missing = [k for k, v in result.items() if not v]
-    if deployed:
-        logger.info(f"  [yellow]⚠[/yellow] [dim]Existing assets detected '({', '.join(deployed)})' UUIDs will be preserved[/dim]")
-    if missing:
-        logger.debug(f"  Not yet deployed (UUIDs will be regenerated): {', '.join(missing)}")
 
     return result
 
@@ -655,7 +567,6 @@ def _regenerate_superset_uuids(
 
     skip_folders = {"databases"} | {folder for folder, deployed in existing.items() if deployed}
     active = sorted({"datasets", "charts", "dashboards", "themes"} - skip_folders)
-    logger.debug(f"  UUID regen active: {active or 'none'}, skipped: {sorted(skip_folders)}")
 
     all_files: list[Path] = sorted(base_dir.rglob("*.yaml"))
     uuid_mapping: dict[str, str] = {}
@@ -678,7 +589,6 @@ def _regenerate_superset_uuids(
             logger.warning(f"  [yellow]⚠[/yellow] Could not read {yaml_file.name} for UUID extraction: {exc}")
 
     if not uuid_mapping:
-        logger.debug("  No UUIDs regenerated all components already present in Superset")
         return {}
 
     for yaml_file in all_files:
@@ -693,7 +603,7 @@ def _regenerate_superset_uuids(
         except (OSError, UnicodeError) as exc:
             logger.warning(f"  [yellow]⚠[/yellow] Could not update UUIDs in {yaml_file.name}: {exc}")
 
-    logger.debug(f"  Regenerated {len(uuid_mapping)} UUID(s) for {', '.join(active) or 'none'} across {len(all_files)} file(s)")
+    logger.debug("  Regenerated %d UUID(s) for [%s]", len(uuid_mapping), ", ".join(active))
     return uuid_mapping
 
 
@@ -706,15 +616,12 @@ def _patch_metadata(content_dir: Path) -> None:
     """Ensure metadata.yaml declares ``type: assets`` for the assets import endpoint."""
     meta_file = content_dir / "metadata.yaml"
     if not meta_file.is_file():
-        logger.warning("  [yellow]⚠[/yellow] 'metadata.yaml' not found in ZIP skipping asset type patch")
         return
-
     try:
         raw = meta_file.read_text(encoding="utf-8")
         patched = sub(pattern=r"^(type:\s*).*$", repl=r"\g<1>assets", string=raw, flags=MULTILINE)
         if patched != raw:
             meta_file.write_text(patched, encoding="utf-8", newline="\n")
-            logger.debug("  Patched 'metadata.yaml' type 'assets'")
     except OSError as exp:
         logger.error(f"  [bold red]✘[/bold red] File system error while patching 'metadata.yaml': {exp}")
 
@@ -731,14 +638,12 @@ def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str, 
     """
     db_dir = tmp_dir / "databases"
     if not db_dir.is_dir():
-        logger.warning("  [yellow]⚠[/yellow] No 'databases/' directory found in ZIP skipping database patch")
         return
 
     _uri_re = compile(r"^(sqlalchemy_uri:\s*).*$", MULTILINE)
     _name_re = compile(r"^(database_name:\s*).*$", MULTILINE)
     _uuid_re = compile(r"^(uuid:\s*)([0-9a-f-]{36})\s*$", MULTILINE | IGNORECASE)
 
-    patched_files: list[str] = []
     for yaml_file in db_dir.glob("*.yaml"):
         try:
             raw = yaml_file.read_text(encoding="utf-8")
@@ -753,20 +658,8 @@ def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str, 
 
             if result != raw:
                 yaml_file.write_text(result, encoding="utf-8", newline="\n")
-                patched_files.append(yaml_file.name)
-                logger.debug(f"  Patched databases/{yaml_file.name}")
         except Exception as exc:
-            logger.warning(f"  [yellow]⚠[/yellow] Could not patch {yaml_file.name}: {exc}")
-
-    if patched_files:
-        uuid_note = f", uuid='{db_uuid}'" if db_uuid else ""
-        logger.debug(
-            f"  Database YAML patched "
-            f"(database_name='{database_name}', sqlalchemy_uri updated{uuid_note}) "
-            f"in {len(patched_files)} file(s)"
-        )
-    else:
-        logger.debug("  No database YAML files found to patch in 'databases/'")
+            logger.warning(f"  [yellow]⚠[/yellow] Could not patch databases/{yaml_file.name}: {exc}")
 
 
 def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str = "") -> None:
@@ -779,14 +672,10 @@ def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str 
     """
     datasets_dir = tmp_dir / "datasets"
     if not datasets_dir.is_dir():
-        logger.warning("  [yellow]⚠[/yellow] No 'datasets/' directory found in ZIP skipping dataset schema patch")
         return
 
     _schema_re = compile(r"^(schema:\s*)(\S+)\s*$", MULTILINE)
     _db_uuid_re = compile(r"^(database_uuid:\s*)([0-9a-f-]{36})\s*$", MULTILINE | IGNORECASE)
-
-    schema_patched: list[str] = []
-    db_uuid_patched: int = 0
 
     for yaml_file in datasets_dir.rglob("*.yaml"):
         try:
@@ -798,30 +687,16 @@ def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str 
                 old_schema = match.group(2)
                 if old_schema != schema_name:
                     result = result.replace(old_schema, schema_name)
-                    schema_patched.append(yaml_file.name)
-                    logger.debug(f"  Patched schema in {yaml_file.name}: '{old_schema}' → '{schema_name}'")
 
             if db_uuid and "database_uuid" in result:
                 new_result = _db_uuid_re.sub(rf"\g<1>{db_uuid}", result)
                 if new_result != result:
-                    db_uuid_patched += 1
-                    logger.debug(f"  Patched 'database_uuid' in {yaml_file.name} → {db_uuid}")
                     result = new_result
 
             if result != raw:
                 yaml_file.write_text(result, encoding="utf-8", newline="\n")
         except Exception as exc:
             logger.warning(f"  [yellow]⚠[/yellow] Could not patch dataset {yaml_file.name}: {exc}")
-
-    if schema_patched:
-        logger.debug(f"  Schema updated to '{schema_name}' in {len(schema_patched)} dataset file(s)")
-    else:
-        logger.debug("  No dataset files required schema patching")
-
-    if db_uuid_patched:
-        logger.debug(f"  'database_uuid' pinned to '{db_uuid}' in {db_uuid_patched} dataset file(s)")
-    elif db_uuid:
-        logger.debug("  No dataset files had a 'database_uuid' field to pin")
 
 
 def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
@@ -836,9 +711,9 @@ def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
                 if file.is_file():
                     arcname = f"{root_name}/{file.relative_to(base).as_posix()}"
                     zf.write(file, arcname)
-        logger.debug(f"  Repacked '{zip_path.name}' successfully")
+        logger.debug("  Repacked '%s'", zip_path.name)
     except OSError as exp:
-        logger.error(f"  [bold red]✘[/bold red] File system error while repacking '{zip_path.name}': {exp}")
+        logger.error(f"  [bold red]✘[/bold red] Error repacking '{zip_path.name}': {exp}")
         raise
 
 
@@ -869,15 +744,10 @@ def _import_zip_to_superset(
             files = {"bundle": (zip_path.name, fh, "application/zip")}
             response = requests.post(url, headers=headers, files=files, data={"overwrite": "true"}, timeout=60)
         response.raise_for_status()
-        logger.info(f"  [bold green]✔[/bold green] Zip [cyan]{zip_path.name}[/cyan] imported into Superset successfully")
+        logger.info(f"  [bold green]✔[/bold green] Zip [cyan]{zip_path.name}[/cyan] imported into Superset")
         return True
     except RequestException as exp:
-        logger.error(f"  [bold red]✘[/bold red] Failed to import '{zip_path.name}' into Superset: {exp}")
-        if exp.response is not None:
-            try:
-                logger.debug(f"  Response details: {exp.response.json()}")
-            except ValueError:
-                logger.debug(f"  Response details (raw): {exp.response.text[:2000]}")
+        logger.error(f"  [bold red]✘[/bold red] Failed to import '{zip_path.name}': {exp}")
         return False
     except Exception as exp:
         logger.error(f"  [bold red]✘[/bold red] Unexpected error importing '{zip_path.name}': {exp}")
@@ -937,7 +807,7 @@ def _fetch_and_store_embedded_dashboard_uuids(
         True if at least one embedded UUID was written; False on total failure.
     """
     if not env.variable_files:
-        logger.warning("  [yellow]⚠[/yellow] No variable files configured embedded dashboard UUIDs cannot be persisted")
+        logger.warning("  [yellow]⚠[/yellow] No variable files configured cannot persist embedded UUIDs")
         return False
 
     variables_yaml_path = Path(env.variable_files[0])
@@ -947,7 +817,7 @@ def _fetch_and_store_embedded_dashboard_uuids(
     if dashboards is None:
         return False
     if not dashboards:
-        logger.warning("  [yellow]⚠[/yellow] No imported dashboards found in Superset embedded UUID feedback skipped")
+        logger.warning("  [yellow]⚠[/yellow] No imported dashboards found skipping")
         return False
 
     updates: dict[str, dict] = {}
@@ -959,7 +829,7 @@ def _fetch_and_store_embedded_dashboard_uuids(
         updates[key] = {"uuid": embedded_uuid, "original_id": original_id}
 
     if not updates:
-        logger.warning("  [yellow]⚠[/yellow] No embedded UUIDs could be retrieved variables file was not updated")
+        logger.warning("  [yellow]⚠[/yellow] No embedded UUIDs retrieved variables file not updated")
         return False
 
     if not _write_dashboard_updates_to_yaml(variables_yaml_path, updates):
@@ -1000,7 +870,6 @@ def _get_filtered_dashboards(
         return all_dashboards
 
     filtered = [d for d in all_dashboards if (d.get("uuid") or "").lower() in zip_uuids]
-    logger.debug(f"  Filtered to {len(filtered)}/{len(all_dashboards)} dashboards matching ZIP UUIDs")
     return filtered
 
 
@@ -1038,8 +907,7 @@ def _get_embedded_uuid_for_dashboard(
         )
         emb_resp.raise_for_status()
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Could not fetch embedded UUID for dashboard '{name}' (id={integer_id}).")
-        logger.debug(f"  Exception: {exc}")
+        logger.error(f"  [bold red]✘[/bold red] Could not fetch embedded UUID for dashboard '{name}' (id={integer_id})")
         return None
 
     result_block: dict = emb_resp.json().get("result") or {}
@@ -1049,7 +917,7 @@ def _get_embedded_uuid_for_dashboard(
         return None
 
     original_id = str(result_block.get("dashboard_id") or integer_id)
-    logger.info(f"  [bold green]✔[/bold green] Embedding enabled for dashboard '{name}' (key='{key}', uuid='{embedded_uuid}')")
+    logger.info(f"  [bold green]✔[/bold green] Embedding enabled for dashboard '{name}' (key='{key}')")
     return key, embedded_uuid, original_id
 
 
@@ -1079,8 +947,7 @@ def _enable_dashboard_embedding(
         timeout=10,
     )
     if not enable_resp.ok:
-        logger.error(f"  [bold red]✘[/bold red] Could not enable embedding for '{name}' (id={integer_id}).")
-        logger.debug(f"  Status: {enable_resp.status_code}, Response: {enable_resp.text[:200]}")
+        logger.error(f"  [bold red]✘[/bold red] Could not enable embedding for '{name}' (id={integer_id})")
         return False
     return True
 
@@ -1115,7 +982,6 @@ def _write_dashboard_updates_to_yaml(
             logger.warning(f"  [yellow]⚠[/yellow] Failed to write entry '{key}' to '{variables_yaml_path.name}'")
             continue
         any_written = True
-        logger.debug(f"  '{key}': original_id={entry.get('original_id')}, uuid={entry.get('uuid')}, path='{variables_yaml_path}'")
     return any_written
 
 
@@ -1245,7 +1111,7 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
 
     entry = yaml_data.get(sanitised_key)
     if entry is None:
-        logger.warning(f"  [yellow]⚠[/yellow] Dashboard key '{sanitised_key}' not found in variables file UUID is not yet available")
+        logger.warning(f"  [yellow]⚠[/yellow] Dashboard key '{sanitised_key}' not found in variables file")
         return None
     if isinstance(entry, str):
         return entry or None
@@ -1256,8 +1122,7 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
         return uuid or None
 
     logger.warning(
-        f"  [yellow]⚠[/yellow] Unexpected value type for dashboard key '{sanitised_key}' "
-        f"in variables: expected str or dict, got {type(entry).__name__}"
+        f"  [yellow]⚠[/yellow] Unexpected value type for dashboard key '{sanitised_key}': expected str or dict, got {type(entry).__name__}",
     )
     return None
 
@@ -1280,8 +1145,6 @@ def get_uuid_by_dashboard_id(yaml_data: dict, target_id: str | int) -> str | Non
             continue
         if str(entry.get("original_id") or "") == target:
             uuid = entry.get("uuid")
-            if uuid:
-                logger.debug(f"  get_uuid_by_dashboard_id: found key='{key}', uuid='{uuid}' for id={target}")
             return uuid or None
 
     logger.warning(f"  [yellow]⚠[/yellow] No dashboard entry with original_id='{target}' found in variables")
