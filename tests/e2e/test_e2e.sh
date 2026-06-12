@@ -9,7 +9,7 @@ if [ -f "../../.venv/Scripts/activate" ]; then
 fi
 
 # Set testing namespace
-export CONTEXT="e2e"
+export CONTEXT="e2e${CONTEXT}"
 export TENANT="tenant-sphinx"
 
 babylon namespace use -c ${CONTEXT} -t ${TENANT}
