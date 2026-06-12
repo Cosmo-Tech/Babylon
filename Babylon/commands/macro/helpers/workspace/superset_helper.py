@@ -52,7 +52,7 @@ def deploy_dashboard(
         return deploy_superset(reports, state, superset_config, deploy_dir)
     if provider == "powerbi":
         pass  # return _deploy_powerbi(reports, state)
-    logger.error("  [bold red]✘[/bold red] Unsupported dashboard provider '%s'", provider)
+    logger.error(f"  [bold red]✘[/bold red] Unsupported dashboard provider '{provider}'")
     return False, set()
 
 
@@ -135,7 +135,7 @@ def deploy_superset_multiple_assets(
         logger.error("  [bold red]✘[/bold red] superset_url not configured")
         return False, set()
 
-    logger.info("  [dim]→ Deploying %d dashboard ZIP(s) to Superset...[/dim]", len(reports))
+    logger.info(f"  [dim]→ Deploying {len(reports)} dashboard ZIP(s) to Superset...[/dim]")
 
     csrf_token, db_uuid, sqlalchemy_uri = _setup_database_and_csrf(base_url, superset_token, superset_config)
     if not csrf_token or not sqlalchemy_uri:
@@ -246,7 +246,7 @@ def create_postgres_datasource(
     display_name = env.environ_id
     existing = _get_existing_datasource(base_url, superset_jwt, display_name)
     if existing:
-        logger.info("  [yellow]⚠[/yellow] [dim]Datasource '%s' already configured (id=%s)[/dim]", display_name, existing.get("id"))
+        logger.info(f"  [yellow]⚠[/yellow] [dim]Datasource '{display_name}' already configured (id={existing.get('id')})[/dim]")
         return existing
 
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
@@ -272,10 +272,10 @@ def create_postgres_datasource(
     try:
         response = requests.post(f"{base_url}/api/v1/database/", headers=headers, json=payload, timeout=15)
         response.raise_for_status()
-        logger.info("  [bold green]✔[/bold green] Datasource '%s' created", display_name)
+        logger.info(f"  [bold green]✔[/bold green] Datasource '{display_name}' created")
         return response.json()
     except Exception as exp:
-        logger.error("  [bold red]✘[/bold red] Failed to create datasource '%s': %s", display_name, exp)
+        logger.error(f"  [bold red]✘[/bold red] Failed to create datasource '{display_name}': {exp}")
         return None
 
 
@@ -379,8 +379,7 @@ def _is_cross_workspace_deployment(
         return False
 
     logger.info(
-        "  [bold yellow]⚠[/bold yellow] [dim]Cross-workspace deployment detected: New Schema '%s'. Forcing UUID regeneration.[/dim]",
-        schema_name,
+        f"  [bold yellow]⚠[/bold yellow] [dim]Cross-workspace deployment detected: New Schema '{schema_name}'. Forcing UUID regeneration.[/dim]"
     )
     return True
 
@@ -417,7 +416,7 @@ def _process_dashboard_zip(
     zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
 
     if not zip_path.exists():
-        logger.error("  [bold red]✘[/bold red] ZIP not found: %s", zip_path)
+        logger.error(f"  [bold red]✘[/bold red] ZIP not found: {zip_path}")
         return False, set()
 
     zip_uuids = _read_uuids_from_zip(zip_path)
@@ -435,7 +434,7 @@ def _process_dashboard_zip(
             f"already deployed updating: '{', '.join(updating)}'[/dim]"
         )
     else:
-        logger.info("  [dim]→ Dashboard [magenta]%s[/magenta] first deployment, creating all assets[/dim]", name)
+        logger.info(f"  [dim]→ Dashboard [magenta]{name}[/magenta] first deployment, creating all assets[/dim]")
     new_dashboard_uuids: set[str] = set()
 
     try:
@@ -468,7 +467,7 @@ def _process_dashboard_zip(
             _repack_zip(zip_path, tmp_dir)
 
     except (OSError, BadZipFile) as exc:
-        logger.error("  [bold red]✘[/bold red] ZIP processing error for '%s': %s", zip_path.name, exc)
+        logger.error(f"  [bold red]✘[/bold red] ZIP processing error for '{zip_path.name}': {exc}")
         return False, set()
 
     if not _import_zip_to_superset(base_url, superset_token, csrf_token, zip_path):
@@ -606,7 +605,7 @@ def _regenerate_superset_uuids(
         except (OSError, UnicodeError) as exc:
             logger.warning(f"  [yellow]⚠[/yellow] Could not update UUIDs in {yaml_file.name}: {exc}")
 
-    logger.debug("  Regenerated %d UUID(s) for [%s]", len(uuid_mapping), ", ".join(active))
+    logger.debug(f"  Regenerated {len(uuid_mapping)} UUID(s) for [{', '.join(active)}]")
     return uuid_mapping
 
 
@@ -714,7 +713,7 @@ def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
                 if file.is_file():
                     arcname = f"{root_name}/{file.relative_to(base).as_posix()}"
                     zf.write(file, arcname)
-        logger.debug("  Repacked '%s'", zip_path.name)
+        logger.debug(f"  Repacked '{zip_path.name}'")
     except OSError as exp:
         logger.error(f"  [bold red]✘[/bold red] Error repacking '{zip_path.name}': {exp}")
         raise
