@@ -430,7 +430,10 @@ def _process_dashboard_zip(
     is_update = any(existing_map.values())
     if is_update:
         updating = [k for k, v in existing_map.items() if v]
-        logger.info("  [yellow]⚠[/yellow] [dim]Dashboard [magenta]%s[/magenta] already deployed updating: '%s'[/dim]", name, ", ".join(updating))
+        logger.info(
+            f"  [yellow]⚠[/yellow] [dim]Dashboard [magenta]{name}[/magenta] "
+            f"already deployed updating: '{', '.join(updating)}'[/dim]"
+        )
     else:
         logger.info("  [dim]→ Dashboard [magenta]%s[/magenta] first deployment, creating all assets[/dim]", name)
     new_dashboard_uuids: set[str] = set()
@@ -906,7 +909,7 @@ def _get_embedded_uuid_for_dashboard(
             timeout=10,
         )
         emb_resp.raise_for_status()
-    except Exception as exc:
+    except Exception:
         logger.error(f"  [bold red]✘[/bold red] Could not fetch embedded UUID for dashboard '{name}' (id={integer_id})")
         return None
 
@@ -1122,8 +1125,9 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
         return uuid or None
 
     logger.warning(
-        f"  [yellow]⚠[/yellow] Unexpected value type for dashboard key '{sanitised_key}': expected str or dict, got {type(entry).__name__}",
-    )
+            f"  [yellow]⚠[/yellow] Unexpected value type for dashboard key "
+            f"'{sanitised_key}': expected str or dict, got {type(entry).__name__}"
+        )
     return None
 
 
