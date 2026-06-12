@@ -1,5 +1,6 @@
 # Azure connection requirements
 azure-identity
+azure-mgmt-core==1.4.0
 azure-mgmt-subscription
 azure-mgmt-kusto
 azure-kusto-data
