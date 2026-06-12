@@ -174,6 +174,7 @@ def deploy_superset_multiple_assets(
 
     return all_ok, all_zip_uuids
 
+
 def _setup_database_and_csrf(
     base_url: str,
     superset_token: str,
@@ -368,10 +369,7 @@ def _is_cross_workspace_deployment(
             timeout=10,
         )
         resp.raise_for_status()
-        has_target_schema = any(
-            (d.get("schema") or "").strip() == schema_name
-            for d in resp.json().get("result", [])
-        )
+        has_target_schema = any((d.get("schema") or "").strip() == schema_name for d in resp.json().get("result", []))
     except Exception:
         has_target_schema = False
 
@@ -379,7 +377,8 @@ def _is_cross_workspace_deployment(
         return False
 
     logger.info(
-        f"  [bold yellow]⚠[/bold yellow] [dim]Cross-workspace deployment detected: New Schema '{schema_name}'. Forcing UUID regeneration.[/dim]"
+        f"  [bold yellow]⚠[/bold yellow] [dim]Cross-workspace deployment detected: New Schema '{schema_name}'. "
+        f"Forcing UUID regeneration.[/dim]"
     )
     return True
 
@@ -430,8 +429,7 @@ def _process_dashboard_zip(
     if is_update:
         updating = [k for k, v in existing_map.items() if v]
         logger.info(
-            f"  [yellow]⚠[/yellow] [dim]Dashboard [magenta]{name}[/magenta] "
-            f"already deployed updating: '{', '.join(updating)}'[/dim]"
+            f"  [yellow]⚠[/yellow] [dim]Dashboard [magenta]{name}[/magenta] already deployed updating: '{', '.join(updating)}'[/dim]"
         )
     else:
         logger.info(f"  [dim]→ Dashboard [magenta]{name}[/magenta] first deployment, creating all assets[/dim]")
@@ -463,7 +461,7 @@ def _process_dashboard_zip(
                     except OSError as e:
                         logger.warning(f"  [yellow]⚠[/yellow] Skipping unreadable YAML file '{df.name}'")
                         logger.debug(f"  Could not read YAML file '{df.name}': {e}")
-                        
+
             _repack_zip(zip_path, tmp_dir)
 
     except (OSError, BadZipFile) as exc:
@@ -1124,9 +1122,9 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
         return uuid or None
 
     logger.warning(
-            f"  [yellow]⚠[/yellow] Unexpected value type for dashboard key "
-            f"'{sanitised_key}': expected str or dict, got {type(entry).__name__}"
-        )
+        f"  [yellow]⚠[/yellow] Unexpected value type for dashboard key "
+        f"'{sanitised_key}': expected str or dict, got {type(entry).__name__}"
+    )
     return None
 
 
