@@ -9,7 +9,8 @@ solution_name: Babylon v5 Solution
 simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
 solution_description: Brewery Testing babylon v5 Solution PLT
 solution_key: breweryTesting
-simulator_version: 3.0.1
+simulator_version: 3.0.2
+sdkVersion: 12.2.0
 # Workspace
 workspace_name: Babylon v5 workspace
 workspace_key: brewerytestingwork
@@ -34,7 +35,7 @@ powerbi_app_deploy: false
 # Webapp module version pinned to a specific release of terraform-webapp.
 # Override with --tf-webapp-version on 'babylon init', or edit this value directly.
 # See available versions: https://github.com/Cosmo-Tech/terraform-webapp/releases
-tf_webapp_version: "1.0.0"
+tf_webapp_version: 1.0.0
 
 # Remote state
 remote: true

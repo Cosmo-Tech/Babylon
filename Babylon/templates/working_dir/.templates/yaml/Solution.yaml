@@ -12,7 +12,7 @@ spec:
     description: "{{solution_description}}"
     repository: "{{simulator_repository}}"
     version: "{{simulator_version}}"
-    sdkVersion: '12.1.0'
+    sdkVersion: "{{sdkVersion}}"
     alwaysPull: true
     url: 'https://{{cluster_name}}.{{domain_zone}}/tenant-{{tenant}}/webapp-{{webapp_name}}'
     tags:

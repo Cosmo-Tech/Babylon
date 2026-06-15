@@ -2,7 +2,7 @@
 key: testing
 name: Dev Brewery Solution
 repository: tenant-sphinx/brewerysamplesolution_simulator
-version: 3.0.1
+version: 3.0.2
 alwaysPull: true
 parameters: []
 parameterGroups: []
