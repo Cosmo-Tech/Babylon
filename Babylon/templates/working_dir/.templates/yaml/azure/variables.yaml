@@ -35,7 +35,7 @@ powerbi_app_deploy: false
 # Webapp module version pinned to a specific release of terraform-webapp.
 # Override with --tf-webapp-version on 'babylon init', or edit this value directly.
 # See available versions: https://github.com/Cosmo-Tech/terraform-webapp/releases
-tf_webapp_version: 1.0.0
+tf_webapp_version: 1.0.3
 
 # Remote state
 remote: true
