@@ -42,7 +42,6 @@ nav:
   - Concepts:
       - Contribute: 'concepts/contribute.md'
       - Environments: 'concepts/environment.md'
-      - Secrets management: 'concepts/secret_management.md'
   - References:
       - babylon: 'references/cli.md'
       - functions:
