@@ -10,7 +10,6 @@ simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
 solution_description: Brewery Testing babylon v5 Solution PLT
 solution_key: breweryTesting
 simulator_version: 3.0.2
-sdkVersion: 12.2.0
 # Workspace
 workspace_name: Babylon v5 workspace
 workspace_key: brewerytestingwork
@@ -40,16 +39,16 @@ tf_webapp_version: 1.0.3
 # Remote state
 remote: true
 
-# documentation url 
+# documentation url
 documentation_url: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
 
 # ACL
 security:
   default: none
   accessControlList:
-    - id: tenant-admin 
+    - id: tenant-admin
       role: admin
     - id: tenant-editor
       role: editor
-    - id: tenant-viewer 
+    - id: tenant-viewer
       role: viewer
