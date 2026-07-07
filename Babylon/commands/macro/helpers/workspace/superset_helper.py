@@ -1013,7 +1013,11 @@ def _get_embedded_uuid_for_dashboard(
         logger.warning(f"  [yellow]⚠[/yellow] Skipping dashboard missing required field(s) (name, uuid, or id): {dashboard}")
         return None
 
-    key = sub(r"[^a-z0-9]", "", name.lower())
+    # Strip the "[workspace_id] " prefix injected by _prefix_asset_titles
+    # so the variables key stays stable across workspaces (e.g.
+    # "[w-abc123] QA - Dashboard - Satisfaction" → "qadashboardsatisfaction").
+    key_name = sub(r"^\[.*?\]\s*", "", name)
+    key = sub(r"[^a-z0-9]", "", key_name.lower())
     if not key:
         logger.warning(f"  [yellow]⚠[/yellow] Dashboard '{name}' produced an empty sanitised key skipping")
         return None
