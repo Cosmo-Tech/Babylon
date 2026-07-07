@@ -6,9 +6,10 @@ import uuid as _uuid_mod
 from io import StringIO
 from logging import getLogger
 from pathlib import Path
-from re import IGNORECASE, MULTILINE, compile, findall, sub
+from re import IGNORECASE, MULTILINE, compile, escape, findall, sub
 from tempfile import TemporaryDirectory
 from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
+from typing import Match, Pattern
 
 import requests
 from requests.exceptions import RequestException
@@ -27,6 +28,9 @@ _UUID_FIELD_RE = compile(
     r"^uuid:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*$",
     MULTILINE | IGNORECASE,
 )
+
+# Matches the ``schema`` field in a Superset dataset export YAML.
+_SCHEMA_FIELD_RE = compile(r"^schema:\s*(\S+)\s*$", MULTILINE)
 
 
 # ---------------------------------------------------------------------------
@@ -166,6 +170,7 @@ def deploy_superset_multiple_assets(
             sqlalchemy_uri=sqlalchemy_uri,
             db_uuid=db_uuid or "",
             schema_name=schema_name,
+            workspace_id=workspace_id,
             force_new_uuids=force_new_uuids,
         )
         if not success:
@@ -312,11 +317,12 @@ def _is_cross_workspace_deployment(
     still clean (no datasets from the current batch exist yet).
 
     Logic:
-    1. Collect chart/dashboard UUIDs from ALL ZIPs.
-    2. Check if any of them already exist in Superset.
-    3. If yes: check whether datasets in the target schema exist.
-       - Yes → same workspace redeploy → return False.
-       - No  → cross-workspace → return True.
+    1. Collect chart/dashboard UUIDs and dataset schemas from ALL ZIPs.
+    2. Check if any UUID already exists in Superset.
+    3. If yes: compare the schema embedded in the ZIP dataset files against
+       the target *schema_name*:
+       - All ZIP schemas match  → same-workspace redeploy → return False.
+       - Any ZIP schema differs → cross-workspace          → return True.
     4. If no UUIDs match → first deploy → return False.
 
     Returns:
@@ -325,14 +331,16 @@ def _is_cross_workspace_deployment(
     if not schema_name:
         return False
 
-    # Collect all UUIDs from every ZIP in the batch.
+    # Collect UUIDs and zip paths from every report in the batch.
     all_uuids: set[str] = set()
+    zip_paths: list[Path] = []
     for report in reports:
         rel_path = report.get("path", "")
         path_obj = Path(rel_path)
         zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
         if zip_path.exists():
             all_uuids |= _read_uuids_from_zip(zip_path)
+            zip_paths.append(zip_path)
 
     if not all_uuids:
         return False
@@ -358,22 +366,12 @@ def _is_cross_workspace_deployment(
             pass
 
     if not any_matched:
+        # No UUID overlap → first deploy for this workspace.
         return False
 
-    # Chart/dashboard UUIDs exist → check if datasets in the target schema exist.
-    try:
-        resp = requests.get(
-            f"{base_url}/api/v1/dataset/",
-            headers=headers,
-            params={"page_size": 1000},
-            timeout=10,
-        )
-        resp.raise_for_status()
-        has_target_schema = any((d.get("schema") or "").strip() == schema_name for d in resp.json().get("result", []))
-    except Exception:
-        has_target_schema = False
-
-    if has_target_schema:
+    zip_schemas = _read_schemas_from_zips(zip_paths)
+    if zip_schemas and all(s == schema_name for s in zip_schemas):
+        # Every ZIP already targets the current workspace schema.
         return False
 
     logger.info(
@@ -397,6 +395,7 @@ def _process_dashboard_zip(
     sqlalchemy_uri: str,
     db_uuid: str,
     schema_name: str,
+    workspace_id: str = "",
     force_new_uuids: bool = False,
 ) -> tuple[bool, set[str]]:
     """Extract, patch, repack, and import a single dashboard ZIP.
@@ -449,6 +448,7 @@ def _process_dashboard_zip(
             _patch_metadata(content_dir)
             _patch_database_dir(content_dir, sqlalchemy_uri, database_name=env.environ_id, db_uuid=db_uuid)
             _patch_schema_in_datasets_dir(content_dir, schema_name, db_uuid=db_uuid)
+            _prefix_asset_titles(content_dir, workspace_id)
 
             dashboards_dir = content_dir / "dashboards"
             if dashboards_dir.is_dir():
@@ -498,6 +498,36 @@ def _read_uuids_from_zip(zip_path: Path) -> set[str]:
     except Exception as exc:
         logger.error(f"  [bold red]✘[/bold red] Could not read UUIDs from {zip_path.name}: {exc}")
     return uuids
+
+
+def _read_schemas_from_zips(zip_paths: list[Path]) -> set[str]:
+    """Read the ``schema:`` field from every dataset YAML inside *zip_paths*.
+
+    Only files whose path contains a ``datasets`` component are inspected,
+    mirroring the structure of Superset export ZIPs.
+
+    Returns:
+        Set of unique schema strings found across all ZIPs.  Empty when no
+        dataset files are present or the field is absent.
+    """
+    schemas: set[str] = set()
+    for zip_path in zip_paths:
+        try:
+            with ZipFile(zip_path, "r") as zf:
+                for member in zf.namelist():
+                    if not member.endswith(".yaml"):
+                        continue
+                    # Only inspect dataset files (path contains "datasets/").
+                    parts = member.replace("\\", "/").split("/")
+                    if "datasets" not in parts:
+                        continue
+                    raw = zf.read(member).decode("utf-8", errors="replace")
+                    match = _SCHEMA_FIELD_RE.search(raw)
+                    if match:
+                        schemas.add(match.group(1).strip())
+        except Exception as exc:
+            logger.debug(f"  Could not read schemas from {zip_path.name}: {exc}")
+    return schemas
 
 
 def _assets_exist_in_superset(
@@ -698,6 +728,98 @@ def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str 
         except Exception as exc:
             logger.warning(f"  [yellow]⚠[/yellow] Could not patch dataset {yaml_file.name}: {exc}")
 
+
+def _clean_and_prefix_value(raw_value: str, prefix: str) -> str:
+    """Strips quotes, removes existing prefixes, and returns a safely quoted string."""
+    clean_val = raw_value.strip()
+    
+    # Loop to strip outer quotes and existing prefixes recursively 
+    while True:
+        if len(clean_val) >= 2 and clean_val[0] in ("'", '"') and clean_val[0] == clean_val[-1]:
+            clean_val = clean_val[1:-1]
+        elif clean_val.startswith(prefix):
+            clean_val = clean_val[len(prefix):]
+        else:
+            break
+
+    # Escape backslashes and double quotes for safe YAML string insertion
+    safe_val = clean_val.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{prefix}{safe_val}"'
+
+
+def _process_yaml_file(yaml_file: Path, field_re: Pattern, prefix: str) -> bool:
+    """Processes a single YAML file, returning True if modifications were made."""
+    try:
+        raw_content = yaml_file.read_text(encoding="utf-8")
+
+        def replacement_func(match: Match) -> str:
+            key_part = match.group(1)
+            raw_value = match.group(2)
+            new_value = _clean_and_prefix_value(raw_value, prefix)
+            return f"{key_part}{new_value}"
+
+        patched_content = field_re.sub(replacement_func, raw_content)
+        
+        if patched_content != raw_content:
+            yaml_file.write_text(patched_content, encoding="utf-8", newline="\n")
+            return True
+            
+    except (OSError, UnicodeError) as exc:
+        logger.warning(f"  [yellow]⚠[/yellow] Could not prefix titles in '{yaml_file.name}': {exc}")
+
+    return False
+
+
+def _prefix_asset_titles(content_dir: Path, workspace_id: str) -> None:
+    """Prefix dashboard, chart and dataset display names with *workspace_id*.
+
+    Patches the following YAML fields so each asset carries a unique,
+    workspace-scoped title across multiple deployments in the same Superset
+    instance:
+
+    ============  ===========  =================
+    Folder        Glob         Field patched
+    ============  ===========  =================
+    ``dashboards``  ``*.yaml``   ``dashboard_title``
+    ``charts``      ``*.yaml``   ``slice_name``
+    ``datasets``    ``**/*.yaml``  ``table_name``
+    ============  ===========  =================
+
+    The patch is **idempotent**: if the field value already begins with
+    ``"<workspace_id> "``, it is left unchanged.
+
+    Args:
+        content_dir:  Root of the unzipped export.
+        workspace_id: Workspace identifier to use as prefix (e.g. ``w-abc123``).
+    """
+    if not workspace_id:
+        return
+
+    prefix = f"[{workspace_id}] "
+    targets: list[tuple[str, str, str]] = [
+        ("dashboards", "*.yaml", "dashboard_title"),
+        ("charts", "*.yaml", "slice_name"),
+        ("datasets", "**/*.yaml", "table_name"),
+    ]
+
+    patched_count = 0
+    for folder_name, glob_pattern, field in targets:
+        folder_path = content_dir / folder_name
+        if not folder_path.is_dir():
+            continue
+
+        # Compile regex once per folder type
+        field_re = compile(rf"^({escape(field)}:\s*)(.+)$", MULTILINE)
+
+        for yaml_file in folder_path.glob(glob_pattern):
+            if not yaml_file.is_file():
+                continue
+            
+            if _process_yaml_file(yaml_file, field_re, prefix):
+                patched_count += 1
+
+    if patched_count:
+        logger.debug(f"  Prefixed {patched_count} asset title(s) with workspace prefix '{workspace_id}'")
 
 def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
     """Repack the contents of *tmp_dir* back into *zip_path*, replacing it in-place."""
