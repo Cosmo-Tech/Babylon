@@ -8,8 +8,8 @@ from logging import getLogger
 from pathlib import Path
 from re import IGNORECASE, MULTILINE, compile, escape, findall, sub
 from tempfile import TemporaryDirectory
-from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
 from typing import Match, Pattern
+from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
 
 import requests
 from requests.exceptions import RequestException
@@ -732,13 +732,13 @@ def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str 
 def _clean_and_prefix_value(raw_value: str, prefix: str) -> str:
     """Strips quotes, removes existing prefixes, and returns a safely quoted string."""
     clean_val = raw_value.strip()
-    
-    # Loop to strip outer quotes and existing prefixes recursively 
+
+    # Loop to strip outer quotes and existing prefixes recursively
     while True:
         if len(clean_val) >= 2 and clean_val[0] in ("'", '"') and clean_val[0] == clean_val[-1]:
             clean_val = clean_val[1:-1]
         elif clean_val.startswith(prefix):
-            clean_val = clean_val[len(prefix):]
+            clean_val = clean_val[len(prefix) :]
         else:
             break
 
@@ -759,11 +759,11 @@ def _process_yaml_file(yaml_file: Path, field_re: Pattern, prefix: str) -> bool:
             return f"{key_part}{new_value}"
 
         patched_content = field_re.sub(replacement_func, raw_content)
-        
+
         if patched_content != raw_content:
             yaml_file.write_text(patched_content, encoding="utf-8", newline="\n")
             return True
-            
+
     except (OSError, UnicodeError) as exc:
         logger.warning(f"  [yellow]⚠[/yellow] Could not prefix titles in '{yaml_file.name}': {exc}")
 
@@ -814,12 +814,13 @@ def _prefix_asset_titles(content_dir: Path, workspace_id: str) -> None:
         for yaml_file in folder_path.glob(glob_pattern):
             if not yaml_file.is_file():
                 continue
-            
+
             if _process_yaml_file(yaml_file, field_re, prefix):
                 patched_count += 1
 
     if patched_count:
         logger.debug(f"  Prefixed {patched_count} asset title(s) with workspace prefix '{workspace_id}'")
+
 
 def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
     """Repack the contents of *tmp_dir* back into *zip_path*, replacing it in-place."""
