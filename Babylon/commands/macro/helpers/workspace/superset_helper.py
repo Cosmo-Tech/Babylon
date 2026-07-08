@@ -730,17 +730,24 @@ def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str 
 
 
 def _clean_and_prefix_value(raw_value: str, prefix: str) -> str:
-    """Strips quotes, removes existing prefixes, and returns a safely quoted string."""
+    """Strips quotes, removes any existing ``[workspace_id]`` prefix, and returns a safely quoted string.
+
+    Handles both same-workspace re-deploys (prefix matches → idempotent) and
+    cross-workspace re-deploys (old prefix differs → replaced with current).
+    """
     clean_val = raw_value.strip()
 
-    # Loop to strip outer quotes and existing prefixes recursively
+    # Loop to strip outer quotes and any existing [workspace_id] prefix recursively
     while True:
         if len(clean_val) >= 2 and clean_val[0] in ("'", '"') and clean_val[0] == clean_val[-1]:
             clean_val = clean_val[1:-1]
-        elif clean_val.startswith(prefix):
-            clean_val = clean_val[len(prefix) :]
-        else:
-            break
+            continue
+        # Strip any [xxx] prefix pattern, not just the current workspace's
+        stripped = sub(r"^\[.*?\]\s*", "", clean_val)
+        if stripped != clean_val:
+            clean_val = stripped
+            continue
+        break
 
     # Escape backslashes and double quotes for safe YAML string insertion
     safe_val = clean_val.replace("\\", "\\\\").replace('"', '\\"')
