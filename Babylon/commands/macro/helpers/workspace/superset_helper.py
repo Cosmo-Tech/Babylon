@@ -16,6 +16,10 @@ from requests.exceptions import RequestException
 from ruamel.yaml import YAML as _RYAML
 from yaml import safe_load
 
+from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import (
+    create_workspace,
+    update_workspace,
+)
 from Babylon.commands.macro.helpers.workspace.kubernetes_helper import get_postgres_service_host
 from Babylon.utils.credentials import get_superset_token
 from Babylon.utils.environment import Environment
@@ -32,10 +36,54 @@ _UUID_FIELD_RE = compile(
 # Matches the ``schema`` field in a Superset dataset export YAML.
 _SCHEMA_FIELD_RE = compile(r"^schema:\s*(\S+)\s*$", MULTILINE)
 
+# Glob pattern for matching YAML files in Superset export directories.
+_YAML_GLOB = "*.yaml"
+
 
 # ---------------------------------------------------------------------------
 # Public dispatch entry point
 # ---------------------------------------------------------------------------
+
+def _deploy_or_update_workspace(api_instance, api_section, payload, state) -> bool:
+    """Create or update workspace via API. Returns True on success."""
+    if not api_section["workspace_id"]:
+        return create_workspace(api_instance, api_section, payload, state)
+    return update_workspace(api_instance, api_section, payload)
+
+
+def _update_workspace_with_superset_uuids(config, api_instance, api_section, file_content, state, zip_uuids) -> bool:
+    """Fetch embedded Superset dashboard UUIDs and push an updated workspace. Returns True on success."""
+    base_url = (config.get("superset_url") or "").rstrip("/")
+    superset_jwt = get_superset_token(base_url=base_url, config=config)
+    if superset_jwt and base_url:
+        # Pass zip_uuids so only dashboards from our ZIP are queried
+        _fetch_and_store_embedded_dashboard_uuids(base_url, superset_jwt, zip_uuids=zip_uuids)
+
+    # Phase 2 render – variables file now contains real UUIDs.
+    # fallback_empty=False: only include keys that have a real value.
+    ext = _build_dashboard_ext_args(fallback_empty=False)
+    content2 = env.fill_template(data=file_content, state=state, ext_args=ext or None)
+    payload2 = content2.get("spec", {}).get("payload", {})
+    return update_workspace(api_instance, api_section, payload2)
+
+
+def _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content) -> bool:
+    """Deploy dashboards and handle provider-specific follow-up. Returns True on success."""
+    provider = (dashboard_config.get("provider") or "").lower()
+    ok, zip_uuids = deploy_dashboard(
+        provider=provider,
+        reports=dashboard_config.get("reports", []),
+        state=state,
+        superset_config=config,
+        deploy_dir=deploy_dir,
+    )
+    if not ok:
+        return False
+
+    # Superset: fetch embedded UUIDs then push an updated workspace
+    if provider == "superset":
+        return _update_workspace_with_superset_uuids(config, api_instance, api_section, file_content, state, zip_uuids)
+    return True
 
 
 def deploy_dashboard(
@@ -55,7 +103,7 @@ def deploy_dashboard(
     if provider == "superset":
         return deploy_superset(reports, state, superset_config, deploy_dir)
     if provider == "powerbi":
-        pass  # return _deploy_powerbi(reports, state)
+        pass
     logger.error(f"  [bold red]✘[/bold red] Unsupported dashboard provider '{provider}'")
     return False, set()
 
@@ -99,6 +147,7 @@ def deploy_superset(
         superset_config=superset_config,
         state=state,
         deploy_dir=deploy_dir,
+        base_url=base_url,
     )
 
 
@@ -108,6 +157,7 @@ def deploy_superset_multiple_assets(
     state: dict,
     superset_config: dict,
     deploy_dir: Path,
+    base_url: str,
 ) -> tuple[bool, set[str]]:
     """Deploy Superset dashboard assets from a list of ZIP reports.
 
@@ -133,11 +183,6 @@ def deploy_superset_multiple_assets(
     Returns:
         A tuple ``(all_ok, all_zip_uuids)``.
     """
-    base_url = superset_config.get("superset_url", "").rstrip("/")
-
-    if not base_url:
-        logger.error("  [bold red]✘[/bold red] superset_url not configured")
-        return False, set()
 
     logger.info(f"  [dim]→ Deploying {len(reports)} dashboard ZIP(s) to Superset...[/dim]")
 
@@ -195,7 +240,7 @@ def _setup_database_and_csrf(
         logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token.")
         return None, None, None
 
-    datasource = create_postgres_datasource(superset_config=superset_config, superset_jwt=superset_token)
+    datasource = create_postgres_datasource(base_url=base_url,superset_config=superset_config, superset_jwt=superset_token)
     if datasource is None:
         logger.error("  [bold red]✘[/bold red] Datasource creation failed Aborting")
         return None, None, None
@@ -225,6 +270,7 @@ def _setup_database_and_csrf(
 
 
 def create_postgres_datasource(
+    base_url: str,
     superset_config: dict,
     superset_jwt: str | None = None,
 ) -> dict | None:
@@ -233,10 +279,6 @@ def create_postgres_datasource(
     Returns:
         The datasource dict on success or if it already exists, ``None`` on error.
     """
-    base_url = (superset_config.get("superset_url") or "").rstrip("/")
-    if not base_url:
-        logger.error("  [bold red]✘[/bold red] superset_url not configured")
-        return None
 
     if not superset_jwt:
         superset_jwt = get_superset_token(base_url=base_url, config=superset_config)
@@ -304,6 +346,27 @@ def _get_existing_datasource(base_url: str, superset_jwt: str, display_name: str
 # ---------------------------------------------------------------------------
 
 
+def _collect_report_zip_data(
+    reports: list,
+    abs_deploy_dir: Path,
+) -> tuple[set[str], list[Path]]:
+    """Resolve report paths and collect UUIDs from each existing ZIP.
+
+    Returns:
+        ``(all_uuids, zip_paths)`` gathered from the reports list.
+    """
+    all_uuids: set[str] = set()
+    zip_paths: list[Path] = []
+    for report in reports:
+        rel_path = report.get("path", "")
+        path_obj = Path(rel_path)
+        zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
+        if zip_path.exists():
+            all_uuids |= _read_uuids_from_zip(zip_path)
+            zip_paths.append(zip_path)
+    return all_uuids, zip_paths
+
+
 def _is_cross_workspace_deployment(
     reports: list,
     abs_deploy_dir: Path,
@@ -331,16 +394,7 @@ def _is_cross_workspace_deployment(
     if not schema_name:
         return False
 
-    # Collect UUIDs and zip paths from every report in the batch.
-    all_uuids: set[str] = set()
-    zip_paths: list[Path] = []
-    for report in reports:
-        rel_path = report.get("path", "")
-        path_obj = Path(rel_path)
-        zip_path = path_obj.resolve() if path_obj.is_absolute() else (abs_deploy_dir / rel_path).resolve()
-        if zip_path.exists():
-            all_uuids |= _read_uuids_from_zip(zip_path)
-            zip_paths.append(zip_path)
+    all_uuids, zip_paths = _collect_report_zip_data(reports, abs_deploy_dir)
 
     if not all_uuids:
         return False
@@ -386,6 +440,28 @@ def _is_cross_workspace_deployment(
 # ---------------------------------------------------------------------------
 
 
+def _collect_dashboard_uuids_from_dir(content_dir: Path) -> set[str]:
+    """Read dashboard UUIDs from YAML files in the ``dashboards/`` subdirectory.
+
+    Returns:
+        Set of lowercase UUID strings found in dashboard YAML files.
+    """
+    uuids: set[str] = set()
+    dashboards_dir = content_dir / "dashboards"
+    if not dashboards_dir.is_dir():
+        return uuids
+    for df in dashboards_dir.rglob(_YAML_GLOB):
+        try:
+            raw = df.read_text(encoding="utf-8")
+            m = _UUID_FIELD_RE.search(raw)
+            if m:
+                uuids.add(m.group(1).lower())
+        except OSError as e:
+            logger.warning(f"  [yellow]⚠[/yellow] Skipping unreadable YAML file '{df.name}'")
+            logger.debug(f"  Could not read YAML file '{df.name}': {e}")
+    return uuids
+
+
 def _process_dashboard_zip(
     report: dict,
     abs_deploy_dir: Path,
@@ -422,7 +498,7 @@ def _process_dashboard_zip(
     if force_new_uuids:
         existing_map = {"datasets": False, "charts": False, "dashboards": False}
     else:
-        existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids, schema_name=schema_name)
+        existing_map = _assets_exist_in_superset(base_url, superset_token, zip_uuids)
 
     is_update = any(existing_map.values())
     if is_update:
@@ -432,7 +508,6 @@ def _process_dashboard_zip(
         )
     else:
         logger.info(f"  [dim]→ Dashboard [magenta]{name}[/magenta] first deployment, creating all assets[/dim]")
-    new_dashboard_uuids: set[str] = set()
 
     try:
         with TemporaryDirectory(prefix="babylon_superset_") as tmp_dir_str:
@@ -450,17 +525,7 @@ def _process_dashboard_zip(
             _patch_schema_in_datasets_dir(content_dir, schema_name, db_uuid=db_uuid)
             _prefix_asset_titles(content_dir, workspace_id)
 
-            dashboards_dir = content_dir / "dashboards"
-            if dashboards_dir.is_dir():
-                for df in dashboards_dir.rglob("*.yaml"):
-                    try:
-                        raw = df.read_text(encoding="utf-8")
-                        m = _UUID_FIELD_RE.search(raw)
-                        if m:
-                            new_dashboard_uuids.add(m.group(1).lower())
-                    except OSError as e:
-                        logger.warning(f"  [yellow]⚠[/yellow] Skipping unreadable YAML file '{df.name}'")
-                        logger.debug(f"  Could not read YAML file '{df.name}': {e}")
+            new_dashboard_uuids = _collect_dashboard_uuids_from_dir(content_dir)
 
             _repack_zip(zip_path, tmp_dir)
 
@@ -534,7 +599,6 @@ def _assets_exist_in_superset(
     base_url: str,
     superset_jwt: str,
     uuids: set[str],
-    schema_name: str = "",
 ) -> dict[str, bool]:
     """Check which asset types from the export ZIP already exist in Superset.
 
@@ -579,6 +643,25 @@ def _assets_exist_in_superset(
     return result
 
 
+def _apply_uuid_replacements(all_files: list[Path], uuid_mapping: dict[str, str]) -> None:
+    """Replace old UUIDs with new ones across all YAML files (Pass 2).
+
+    Replaces both lowercase and uppercase variants so that cross-references
+    (e.g. chart → dataset_uuid) remain consistent after regeneration.
+    """
+    for yaml_file in all_files:
+        try:
+            raw = yaml_file.read_text(encoding="utf-8")
+            patched = raw
+            for old_uuid, new_uuid in uuid_mapping.items():
+                patched = patched.replace(old_uuid, new_uuid)
+                patched = patched.replace(old_uuid.upper(), new_uuid)
+            if patched != raw:
+                yaml_file.write_text(patched, encoding="utf-8", newline="\n")
+        except (OSError, UnicodeError) as exc:
+            logger.warning(f"  [yellow]⚠[/yellow] Could not update UUIDs in {yaml_file.name}: {exc}")
+
+
 def _regenerate_superset_uuids(
     base_dir_path: str | Path,
     existing: dict[str, bool] | None = None,
@@ -598,7 +681,7 @@ def _regenerate_superset_uuids(
     skip_folders = {"databases"} | {folder for folder, deployed in existing.items() if deployed}
     active = sorted({"datasets", "charts", "dashboards", "themes"} - skip_folders)
 
-    all_files: list[Path] = sorted(base_dir.rglob("*.yaml"))
+    all_files: list[Path] = sorted(base_dir.rglob(_YAML_GLOB))
     uuid_mapping: dict[str, str] = {}
 
     for yaml_file in all_files:
@@ -621,17 +704,7 @@ def _regenerate_superset_uuids(
     if not uuid_mapping:
         return {}
 
-    for yaml_file in all_files:
-        try:
-            raw = yaml_file.read_text(encoding="utf-8")
-            patched = raw
-            for old_uuid, new_uuid in uuid_mapping.items():
-                patched = patched.replace(old_uuid, new_uuid)
-                patched = patched.replace(old_uuid.upper(), new_uuid)
-            if patched != raw:
-                yaml_file.write_text(patched, encoding="utf-8", newline="\n")
-        except (OSError, UnicodeError) as exc:
-            logger.warning(f"  [yellow]⚠[/yellow] Could not update UUIDs in {yaml_file.name}: {exc}")
+    _apply_uuid_replacements(all_files, uuid_mapping)
 
     logger.debug(f"  Regenerated {len(uuid_mapping)} UUID(s) for [{', '.join(active)}]")
     return uuid_mapping
@@ -674,7 +747,7 @@ def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str, 
     _name_re = compile(r"^(database_name:\s*).*$", MULTILINE)
     _uuid_re = compile(r"^(uuid:\s*)([0-9a-f-]{36})\s*$", MULTILINE | IGNORECASE)
 
-    for yaml_file in db_dir.glob("*.yaml"):
+    for yaml_file in db_dir.glob(_YAML_GLOB):
         try:
             raw = yaml_file.read_text(encoding="utf-8")
             result = raw
@@ -692,6 +765,22 @@ def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str, 
             logger.warning(f"  [yellow]⚠[/yellow] Could not patch databases/{yaml_file.name}: {exc}")
 
 
+def _patch_single_dataset_file(yaml_file: Path, schema_name: str, db_uuid: str, schema_re, db_uuid_re) -> None:
+    """Patch schema and optionally database_uuid in a single dataset YAML file."""
+    raw = yaml_file.read_text(encoding="utf-8")
+    result = raw
+
+    match = schema_re.search(result)
+    if match and match.group(2) != schema_name:
+        result = result.replace(match.group(2), schema_name)
+
+    if db_uuid and "database_uuid" in result:
+        result = db_uuid_re.sub(rf"\g<1>{db_uuid}", result)
+
+    if result != raw:
+        yaml_file.write_text(result, encoding="utf-8", newline="\n")
+
+
 def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str = "") -> None:
     """Patch schema references and optionally pin ``database_uuid`` in every dataset YAML.
 
@@ -707,24 +796,9 @@ def _patch_schema_in_datasets_dir(tmp_dir: Path, schema_name: str, db_uuid: str 
     _schema_re = compile(r"^(schema:\s*)(\S+)\s*$", MULTILINE)
     _db_uuid_re = compile(r"^(database_uuid:\s*)([0-9a-f-]{36})\s*$", MULTILINE | IGNORECASE)
 
-    for yaml_file in datasets_dir.rglob("*.yaml"):
+    for yaml_file in datasets_dir.rglob(_YAML_GLOB):
         try:
-            raw = yaml_file.read_text(encoding="utf-8")
-            result = raw
-
-            match = _schema_re.search(result)
-            if match:
-                old_schema = match.group(2)
-                if old_schema != schema_name:
-                    result = result.replace(old_schema, schema_name)
-
-            if db_uuid and "database_uuid" in result:
-                new_result = _db_uuid_re.sub(rf"\g<1>{db_uuid}", result)
-                if new_result != result:
-                    result = new_result
-
-            if result != raw:
-                yaml_file.write_text(result, encoding="utf-8", newline="\n")
+            _patch_single_dataset_file(yaml_file, schema_name, db_uuid, _schema_re, _db_uuid_re)
         except Exception as exc:
             logger.warning(f"  [yellow]⚠[/yellow] Could not patch dataset {yaml_file.name}: {exc}")
 
@@ -804,9 +878,9 @@ def _prefix_asset_titles(content_dir: Path, workspace_id: str) -> None:
 
     prefix = f"[{workspace_id}] "
     targets: list[tuple[str, str, str]] = [
-        ("dashboards", "*.yaml", "dashboard_title"),
-        ("charts", "*.yaml", "slice_name"),
-        ("datasets", "**/*.yaml", "table_name"),
+        ("dashboards", _YAML_GLOB, "dashboard_title"),
+        ("charts", _YAML_GLOB, "slice_name"),
+        ("datasets", f"**/{_YAML_GLOB}", "table_name"),
     ]
 
     patched_count = 0
@@ -1185,6 +1259,15 @@ def update_variables_file_entry(
 # ---------------------------------------------------------------------------
 
 
+def _collect_fallback_template_vars(template_content: str, known_keys: set) -> dict:
+    """Discover template variables not already in *known_keys* and map them to ``""``."""
+    fallback: dict = {}
+    for var in findall(r"\$\{([a-zA-Z_]\w*)\}", template_content):
+        if var not in known_keys:
+            fallback[var] = ""
+    return fallback
+
+
 def _build_dashboard_ext_args(fallback_empty: bool = False, template_content: str = "") -> dict:
     """Extract embedded dashboard UUIDs from the Babylon variables file.
 
@@ -1218,10 +1301,7 @@ def _build_dashboard_ext_args(fallback_empty: bool = False, template_content: st
             ext[key] = ""
 
     if fallback_empty and template_content:
-        known = variables.keys() | ext.keys()
-        for var in findall(r"\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}", template_content):
-            if var not in known:
-                ext[var] = ""
+        ext.update(_collect_fallback_template_vars(template_content, variables.keys() | ext.keys()))
 
     return ext
 
