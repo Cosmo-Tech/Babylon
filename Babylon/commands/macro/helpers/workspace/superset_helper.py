@@ -1342,6 +1342,164 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
     return None
 
 
+# ---------------------------------------------------------------------------
+# Superset asset deletion
+# ---------------------------------------------------------------------------
+
+
+def delete_superset_assets(
+    base_url: str,
+    superset_config: dict,
+    workspace_id: str,
+) -> bool:
+    """Delete all Superset dashboards, charts, and datasets whose title starts
+    with ``[workspace_id]``.
+
+    Deletion order: dashboards → charts → datasets (avoids orphan reference
+    errors in Superset).
+
+    Args:
+        base_url:        Superset base URL (e.g. ``https://superset.example.com``).
+        superset_config: Config dict passed to :func:`get_superset_token`.
+        workspace_id:    Workspace ID used as the title prefix (e.g. ``w-abc123``).
+
+    Returns:
+        ``True`` when all matching assets were deleted successfully (or none
+        were found), ``False`` when at least one deletion failed.
+    """
+    superset_jwt = get_superset_token(base_url=base_url, config=superset_config)
+    if not superset_jwt:
+        logger.error("  [bold red]✘[/bold red] Could not obtain Superset token — skipping asset deletion")
+        return False
+
+    csrf_token = _get_superset_csrf_token(base_url, superset_jwt)
+    if not csrf_token:
+        logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token — skipping asset deletion")
+        return False
+
+    prefix = f"[{workspace_id}]"
+    auth_headers = {
+        "Authorization": f"Bearer {superset_jwt}",
+        "X-CSRFToken": csrf_token,
+        "Referer": base_url,
+    }
+
+    all_ok = True
+
+    # --- Dashboards ---
+    dashboard_ids = _list_asset_ids_by_prefix(
+        base_url, superset_jwt, "/api/v1/dashboard/", "dashboard_title", prefix
+    )
+    if dashboard_ids is None:
+        all_ok = False
+    else:
+        logger.info(f"  [dim]→ Found {len(dashboard_ids)} dashboard(s) to delete for workspace '{workspace_id}'[/dim]")
+        for asset_id in dashboard_ids:
+            if not _delete_asset(base_url, auth_headers, "/api/v1/dashboard/", asset_id):
+                all_ok = False
+
+    # --- Charts ---
+    chart_ids = _list_asset_ids_by_prefix(
+        base_url, superset_jwt, "/api/v1/chart/", "slice_name", prefix
+    )
+    if chart_ids is None:
+        all_ok = False
+    else:
+        logger.info(f"  [dim]→ Found {len(chart_ids)} chart(s) to delete for workspace '{workspace_id}'[/dim]")
+        for asset_id in chart_ids:
+            if not _delete_asset(base_url, auth_headers, "/api/v1/chart/", asset_id):
+                all_ok = False
+
+    # --- Datasets ---
+    dataset_ids = _list_asset_ids_by_prefix(
+        base_url, superset_jwt, "/api/v1/dataset/", "table_name", prefix
+    )
+    if dataset_ids is None:
+        all_ok = False
+    else:
+        logger.info(f"  [dim]→ Found {len(dataset_ids)} dataset(s) to delete for workspace '{workspace_id}'[/dim]")
+        for asset_id in dataset_ids:
+            if not _delete_asset(base_url, auth_headers, "/api/v1/dataset/", asset_id):
+                all_ok = False
+
+    if all_ok:
+        logger.info(
+            f"  [bold green]✔[/bold green] Superset asset cleanup complete for workspace '{workspace_id}'"
+        )
+    else:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] Some Superset assets could not be deleted for workspace '{workspace_id}'"
+        )
+    return all_ok
+
+
+def _list_asset_ids_by_prefix(
+    base_url: str,
+    superset_jwt: str,
+    endpoint: str,
+    title_field: str,
+    prefix: str,
+) -> list[int] | None:
+    """Return the IDs of all Superset assets whose *title_field* starts with *prefix*.
+
+    Args:
+        endpoint:    API endpoint, e.g. ``/api/v1/dashboard/``.
+        title_field: JSON field name used for the title in the list response.
+        prefix:      Title prefix to filter on, e.g. ``[w-abc123]``.
+
+    Returns:
+        List of integer IDs, or ``None`` on request failure.
+    """
+    headers = {"Authorization": f"Bearer {superset_jwt}"}
+    ids: list[int] = []
+    page = 0
+    page_size = 100
+    try:
+        while True:
+            resp = requests.get(
+                f"{base_url}{endpoint}",
+                headers=headers,
+                params={"page": page, "page_size": page_size},
+                timeout=15,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            results = data.get("result", [])
+            for item in results:
+                title = item.get(title_field) or ""
+                if title.startswith(prefix):
+                    ids.append(item["id"])
+            if len(results) < page_size:
+                break
+            page += 1
+    except Exception as exc:
+        logger.error(f"  [bold red]✘[/bold red] Could not list assets from {endpoint}: {exc}")
+        return None
+    return ids
+
+
+def _delete_asset(
+    base_url: str,
+    auth_headers: dict,
+    endpoint: str,
+    asset_id: int,
+) -> bool:
+    """Send a DELETE request for a single Superset asset.
+
+    Returns:
+        ``True`` on success (HTTP 2xx), ``False`` otherwise.
+    """
+    url = f"{base_url}{endpoint}{asset_id}"
+    try:
+        resp = requests.delete(url, headers=auth_headers, timeout=15)
+        resp.raise_for_status()
+        logger.info(f"  [bold green]✔[/bold green] Deleted {endpoint.strip('/')} id={asset_id}")
+        return True
+    except Exception as exc:
+        logger.error(f"  [bold red]✘[/bold red] Failed to delete {endpoint.strip('/')} id={asset_id}: {exc}")
+        return False
+
+
 def get_uuid_by_dashboard_id(yaml_data: dict, target_id: str | int) -> str | None:
     """Reverse-lookup the embedded UUID by Superset integer dashboard ID.
 

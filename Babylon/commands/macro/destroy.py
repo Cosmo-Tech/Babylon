@@ -12,6 +12,7 @@ from Babylon.commands.macro.helpers.workspace import (
     delete_kubernetes_resources,
     destroy_postgres_schema,
 )
+from Babylon.commands.macro.helpers.workspace.superset_helper import delete_superset_assets
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
@@ -49,6 +50,18 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
         )
         api = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
         delete_api_resource(api.delete_workspace, "Workspace", org_id, api_state["workspace_id"], state, "workspace_id")
+
+        # --- Superset cleanup ---
+        superset_url = (config.get("superset_url") or "").rstrip("/")
+        if superset_url:
+            echo(style("\n🗑  Cleaning up Superset assets...", fg="yellow"))
+            delete_superset_assets(
+                base_url=superset_url,
+                superset_config=config,
+                workspace_id=api_state["workspace_id"],
+            )
+        else:
+            logger.info("  [dim]⚠ superset_url not configured — skipping Superset cleanup[/dim]")
 
     if organization:
         api = get_organization_api_instance(config=config, keycloak_token=keycloak_token)
