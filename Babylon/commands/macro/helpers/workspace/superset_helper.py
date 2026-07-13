@@ -1355,6 +1355,13 @@ def delete_superset_assets(
     """Delete all Superset dashboards, charts, and datasets whose title starts
     with ``[workspace_id]``.
 
+    Matching strategy all three asset types filter on a title field that
+    is prefixed with ``[workspace_id]`` during ZIP deployment:
+
+    - **Dashboards**: ``dashboard_title`` starts with ``[workspace_id]``
+    - **Charts**:     ``slice_name``      starts with ``[workspace_id]``
+    - **Datasets**:   ``table_name``      starts with ``[workspace_id]``
+
     Deletion order: dashboards → charts → datasets (avoids orphan reference
     errors in Superset).
 
@@ -1369,12 +1376,12 @@ def delete_superset_assets(
     """
     superset_jwt = get_superset_token(base_url=base_url, config=superset_config)
     if not superset_jwt:
-        logger.error("  [bold red]✘[/bold red] Could not obtain Superset token — skipping asset deletion")
+        logger.error("  [bold red]✘[/bold red] Could not obtain Superset token skipping asset deletion !")
         return False
 
     csrf_token = _get_superset_csrf_token(base_url, superset_jwt)
     if not csrf_token:
-        logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token — skipping asset deletion")
+        logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token skipping asset deletion !")
         return False
 
     prefix = f"[{workspace_id}]"
@@ -1386,7 +1393,7 @@ def delete_superset_assets(
 
     all_ok = True
 
-    # --- Dashboards ---
+    # --- Dashboards
     dashboard_ids = _list_asset_ids_by_prefix(
         base_url, superset_jwt, "/api/v1/dashboard/", "dashboard_title", prefix
     )
@@ -1398,7 +1405,7 @@ def delete_superset_assets(
             if not _delete_asset(base_url, auth_headers, "/api/v1/dashboard/", asset_id):
                 all_ok = False
 
-    # --- Charts ---
+    # --- Charts
     chart_ids = _list_asset_ids_by_prefix(
         base_url, superset_jwt, "/api/v1/chart/", "slice_name", prefix
     )
@@ -1410,7 +1417,7 @@ def delete_superset_assets(
             if not _delete_asset(base_url, auth_headers, "/api/v1/chart/", asset_id):
                 all_ok = False
 
-    # --- Datasets ---
+    # --- Datasets
     dataset_ids = _list_asset_ids_by_prefix(
         base_url, superset_jwt, "/api/v1/dataset/", "table_name", prefix
     )
@@ -1431,7 +1438,6 @@ def delete_superset_assets(
             f"  [yellow]⚠[/yellow] Some Superset assets could not be deleted for workspace '{workspace_id}'"
         )
     return all_ok
-
 
 def _list_asset_ids_by_prefix(
     base_url: str,
@@ -1459,7 +1465,7 @@ def _list_asset_ids_by_prefix(
             resp = requests.get(
                 f"{base_url}{endpoint}",
                 headers=headers,
-                params={"page": page, "page_size": page_size},
+                params={"q": f"(page:{page},page_size:{page_size})"},
                 timeout=15,
             )
             resp.raise_for_status()

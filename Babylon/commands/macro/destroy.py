@@ -48,20 +48,20 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
             organization_id=org_id,
             workspace_id=api_state["workspace_id"],
         )
-        api = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
-        delete_api_resource(api.delete_workspace, "Workspace", org_id, api_state["workspace_id"], state, "workspace_id")
-
-        # --- Superset cleanup ---
+        # --- Superset cleanup
         superset_url = (config.get("superset_url") or "").rstrip("/")
         if superset_url:
-            echo(style("\n🗑  Cleaning up Superset assets...", fg="yellow"))
+            logger.info("  [dim]→ Deleting Superset assets ...[/dim]")
             delete_superset_assets(
                 base_url=superset_url,
                 superset_config=config,
                 workspace_id=api_state["workspace_id"],
             )
         else:
-            logger.info("  [dim]⚠ superset_url not configured — skipping Superset cleanup[/dim]")
+            logger.warning("  [yellow]⚠[/yellow] superset_url not configured skipping Superset cleanup")
+
+        api = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
+        delete_api_resource(api.delete_workspace, "Workspace", org_id, api_state["workspace_id"], state, "workspace_id")
 
     if organization:
         api = get_organization_api_instance(config=config, keycloak_token=keycloak_token)

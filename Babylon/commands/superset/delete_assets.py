@@ -30,7 +30,7 @@ def delete_assets(state: dict, workspace_id: str | None) -> CommandResponse:
     """
 
     if not workspace_id:
-        logger.error("  [bold red]✘[/bold red] The --workspace-id option is required! Please provide a valid workspace ID.")
+        logger.error("  [bold red]✘[/bold red] The '--workspace-id' option is required! Please provide a valid workspace ID.")
         return CommandResponse.fail()
 
     _, config = get_keycloak_token()
@@ -49,7 +49,7 @@ def delete_assets(state: dict, workspace_id: str | None) -> CommandResponse:
     )
 
     if not ok:
-        echo(style("⚠  Some assets could not be deleted — check the logs above.", fg="yellow"))
+        logger.warning("  [bold yellow]⚠[/bold yellow] Some assets could not be deleted check the logs above.")
         return CommandResponse.fail()
 
     echo(style("✨ Superset asset cleanup complete.", fg="green", bold=True))
