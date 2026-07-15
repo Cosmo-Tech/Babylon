@@ -4,6 +4,7 @@ Superset helpers for dashboard deployment and embedded-UUID feedback.
 
 import uuid as _uuid_mod
 from io import StringIO
+from json import dumps
 from logging import getLogger
 from pathlib import Path
 from re import IGNORECASE, MULTILINE, compile, escape, findall, sub
@@ -624,16 +625,25 @@ def _assets_exist_in_superset(
 
     for folder_key, endpoint, uuid_field in _checks:
         try:
+            query_obj = {
+                "columns": ["uuid_field"],
+                "page_size": 1000,
+            }
             response = requests.get(
                 f"{base_url}{endpoint}",
                 headers=headers,
-                params={"page_size": 1000},
+                params={"q": dumps(query_obj)},
                 timeout=10,
             )
             response.raise_for_status()
-            existing = {(item.get(uuid_field) or "").lower() for item in response.json().get("result", [])}
+
+            items = response.json().get("result", [])
+
+            existing = {(item.get(uuid_field) or "").lower() for item in items}
+
             if uuids & existing:
                 result[folder_key] = True
+
         except Exception as exc:
             logger.error(f"  [bold red]✘[/bold red] Could not query Superset {folder_key}: {exc}")
 
@@ -808,6 +818,11 @@ def _clean_and_prefix_value(raw_value: str, prefix: str) -> str:
 
     Handles both same-workspace re-deploys (prefix matches → idempotent) and
     cross-workspace re-deploys (old prefix differs → replaced with current).
+
+    **Idempotency across runs:** backslashes are intentionally NOT re-escaped
+    when writing back.  YAML double-quoted strings already treat ``\\xE9`` as a
+    valid escape sequence for ``é`` — doubling it to ``\\\\xE9`` on every run
+    would corrupt the value.
     """
     clean_val = raw_value.strip()
 
@@ -823,8 +838,9 @@ def _clean_and_prefix_value(raw_value: str, prefix: str) -> str:
             continue
         break
 
-    # Escape backslashes and double quotes for safe YAML string insertion
-    safe_val = clean_val.replace("\\", "\\\\").replace('"', '\\"')
+    # Only escape double-quotes backslashes are left as-is so YAML escape
+    # sequences like \xE9 are preserved unchanged across multiple runs.
+    safe_val = clean_val.replace('"', '\\"')
     return f'"{prefix}{safe_val}"'
 
 
@@ -1404,6 +1420,7 @@ def delete_superset_assets(
         for asset_id in dashboard_ids:
             if not _delete_asset(base_url, auth_headers, "/api/v1/dashboard/", asset_id):
                 all_ok = False
+        logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(dashboard_ids)} dashboard(s)")
 
     # --- Charts
     chart_ids = _list_asset_ids_by_prefix(
@@ -1416,6 +1433,7 @@ def delete_superset_assets(
         for asset_id in chart_ids:
             if not _delete_asset(base_url, auth_headers, "/api/v1/chart/", asset_id):
                 all_ok = False
+        logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(chart_ids)} chart(s)")
 
     # --- Datasets
     dataset_ids = _list_asset_ids_by_prefix(
@@ -1428,6 +1446,7 @@ def delete_superset_assets(
         for asset_id in dataset_ids:
             if not _delete_asset(base_url, auth_headers, "/api/v1/dataset/", asset_id):
                 all_ok = False
+        logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(dataset_ids)} dataset(s)")
 
     if all_ok:
         logger.info(
@@ -1499,7 +1518,6 @@ def _delete_asset(
     try:
         resp = requests.delete(url, headers=auth_headers, timeout=15)
         resp.raise_for_status()
-        logger.info(f"  [bold green]✔[/bold green] Deleted {endpoint.strip('/')} id={asset_id}")
         return True
     except Exception as exc:
         logger.error(f"  [bold red]✘[/bold red] Failed to delete {endpoint.strip('/')} id={asset_id}: {exc}")
