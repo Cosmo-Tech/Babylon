@@ -103,8 +103,6 @@ def deploy_dashboard(
     """
     if provider == "superset":
         return deploy_superset(reports, state, superset_config, deploy_dir)
-    if provider == "powerbi":
-        pass
     logger.error(f"  [bold red]✘[/bold red] Unsupported dashboard provider '{provider}'")
     return False, set()
 
