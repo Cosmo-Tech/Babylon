@@ -22,9 +22,8 @@ import sys
 from base64 import b64decode, b64encode
 from logging import getLogger
 
-from kubernetes import client, config
+from kubernetes import client
 from kubernetes.client.exceptions import ApiException
-from kubernetes.config.config_exception import ConfigException
 from yaml import dump, safe_load
 
 logger = getLogger(__name__)
@@ -39,24 +38,6 @@ STATE_LABEL_VALUE = "babylon-state"
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
-
-
-def _load_kube_config() -> None:
-    """Load kubeconfig, with a clear error message on failure."""
-    try:
-        config.load_kube_config()
-    except ConfigException as exc:
-        logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
-        logger.error(f"  [red]Reason:[/red] {exc}")
-        logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
-        logger.info("  • Ensure your kubeconfig file is valid")
-        logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
-        sys.exit(1)
-
-
-def _core_v1() -> client.CoreV1Api:
-    """Return a CoreV1Api instance (kubeconfig must already be loaded)."""
-    return client.CoreV1Api()
 
 
 def _encode(data: dict) -> str:
@@ -93,23 +74,21 @@ def _build_secret(namespace: str, secret_name: str, encoded_value: str) -> clien
 # Public API
 
 
-def save_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict) -> None:
+def save_state_in_kubernetes(k8s_client: client.CoreV1Api, namespace: str, secret_name: str, state_data: dict) -> None:
     """Persist *state_data* as a Kubernetes Secret in *namespace*."""
-    _load_kube_config()
-    v1 = _core_v1()
     encoded = _encode(state_data)
     secret = _build_secret(namespace, secret_name, encoded)
 
     try:
-        existing_secret = v1.read_namespaced_secret(name=secret_name, namespace=namespace)
+        existing_secret = k8s_client.read_namespaced_secret(name=secret_name, namespace=namespace)
         if existing_secret.metadata and secret.metadata:
             secret.metadata.resource_version = existing_secret.metadata.resource_version
-            v1.replace_namespaced_secret(name=secret_name, namespace=namespace, body=secret)
+            k8s_client.replace_namespaced_secret(name=secret_name, namespace=namespace, body=secret)
             logger.info(f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] updated in namespace [cyan]{namespace}[/cyan]")
     except ApiException as exc:
         if exc.status == 404:
             # Secret does not exist → create it.
-            v1.create_namespaced_secret(namespace=namespace, body=secret)
+            k8s_client.create_namespaced_secret(namespace=namespace, body=secret)
             logger.info(f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] created in namespace [cyan]{namespace}[/cyan]")
         else:
             logger.error(f"  [bold red]✘[/bold red] Kubernetes API error while storing state (HTTP {exc.status}): {exc.reason}")
@@ -119,17 +98,15 @@ def save_state_in_kubernetes(namespace: str, secret_name: str, state_data: dict)
         sys.exit(1)
 
 
-def retrieve_state_from_kubernetes(namespace: str, secret_name: str) -> dict | None:
+def retrieve_state_from_kubernetes(k8s_client: client.CoreV1Api, namespace: str, secret_name: str) -> dict | None:
     """Read state from a Kubernetes Secret and return it as a dictionary.
 
     Returns ``None`` when the secret does not exist so the caller can decide
     whether to initialise a fresh state or raise an error.
     """
-    _load_kube_config()
-    v1 = _core_v1()
 
     try:
-        secret = v1.read_namespaced_secret(name=secret_name, namespace=namespace)
+        secret = k8s_client.read_namespaced_secret(name=secret_name, namespace=namespace)
     except ApiException as exc:
         if exc.status == 404:
             logger.warning(

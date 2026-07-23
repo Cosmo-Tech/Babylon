@@ -54,6 +54,7 @@ class Environment(metaclass=SingletonMeta):
         self.remote = False
         self.pwd = Path.cwd()
         self.blob_client = None
+        self._kube_context = None
         self.context_id: str = ""
         self.environ_id: str = ""
         self.server_id: str = ""
@@ -107,13 +108,33 @@ class Environment(metaclass=SingletonMeta):
         payload_dict = loads(payload_json)
         return payload_dict
 
+    def set_kube_context(self, kube_context):
+        self._kube_context = kube_context
+
     def set_context(self, context_id):
         self.context_id = context_id
 
     def set_environ(self, environ_id):
         self.environ_id = environ_id
 
+    def get_kubernetes_client(self) -> client.CoreV1Api:
+        try:
+            config.load_kube_config(context=self._kube_context)
+            return client.CoreV1Api()
+        except ConfigException as exc:
+            logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
+            logger.error(f"  [red]Reason:[/red] {exc}")
+            logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
+            logger.info("  • Ensure your kubeconfig file is valid")
+            logger.info("  • Ensure the kubernetes context is correct:")
+            logger.info("    - Either set it as current: [cyan]kubectl config use-context <context-name>[/cyan]")
+            logger.info("    - Or explicitly specify it: [cyan]babylon --kube-context <context-name> ...[/cyan]")
+            sys.exit(1)
+
     def _get_active_kubectl_context(self) -> str:
+        if self._kube_context:
+            return self._kube_context
+
         try:
             from kubernetes.config.kube_config import list_kube_config_contexts
 
@@ -136,8 +157,8 @@ class Environment(metaclass=SingletonMeta):
 
     def _load_k8s_secret(self, secret_name: str, tenant: str):
         try:
-            v1 = client.CoreV1Api()
-            return v1.read_namespaced_secret(name=secret_name, namespace=tenant)
+            k8s_client = self.get_kubernetes_client()
+            return k8s_client.read_namespaced_secret(name=secret_name, namespace=tenant)
         except ApiException:
             logger.error(
                 f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]."
@@ -145,8 +166,9 @@ class Environment(metaclass=SingletonMeta):
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info(f"  • Active kubectl context : [cyan]{self._get_active_kubectl_context()}[/cyan]")
             logger.info(f"  • Active Babylon namespace: {self._get_babylon_namespace_info()}")
-            logger.info("  • If the kubectl context is wrong, switch it:")
-            logger.info("    [cyan]kubectl config use-context <context-name>[/cyan]")
+            logger.info("  • If the kubectl context is wrong:")
+            logger.info("    - Either switch it: [cyan]kubectl config use-context <context-name>[/cyan]")
+            logger.info("    - Or explicitly specify it: [cyan]babylon --kube-context <context-name> ...[/cyan]")
             logger.info("  • If the Babylon namespace is wrong, switch it:")
             logger.info("    [cyan]babylon namespace use -c <context> -t <tenant>[/cyan]")
             sys.exit(1)
@@ -158,16 +180,6 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
 
     def get_config_from_k8s_secret_by_tenant(self, secret_name: str, tenant: str):
-        try:
-            config.load_kube_config()
-        except ConfigException as e:
-            logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
-            logger.error(f"  [red]Reason:[/red] {e}")
-            logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
-            logger.info("  • Ensure your kubeconfig file is valid")
-            logger.info("  • Set your context: [cyan]kubectl config use-context <context-name>[/cyan]")
-            sys.exit(1)
-
         secret = self._load_k8s_secret(secret_name, tenant)
 
         if not secret.data:
@@ -186,7 +198,7 @@ class Environment(metaclass=SingletonMeta):
         """Persist *state* as a Kubernetes Secret."""
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
-        save_state_in_kubernetes(namespace=ns, secret_name=name, state_data=state)
+        save_state_in_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name, state_data=state)
 
     def get_state_from_kubernetes(self, namespace: str = "", secret_name: str = "") -> dict:
         """Retrieve state from a Kubernetes Secret.
@@ -197,7 +209,7 @@ class Environment(metaclass=SingletonMeta):
         """
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
-        result = retrieve_state_from_kubernetes(namespace=ns, secret_name=name)
+        result = retrieve_state_from_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name)
         if result is None:
             return {
                 "context": self.context_id,
@@ -227,9 +239,8 @@ class Environment(metaclass=SingletonMeta):
         over the wire — no client-side filtering needed.
         """
         try:
-            config.load_kube_config()
-            v1 = client.CoreV1Api()
-            secrets = v1.list_namespaced_secret(
+            k8s_client = self.get_kubernetes_client()
+            secrets = k8s_client.list_namespaced_secret(
                 namespace=self.environ_id,
                 label_selector=f"{STATE_LABEL_KEY}={STATE_LABEL_VALUE}",
             )
