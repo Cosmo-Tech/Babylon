@@ -45,6 +45,7 @@ _YAML_GLOB = "*.yaml"
 # Public dispatch entry point
 # ---------------------------------------------------------------------------
 
+
 def _deploy_or_update_workspace(api_instance, api_section, payload, state) -> bool:
     """Create or update workspace via API. Returns True on success."""
     if not api_section["workspace_id"]:
@@ -239,7 +240,7 @@ def _setup_database_and_csrf(
         logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token.")
         return None, None, None
 
-    datasource = create_postgres_datasource(base_url=base_url,superset_config=superset_config, superset_jwt=superset_token)
+    datasource = create_postgres_datasource(base_url=base_url, superset_config=superset_config, superset_jwt=superset_token)
     if datasource is None:
         logger.error("  [bold red]✘[/bold red] Datasource creation failed Aborting")
         return None, None, None
@@ -1408,9 +1409,7 @@ def delete_superset_assets(
     all_ok = True
 
     # --- Dashboards
-    dashboard_ids = _list_asset_ids_by_prefix(
-        base_url, superset_jwt, "/api/v1/dashboard/", "dashboard_title", prefix
-    )
+    dashboard_ids = _list_asset_ids_by_prefix(base_url, superset_jwt, "/api/v1/dashboard/", "dashboard_title", prefix)
     if dashboard_ids is None:
         all_ok = False
     else:
@@ -1421,9 +1420,7 @@ def delete_superset_assets(
         logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(dashboard_ids)} dashboard(s)")
 
     # --- Charts
-    chart_ids = _list_asset_ids_by_prefix(
-        base_url, superset_jwt, "/api/v1/chart/", "slice_name", prefix
-    )
+    chart_ids = _list_asset_ids_by_prefix(base_url, superset_jwt, "/api/v1/chart/", "slice_name", prefix)
     if chart_ids is None:
         all_ok = False
     else:
@@ -1434,9 +1431,7 @@ def delete_superset_assets(
         logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(chart_ids)} chart(s)")
 
     # --- Datasets
-    dataset_ids = _list_asset_ids_by_prefix(
-        base_url, superset_jwt, "/api/v1/dataset/", "table_name", prefix
-    )
+    dataset_ids = _list_asset_ids_by_prefix(base_url, superset_jwt, "/api/v1/dataset/", "table_name", prefix)
     if dataset_ids is None:
         all_ok = False
     else:
@@ -1447,14 +1442,11 @@ def delete_superset_assets(
         logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(dataset_ids)} dataset(s)")
 
     if all_ok:
-        logger.info(
-            f"  [bold green]✔[/bold green] Superset asset cleanup complete for workspace '{workspace_id}'"
-        )
+        logger.info(f"  [bold green]✔[/bold green] Superset asset cleanup complete for workspace '{workspace_id}'")
     else:
-        logger.warning(
-            f"  [yellow]⚠[/yellow] Some Superset assets could not be deleted for workspace '{workspace_id}'"
-        )
+        logger.warning(f"  [yellow]⚠[/yellow] Some Superset assets could not be deleted for workspace '{workspace_id}'")
     return all_ok
+
 
 def _list_asset_ids_by_prefix(
     base_url: str,

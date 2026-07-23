@@ -21,7 +21,7 @@ env = Environment()
     required=True,
     type=str,
     default=None,
-    help="Workspace ID used as the title prefix to identify assets (e.g. w-abc123)."
+    help="Workspace ID used as the title prefix to identify assets (e.g. w-abc123).",
 )
 def delete_assets(state: dict, workspace_id: str | None) -> CommandResponse:
     """Delete all Superset dashboards, charts and datasets whose title starts with [workspace-id].

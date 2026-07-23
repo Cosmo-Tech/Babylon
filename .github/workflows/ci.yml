@@ -18,9 +18,9 @@ jobs:
     steps:
 
       - uses: actions/checkout@v6
-      - uses: astral-sh/ruff-action@v3
+      - uses: astral-sh/ruff-action@v4.1.0
       - run: ruff check --output-format=github
-      - run: ruff format
+      - run: ruff format --check
   unit-tests:
     needs: code-quality
     runs-on: ubuntu-latest
@@ -74,7 +74,7 @@ jobs:
         working-directory: tests/integration/
         run: ./test_api_endpoints.sh
         shell: bash
-        
+
       - name: End-to-end tests
         working-directory: tests/e2e/
         env:
