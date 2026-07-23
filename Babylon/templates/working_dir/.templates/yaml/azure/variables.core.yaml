@@ -1,47 +1,46 @@
 # =========================================================
-# IMPORTANT: You can add variables here as needed!
-# Make sure they are used in the manifest YAML.
+# SHARED CORE VARIABLES
+# Contains global configuration values common to all workspaces.
+# Updates to this file are automatically propagated to all
+# workspace deployments that inherit these settings.
 # =========================================================
+
 # Organization
-organization_name: Babylon v5 Organization
+organization_name: Babylon v6 Organization
+
 # Solution
-solution_name: Babylon v5 Solution
+solution_name: Babylon v6 Solution
 simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
-solution_description: Brewery Testing babylon v5 Solution PLT
-solution_key: breweryTesting
+solution_description: Brewery Testing babylon v6 Solution PLT
+solution_key: brewery
 simulator_version: 3.1.1
-# Workspace
-workspace_name: Babylon v5 workspace
-workspace_key: brewerytestingwork
-workspace_description: Testing workspace for the brewery web application
+
 # Webapp
 # These variables are used to render your Webapp.yaml manifest and can be mapped to the
 # terraform module variables (terraform.tfvars) used by the terraform-webapp module.
 # See the module's example tfvars for reference:
 # https://github.com/Cosmo-Tech/terraform-webapp/blob/main/terraform.tfvars
 
-## VARIABLES EXAMPLE FOR KOB (= On-Premise)
-cloud_provider: kob
-cluster_name: kubernetes
-domain_zone: onpremise.platform.cosmotech.com
+## VARIABLES FOR AZURE
+cloud_provider: azure
+cluster_name: aks-dev-joy
+domain_zone: azure.platform.cosmotech.com
 tenant: sphinx
 webapp_name: business
-organization_id: o-xxxxxxxxxxxx
+organization_id: o-xxxxxxxxxxx
+azure_subscription_id: a24b131f-bd0b-42e8-872a-bded9b91ab74
 azure_entra_tenant_id: e413b834-8be8-4822-a370-be619545cb49
-state_host: https://cosmotechstates.onpremise.platform.cosmotech.com
+powerbi_app_deploy: false
 
 # Webapp module version pinned to a specific release of terraform-webapp.
-# Override with --tf-webapp-version on 'babylon init', or edit this value directly.
+# Override with --tf-webapp-version on 'babylon macro init', or edit this value directly.
 # See available versions: https://github.com/Cosmo-Tech/terraform-webapp/releases
 tf_webapp_version: 1.1.0
 
 # Remote state
 remote: true
 
-# documentation url
-documentation_url: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
-
-# ACL
+# ACL applied to Organization and Solution
 security:
   default: none
   accessControlList:

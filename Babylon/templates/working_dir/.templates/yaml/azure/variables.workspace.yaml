@@ -1,0 +1,29 @@
+# =========================================================
+# WORKSPACE-SPECIFIC VARIABLES
+# Contains workspace-level configuration overrides.
+# Merged with core/variables.core.yaml at deployment time.
+# Workspace-defined keys take precedence over core values
+# when naming conflicts occur.
+# =========================================================
+
+# Workspace
+workspace_name: Babylon v6 workspace
+workspace_key: brewery
+workspace_description: Testing workspace for the brewery web application
+
+# Remote state (inherit from core override here only if needed)
+remote: true
+
+# Documentation URL
+documentation_url: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
+
+# ACL — applied to this Workspace only
+security:
+  default: none
+  accessControlList:
+    - id: tenant-admin
+      role: admin
+    - id: tenant-editor
+      role: editor
+    - id: tenant-viewer
+      role: viewer
