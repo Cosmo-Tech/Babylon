@@ -78,6 +78,10 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     )
 
 
+def setup_kube_context(ctx, param, kube_context):
+    env.set_kube_context(kube_context)
+
+
 @group(name="babylon", invoke_without_command=False)
 @click_log.simple_verbosity_option(logger)
 @option(
@@ -104,6 +108,14 @@ def setup_logging(log_path: pathlibPath = pathlibPath.cwd()) -> None:
     type=clickPath(file_okay=False, dir_okay=True, writable=True, path_type=pathlibPath),
     default=pathlibPath.cwd(),
     help="Path to the directory where log files will be stored. If not set, defaults to current working directory.",
+)
+@option(
+    "--kube-context",
+    type=str,
+    default=None,
+    callback=setup_kube_context,
+    expose_value=False,
+    help="Name of the kubeconfig context to use instead of the current context for relevant commands",
 )
 @option(
     INTERACTIVE_ARG_VALUE,

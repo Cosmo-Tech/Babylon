@@ -29,8 +29,7 @@ from pathlib import Path
 from string import Template
 from textwrap import dedent
 
-from kubernetes import client, config, utils
-from kubernetes import config as kube_config
+from kubernetes import client, utils
 from kubernetes.utils import FailToCreateError
 from yaml import safe_load
 
@@ -114,9 +113,8 @@ def get_postgres_service_host(namespace: str) -> str:
     cluster. External database clusters are not currently supported.
     """
     try:
-        config.load_kube_config()
-        v1 = client.CoreV1Api()
-        services = v1.list_namespaced_service(namespace)
+        k8s_client = env.get_kubernetes_client()
+        services = k8s_client.list_namespaced_service(namespace)
 
         for svc in services.items:
             labels = svc.metadata.labels or {}
@@ -164,9 +162,8 @@ def create_workspace_secret(
     )
 
     try:
-        config.load_kube_config()
-        v1 = client.CoreV1Api()
-        v1.create_namespaced_secret(namespace=namespace, body=secret)
+        k8s_client = env.get_kubernetes_client()
+        k8s_client.create_namespaced_secret(namespace=namespace, body=secret)
         logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] created")
         return True
     except client.exceptions.ApiException as e:
@@ -225,9 +222,8 @@ def create_coal_configmap(
     )
 
     try:
-        config.load_kube_config()
-        v1 = client.CoreV1Api()
-        v1.create_namespaced_config_map(namespace=namespace, body=configmap)
+        k8s_client = env.get_kubernetes_client()
+        k8s_client.create_namespaced_config_map(namespace=namespace, body=configmap)
         logger.info(f"  [bold green]✔[/bold green] ConfigMap [magenta]{configmap_name}[/magenta] created")
         return True
     except client.ApiException as e:
@@ -259,8 +255,7 @@ def _run_schema_init_job(
 ) -> None:
     """Apply a single K8s init job from *script_path* and wait for its outcome."""
     k8s_job_name = f"postgresql-init-{workspace_id}"
-    kube_config.load_kube_config()
-    k8s_client = client.ApiClient()
+    k8s_client = env.get_kubernetes_client()
 
     with open(script_path, "r") as f:
         raw_content = f.read()
@@ -373,8 +368,7 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
     }
     destroy_jobs = env.original_template_path / "yaml" / "k8s_job_destroy.yaml"
     k8s_job_name = f"postgresql-destroy-{workspace_id_tmp}"
-    kube_config.load_kube_config()
-    k8s_client = client.ApiClient()
+    k8s_client = env.get_kubernetes_client()
 
     with open(destroy_jobs, "r") as f:
         raw_content = f.read()
@@ -464,22 +458,21 @@ def delete_kubernetes_resources(namespace: str, organization_id: str, workspace_
     configmap_name = f"{organization_id}-{workspace_id}-coal-config"
 
     try:
-        config.load_kube_config()
-        v1 = client.CoreV1Api()
+        k8s_client = env.get_kubernetes_client()
     except Exception as e:
         logger.error("  [bold red]✘[/bold red] Failed to initialise Kubernetes client")
         logger.debug(f"  Detail: {e}", exc_info=True)
         return
 
-    _delete_secret(v1, secret_name, namespace)
-    _delete_configmap(v1, configmap_name, namespace)
+    _delete_secret(k8s_client, secret_name, namespace)
+    _delete_configmap(k8s_client, configmap_name, namespace)
 
 
-def _delete_secret(v1: client.CoreV1Api, secret_name: str, namespace: str) -> None:
+def _delete_secret(k8s_client: client.CoreV1Api, secret_name: str, namespace: str) -> None:
     """Delete a single named Secret, ignoring 404."""
     try:
         logger.info("  [dim]→ Deleting workspace Secret ...[/dim]")
-        v1.delete_namespaced_secret(name=secret_name, namespace=namespace)
+        k8s_client.delete_namespaced_secret(name=secret_name, namespace=namespace)
         logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] deleted")
     except client.ApiException as e:
         if e.status == 404:
@@ -491,11 +484,11 @@ def _delete_secret(v1: client.CoreV1Api, secret_name: str, namespace: str) -> No
         logger.debug(f"  Detail: {e}", exc_info=True)
 
 
-def _delete_configmap(v1: client.CoreV1Api, configmap_name: str, namespace: str) -> None:
+def _delete_configmap(k8s_client: client.CoreV1Api, configmap_name: str, namespace: str) -> None:
     """Delete a single named ConfigMap, ignoring 404."""
     try:
         logger.info("  [dim]→ Deleting workspace ConfigMap ...[/dim]")
-        v1.delete_namespaced_config_map(name=configmap_name, namespace=namespace)
+        k8s_client.delete_namespaced_config_map(name=configmap_name, namespace=namespace)
         logger.info(f"  [bold green]✔[/bold green] ConfigMap [magenta]{configmap_name}[/magenta] deleted")
     except client.ApiException as e:
         if e.status == 404:
