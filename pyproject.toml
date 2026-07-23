@@ -68,7 +68,7 @@ select = ["E", "F", "I"]
 
 [tool.ruff.format]
 
-[pytest]
+[tool.pytest]
 minversion = "9.0"
 pythonpath = ["Babylon"]
-testpaths = ["test"]
+testpaths = ["tests"]
