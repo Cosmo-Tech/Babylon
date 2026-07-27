@@ -26,6 +26,9 @@ _CORE_YAML_FILES = [
     "Solution.yaml",
 ]
 
+# K8s job script copied into postgres/jobs/
+_POSTGRES_JOB_FILE = "k8s_job.yaml"
+
 # YAML files that live in each workspace's deploy/ directory
 _WORKSPACE_YAML_FILES = [
     "Workspace.yaml",
@@ -145,6 +148,28 @@ def _scaffold_core(core_path: Path, cloud_provider: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Private helpers — postgres layer
+# ---------------------------------------------------------------------------
+
+
+def _scaffold_postgres(core_path: Path) -> None:
+    """Create core/postgres/jobs/ and copy the K8s init job template into it."""
+    jobs_path = core_path / "postgres" / "jobs"
+    jobs_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"  [dim]→ Created directory: [cyan]core/postgres/jobs/[/cyan][/dim]")
+
+    src = env.original_template_path / "yaml" / _POSTGRES_JOB_FILE
+    dst = jobs_path / _POSTGRES_JOB_FILE
+    if dst.exists():
+        logger.info(f"  [green]✔[/green] [white]core/postgres/jobs/{_POSTGRES_JOB_FILE}[/white] already exists, skipping")
+    elif src.exists():
+        copy(src, dst)
+        logger.info(f"  [green]✔[/green] Generated [white]core/postgres/jobs/{_POSTGRES_JOB_FILE}[/white]")
+    else:
+        logger.warning(f"  [yellow]⚠[/yellow] Template [white]{_POSTGRES_JOB_FILE}[/white] not found in templates, skipping")
+
+
+# ---------------------------------------------------------------------------
 # Private helpers — workspace layer
 # ---------------------------------------------------------------------------
 
@@ -218,7 +243,7 @@ def _scaffold_project(
       └── terraform-webapp/
     """
     project_path = root_path / project_dir
-    total_steps = 2 + num_workspaces  # core + N workspaces + terraform-webapp
+    total_steps = 3 + num_workspaces  # core + postgres + N workspaces + terraform-webapp
     step = 1
 
     try:
@@ -231,6 +256,11 @@ def _scaffold_project(
         # Core layer (always step 1)
         echo(style(f"\n  [{step}/{total_steps}] Core layer", fg="white", bold=True))
         _scaffold_core(project_path / "core", cloud_provider)
+        step += 1
+
+        # Postgres layer (step 2) lives inside core/ as a shared resource
+        echo(style(f"\n  [{step}/{total_steps}] PostgreSQL jobs", fg="white", bold=True))
+        _scaffold_postgres(project_path / "core")
         step += 1
 
         # Workspace layers
@@ -331,9 +361,8 @@ def init(project_dir: str, num_workspaces: int, tf_webapp_version: str, cloud_pr
         logger.info(f"  [green]✔[/green] Project [cyan]{project_dir}/[/cyan] already exists running validation checks.")
         _ensure_webapp(root_path / _TF_WEBAPP_DIR, tf_webapp_version)
         for ws_name in workspace_names:
-            ws_index = ws_name.split("-")[-1]
-            ws_vars = project_path / "workspaces" / ws_name / f"variables-{ws_index}.yaml"
-            if not ws_vars.exists():
+            ws_dir = project_path / "workspaces" / ws_name
+            if not ws_dir.exists():
                 logger.warning(f"  [yellow]⚠[/yellow] Workspace [cyan]{ws_name}[/cyan] not found scaffolding it now.")
                 _scaffold_workspace(project_path / "workspaces", ws_name, cloud_provider)
             else:

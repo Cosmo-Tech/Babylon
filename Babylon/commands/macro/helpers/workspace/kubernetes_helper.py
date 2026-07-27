@@ -47,6 +47,7 @@ env = Environment()
 
 def deploy_postgres_schema(
     workspace_id: str,
+    ws_key: str,
     schema_config: dict,
     api_section: dict,
     deploy_dir: Path,
@@ -76,10 +77,20 @@ def deploy_postgres_schema(
     }
 
     deploy_dir = deploy_dir if isinstance(deploy_dir, Path) else Path(deploy_dir)
+    deploy_dir = deploy_dir.resolve()
+
+    # Project root is always 3 levels above deploy_dir:
+    #   <root>/workspaces/workspace-N/deploy/  →  <root>/
+    # Job path in Workspace.yaml:  path: core/postgres/jobs  name: k8s_job.yaml
+    # Resolved: <root>/core/postgres/jobs/k8s_job.yaml
+    project_root = (deploy_dir / "../../..").resolve()
+
     for job in schema_config.get("jobs", []):
-        script_path = deploy_dir / job.get("path", "") / job.get("name", "")
+        script_path = project_root / job.get("path", "") / job.get("name", "")
         if script_path.exists():
-            _run_schema_init_job(script_path, mapping, workspace_id, schema_name, state)
+            _run_schema_init_job(script_path, mapping, workspace_id, ws_key, schema_name, state)
+        else:
+            logger.warning(f"  [yellow]⚠[/yellow] Init job script not found: {script_path} skipping")
 
     organization_id = api_section["organization_id"]
     logger.info(f"  [dim]→ Creating workspace Secret for [cyan]{workspace_id}[/cyan]...[/dim]")
@@ -254,6 +265,7 @@ def _run_schema_init_job(
     script_path: Path,
     mapping: dict,
     workspace_id: str,
+    ws_key: str,
     schema_name: str,
     state: dict,
 ) -> None:
@@ -268,7 +280,7 @@ def _run_schema_init_job(
     yaml_dict = safe_load(Template(raw_content).safe_substitute(mapping))
     try:
         utils.create_from_dict(k8s_client, yaml_dict, namespace=env.environ_id)
-        _wait_and_check_init_job(k8s_job_name, schema_name, state)
+        _wait_and_check_init_job(k8s_job_name, ws_key, schema_name, state)
     except FailToCreateError as e:
         for inner_exception in e.api_exceptions:
             if inner_exception.status == 409:
@@ -281,7 +293,7 @@ def _run_schema_init_job(
         logger.debug(f"  {e}")
 
 
-def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
+def _wait_and_check_init_job(k8s_job_name: str, ws_key: str, schema_name: str, state: dict) -> None:
     """Wait for the init job to complete, then inspect its logs."""
     logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
     wait_process = subprocess.run(
@@ -304,10 +316,10 @@ def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -
         logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
         return
     logger.debug(f"  Inspecting logs for job '{k8s_job_name}'...")
-    _handle_init_job_logs(k8s_job_name, schema_name, state)
+    _handle_init_job_logs(k8s_job_name, ws_key, schema_name, state)
 
 
-def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> None:
+def _handle_init_job_logs(k8s_job_name: str, ws_key: str, schema_name: str, state: dict) -> None:
     """Fetch init-job logs and update state based on their content."""
     logs_process = subprocess.run(
         ["kubectl", "logs", f"job/{k8s_job_name}", "-n", env.environ_id],
@@ -329,7 +341,7 @@ def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> N
         )
     else:
         logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] initialised successfully")
-        state["services"]["postgres"]["schema_name"] = schema_name
+        state.setdefault("workspaces", {}).setdefault(ws_key, {}).setdefault("postgres", {})["schema_name"] = schema_name
 
 
 # ---------------------------------------------------------------------------
@@ -337,7 +349,7 @@ def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> N
 # ---------------------------------------------------------------------------
 
 
-def destroy_postgres_schema(schema_name: str, state: dict) -> None:
+def destroy_postgres_schema(schema_name: str, ws_key: str, state: dict) -> None:
     """Destroy the PostgreSQL schema for a workspace.
 
     Applies a K8s destroy job rendered from the template at
@@ -383,7 +395,7 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
     logger.info("  [dim]→ Applying kubernetes destroy job...[/dim]")
     try:
         utils.create_from_dict(k8s_client, yaml_dict, namespace=env.environ_id)
-        _wait_and_check_destroy_job(k8s_job_name, schema_name, state)
+        _wait_and_check_destroy_job(k8s_job_name, ws_key, schema_name, state)
     except Exception as e:
         logger.error("  [bold red]✘[/bold red] Unexpected error submitting the destroy job see 'babylon.log' for details")
         logger.debug(f"  {e}")
@@ -394,7 +406,7 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
+def _wait_and_check_destroy_job(k8s_job_name: str, ws_key: str, schema_name: str, state: dict) -> None:
     """Wait for the destroy job to complete, then inspect its logs."""
     logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
     wait_process = subprocess.run(
@@ -418,10 +430,10 @@ def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict
         return
 
     logger.debug(f"  Inspecting logs for job '{k8s_job_name}'...")
-    _handle_destroy_job_logs(k8s_job_name, schema_name, state)
+    _handle_destroy_job_logs(k8s_job_name, ws_key, schema_name, state)
 
 
-def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> None:
+def _handle_destroy_job_logs(k8s_job_name: str, ws_key: str, schema_name: str, state: dict) -> None:
     """Fetch destroy-job logs and update state based on their content."""
     logs_process = subprocess.run(
         ["kubectl", "logs", f"job/{k8s_job_name}", "-n", env.environ_id],
@@ -439,10 +451,10 @@ def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -
         logger.debug(f"  Job logs: {job_logs}")
     elif "does not exist" in job_logs:
         logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] does not exist nothing to remove")
-        state["services"]["postgres"]["schema_name"] = ""
+        state.setdefault("workspaces", {}).setdefault(ws_key, {}).setdefault("postgres", {})["schema_name"] = ""
     else:
         logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] destroyed successfully")
-        state["services"]["postgres"]["schema_name"] = ""
+        state.setdefault("workspaces", {}).setdefault(ws_key, {}).setdefault("postgres", {})["schema_name"] = ""
 
 
 # ---------------------------------------------------------------------------

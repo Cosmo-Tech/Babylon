@@ -20,7 +20,6 @@ def deploy_organization(namespace: str, file_content: str):
     echo(style(f"\n🚀 Deploying Organization in namespace: {env.environ_id}", bold=True, fg="cyan"))
 
     # Retrieve the state
-    env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func()
     content = env.fill_template(data=file_content, state=state)
 

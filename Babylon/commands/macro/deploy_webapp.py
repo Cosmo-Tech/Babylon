@@ -15,9 +15,10 @@ env = Environment()
 def deploy_webapp(namespace: str, file_content: str):
     echo(style(f"\n🚀 Deploying webapp in namespace: {env.environ_id}", bold=True, fg="cyan"))
 
-    env.get_ns_from_text(content=namespace)
+    # Retrieve the state
     state = env.retrieve_state_func()
     content = env.fill_template(data=file_content, state=state)
+
     payload: dict = content.get("spec").get("payload", {})
     tf_dir = env.working_dir.template_path.parent / "terraform-webapp"
     tfvars_path = tf_dir / "terraform.tfvars"

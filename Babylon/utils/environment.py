@@ -26,6 +26,54 @@ PATH_SYMBOL = "%"
 NAMESPACE_FILE = "namespace.yaml"
 
 
+def _migrate_flat_workspace_id(state: dict) -> None:
+    """Backward-compatibility migration: promote a legacy flat ``workspace_id``
+    found in ``services.api`` into the new per-workspace ``workspaces`` block.
+
+    This is a **read-time, in-memory migration** — it never writes to disk/K8s
+    by itself.  The next ``store_state_*`` call will persist the new layout.
+
+    Idempotent: skipped entirely when the ``workspaces`` block is already
+    populated (state is already in the new multi-workspace format).
+    Also a no-op when ``services.api.workspace_id`` is absent or empty.
+
+    Cleanup: removes orphan entries whose state key equals ``workspace-{workspace_id}``
+    (i.e. the API ID was used as the key instead of a human-readable name).
+    These are produced by the first-generation migration and are superseded by
+    entries keyed with ``workspace_key``.
+    """
+    workspaces: dict = state.get("workspaces", {})
+
+    # Remove orphan entries keyed by raw workspace ID (workspace-w-xxxxxxxx)
+    # They are superseded by entries keyed with workspace_key.
+    orphan_keys = [
+        k for k, v in workspaces.items()
+        if isinstance(v, dict) and k == f"workspace-{v.get('api', {}).get('workspace_id', '')}"
+        and any(
+            ek != k and ev.get("api", {}).get("workspace_id") == v.get("api", {}).get("workspace_id")
+            for ek, ev in workspaces.items()
+            if isinstance(ev, dict)
+        )
+    ]
+    for k in orphan_keys:
+        del workspaces[k]
+        logger.debug(f"  [dim]→ Removed orphan state key '{k}' (superseded by workspace_key-based entry)[/dim]")
+
+    # If workspaces block already has entries after cleanup, state is already migrated.
+    # Also remove the stale flat workspace_id from services.api — it is now tracked
+    # exclusively in the workspaces block.
+    if workspaces:
+        state.get("services", {}).get("api", {}).pop("workspace_id", None)
+        return
+
+    ws_id: str = state.get("services", {}).get("api", {}).pop("workspace_id", "") or ""
+    if not ws_id:
+        return
+    ws_key = f"workspace-{ws_id}"
+    state.setdefault("workspaces", {}).setdefault(ws_key, {}).setdefault("api", {})["workspace_id"] = ws_id
+    logger.debug(f"  [dim]→ Migrated legacy workspace_id '{ws_id}' → workspaces.{ws_key}[/dim]")
+
+
 class SingletonMeta(type):
     """
     The Singleton class can be implemented in different ways in Python. Some
@@ -75,28 +123,22 @@ class Environment(metaclass=SingletonMeta):
         merged_data, duplicate_keys = self.merge_yaml_files(self.variable_files)
         if len(duplicate_keys) > 0:
             for key, files in duplicate_keys.items():
-                logger.error(
-                    f"  [bold red]✘[/bold red] The key [bold cyan]'{key}'[/bold cyan]"
-                    f" is duplicated in variable files {' and '.join(files)}"
+                logger.warning(
+                    f"  [yellow]⚠ Duplicate variable[/yellow] "
+                    f"[bold cyan]{key}[/bold cyan] found in multiple files: "
+                    f"{' → '.join(f.name for f in files)}. "
+                    f"[bold]Using the value from the last file.[/bold]"
                 )
-            sys.exit(1)
-        else:
-            merged_data["secret_powerbi"] = ""
-            merged_data["github_secret"] = ""
-            return merged_data
-
-    def get_ns_from_text(self, content: str):
-        t = Template(text=content, strict_undefined=True)
-        variables = self.get_variables()
-        payload = t.render(**variables)
-        payload_dict = safe_load(payload)
-        remote: bool = payload_dict.get("remote", self.remote)
-        self.remote = remote
+        merged_data["secret_powerbi"] = ""
+        merged_data["github_secret"] = ""
+        return merged_data
 
     def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
         result = data.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
         variables = self.get_variables()
+        remote: bool = variables.get("remote", self.remote)
+        self.remote = remote
         flattenstate = {}
         if ext_args:
             variables.update(ext_args)
@@ -207,17 +249,16 @@ class Environment(metaclass=SingletonMeta):
                     "api": {
                         "organization_id": "",
                         "solution_id": "",
-                        "workspace_id": "",
                     },
                     "webapp": {
                         "webapp_name": "",
                         "webapp_url": "",
                     },
-                    "postgres": {
-                        "schema_name": "",
-                    },
                 },
+                "workspaces": {},
             }
+        # Migrate legacy flat state: promote workspace_id into workspaces block if present
+        _migrate_flat_workspace_id(result)
         return result
 
     def list_remote_states(self) -> list[str]:
@@ -249,18 +290,17 @@ class Environment(metaclass=SingletonMeta):
                     "api": {
                         "organization_id": "",
                         "solution_id": "",
-                        "workspace_id": "",
                     },
                     "webapp": {
                         "webapp_name": "",
                         "webapp_url": "",
                     },
-                    "postgres": {
-                        "schema_name": "",
-                    },
                 },
+                "workspaces": {},
             }
         state_data = load(state_file.open("r"), Loader=SafeLoader)
+        # Migrate legacy flat state: promote workspace_id into workspaces block if present
+        _migrate_flat_workspace_id(state_data)
         return state_data
 
     def store_namespace_in_local(self):
@@ -331,7 +371,8 @@ class Environment(metaclass=SingletonMeta):
         keys_tracker = defaultdict(list)
 
         for file_path in file_paths:
-            if not file_path.endswith(".yaml"):
+            file_path = Path(file_path)  # normalise — accept both str and Path
+            if file_path.suffix not in (".yaml", ".yml"):
                 logger.error(f"  [bold red]✘[/bold red] File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:

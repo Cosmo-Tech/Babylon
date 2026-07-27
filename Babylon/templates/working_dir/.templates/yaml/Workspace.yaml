@@ -8,7 +8,7 @@ spec:
         create: true
         jobs:
           - name: k8s_job.yaml
-            path: postgres/jobs
+            path: core/postgres/jobs
     dashboards:
       provider: superset
       create: false

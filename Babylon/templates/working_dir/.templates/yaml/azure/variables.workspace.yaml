@@ -11,14 +11,11 @@ workspace_name: Babylon v6 workspace
 workspace_key: brewery
 workspace_description: Testing workspace for the brewery web application
 
-# Remote state (inherit from core override here only if needed)
-remote: true
-
 # Documentation URL
 documentation_url: 'https://portal.cosmotech.com/resources/platform-resources/web-app-user-guide'
 
 # ACL — applied to this Workspace only
-security:
+workspace_security:
   default: none
   accessControlList:
     - id: tenant-admin

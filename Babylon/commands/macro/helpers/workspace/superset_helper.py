@@ -11,6 +11,7 @@ from re import IGNORECASE, MULTILINE, compile, escape, findall, sub
 from tempfile import TemporaryDirectory
 from typing import Match, Pattern
 from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
+from typing import Any
 
 import requests
 from requests.exceptions import RequestException
@@ -45,30 +46,24 @@ _YAML_GLOB = "*.yaml"
 # Public dispatch entry point
 # ---------------------------------------------------------------------------
 
-def _deploy_or_update_workspace(api_instance, api_section, payload, state) -> bool:
-    """Create or update workspace via API. Returns True on success."""
-    if not api_section["workspace_id"]:
-        return create_workspace(api_instance, api_section, payload, state)
-    return update_workspace(api_instance, api_section, payload)
-
-
-def _update_workspace_with_superset_uuids(config, api_instance, api_section, file_content, state, zip_uuids) -> bool:
+def _update_workspace_with_superset_uuids(config, api_instance, api_section, file_content, state, zip_uuids, workspace_id: str, deploy_dir: Path) -> bool:
     """Fetch embedded Superset dashboard UUIDs and push an updated workspace. Returns True on success."""
     base_url = (config.get("superset_url") or "").rstrip("/")
     superset_jwt = get_superset_token(base_url=base_url, config=config)
     if superset_jwt and base_url:
-        # Pass zip_uuids so only dashboards from our ZIP are queried
-        _fetch_and_store_embedded_dashboard_uuids(base_url, superset_jwt, zip_uuids=zip_uuids)
+        # Pass zip_uuids so only dashboards from our ZIP are queried.
+        # Pass deploy_dir so UUIDs are written to the workspace-scoped variables file.
+        _fetch_and_store_embedded_dashboard_uuids(base_url, superset_jwt, zip_uuids=zip_uuids, deploy_dir=deploy_dir)
 
-    # Phase 2 render – variables file now contains real UUIDs.
+    # Phase 2 render variables file now contains real UUIDs.
     # fallback_empty=False: only include keys that have a real value.
     ext = _build_dashboard_ext_args(fallback_empty=False)
     content2 = env.fill_template(data=file_content, state=state, ext_args=ext or None)
     payload2 = content2.get("spec", {}).get("payload", {})
-    return update_workspace(api_instance, api_section, payload2)
+    return update_workspace(api_instance, api_section, payload2, workspace_id)
 
 
-def _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content) -> bool:
+def _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content, workspace_id: str) -> bool:
     """Deploy dashboards and handle provider-specific follow-up. Returns True on success."""
     provider = (dashboard_config.get("provider") or "").lower()
     ok, zip_uuids = deploy_dashboard(
@@ -77,13 +72,14 @@ def _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_i
         state=state,
         superset_config=config,
         deploy_dir=deploy_dir,
+        workspace_id=workspace_id,
     )
     if not ok:
         return False
 
     # Superset: fetch embedded UUIDs then push an updated workspace
     if provider == "superset":
-        return _update_workspace_with_superset_uuids(config, api_instance, api_section, file_content, state, zip_uuids)
+        return _update_workspace_with_superset_uuids(config, api_instance, api_section, file_content, state, zip_uuids, workspace_id, deploy_dir)
     return True
 
 
@@ -93,6 +89,7 @@ def deploy_dashboard(
     state: dict,
     superset_config: dict,
     deploy_dir: Path,
+    workspace_id: str = "",
 ) -> tuple[bool, set[str]]:
     """Dispatch dashboard deployment to the correct provider handler.
 
@@ -102,7 +99,7 @@ def deploy_dashboard(
         UUIDs from the processed ZIPs.
     """
     if provider == "superset":
-        return deploy_superset(reports, state, superset_config, deploy_dir)
+        return deploy_superset(reports, state, superset_config, deploy_dir, workspace_id=workspace_id)
     logger.error(f"  [bold red]✘[/bold red] Unsupported dashboard provider '{provider}'")
     return False, set()
 
@@ -117,6 +114,7 @@ def deploy_superset(
     state: dict,
     superset_config: dict,
     deploy_dir: Path,
+    workspace_id: str = "",
 ) -> tuple[bool, set[str]]:
     """Authenticate with Superset and deploy dashboard ZIPs sequentially.
 
@@ -147,6 +145,7 @@ def deploy_superset(
         state=state,
         deploy_dir=deploy_dir,
         base_url=base_url,
+        workspace_id=workspace_id,
     )
 
 
@@ -157,6 +156,7 @@ def deploy_superset_multiple_assets(
     superset_config: dict,
     deploy_dir: Path,
     base_url: str,
+    workspace_id: str = "",
 ) -> tuple[bool, set[str]]:
     """Deploy Superset dashboard assets from a list of ZIP reports.
 
@@ -189,8 +189,8 @@ def deploy_superset_multiple_assets(
     if not csrf_token or not sqlalchemy_uri:
         return False, set()
 
-    workspace_id = state.get("services", {}).get("api", {}).get("workspace_id") or ""
-    schema_name = workspace_id.replace("-", "_")
+    # workspace_id is passed explicitly from the caller (deploy_workspace.py).
+    schema_name = workspace_id.replace("-", "_") if workspace_id else ""
 
     all_ok = True
     all_zip_uuids: set[str] = set()
@@ -1005,9 +1005,10 @@ def _fetch_and_store_embedded_dashboard_uuids(
     base_url: str,
     superset_jwt: str,
     zip_uuids: set[str] | None = None,
+    deploy_dir: Path | None = None,
 ) -> bool:
     """Enable embedding and fetch the embedded UUID for each imported dashboard,
-    then persist them into the Babylon variables file.
+    then persist them into the workspace-scoped Babylon variables file.
 
     YAML structure written per dashboard::
 
@@ -1020,15 +1021,35 @@ def _fetch_and_store_embedded_dashboard_uuids(
         superset_jwt: Valid Superset Bearer token.
         zip_uuids:    Set of dashboard UUIDs from the imported ZIP.  When
                       provided, only dashboards matching this set are processed.
+        deploy_dir:   Workspace deploy directory used to resolve the workspace-
+                      scoped ``variables.yaml`` (e.g.
+                      ``<root>/workspaces/workspace-brewery/deploy/``).
+                      When provided it takes priority over ``env.variable_files``.
 
     Returns:
         True if at least one embedded UUID was written; False on total failure.
     """
-    if not env.variable_files:
-        logger.warning("  [yellow]⚠[/yellow] No variable files configured cannot persist embedded UUIDs")
-        return False
+    # Resolve the target variables file:
+    # 1. If deploy_dir is given, look for variables*.yaml in its parent (workspace dir).
+    # 2. Fall back to env.variable_files[0] (legacy / core-only layout).
+    variables_yaml_path: Path | None = None
+    if deploy_dir is not None:
+        workspace_dir = Path(deploy_dir).resolve().parent
+        candidates = sorted(workspace_dir.glob("variables*.yaml"))
+        if candidates:
+            variables_yaml_path = candidates[0]
+            logger.debug(f"  [dim]→ Writing dashboard UUIDs to workspace variables: {variables_yaml_path}[/dim]")
+        else:
+            logger.warning(
+                f"  [yellow]⚠[/yellow] No variables*.yaml found in '{workspace_dir}' "
+                f"— falling back to global variable file"
+            )
 
-    variables_yaml_path = Path(env.variable_files[0])
+    if variables_yaml_path is None:
+        if not env.variable_files:
+            logger.warning("  [yellow]⚠[/yellow] No variable files configured cannot persist embedded UUIDs")
+            return False
+        variables_yaml_path = Path(env.variable_files[0])
     auth_headers = {"Authorization": f"Bearer {superset_jwt}"}
 
     dashboards = _get_filtered_dashboards(base_url, auth_headers, zip_uuids)
@@ -1296,28 +1317,35 @@ def _build_dashboard_ext_args(fallback_empty: bool = False, template_content: st
     """
     if not env.variable_files:
         return {}
-    try:
-        raw = Path(env.variable_files[0]).read_text(encoding="utf-8")
-        variables: dict = safe_load(raw) or {}
-    except OSError:
-        return {}
 
-    ext: dict = {}
+    variables: dict[str, Any] = {}
+    # Merge ALL variable files
+    for var_file in env.variable_files:
+        try:
+            raw_content = Path(var_file).read_text(encoding="utf-8")
+            parsed_yaml = safe_load(raw_content) or {}
+            variables.update(parsed_yaml)
+        except OSError as exc:
+            logger.warning(f"  [yellow]⚠[/yellow] Could not read variable file '{var_file}': {exc}")
+
+    extracted_args: dict = {}
     for key, value in variables.items():
         if not isinstance(value, dict):
             continue
-        if "uuid" not in value or "original_id" not in value:
-            continue
+        if not {"uuid", "original_id"}.issubset(value.keys()):
+                    continue
         uuid = get_dashboard_embedded_uuid(variables, key)
         if uuid:
-            ext[key] = uuid
+            extracted_args[key] = uuid
         elif fallback_empty:
-            ext[key] = ""
+            extracted_args[key] = ""
 
     if fallback_empty and template_content:
-        ext.update(_collect_fallback_template_vars(template_content, variables.keys() | ext.keys()))
-
-    return ext
+        # Collect fallback vars and update the dictionary
+        known_keys = variables.keys() | extracted_args.keys()
+        fallback_vars = _collect_fallback_template_vars(template_content, known_keys)
+        extracted_args.update(fallback_vars)
+    return extracted_args
 
 
 # ---------------------------------------------------------------------------
