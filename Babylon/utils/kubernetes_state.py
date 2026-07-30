@@ -98,6 +98,28 @@ def save_state_in_kubernetes(k8s_client: client.CoreV1Api, namespace: str, secre
         sys.exit(1)
 
 
+def delete_state_from_kubernetes(k8s_client: client.CoreV1Api, namespace: str, secret_name: str) -> bool:
+    """Delete the Babylon state Secret from *namespace*."""
+    try:
+        k8s_client.delete_namespaced_secret(name=secret_name, namespace=namespace)
+        logger.info(
+            f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] deleted from namespace [cyan]{namespace}[/cyan]"
+        )
+        return True
+    except ApiException as exc:
+        if exc.status == 404:
+            logger.info(
+                f"  [dim]→ State secret [cyan]{secret_name}[/cyan] already deleted from namespace [cyan]{namespace}[/cyan] nothing to delete[/dim]"
+            )
+            return True
+        logger.error(
+            f"  [bold red]✘[/bold red] Kubernetes API error while deleting state secret (HTTP {exc.status}): {exc.reason}"
+        )
+        return False
+    except Exception as exc:
+        logger.error(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
+        return False
+
 def retrieve_state_from_kubernetes(k8s_client: client.CoreV1Api, namespace: str, secret_name: str) -> dict | None:
     """Read state from a Kubernetes Secret and return it as a dictionary.
 

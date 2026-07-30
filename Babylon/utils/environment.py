@@ -14,7 +14,7 @@ from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
 from Babylon.utils import ORIGINAL_CONFIG_FOLDER_PATH, ORIGINAL_TEMPLATE_FOLDER_PATH
-from Babylon.utils.kubernetes_state import STATE_LABEL_KEY, STATE_LABEL_VALUE, retrieve_state_from_kubernetes, save_state_in_kubernetes
+from Babylon.utils.kubernetes_state import STATE_LABEL_KEY, STATE_LABEL_VALUE, delete_state_from_kubernetes, retrieve_state_from_kubernetes, save_state_in_kubernetes
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -193,6 +193,17 @@ class Environment(metaclass=SingletonMeta):
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
         save_state_in_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name, state_data=state)
+
+    def delete_state_in_kubernetes(self, namespace: str = "", secret_name: str = "") -> bool:
+        """Delete the Babylon state Secret from Kubernetes.
+
+        Returns ``True`` when the secret was deleted or was already absent.
+        Returns ``False`` on unexpected API errors (destroy already succeeded,
+        so callers should log a warning rather than fail).
+        """
+        ns = namespace or self.environ_id
+        name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
+        return delete_state_from_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name)
 
     def get_state_from_kubernetes(self, namespace: str = "", secret_name: str = "") -> dict:
         """Retrieve state from a Kubernetes Secret.
