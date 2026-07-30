@@ -78,7 +78,9 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
 
     # --- Final Destruction Summary ---
     echo(style("\n📋 Destruction Summary", bold=True, fg="white"))
-    final_state = env.get_state_from_local()
+    # Use the in-memory state (already up-to-date) rather than re-reading local
+    # which could be stale when remote mode is active.
+    final_state = state
     services = final_state.get("services")
     api_data = services.get("api")
     for key, value in api_data.items():
