@@ -70,11 +70,37 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
     if webapp:
         destroy_webapp(state)
 
-    # --- State Persistence ---
+    # --- State Persistence (local)
     env.store_state_in_local(state=state)
+
+    # --- Remote state cleanup ---
+    # Delete the Kubernetes secret only when ALL tracked resources have been
+    # destroyed (i.e. every ID in the state is now empty).  A partial destroy
+    # (--include solution, --include workspace, …) leaves some IDs populated,
+    # so the secret must be kept for subsequent destroy runs.
     if state.get("remote"):
-        logger.info("  [dim]☁ Syncing state cleanup to kubernetes...[/dim]")
-        env.store_state_in_kubernetes(state=state)
+        svc = state.get("services", {})
+        api_ids = svc.get("api", {})
+        webapp_name = svc.get("webapp", {}).get("webapp_name", "")
+        schema_name = svc.get("postgres", {}).get("schema_name", "")
+        all_resources_cleared = (
+            not api_ids.get("organization_id")
+            and not api_ids.get("solution_id")
+            and not api_ids.get("workspace_id")
+            and not webapp_name
+            and not schema_name
+        )
+        if all_resources_cleared:
+            logger.info("  [dim]☁ All resources cleared ! removing remote state secret from Kubernetes...[/dim]")
+            deleted = env.delete_state_in_kubernetes()
+            if not deleted:
+                logger.warning(
+                    "  [yellow]⚠[/yellow] Could not delete the remote state secret ! "
+                    "destroy succeeded but the secret may need manual cleanup."
+                )
+        else:
+            logger.info("  [dim]☁ Partial destroy syncing updated state to Kubernetes...[/dim]")
+            env.store_state_in_kubernetes(state=state)
 
     # --- Final Destruction Summary ---
     echo(style("\n📋 Destruction Summary", bold=True, fg="white"))
