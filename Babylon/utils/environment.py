@@ -188,6 +188,24 @@ class Environment(metaclass=SingletonMeta):
         s = self.state_dir / state_file
         s.write_bytes(data=dump(state).encode("utf-8"))
 
+    def delete_state_in_local(self) -> bool:
+        """Delete the local state file for the current context/tenant.
+
+        Returns ``True`` when the file was deleted or did not exist.
+        Returns ``False`` on unexpected OS errors (callers should warn, not fail).
+        """
+        state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
+        try:
+            if state_file.exists():
+                state_file.unlink()
+                logger.info(f"  [green]✔[/green] Local state file [cyan]{state_file}[/cyan] deleted")
+            else:
+                logger.info(f"  [dim]→ Local state file [cyan]{state_file}[/cyan] already removed nothing to delete[/dim]")
+            return True
+        except OSError as exc:
+            logger.error(f"  [bold red]✘[/bold red] Could not delete local state file [cyan]{state_file}[/cyan]: {exc}")
+            return False
+
     def store_state_in_kubernetes(self, state: dict, namespace: str = "", secret_name: str = "") -> None:
         """Persist *state* as a Kubernetes Secret."""
         ns = namespace or self.environ_id
