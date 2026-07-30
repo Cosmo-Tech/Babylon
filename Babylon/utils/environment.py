@@ -205,6 +205,22 @@ class Environment(metaclass=SingletonMeta):
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
         result = retrieve_state_from_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name)
         if result is None:
+            # Remote secret does not exist yet.
+            # Bootstrap from local state to avoid losing already-deployed resources.
+            local_state = self.get_state_from_local()
+            has_local_resources = any(
+                local_state.get("services", {}).get(svc, {}).get(key)
+                for svc, key in [("api", "organization_id"), ("api", "workspace_id"), ("api", "solution_id")]
+            )
+            if has_local_resources:
+                logger.info(
+                    "  [dim]→ Remote state not found. Bootstrapping from local state "
+                    f"([cyan]{name}[/cyan])...[/dim]"
+                )
+                local_state["remote"] = True
+                save_state_in_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name, state_data=local_state)
+                return local_state
+            # Truly empty project return a blank default state.
             return {
                 "context": self.context_id,
                 "tenant": self.environ_id,
@@ -314,6 +330,12 @@ class Environment(metaclass=SingletonMeta):
         return self.get_config_from_k8s_secret_by_tenant("babylon-config", self.environ_id)
 
     def retrieve_state_func(self):
+        # Resolve `remote` from the persisted local state when the constructor
+        # default (False) has not been overridden by get_ns_from_text().
+        if not self.remote:
+            local_state = self.get_state_from_local()
+            self.remote = local_state.get("remote", False)
+
         if self.remote:
             state = self.get_state_from_kubernetes()
         else:
