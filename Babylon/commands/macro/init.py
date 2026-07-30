@@ -21,6 +21,7 @@ _PROJECT_YAML_FILES = [
     "Organization.yaml",
     "Solution.yaml",
     "Workspace.yaml",
+    "ProjectBuild.yaml",
 ]
 
 # Dashboard sub-directories to scaffold under <project>/dashboard/

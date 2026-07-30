@@ -31,7 +31,7 @@ def validate_inclusion_exclusion(
         logger.error("  Cannot use [bold]--include[/bold] and [bold]--exclude[/bold] at the same time")
         raise Abort()
 
-    allowed_values = ("organization", "solution", "workspace", "webapp")
+    allowed_values = ("projectbuild", "organization", "solution", "workspace", "webapp")
     invalid_items = [i for i in include + exclude if i not in allowed_values]
     if invalid_items:
         echo(style("\n  ✘ Invalid Arguments Detected", fg="red", bold=True))
@@ -45,7 +45,7 @@ def validate_inclusion_exclusion(
 def resolve_inclusion_exclusion(
     include: tuple[str, ...],
     exclude: tuple[str, ...],
-) -> tuple[bool, bool, bool, bool]:
+) -> tuple[bool, bool, bool, bool, bool]:
     """Resolve command line include and exclude.
 
     Args:
@@ -56,24 +56,27 @@ def resolve_inclusion_exclusion(
         Abort: if incompatible or invalid options are provided
 
     Returns:
-        tuple[bool, bool, bool, bool]: flags to include organization, solution, workspace, webapp
+        tuple[bool, bool, bool, bool, bool]: flags to include project_build, organization, solution, workspace, webapp
     """
     validate_inclusion_exclusion(include, exclude)
+    project_build = True
     organization = True
     solution = True
     workspace = True
     webapp = True
     if include:  # if only is specified include by condition
+        project_build = "projectbuild" in include
         organization = "organization" in include
         solution = "solution" in include
         workspace = "workspace" in include
         webapp = "webapp" in include
     if exclude:  # if exclude is specified exclude by condition
+        project_build = "projectbuild" not in exclude
         organization = "organization" not in exclude
         solution = "solution" not in exclude
         workspace = "workspace" not in exclude
         webapp = "webapp" not in exclude
-    return (organization, solution, workspace, webapp)
+    return (project_build, organization, solution, workspace, webapp)
 
 
 def diff(

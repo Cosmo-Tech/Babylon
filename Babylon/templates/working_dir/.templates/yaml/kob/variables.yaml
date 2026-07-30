@@ -20,6 +20,15 @@ workspace_description: Testing workspace for the brewery web application
 # See the module's example tfvars for reference:
 # https://github.com/Cosmo-Tech/terraform-webapp/blob/main/terraform.tfvars
 
+# ProjectBuild
+# CoSML project location supported formats:
+# - Local folder: file:///home/me/cosml_project
+# - Local folder archive: file:///home/me/cosmo_project.tar.gz
+# - Git repository and reference:
+#   - SSH access: git@github.com:my_name/my_solution.git@branch_or_tag
+#   - HTTPS access: git+https://vcs.server/my_solution.git@branch_or_tag
+build_project_archive_url: git+https://github.com/Cosmo-Tech/brewery_sample_solution.git@main
+
 ## VARIABLES EXAMPLE FOR KOB (= On-Premise)
 cloud_provider: kob
 cluster_name: kubernetes

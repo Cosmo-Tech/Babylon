@@ -61,7 +61,7 @@ class Environment(metaclass=SingletonMeta):
         self.remote = False
         self.pwd = Path.cwd()
         self.blob_client = None
-        self._kube_context = None
+        self.kube_context = None
         self.context_id: str = ""
         self.environ_id: str = ""
         self.server_id: str = ""
@@ -110,7 +110,7 @@ class Environment(metaclass=SingletonMeta):
         return payload_dict
 
     def set_kube_context(self, kube_context):
-        self._kube_context = kube_context
+        self.kube_context = kube_context
 
     def set_context(self, context_id):
         self.context_id = context_id
@@ -120,7 +120,7 @@ class Environment(metaclass=SingletonMeta):
 
     def get_kubernetes_client(self) -> client.CoreV1Api:
         try:
-            config.load_kube_config(context=self._kube_context)
+            config.load_kube_config(context=self.kube_context)
             return client.CoreV1Api()
         except ConfigException as exc:
             logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
@@ -133,8 +133,8 @@ class Environment(metaclass=SingletonMeta):
             sys.exit(1)
 
     def _get_active_kubectl_context(self) -> str:
-        if self._kube_context:
-            return self._kube_context
+        if self.kube_context:
+            return self.kube_context
 
         try:
             from kubernetes.config.kube_config import list_kube_config_contexts
