@@ -28,9 +28,9 @@ def _build_targeted_resources(state: dict, organization: bool, solution: bool, w
     webapp_state = state["services"].get("webapp", {})
     resource_map = [
         (organization, "Organization", api_state.get("organization_id") or "(NOT DEPLOYED)"),
-        (solution,     "Solution",     api_state.get("solution_id")     or "(NOT DEPLOYED)"),
-        (workspace,    "Workspace",    api_state.get("workspace_id")    or "(NOT DEPLOYED)"),
-        (webapp,       "Web App",      webapp_state.get("webapp_name")  or "(NOT DEPLOYED)"),
+        (solution, "Solution", api_state.get("solution_id") or "(NOT DEPLOYED)"),
+        (workspace, "Workspace", api_state.get("workspace_id") or "(NOT DEPLOYED)"),
+        (webapp, "Web App", webapp_state.get("webapp_name") or "(NOT DEPLOYED)"),
     ]
     return [(label, value) for flag, label, value in resource_map if flag]
 
@@ -152,8 +152,7 @@ def _cleanup_local_state(state: dict, full_destroy: bool) -> None:
         logger.info("  [dim]🗑 All resources cleared ! removing local state file...[/dim]")
         if not env.delete_state_in_local():
             logger.warning(
-                "  [yellow]⚠[/yellow] Could not delete the local state file "
-                "destroy succeeded but the file may need manual cleanup."
+                "  [yellow]⚠[/yellow] Could not delete the local state file destroy succeeded but the file may need manual cleanup."
             )
     else:
         logger.info("  [dim]↻ Partial destroy ! persisting updated state locally...[/dim]")

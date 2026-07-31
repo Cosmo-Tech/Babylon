@@ -14,7 +14,13 @@ from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
 from Babylon.utils import ORIGINAL_CONFIG_FOLDER_PATH, ORIGINAL_TEMPLATE_FOLDER_PATH
-from Babylon.utils.kubernetes_state import STATE_LABEL_KEY, STATE_LABEL_VALUE, delete_state_from_kubernetes, retrieve_state_from_kubernetes, save_state_in_kubernetes
+from Babylon.utils.kubernetes_state import (
+    STATE_LABEL_KEY,
+    STATE_LABEL_VALUE,
+    delete_state_from_kubernetes,
+    retrieve_state_from_kubernetes,
+    save_state_in_kubernetes,
+)
 from Babylon.utils.working_dir import WorkingDir
 from Babylon.utils.yaml_utils import yaml_to_json
 
@@ -242,10 +248,7 @@ class Environment(metaclass=SingletonMeta):
                 for svc, key in [("api", "organization_id"), ("api", "workspace_id"), ("api", "solution_id")]
             )
             if has_local_resources:
-                logger.info(
-                    "  [dim]→ Remote state not found. Bootstrapping from local state "
-                    f"([cyan]{name}[/cyan])...[/dim]"
-                )
+                logger.info(f"  [dim]→ Remote state not found. Bootstrapping from local state ([cyan]{name}[/cyan])...[/dim]")
                 local_state["remote"] = True
                 save_state_in_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name, state_data=local_state)
                 return local_state
