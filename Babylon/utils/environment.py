@@ -198,12 +198,12 @@ class Environment(metaclass=SingletonMeta):
         try:
             if state_file.exists():
                 state_file.unlink()
-                logger.info(f"  [green]✔[/green] Local state file [cyan]{state_file}[/cyan] deleted")
+                logger.info(f"  [green]✔[/green] Local state file [cyan]{state_file.name}[/cyan] deleted")
             else:
-                logger.info(f"  [dim]→ Local state file [cyan]{state_file}[/cyan] already removed nothing to delete[/dim]")
+                logger.info(f"  [dim]→ Local state file [cyan]{state_file.name}[/cyan] already removed nothing to delete[/dim]")
             return True
         except OSError as exc:
-            logger.error(f"  [bold red]✘[/bold red] Could not delete local state file [cyan]{state_file}[/cyan]: {exc}")
+            logger.error(f"  [bold red]✘[/bold red] Could not delete local state file [cyan]{state_file.name}[/cyan]: {exc}")
             return False
 
     def store_state_in_kubernetes(self, state: dict, namespace: str = "", secret_name: str = "") -> None:

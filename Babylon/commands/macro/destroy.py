@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from click import command, echo, option, style
+from click import command, confirm, echo, option, style
 
 from Babylon.commands.api.organization import get_organization_api_instance
 from Babylon.commands.api.solution import get_solution_api_instance
@@ -30,10 +30,57 @@ env = Environment()
 def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
     """Macro Destroy"""
     organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
+
+    # --- Interactive confirmation ---
+    # Build a clear, end-user-oriented summary of exactly what will be destroyed.
+    api_state = state["services"]["api"]
+    webapp_state = state["services"].get("webapp", {})
+
+    # Map each resource flag to a label and its current ID from the state.
+    resource_map = [
+        (organization, "Organization", api_state.get("organization_id") or "(NOT DEPLOYED)"),
+        (solution,     "Solution",     api_state.get("solution_id")     or "(NOT DEPLOYED)"),
+        (workspace,    "Workspace",    api_state.get("workspace_id")    or "(NOT DEPLOYED)"),
+        (webapp,       "Web App",  webapp_state.get("webapp_name")  or "(NOT DEPLOYED)"),
+    ]
+    targeted = [(label, value) for flag, label, value in resource_map if flag]
+
+    if include:
+        names = " and ".join(label.lower() for label, _ in targeted)
+        scope_msg = f"Only the selected {names} will be destroyed."
+    elif exclude:
+        excluded_names = " and ".join(exclude)
+        scope_msg = f"All resources will be destroyed except the selected {excluded_names}."
+    else:
+        scope_msg = "All resources in this environment will be destroyed."
+
+    echo()
+    echo(style("  ╭─────────────────────────────────────────────────────────────╮", fg="red"))
+    echo(style("  │  ⚠  DESTRUCTIVE ACTION                                      │", fg="red", bold=True))
+    echo(style("  ╰─────────────────────────────────────────────────────────────╯", fg="red"))
+    echo()
+    echo(f"  State        {style(f'state-{env.context_id}-{env.environ_id}', fg='cyan', bold=True)}")
+    echo()
+    echo(style("  Resources to be destroyed:", fg="white", bold=True))
+    for label, value in targeted:
+        echo(f"    {style('•', fg='red')} {style(label + ':', fg='cyan'):<22} {style(value, fg='white')}")
+    echo()
+    echo(style(f"  {scope_msg}", fg="yellow"))
+    echo(style("  This action cannot be undone.", fg="red", bold=True))
+    echo()
+
+    if not confirm(
+        style("  Continue with destruction?", fg="white", bold=True),
+        default=False,
+    ):
+        echo()
+        echo(style("  ✓ Deletion cancelled ! no resources were deleted.", fg="green", bold=True))
+        echo()
+        return CommandResponse.success()
+
     echo(style(f"\n🔥 Starting Destruction Process in namespace: {env.environ_id}", bold=True, fg="red"))
     keycloak_token, config = get_keycloak_token()
 
-    api_state = state["services"]["api"]
     schema_state = state["services"]["postgres"]
     org_id = api_state["organization_id"]
 
@@ -95,7 +142,7 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
                 "destroy succeeded but the file may need manual cleanup."
             )
     else:
-        logger.info("  [dim]🗑 Partial destroy ! persisting updated state locally...[/dim]")
+        logger.info("  [dim]↻ Partial destroy ! persisting updated state locally...[/dim]")
         env.store_state_in_local(state=state)
 
     # --- Remote state cleanup ---
@@ -110,7 +157,7 @@ def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
                     "destroy succeeded but the secret may need manual cleanup."
                 )
         else:
-            logger.info("  [dim]☁ Partial destroy ! syncing updated state to Kubernetes...[/dim]")
+            logger.info("  [dim]↻ Partial destroy ! syncing updated state to Kubernetes...[/dim]")
             env.store_state_in_kubernetes(state=state)
 
     # --- Final Destruction Summary ---
