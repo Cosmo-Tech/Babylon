@@ -46,10 +46,18 @@ def _build_scope_message(include: tuple[str], exclude: tuple[str], targeted: lis
     return "All resources in this environment will be destroyed."
 
 
-def _confirm_destroy(include: tuple[str], exclude: tuple[str], targeted: list[tuple[str, str]]) -> bool:
+def _confirm_destroy(
+    include: tuple[str],
+    exclude: tuple[str],
+    targeted: list[tuple[str, str]],
+    yes: bool = False,
+) -> bool:
     """Display the destruction warning banner and prompt the user for confirmation.
 
-    Returns True if the user confirmed, False if they cancelled.
+    When *yes* is True the prompt is skipped and True is returned immediately,
+    which is useful for automated environments and unit tests.
+
+    Returns True if the destruction should proceed, False if the user cancelled.
     """
     scope_msg = _build_scope_message(include, exclude, targeted)
 
@@ -67,6 +75,10 @@ def _confirm_destroy(include: tuple[str], exclude: tuple[str], targeted: list[tu
     echo(style(f"  {scope_msg}", fg="yellow"))
     echo(style("  This action cannot be undone.", fg="red", bold=True))
     echo()
+
+    if yes:
+        echo(style("  --yes flag detected ! skipping interactive confirmation.", fg="yellow"))
+        return True
 
     return confirm(
         style("  Continue with destruction?", fg="white", bold=True),
@@ -205,13 +217,14 @@ def _print_destruction_summary(state: dict) -> None:
 @retrieve_state
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to destroy.")
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destruction.")
-def destroy(state: dict, include: tuple[str], exclude: tuple[str]):
+@option("--yes", "-y", is_flag=True, default=False, help="Skip the interactive confirmation prompt.")
+def destroy(state: dict, include: tuple[str], exclude: tuple[str], yes: bool):
     """Macro Destroy"""
     organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
 
     targeted = _build_targeted_resources(state, organization, solution, workspace, webapp)
 
-    if not _confirm_destroy(include, exclude, targeted):
+    if not _confirm_destroy(include, exclude, targeted, yes=yes):
         echo()
         echo(style("  ✓ Deletion cancelled ! no resources were deleted.", fg="green", bold=True))
         echo()
