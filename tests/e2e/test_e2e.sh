@@ -21,4 +21,4 @@ babylon api about
 
 babylon init azure
 babylon apply --exclude webapp project
-babylon destroy
+babylon destroy --yes
