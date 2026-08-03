@@ -14,6 +14,7 @@ from logging import getLogger
 from pathlib import Path
 from sys import exit
 
+import git
 from click import echo, style
 
 from Babylon.utils.environment import Environment
@@ -28,14 +29,11 @@ def ensure_tf_webapp_version(tf_dir: Path, version: str) -> None:
     Silently succeeds if already on that commit/tag.
     """
     try:
-        subprocess.run(
-            ["git", "-C", str(tf_dir), "checkout", "-q", version],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        webapp_repo = git.Repo(path=tf_dir)
+        webapp_repo.head.reference = version
+        webapp_repo.head.reset(index=True, working_tree=True)
         logger.debug(f"  terraform-webapp version [cyan]{version}[/cyan] checked out")
-    except subprocess.CalledProcessError as exc:
+    except git.GitError as exc:
         logger.error(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
 
 

@@ -1,8 +1,8 @@
-import subprocess
 from logging import getLogger
 from pathlib import Path
 from shutil import copy
 
+import git
 from click import Choice, argument, command, echo, option, style
 
 from Babylon.utils.environment import Environment
@@ -43,22 +43,12 @@ def _clone_webapp(tf_webapp_path: Path, version: str) -> None:
     """Clone the Terraform WebApp repository at *version* into *tf_webapp_path*."""
     logger.info(f"  [dim]→ Cloning Terraform WebApp module (version [cyan]{version}[/cyan])...[/dim]")
     try:
-        subprocess.run(
-            ["git", "clone", "-q", _TF_WEBAPP_REPO_URL, str(tf_webapp_path)],
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
-        subprocess.run(
-            ["git", "-C", str(tf_webapp_path), "checkout", "-q", version],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        git.Repo.clone_from(url=_TF_WEBAPP_REPO_URL, to_path=tf_webapp_path, branch=version)
         if tf_webapp_path.exists():
             logger.info(f"  [green]✔[/green] Terraform WebApp module cloned at version [cyan]{version}[/cyan]")
         else:
             logger.error("  [bold red]✘[/bold red] Terraform WebApp module was not created after cloning")
-    except subprocess.CalledProcessError as exc:
+    except git.GitError as exc:
         logger.error(f"  [bold red]✘[/bold red] Failed to clone Terraform repo: {exc}")
 
 
@@ -71,14 +61,11 @@ def _ensure_webapp(tf_webapp_path: Path, version: str) -> None:
     if tf_webapp_path.exists():
         logger.info("  [green]✔[/green] Webapp directory [cyan]terraform-webapp[/cyan] already exists.")
         try:
-            subprocess.run(
-                ["git", "-C", str(tf_webapp_path), "checkout", "-q", version],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+            webapp_repo = git.Repo(path=tf_webapp_path)
+            webapp_repo.head.reference = version
+            webapp_repo.head.reset(index=True, working_tree=True)
             logger.info(f"  [green]✔[/green] Terraform WebApp version set to [cyan]{version}[/cyan]")
-        except subprocess.CalledProcessError as exc:
+        except git.GitError as exc:
             logger.error(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
     else:
         logger.warning("  [bold yellow]![/bold yellow] Webapp directory not found")
