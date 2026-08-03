@@ -24,7 +24,7 @@ _PROJECT_YAML_FILES = [
 ]
 
 # Dashboard sub-directories to scaffold under <project>/dashboard/
-_DASHBOARD_PROVIDERS = ["superset", "powerbi"]
+_DASHBOARD_PROVIDERS = ["superset"]
 _SUPPORTED_CLOUD_PROVIDERS = {"azure", "kob"}
 
 # Private helpers

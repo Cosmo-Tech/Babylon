@@ -62,12 +62,6 @@ class Environment(metaclass=SingletonMeta):
         self.original_template_path = ORIGINAL_TEMPLATE_FOLDER_PATH / "working_dir" / ".templates"
         self.dry_run = False
         self.is_verbose = True
-        self.AZURE_SCOPES = {
-            "graph": "https://graph.microsoft.com/.default",
-            "default": "https://management.azure.com/.default",
-            "powerbi": "https://analysis.windows.net/powerbi/api/.default",
-            "csm_api": "",
-        }
         self.state_dir = ORIGINAL_CONFIG_FOLDER_PATH
         self.working_dir = WorkingDir(working_dir_path=self.pwd)
         self.variable_files: list[Path] = []

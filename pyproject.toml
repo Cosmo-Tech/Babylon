@@ -8,7 +8,6 @@ authors = [{ name = "Mohcine Tor", email = "mohcine.tor@cosmotech.com" },
            { name = "Diamantis Sellis", email = "diamantis.sellis@cosmotech.com"}]
 description = "A CLI made to simplify the deployment and management of the CosmoTech Platform and Solutions"
 dependencies = [
-  "azure-identity",
   "click",
   "click-log",
   "cryptography",
