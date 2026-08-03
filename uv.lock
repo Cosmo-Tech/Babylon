@@ -172,47 +172,6 @@ wheels = [
 ]
 
 [[package]]
-name = "azure-mgmt-core"
-version = "1.6.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "azure-core" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/99/fa9e7551313d8c7099c89ebf3b03cd31beb12e1b498d575aa19bb59a5d04/azure_mgmt_core-1.6.0.tar.gz", hash = "sha256:b26232af857b021e61d813d9f4ae530465255cb10b3dde945ad3743f7a58e79c", size = 30818, upload-time = "2025-07-03T02:02:24.093Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/26/c79f962fd3172b577b6f38685724de58b6b4337a51d3aad316a43a4558c6/azure_mgmt_core-1.6.0-py3-none-any.whl", hash = "sha256:0460d11e85c408b71c727ee1981f74432bc641bb25dfcf1bb4e90a49e776dbc4", size = 29310, upload-time = "2025-07-03T02:02:25.203Z" },
-]
-
-[[package]]
-name = "azure-mgmt-storage"
-version = "25.0.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "azure-mgmt-core" },
-    { name = "isodate" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/47/6a/62d21f86b62cf990cb7d63f470dd4a766277a68a71543ef9331e0ee16f7d/azure_mgmt_storage-25.0.0.tar.gz", hash = "sha256:52c4bb1fb395fcfa7a2e8fb024c1dabc5a67bd6fa23c0d2d5a7fb29314f172d2", size = 228272, upload-time = "2026-05-20T08:37:01.135Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3d/ca/92239e71a92cd3a60c5c6175539defcec5ffa086bd9507817330cf7f4662/azure_mgmt_storage-25.0.0-py3-none-any.whl", hash = "sha256:7824840e8251aa6b2c27abf29cbd0ab86fc6685aa69e44f61c2f53168e71ff2d", size = 215194, upload-time = "2026-05-20T08:37:02.555Z" },
-]
-
-[[package]]
-name = "azure-storage-blob"
-version = "12.30.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "azure-core" },
-    { name = "cryptography" },
-    { name = "isodate" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/3b/48/84a820d898267f662b5c06f7cd76fdb8a9e272b44aa9376cef3ec0f6a294/azure_storage_blob-12.30.0.tar.gz", hash = "sha256:2cd74d4d5731e5eb6b8d5c5056ee115a5e88f8fdf22517b739836fda685018be", size = 618229, upload-time = "2026-06-08T11:45:35.575Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5e/0b/e106f0fd7fa785867d9ffcc47dc9e6237c0e58f51058473b777487a98edc/azure_storage_blob-12.30.0-py3-none-any.whl", hash = "sha256:d415ac50b67a8da6b3ae7e9f1014b1b55cd7aafa0b8d4ca9b380568dc7360423", size = 435610, upload-time = "2026-06-08T11:45:37.213Z" },
-]
-
-[[package]]
 name = "babel"
 version = "2.18.0"
 source = { registry = "https://pypi.org/simple" }
@@ -226,8 +185,6 @@ name = "babylon"
 source = { editable = "." }
 dependencies = [
     { name = "azure-identity" },
-    { name = "azure-mgmt-storage" },
-    { name = "azure-storage-blob" },
     { name = "click" },
     { name = "click-log" },
     { name = "cosmotech-api" },
@@ -263,8 +220,6 @@ doc = [
 [package.metadata]
 requires-dist = [
     { name = "azure-identity" },
-    { name = "azure-mgmt-storage" },
-    { name = "azure-storage-blob", specifier = ">=12.28.0" },
     { name = "click" },
     { name = "click-log" },
     { name = "cosmotech-api", specifier = "==5.0.1" },
@@ -743,15 +698,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
-]
-
-[[package]]
-name = "isodate"
-version = "0.7.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/54/4d/e940025e2ce31a8ce1202635910747e5a87cc3a6a6bb2d00973375014749/isodate-0.7.2.tar.gz", hash = "sha256:4cd1aa0f43ca76f4a6c6c0292a85f40b35ec2e43e315b59f06e6d32171a953e6", size = 29705, upload-time = "2024-10-08T23:04:11.5Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/aa/0aca39a37d3c7eb941ba736ede56d689e7be91cab5d9ca846bde3999eba6/isodate-0.7.2-py3-none-any.whl", hash = "sha256:28009937d8031054830160fce6d409ed342816b543597cece116d966c6d99e15", size = 22320, upload-time = "2024-10-08T23:04:09.501Z" },
 ]
 
 [[package]]
