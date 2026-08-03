@@ -17,7 +17,6 @@ from Babylon.utils.interactive import INTERACTIVE_ARG_VALUE, interactive_run
 from Babylon.version import VERSION
 
 logger = logging.getLogger()
-logging.getLogger("azure").setLevel(logging.WARNING)
 u_log = logging.getLogger("urllib3")
 k_log = logging.getLogger("kubernetes")
 
