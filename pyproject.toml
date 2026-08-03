@@ -9,8 +9,6 @@ authors = [{ name = "Mohcine Tor", email = "mohcine.tor@cosmotech.com" },
 description = "A CLI made to simplify the deployment and management of the CosmoTech Platform and Solutions"
 dependencies = [
   "azure-identity",
-  "azure-mgmt-storage",
-  "azure-storage-blob>=12.28.0",
   "click",
   "click-log",
   "cryptography",
