@@ -9,12 +9,12 @@ from Babylon.commands.macro.helpers.common import diff, resolve_inclusion_exclus
 
 def test_organization_diff():
     acl1 = [
-        OrganizationAccessControl.from_dict({"id": "toto@cosmotech.com", "role": "reader"}),
-        OrganizationAccessControl.from_dict({"id": "tata@cosmotech.com", "role": "writer"}),
+        OrganizationAccessControl(id="toto@cosmotech.com", role="reader"),
+        OrganizationAccessControl(id="tata@cosmotech.com", role="writer"),
     ]
     acl2 = [
-        OrganizationAccessControl.from_dict({"id": "toto@cosmotech.com", "role": "admin"}),  # updated
-        OrganizationAccessControl.from_dict({"id": "titi@cosmotech.com", "role": "reader"}),  # added
+        OrganizationAccessControl(id="toto@cosmotech.com", role="admin"),  # updated
+        OrganizationAccessControl(id="titi@cosmotech.com", role="reader"),  # added
     ]
     to_add, to_delete, to_update = diff(acl1, acl2)
     assert to_add[0] == "titi@cosmotech.com"
@@ -24,12 +24,12 @@ def test_organization_diff():
 
 def test_workspace_diff():
     acl1 = [
-        WorkspaceAccessControl.from_dict({"id": "toto@cosmotech.com", "role": "reader"}),
-        WorkspaceAccessControl.from_dict({"id": "tata@cosmotech.com", "role": "writer"}),
+        WorkspaceAccessControl(id="toto@cosmotech.com", role="reader"),
+        WorkspaceAccessControl(id="tata@cosmotech.com", role="writer"),
     ]
     acl2 = [
-        WorkspaceAccessControl.from_dict({"id": "toto@cosmotech.com", "role": "admin"}),  # updated
-        WorkspaceAccessControl.from_dict({"id": "titi@cosmotech.com", "role": "reader"}),  # added
+        WorkspaceAccessControl(id="toto@cosmotech.com", role="admin"),  # updated
+        WorkspaceAccessControl(id="titi@cosmotech.com", role="reader"),  # added
     ]
     to_add, to_delete, to_update = diff(acl1, acl2)
     assert to_add[0] == "titi@cosmotech.com"
@@ -39,12 +39,12 @@ def test_workspace_diff():
 
 def test_solution_diff():
     acl1 = [
-        SolutionAccessControl.from_dict({"id": "toto@cosmotech.com", "role": "reader"}),
-        SolutionAccessControl.from_dict({"id": "tata@cosmotech.com", "role": "writer"}),
+        SolutionAccessControl(id="toto@cosmotech.com", role="reader"),
+        SolutionAccessControl(id="tata@cosmotech.com", role="writer"),
     ]
     acl2 = [
-        SolutionAccessControl.from_dict({"id": "toto@cosmotech.com", "role": "admin"}),  # updated
-        SolutionAccessControl.from_dict({"id": "titi@cosmotech.com", "role": "reader"}),  # added
+        SolutionAccessControl(id="toto@cosmotech.com", role="admin"),  # updated
+        SolutionAccessControl(id="titi@cosmotech.com", role="reader"),  # added
     ]
     to_add, to_delete, to_update = diff(acl1, acl2)
     assert to_add[0] == "titi@cosmotech.com"

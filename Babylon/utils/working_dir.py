@@ -26,17 +26,19 @@ class WorkingDir:
         self.template_path = working_dir_path / ".templates"
         self.encoding_key = None
 
-    def generate_secret_key(self, override: bool = False) -> pathlib.Path:
+    def generate_secret_key(self):
         generated_key = Fernet.generate_key()
         self.encoding_key = generated_key
         logger.info(f"Generated new secret key: {generated_key.decode('utf-8')}")
         logger.info("keep that secret securely")
         logger.info(f"export BABYLON_ENCODING_KEY={generated_key.decode('utf-8')}")
 
+    @staticmethod
     def encrypt_content(encoding_key: bytes, content: bytes) -> bytes:
         encoder = Fernet(encoding_key)
         return encoder.encrypt(content)
 
+    @staticmethod
     def decrypt_content(encoding_key: bytes, content: bytes) -> bytes:
         if not content:
             return b""

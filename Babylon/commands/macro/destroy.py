@@ -35,7 +35,7 @@ def _build_targeted_resources(state: dict, organization: bool, solution: bool, w
     return [(label, value) for flag, label, value in resource_map if flag]
 
 
-def _build_scope_message(include: tuple[str], exclude: tuple[str], targeted: list[tuple[str, str]]) -> str:
+def _build_scope_message(include: tuple[str, ...], exclude: tuple[str, ...], targeted: list[tuple[str, str]]) -> str:
     """Return a human-readable sentence describing the destroy scope."""
     if include:
         names = " and ".join(label.lower() for label, _ in targeted)
@@ -47,8 +47,8 @@ def _build_scope_message(include: tuple[str], exclude: tuple[str], targeted: lis
 
 
 def _confirm_destroy(
-    include: tuple[str],
-    exclude: tuple[str],
+    include: tuple[str, ...],
+    exclude: tuple[str, ...],
     targeted: list[tuple[str, str]],
     yes: bool = False,
 ) -> bool:
@@ -218,7 +218,7 @@ def _print_destruction_summary(state: dict) -> None:
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to destroy.")
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destruction.")
 @option("--yes", "-y", is_flag=True, default=False, help="Skip the interactive confirmation prompt.")
-def destroy(state: dict, include: tuple[str], exclude: tuple[str], yes: bool):
+def destroy(state: dict, include: tuple[str, ...], exclude: tuple[str, ...], yes: bool):
     """Macro Destroy"""
     organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
 

@@ -83,7 +83,7 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         "-o",
         "--output",
         "output_format",
-        type=Choice(["json", "yaml", "wide"], case_sensitive=False),
+        type=Choice[str](["json", "yaml", "wide"], case_sensitive=False),
         help="Output format. One of: json, yaml, or wide",
     )
     @option(
@@ -94,7 +94,7 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         help="Path to the file to save the response",
     )
     @wraps(func)
-    def wrapper(output_format: Choice, output_file: pathlib.Path, *args: Any, **kwargs: Any) -> Any:
+    def wrapper(output_format: str, output_file: pathlib.Path, *args: Any, **kwargs: Any) -> Any:
         response: CommandResponse = func(*args, **kwargs)
         # 3. Handle File Output
         _handle_file_output(response, output_file)

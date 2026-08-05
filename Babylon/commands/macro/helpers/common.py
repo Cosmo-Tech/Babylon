@@ -10,6 +10,7 @@ Covers:
 from logging import getLogger
 
 from click import Abort, echo, style
+from cosmotech_api import OrganizationApi, SolutionApi, WorkspaceApi
 from cosmotech_api.models.organization_access_control import OrganizationAccessControl
 from cosmotech_api.models.organization_security import OrganizationSecurity
 from cosmotech_api.models.solution_access_control import SolutionAccessControl
@@ -21,8 +22,8 @@ logger = getLogger(__name__)
 
 
 def validate_inclusion_exclusion(
-    include: tuple[str],
-    exclude: tuple[str],
+    include: tuple[str, ...],
+    exclude: tuple[str, ...],
 ) -> bool:
     """Include and exclude command line options cannot be combined and should have correct spelling."""
     if include and exclude:  # cannot combine conflicting options
@@ -42,14 +43,14 @@ def validate_inclusion_exclusion(
 
 
 def resolve_inclusion_exclusion(
-    include: tuple[str],
-    exclude: tuple[str],
+    include: tuple[str, ...],
+    exclude: tuple[str, ...],
 ) -> tuple[bool, bool, bool, bool]:
     """Resolve command line include and exclude.
 
     Args:
-        include (tuple[str]): which objects to include in the deployment
-        exclude (tuple[str]): which objects to exclude from the deployment
+        include (tuple[str, ...]): which objects to include in the deployment
+        exclude (tuple[str, ...]): which objects to exclude from the deployment
 
     Raises:
         Abort: if incompatible or invalid options are provided
@@ -76,8 +77,8 @@ def resolve_inclusion_exclusion(
 
 
 def diff(
-    acl1: OrganizationAccessControl | WorkspaceAccessControl | SolutionAccessControl,
-    acl2: OrganizationAccessControl | WorkspaceAccessControl | SolutionAccessControl,
+    acl1: list[OrganizationAccessControl] | list[WorkspaceAccessControl] | list[SolutionAccessControl],
+    acl2: list[OrganizationAccessControl] | list[WorkspaceAccessControl] | list[SolutionAccessControl],
 ) -> tuple[list[str], list[str], list[str]]:
     """Generate a diff between two access control lists."""
     ids1 = [i.id for i in acl1]
@@ -95,11 +96,11 @@ def update_default_security(
     current_security: OrganizationSecurity | WorkspaceSecurity | SolutionSecurity,
     desired_security: OrganizationSecurity | WorkspaceSecurity | SolutionSecurity,
     api_instance,
-    object_id: str,
+    object_ids: list[str],
 ) -> None:
     if desired_security.default != current_security.default:
         try:
-            getattr(api_instance, f"update_{object_type}_default_security")(object_id, desired_security.default)
+            getattr(api_instance, f"update_{object_type}_default_security")(*object_ids, desired_security.default)
             logger.info(f"  [bold green]✔[/bold green] Updated [magenta]{object_type}[/magenta] default security")
         except Exception as e:
             logger.error(f"  [bold red]✘[/bold red] Failed to update [magenta]{object_type}[/magenta] default security: {e}")
@@ -109,32 +110,32 @@ def update_object_security(
     object_type: str,
     current_security: OrganizationSecurity | WorkspaceSecurity | SolutionSecurity,
     desired_security: OrganizationSecurity | WorkspaceSecurity | SolutionSecurity,
-    api_instance,
-    object_id: list[str],
+    api_instance: OrganizationApi | WorkspaceApi | SolutionApi,
+    object_ids: list[str],
 ) -> None:
     """Update object security:
     - if default security differs from payload, update object default security
     - diff state vs payload
     - foreach diff: delete entries to be removed, update entries to be changed, create entries to be added
     """
-    update_default_security(object_type, current_security, desired_security, api_instance, object_id)
+    update_default_security(object_type, current_security, desired_security, api_instance, object_ids)
     (to_add, to_delete, to_update) = diff(current_security.access_control_list, desired_security.access_control_list)
     for entry in desired_security.access_control_list:
         if entry.id in to_add:
             try:
-                getattr(api_instance, f"create_{object_type}_access_control")(*object_id, entry)
+                getattr(api_instance, f"create_{object_type}_access_control")(*object_ids, entry)
                 logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry.id}[/magenta] added successfully")
             except Exception as e:
                 logger.error(f"  [bold red]✘[/bold red] Failed to add access control for id [magenta]{entry.id}[/magenta]: {e}")
         if entry.id in to_update:
             try:
-                getattr(api_instance, f"update_{object_type}_access_control")(*object_id, entry.id, {"role": entry.role})
+                getattr(api_instance, f"update_{object_type}_access_control")(*object_ids, entry.id, {"role": entry.role})
                 logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry.id}[/magenta] updated successfully")
             except Exception as e:
                 logger.error(f"  [bold red]✘[/bold red] Failed to update access control for id [magenta]{entry.id}[/magenta]: {e}")
     for entry_id in to_delete:
         try:
-            getattr(api_instance, f"delete_{object_type}_access_control")(*object_id, entry_id)
+            getattr(api_instance, f"delete_{object_type}_access_control")(*object_ids, entry_id)
             logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry_id}[/magenta] deleted successfully")
         except Exception as e:
             logger.error(f"  [bold red]✘[/bold red] Failed to delete access control for id [magenta]{entry_id}[/magenta]: {e}")

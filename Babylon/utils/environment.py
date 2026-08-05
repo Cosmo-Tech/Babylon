@@ -9,6 +9,7 @@ from pathlib import Path
 from flatten_json import flatten
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
+from kubernetes.client.models.v1_secret import V1Secret
 from kubernetes.config.config_exception import ConfigException
 from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
@@ -94,7 +95,7 @@ class Environment(metaclass=SingletonMeta):
         remote: bool = payload_dict.get("remote", self.remote)
         self.remote = remote
 
-    def fill_template(self, data: str, state: dict = None, ext_args: dict = None):
+    def fill_template(self, data: str, state: dict | None = None, ext_args: dict | None = None):
         result = data.replace("{{", "${").replace("}}", "}")
         t = Template(text=result, strict_undefined=True)
         variables = self.get_variables()
@@ -155,7 +156,7 @@ class Environment(metaclass=SingletonMeta):
         except Exception:
             return "[dim]unavailable[/dim]"
 
-    def _load_k8s_secret(self, secret_name: str, tenant: str):
+    def _load_k8s_secret(self, secret_name: str, tenant: str) -> V1Secret:
         try:
             k8s_client = self.get_kubernetes_client()
             return k8s_client.read_namespaced_secret(name=secret_name, namespace=tenant)
@@ -357,7 +358,7 @@ class Environment(metaclass=SingletonMeta):
                 "keycloak_client_secret": os.environ[required_env_vars["KEYCLOAK_CLIENT_SECRET"]],
                 "keycloak_token_url": os.environ[required_env_vars["KEYCLOAK_TOKEN_URL"]],
             }
-        # Log missing env vars
+        # Fallthrough to kubernetes config
         logger.info("  [dim]→ Loading configuration from Kubernetes secret... [/dim]")
         return self.get_config_from_k8s_secret_by_tenant("babylon-config", self.environ_id)
 
@@ -390,7 +391,7 @@ class Environment(metaclass=SingletonMeta):
         keys_tracker = defaultdict(list)
 
         for file_path in file_paths:
-            if not file_path.endswith(".yaml"):
+            if file_path.suffix != ".yaml":
                 logger.error(f"  [bold red]✘[/bold red] File '{file_path}' is not a valid YAML file.")
                 sys.exit(1)
             if os.path.getsize(file_path) == 0:

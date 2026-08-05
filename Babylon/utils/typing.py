@@ -1,5 +1,4 @@
 import logging
-from typing import Any, Optional
 
 from click import Context, Parameter, ParamType
 
@@ -12,7 +11,7 @@ env = Environment()
 class QueryType(ParamType):
     name = "QueryString"
 
-    def convert(self, value: Any, param: Optional["Parameter"], ctx: Optional["Context"]) -> Any:
+    def convert(self, value, param: Parameter | None, ctx: Context | None):
         """
         Convert the value of the parameter given in the console to the one passed to the underlying function
         :param value: the value sent by the console

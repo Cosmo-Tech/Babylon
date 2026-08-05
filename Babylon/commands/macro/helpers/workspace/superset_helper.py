@@ -1240,7 +1240,7 @@ def update_variables_file_entry(
         ry = _RYAML()
         ry.preserve_quotes = True
         ry.width = 4096
-        ry.best_map_flow_style = False
+        ry.default_flow_style = False
 
         raw = variables_path.read_text(encoding="utf-8")
         data = ry.load(raw)

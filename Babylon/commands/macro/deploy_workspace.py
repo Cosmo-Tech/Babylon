@@ -20,7 +20,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path) -> bool:
+def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
     echo(style(f"\n🚀 Deploying Workspace in namespace: {env.environ_id}", bold=True, fg="cyan"))
 
     env.get_ns_from_text(content=namespace)

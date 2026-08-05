@@ -16,7 +16,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def deploy_solution(namespace: str, file_content: str) -> bool:
+def deploy_solution(namespace: str, file_content: str):
     echo(style(f"\n🚀 Deploying Solution in namespace: {env.environ_id}", bold=True, fg="cyan"))
 
     # Retrieve the state
@@ -73,7 +73,7 @@ def deploy_solution(namespace: str, file_content: str) -> bool:
                     current_security=current_security,
                     desired_security=SolutionSecurity.from_dict(payload.get("security")),
                     api_instance=api_instance,
-                    object_id=[api_section["organization_id"], api_section["solution_id"]],
+                    object_ids=[api_section["organization_id"], api_section["solution_id"]],
                 )
             except Exception as e:
                 logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")

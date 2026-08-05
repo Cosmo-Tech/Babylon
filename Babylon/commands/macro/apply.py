@@ -17,7 +17,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list, list, list]:
+def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list, list, list, list]:
     resources = []
     for f in files_to_deploy:
         resource = {}
@@ -68,11 +68,11 @@ def print_section(data: dict, highlight_urls: bool = False):
 
 @command()
 @injectcontext()
-@argument("deploy_dir", type=ClickPath(dir_okay=True, exists=True))
+@argument("deploy_dir", type=ClickPath(dir_okay=True, exists=True, path_type=PathlibPath))
 @option(
     "--var-file",
     "variables_files",
-    type=ClickPath(file_okay=True, exists=True),
+    type=ClickPath(file_okay=True, exists=True, path_type=PathlibPath),
     default=["./variables.yaml"],
     multiple=True,
     help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
@@ -80,16 +80,15 @@ def print_section(data: dict, highlight_urls: bool = False):
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to deploy.")
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from deployment.")
 def apply(
-    deploy_dir: ClickPath,
-    include: tuple[str],
-    exclude: tuple[str],
-    variables_files: tuple[PathlibPath],
+    deploy_dir: PathlibPath,
+    include: tuple[str, ...],
+    exclude: tuple[str, ...],
+    variables_files: tuple[PathlibPath, ...],
 ):
     """Macro Apply"""
     organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
-    files = list(PathlibPath(deploy_dir).iterdir())
-    files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], files))
-    env.set_variable_files(variables_files)
+    files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], deploy_dir.iterdir()))
+    env.set_variable_files(list(variables_files))
     organizations, solutions, workspaces, webapps = load_resources_from_files(files_to_deploy)
     if organization:
         deploy_objects(organizations, "organization", deploy_dir)

@@ -114,7 +114,7 @@ def sync_workspace_security(api_instance, api_section: dict, payload: dict) -> b
             current_security=current_security,
             desired_security=WorkspaceSecurity.from_dict(payload.get("security")),
             api_instance=api_instance,
-            object_id=[api_section["organization_id"], api_section["workspace_id"]],
+            object_ids=[api_section["organization_id"], api_section["workspace_id"]],
         )
         return True
     except Exception as e:

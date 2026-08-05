@@ -166,7 +166,7 @@ def create_workspace_secret(
         k8s_client.create_namespaced_secret(namespace=namespace, body=secret)
         logger.info(f"  [bold green]✔[/bold green] Secret [magenta]{secret_name}[/magenta] created")
         return True
-    except client.exceptions.ApiException as e:
+    except client.ApiException as e:
         if getattr(e, "status", None) == 409:
             logger.warning(
                 f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] is already configured skipping creation[/dim]"

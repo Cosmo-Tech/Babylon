@@ -4,7 +4,7 @@ import pathlib
 import shutil
 import tempfile
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 from click import get_current_context
@@ -26,9 +26,9 @@ class CommandResponse:
     STATUS_OK = 0
     STATUS_ERROR = 1
 
-    def __init__(self, status_code: int = 0, data: Optional[dict[str, Any]] = None, verbose: bool = False) -> None:
+    def __init__(self, status_code: int = 0, data: dict[str, Any] | list[Any] | None = None, verbose: bool = False) -> None:
         self.status_code = status_code
-        self.data: dict[str, Any] = data or {}
+        self.data: dict[str, Any] | list[Any] = data or {}
         ctx = get_current_context()
         self.command = ctx.command_path.split(" ")
         self.params = {k: str(v) for k, v in ctx.params.items()}
@@ -134,5 +134,5 @@ class CommandResponse:
         return cls(status_code=CommandResponse.STATUS_ERROR, **kwargs)
 
     @classmethod
-    def success(cls, data: Optional[dict[str, Any]] = None, **kwargs) -> Any:
+    def success(cls, data: dict[str, Any] | list[Any] | None = None, **kwargs) -> Any:
         return cls(status_code=CommandResponse.STATUS_OK, data=data, **kwargs)
