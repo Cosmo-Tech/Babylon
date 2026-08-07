@@ -262,7 +262,7 @@ def _run_schema_init_job(
 
     yaml_dict = safe_load(Template(raw_content).safe_substitute(mapping))
     try:
-        utils.create_from_dict(k8s_client, yaml_dict, namespace=env.environ_id)
+        utils.create_from_dict(k8s_client.api_client, yaml_dict, namespace=env.environ_id)
         _wait_and_check_init_job(k8s_job_name, schema_name, state)
     except FailToCreateError as e:
         for inner_exception in e.api_exceptions:
@@ -376,7 +376,7 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
     yaml_dict = safe_load(Template(raw_content).safe_substitute(mapping))
     logger.info("  [dim]→ Applying kubernetes destroy job...[/dim]")
     try:
-        utils.create_from_dict(k8s_client, yaml_dict, namespace=env.environ_id)
+        utils.create_from_dict(k8s_client.api_client, yaml_dict, namespace=env.environ_id)
         _wait_and_check_destroy_job(k8s_job_name, schema_name, state)
     except Exception as e:
         logger.error("  [bold red]✘[/bold red] Unexpected error submitting the destroy job see 'babylon.log' for details")
