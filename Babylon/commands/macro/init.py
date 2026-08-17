@@ -28,7 +28,11 @@ _PROJECT_YAML_FILES = [
 ]
 
 # Dashboard sub-directories to scaffold under <project>/dashboard/
+<<<<<<< HEAD
 _SUPPORTED_BI_PROVIDERS = {"powerbi", "superset"}
+=======
+_DASHBOARD_PROVIDERS = ["superset", "powerbi"]
+>>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
 _SUPPORTED_CLOUD_PROVIDERS = {"azure", "kob"}
 
 # Private helpers
