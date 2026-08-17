@@ -28,11 +28,7 @@ _PROJECT_YAML_FILES = [
 ]
 
 # Dashboard sub-directories to scaffold under <project>/dashboard/
-<<<<<<< HEAD
 _SUPPORTED_BI_PROVIDERS = {"powerbi", "superset"}
-=======
-_DASHBOARD_PROVIDERS = ["superset", "powerbi"]
->>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
 _SUPPORTED_CLOUD_PROVIDERS = {"azure", "kob"}
 
 # Private helpers
@@ -151,7 +147,6 @@ def _copy_yaml_templates(project_path: Path, cloud_provider: str, bi_provider: s
     if webapp_src.exists():
         copy(webapp_src, project_path / "Webapp.yaml")
         logger.info(f"  [green]✔[/green] Generated [white]Webapp.yaml[/white] (provider: {cloud_provider})")
-
 
 def _create_postgres_jobs(project_path: Path) -> None:
     postgres_jobs_path = project_path / "postgres" / "jobs"
