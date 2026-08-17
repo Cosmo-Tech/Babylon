@@ -29,7 +29,11 @@ class AzurePowerBIReportService:
         return response
 
     def download_all(self, workspace_id: str, output_folder: Path):
+<<<<<<< HEAD
         logger.info("  [dim]→ Downloading all reports... [/dim]")
+=======
+        logger.info("  [dim]→[/dim] Downloading all reports...")
+>>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
         if not output_folder.exists():
             output_folder.mkdir()
         reports = self.get_all(workspace_id=workspace_id)
@@ -95,6 +99,10 @@ class AzurePowerBIReportService:
         """Upload a PBIX report and wait for the Power BI import to complete."""
 
         workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
+<<<<<<< HEAD
+=======
+        # name = os.path.splitext(pbix_filename)[0]
+>>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
         name = pbix_filename.stem
         header = {
             "Content-Type": "multipart/form-data",
@@ -119,7 +127,11 @@ class AzurePowerBIReportService:
 
         route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports/{import_data.get('id')}"
         output_data = {}
+<<<<<<< HEAD
         logger.info(f"  [dim]→ waiting for import of file [cyan]{pbix_filename.name}[/cyan] to end ...[/dim]")
+=======
+        logger.info(f"  [dim]→[/dim] waiting for import of file {pbix_filename} to end ...")
+>>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
         handler = polling2.poll(
             lambda: oauth_request(route, self.powerbi_token),
             check_success=is_correct_response_app,

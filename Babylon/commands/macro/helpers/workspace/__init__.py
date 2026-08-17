@@ -35,6 +35,7 @@ from Babylon.commands.macro.helpers.workspace.superset_helper import (
     get_uuid_by_dashboard_id,
     update_variables_file_entry,
 )
+from Babylon.commands.macro.helpers.workspace.powerbi_helper import build_powerbi_ext_args, deploy_powerbi
 
 __all__ = [
     # api_cosmotech_helper
@@ -63,6 +64,9 @@ __all__ = [
     "update_variables_file_entry",
     # powerbi_helper
     "deploy_powerbi",
+<<<<<<< HEAD
     "destroy_powerbi_assets",
+=======
+>>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
     "build_powerbi_ext_args",
 ]
