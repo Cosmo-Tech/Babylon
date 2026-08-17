@@ -21,7 +21,8 @@ dependencies = [
   "dynaconf",
   "kubernetes>=35.0.0",
   "cosmotech-api==5.0.1",
-  "ruamel.yaml"
+  "ruamel.yaml",
+  "azure-identity"
 ]
 dynamic = ["version"]
 readme = {file = "README.md", content-type = "text/markdown"}

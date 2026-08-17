@@ -25,18 +25,18 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}"
         response = oauth_request(url=urls_reports, access_token=self.powerbi_token, type="DELETE")
         if response is None:
-            logger.error(f"[powerbi] failed to delete report with id : {report_id} ")
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete report with id : {report_id} ")
             return None
         return response
 
     def download_all(self, workspace_id: str, output_folder: Path):
-        logger.info("[powerbi] download all reports")
+        logger.info("  [dim]→[/dim] Downloading all reports...")
         if not output_folder.exists():
             output_folder.mkdir()
         reports = self.get_all(workspace_id=workspace_id)
         for r in reports:
             self.download(workspace_id=workspace_id, report_id=r.get("id"), output_folder=output_folder)
-            logger.info("[powerbi] successfully saved the following reports:")
+            logger.info(f"  [bold green]✔[/bold green] Successfully saved report [cyan]{r.get('name')}[/cyan]")
         logger.info("\n".join(f"- {output_folder}/{report['name']}.pbix" for report in reports))
 
     def download(self, workspace_id: str, report_id: str, output_folder: Path):
@@ -44,14 +44,14 @@ class AzurePowerBIReportService:
         url_report = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/Export"
         response = oauth_request(url_report, self.powerbi_token)
         if response is None:
-            logger.error(f"[powerbi] failed to export report with id : {report_id} ")
+            logger.error(f"  [bold red]✘[/bold red] Failed to export report with id : {report_id} ")
             return None
         output_path = Path(response.headers.get("X-PowerBI-FileName"))
         if output_folder:
             output_path = output_folder / output_path
         with open(output_path, "wb") as file:
             file.write(response.content)
-        logger.info(f"[powerbi] report {report_id} was saved as {output_path}")
+        logger.info(f"  [bold green]✔[/bold green] Report [cyan]{report_id}[/cyan] was saved as [cyan]{output_path}[/cyan]")
         return output_path
 
     def get_all(self, workspace_id: str):
@@ -59,7 +59,7 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
-            logger.error("[powerbi] failed to get all reports")
+            logger.error("  [bold red]✘[/bold red] Failed to get all reports")
             return None
         return response
 
@@ -68,7 +68,7 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
-            logger.error("[powerbi] failed to get report by report_id")
+            logger.error("  [bold red]✘[/bold red] Failed to get report by report_id")
             return None
         output_data = response.json()
         return output_data
@@ -78,7 +78,7 @@ class AzurePowerBIReportService:
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/pages"
         response = oauth_request(urls_reports, self.powerbi_token)
         if response is None:
-            logger.info("[powerbi] report id not found")
+            logger.info("  [bold red]✘[/bold red] Report id not found")
             return None
         output_data = response.json()
         pagesname = output_data[0] if len(output_data) else "ReportSection"
@@ -93,8 +93,11 @@ class AzurePowerBIReportService:
         report_type: str,
         override: bool,
     ):
-        workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        name = os.path.splitext(pbix_filename)[0]
+        """Upload a PBIX report and wait for the Power BI import to complete."""
+
+        workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
+        # name = os.path.splitext(pbix_filename)[0]
+        name = pbix_filename.stem
         header = {
             "Content-Type": "multipart/form-data",
             "Authorization": f"Bearer {self.powerbi_token}",
@@ -108,17 +111,17 @@ class AzurePowerBIReportService:
             try:
                 response = session.post(url=route, headers=header, files={"file": _f})
             except Exception as e:
-                logger.error(f"[powerbi] request failed: {e}")
+                logger.error(f"  [bold red]✘[/bold red] Request failed: {e}")
                 return None
             if response.status_code >= 300:
-                logger.error(f"Request failed ({response.status_code}): {response.text}")
+                logger.error(f"  [bold red]✘[/bold red] Request failed ({response.status_code}): {response.text}")
                 return None
         import_data = response.json()
         # Wait for import end
 
         route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports/{import_data.get('id')}"
         output_data = {}
-        logger.info(f"[powerbi] waiting for import of file {pbix_filename} to end")
+        logger.info(f"  [dim]→[/dim] waiting for import of file {pbix_filename} to end ...")
         handler = polling2.poll(
             lambda: oauth_request(route, self.powerbi_token),
             check_success=is_correct_response_app,
