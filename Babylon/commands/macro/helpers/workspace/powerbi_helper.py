@@ -104,6 +104,7 @@ def deploy_powerbi(
 
     abs_deploy_dir = Path(deploy_dir).resolve()
     schema_name = _resolve_postgres_schema_name(state)
+    writer_username, writer_password = _resolve_postgres_writer_credentials()
 
     all_ok = True
     for report in valid_reports:
@@ -115,6 +116,8 @@ def deploy_powerbi(
             report=report,
             abs_deploy_dir=abs_deploy_dir,
             schema_name=schema_name,
+            writer_username=writer_username,
+            writer_password=writer_password,
         ):
             all_ok = False
 
@@ -131,6 +134,32 @@ def _resolve_postgres_schema_name(state: dict) -> str | None:
     return workspace_id.replace("-", "_") if workspace_id else None
 
 
+def _resolve_postgres_writer_credentials() -> tuple[str | None, str | None]:
+    """Resolve the PostgreSQL writer credentials for Power BI datasets."""
+
+    api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
+    if not api_config:
+        logger.warning(
+            "  [yellow]⚠[/yellow] Could not read 'postgresql-cosmotechapi' Secret "
+            "dataset credentials update will be skipped"
+        )
+        return None, None
+
+    writer_password = api_config.get("writer-password")
+    if not writer_password:
+        logger.warning(
+            "  [yellow]⚠[/yellow] Writer password missing in 'postgresql-cosmotechapi' Secret "
+            "dataset credentials update will be skipped"
+        )
+        return None, None
+
+    tenant = env.environ_id
+    clean_prefix = tenant.replace("-", "_")
+    writer_username = f"{clean_prefix}_cosmotech_api_writer"
+
+    return writer_username, writer_password
+
+
 def _upload_powerbi_report(
     report_service: AzurePowerBIReportService,
     dataset_service: AzurePowerBIDatasetService,
@@ -139,6 +168,8 @@ def _upload_powerbi_report(
     report: dict,
     abs_deploy_dir: Path,
     schema_name: str | None = None,
+    writer_username: str | None = None,
+    writer_password: str | None = None,
 ) -> bool:
     """Upload a Power BI report, persist its ID, and update its datasets."""
 
@@ -180,7 +211,7 @@ def _upload_powerbi_report(
     report_id = new_report.get("reportId") if isinstance(new_report, dict) else None
     if report_id and tag:
         _update_powerbi_variable([report_type, tag], report_id)
-        logger.info(f"  [bold green]✔[/bold green] Report id saved as powerbi['{report_type}']['{tag}']")
+        logger.info(f"  [bold green]✔[/bold green] Report id {report_id} saved as powerbi['{report_type}']['{tag}'] in 'Variables.yaml' file")
     elif not tag:
         logger.warning(f"  [yellow]⚠[/yellow] Report '{name}' produced an empty tag skipping id persistence")
     else:
@@ -192,6 +223,14 @@ def _upload_powerbi_report(
             continue
 
         dataset_service.take_over(workspace_id=workspace_id, dataset_id=dataset_id)
+
+        if writer_username and writer_password:
+            dataset_service.update_credentials(
+                workspace_id=workspace_id,
+                dataset_id=dataset_id,
+                username=writer_username,
+                password=writer_password,
+            )
 
         if params:
             params_service.update(workspace_id=workspace_id, dataset_id=dataset_id, params=params)
