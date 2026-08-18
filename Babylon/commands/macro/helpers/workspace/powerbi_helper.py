@@ -257,7 +257,7 @@ def _merge_schema_param(params: list[dict], schema_name: str | None) -> list[dic
     if not schema_name:
         return params
 
-    schema_id = _SCHEMA_PARAM_ID.lower()
+    schema_id = _SCHEMA_PARAM_ID
     has_schema = any((p.get("id") or "").strip().lower() == schema_id for p in params)
 
     if has_schema:
