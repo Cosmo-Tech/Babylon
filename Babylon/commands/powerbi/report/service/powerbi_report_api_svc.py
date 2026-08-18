@@ -121,7 +121,7 @@ class AzurePowerBIReportService:
 
         route = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/imports/{import_data.get('id')}"
         output_data = {}
-        logger.info(f"  [dim]→[/dim] waiting for import of file {pbix_filename} to end ...")
+        logger.info(f"  [dim]→[/dim] waiting for import of file {pbix_filename.name} to end ...")
         handler = polling2.poll(
             lambda: oauth_request(route, self.powerbi_token),
             check_success=is_correct_response_app,
