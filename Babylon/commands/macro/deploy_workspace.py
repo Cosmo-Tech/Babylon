@@ -49,11 +49,12 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
     spec = content.get("spec") or {}
     sidecars = spec.get("sidecars", {})
     schema_config = sidecars.get("postgres", {}).get("schema") or {}
-    if schema_config.get("create", False):
-        deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state)
-
     # --- Dashboard Deployment (provider-based dispatch: superset | powerbi) ---
     dashboard_config = sidecars.get("dashboards", {})
+    dataviz_provider = (dashboard_config.get("provider") or "superset").strip().lower()
+    if schema_config.get("create", False):
+        deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state, provider=dataviz_provider)
+
     if dashboard_config.get("create", False):
         if not _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content):
             return CommandResponse.fail()
