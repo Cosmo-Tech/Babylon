@@ -94,6 +94,8 @@ def deploy_powerbi(
     if not workspace_id:
         return False, set()
 
+    _update_powerbi_variable(["workspace_id"], workspace_id)
+
     logger.info(f"  [dim]→ Deploying {len(valid_reports)} dashboard report(s) to Power BI workspace '{workspace_id}'...[/dim]")
 
     services = state.get("services")
@@ -211,7 +213,7 @@ def _upload_powerbi_report(
     report_id = new_report.get("reportId") if isinstance(new_report, dict) else None
     if report_id and tag:
         _update_powerbi_variable([report_type, tag], report_id)
-        logger.info(f"  [bold green]✔[/bold green] Report id {report_id} saved as powerbi['{report_type}']['{tag}'] in 'Variables.yaml' file")
+        logger.info(f"  [bold green]✔[/bold green] Report id {report_id} saved in 'Variables.yaml' file")
     elif not tag:
         logger.warning(f"  [yellow]⚠[/yellow] Report '{name}' produced an empty tag skipping id persistence")
     else:
@@ -222,8 +224,14 @@ def _upload_powerbi_report(
         if not dataset_id:
             continue
 
+        # Take ownership of the dataset to allow parameter updates and credential changes.
         dataset_service.take_over(workspace_id=workspace_id, dataset_id=dataset_id)
 
+        # Update dataset parameters if any are defined in the report configuration.
+        if params:
+            params_service.update(workspace_id=workspace_id, params=params, dataset_id=dataset_id)
+
+        # Update dataset credentials if writer credentials are available.
         if writer_username and writer_password:
             dataset_service.update_credentials(
                 workspace_id=workspace_id,
@@ -232,8 +240,6 @@ def _upload_powerbi_report(
                 password=writer_password,
             )
 
-        if params:
-            params_service.update(workspace_id=workspace_id, dataset_id=dataset_id, params=params)
 
     logger.info(f"  [bold green]✔[/bold green] Report [cyan]{name}[/cyan] successfully imported")
     return True

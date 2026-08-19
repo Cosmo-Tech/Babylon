@@ -101,9 +101,8 @@ class AzurePowerBIDatasetService:
                     "privacyLevel": "Organizational",
                 }
             }
-
         for datasource in output_data:
-            if datasource.get("datasourceType") != "Extension":
+            if datasource.get("datasourceType") != "PostgreSql":
                 continue
             gateway_id = datasource.get("gatewayId")
             datasource_id = datasource.get("datasourceId")

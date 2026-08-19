@@ -20,7 +20,7 @@ spec:
           tag: "qa_dashboard"
           parameters:
             - id: "Kusto"
-              value: "csm-{{cluster_name}}.postgres.azure.com"
+              value: "csm-{{cluster_name}}.postgres.database.azure.com"
             - id: "Database"
               value: "tenant-{{tenant}}"
   payload:
