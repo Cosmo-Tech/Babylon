@@ -13,6 +13,7 @@ spec:
       provider: powerbi
       create: false
       name: "{{powerbi_workspace_name}}"
+      permissions: {{powerbi_permissions}}
       reports:
         - name: "QADashboard"
           type: dashboard

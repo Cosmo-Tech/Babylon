@@ -16,6 +16,10 @@ workspace_key: brewerytestingwork
 workspace_description: Testing workspace for the brewery web application
 # Power BI 
 powerbi_workspace_name: Babylon v5 Power BI Brewery workspace
+powerbi_permissions:
+  - identifier: "user.1@cosmotech.com"
+    rights: Admin
+    type: User
 # Webapp
 # These variables are used to render your Webapp.yaml manifest and can be mapped to the
 # terraform module variables (terraform.tfvars) used by the terraform-webapp module.
