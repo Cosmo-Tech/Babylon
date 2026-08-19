@@ -159,9 +159,6 @@ def get_external_postgres_host() -> str:
 
 def get_postgres_service_host(namespace: str) -> str:
     """Discover the PostgreSQL service name in a namespace to build its FQDN.
-
-    Note: This function assumes PostgreSQL is running within the same Kubernetes
-    cluster. External database clusters are not currently supported.
     """
     try:
         k8s_client = env.get_kubernetes_client()
@@ -365,15 +362,6 @@ def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> N
 
 def destroy_postgres_schema(schema_name: str, state: dict, provider: str = "superset") -> None:
     """Destroy the PostgreSQL schema for a workspace.
-
-    Applies a K8s destroy job rendered from the template at
-    ``env.original_template_path / yaml / k8s_job_destroy.yaml``, waits for
-    it to complete and clears the schema name from state on success.
-
-    *provider* controls host resolution (Internal vs External Postgres, see
-    :func:`get_postgres_host`); it defaults to ``"superset"`` (Internal
-    Postgres) to preserve existing behaviour for callers that do not yet
-    track the dataviz provider in state.
     """
     if not schema_name:
         logger.warning("  [yellow]⚠[/yellow] [dim]No schema found ! skipping deletion[/dim]")

@@ -29,7 +29,7 @@ class AzurePowerBIWorkspaceUserService:
         if response is None:
             logger.error(f"  [bold red]✘[/bold red] Failed to add user [cyan]{identifier}[/cyan] to Power BI workspace")
             return None
-        logger.info(f"  [bold green]✔[/bold green] User [cyan]{identifier}[/cyan] successfully added to workspace")
+        logger.info(f"  [bold green]✔[/bold green] User [cyan]{identifier}[/cyan] successfully added to Power BI workspace")
 
     def delete(self, workspace_id, force_validation: bool, email: str):
         workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
@@ -40,7 +40,7 @@ class AzurePowerBIWorkspaceUserService:
         if response is None:
             logger.error(f"  [bold red]✘[/bold red] Failed to delete user [cyan]{email}[/cyan] from Power BI workspace")
             return None
-        logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully removed from workspace")
+        logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully removed from Power BI workspace")
 
     def get_all(self, workspace_id: str):
         workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
@@ -64,5 +64,5 @@ class AzurePowerBIWorkspaceUserService:
         if response is None:
             logger.error(f"  [bold red]✘[/bold red] Failed to update user [cyan]{email}[/cyan] in Power BI workspace")
             return None
-        logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully updated in workspace")
+        logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully updated in Power BI workspace")
         return response

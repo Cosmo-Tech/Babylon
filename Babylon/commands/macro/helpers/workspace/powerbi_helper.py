@@ -21,7 +21,7 @@ from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc imp
 from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import update_workspace
 
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
-from Babylon.utils.credentials import get_powerbi_token
+from Babylon.utils.credentials import get_current_user_email, get_powerbi_token
 from Babylon.utils.environment import Environment
 
 logger = getLogger(__name__)
@@ -265,6 +265,11 @@ def _sync_powerbi_workspace_permissions(
     existing_identifiers = {user.get("identifier") for user in existing_users if user.get("identifier")}
     desired_identifiers = {permission.get("identifier") for permission in permissions if permission.get("identifier")}
 
+    # Power BI rejects a user modifying their own workspace permissions via the
+    # API (returns 401 Unauthorized on the Update/Delete Group User calls).
+    # Skip the currently authenticated principal to avoid a spurious failure.
+    current_user_email = (get_current_user_email(powerbi_token) or "").lower()
+
     all_ok = True
 
     for entry in permissions:
@@ -274,6 +279,13 @@ def _sync_powerbi_workspace_permissions(
 
         if not identifier or not rights or not principal_type:
             logger.warning(f"  [yellow]⚠[/yellow] Skipping incomplete permission entry: {entry}")
+            continue
+
+        if current_user_email and identifier.lower() == current_user_email:
+            logger.warning(
+                f"  [yellow]⚠[/yellow] Skipping '{identifier}' Power BI doesn't allow a user to update their "
+                "own workspace permissions via the API please set/verify this manually in the Power BI portal!"
+            )
             continue
 
         try:
@@ -288,6 +300,12 @@ def _sync_powerbi_workspace_permissions(
             all_ok = False
 
     for identifier in existing_identifiers - desired_identifiers:
+        if current_user_email and identifier.lower() == current_user_email:
+            logger.warning(
+                f"  [yellow]⚠[/yellow] Skipping removal of '{identifier}' Power BI doesn't allow a user to "
+                "update their own workspace permissions via the API!"
+            )
+            continue
         try:
             logger.info(f"  [dim]→ Removing Power BI permissions for '{identifier}'...[/dim]")
             user_service.delete(workspace_id=workspace_id, email=identifier, force_validation=True)
