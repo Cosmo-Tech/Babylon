@@ -2,7 +2,8 @@ import logging
 import sys
 from functools import wraps
 from typing import Any, Callable
-
+from json import loads
+from base64 import urlsafe_b64decode
 import requests
 from azure.identity import DefaultAzureCredential
 
@@ -63,6 +64,28 @@ def get_powerbi_token() -> str | None:
         return token.token
     except Exception as exp:
         logger.info(exp)
+        return None
+
+
+def get_current_user_email(access_token: str) -> str | None:
+    """Extract the user's email or UPN from JWT claims."""
+
+    try:
+        parts = access_token.split(".")
+        if len(parts) < 2:
+            return None
+        payload = parts[1]
+        padding = "=" * (-len(payload) % 4)
+        decoded = urlsafe_b64decode(payload + padding)
+        claims = loads(decoded)
+        return (
+            claims.get("upn")
+            or claims.get("unique_name")
+            or claims.get("preferred_username")
+            or claims.get("email")
+        )
+    except Exception as exp:
+        logger.debug(f"  Could not decode access token claims: {exp}")
         return None
 
 
