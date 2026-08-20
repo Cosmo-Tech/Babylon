@@ -29,7 +29,7 @@ class AzurePowerBIWorkspaceUserService:
         if response is None:
             logger.error(f"  [bold red]✘[/bold red] Failed to add user [cyan]{identifier}[/cyan] to Power BI workspace")
             return None
-        logger.info(f"  [bold green]✔[/bold green] User [cyan]{identifier}[/cyan] successfully added to Power BI workspace")
+        logger.info(f"  [bold green]✔[/bold green] {type} [cyan]{identifier}[/cyan] successfully added to Power BI workspace")
 
     def delete(self, workspace_id, force_validation: bool, email: str):
         workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
