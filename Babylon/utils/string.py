@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 MAX_LINE_LENGTH = 120
 
@@ -27,3 +28,15 @@ def to_header_line(string: str) -> str:
         return "-" * MAX_LINE_LENGTH
     missing = MAX_LINE_LENGTH - length - 2
     return f"{'-' * (missing // 2)} {string} {'-' * (missing // 2)}"
+
+
+def slugify_tag(value: str) -> str:
+    """Normalize a string into a lowercase, underscore-separated tag."""
+
+    if not value:
+        return ""
+
+    normalized = unicodedata.normalize("NFKD", value)
+    normalized = normalized.encode("ascii", "ignore").decode("ascii")
+    normalized = re.sub(r"[^a-z0-9]+", "_", normalized)
+    return normalized.strip("_")

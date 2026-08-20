@@ -8,7 +8,6 @@ from io import StringIO
 from logging import getLogger
 from pathlib import Path
 from re import compile as re_compile
-from re import sub as re_sub
 
 from kubernetes.client.exceptions import ApiException
 from ruamel.yaml import YAML as _RYAML
@@ -26,6 +25,7 @@ from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc impor
 from Babylon.utils.credentials import get_azure_token, get_current_user_email, get_powerbi_token
 from Babylon.utils.environment import Environment
 from Babylon.utils.request import oauth_request
+from Babylon.utils.string import slugify_tag
 
 logger = getLogger(__name__)
 env = Environment()
@@ -37,7 +37,7 @@ _REPORT_TYPE_ALIASES = {
 }
 
 # Matches Power BI template variables such as:
-# ${powerbi['workspace_id']} and ${powerbi['scenario_view']['report_id']}.
+# ${powerbi['workspace_id']} and ${powerbi['reports']['scenario_view']}.
 _POWERBI_TEMPLATE_VAR_RE = re_compile(
     r"\$\{\s*powerbi\[\s*['\"]([a-zA-Z0-9_]+)['\"]\s*\]"
     r"(?:\[\s*['\"]([a-zA-Z0-9_]+)['\"]\s*\])?\s*\}"
@@ -173,6 +173,63 @@ def _get_webapp_powerbi_service_principal_id(state: dict) -> str | None:
     return service_principals[0].get("id")
 
 
+def _discover_powerbi_reports(reports_config: dict, deploy_dir: Path) -> list[dict]:
+    """Build report entries by scanning a folder for .pbix files."""
+
+    rel_path = reports_config.get("path") or ""
+    if not rel_path:
+        logger.warning(
+            "  [yellow]⚠[/yellow] 'reports.path' is required when using folder-based Power BI report discovery"
+        )
+        return []
+
+    folder = Path(rel_path) if Path(rel_path).is_absolute() else (Path(deploy_dir).resolve() / rel_path)
+
+    if not folder.is_dir():
+        logger.error(f"  [bold red]✘[/bold red] Power BI reports folder not found: {folder}")
+        return []
+
+    shared_parameters = reports_config.get("parameters") or []
+
+    discovered: list[dict] = []
+    for pbix_path in sorted(folder.glob("*.pbix")):
+        name = pbix_path.stem
+        discovered.append({
+            "name": name,
+            "path": str(pbix_path),
+            "tag": slugify_tag(name),
+            "parameters": list(shared_parameters),
+        })
+
+    if not discovered:
+        logger.warning(f"  [yellow]⚠[/yellow] No .pbix files found in Power BI reports folder: {folder}")
+
+    return discovered
+
+
+def _resolve_powerbi_reports(reports: list | dict, deploy_dir: Path) -> list[dict]:
+    """Normalize reports configuration into a flat list of report entries."""
+
+    if isinstance(reports, dict):
+        return _discover_powerbi_reports(reports, deploy_dir)
+
+    if isinstance(reports, list):
+        resolved: list[dict] = []
+        for entry in reports:
+            if isinstance(entry, dict) and entry.get("path") and not entry.get("name"):
+                # Folder-discovery spec expressed as a YAML list item.
+                resolved.extend(_discover_powerbi_reports(entry, deploy_dir))
+            else:
+                resolved.append(entry)
+        return resolved
+
+    logger.warning(
+        "  [yellow]⚠[/yellow] Unsupported 'reports' configuration type "
+        "expected a list of reports or a {path, parameters} mapping"
+    )
+    return []
+
+
 def deploy_powerbi(
     reports: list,
     state: dict,
@@ -182,7 +239,8 @@ def deploy_powerbi(
     """Authenticate with Power BI, upload dashboard .pbix reports, take ownership
     of their datasets, update dataset parameters, and sync workspace permissions.
     """
-    valid_reports = [r for r in reports if isinstance(r, dict) and r.get("name") and r.get("path")]
+    resolved_reports = _resolve_powerbi_reports(reports, deploy_dir)
+    valid_reports = [r for r in resolved_reports if isinstance(r, dict) and r.get("name") and r.get("path")]
     if not valid_reports:
         logger.warning("  [yellow]⚠[/yellow] No valid report entries each entry must have 'name' and 'path'")
         return True, set()
@@ -313,7 +371,7 @@ def _upload_powerbi_report(
 
     report_id = new_report.get("reportId") if isinstance(new_report, dict) else None
     if report_id and tag:
-        _update_powerbi_variable([report_type, tag], report_id)
+        _update_powerbi_variable(["reports", tag], report_id)
         logger.info(f"  [bold green]✔[/bold green] Report id {report_id} saved in 'Variables.yaml' file")
     elif not tag:
         logger.warning(f"  [yellow]⚠[/yellow] Report '{name}' produced an empty tag skipping id persistence")
@@ -555,7 +613,7 @@ def _prepare_report_metadata(report: dict) -> tuple[str, str]:
     )
 
     name = report.get("name", "")
-    tag = report.get("tag") or re_sub(r"[^a-z0-9]", "", name.lower())
+    tag = report.get("tag") or slugify_tag(name)
 
     return report_type, tag
 
