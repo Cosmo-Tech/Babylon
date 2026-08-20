@@ -3,12 +3,14 @@ Power BI helpers for dashboard deployment.
 """
 
 from copy import deepcopy
+from base64 import b64decode
 from io import StringIO
 from logging import getLogger
 from pathlib import Path
 from re import compile as re_compile
 from re import sub as re_sub
 
+from kubernetes.client.exceptions import ApiException
 from ruamel.yaml import YAML as _RYAML
 from yaml import safe_load
 from typing import Any
@@ -21,8 +23,9 @@ from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc imp
 from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import update_workspace
 
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
-from Babylon.utils.credentials import get_current_user_email, get_powerbi_token
+from Babylon.utils.credentials import get_azure_token, get_current_user_email, get_powerbi_token
 from Babylon.utils.environment import Environment
+from Babylon.utils.request import oauth_request
 
 logger = getLogger(__name__)
 env = Environment()
@@ -42,6 +45,9 @@ _POWERBI_TEMPLATE_VAR_RE = re_compile(
 
 # Dataset parameter name defined in the PBIX file.
 _SCHEMA_PARAM_ID = "Schema"
+
+# groupUserAccessRight to grant the WebApp's Power BI App Registration.
+_WEBAPP_APP_ACCESS_RIGHT = "Member"
 
 def _update_workspace_with_powerbi_ids(api_instance, api_section, file_content, state) -> bool:
     """Re-render the Workspace template with persisted Power BI IDs."""
@@ -69,6 +75,102 @@ def _resolve_powerbi_workspace_id(powerbi_token: str, powerbi_config: dict) -> s
         logger.error(f"  [bold red]✘[/bold red] Failed to create Power BI workspace '{workspace_name}'")
         return None
     return created.get("id")
+
+
+def _get_webapp_powerbi_client_id(state: dict) -> str | None:
+    """Get the WebApp Power BI App Registration client ID from Kubernetes secret.
+    """
+    variables = env.get_variables()
+    webapp_name = variables.get("webapp_name")
+
+    if not webapp_name:
+        webapp_name = state.get("services", {}).get("webapp", {}).get("webapp_name", "")
+        webapp_name = webapp_name.removeprefix("webapp-")
+
+    if not webapp_name:
+        logger.debug("  WebApp name could not be resolved, skipping Power BI App Registration lookup")
+        return None
+
+    secret_name = f"webapp-{webapp_name}-powerbi-client"
+
+    try:
+        k8s_client = env.get_kubernetes_client()
+        secret = k8s_client.read_namespaced_secret(
+            name=secret_name,
+            namespace=env.environ_id,
+        )
+    except ApiException as exc:
+        if exc.status == 404:
+            logger.debug(
+                f"  Secret '{secret_name}' not found in namespace '{env.environ_id}'"
+            )
+        else:
+            logger.warning(
+                f"  [yellow]⚠[/yellow] Failed to read Secret '{secret_name}': {exc.reason}"
+            )
+        return None
+    except Exception as exc:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] Failed to read Secret '{secret_name}': {exc}"
+        )
+        return None
+
+    if not secret.data:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] Secret '{secret_name}' is empty, "
+            "WebApp Power BI App Registration permission sync will be skipped"
+        )
+        return None
+
+    client_id = secret.data.get("client_id")
+    if not client_id:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] Secret '{secret_name}' has no 'client_id' key"
+        )
+        return None
+
+    return b64decode(client_id).decode("utf-8")
+
+
+def _get_webapp_powerbi_service_principal_id(state: dict) -> str | None:
+    """Get the Microsoft Entra Service Principal Object ID for the WebApp."""
+
+    client_id = _get_webapp_powerbi_client_id(state)
+    if not client_id:
+        return None
+
+    graph_token = get_azure_token(
+        scope="https://graph.microsoft.com/.default"
+    )
+    if not graph_token:
+        logger.warning(
+            "  [yellow]⚠[/yellow] Failed to acquire a Microsoft Graph token, "
+            "cannot resolve the WebApp Power BI Service Principal Object ID"
+        )
+        return None
+
+    url = (
+        "https://graph.microsoft.com/v1.0/servicePrincipals"
+        f"?$filter=appId eq '{client_id}'"
+    )
+
+    response = oauth_request(url, graph_token)
+    if response is None:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] Failed to look up Service Principal for client_id "
+            f"'{client_id}' via Microsoft Graph"
+        )
+        return None
+
+    service_principals = response.json().get("value") or []
+    if not service_principals:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] No Service Principal found in Microsoft Graph for "
+            f"client_id '{client_id}'"
+        )
+        return None
+
+    return service_principals[0].get("id")
 
 
 def deploy_powerbi(
@@ -188,8 +290,7 @@ def _upload_powerbi_report(
         logger.error(f"  [bold red]✘[/bold red] Report file not found: {pbix_path}")
         return False
 
-    report_type = _normalize_report_type(report.get("type", ""))
-    tag = report.get("tag") or _sanitize_tag(name)
+    report_type, tag = _prepare_report_metadata(report)
 
     params = _merge_schema_param(
         report.get("parameters") or [],
@@ -252,65 +353,181 @@ def _sync_powerbi_workspace_permissions(
     state: dict,
 ) -> bool:
     """Synchronize Power BI workspace permissions."""
-    permissions: list[dict] = powerbi_config.get("permissions", []) or []
-    if not permissions:
-        return True
+
+    permissions = list(powerbi_config.get("permissions", []) or [])
 
     user_service = AzurePowerBIWorkspaceUserService(
         powerbi_token=powerbi_token,
         state=state.get("services"),
     )
+
     existing_users = user_service.get_all(workspace_id=workspace_id) or []
 
-    existing_identifiers = {user.get("identifier") for user in existing_users if user.get("identifier")}
-    desired_identifiers = {permission.get("identifier") for permission in permissions if permission.get("identifier")}
+    existing_rights = {
+        user["identifier"]: user.get("groupUserAccessRight")
+        for user in existing_users
+        if user.get("identifier")
+    }
 
-    # Power BI rejects a user modifying their own workspace permissions via the
-    # API (returns 401 Unauthorized on the Update/Delete Group User calls).
-    # Skip the currently authenticated principal to avoid a spurious failure.
-    current_user_email = (get_current_user_email(powerbi_token) or "").lower()
+    # Automatically grant Member access to the WebApp Power BI App Registration.
+    webapp_object_id = _get_webapp_powerbi_service_principal_id(state)
+
+    if webapp_object_id and not any(
+        permission.get("identifier") == webapp_object_id
+        for permission in permissions
+    ):
+        permissions.append({
+            "identifier": webapp_object_id,
+            "rights": _WEBAPP_APP_ACCESS_RIGHT,
+            "type": "App",
+        })
+
+        # Only log when this actually changes something (new grant or right
+        # change) not on every idempotent re-run once access is already set.
+        if existing_rights.get(webapp_object_id) != _WEBAPP_APP_ACCESS_RIGHT:
+            logger.info(
+                f"  [dim]→ Detected WebApp Power BI App Registration "
+                f"object_id: {webapp_object_id} will grant it "
+                f"'{_WEBAPP_APP_ACCESS_RIGHT}' access to the workspace Power BI[/dim]"
+            )
+
+    if not permissions:
+        return True
+
+    existing_identifiers = set(existing_rights)
+    desired_identifiers = {
+        permission["identifier"]
+        for permission in permissions
+        if permission.get("identifier")
+    }
+
+    current_user_email = (
+        get_current_user_email(powerbi_token) or ""
+    ).lower()
+
+    all_ok = _sync_powerbi_permission_entries(
+        user_service=user_service,
+        workspace_id=workspace_id,
+        permissions=permissions,
+        existing_rights=existing_rights,
+        current_user_email=current_user_email,
+    )
+
+    remove_ok = _remove_powerbi_workspace_permissions(
+        user_service=user_service,
+        workspace_id=workspace_id,
+        existing_identifiers=existing_identifiers,
+        desired_identifiers=desired_identifiers,
+        current_user_email=current_user_email,
+    )
+
+    return all_ok and remove_ok
+
+
+def _sync_powerbi_permission_entries(
+    user_service: AzurePowerBIWorkspaceUserService,
+    workspace_id: str,
+    permissions: list[dict],
+    existing_rights: dict[str, str],
+    current_user_email: str,
+) -> bool:
+    """Add missing permissions and update permissions with changed rights."""
 
     all_ok = True
 
-    for entry in permissions:
-        identifier = entry.get("identifier")
-        rights = entry.get("rights")
-        principal_type = entry.get("type")
+    for permission in permissions:
+        identifier = permission.get("identifier")
+        rights = permission.get("rights")
+        principal_type = permission.get("type")
 
         if not identifier or not rights or not principal_type:
-            logger.warning(f"  [yellow]⚠[/yellow] Skipping incomplete permission entry: {entry}")
+            logger.warning(
+                f"  [yellow]⚠[/yellow] Skipping incomplete permission entry: {permission}"
+            )
             continue
 
         if current_user_email and identifier.lower() == current_user_email:
             logger.warning(
-                f"  [yellow]⚠[/yellow] Skipping '{identifier}' Power BI doesn't allow a user to update their "
-                "own workspace permissions via the API please set/verify this manually in the Power BI portal!"
+                f"  [yellow]⚠[/yellow] Skipping '{identifier}' "
+                "Power BI doesn't allow a user to update their own "
+                "workspace permissions via the API"
             )
             continue
 
         try:
-            if identifier in existing_identifiers:
-                logger.info(f"  [dim]→ Updating Power BI permissions for '{identifier}'...[/dim]")
-                user_service.update(workspace_id=workspace_id, right=rights, email=identifier, type=principal_type)
-            else:
-                logger.info(f"  [dim]→ Adding Power BI permissions for '{identifier}'...[/dim]")
-                user_service.add(workspace_id=workspace_id, right=rights, email=identifier, type=principal_type)
-        except Exception as exp:
-            logger.error(f"  [bold red]✘[/bold red] Failed to sync permissions for '{identifier}': {exp}")
+            if identifier not in existing_rights:
+                logger.info(
+                    f"  [dim]→ Adding Power BI permissions for "
+                    f"'{identifier}'...[/dim]"
+                )
+                user_service.add(
+                    workspace_id=workspace_id,
+                    right=rights,
+                    email=identifier,
+                    type=principal_type,
+                )
+
+            elif existing_rights[identifier] != rights:
+                logger.info(
+                    f"  [dim]→ Updating Power BI permissions for "
+                    f"'{identifier}'...[/dim]"
+                )
+                user_service.update(
+                    workspace_id=workspace_id,
+                    right=rights,
+                    email=identifier,
+                    type=principal_type,
+                )
+
+        except Exception as exc:
+            logger.error(
+                f"  [bold red]✘[/bold red] Failed to sync permissions "
+                f"for '{identifier}': {exc}"
+            )
             all_ok = False
 
-    for identifier in existing_identifiers - desired_identifiers:
+    return all_ok
+
+
+def _remove_powerbi_workspace_permissions(
+    user_service: AzurePowerBIWorkspaceUserService,
+    workspace_id: str,
+    existing_identifiers: set[str],
+    desired_identifiers: set[str],
+    current_user_email: str,
+) -> bool:
+    """Remove workspace permissions that are no longer desired."""
+
+    all_ok = True
+
+    identifiers_to_remove = existing_identifiers - desired_identifiers
+
+    for identifier in identifiers_to_remove:
         if current_user_email and identifier.lower() == current_user_email:
             logger.warning(
-                f"  [yellow]⚠[/yellow] Skipping removal of '{identifier}' Power BI doesn't allow a user to "
-                "update their own workspace permissions via the API!"
+                f"  [yellow]⚠[/yellow] Skipping removal of '{identifier}' "
+                "Power BI doesn't allow a user to update their own "
+                "workspace permissions via the API"
             )
             continue
+
         try:
-            logger.info(f"  [dim]→ Removing Power BI permissions for '{identifier}'...[/dim]")
-            user_service.delete(workspace_id=workspace_id, email=identifier, force_validation=True)
-        except Exception as exp:
-            logger.error(f"  [bold red]✘[/bold red] Failed to remove permissions for '{identifier}': {exp}")
+            logger.info(
+                f"  [dim]→ Removing Power BI permissions for "
+                f"'{identifier}'...[/dim]"
+            )
+
+            user_service.delete(
+                workspace_id=workspace_id,
+                email=identifier,
+                force_validation=True,
+            )
+
+        except Exception as exc:
+            logger.error(
+                f"  [bold red]✘[/bold red] Failed to remove permissions "
+                f"for '{identifier}': {exc}"
+            )
             all_ok = False
 
     return all_ok
@@ -329,18 +546,19 @@ def _merge_schema_param(params: list[dict], schema_name: str | None) -> list[dic
     return [*params, {"id": _SCHEMA_PARAM_ID, "value": schema_name}]
 
 
-def _normalize_report_type(raw_type: str) -> str:
-    """Normalize a report type to the Power BI service value."""
-    normalized = (raw_type or "").strip().lower()
+def _prepare_report_metadata(report: dict) -> tuple[str, str]:
+    """Prepare the report type and tag used by Power BI."""
+    raw_type = (report.get("type") or "").strip().lower()
+    report_type = _REPORT_TYPE_ALIASES.get(
+        raw_type,
+        raw_type if raw_type in {"scenario_view", "dashboard_view"} else "dashboard_view",
+    )
 
-    if normalized in _REPORT_TYPE_ALIASES:
-        return _REPORT_TYPE_ALIASES[normalized]
-    return normalized if normalized in {"scenario_view", "dashboard_view"} else "dashboard_view"
+    name = report.get("name", "")
+    tag = report.get("tag") or re_sub(r"[^a-z0-9]", "", name.lower())
 
+    return report_type, tag
 
-def _sanitize_tag(value: str) -> str:
-    """Return a lowercase alphanumeric tag suitable for YAML/template keys."""
-    return re_sub(r"[^a-z0-9]", "", value.lower())
 
 def _update_powerbi_variable(path: list[str], value: str) -> bool:
     """Persist a value under ``powerbi.<path...>`` in the variables file."""
