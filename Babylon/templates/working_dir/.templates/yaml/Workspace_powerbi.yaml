@@ -15,10 +15,7 @@ spec:
       name: "{{powerbi_workspace_name}}"
       permissions: {{powerbi_permissions}}
       reports:
-        - name: "QADashboard"
-          type: dashboard
-          path: "powerbi/QADashboard.pbix"
-          tag: "qa_dashboard"
+        - path: "dashboard/powerbi"
           parameters:
             - id: "Kusto"
               value: "csm-{{cluster_name}}.postgres.database.azure.com"
