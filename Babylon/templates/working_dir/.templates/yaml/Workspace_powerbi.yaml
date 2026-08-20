@@ -51,7 +51,7 @@ spec:
             - title:
                 en: Customer Overview
                 fr: Aperçu des clients
-              reportId: "{{powerbi['dashboard_view']['qa_dashboard']}}"
+              reportId: "{{powerbi['reports']['qa_dashboard']}}"
               settings:
                 filterPaneEnabled: false
                 navContentPaneEnabled: false
@@ -68,7 +68,7 @@ spec:
             - title:
                 en: Stock Overview
                 fr: Aperçu des stocks
-              reportId: "{{powerbi['dashboard_view']['stock_overview']}}"
+              reportId: "{{powerbi['reports']['stock_overview']}}"
               pageName:
                 en: 2b30f1d8886fc53849b3
                 fr: 2b30f1d8886fc53849b3
@@ -84,7 +84,7 @@ spec:
                   values: lastRunId
           scenarioView:
             full_demo:
-              reportId: "{{powerbi['dashboard_view']['stock_overview']}}"
+              reportId: "{{powerbi['reports']['stock_overview']}}"
               pageName:
                 en: f5e73ba46b8e2085c239
                 fr: f5e73ba46b8e2085c239
