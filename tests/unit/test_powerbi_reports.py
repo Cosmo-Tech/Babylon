@@ -6,15 +6,14 @@ import pytest
 
 from Babylon.commands.macro.helpers.workspace.powerbi_helper import (
     _discover_powerbi_reports,
+    _prepare_report_tag,
     _resolve_powerbi_reports,
 )
 from Babylon.utils.string import slugify_tag
 
 
-# ---------------------------------------------------------------------------
-# slugify_tag
-# ---------------------------------------------------------------------------
 
+# slugify_tag
 
 @pytest.mark.parametrize(
     "value,expected",
@@ -32,10 +31,8 @@ def test_slugify_tag(value, expected):
     assert slugify_tag(value) == expected
 
 
-# ---------------------------------------------------------------------------
-# _discover_powerbi_reports
-# ---------------------------------------------------------------------------
 
+# _discover_powerbi_reports
 
 def _touch(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -103,6 +100,25 @@ def test_discover_applies_shared_parameters_to_all_reports(tmp_path):
         assert report["parameters"] is not shared_parameters
 
 
+def test_discover_multiple_report_sources_with_different_paths(tmp_path):
+    """Several `reports` entries, each with its own `path`, are all discovered."""
+    dashboard_dir = tmp_path / "dashboard" / "powerbi"
+    extra_dir = tmp_path / "extra" / "powerbi"
+    _touch(dashboard_dir / "Scenario View.pbix")
+    _touch(extra_dir / "Revenue Analysis.pbix")
+
+    reports_config = [
+        {"path": "dashboard/powerbi"},
+        {"path": "extra/powerbi"},
+    ]
+
+    resolved = _resolve_powerbi_reports(reports_config, tmp_path)
+
+    assert len(resolved) == 2
+    names = {r["name"] for r in resolved}
+    assert names == {"Scenario View", "Revenue Analysis"}
+
+
 def test_discover_empty_folder_returns_no_reports(tmp_path):
     reports_dir = tmp_path / "dashboard" / "powerbi"
     reports_dir.mkdir(parents=True)
@@ -145,26 +161,7 @@ def test_discover_nonexistent_folder_returns_empty(tmp_path):
     assert _discover_powerbi_reports({"path": "does/not/exist"}, tmp_path) == []
 
 
-# ---------------------------------------------------------------------------
-# _resolve_powerbi_reports (dispatch between legacy list and folder discovery)
-# ---------------------------------------------------------------------------
-
-
-def test_resolve_reports_legacy_list_is_unchanged(tmp_path):
-    legacy_reports = [
-        {
-            "name": "Comparaison de scénarios",
-            "type": "dashboard",
-            "path": "dashboard/powerbi/Comparaison de scénarios.pbix",
-            "tag": "scenario_comparison",
-            "parameters": [{"id": "Server", "value": "csm-cluster.postgres.database.azure.com"}],
-        },
-    ]
-
-    resolved = _resolve_powerbi_reports(legacy_reports, tmp_path)
-
-    assert resolved == legacy_reports
-
+# _resolve_powerbi_reports (folder-based discovery, dict or YAML list shape)
 
 def test_resolve_reports_folder_based_dict(tmp_path):
     reports_dir = tmp_path / "dashboard" / "powerbi"
@@ -206,24 +203,28 @@ def test_resolve_reports_folder_based_yaml_list_item(tmp_path):
         assert report["parameters"] == shared_parameters
 
 
-def test_resolve_reports_mixed_legacy_and_discovery_entries(tmp_path):
-    reports_dir = tmp_path / "dashboard" / "powerbi"
-    _touch(reports_dir / "Scenario View.pbix")
-
-    legacy_entry = {
-        "name": "Manual Report",
-        "path": "dashboard/other/Manual Report.pbix",
-        "tag": "manual_report",
-    }
-    reports_config = [legacy_entry, {"path": "dashboard/powerbi"}]
-
-    resolved = _resolve_powerbi_reports(reports_config, tmp_path)
-
-    assert legacy_entry in resolved
-    assert any(r["name"] == "Scenario View" for r in resolved)
-    assert len(resolved) == 2
-
-
 def test_resolve_reports_unsupported_type_returns_empty(tmp_path):
     assert _resolve_powerbi_reports("not-a-list-or-dict", tmp_path) == []
     assert _resolve_powerbi_reports(None, tmp_path) == []
+
+
+# _prepare_report_tag (key used for `powerbi['reports'][tag]`)
+
+def test_prepare_report_tag_uses_slugified_name():
+    report = {"name": "Comparaison de scénarios"}
+    assert _prepare_report_tag(report) == slugify_tag("Comparaison de scénarios")
+    assert _prepare_report_tag(report) == "comparaison_de_scenarios"
+
+
+def test_prepare_report_tag_prefers_explicit_tag():
+    report = {"name": "Scenario View", "tag": "custom_tag"}
+    assert _prepare_report_tag(report) == "custom_tag"
+
+
+def test_prepare_report_tag_from_discovered_report(tmp_path):
+    reports_dir = tmp_path / "dashboard" / "powerbi"
+    _touch(reports_dir / "Scenario View.pbix")
+
+    discovered = _discover_powerbi_reports({"path": "dashboard/powerbi"}, tmp_path)
+
+    assert _prepare_report_tag(discovered[0]) == "scenario_view"

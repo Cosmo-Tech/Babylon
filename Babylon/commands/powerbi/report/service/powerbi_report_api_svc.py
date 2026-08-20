@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 
 import polling2
@@ -96,7 +95,6 @@ class AzurePowerBIReportService:
         """Upload a PBIX report and wait for the Power BI import to complete."""
 
         workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
-        # name = os.path.splitext(pbix_filename)[0]
         name = pbix_filename.stem
         header = {
             "Content-Type": "multipart/form-data",
