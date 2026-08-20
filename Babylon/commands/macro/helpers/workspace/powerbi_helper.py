@@ -30,12 +30,6 @@ from Babylon.utils.string import slugify_tag
 logger = getLogger(__name__)
 env = Environment()
 
-# Short-hand report types supported by the sidecar.
-_REPORT_TYPE_ALIASES = {
-    "scenario": "scenario_view",
-    "dashboard": "dashboard_view",
-}
-
 # Matches Power BI template variables such as:
 # ${powerbi['workspace_id']} and ${powerbi['reports']['scenario_view']}.
 _POWERBI_TEMPLATE_VAR_RE = re_compile(
@@ -49,6 +43,9 @@ _SCHEMA_PARAM_ID = "Schema"
 # groupUserAccessRight to grant the WebApp's Power BI App Registration.
 _WEBAPP_APP_ACCESS_RIGHT = "Member"
 
+
+# Workspace resolution & template rendering
+
 def _update_workspace_with_powerbi_ids(api_instance, api_section, file_content, state) -> bool:
     """Re-render the Workspace template with persisted Power BI IDs."""
     ext_args = build_powerbi_ext_args(fallback_empty=False)
@@ -56,8 +53,10 @@ def _update_workspace_with_powerbi_ids(api_instance, api_section, file_content, 
     payload = content.get("spec", {}).get("payload", {})
     return update_workspace(api_instance, api_section, payload)
 
-def _resolve_powerbi_workspace_id(powerbi_token: str, powerbi_config: dict) -> str | None:
-    """Resolve the target Power BI workspace ID, creating it if necessary."""
+
+def _ensure_powerbi_workspace(powerbi_token: str, powerbi_config: dict) -> str | None:
+    """Ensure the target Power BI workspace exists and return its ID."""
+
     workspace_name = powerbi_config.get("name", "")
     if not workspace_name:
         logger.error("  [bold red]✘[/bold red] PowerBI workspace name is mandatory in the dashboards sidecar")
@@ -76,6 +75,8 @@ def _resolve_powerbi_workspace_id(powerbi_token: str, powerbi_config: dict) -> s
         return None
     return created.get("id")
 
+
+# WebApp Power BI App Registration lookup (Kubernetes secret + Microsoft Graph)
 
 def _get_webapp_powerbi_client_id(state: dict) -> str | None:
     """Get the WebApp Power BI App Registration client ID from Kubernetes secret.
@@ -173,6 +174,9 @@ def _get_webapp_powerbi_service_principal_id(state: dict) -> str | None:
     return service_principals[0].get("id")
 
 
+# Report discovery: turn the `reports` config into a flat list of report
+# entries (name, path, tag, parameters).
+
 def _discover_powerbi_reports(reports_config: dict, deploy_dir: Path) -> list[dict]:
     """Build report entries by scanning a folder for .pbix files."""
 
@@ -230,6 +234,10 @@ def _resolve_powerbi_reports(reports: list | dict, deploy_dir: Path) -> list[dic
     return []
 
 
+
+# Deployment orchestration: authenticate, resolve/create the workspace,
+# upload each discovered report and sync workspace permissions.
+
 def deploy_powerbi(
     reports: list,
     state: dict,
@@ -250,7 +258,7 @@ def deploy_powerbi(
         logger.error("  [bold red]✘[/bold red] Failed to retrieve Power BI token")
         return False, set()
 
-    workspace_id = _resolve_powerbi_workspace_id(powerbi_token, powerbi_config)
+    workspace_id = _ensure_powerbi_workspace(powerbi_token, powerbi_config)
     if not workspace_id:
         return False, set()
 
@@ -289,8 +297,13 @@ def deploy_powerbi(
     return all_ok, set()
 
 
+
+# PostgreSQL schema/credentials resolution (used to feed dataset parameters
+# and gateway credentials when uploading a report).
+
 def _resolve_postgres_schema_name(state: dict) -> str | None:
     """Derive the PostgreSQL schema name from the workspace ID."""
+
     workspace_id = state.get("services", {}).get("api", {}).get("workspace_id") or ""
 
     return workspace_id.replace("-", "_") if workspace_id else None
@@ -322,6 +335,9 @@ def _resolve_postgres_writer_credentials() -> tuple[str | None, str | None]:
     return writer_username, writer_password
 
 
+# Single report upload: PBIX import, report ID persistence, dataset
+# ownership/parameters/credentials.
+
 def _upload_powerbi_report(
     report_service: AzurePowerBIReportService,
     dataset_service: AzurePowerBIDatasetService,
@@ -348,7 +364,7 @@ def _upload_powerbi_report(
         logger.error(f"  [bold red]✘[/bold red] Report file not found: {pbix_path}")
         return False
 
-    report_type, tag = _prepare_report_metadata(report)
+    tag = _prepare_report_tag(report)
 
     params = _merge_schema_param(
         report.get("parameters") or [],
@@ -360,7 +376,7 @@ def _upload_powerbi_report(
             workspace_id=workspace_id,
             pbix_filename=pbix_path,
             report_name=name,
-            report_type=report_type,
+            report_type="dashboard_view",
             override=True,
         )
     except Exception as exp:
@@ -403,6 +419,9 @@ def _upload_powerbi_report(
     logger.info(f"  [bold green]✔[/bold green] Report [cyan]{name}[/cyan] successfully imported")
     return True
 
+
+# Workspace permissions sync (add/update/remove + WebApp App Registration
+# auto-grant).
 
 def _sync_powerbi_workspace_permissions(
     powerbi_token: str,
@@ -590,6 +609,11 @@ def _remove_powerbi_workspace_permissions(
 
     return all_ok
 
+
+# Report metadata & parameter helpers (tag/params generation).
+# The tag generated here is the same key exposed to templates as
+# ``powerbi['reports'][tag]``.
+
 def _merge_schema_param(params: list[dict], schema_name: str | None) -> list[dict]:
     """Add the auto-computed ``Schema`` parameter when not explicitly defined."""
     if not schema_name:
@@ -604,18 +628,10 @@ def _merge_schema_param(params: list[dict], schema_name: str | None) -> list[dic
     return [*params, {"id": _SCHEMA_PARAM_ID, "value": schema_name}]
 
 
-def _prepare_report_metadata(report: dict) -> tuple[str, str]:
-    """Prepare the report type and tag used by Power BI."""
-    raw_type = (report.get("type") or "").strip().lower()
-    report_type = _REPORT_TYPE_ALIASES.get(
-        raw_type,
-        raw_type if raw_type in {"scenario_view", "dashboard_view"} else "dashboard_view",
-    )
-
+def _prepare_report_tag(report: dict) -> str:
+    """Derive the tag used to expose the report as ``powerbi['reports'][tag]``."""
     name = report.get("name", "")
-    tag = report.get("tag") or slugify_tag(name)
-
-    return report_type, tag
+    return report.get("tag") or slugify_tag(name)
 
 
 def _update_powerbi_variable(path: list[str], value: str) -> bool:

@@ -38,5 +38,6 @@ def slugify_tag(value: str) -> str:
 
     normalized = unicodedata.normalize("NFKD", value)
     normalized = normalized.encode("ascii", "ignore").decode("ascii")
+    normalized = normalized.lower()
     normalized = re.sub(r"[^a-z0-9]+", "_", normalized)
     return normalized.strip("_")
