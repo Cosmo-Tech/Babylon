@@ -13,12 +13,7 @@ spec:
       provider: superset
       create: false
       reports:
-        - name: dashboard_satisfaction
-          path: dashboard/superset/dashboard_satisfaction.zip
-        - name: dashboard_scenarioView
-          path: dashboard/superset/dashboard_scenarioView.zip
-        - name: dashboard_stock
-          path: dashboard/superset/dashboard_stock.zip
+          path: dashboard/superset
   payload:
     key: "{{workspace_key}}"
     name: "{{workspace_name}}"
