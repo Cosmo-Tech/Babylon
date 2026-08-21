@@ -82,10 +82,7 @@ class Environment(metaclass=SingletonMeta):
                     f" is duplicated in variable files {' and '.join(files)}"
                 )
             sys.exit(1)
-        else:
-            merged_data["secret_powerbi"] = ""
-            merged_data["github_secret"] = ""
-            return merged_data
+        return merged_data
 
     def get_ns_from_text(self, content: str):
         t = Template(text=content, strict_undefined=True)
@@ -197,9 +194,6 @@ class Environment(metaclass=SingletonMeta):
 
     def delete_state_in_local(self) -> bool:
         """Delete the local state file for the current context/tenant.
-
-        Returns ``True`` when the file was deleted or did not exist.
-        Returns ``False`` on unexpected OS errors (callers should warn, not fail).
         """
         state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
         try:
@@ -221,10 +215,6 @@ class Environment(metaclass=SingletonMeta):
 
     def delete_state_in_kubernetes(self, namespace: str = "", secret_name: str = "") -> bool:
         """Delete the Babylon state Secret from Kubernetes.
-
-        Returns ``True`` when the secret was deleted or was already absent.
-        Returns ``False`` on unexpected API errors (destroy already succeeded,
-        so callers should log a warning rather than fail).
         """
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
@@ -232,10 +222,6 @@ class Environment(metaclass=SingletonMeta):
 
     def get_state_from_kubernetes(self, namespace: str = "", secret_name: str = "") -> dict:
         """Retrieve state from a Kubernetes Secret.
-
-        Returns the stored dictionary, or an empty default state when the
-        secret does not exist yet (mirrors the behaviour of
-        ``get_state_from_local`` and ``get_state_from_kubernetes``).
         """
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
@@ -270,6 +256,7 @@ class Environment(metaclass=SingletonMeta):
                     },
                     "postgres": {
                         "schema_name": "",
+                        "provider": "",
                     },
                 },
             }
@@ -277,9 +264,6 @@ class Environment(metaclass=SingletonMeta):
 
     def list_remote_states(self) -> list[str]:
         """List state secret names matching 'babylon-state-*' in the current namespace.
-
-        Uses a server-side label selector so only matching secrets are transferred
-        over the wire — no client-side filtering needed.
         """
         try:
             k8s_client = self.get_kubernetes_client()
@@ -311,6 +295,7 @@ class Environment(metaclass=SingletonMeta):
                     },
                     "postgres": {
                         "schema_name": "",
+                        "provider": "",
                     },
                 },
             }

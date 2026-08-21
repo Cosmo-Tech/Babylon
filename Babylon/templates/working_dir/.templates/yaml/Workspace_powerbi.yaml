@@ -65,7 +65,7 @@ spec:
             - title:
                 en: Stock Overview
                 fr: Aperçu des stocks
-              reportId: "{{powerbi['reports']['stock_overview']}}"
+              reportId: "{{powerbi['reports']['qa_dashboard']}}"
               pageName:
                 en: 2b30f1d8886fc53849b3
                 fr: 2b30f1d8886fc53849b3
@@ -81,7 +81,7 @@ spec:
                   values: lastRunId
           scenarioView:
             full_demo:
-              reportId: "{{powerbi['reports']['stock_overview']}}"
+              reportId: "{{powerbi['reports']['qa_dashboard']}}"
               pageName:
                 en: f5e73ba46b8e2085c239
                 fr: f5e73ba46b8e2085c239

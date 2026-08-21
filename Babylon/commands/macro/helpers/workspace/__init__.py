@@ -29,11 +29,12 @@ from Babylon.commands.macro.helpers.workspace.superset_helper import (
     deploy_dashboard,
     deploy_superset,
     deploy_superset_multiple_assets,
+    destroy_dashboard_assets,
     get_dashboard_embedded_uuid,
     get_uuid_by_dashboard_id,
     update_variables_file_entry,
 )
-from Babylon.commands.macro.helpers.workspace.powerbi_helper import build_powerbi_ext_args, deploy_powerbi
+from Babylon.commands.macro.helpers.workspace.powerbi_helper import build_powerbi_ext_args, deploy_powerbi, destroy_powerbi_assets
 
 __all__ = [
     # api_cosmotech_helper
@@ -52,6 +53,7 @@ __all__ = [
     "deploy_dashboard",
     "deploy_superset",
     "deploy_superset_multiple_assets",
+    "destroy_dashboard_assets",
     "create_postgres_datasource",
     "delete_superset_assets",
     "_fetch_and_store_embedded_dashboard_uuids",
@@ -61,5 +63,6 @@ __all__ = [
     "update_variables_file_entry",
     # powerbi_helper
     "deploy_powerbi",
+    "destroy_powerbi_assets",
     "build_powerbi_ext_args",
 ]
