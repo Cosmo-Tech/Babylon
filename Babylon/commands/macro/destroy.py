@@ -1,5 +1,7 @@
 from logging import getLogger
+from pathlib import Path as PathlibPath
 
+from click import Path as ClickPath
 from click import command, confirm, echo, option, style
 
 from Babylon.commands.api.organization import get_organization_api_instance
@@ -12,7 +14,7 @@ from Babylon.commands.macro.helpers.workspace import (
     delete_kubernetes_resources,
     destroy_postgres_schema,
 )
-from Babylon.commands.macro.helpers.workspace.superset_helper import delete_superset_assets
+from Babylon.commands.macro.helpers.workspace.superset_helper import destroy_dashboard_assets
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
@@ -53,11 +55,6 @@ def _confirm_destroy(
     yes: bool = False,
 ) -> bool:
     """Display the destruction warning banner and prompt the user for confirmation.
-
-    When *yes* is True the prompt is skipped and True is returned immediately,
-    which is useful for automated environments and unit tests.
-
-    Returns True if the destruction should proceed, False if the user cancelled.
     """
     scope_msg = _build_scope_message(include, exclude, targeted)
 
@@ -71,6 +68,8 @@ def _confirm_destroy(
     echo(style("  Resources to be destroyed:", fg="white", bold=True))
     for label, value in targeted:
         echo(f"    {style('•', fg='red')} {style(label + ':', fg='cyan'):<22} {style(value, fg='white')}")
+        if label.lower() == "workspace":
+            echo(style("        ↳ Note: This will also destroy all sidecar resources (PowerBI, Superset, Secrets, ConfigMap...)", fg="bright_black", italic=True))
     echo()
     echo(style(f"  {scope_msg}", fg="yellow"))
     echo(style("  This action cannot be undone.", fg="red", bold=True))
@@ -88,27 +87,25 @@ def _confirm_destroy(
 
 def _destroy_workspace_resources(state: dict, config: dict, keycloak_token: str, org_id: str) -> None:
     """Delete all workspace-level resources: Postgres schema, Kubernetes resources,
-    Superset assets, and the Workspace API object."""
+    dataviz provider assets (Superset or Power BI), and the Workspace API object."""
     api_state = state["services"]["api"]
     schema_state = state["services"]["postgres"]
 
-    destroy_postgres_schema(schema_state["schema_name"], state)
+    # The provider is persisted at deploy time so the correct host/identities
+    # (in-cluster for Superset, external Azure PostgreSQL for Power BI) are
+    # used for teardown.
+    provider = (schema_state.get("provider") or "powerbi").strip().lower()
+
+    destroy_postgres_schema(schema_state["schema_name"], state, provider=provider)
+    state["services"]["postgres"]["provider"] = ""
     delete_kubernetes_resources(
         namespace=env.environ_id,
         organization_id=org_id,
         workspace_id=api_state["workspace_id"],
     )
 
-    superset_url = (config.get("superset_url") or "").rstrip("/")
-    if superset_url:
-        logger.info("  [dim]→ Deleting Superset assets ...[/dim]")
-        delete_superset_assets(
-            base_url=superset_url,
-            superset_config=config,
-            workspace_id=api_state["workspace_id"],
-        )
-    else:
-        logger.warning("  [yellow]⚠[/yellow] superset_url not configured skipping Superset cleanup")
+    if not destroy_dashboard_assets(provider, state, config):
+        logger.warning(f"  [yellow]⚠[/yellow] Dataviz ('{provider}') asset cleanup was not fully successful")
 
     api = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
     delete_api_resource(api.delete_workspace, "Workspace", org_id, api_state["workspace_id"], state, "workspace_id")
@@ -144,8 +141,6 @@ def _execute_destroy(
 
 def _is_full_destroy(state: dict) -> bool:
     """Return True when every tracked resource ID has been cleared from the state.
-
-    A single populated ID means the destroy was partial and states must be kept.
     """
     svc = state.get("services", {})
     api_ids = svc.get("api", {})
@@ -215,11 +210,20 @@ def _print_destruction_summary(state: dict) -> None:
 @command()
 @injectcontext()
 @retrieve_state
+@option(
+    "--var-file",
+    "variables_files",
+    type=ClickPath(file_okay=True, exists=True, path_type=PathlibPath),
+    default=["./variables.yaml"],
+    multiple=True,
+    help="Specify the path of your variable file. By default, it takes the variables.yaml file.",
+)
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to destroy.")
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destruction.")
 @option("--yes", "-y", is_flag=True, default=False, help="Skip the interactive confirmation prompt.")
-def destroy(state: dict, include: tuple[str, ...], exclude: tuple[str, ...], yes: bool):
+def destroy(state: dict, variables_files: tuple, include: tuple[str, ...], exclude: tuple[str, ...], yes: bool):
     """Macro Destroy"""
+    env.set_variable_files(list(variables_files))
     organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
 
     targeted = _build_targeted_resources(state, organization, solution, workspace, webapp)

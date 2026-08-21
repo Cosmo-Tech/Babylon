@@ -23,7 +23,7 @@ from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import (
     create_workspace,
     update_workspace,
 )
-from Babylon.commands.macro.helpers.workspace.powerbi_helper import _update_workspace_with_powerbi_ids
+from Babylon.commands.macro.helpers.workspace.powerbi_helper import _update_workspace_with_powerbi_ids, destroy_powerbi_assets
 from Babylon.commands.macro.helpers.workspace.kubernetes_helper import get_postgres_service_host
 from Babylon.utils.credentials import get_superset_token
 from Babylon.utils.environment import Environment
@@ -42,11 +42,6 @@ _SCHEMA_FIELD_RE = compile(r"^schema:\s*(\S+)\s*$", MULTILINE)
 
 # Glob pattern for matching YAML files in Superset export directories.
 _YAML_GLOB = "*.yaml"
-
-
-# ---------------------------------------------------------------------------
-# Public dispatch entry point
-# ---------------------------------------------------------------------------
 
 
 def _deploy_or_update_workspace(api_instance, api_section, payload, state) -> bool:
@@ -114,6 +109,26 @@ def deploy_dashboard(
         return deploy_powerbi(reports, state, config, deploy_dir)
     logger.error(f"  [bold red]✘[/bold red] Unsupported dashboard provider '{provider}'")
     return False, set()
+
+
+def destroy_dashboard_assets(provider: str, state: dict, config: dict) -> bool:
+    """Delete dashboard assets using the configured provider."""
+
+    workspace_id = state.get("services", {}).get("api", {}).get("workspace_id") or ""
+
+    if provider == "powerbi":
+        return destroy_powerbi_assets(state)
+
+    if provider == "superset":
+        superset_url = (config.get("superset_url") or "").rstrip("/")
+        if not superset_url:
+            logger.warning("  [yellow]⚠[/yellow] Superset URL is not configured; skipping cleanup")
+            return True
+        logger.info("  [dim]→ Deleting Superset assets ...[/dim]")
+        return delete_superset_assets(base_url=superset_url, superset_config=config, workspace_id=workspace_id)
+
+    logger.warning(f"  [yellow]⚠[/yellow] Unsupported dashboard provider '{provider}' skipping cleanup")
+    return True
 
 # Superset deployment top-level orchestration
 
@@ -205,19 +220,16 @@ def _setup_database_and_csrf(
     superset_token: str,
     superset_config: dict,
 ) -> tuple[str | None, str | None, str | None]:
-    """Handle pre-flight checks: CSRF token, datasource creation, and DB URI building.
+    """Prepare the Superset CSRF token, datasource, and PostgreSQL URI."""
 
-    Returns:
-        ``(csrf_token, db_uuid, sqlalchemy_uri)`` or ``(None, None, None)`` on failure.
-    """
     csrf_token = _get_superset_csrf_token(base_url, superset_token)
     if not csrf_token:
-        logger.error("  [bold red]✘[/bold red] Could not obtain CSRF token.")
+        logger.error("  [bold red]✘[/bold red] Could not obtain Superset CSRF token.")
         return None, None, None
 
     datasource = create_postgres_datasource(base_url=base_url, superset_config=superset_config, superset_jwt=superset_token)
     if datasource is None:
-        logger.error("  [bold red]✘[/bold red] Datasource creation failed Aborting")
+        logger.error("  [bold red]✘[/bold red] Failed to create Superset datasource")
         return None, None, None
 
     _ds_body = datasource.get("result") or datasource

@@ -54,6 +54,9 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
     dataviz_provider = (dashboard_config.get("provider") or "superset").strip().lower()
     if schema_config.get("create", False):
         deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state, provider=dataviz_provider)
+        # Persisted so `destroy` can resolve the correct host/identities later
+        # (in-cluster for Superset, external Azure PostgreSQL for Power BI).
+        state["services"]["postgres"]["provider"] = dataviz_provider
 
     if dashboard_config.get("create", False):
         if not _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content):

@@ -37,10 +37,8 @@ def deploy_postgres_schema(
     db_host = get_postgres_host(env.environ_id, provider)
     logger.info(f"  [dim]→ Initializing PostgreSQL schema for workspace [bold cyan]{workspace_id}[/bold cyan]...[/dim]")
 
-    # pg_config = env.get_config_from_k8s_secret_by_tenant("postgresql-config", env.environ_id)
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
-    # if not pg_config or not api_config:
-    #     return
+
     if not api_config:
         return
 
@@ -371,22 +369,23 @@ def destroy_postgres_schema(schema_name: str, state: dict, provider: str = "supe
     db_host = get_postgres_host(env.environ_id, provider)
     logger.info(f"  [dim]→ Destroying postgreSQL schema for workspace [bold cyan]{workspace_id_tmp}[/bold cyan]...[/dim]")
 
-    pg_config = env.get_config_from_k8s_secret_by_tenant("postgresql-config", env.environ_id)
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
 
-    if not pg_config or not api_config:
-        logger.error("  [bold red]✘[/bold red] Failed to retrieve postgreSQL configuration from secrets")
+    if not api_config:
+        logger.error("  [bold red]✘[/bold red] Failed to retrieve postgreSQL configuration from secret 'postgresql-cosmotechapi'")
         return
+
+    identities = _resolve_postgres_identities(env.environ_id, provider, api_config)
 
     mapping = {
         "namespace": env.environ_id,
         "db_host": db_host,
         "db_port": "5432",
-        "cosmotech_api_database": api_config.get("database-name"),
-        "cosmotech_api_admin_username": api_config.get("admin-username"),
+        "cosmotech_api_database": identities["database_name"],
+        "cosmotech_api_admin_username": identities["admin_username"],
         "cosmotech_api_admin_password": api_config.get("admin-password"),
-        "cosmotech_api_writer_username": api_config.get("writer-username"),
-        "cosmotech_api_reader_username": api_config.get("reader-username"),
+        "cosmotech_api_writer_username": identities["writer_username"],
+        "cosmotech_api_reader_username": identities["reader_username"],
         "workspace_schema": schema_name,
         "job_name": workspace_id_tmp,
     }

@@ -704,3 +704,94 @@ def build_powerbi_ext_args(template_content: str = "", fallback_empty: bool = Fa
             bucket.setdefault(sub_key, "")
 
     return {"powerbi": powerbi_data} if powerbi_data else {}
+
+
+# Teardown: delete every Power BI resource created for a workspace (used by
+# the Destroy Macro Command). Deletion order: datasets -> workspace (the
+# workspace deletion cascades any reports still referencing them)
+
+def _clear_powerbi_variables() -> None:
+    """Clear persisted Power BI workspace and report IDs."""
+
+    _update_powerbi_variable(["workspace_id"], "")
+    _update_powerbi_variable(["reports"], {})
+
+
+def _destroy_powerbi_datasets(dataset_service: AzurePowerBIDatasetService, workspace_id: str) -> bool:
+    """Delete all datasets in a Power BI workspace."""
+
+    datasets = dataset_service.get_all(workspace_id=workspace_id) or []
+    if not datasets:
+        logger.info("  [dim]→ No Power BI dataset(s) found to delete[/dim]")
+        return True
+
+    all_ok = True
+    for dataset in datasets:
+        dataset_id = dataset.get("id")
+        if not dataset_id:
+            continue
+        try:
+            dataset_service.delete(workspace_id=workspace_id, force_validation=True, dataset_id=dataset_id)
+            logger.info(f"  [bold green]✔[/bold green] Dataset [cyan]{dataset_id}[/cyan] deleted")
+        except Exception as exc:
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete dataset '{dataset_id}': {exc}")
+            all_ok = False
+
+    return all_ok
+
+
+def _destroy_powerbi_workspace(workspace_service: AzurePowerBIWorkspaceService, workspace_id: str) -> bool:
+    """Delete a Power BI workspace; treat an already-deleted workspace as success."""
+
+    existing_workspaces = workspace_service.get_all() or []
+    if not any(w.get("id") == workspace_id for w in existing_workspaces):
+        logger.info(f"  [dim]→ Power BI workspace '{workspace_id}' already deleted[/dim]")
+        return True
+
+    try:
+        result = workspace_service.delete(workspace_id=workspace_id, force_validation=True)
+    except Exception as exc:
+        logger.error(f"  [bold red]✘[/bold red] Failed to delete Power BI workspace '{workspace_id}': {exc}")
+        return False
+
+    if result is None or (hasattr(result, "has_failed") and result.has_failed()):
+        logger.error(f"  [bold red]✘[/bold red] Failed to delete Power BI workspace '{workspace_id}'")
+        return False
+
+    return True
+
+
+def destroy_powerbi_assets(state: dict) -> bool:
+    """Delete Power BI datasets and workspace resources for the current deployment."""
+
+    variables = env.get_variables()
+    powerbi_vars = variables.get("powerbi") or {}
+    workspace_id = powerbi_vars.get("workspace_id")
+
+    if not workspace_id:
+        logger.info("  [dim]→ No Power BI workspace found in variables ! nothing to destroy[/dim]")
+        return True
+
+    powerbi_token = get_powerbi_token()
+    if not powerbi_token:
+        logger.error("  [bold red]✘[/bold red] Failed to retrieve Power BI token skipping Power BI cleanup")
+        return False
+
+    services = state.get("services")
+    dataset_service = AzurePowerBIDatasetService(powerbi_token=powerbi_token, state=services)
+    workspace_service = AzurePowerBIWorkspaceService(powerbi_token=powerbi_token, state=services)
+
+    logger.info(f"  [dim]→ Destroying Power BI resources in workspace '{workspace_id}'...[/dim]")
+
+    datasets_ok = _destroy_powerbi_datasets(dataset_service, workspace_id)
+    workspace_ok = _destroy_powerbi_workspace(workspace_service, workspace_id)
+
+    if datasets_ok and workspace_ok:
+        _clear_powerbi_variables()
+        return True
+
+    logger.warning(
+        f"  [yellow]⚠[/yellow] Power BI cleanup for workspace '{workspace_id}' was partially unsuccessful "
+        "re-run the destroy command to retry"
+    )
+    return False
