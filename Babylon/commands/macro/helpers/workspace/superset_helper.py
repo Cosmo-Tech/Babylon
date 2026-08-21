@@ -132,6 +132,55 @@ def destroy_dashboard_assets(provider: str, state: dict, config: dict) -> bool:
 
 # Superset deployment top-level orchestration
 
+def _discover_superset_reports(reports_config: dict, deploy_dir: Path) -> list[dict]:
+    """Discover Superset dashboard ZIP files from the configured folder."""
+
+    rel_path = reports_config.get("path") or ""
+    if not rel_path:
+        logger.warning(
+            "  [yellow]⚠[/yellow] 'reports.path' is required when using folder-based Superset report discovery"
+        )
+        return []
+
+    folder = Path(rel_path) if Path(rel_path).is_absolute() else (Path(deploy_dir).resolve() / rel_path)
+
+    if not folder.is_dir():
+        logger.error(f"  [bold red]✘[/bold red] Superset reports folder not found: {folder}")
+        return []
+
+    discovered: list[dict] = [
+        {"name": zip_path.stem, "path": str(zip_path)} for zip_path in sorted(folder.glob("*.zip"))
+    ]
+
+    if not discovered:
+        logger.warning(f"  [yellow]⚠[/yellow] No .zip files found in Superset reports folder: {folder}")
+
+    return discovered
+
+
+def _resolve_superset_reports(reports: list | dict, deploy_dir: Path) -> list[dict]:
+    """Normalize Superset report configuration into a list of report entries."""
+
+    if isinstance(reports, dict):
+        return _discover_superset_reports(reports, deploy_dir)
+
+    if isinstance(reports, list):
+        resolved: list[dict] = []
+        for entry in reports:
+            if isinstance(entry, dict) and entry.get("path") and not entry.get("name"):
+                # Folder-discovery spec expressed as a YAML list item.
+                resolved.extend(_discover_superset_reports(entry, deploy_dir))
+            else:
+                resolved.append(entry)
+        return resolved
+
+    logger.warning(
+        "  [yellow]⚠[/yellow] Unsupported 'reports' configuration type "
+        "expected a list of reports or a {path} mapping"
+    )
+    return []
+
+
 def deploy_superset(
     reports: list,
     state: dict,
@@ -145,7 +194,8 @@ def deploy_superset(
         logger.error("  [bold red]✘[/bold red] superset_url not configured")
         return False, set()
 
-    valid_reports = [r for r in reports if isinstance(r, dict) and r.get("name") and r.get("path")]
+    resolved_reports = _resolve_superset_reports(reports, deploy_dir)
+    valid_reports = [r for r in resolved_reports if isinstance(r, dict) and r.get("name") and r.get("path")]
     if not valid_reports:
         logger.warning("  [yellow]⚠[/yellow] No valid report entries each entry must have 'name' and 'path'")
         return True, set()
