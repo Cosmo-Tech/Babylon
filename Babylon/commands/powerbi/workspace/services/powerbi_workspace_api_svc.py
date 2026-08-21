@@ -37,7 +37,7 @@ class AzurePowerBIWorkspaceService:
         if not workspace_id:
             logger.error("  [bold red]✘[/bold red] Missing workspace ID for Power BI deletion")
             return CommandResponse.fail()
-        
+
         if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):
             logger.info(f"  [dim]→ Deletion cancelled for workspace [cyan]{workspace_id}[/cyan][/dim]")
             return CommandResponse.fail()
@@ -58,7 +58,9 @@ class AzurePowerBIWorkspaceService:
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:
-            logger.warning("  [bold red]✘[/bold red] Either workspace name list is empty or you are not allowed to access the PowerBI service")
+            logger.warning(
+                "  [bold red]✘[/bold red] Either workspace name list is empty or you are not allowed to access the PowerBI service"
+            )
             return None
         output_data = response.json().get("value")
         return output_data

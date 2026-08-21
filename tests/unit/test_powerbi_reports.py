@@ -11,9 +11,8 @@ from Babylon.commands.macro.helpers.workspace.powerbi_helper import (
 )
 from Babylon.utils.string import slugify_tag
 
-
-
 # slugify_tag
+
 
 @pytest.mark.parametrize(
     "value,expected",
@@ -31,8 +30,8 @@ def test_slugify_tag(value, expected):
     assert slugify_tag(value) == expected
 
 
-
 # _discover_powerbi_reports
+
 
 def _touch(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -89,9 +88,7 @@ def test_discover_applies_shared_parameters_to_all_reports(tmp_path):
         {"id": "Database", "value": "tenant-mytenant"},
     ]
 
-    discovered = _discover_powerbi_reports(
-        {"path": "dashboard/powerbi", "parameters": shared_parameters}, tmp_path
-    )
+    discovered = _discover_powerbi_reports({"path": "dashboard/powerbi", "parameters": shared_parameters}, tmp_path)
 
     assert len(discovered) == 2
     for report in discovered:
@@ -163,6 +160,7 @@ def test_discover_nonexistent_folder_returns_empty(tmp_path):
 
 # _resolve_powerbi_reports (folder-based discovery, dict or YAML list shape)
 
+
 def test_resolve_reports_folder_based_dict(tmp_path):
     reports_dir = tmp_path / "dashboard" / "powerbi"
     _touch(reports_dir / "Scenario View.pbix")
@@ -209,6 +207,7 @@ def test_resolve_reports_unsupported_type_returns_empty(tmp_path):
 
 
 # _prepare_report_tag (key used for `powerbi['reports'][tag]`)
+
 
 def test_prepare_report_tag_uses_slugified_name():
     report = {"name": "Comparaison de scénarios"}

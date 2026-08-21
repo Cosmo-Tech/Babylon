@@ -120,9 +120,7 @@ def test_destroy_powerbi_assets_fails_without_token(monkeypatch):
 def test_destroy_powerbi_assets_success_clears_variables(monkeypatch):
     monkeypatch.setattr(pbh.env, "get_variables", lambda: {"powerbi": {"workspace_id": "ws1", "reports": {"a": "1"}}})
     monkeypatch.setattr(pbh, "get_powerbi_token", lambda: "fake-token")
-    monkeypatch.setattr(
-        pbh, "AzurePowerBIDatasetService", lambda powerbi_token, state: _FakeDatasetService(datasets=[{"id": "d1"}])
-    )
+    monkeypatch.setattr(pbh, "AzurePowerBIDatasetService", lambda powerbi_token, state: _FakeDatasetService(datasets=[{"id": "d1"}]))
     monkeypatch.setattr(
         pbh,
         "AzurePowerBIWorkspaceService",
