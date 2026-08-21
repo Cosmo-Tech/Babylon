@@ -24,8 +24,7 @@ env = Environment()
 
 
 def ensure_tf_webapp_version(tf_dir: Path, version: str) -> None:
-    """Checkout *version* in the local terraform-webapp clone.
-    """
+    """Checkout *version* in the local terraform-webapp clone."""
     try:
         webapp_repo = git.Repo(path=tf_dir)
         webapp_repo.head.reference = version

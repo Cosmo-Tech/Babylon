@@ -20,6 +20,7 @@ env = Environment()
 
 # Schema deployment public entry point
 
+
 def deploy_postgres_schema(
     workspace_id: str,
     schema_config: dict,
@@ -86,9 +87,11 @@ def deploy_postgres_schema(
         writer_username=identities["writer_username"],
     )
 
+
 # PostgreSQL identity resolution (Internal vs External mode)
 
 _SUPPORTED_POSTGRES_PROVIDERS = {"superset", "powerbi"}
+
 
 def _resolve_postgres_identities(tenant: str, provider: str, api_config: dict) -> dict[str, str]:
     """Resolve PostgreSQL database and user identities for the provider.
@@ -122,7 +125,9 @@ def _resolve_postgres_identities(tenant: str, provider: str, api_config: dict) -
         "reader_username": api_config.get("reader-username", ""),
     }
 
+
 # PostgreSQL host resolution (Internal vs External mode)
+
 
 def get_postgres_host(namespace: str, provider: str = "superset") -> str:
     """Resolve the PostgreSQL host for the selected provider.
@@ -137,9 +142,9 @@ def get_postgres_host(namespace: str, provider: str = "superset") -> str:
 
     return get_postgres_service_host(namespace)
 
+
 def get_external_postgres_host() -> str:
-    """Resolve the external Azure PostgreSQL host.
-    """
+    """Resolve the external Azure PostgreSQL host."""
     variables = env.get_variables()
     explicit_host = variables.get("external_postgres_host")
     if explicit_host:
@@ -147,17 +152,15 @@ def get_external_postgres_host() -> str:
 
     cluster_name = variables.get("cluster_name", "")
     if not cluster_name:
-        logger.warning(
-            "  [yellow]⚠[/yellow] 'cluster_name' is not set in variables.yaml "
-            "external PostgreSQL FQDN may be incorrect"
-        )
+        logger.warning("  [yellow]⚠[/yellow] 'cluster_name' is not set in variables.yaml external PostgreSQL FQDN may be incorrect")
     return f"csm-{cluster_name}.postgres.database.azure.com"
+
 
 # PostgreSQL service discovery (Internal / in-cluster)
 
+
 def get_postgres_service_host(namespace: str) -> str:
-    """Discover the PostgreSQL service name in a namespace to build its FQDN.
-    """
+    """Discover the PostgreSQL service name in a namespace to build its FQDN."""
     try:
         k8s_client = env.get_kubernetes_client()
         services = k8s_client.list_namespaced_service(namespace)
@@ -174,7 +177,9 @@ def get_postgres_service_host(namespace: str) -> str:
         logger.debug(f"  Exception details: {e}", exc_info=True)
         return f"postgresql.{namespace}.svc.cluster.local"
 
+
 # K8s Secret and ConfigMap create
+
 
 def create_workspace_secret(
     namespace: str,
@@ -273,7 +278,9 @@ def create_coal_configmap(
         logger.debug(f"  Detail: {e}", exc_info=True)
         return False
 
+
 # Schema init-job orchestration (internal)
+
 
 def _run_schema_init_job(
     script_path: Path,
@@ -358,9 +365,9 @@ def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> N
 
 # Schema teardown public entry point
 
+
 def destroy_postgres_schema(schema_name: str, state: dict, provider: str = "superset") -> None:
-    """Destroy the PostgreSQL schema for a workspace.
-    """
+    """Destroy the PostgreSQL schema for a workspace."""
     if not schema_name:
         logger.warning("  [yellow]⚠[/yellow] [dim]No schema found ! skipping deletion[/dim]")
         return
@@ -405,7 +412,9 @@ def destroy_postgres_schema(schema_name: str, state: dict, provider: str = "supe
         logger.error("  [bold red]✘[/bold red] Unexpected error submitting the destroy job see 'babylon.log' for details")
         logger.debug(f"  {e}")
 
+
 # Schema teardown internal helpers
+
 
 def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
     """Wait for the destroy job to complete, then inspect its logs."""
@@ -457,7 +466,9 @@ def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -
         logger.info(f"  [bold green]✔[/bold green] Schema [magenta]{schema_name}[/magenta] destroyed successfully")
         state["services"]["postgres"]["schema_name"] = ""
 
-# K8s resource cleanup 
+
+# K8s resource cleanup
+
 
 def delete_kubernetes_resources(namespace: str, organization_id: str, workspace_id: str) -> None:
     """Delete the Workspace Secret and CoAL ConfigMap created during deployment.

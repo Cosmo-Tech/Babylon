@@ -18,7 +18,7 @@ class AzurePowerBIWorkspaceUserService:
         if not workspace_id or not identifier:
             logger.error("  [bold red]✘[/bold red] Missing workspace ID or identifier for Power BI permission update")
             return None
-        
+
         url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users"
         body = {
             "identifier": identifier,

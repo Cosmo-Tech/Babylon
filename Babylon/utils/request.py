@@ -38,13 +38,16 @@ def oauth_request(
         logger.warning(f"Request failed: {e}")
         return None
     if response.status_code == 401:
-        logger.error("  [bold red]✘[/bold red] Unauthorized (401): token missing or expired, or the operation isn't allowed for this principal (e.g. self-permission updates).")
-        logger.debug(
-            f"  Details: {response.text}"
+        logger.error(
+            "  [bold red]✘[/bold red] Unauthorized (401): token missing or expired, or the operation "
+            "isn't allowed for this principal (e.g. self-permission updates)."
         )
+        logger.debug(f"  Details: {response.text}")
         return None
     if response.status_code == 403:
-        logger.error("  [bold red]✘[/bold red] Forbidden (403): token valid but lacks required roles/scopes. Check Keycloak client permissions.")
+        logger.error(
+            "  [bold red]✘[/bold red] Forbidden (403): token valid but lacks required roles/scopes. Check Keycloak client permissions."
+        )
         return None
     if not response.ok:
         logger.warning(f"  [bold yellow]⚠[/bold yellow] Request failed ({response.status_code}): {response.text}")

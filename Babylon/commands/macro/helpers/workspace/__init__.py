@@ -21,6 +21,7 @@ from Babylon.commands.macro.helpers.workspace.kubernetes_helper import (
     destroy_postgres_schema,
     get_postgres_service_host,
 )
+from Babylon.commands.macro.helpers.workspace.powerbi_helper import build_powerbi_ext_args, deploy_powerbi, destroy_powerbi_assets
 from Babylon.commands.macro.helpers.workspace.superset_helper import (
     _build_dashboard_ext_args,
     _fetch_and_store_embedded_dashboard_uuids,
@@ -34,7 +35,6 @@ from Babylon.commands.macro.helpers.workspace.superset_helper import (
     get_uuid_by_dashboard_id,
     update_variables_file_entry,
 )
-from Babylon.commands.macro.helpers.workspace.powerbi_helper import build_powerbi_ext_args, deploy_powerbi, destroy_powerbi_assets
 
 __all__ = [
     # api_cosmotech_helper

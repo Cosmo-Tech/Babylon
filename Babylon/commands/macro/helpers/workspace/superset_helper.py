@@ -17,14 +17,16 @@ from requests.exceptions import RequestException
 from ruamel.yaml import YAML as _RYAML
 from yaml import safe_load
 
-from Babylon.commands.macro.helpers.workspace.powerbi_helper import deploy_powerbi
-
 from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import (
     create_workspace,
     update_workspace,
 )
-from Babylon.commands.macro.helpers.workspace.powerbi_helper import _update_workspace_with_powerbi_ids, destroy_powerbi_assets
 from Babylon.commands.macro.helpers.workspace.kubernetes_helper import get_postgres_service_host
+from Babylon.commands.macro.helpers.workspace.powerbi_helper import (
+    _update_workspace_with_powerbi_ids,
+    deploy_powerbi,
+    destroy_powerbi_assets,
+)
 from Babylon.utils.credentials import get_superset_token
 from Babylon.utils.environment import Environment
 
@@ -65,6 +67,7 @@ def _update_workspace_with_superset_uuids(config, api_instance, api_section, fil
     content2 = env.fill_template(data=file_content, state=state, ext_args=ext or None)
     payload2 = content2.get("spec", {}).get("payload", {})
     return update_workspace(api_instance, api_section, payload2)
+
 
 def _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content) -> bool:
     """Deploy dashboards and handle provider-specific follow-up. Returns True on success."""
@@ -130,16 +133,16 @@ def destroy_dashboard_assets(provider: str, state: dict, config: dict) -> bool:
     logger.warning(f"  [yellow]⚠[/yellow] Unsupported dashboard provider '{provider}' skipping cleanup")
     return True
 
+
 # Superset deployment top-level orchestration
+
 
 def _discover_superset_reports(reports_config: dict, deploy_dir: Path) -> list[dict]:
     """Discover Superset dashboard ZIP files from the configured folder."""
 
     rel_path = reports_config.get("path") or ""
     if not rel_path:
-        logger.warning(
-            "  [yellow]⚠[/yellow] 'reports.path' is required when using folder-based Superset report discovery"
-        )
+        logger.warning("  [yellow]⚠[/yellow] 'reports.path' is required when using folder-based Superset report discovery")
         return []
 
     folder = Path(rel_path) if Path(rel_path).is_absolute() else (Path(deploy_dir).resolve() / rel_path)
@@ -148,9 +151,7 @@ def _discover_superset_reports(reports_config: dict, deploy_dir: Path) -> list[d
         logger.error(f"  [bold red]✘[/bold red] Superset reports folder not found: {folder}")
         return []
 
-    discovered: list[dict] = [
-        {"name": zip_path.stem, "path": str(zip_path)} for zip_path in sorted(folder.glob("*.zip"))
-    ]
+    discovered: list[dict] = [{"name": zip_path.stem, "path": str(zip_path)} for zip_path in sorted(folder.glob("*.zip"))]
 
     if not discovered:
         logger.warning(f"  [yellow]⚠[/yellow] No .zip files found in Superset reports folder: {folder}")
@@ -174,10 +175,7 @@ def _resolve_superset_reports(reports: list | dict, deploy_dir: Path) -> list[di
                 resolved.append(entry)
         return resolved
 
-    logger.warning(
-        "  [yellow]⚠[/yellow] Unsupported 'reports' configuration type "
-        "expected a list of reports or a {path} mapping"
-    )
+    logger.warning("  [yellow]⚠[/yellow] Unsupported 'reports' configuration type expected a list of reports or a {path} mapping")
     return []
 
 
@@ -265,6 +263,7 @@ def deploy_superset_multiple_assets(
 
     return all_ok, all_zip_uuids
 
+
 def _setup_database_and_csrf(
     base_url: str,
     superset_token: str,
@@ -300,7 +299,9 @@ def _setup_database_and_csrf(
     )
     return csrf_token, db_uuid, sqlalchemy_uri
 
+
 # Datasource management
+
 
 def create_postgres_datasource(
     base_url: str,
@@ -370,7 +371,9 @@ def _get_existing_datasource(base_url: str, superset_jwt: str, display_name: str
         logger.debug(f"  Could not list Superset databases: {exp}")
     return None
 
+
 # Cross-workspace pre-check
+
 
 def _collect_report_zip_data(
     reports: list,
@@ -442,7 +445,9 @@ def _is_cross_workspace_deployment(
     )
     return True
 
+
 # Per-ZIP processing
+
 
 def _collect_dashboard_uuids_from_dir(content_dir: Path) -> set[str]:
     """Read dashboard UUIDs from YAML files in the ``dashboards/`` subdirectory."""
@@ -535,7 +540,9 @@ def _process_dashboard_zip(
 
     return True, new_dashboard_uuids
 
+
 # ZIP inspection and UUID management
+
 
 def _read_uuids_from_zip(zip_path: Path) -> set[str]:
     """Read all top-level entity UUIDs directly from YAML entries inside *zip_path*."""
@@ -704,7 +711,9 @@ def _regenerate_superset_uuids(
     logger.debug(f"  Regenerated {len(uuid_mapping)} UUID(s) for [{', '.join(active)}]")
     return uuid_mapping
 
+
 # ZIP content patching helpers
+
 
 def _patch_metadata(content_dir: Path) -> None:
     """Ensure metadata.yaml declares ``type: assets`` for the assets import endpoint."""
@@ -897,7 +906,9 @@ def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
         logger.error(f"  [bold red]✘[/bold red] Error repacking '{zip_path.name}': {exp}")
         raise
 
+
 # Superset import
+
 
 def _import_zip_to_superset(
     base_url: str,
@@ -927,7 +938,9 @@ def _import_zip_to_superset(
         logger.error(f"  [bold red]✘[/bold red] Unexpected error importing '{zip_path.name}': {exp}")
         return False
 
+
 # CSRF helper
+
 
 def _get_superset_csrf_token(base_url: str, bearer_token: str) -> str | None:
     """Fetch a CSRF token from Superset."""
@@ -944,7 +957,9 @@ def _get_superset_csrf_token(base_url: str, bearer_token: str) -> str | None:
         logger.error(f"  [bold red]✘[/bold red] Failed to fetch Superset CSRF token: {exp}")
         return None
 
+
 # Embedded-UUID feedback pipeline
+
 
 def _fetch_and_store_embedded_dashboard_uuids(
     base_url: str,
@@ -1030,8 +1045,7 @@ def _get_embedded_uuid_for_dashboard(
     auth_headers: dict,
     dashboard: dict,
 ) -> tuple[str, str, str] | None:
-    """Enable embedding for one dashboard and return ``(key, uuid, original_id)``.
-    """
+    """Enable embedding for one dashboard and return ``(key, uuid, original_id)``."""
     name: str = (dashboard.get("dashboard_title") or dashboard.get("slug") or "").strip()
     dash_uuid: str = (dashboard.get("uuid") or "").lower()
     integer_id: int | None = dashboard.get("id")
@@ -1081,8 +1095,7 @@ def _enable_dashboard_embedding(
     integer_id: int,
     name: str,
 ) -> bool:
-    """Enable embedding on a single Superset dashboard via POST (idempotent).
-    """
+    """Enable embedding on a single Superset dashboard via POST (idempotent)."""
     csrf = _get_superset_csrf_token(base_url, superset_jwt)
     post_headers = {
         **auth_headers,
@@ -1101,14 +1114,15 @@ def _enable_dashboard_embedding(
         return False
     return True
 
+
 # Variables YAML persistence
+
 
 def _write_dashboard_updates_to_yaml(
     variables_yaml_path: Path,
     updates: dict[str, dict],
 ) -> bool:
-    """Persist ``{key: {uuid, original_id}}`` mapping into the variables YAML.
-    """
+    """Persist ``{key: {uuid, original_id}}`` mapping into the variables YAML."""
     if not variables_yaml_path.is_file():
         logger.error(f"  [bold red]✘[/bold red] Variables file not found: {variables_yaml_path}")
         return False
@@ -1178,7 +1192,9 @@ def update_variables_file_entry(
         logger.error(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
     return False
 
+
 # Template rendering helpers (used by deploy_workspace.py)
+
 
 def _collect_fallback_template_vars(template_content: str, known_keys: set) -> dict:
     """Discover template variables not already in *known_keys* and map them to ``""``."""
@@ -1218,7 +1234,9 @@ def _build_dashboard_ext_args(fallback_empty: bool = False, template_content: st
 
     return ext
 
+
 # Read helpers
+
 
 def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | None:
     """Safely retrieve the embedded UUID for a dashboard from loaded YAML data.
@@ -1247,7 +1265,9 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
     )
     return None
 
+
 # Superset asset deletion
+
 
 def delete_superset_assets(
     base_url: str,
@@ -1333,8 +1353,7 @@ def _list_asset_ids_by_prefix(
     title_field: str,
     prefix: str,
 ) -> list[int] | None:
-    """Return the IDs of all Superset assets whose *title_field* starts with *prefix*.
-    """
+    """Return the IDs of all Superset assets whose *title_field* starts with *prefix*."""
     headers = {"Authorization": f"Bearer {superset_jwt}"}
     ids: list[int] = []
     page = 0
@@ -1369,8 +1388,7 @@ def _delete_asset(
     endpoint: str,
     asset_id: int,
 ) -> bool:
-    """Send a DELETE request for a single Superset asset.
-    """
+    """Send a DELETE request for a single Superset asset."""
     url = f"{base_url}{endpoint}{asset_id}"
     try:
         resp = requests.delete(url, headers=auth_headers, timeout=15)
@@ -1382,8 +1400,7 @@ def _delete_asset(
 
 
 def get_uuid_by_dashboard_id(yaml_data: dict, target_id: str | int) -> str | None:
-    """Reverse-lookup the embedded UUID by Superset integer dashboard ID.
-    """
+    """Reverse-lookup the embedded UUID by Superset integer dashboard ID."""
     if not yaml_data:
         return None
 

@@ -95,7 +95,13 @@ def _ensure_variables_file(variables_path: Path, variables_file: str, cloud_prov
 
 
 def _scaffold_project(
-    project_path: Path, variables_path: Path, variables_file: str, tf_webapp_path: Path, cloud_provider: str, bi_provider: str, tf_webapp_version: str
+    project_path: Path,
+    variables_path: Path,
+    variables_file: str,
+    tf_webapp_path: Path,
+    cloud_provider: str,
+    bi_provider: str,
+    tf_webapp_version: str,
 ) -> None:
     """Create the full project directory structure and copy all template files."""
     try:
@@ -141,6 +147,7 @@ def _copy_yaml_templates(project_path: Path, cloud_provider: str, bi_provider: s
         copy(webapp_src, project_path / "Webapp.yaml")
         logger.info(f"  [green]✔[/green] Generated [white]Webapp.yaml[/white] (provider: {cloud_provider})")
 
+
 def _create_postgres_jobs(project_path: Path) -> None:
     postgres_jobs_path = project_path / "postgres" / "jobs"
     postgres_jobs_path.mkdir(parents=True, exist_ok=True)
@@ -156,8 +163,7 @@ def _create_postgres_jobs(project_path: Path) -> None:
 
 
 def _create_dashboard_dirs(project_path: Path, bi_provider: str) -> None:
-    """Create the dashboard/<provider>/ sub-directory for the detected/selected *bi_provider*.
-    """
+    """Create the dashboard/<provider>/ sub-directory for the detected/selected *bi_provider*."""
     provider = bi_provider.lower() if bi_provider and bi_provider.lower() in _SUPPORTED_BI_PROVIDERS else "superset"
     provider_path = project_path / "dashboard" / provider
     provider_path.mkdir(parents=True, exist_ok=True)

@@ -193,8 +193,7 @@ class Environment(metaclass=SingletonMeta):
         s.write_bytes(data=dump(state).encode("utf-8"))
 
     def delete_state_in_local(self) -> bool:
-        """Delete the local state file for the current context/tenant.
-        """
+        """Delete the local state file for the current context/tenant."""
         state_file = self.state_dir / f"state.{self.context_id}.{self.environ_id}.yaml"
         try:
             if state_file.exists():
@@ -214,15 +213,13 @@ class Environment(metaclass=SingletonMeta):
         save_state_in_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name, state_data=state)
 
     def delete_state_in_kubernetes(self, namespace: str = "", secret_name: str = "") -> bool:
-        """Delete the Babylon state Secret from Kubernetes.
-        """
+        """Delete the Babylon state Secret from Kubernetes."""
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
         return delete_state_from_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name)
 
     def get_state_from_kubernetes(self, namespace: str = "", secret_name: str = "") -> dict:
-        """Retrieve state from a Kubernetes Secret.
-        """
+        """Retrieve state from a Kubernetes Secret."""
         ns = namespace or self.environ_id
         name = secret_name or f"babylon-state-{self.context_id}-{self.environ_id}"
         result = retrieve_state_from_kubernetes(self.get_kubernetes_client(), namespace=ns, secret_name=name)
@@ -263,8 +260,7 @@ class Environment(metaclass=SingletonMeta):
         return result
 
     def list_remote_states(self) -> list[str]:
-        """List state secret names matching 'babylon-state-*' in the current namespace.
-        """
+        """List state secret names matching 'babylon-state-*' in the current namespace."""
         try:
             k8s_client = self.get_kubernetes_client()
             secrets = k8s_client.list_namespaced_secret(
