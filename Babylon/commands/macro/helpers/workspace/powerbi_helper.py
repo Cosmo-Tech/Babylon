@@ -2,25 +2,25 @@
 Power BI helpers for dashboard deployment.
 """
 
-from copy import deepcopy
 from base64 import b64decode
+from copy import deepcopy
 from io import StringIO
 from logging import getLogger
 from pathlib import Path
 from re import compile as re_compile
+from typing import Any
 
 from kubernetes.client.exceptions import ApiException
 from ruamel.yaml import YAML as _RYAML
 from yaml import safe_load
-from typing import Any
+
+from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import update_workspace
 from Babylon.commands.powerbi.dataset.services.powerbi_api_svc import AzurePowerBIDatasetService
 from Babylon.commands.powerbi.dataset.services.powerbi_params_svc import AzurePowerBIParamsService
 from Babylon.commands.powerbi.report.service.powerbi_report_api_svc import AzurePowerBIReportService
 from Babylon.commands.powerbi.workspace.services.powerb__worskapce_users_svc import (
     AzurePowerBIWorkspaceUserService,
 )
-from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import update_workspace
-
 from Babylon.commands.powerbi.workspace.services.powerbi_workspace_api_svc import AzurePowerBIWorkspaceService
 from Babylon.utils.credentials import get_azure_token, get_current_user_email, get_powerbi_token
 from Babylon.utils.environment import Environment
@@ -45,6 +45,7 @@ _WEBAPP_APP_ACCESS_RIGHT = "Member"
 
 
 # Workspace resolution & template rendering
+
 
 def _update_workspace_with_powerbi_ids(api_instance, api_section, file_content, state) -> bool:
     """Re-render the Workspace template with persisted Power BI IDs."""
@@ -78,9 +79,9 @@ def _ensure_powerbi_workspace(powerbi_token: str, powerbi_config: dict) -> str |
 
 # WebApp Power BI App Registration lookup (Kubernetes secret + Microsoft Graph)
 
+
 def _get_webapp_powerbi_client_id(state: dict) -> str | None:
-    """Get the WebApp Power BI App Registration client ID from Kubernetes secret.
-    """
+    """Get the WebApp Power BI App Registration client ID from Kubernetes secret."""
     variables = env.get_variables()
     webapp_name = variables.get("webapp_name")
 
@@ -102,32 +103,23 @@ def _get_webapp_powerbi_client_id(state: dict) -> str | None:
         )
     except ApiException as exc:
         if exc.status == 404:
-            logger.debug(
-                f"  Secret '{secret_name}' not found in namespace '{env.environ_id}'"
-            )
+            logger.debug(f"  Secret '{secret_name}' not found in namespace '{env.environ_id}'")
         else:
-            logger.warning(
-                f"  [yellow]⚠[/yellow] Failed to read Secret '{secret_name}': {exc.reason}"
-            )
+            logger.warning(f"  [yellow]⚠[/yellow] Failed to read Secret '{secret_name}': {exc.reason}")
         return None
     except Exception as exc:
-        logger.warning(
-            f"  [yellow]⚠[/yellow] Failed to read Secret '{secret_name}': {exc}"
-        )
+        logger.warning(f"  [yellow]⚠[/yellow] Failed to read Secret '{secret_name}': {exc}")
         return None
 
     if not secret.data:
         logger.warning(
-            f"  [yellow]⚠[/yellow] Secret '{secret_name}' is empty, "
-            "WebApp Power BI App Registration permission sync will be skipped"
+            f"  [yellow]⚠[/yellow] Secret '{secret_name}' is empty, WebApp Power BI App Registration permission sync will be skipped"
         )
         return None
 
     client_id = secret.data.get("client_id")
     if not client_id:
-        logger.warning(
-            f"  [yellow]⚠[/yellow] Secret '{secret_name}' has no 'client_id' key"
-        )
+        logger.warning(f"  [yellow]⚠[/yellow] Secret '{secret_name}' has no 'client_id' key")
         return None
 
     return b64decode(client_id).decode("utf-8")
@@ -140,9 +132,7 @@ def _get_webapp_powerbi_service_principal_id(state: dict) -> str | None:
     if not client_id:
         return None
 
-    graph_token = get_azure_token(
-        scope="https://graph.microsoft.com/.default"
-    )
+    graph_token = get_azure_token(scope="https://graph.microsoft.com/.default")
     if not graph_token:
         logger.warning(
             "  [yellow]⚠[/yellow] Failed to acquire a Microsoft Graph token, "
@@ -150,25 +140,16 @@ def _get_webapp_powerbi_service_principal_id(state: dict) -> str | None:
         )
         return None
 
-    url = (
-        "https://graph.microsoft.com/v1.0/servicePrincipals"
-        f"?$filter=appId eq '{client_id}'"
-    )
+    url = f"https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '{client_id}'"
 
     response = oauth_request(url, graph_token)
     if response is None:
-        logger.warning(
-            f"  [yellow]⚠[/yellow] Failed to look up Service Principal for client_id "
-            f"'{client_id}' via Microsoft Graph"
-        )
+        logger.warning(f"  [yellow]⚠[/yellow] Failed to look up Service Principal for client_id '{client_id}' via Microsoft Graph")
         return None
 
     service_principals = response.json().get("value") or []
     if not service_principals:
-        logger.warning(
-            f"  [yellow]⚠[/yellow] No Service Principal found in Microsoft Graph for "
-            f"client_id '{client_id}'"
-        )
+        logger.warning(f"  [yellow]⚠[/yellow] No Service Principal found in Microsoft Graph for client_id '{client_id}'")
         return None
 
     return service_principals[0].get("id")
@@ -177,14 +158,13 @@ def _get_webapp_powerbi_service_principal_id(state: dict) -> str | None:
 # Report discovery: turn the `reports` config into a flat list of report
 # entries (name, path, tag, parameters).
 
+
 def _discover_powerbi_reports(reports_config: dict, deploy_dir: Path) -> list[dict]:
     """Build report entries by scanning a folder for .pbix files."""
 
     rel_path = reports_config.get("path") or ""
     if not rel_path:
-        logger.warning(
-            "  [yellow]⚠[/yellow] 'reports.path' is required when using folder-based Power BI report discovery"
-        )
+        logger.warning("  [yellow]⚠[/yellow] 'reports.path' is required when using folder-based Power BI report discovery")
         return []
 
     folder = Path(rel_path) if Path(rel_path).is_absolute() else (Path(deploy_dir).resolve() / rel_path)
@@ -198,12 +178,14 @@ def _discover_powerbi_reports(reports_config: dict, deploy_dir: Path) -> list[di
     discovered: list[dict] = []
     for pbix_path in sorted(folder.glob("*.pbix")):
         name = pbix_path.stem
-        discovered.append({
-            "name": name,
-            "path": str(pbix_path),
-            "tag": slugify_tag(name),
-            "parameters": list(shared_parameters),
-        })
+        discovered.append(
+            {
+                "name": name,
+                "path": str(pbix_path),
+                "tag": slugify_tag(name),
+                "parameters": list(shared_parameters),
+            }
+        )
 
     if not discovered:
         logger.warning(f"  [yellow]⚠[/yellow] No .pbix files found in Power BI reports folder: {folder}")
@@ -228,15 +210,14 @@ def _resolve_powerbi_reports(reports: list | dict, deploy_dir: Path) -> list[dic
         return resolved
 
     logger.warning(
-        "  [yellow]⚠[/yellow] Unsupported 'reports' configuration type "
-        "expected a list of reports or a {path, parameters} mapping"
+        "  [yellow]⚠[/yellow] Unsupported 'reports' configuration type expected a list of reports or a {path, parameters} mapping"
     )
     return []
 
 
-
 # Deployment orchestration: authenticate, resolve/create the workspace,
 # upload each discovered report and sync workspace permissions.
+
 
 def deploy_powerbi(
     reports: list,
@@ -297,9 +278,9 @@ def deploy_powerbi(
     return all_ok, set()
 
 
-
 # PostgreSQL schema/credentials resolution (used to feed dataset parameters
 # and gateway credentials when uploading a report).
+
 
 def _resolve_postgres_schema_name(state: dict) -> str | None:
     """Derive the PostgreSQL schema name from the workspace ID."""
@@ -315,8 +296,7 @@ def _resolve_postgres_writer_credentials() -> tuple[str | None, str | None]:
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
     if not api_config:
         logger.warning(
-            "  [yellow]⚠[/yellow] Could not read 'postgresql-cosmotechapi' Secret "
-            "dataset credentials update will be skipped"
+            "  [yellow]⚠[/yellow] Could not read 'postgresql-cosmotechapi' Secret dataset credentials update will be skipped"
         )
         return None, None
 
@@ -338,6 +318,7 @@ def _resolve_postgres_writer_credentials() -> tuple[str | None, str | None]:
 # Single report upload: PBIX import, report ID persistence, dataset
 # ownership/parameters/credentials.
 
+
 def _upload_powerbi_report(
     report_service: AzurePowerBIReportService,
     dataset_service: AzurePowerBIDatasetService,
@@ -354,11 +335,7 @@ def _upload_powerbi_report(
     name: str = report.get("name", "")
     rel_path: str = report.get("path", "")
 
-    pbix_path = (
-        Path(rel_path).resolve()
-        if Path(rel_path).is_absolute()
-        else (abs_deploy_dir / rel_path).resolve()
-    )
+    pbix_path = Path(rel_path).resolve() if Path(rel_path).is_absolute() else (abs_deploy_dir / rel_path).resolve()
 
     if not pbix_path.exists():
         logger.error(f"  [bold red]✘[/bold red] Report file not found: {pbix_path}")
@@ -415,13 +392,13 @@ def _upload_powerbi_report(
                 password=writer_password,
             )
 
-
     logger.info(f"  [bold green]✔[/bold green] Report [cyan]{name}[/cyan] successfully imported")
     return True
 
 
 # Workspace permissions sync (add/update/remove + WebApp App Registration
 # auto-grant).
+
 
 def _sync_powerbi_workspace_permissions(
     powerbi_token: str,
@@ -440,24 +417,19 @@ def _sync_powerbi_workspace_permissions(
 
     existing_users = user_service.get_all(workspace_id=workspace_id) or []
 
-    existing_rights = {
-        user["identifier"]: user.get("groupUserAccessRight")
-        for user in existing_users
-        if user.get("identifier")
-    }
+    existing_rights = {user["identifier"]: user.get("groupUserAccessRight") for user in existing_users if user.get("identifier")}
 
     # Automatically grant Member access to the WebApp Power BI App Registration.
     webapp_object_id = _get_webapp_powerbi_service_principal_id(state)
 
-    if webapp_object_id and not any(
-        permission.get("identifier") == webapp_object_id
-        for permission in permissions
-    ):
-        permissions.append({
-            "identifier": webapp_object_id,
-            "rights": _WEBAPP_APP_ACCESS_RIGHT,
-            "type": "App",
-        })
+    if webapp_object_id and not any(permission.get("identifier") == webapp_object_id for permission in permissions):
+        permissions.append(
+            {
+                "identifier": webapp_object_id,
+                "rights": _WEBAPP_APP_ACCESS_RIGHT,
+                "type": "App",
+            }
+        )
 
         # Only log when this actually changes something (new grant or right
         # change) not on every idempotent re-run once access is already set.
@@ -472,15 +444,9 @@ def _sync_powerbi_workspace_permissions(
         return True
 
     existing_identifiers = set(existing_rights)
-    desired_identifiers = {
-        permission["identifier"]
-        for permission in permissions
-        if permission.get("identifier")
-    }
+    desired_identifiers = {permission["identifier"] for permission in permissions if permission.get("identifier")}
 
-    current_user_email = (
-        get_current_user_email(powerbi_token) or ""
-    ).lower()
+    current_user_email = (get_current_user_email(powerbi_token) or "").lower()
 
     all_ok = _sync_powerbi_permission_entries(
         user_service=user_service,
@@ -518,9 +484,7 @@ def _sync_powerbi_permission_entries(
         principal_type = permission.get("type")
 
         if not identifier or not rights or not principal_type:
-            logger.warning(
-                f"  [yellow]⚠[/yellow] Skipping incomplete permission entry: {permission}"
-            )
+            logger.warning(f"  [yellow]⚠[/yellow] Skipping incomplete permission entry: {permission}")
             continue
 
         if current_user_email and identifier.lower() == current_user_email:
@@ -533,10 +497,7 @@ def _sync_powerbi_permission_entries(
 
         try:
             if identifier not in existing_rights:
-                logger.info(
-                    f"  [dim]→ Adding Power BI permissions for "
-                    f"'{identifier}'...[/dim]"
-                )
+                logger.info(f"  [dim]→ Adding Power BI permissions for '{identifier}'...[/dim]")
                 user_service.add(
                     workspace_id=workspace_id,
                     right=rights,
@@ -545,10 +506,7 @@ def _sync_powerbi_permission_entries(
                 )
 
             elif existing_rights[identifier] != rights:
-                logger.info(
-                    f"  [dim]→ Updating Power BI permissions for "
-                    f"'{identifier}'...[/dim]"
-                )
+                logger.info(f"  [dim]→ Updating Power BI permissions for '{identifier}'...[/dim]")
                 user_service.update(
                     workspace_id=workspace_id,
                     right=rights,
@@ -557,10 +515,7 @@ def _sync_powerbi_permission_entries(
                 )
 
         except Exception as exc:
-            logger.error(
-                f"  [bold red]✘[/bold red] Failed to sync permissions "
-                f"for '{identifier}': {exc}"
-            )
+            logger.error(f"  [bold red]✘[/bold red] Failed to sync permissions for '{identifier}': {exc}")
             all_ok = False
 
     return all_ok
@@ -589,10 +544,7 @@ def _remove_powerbi_workspace_permissions(
             continue
 
         try:
-            logger.info(
-                f"  [dim]→ Removing Power BI permissions for "
-                f"'{identifier}'...[/dim]"
-            )
+            logger.info(f"  [dim]→ Removing Power BI permissions for '{identifier}'...[/dim]")
 
             user_service.delete(
                 workspace_id=workspace_id,
@@ -601,10 +553,7 @@ def _remove_powerbi_workspace_permissions(
             )
 
         except Exception as exc:
-            logger.error(
-                f"  [bold red]✘[/bold red] Failed to remove permissions "
-                f"for '{identifier}': {exc}"
-            )
+            logger.error(f"  [bold red]✘[/bold red] Failed to remove permissions for '{identifier}': {exc}")
             all_ok = False
 
     return all_ok
@@ -613,6 +562,7 @@ def _remove_powerbi_workspace_permissions(
 # Report metadata & parameter helpers (tag/params generation).
 # The tag generated here is the same key exposed to templates as
 # ``powerbi['reports'][tag]``.
+
 
 def _merge_schema_param(params: list[dict], schema_name: str | None) -> list[dict]:
     """Add the auto-computed ``Schema`` parameter when not explicitly defined."""
@@ -677,14 +627,13 @@ def _update_powerbi_variable(path: list[str], value: str) -> bool:
         logger.error(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
     return False
 
+
 def build_powerbi_ext_args(template_content: str = "", fallback_empty: bool = False) -> dict:
     """Build the ``{"powerbi": {...}}`` ext_args dict used for template rendering."""
     powerbi_data: dict[str, Any] = {}
     if env.variable_files:
         try:
-            variables = safe_load(
-                Path(env.variable_files[0]).read_text(encoding="utf-8")
-            ) or {}
+            variables = safe_load(Path(env.variable_files[0]).read_text(encoding="utf-8")) or {}
         except OSError:
             variables = {}
         existing = variables.get("powerbi")
@@ -709,6 +658,7 @@ def build_powerbi_ext_args(template_content: str = "", fallback_empty: bool = Fa
 # Teardown: delete every Power BI resource created for a workspace (used by
 # the Destroy Macro Command). Deletion order: datasets -> workspace (the
 # workspace deletion cascades any reports still referencing them)
+
 
 def _clear_powerbi_variables() -> None:
     """Clear persisted Power BI workspace and report IDs."""

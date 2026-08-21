@@ -1,5 +1,5 @@
-from json import dumps
 import logging
+from json import dumps
 
 from Babylon.utils.interactive import confirm_deletion
 from Babylon.utils.request import oauth_request

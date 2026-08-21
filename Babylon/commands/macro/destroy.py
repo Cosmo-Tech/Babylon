@@ -54,8 +54,7 @@ def _confirm_destroy(
     targeted: list[tuple[str, str]],
     yes: bool = False,
 ) -> bool:
-    """Display the destruction warning banner and prompt the user for confirmation.
-    """
+    """Display the destruction warning banner and prompt the user for confirmation."""
     scope_msg = _build_scope_message(include, exclude, targeted)
 
     echo()
@@ -69,7 +68,13 @@ def _confirm_destroy(
     for label, value in targeted:
         echo(f"    {style('•', fg='red')} {style(label + ':', fg='cyan'):<22} {style(value, fg='white')}")
         if label.lower() == "workspace":
-            echo(style("        ↳ Note: This will also destroy all sidecar resources (PowerBI, Superset, Secrets, ConfigMap...)", fg="bright_black", italic=True))
+            echo(
+                style(
+                    "        ↳ Note: This will also destroy all sidecar resources (PowerBI, Superset, Secrets, ConfigMap...)",
+                    fg="bright_black",
+                    italic=True,
+                )
+            )
     echo()
     echo(style(f"  {scope_msg}", fg="yellow"))
     echo(style("  This action cannot be undone.", fg="red", bold=True))
@@ -140,8 +145,7 @@ def _execute_destroy(
 
 
 def _is_full_destroy(state: dict) -> bool:
-    """Return True when every tracked resource ID has been cleared from the state.
-    """
+    """Return True when every tracked resource ID has been cleared from the state."""
     svc = state.get("services", {})
     api_ids = svc.get("api", {})
     return (
