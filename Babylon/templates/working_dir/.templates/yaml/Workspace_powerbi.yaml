@@ -48,11 +48,7 @@ spec:
             - title:
                 en: Customer Overview
                 fr: Aperçu des clients
-<<<<<<< HEAD
               reportId: "{{powerbi['reports']['qa_dashboard']}}"
-=======
-              reportId: "{{powerbi['dashboard_view']['qa_dashboard']}}"
->>>>>>> bd6342b1 (feat(powerbi): add Power BI support to init command)
               settings:
                 filterPaneEnabled: false
                 navContentPaneEnabled: false
@@ -69,11 +65,7 @@ spec:
             - title:
                 en: Stock Overview
                 fr: Aperçu des stocks
-<<<<<<< HEAD
               reportId: "{{powerbi['reports']['qa_dashboard']}}"
-=======
-              reportId: "{{powerbi['dashboard_view']['stock_overview']}}"
->>>>>>> bd6342b1 (feat(powerbi): add Power BI support to init command)
               pageName:
                 en: 2b30f1d8886fc53849b3
                 fr: 2b30f1d8886fc53849b3
@@ -89,11 +81,7 @@ spec:
                   values: lastRunId
           scenarioView:
             full_demo:
-<<<<<<< HEAD
               reportId: "{{powerbi['reports']['qa_dashboard']}}"
-=======
-              reportId: "{{powerbi['dashboard_view']['stock_overview']}}"
->>>>>>> bd6342b1 (feat(powerbi): add Power BI support to init command)
               pageName:
                 en: f5e73ba46b8e2085c239
                 fr: f5e73ba46b8e2085c239
