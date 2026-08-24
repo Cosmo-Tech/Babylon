@@ -20,8 +20,8 @@ dependencies = [
   "flatten_json",
   "dynaconf",
   "kubernetes>=35.0.0",
-  "cosmotech-api==5.0.1",
   "cosmotech-modeling-api==12.3.0",
+  "cosmotech-api==5.1.0",
   "ruamel.yaml",
   "azure-identity"
 ]
