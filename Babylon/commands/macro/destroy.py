@@ -24,6 +24,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
+
 def _build_targeted_resources(
     state: dict,
     organization: bool,
