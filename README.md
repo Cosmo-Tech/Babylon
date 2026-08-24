@@ -1,5 +1,9 @@
 # Babylon
 
+<p align="center">
+  <img src="docs/assets/img/Babylon-logo.png" alt="Babylon Logo">
+</p>
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENCE.md)
 [![Cosmotech](https://img.shields.io/badge/Cosmotech-ffb039?style=for-the-badge&logoColor=black)](https://cosmotech.com/)
 [![End-User-Documentation](https://img.shields.io/badge/End_User_Documentation-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://cosmo-tech.github.io/Babylon-End-User-Doc/)
