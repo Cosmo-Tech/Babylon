@@ -25,6 +25,7 @@ env = Environment()
 
 NOT_DEPLOYED = "(NOT DEPLOYED)"
 
+
 def _build_targeted_resources(
     state: dict,
     organization: bool,
@@ -41,11 +42,7 @@ def _build_targeted_resources(
         (workspace, "Workspace", api_state.get("workspace_id")),
         (webapp, "Web App", webapp_state.get("webapp_name")),
     ]
-    return [
-        (label, value or NOT_DEPLOYED)
-        for flag, label, value in resource_map
-        if flag
-    ]
+    return [(label, value or NOT_DEPLOYED) for flag, label, value in resource_map if flag]
 
 
 def _build_scope_message(include: tuple[str, ...], exclude: tuple[str, ...], targeted: list[tuple[str, str]]) -> str:

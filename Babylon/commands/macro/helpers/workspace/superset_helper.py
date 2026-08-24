@@ -49,6 +49,7 @@ CHARTS_ENDPOINT = "/api/v1/chart/"
 DASHBOARDS_ENDPOINT = "/api/v1/dashboard/"
 DATASETS_ENDPOINT = "/api/v1/dataset/"
 
+
 def _deploy_or_update_workspace(api_instance, api_section, payload, state) -> bool:
     """Create or update workspace via API. Returns True on success."""
     if not api_section["workspace_id"]:
@@ -1271,6 +1272,7 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
 
 # Superset asset deletion
 
+
 def _delete_asset_type(
     base_url: str,
     jwt: str,
@@ -1295,6 +1297,7 @@ def _delete_asset_type(
 
     logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(asset_ids)} {asset_label}(s)")
     return success
+
 
 def delete_superset_assets(
     base_url: str,
@@ -1330,9 +1333,7 @@ def delete_superset_assets(
 
     all_ok = True
     for endpoint, title_field, asset_label in asset_types:
-        ok = _delete_asset_type(
-            base_url, superset_jwt, auth_headers, endpoint, title_field, prefix, asset_label, workspace_id
-        )
+        ok = _delete_asset_type(base_url, superset_jwt, auth_headers, endpoint, title_field, prefix, asset_label, workspace_id)
         if not ok:
             all_ok = False
 
