@@ -1,9 +1,12 @@
 import logging
 import sys
+from base64 import urlsafe_b64decode
 from functools import wraps
+from json import loads
 from typing import Any, Callable
 
 import requests
+from azure.identity import DefaultAzureCredential
 
 from Babylon.utils.response import CommandResponse
 
@@ -16,18 +19,6 @@ env = Environment()
 def get_superset_token(base_url: str, config: dict) -> str | None:
     """
     Obtain a Superset-internal JWT for machine-to-machine API access.
-
-    Uses ``provider: db`` (the only provider supported by Superset's REST login
-    endpoint) with a local service-account whose credentials are expected in
-    ``config`` under the keys ``superset_admin_username`` / ``superset_admin_password``
-
-    These keys must be present in the ``keycloak-babylon`` K8s secret.
-
-    Args:
-        base_url (str): Superset base URL (e.g. https://superset-<cluster>.<domain>).
-        config (dict): Config dict from the K8s secret (via ``env.retrieve_config()``).
-    Returns:
-        str: Superset JWT access_token, or None on failure.
     """
     username = config.get("superset_admin_username") or ""
     password = config.get("superset_admin_password") or ""
@@ -62,6 +53,82 @@ def get_superset_token(base_url: str, config: dict) -> str | None:
     except Exception as exp:
         logger.error(f"  [bold red]✘[/bold red] Could not authenticate to Superset: {exp}")
         return None
+
+
+def get_powerbi_token() -> str | None:
+    """
+    Obtain an Azure AD access token for Power BI.
+    """
+    try:
+        credential = DefaultAzureCredential()
+        token = credential.get_token("https://analysis.windows.net/powerbi/api/.default")
+        return token.token
+    except Exception as exp:
+        logger.info(exp)
+        return None
+
+
+def get_current_user_email(access_token: str) -> str | None:
+    """Extract the user's email or UPN from JWT claims."""
+
+    try:
+        parts = access_token.split(".")
+        if len(parts) < 2:
+            return None
+        payload = parts[1]
+        padding = "=" * (-len(payload) % 4)
+        decoded = urlsafe_b64decode(payload + padding)
+        claims = loads(decoded)
+        return claims.get("upn") or claims.get("unique_name") or claims.get("preferred_username") or claims.get("email")
+    except Exception as exp:
+        logger.debug(f"  Could not decode access token claims: {exp}")
+        return None
+
+
+def pass_powerbi_token() -> Callable[..., Any]:
+    """Logs to powerbi and pass token"""
+
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            token = get_powerbi_token()
+            if not token:
+                return CommandResponse().fail()
+            kwargs["powerbi_token"] = token
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return wrap_function
+
+
+def get_azure_token(scope: str = "https://management.azure.com/.default") -> str | None:
+    """Returns an azure token"""
+
+    try:
+        credential = DefaultAzureCredential()
+        token = credential.get_token(scope)
+        return token.token
+    except Exception as exp:
+        logger.info(exp)
+        return None
+
+
+def pass_azure_token(scope: str = "https://management.azure.com/.default") -> Callable[..., Any]:
+    """Logs to Azure and pass token"""
+
+    def wrap_function(func: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
+            token = get_azure_token(scope)
+            if not token:
+                return CommandResponse().fail()
+            kwargs["azure_token"] = token
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return wrap_function
 
 
 def get_keycloak_credentials() -> tuple[dict, dict]:

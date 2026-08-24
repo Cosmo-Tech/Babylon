@@ -1,25 +1,5 @@
 """
 Kubernetes helpers for workspace deployment and teardown.
-
-Cascade organisation (top → bottom = high-level → low-level):
-
-  Schema deployment (create path):
-    deploy_postgres_schema
-      └─ get_postgres_service_host   (service discovery)
-      └─ create_workspace_secret     (K8s Secret)
-      └─ create_coal_configmap       (K8s ConfigMap)
-      └─ _run_schema_init_job
-           └─ _wait_and_check_init_job
-                └─ _handle_init_job_logs
-
-  Schema teardown (destroy path):
-    destroy_postgres_schema
-      └─ get_postgres_service_host
-      └─ _wait_and_check_destroy_job
-           └─ _handle_destroy_job_logs
-
-  K8s resource cleanup:
-    delete_kubernetes_resources
 """
 
 import subprocess
@@ -38,10 +18,7 @@ from Babylon.utils.environment import Environment
 logger = getLogger(__name__)
 env = Environment()
 
-
-# ---------------------------------------------------------------------------
-# Schema deployment — public entry point
-# ---------------------------------------------------------------------------
+# Schema deployment public entry point
 
 
 def deploy_postgres_schema(
@@ -50,37 +27,47 @@ def deploy_postgres_schema(
     api_section: dict,
     deploy_dir: Path,
     state: dict,
+    provider: str = "superset",
 ) -> None:
-    """Initialise the PostgreSQL schema and create the associated K8s resources."""
-    db_host = get_postgres_service_host(env.environ_id)
+    """Initialize the PostgreSQL schema and workspace resources.
+
+    The provider determines how database and user names are resolved:
+    Superset uses the configured PostgreSQL Secret values, while Power BI
+    derives names from the tenant. Passwords always come from the Secret.
+    """
+    db_host = get_postgres_host(env.environ_id, provider)
     logger.info(f"  [dim]→ Initializing PostgreSQL schema for workspace [bold cyan]{workspace_id}[/bold cyan]...[/dim]")
 
-    pg_config = env.get_config_from_k8s_secret_by_tenant("postgresql-config", env.environ_id)
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
-    if not pg_config or not api_config:
+
+    if not api_config:
         return
+
+    identities = _resolve_postgres_identities(env.environ_id, provider, api_config)
 
     schema_name = workspace_id.replace("-", "_")
     mapping = {
         "namespace": env.environ_id,
         "db_host": db_host,
         "db_port": "5432",
-        "cosmotech_api_database": api_config.get("database-name", ""),
-        "cosmotech_api_admin_username": api_config.get("admin-username", ""),
+        "cosmotech_api_database": identities["database_name"],
+        "cosmotech_api_admin_username": identities["admin_username"],
         "cosmotech_api_admin_password": api_config.get("admin-password", ""),
-        "cosmotech_api_writer_username": api_config.get("writer-username", ""),
-        "cosmotech_api_reader_username": api_config.get("reader-username", ""),
+        "cosmotech_api_writer_username": identities["writer_username"],
+        "cosmotech_api_reader_username": identities["reader_username"],
         "workspace_schema": schema_name,
         "job_name": workspace_id,
     }
 
     deploy_dir = deploy_dir if isinstance(deploy_dir, Path) else Path(deploy_dir)
+
     for job in schema_config.get("jobs", []):
         script_path = deploy_dir / job.get("path", "") / job.get("name", "")
         if script_path.exists():
             _run_schema_init_job(script_path, mapping, workspace_id, schema_name, state)
 
     organization_id = api_section["organization_id"]
+
     logger.info(f"  [dim]→ Creating workspace Secret for [cyan]{workspace_id}[/cyan]...[/dim]")
     create_workspace_secret(
         namespace=env.environ_id,
@@ -95,23 +82,85 @@ def deploy_postgres_schema(
         workspace_id=workspace_id,
         db_host=db_host,
         db_port="5432",
-        db_name=api_config.get("database-name", ""),
+        db_name=identities["database_name"],
         schema_name=schema_name,
-        writer_username=api_config.get("writer-username", ""),
+        writer_username=identities["writer_username"],
     )
 
 
-# ---------------------------------------------------------------------------
-# PostgreSQL service discovery
-# ---------------------------------------------------------------------------
+# PostgreSQL identity resolution (Internal vs External mode)
+
+_SUPPORTED_POSTGRES_PROVIDERS = {"superset", "powerbi"}
+
+
+def _resolve_postgres_identities(tenant: str, provider: str, api_config: dict) -> dict[str, str]:
+    """Resolve PostgreSQL database and user identities for the provider.
+
+    Power BI uses names derived from the tenant for external PostgreSQL.
+    Superset uses the identities configured in the PostgreSQL Secret.
+    Unsupported providers fall back to the Superset configuration.
+    """
+    provider_key = (provider or "").strip().lower()
+
+    if provider_key not in _SUPPORTED_POSTGRES_PROVIDERS:
+        logger.warning(
+            f"  [yellow]⚠[/yellow] Unknown PostgreSQL provider '{provider}' "
+            "falling back to Internal Postgres (superset) identity resolution"
+        )
+        provider_key = "superset"
+
+    if provider_key == "powerbi":
+        clean_prefix = tenant.replace("-", "_")
+        return {
+            "database_name": f"{tenant}",
+            "admin_username": f"{clean_prefix}_cosmotech_api_admin",
+            "writer_username": f"{clean_prefix}_cosmotech_api_writer",
+            "reader_username": f"{clean_prefix}_cosmotech_api_reader",
+        }
+
+    return {
+        "database_name": api_config.get("database-name", ""),
+        "admin_username": api_config.get("admin-username", ""),
+        "writer_username": api_config.get("writer-username", ""),
+        "reader_username": api_config.get("reader-username", ""),
+    }
+
+
+# PostgreSQL host resolution (Internal vs External mode)
+
+
+def get_postgres_host(namespace: str, provider: str = "superset") -> str:
+    """Resolve the PostgreSQL host for the selected provider.
+
+    Power BI uses the external Azure PostgreSQL host; all other providers
+    use the in-cluster PostgreSQL service.
+    """
+    provider_key = (provider or "").strip().lower()
+
+    if provider_key == "powerbi":
+        return get_external_postgres_host()
+
+    return get_postgres_service_host(namespace)
+
+
+def get_external_postgres_host() -> str:
+    """Resolve the external Azure PostgreSQL host."""
+    variables = env.get_variables()
+    explicit_host = variables.get("external_postgres_host")
+    if explicit_host:
+        return explicit_host
+
+    cluster_name = variables.get("cluster_name", "")
+    if not cluster_name:
+        logger.warning("  [yellow]⚠[/yellow] 'cluster_name' is not set in variables.yaml external PostgreSQL FQDN may be incorrect")
+    return f"csm-{cluster_name}.postgres.database.azure.com"
+
+
+# PostgreSQL service discovery (Internal / in-cluster)
 
 
 def get_postgres_service_host(namespace: str) -> str:
-    """Discover the PostgreSQL service name in a namespace to build its FQDN.
-
-    Note: This function assumes PostgreSQL is running within the same Kubernetes
-    cluster. External database clusters are not currently supported.
-    """
+    """Discover the PostgreSQL service name in a namespace to build its FQDN."""
     try:
         k8s_client = env.get_kubernetes_client()
         services = k8s_client.list_namespaced_service(namespace)
@@ -129,9 +178,7 @@ def get_postgres_service_host(namespace: str) -> str:
         return f"postgresql.{namespace}.svc.cluster.local"
 
 
-# ---------------------------------------------------------------------------
-# K8s Secret and ConfigMap — create
-# ---------------------------------------------------------------------------
+# K8s Secret and ConfigMap create
 
 
 def create_workspace_secret(
@@ -144,9 +191,6 @@ def create_workspace_secret(
 
     The secret is named ``<organization_id>-<workspace_id>`` and holds all
     environment variables required by workspace.
-
-    Returns:
-        bool: True if the secret was created or already exists, False on error.
     """
     secret_name = f"{organization_id}-{workspace_id}"
     encoded_data = {
@@ -193,13 +237,7 @@ def create_coal_configmap(
     """Create a CoAL ConfigMap for a workspace.
 
     The ConfigMap is named ``<organization_id>-<workspace_id>-coal-config`` and
-    contains a ``coal-config.toml`` key with Postgres output configuration.  The
-    ``user_password`` value is deliberately set to the literal string
-    ``env.POSTGRES_USER_PASSWORD`` so that the CoAL runtime resolves it from the
-    environment at execution time.
-
-    Returns:
-        bool: True if the ConfigMap was created or already exists, False on error.
+    contains a ``coal-config.toml`` key with Postgres output configuration.
     """
     configmap_name = f"{organization_id}-{workspace_id}-coal-config"
     coal_toml = dedent(f"""\
@@ -241,9 +279,7 @@ def create_coal_configmap(
         return False
 
 
-# ---------------------------------------------------------------------------
 # Schema init-job orchestration (internal)
-# ---------------------------------------------------------------------------
 
 
 def _run_schema_init_job(
@@ -327,42 +363,36 @@ def _handle_init_job_logs(k8s_job_name: str, schema_name: str, state: dict) -> N
         state["services"]["postgres"]["schema_name"] = schema_name
 
 
-# ---------------------------------------------------------------------------
-# Schema teardown — public entry point
-# ---------------------------------------------------------------------------
+# Schema teardown public entry point
 
 
-def destroy_postgres_schema(schema_name: str, state: dict) -> None:
-    """Destroy the PostgreSQL schema for a workspace.
-
-    Applies a K8s destroy job rendered from the template at
-    ``env.original_template_path / yaml / k8s_job_destroy.yaml``, waits for
-    it to complete and clears the schema name from state on success.
-    """
+def destroy_postgres_schema(schema_name: str, state: dict, provider: str = "superset") -> None:
+    """Destroy the PostgreSQL schema for a workspace."""
     if not schema_name:
         logger.warning("  [yellow]⚠[/yellow] [dim]No schema found ! skipping deletion[/dim]")
         return
 
     workspace_id_tmp = schema_name.replace("_", "-")
-    db_host = get_postgres_service_host(env.environ_id)
+    db_host = get_postgres_host(env.environ_id, provider)
     logger.info(f"  [dim]→ Destroying postgreSQL schema for workspace [bold cyan]{workspace_id_tmp}[/bold cyan]...[/dim]")
 
-    pg_config = env.get_config_from_k8s_secret_by_tenant("postgresql-config", env.environ_id)
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
 
-    if not pg_config or not api_config:
-        logger.error("  [bold red]✘[/bold red] Failed to retrieve postgreSQL configuration from secrets")
+    if not api_config:
+        logger.error("  [bold red]✘[/bold red] Failed to retrieve postgreSQL configuration from secret 'postgresql-cosmotechapi'")
         return
+
+    identities = _resolve_postgres_identities(env.environ_id, provider, api_config)
 
     mapping = {
         "namespace": env.environ_id,
         "db_host": db_host,
         "db_port": "5432",
-        "cosmotech_api_database": api_config.get("database-name"),
-        "cosmotech_api_admin_username": api_config.get("admin-username"),
+        "cosmotech_api_database": identities["database_name"],
+        "cosmotech_api_admin_username": identities["admin_username"],
         "cosmotech_api_admin_password": api_config.get("admin-password"),
-        "cosmotech_api_writer_username": api_config.get("writer-username"),
-        "cosmotech_api_reader_username": api_config.get("reader-username"),
+        "cosmotech_api_writer_username": identities["writer_username"],
+        "cosmotech_api_reader_username": identities["reader_username"],
         "workspace_schema": schema_name,
         "job_name": workspace_id_tmp,
     }
@@ -383,9 +413,7 @@ def destroy_postgres_schema(schema_name: str, state: dict) -> None:
         logger.debug(f"  {e}")
 
 
-# ---------------------------------------------------------------------------
-# Schema teardown — internal helpers
-# ---------------------------------------------------------------------------
+# Schema teardown internal helpers
 
 
 def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
@@ -439,9 +467,7 @@ def _handle_destroy_job_logs(k8s_job_name: str, schema_name: str, state: dict) -
         state["services"]["postgres"]["schema_name"] = ""
 
 
-# ---------------------------------------------------------------------------
-# K8s resource cleanup — public entry point
-# ---------------------------------------------------------------------------
+# K8s resource cleanup
 
 
 def delete_kubernetes_resources(namespace: str, organization_id: str, workspace_id: str) -> None:

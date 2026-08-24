@@ -6,6 +6,7 @@ from click import echo, style
 from Babylon.commands.api.workspace import get_workspace_api_instance
 from Babylon.commands.macro.helpers.workspace import (
     _build_dashboard_ext_args,
+    build_powerbi_ext_args,
     deploy_postgres_schema,
 )
 from Babylon.commands.macro.helpers.workspace.superset_helper import (
@@ -30,6 +31,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
     # Pass template_content so every {{var}} reference is pre-filled with "" when
     # the key is absent from variables.yaml, preventing strict_undefined crashes.
     pre_ext = _build_dashboard_ext_args(fallback_empty=True, template_content=file_content)
+    pre_ext.update(build_powerbi_ext_args(fallback_empty=True, template_content=file_content))
     content = env.fill_template(data=file_content, state=state, ext_args=pre_ext or None)
 
     keycloak_token, config = get_keycloak_token()
@@ -47,11 +49,15 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
     spec = content.get("spec") or {}
     sidecars = spec.get("sidecars", {})
     schema_config = sidecars.get("postgres", {}).get("schema") or {}
-    if schema_config.get("create", False):
-        deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state)
-
     # --- Dashboard Deployment (provider-based dispatch: superset | powerbi) ---
     dashboard_config = sidecars.get("dashboards", {})
+    dataviz_provider = (dashboard_config.get("provider") or "superset").strip().lower()
+    if schema_config.get("create", False):
+        deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state, provider=dataviz_provider)
+        # Persisted so `destroy` can resolve the correct host/identities later
+        # (in-cluster for Superset, external Azure PostgreSQL for Power BI).
+        state["services"]["postgres"]["provider"] = dataviz_provider
+
     if dashboard_config.get("create", False):
         if not _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content):
             return CommandResponse.fail()

@@ -17,14 +17,17 @@ _TF_WEBAPP_REPO_URL = "https://github.com/Cosmo-Tech/terraform-webapp.git"
 _TF_WEBAPP_DEFAULT_VERSION = "1.1.0"
 _VARIABLES_TEMPLATE = "variables.yaml"
 
+_WORKSPACE_TEMPLATES = {
+    "powerbi": "Workspace_powerbi.yaml",
+    "superset": "Workspace_superset.yaml",
+}
 _PROJECT_YAML_FILES = [
     "Organization.yaml",
     "Solution.yaml",
-    "Workspace.yaml",
 ]
 
 # Dashboard sub-directories to scaffold under <project>/dashboard/
-_DASHBOARD_PROVIDERS = ["superset"]
+_SUPPORTED_BI_PROVIDERS = {"powerbi", "superset"}
 _SUPPORTED_CLOUD_PROVIDERS = {"azure", "kob"}
 
 # Private helpers
@@ -92,14 +95,20 @@ def _ensure_variables_file(variables_path: Path, variables_file: str, cloud_prov
 
 
 def _scaffold_project(
-    project_path: Path, variables_path: Path, variables_file: str, tf_webapp_path: Path, cloud_provider: str, tf_webapp_version: str
+    project_path: Path,
+    variables_path: Path,
+    variables_file: str,
+    tf_webapp_path: Path,
+    cloud_provider: str,
+    bi_provider: str,
+    tf_webapp_version: str,
 ) -> None:
     """Create the full project directory structure and copy all template files."""
     try:
         _create_project_dir(project_path)
-        _copy_yaml_templates(project_path, cloud_provider)
+        _copy_yaml_templates(project_path, cloud_provider, bi_provider)
         _create_postgres_jobs(project_path)
-        _create_dashboard_dirs(project_path)
+        _create_dashboard_dirs(project_path, bi_provider)
         _copy_variables_template(variables_path, variables_file, cloud_provider)
         _ensure_webapp(tf_webapp_path, tf_webapp_version)
         _print_success_summary(project_path, variables_file)
@@ -116,16 +125,27 @@ def _create_project_dir(project_path: Path) -> None:
         logger.error(f"  [bold red]✘[/bold red] Failed to create directory: {project_path}")
 
 
-def _copy_yaml_templates(project_path: Path, cloud_provider: str) -> None:
+def _copy_yaml_templates(project_path: Path, cloud_provider: str, bi_provider: str) -> None:
+    """Copy the YAML templates into the project directory, including provider-specific files."""
     for filename in _PROJECT_YAML_FILES:
         src = env.original_template_path / "yaml" / filename
-        copy(src, project_path / filename)
-        logger.info(f"  [green]✔[/green] Generated [white]{filename}[/white]")
+        if src.exists():
+            copy(src, project_path / filename)
+            logger.info(f"  [green]✔[/green] Generated [white]{filename}[/white]")
 
-    # Copy the cloud-provider-specific Webapp.yaml
+    workspace_filename = _WORKSPACE_TEMPLATES.get(bi_provider.lower())
+    if workspace_filename:
+        src = env.original_template_path / "yaml" / workspace_filename
+        if src.exists():
+            # Renames to Workspace.yaml or retains original Workspace_<provider>.yaml
+            dest_filename = f"Workspace_{bi_provider.lower()}.yaml"
+            copy(src, project_path / dest_filename)
+            logger.info(f"  [green]✔[/green] Generated [white]{dest_filename}[/white]")
+
     webapp_src = _get_provider_template(cloud_provider, "Webapp.yaml")
-    copy(webapp_src, project_path / "Webapp.yaml")
-    logger.info(f"  [green]✔[/green] Generated [white]Webapp.yaml[/white] (provider: {cloud_provider})")
+    if webapp_src.exists():
+        copy(webapp_src, project_path / "Webapp.yaml")
+        logger.info(f"  [green]✔[/green] Generated [white]Webapp.yaml[/white] (provider: {cloud_provider})")
 
 
 def _create_postgres_jobs(project_path: Path) -> None:
@@ -142,15 +162,15 @@ def _create_postgres_jobs(project_path: Path) -> None:
         logger.info("  [green]✔[/green] Generated [white]postgres/jobs/k8s_job.yaml[/white]")
 
 
-def _create_dashboard_dirs(project_path: Path) -> None:
-    """Create dashboard/<provider>/ sub-directories for each supported provider."""
-    for provider in _DASHBOARD_PROVIDERS:
-        provider_path = project_path / "dashboard" / provider
-        provider_path.mkdir(parents=True, exist_ok=True)
-        if provider_path.exists():
-            logger.info(f"  [dim]→ Created directory: dashboard/{provider}[/dim]")
-        else:
-            logger.error(f"  [bold red]✘[/bold red] Failed to create directory: dashboard/{provider}")
+def _create_dashboard_dirs(project_path: Path, bi_provider: str) -> None:
+    """Create the dashboard/<provider>/ sub-directory for the detected/selected *bi_provider*."""
+    provider = bi_provider.lower() if bi_provider and bi_provider.lower() in _SUPPORTED_BI_PROVIDERS else "superset"
+    provider_path = project_path / "dashboard" / provider
+    provider_path.mkdir(parents=True, exist_ok=True)
+    if provider_path.exists():
+        logger.info(f"  [dim]→ Created directory: dashboard/{provider}[/dim]")
+    else:
+        logger.error(f"  [bold red]✘[/bold red] Failed to create directory: dashboard/{provider}")
 
 
 def _copy_variables_template(variables_path: Path, variables_file: str, cloud_provider: str) -> None:
@@ -181,13 +201,15 @@ def _print_success_summary(project_path: Path, variables_file: str) -> None:
     help=f"Version (tag) of the terraform-webapp module to clone/checkout. Default: {_TF_WEBAPP_DEFAULT_VERSION}.",
 )
 @argument("cloud_provider", type=Choice(["azure", "kob"], case_sensitive=False))
-def init(project_folder: str, variables_file: str, tf_webapp_version: str, cloud_provider: str):
+@argument("bi_provider", type=Choice(["powerbi", "superset"], case_sensitive=False))
+def init(project_folder: str, variables_file: str, tf_webapp_version: str, cloud_provider: str, bi_provider: str):
     """
     Scaffolds a new Babylon project structure using YAML templates.
 
     arguments:
 
       cloud_provider: Target cloud provider for webapp deployment (e.g. 'azure', 'kob').
+      bi_provider:    Target BI/Dashboard provider ('powerbi', 'superset'). Default: 'superset'.
     """
     cwd = Path.cwd()
     project_path = cwd / project_folder
@@ -202,4 +224,4 @@ def init(project_folder: str, variables_file: str, tf_webapp_version: str, cloud
         return None
 
     # Scaffold mode: nothing exists yet — build everything from scratch.
-    _scaffold_project(project_path, variables_path, variables_file, tf_webapp_path, cloud_provider, tf_webapp_version)
+    _scaffold_project(project_path, variables_path, variables_file, tf_webapp_path, cloud_provider, bi_provider, tf_webapp_version)
