@@ -538,6 +538,7 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ac/18/77782a78fff40f333824f54019bfbac6d8a5864e64bb8ada4cb529fbc292/cosmotech_api-5.1.0.tar.gz", hash = "sha256:1b0bdd67ee11f133ba76df2f50af3d26ade40e8c771021748e582bffb3a5eb56", size = 220163, upload-time = "2026-07-22T08:12:24.315Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/d8/8ae4a34729139b1434be7c2219eb352c67105c0ff5bb195affc52363cef8/cosmotech_api-5.1.0-py3-none-any.whl", hash = "sha256:fcb4f04b950143d7dfbb5e7109cd215926a6c11dfcb465a51fb1b42b8f8e061b", size = 624761, upload-time = "2026-07-22T08:12:22.695Z" },
+<<<<<<< HEAD
 ]
 
 [[package]]
@@ -553,6 +554,8 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/10/d5/cd47b698d61ca20e9e06591facd1b820698114e91cc3d06263671418a8a7/cosmotech_modeling_api-12.3.0.tar.gz", hash = "sha256:2c9d38f0111f0f6c36bd858d57d535139db48c3fb4bb3c54d8823ebb381b358c", size = 55827, upload-time = "2026-09-02T08:40:55.414Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/aa/801a2fa6932a35ec1cd816869953bf4b3259c73817907828c6706a006b6d/cosmotech_modeling_api-12.3.0-py3-none-any.whl", hash = "sha256:e88cec4279481205fe14bef67eb794639342daa8e6d4295196cb8484178f1df6", size = 75968, upload-time = "2026-09-02T08:40:53.778Z" },
+=======
+>>>>>>> d949d425 (Update Babylon version and fix Dep-Track version issue)
 ]
 
 [[package]]
@@ -1094,6 +1097,7 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/90/5d/1be1c7a49d8fa13dc80f66a85f53333d52cf5206911412006ffdff8fb9a0/mkdocstrings_python-2.0.7.tar.gz", hash = "sha256:8c49faf66d243072d7590a1b5dea028d9d7425fac191f54f096123a4a9c1a783", size = 201598, upload-time = "2026-08-17T16:56:18.239Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/6d/77546d8c26f038fce314a507106954f76270f6c182488bcf9ac9721175df/mkdocstrings_python-2.0.7-py3-none-any.whl", hash = "sha256:1fce5fbfe4ffa6e8136a35351cdc97c3bf55219c7efbd3f92a82260f93235d60", size = 105387, upload-time = "2026-08-17T16:56:16.813Z" },
+<<<<<<< HEAD
 ]
 
 [[package]]
@@ -1120,20 +1124,22 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/01/99/5d239b6156eddf761a636bded1118414d161bd6b7b37a9335549ed159396/msal_extensions-1.3.1.tar.gz", hash = "sha256:c5b0fd10f65ef62b5f1d62f4251d51cbcaf003fcedae8c91b040a488614be1a4", size = 23315, upload-time = "2025-03-14T23:51:03.902Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5e/75/bd9b7bb966668920f06b200e84454c8f3566b102183bc55c5473d96cb2b9/msal_extensions-1.3.1-py3-none-any.whl", hash = "sha256:96d3de4d034504e969ac5e85bae8106c8373b5c6568e4c8fa7af2eca9dbe6bca", size = 20583, upload-time = "2025-03-14T23:51:03.016Z" },
+=======
+>>>>>>> d949d425 (Update Babylon version and fix Dep-Track version issue)
 ]
 
 [[package]]
 name = "msal"
-version = "1.37.0"
+version = "1.38.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
     { name = "pyjwt", extra = ["crypto"] },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/99/d840198ecf6e8057bbc937f129ae940404485d736cda73253bbff9537f01/msal-1.37.0.tar.gz", hash = "sha256:1b1672a33ee467c1d70b341bb16cafd51bb3c817147a95b93263794b03971bec", size = 182444, upload-time = "2026-05-29T19:49:05.561Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/1f/10f9d47a63d3a2e61b2c43e15bee6b95682aab827018f9a1b97a80787e25/msal-1.38.0.tar.gz", hash = "sha256:4f10ff1257bacfd1781f22e85bd2b8d43ad1b490f3b6aafd7906671cadedd464", size = 203411, upload-time = "2026-08-24T10:22:46.053Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/b0/d807279f4b55d16d1f120d5ac4344c6e39b56732e2a224d40bded7fd67ad/msal-1.37.0-py3-none-any.whl", hash = "sha256:dd17e95a7c71bce75e8108113438ba7c4a086b3bcad4f57a8c09b7af3d753c2d", size = 123725, upload-time = "2026-05-29T19:49:04.335Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/ca/d768f77a27d81ed0a6884f2458f8613c31c79b2eb95defbeca2273fd0754/msal-1.38.0-py3-none-any.whl", hash = "sha256:765b9b98b6aa380ee8b8f1c75636e08863edaf0a953498955bd668650dde5d49", size = 131057, upload-time = "2026-08-24T10:22:47.485Z" },
 ]
 
 [[package]]
@@ -1533,6 +1539,7 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz", hash = "sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c", size = 5005329, upload-time = "2026-08-17T08:02:48.824Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl", hash = "sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9", size = 1250147, upload-time = "2026-08-17T08:02:44.912Z" },
+<<<<<<< HEAD
 ]
 
 [[package]]
@@ -1547,6 +1554,8 @@ wheels = [
 [package.optional-dependencies]
 crypto = [
     { name = "cryptography" },
+=======
+>>>>>>> d949d425 (Update Babylon version and fix Dep-Track version issue)
 ]
 
 [[package]]
