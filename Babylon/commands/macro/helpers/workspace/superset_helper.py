@@ -45,6 +45,9 @@ _SCHEMA_FIELD_RE = compile(r"^schema:\s*(\S+)\s*$", MULTILINE)
 # Glob pattern for matching YAML files in Superset export directories.
 _YAML_GLOB = "*.yaml"
 
+CHARTS_ENDPOINT = "/api/v1/chart/"
+DASHBOARDS_ENDPOINT = "/api/v1/dashboard/"
+DATASETS_ENDPOINT = "/api/v1/dataset/"
 
 def _deploy_or_update_workspace(api_instance, api_section, payload, state) -> bool:
     """Create or update workspace via API. Returns True on success."""
@@ -414,7 +417,7 @@ def _is_cross_workspace_deployment(
 
     # Check if any chart/dashboard UUID already exists in Superset.
     any_matched = False
-    for endpoint in ("/api/v1/chart/", "/api/v1/dashboard/"):
+    for endpoint in (CHARTS_ENDPOINT, DASHBOARDS_ENDPOINT):
         try:
             resp = requests.get(
                 f"{base_url}{endpoint}",
@@ -611,8 +614,8 @@ def _assets_exist_in_superset(
     headers = {"Authorization": f"Bearer {superset_jwt}"}
 
     _checks: list[tuple[str, str, str]] = [
-        ("charts", "/api/v1/chart/", "uuid"),
-        ("dashboards", "/api/v1/dashboard/", "uuid"),
+        ("charts", CHARTS_ENDPOINT, "uuid"),
+        ("dashboards", DASHBOARDS_ENDPOINT, "uuid"),
     ]
 
     for folder_key, endpoint, uuid_field in _checks:
@@ -1021,7 +1024,7 @@ def _get_filtered_dashboards(
 
     try:
         resp = requests.get(
-            f"{base_url}/api/v1/dashboard/",
+            f"{base_url}{DASHBOARDS_ENDPOINT}",
             headers=headers,
             params={"page_size": 1000},
             timeout=15,
@@ -1068,7 +1071,7 @@ def _get_embedded_uuid_for_dashboard(
 
     try:
         emb_resp = requests.get(
-            f"{base_url}/api/v1/dashboard/{integer_id}/embedded",
+            f"{base_url}{DASHBOARDS_ENDPOINT}{integer_id}/embedded",
             headers=auth_headers,
             timeout=10,
         )
@@ -1104,7 +1107,7 @@ def _enable_dashboard_embedding(
         "Content-Type": "application/json",
     }
     enable_resp = requests.post(
-        f"{base_url}/api/v1/dashboard/{integer_id}/embedded",
+        f"{base_url}{DASHBOARDS_ENDPOINT}{integer_id}/embedded",
         headers=post_headers,
         json={"allowed_domains": []},
         timeout=10,
@@ -1268,6 +1271,30 @@ def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | No
 
 # Superset asset deletion
 
+def _delete_asset_type(
+    base_url: str,
+    jwt: str,
+    headers: dict,
+    endpoint: str,
+    title_field: str,
+    prefix: str,
+    asset_label: str,
+    workspace_id: str,
+) -> bool:
+    """Helper to list and delete all Superset assets of a specific type matching the prefix."""
+    asset_ids = _list_asset_ids_by_prefix(base_url, jwt, endpoint, title_field, prefix)
+    if asset_ids is None:
+        return False
+
+    logger.info(f"  [dim]→ Found {len(asset_ids)} {asset_label}(s) to delete for workspace '{workspace_id}'[/dim]")
+
+    success = True
+    for asset_id in asset_ids:
+        if not _delete_asset(base_url, headers, endpoint, asset_id):
+            success = False
+
+    logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(asset_ids)} {asset_label}(s)")
+    return success
 
 def delete_superset_assets(
     base_url: str,
@@ -1276,16 +1303,6 @@ def delete_superset_assets(
 ) -> bool:
     """Delete all Superset dashboards, charts, and datasets whose title starts
     with ``[workspace_id]``.
-
-    Matching strategy all three asset types filter on a title field that
-    is prefixed with ``[workspace_id]`` during ZIP deployment:
-
-    - **Dashboards**: ``dashboard_title`` starts with ``[workspace_id]``
-    - **Charts**:     ``slice_name``      starts with ``[workspace_id]``
-    - **Datasets**:   ``table_name``      starts with ``[workspace_id]``
-
-    Deletion order: dashboards → charts → datasets (avoids orphan reference
-    errors in Superset).
     """
     superset_jwt = get_superset_token(base_url=base_url, config=superset_config)
     if not superset_jwt:
@@ -1304,45 +1321,26 @@ def delete_superset_assets(
         "Referer": base_url,
     }
 
+    # Order: dashboards → charts → datasets (prevents orphan reference errors)
+    asset_types = [
+        (DASHBOARDS_ENDPOINT, "dashboard_title", "dashboard"),
+        (CHARTS_ENDPOINT, "slice_name", "chart"),
+        (DATASETS_ENDPOINT, "table_name", "dataset"),
+    ]
+
     all_ok = True
-
-    # --- Dashboards
-    dashboard_ids = _list_asset_ids_by_prefix(base_url, superset_jwt, "/api/v1/dashboard/", "dashboard_title", prefix)
-    if dashboard_ids is None:
-        all_ok = False
-    else:
-        logger.info(f"  [dim]→ Found {len(dashboard_ids)} dashboard(s) to delete for workspace '{workspace_id}'[/dim]")
-        for asset_id in dashboard_ids:
-            if not _delete_asset(base_url, auth_headers, "/api/v1/dashboard/", asset_id):
-                all_ok = False
-        logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(dashboard_ids)} dashboard(s)")
-
-    # --- Charts
-    chart_ids = _list_asset_ids_by_prefix(base_url, superset_jwt, "/api/v1/chart/", "slice_name", prefix)
-    if chart_ids is None:
-        all_ok = False
-    else:
-        logger.info(f"  [dim]→ Found {len(chart_ids)} chart(s) to delete for workspace '{workspace_id}'[/dim]")
-        for asset_id in chart_ids:
-            if not _delete_asset(base_url, auth_headers, "/api/v1/chart/", asset_id):
-                all_ok = False
-        logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(chart_ids)} chart(s)")
-
-    # --- Datasets
-    dataset_ids = _list_asset_ids_by_prefix(base_url, superset_jwt, "/api/v1/dataset/", "table_name", prefix)
-    if dataset_ids is None:
-        all_ok = False
-    else:
-        logger.info(f"  [dim]→ Found {len(dataset_ids)} dataset(s) to delete for workspace '{workspace_id}'[/dim]")
-        for asset_id in dataset_ids:
-            if not _delete_asset(base_url, auth_headers, "/api/v1/dataset/", asset_id):
-                all_ok = False
-        logger.info(f"  [bold green]✔[/bold green] Successfully deleted {len(dataset_ids)} dataset(s)")
+    for endpoint, title_field, asset_label in asset_types:
+        ok = _delete_asset_type(
+            base_url, superset_jwt, auth_headers, endpoint, title_field, prefix, asset_label, workspace_id
+        )
+        if not ok:
+            all_ok = False
 
     if all_ok:
         logger.info(f"  [bold green]✔[/bold green] Superset asset cleanup complete for workspace '{workspace_id}'")
     else:
         logger.warning(f"  [yellow]⚠[/yellow] Some Superset assets could not be deleted for workspace '{workspace_id}'")
+
     return all_ok
 
 
