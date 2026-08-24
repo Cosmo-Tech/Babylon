@@ -23,18 +23,29 @@ from Babylon.utils.response import CommandResponse
 logger = getLogger(__name__)
 env = Environment()
 
+NOT_DEPLOYED = "(NOT DEPLOYED)"
 
-def _build_targeted_resources(state: dict, organization: bool, solution: bool, workspace: bool, webapp: bool) -> list[tuple[str, str]]:
+def _build_targeted_resources(
+    state: dict,
+    organization: bool,
+    solution: bool,
+    workspace: bool,
+    webapp: bool,
+) -> list[tuple[str, str]]:
     """Map active resource flags to their (label, current-ID) pairs from the state."""
     api_state = state["services"]["api"]
     webapp_state = state["services"].get("webapp", {})
     resource_map = [
-        (organization, "Organization", api_state.get("organization_id") or "(NOT DEPLOYED)"),
-        (solution, "Solution", api_state.get("solution_id") or "(NOT DEPLOYED)"),
-        (workspace, "Workspace", api_state.get("workspace_id") or "(NOT DEPLOYED)"),
-        (webapp, "Web App", webapp_state.get("webapp_name") or "(NOT DEPLOYED)"),
+        (organization, "Organization", api_state.get("organization_id")),
+        (solution, "Solution", api_state.get("solution_id")),
+        (workspace, "Workspace", api_state.get("workspace_id")),
+        (webapp, "Web App", webapp_state.get("webapp_name")),
     ]
-    return [(label, value) for flag, label, value in resource_map if flag]
+    return [
+        (label, value or NOT_DEPLOYED)
+        for flag, label, value in resource_map
+        if flag
+    ]
 
 
 def _build_scope_message(include: tuple[str, ...], exclude: tuple[str, ...], targeted: list[tuple[str, str]]) -> str:
