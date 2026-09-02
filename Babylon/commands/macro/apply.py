@@ -5,6 +5,7 @@ from click import Path as ClickPath
 from click import argument, command, echo, option, style
 from yaml import safe_dump, safe_load
 
+from Babylon.commands.macro.build_project import build_project
 from Babylon.commands.macro.deploy_organization import deploy_organization
 from Babylon.commands.macro.deploy_solution import deploy_solution
 from Babylon.commands.macro.deploy_webapp import deploy_webapp
@@ -17,7 +18,7 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list, list, list, list]:
+def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list, list, list, list, list]:
     resources = []
     for f in files_to_deploy:
         resource = {}
@@ -30,18 +31,21 @@ def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list,
             resource["content"] = escaped_content
             resource["file_path"] = f
             resources.append(resource)
+    project_builds = list(filter(lambda x: x.get("kind") == "ProjectBuild", resources))
     organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
     solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
     workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
     webapps = list(filter(lambda x: x.get("kind") == "Webapp", resources))
-    return (organizations, solutions, workspaces, webapps)
+    return (project_builds, organizations, solutions, workspaces, webapps)
 
 
 def deploy_objects(objects: list, object_type: str, deploy_dir: PathlibPath):
     for o in objects:
         content = o.get("content")
         namespace = o.get("namespace")
-        if object_type == "organization":
+        if object_type == "projectbuild":
+            build_project(namespace=namespace, file_content=content)
+        elif object_type == "organization":
             deploy_organization(namespace=namespace, file_content=content)
         elif object_type == "solution":
             deploy_solution(namespace=namespace, file_content=content)
@@ -86,10 +90,12 @@ def apply(
     variables_files: tuple[PathlibPath, ...],
 ):
     """Macro Apply"""
-    organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
+    project_build, organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
     files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], deploy_dir.iterdir()))
     env.set_variable_files(list(variables_files))
-    organizations, solutions, workspaces, webapps = load_resources_from_files(files_to_deploy)
+    project_builds, organizations, solutions, workspaces, webapps = load_resources_from_files(files_to_deploy)
+    if project_build:
+        deploy_objects(project_builds, "projectbuild", deploy_dir)
     if organization:
         deploy_objects(organizations, "organization", deploy_dir)
     if solution:

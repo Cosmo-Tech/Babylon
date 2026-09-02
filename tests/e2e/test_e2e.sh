@@ -20,5 +20,5 @@ babylon namespace get-contexts
 babylon api about
 
 babylon init azure
-babylon apply --exclude webapp project
+babylon apply --exclude webapp --exclude projectbuild project
 babylon destroy --yes

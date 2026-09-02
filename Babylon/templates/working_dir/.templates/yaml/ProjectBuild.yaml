@@ -1,0 +1,13 @@
+kind: ProjectBuild
+namespace:
+  remote: {{remote}}
+spec:
+  sidecars:
+    project:
+      archive_url: "{{build_project_archive_url}}"
+  # Payload of the 'buildProject' endpoint (POST /project/{}/builds)
+  payload:
+    dockerSimulatorImage:
+      name: "{{simulator_repository}}" # Optional, override default image name
+      tag: "{{simulator_version}}" # New simulator image tag to produce
+      latest: true # Should a 'latest' tag also be created pointing to the new image, default: false
