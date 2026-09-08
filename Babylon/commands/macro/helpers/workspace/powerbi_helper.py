@@ -7,7 +7,7 @@ from copy import deepcopy
 from io import StringIO
 from logging import getLogger
 from pathlib import Path
-from re import compile as re_compile
+from re import compile
 from typing import Any
 
 from kubernetes.client.exceptions import ApiException
@@ -32,7 +32,7 @@ env = Environment()
 
 # Matches Power BI template variables such as:
 # ${powerbi['workspace_id']} and ${powerbi['reports']['scenario_view']}.
-_POWERBI_TEMPLATE_VAR_RE = re_compile(
+_POWERBI_TEMPLATE_VAR_RE = compile(
     r"\$\{\s*powerbi\[\s*['\"]([a-zA-Z0-9_]+)['\"]\s*\]"
     r"(?:\[\s*['\"]([a-zA-Z0-9_]+)['\"]\s*\])?\s*\}"
 )
