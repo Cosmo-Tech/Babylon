@@ -35,7 +35,7 @@ def test_slugify_tag(value, expected):
 
 def _touch(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(b"")
+    path.touch()
 
 
 def test_discover_multiple_pbix_files(tmp_path):
