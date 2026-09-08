@@ -38,10 +38,8 @@ def deploy_postgres_schema(
     db_host = get_postgres_host(env.environ_id, provider)
     logger.info(f"  [dim]→ Initializing PostgreSQL schema for workspace [bold cyan]{workspace_id}[/bold cyan]...[/dim]")
 
+    # the postgres-cosmotechapi secret is always created by terraform.
     api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
-
-    if not api_config:
-        return
 
     identities = _resolve_postgres_identities(env.environ_id, provider, api_config)
 
