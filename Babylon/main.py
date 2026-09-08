@@ -19,10 +19,15 @@ from Babylon.version import VERSION
 logger = logging.getLogger()
 u_log = logging.getLogger("urllib3")
 k_log = logging.getLogger("kubernetes")
+az_log = logging.getLogger("azure")
 
 # On bloque la propagation vers le haut (le root logger qui affiche dans la console)
 u_log.propagate = False
 k_log.propagate = False
+# The azure-sdk (azure.identity, azure.core, ...) loggers are very verbose at
+# INFO/DEBUG level (credential chain attempts, full HTTP requests/headers).
+# Raise their level so only warnings/errors surface, keeping console output clean.q
+az_log.setLevel(logging.WARNING)
 env = Environment()
 
 

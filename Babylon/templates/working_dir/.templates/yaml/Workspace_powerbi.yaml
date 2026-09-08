@@ -10,15 +10,17 @@ spec:
           - name: k8s_job.yaml
             path: postgres/jobs
     dashboards:
-      provider: superset
+      provider: powerbi
       create: false
+      name: "{{powerbi_workspace_name}}"
+      permissions: {{powerbi_permissions}}
       reports:
-        - name: dashboard_satisfaction
-          path: dashboard/superset/dashboard_satisfaction.zip
-        - name: dashboard_scenarioView
-          path: dashboard/superset/dashboard_scenarioView.zip
-        - name: dashboard_stock
-          path: dashboard/superset/dashboard_stock.zip
+        - path: "dashboard/powerbi"
+          parameters:
+            - id: "Kusto"
+              value: "csm-{{cluster_name}}.postgres.database.azure.com"
+            - id: "Database"
+              value: "tenant-{{tenant}}"
   payload:
     key: "{{workspace_key}}"
     name: "{{workspace_name}}"
@@ -37,42 +39,62 @@ spec:
             - full_demo
             - standalone
         charts:
-          supersetDomain: 'https://superset-{{cluster_name}}.{{domain_zone}}'
-          dashboards:
-            - id: '{{qadashboardsatisfaction}}'
-              width: 100%
-              filters:
-                - id: YYAjEQr9vU5hY6JDURdd5
-                  operator: ==
-                  column: Simulation_run
-                  value: lastRunId
-            - id: '{{qadashboardscenarioview}}'
-              width: 100%
-              filters:
-                - id: RU4aRKyBZNo-VOvm-RlGr
-                  operator: ==
-                  column: Simulation_run
-                  value: lastRunId
-            - id: '{{qadashboardstocks}}'
-              width: 100%
-              filters:
-                - id: CguNPknZV8LkJoV-kSJ1t
-                  operator: ==
-                  column: Simulation_run
-                  value: lastRunId
-              hideFilters: true
-              expandFilters: false
-          scenarioView:
-            default: '{{qadashboardscenarioview}}'
-          dashboardView:
-            - id: '{{qadashboardsatisfaction}}'
-              title:
-                en: Customers Overview
+          workspaceId: "{{powerbi['workspace_id']}}"
+          logInWithUserCredentials: false
+          useWebappTheme: true
+          dashboardsViewIframeDisplayRatio: 1.6
+          scenarioViewIframeDisplayRatio: 4.5
+          dashboardsView:
+            - title:
+                en: Customer Overview
                 fr: Aperçu des clients
-            - id: '{{qadashboardstocks}}'
-              title:
-                en: Stocks Overview
+              reportId: "{{powerbi['reports']['qa_dashboard']}}"
+              settings:
+                filterPaneEnabled: false
+                navContentPaneEnabled: false
+              pageName:
+                en: d3c00faba401072eeff8
+                fr: d3c00faba401072eeff8
+              dynamicFilters:
+                - table: w_3yy658nkke4 cosmotech_satisfaction
+                  column: Simulation_run
+                  values: lastRunId
+                - table: w_3yy658nkke4 cosmotech_stock
+                  column: Simulation_run
+                  values: lastRunId
+            - title:
+                en: Stock Overview
                 fr: Aperçu des stocks
+              reportId: "{{powerbi['reports']['qa_dashboard']}}"
+              pageName:
+                en: 2b30f1d8886fc53849b3
+                fr: 2b30f1d8886fc53849b3
+              settings:
+                filterPaneEnabled: false
+                navContentPaneEnabled: false
+              dynamicFilters:
+                - table: w_3yy658nkke4 cosmotech_satisfaction
+                  column: Simulation_run
+                  values: lastRunId
+                - table: w_3yy658nkke4 cosmotech_stock
+                  column: Simulation_run
+                  values: lastRunId
+          scenarioView:
+            full_demo:
+              reportId: "{{powerbi['reports']['qa_dashboard']}}"
+              pageName:
+                en: f5e73ba46b8e2085c239
+                fr: f5e73ba46b8e2085c239
+              settings:
+                filterPaneEnabled: false
+                navContentPaneEnabled: false
+              dynamicFilters:
+                - table: w_3yy658nkke4 cosmotech_satisfaction
+                  column: Simulation_run
+                  values: lastRunId
+                - table: w_3yy658nkke4 cosmotech_stock
+                  column: Simulation_run
+                  values: lastRunId
         menu:
           supportUrl: 'https://support.cosmotech.com'
           organizationUrl: 'https://cosmotech.com'

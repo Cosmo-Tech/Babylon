@@ -24,10 +24,7 @@ env = Environment()
 
 
 def ensure_tf_webapp_version(tf_dir: Path, version: str) -> None:
-    """Checkout *version* in the local terraform-webapp clone.
-
-    Silently succeeds if already on that commit/tag.
-    """
+    """Checkout *version* in the local terraform-webapp clone."""
     try:
         webapp_repo = git.Repo(path=tf_dir)
         webapp_repo.head.reference = version
@@ -47,12 +44,6 @@ def dict_to_tfvars(payload: dict) -> str:
 
     Note: Complex nested structures (lists, dicts) are not yet supported.
     This is sufficient for current WebApp tfvars which only use simple scalar values.
-
-    Args:
-        payload (dict): Dictionary with simple key-value pairs
-
-    Returns:
-        str: Terraform HCL formatted variable assignments
     """
     lines = []
     for key, value in payload.items():
@@ -80,14 +71,7 @@ def _finalize_deployment(payload: dict, state: dict) -> None:
 
 
 def run_terraform_process(executable: list[str], cwd, payload: dict, state: dict) -> None:
-    """Stream a Terraform subprocess and finalize state on success.
-
-    Args:
-        executable: The command + arguments to run (e.g. ``['/bin/bash', './_run-terraform.sh']``).
-        cwd: Working directory for the subprocess (path to the Terraform directory).
-        payload: The WebApp payload dict, forwarded to ``_finalize_deployment``.
-        state: Current Babylon state dict, forwarded to ``_finalize_deployment``.
-    """
+    """Run Terraform, stream its output, and finalize a successful deployment."""
     try:
         process = subprocess.Popen(executable, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
 

@@ -19,6 +19,6 @@ babylon namespace get-contexts
 # Get version
 babylon api about
 
-babylon init azure
+babylon init azure superset
 babylon apply --exclude webapp project
 babylon destroy --yes

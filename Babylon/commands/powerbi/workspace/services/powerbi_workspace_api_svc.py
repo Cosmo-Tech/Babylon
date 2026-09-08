@@ -15,6 +15,8 @@ class AzurePowerBIWorkspaceService:
         self.state = state
 
     def create(self, name: str):
+        """Create a new Power BI workspace."""
+
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups?$workspaceV2=True"
         response = oauth_request(
             url=url_groups,
@@ -23,44 +25,62 @@ class AzurePowerBIWorkspaceService:
             type="POST",
         )
         if response is None:
-            logger.warning("[powerbi] Cannot create PowerBI workspace")
+            logger.error(f"  [bold red]✘[/bold red] Failed to create Power BI workspace [cyan]{name}[/cyan]")
             return None
         output_data = response.json()
         return output_data
 
     def delete(self, workspace_id: str, force_validation: bool):
-        logger.info(f"Deleting workspace... {workspace_id}")
+        """Delete a Power BI workspace after optional confirmation."""
+
+        workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
         if not workspace_id:
-            logger.warning(f"Current value: {self.state['powerbi']['workspace']['id']}")
-        workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
-        if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):
+            logger.error("  [bold red]✘[/bold red] Missing workspace ID for Power BI deletion")
             return CommandResponse.fail()
+
+        if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):
+            logger.info(f"  [dim]→ Deletion cancelled for workspace [cyan]{workspace_id}[/cyan][/dim]")
+            return CommandResponse.fail()
+
+        logger.info(f"  [dim]→ Deleting Power BI workspace [cyan]{workspace_id}[/cyan]...[/dim]")
         url_delete = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}"
         response = oauth_request(url=url_delete, access_token=self.powerbi_token, type="DELETE")
+
         if response is None:
-            logger.warning("[powerbi] Cannot delete PowerBI workspace")
+            logger.error(f"  [bold red]✘[/bold red] Failed to delete Power BI workspace [cyan]{workspace_id}[/cyan]")
             return CommandResponse.fail()
+        logger.info(f"  [bold green]✔[/bold green] Power BI workspace [cyan]{workspace_id}[/cyan] successfully deleted")
         return response
 
     def get_all(self):
+        """Retrieve all Power BI workspaces accessible by the authenticated user."""
+
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         response = oauth_request(url=url_groups, access_token=self.powerbi_token)
         if response is None:
-            logger.warning("[powerbi] Either workspace name list is empty or you are not allowed to access the PowerBI service")
+            logger.warning(
+                "  [bold red]✘[/bold red] Either workspace name list is empty or you are not allowed to access the PowerBI service"
+            )
             return None
         output_data = response.json().get("value")
         return output_data
 
     def get_current(self):
-        workspace_id = self.state["powerbi"]["workspace"]["id"]
+        """Retrieve details for the current active Power BI workspace stored in state."""
+
+        workspace_id = self.state.get("powerbi", {}).get("workspace", {}).get("id")
+        if not workspace_id:
+            logger.error("  [bold red]✘[/bold red] No active Power BI workspace ID found in state")
+            return None
+
         url_groups = "https://api.powerbi.com/v1.0/myorg/groups"
         params = {"$filter": f"id eq '{workspace_id}'"}
         response = oauth_request(url_groups, self.powerbi_token, params=params)
         if response is None:
-            logger.warning("[powerbi] Cannot get the current PowerBI workspace")
+            logger.error(f"  [bold red]✘[/bold red] Failed to request details for Power BI workspace [cyan]{workspace_id}[/cyan]")
             return None
         workspace_data = response.json().get("value")
         if not workspace_data:
-            logger.error(f"{workspace_id} not found")
+            logger.error(f"  [bold red]✘[/bold red] Power BI workspace [cyan]{workspace_id}[/cyan] not found")
             return None
         return workspace_data

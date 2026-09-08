@@ -21,6 +21,7 @@ from Babylon.commands.macro.helpers.workspace.kubernetes_helper import (
     destroy_postgres_schema,
     get_postgres_service_host,
 )
+from Babylon.commands.macro.helpers.workspace.powerbi_helper import build_powerbi_ext_args, deploy_powerbi, destroy_powerbi_assets
 from Babylon.commands.macro.helpers.workspace.superset_helper import (
     _build_dashboard_ext_args,
     _fetch_and_store_embedded_dashboard_uuids,
@@ -29,6 +30,7 @@ from Babylon.commands.macro.helpers.workspace.superset_helper import (
     deploy_dashboard,
     deploy_superset,
     deploy_superset_multiple_assets,
+    destroy_dashboard_assets,
     get_dashboard_embedded_uuid,
     get_uuid_by_dashboard_id,
     update_variables_file_entry,
@@ -51,6 +53,7 @@ __all__ = [
     "deploy_dashboard",
     "deploy_superset",
     "deploy_superset_multiple_assets",
+    "destroy_dashboard_assets",
     "create_postgres_datasource",
     "delete_superset_assets",
     "_fetch_and_store_embedded_dashboard_uuids",
@@ -58,4 +61,8 @@ __all__ = [
     "get_dashboard_embedded_uuid",
     "get_uuid_by_dashboard_id",
     "update_variables_file_entry",
+    # powerbi_helper
+    "deploy_powerbi",
+    "destroy_powerbi_assets",
+    "build_powerbi_ext_args",
 ]
