@@ -9,6 +9,9 @@ spec:
         jobs:
           - name: k8s_job.yaml
             path: postgres/jobs
+        scripts:
+          - run: false
+            path: postgres/scripts
     dashboards:
       provider: powerbi
       create: false

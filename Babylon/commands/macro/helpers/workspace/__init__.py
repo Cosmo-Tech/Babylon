@@ -15,6 +15,8 @@ from Babylon.commands.macro.helpers.workspace.kubernetes_helper import (
     deploy_postgres_schema,
     destroy_postgres_schema,
     get_postgres_service_host,
+    has_postgres_scripts_to_run,
+    run_postgres_scripts,
 )
 from Babylon.commands.macro.helpers.workspace.powerbi_helper import build_powerbi_ext_args, deploy_powerbi, destroy_powerbi_assets
 from Babylon.commands.macro.helpers.workspace.superset_helper import (
@@ -41,6 +43,8 @@ __all__ = [
     # kubernetes_helper
     "deploy_postgres_schema",
     "destroy_postgres_schema",
+    "run_postgres_scripts",
+    "has_postgres_scripts_to_run",
     "delete_kubernetes_resources",
     "get_postgres_service_host",
     "create_workspace_secret",

@@ -18,9 +18,10 @@ from cosmotech_api.models.workspace_security import WorkspaceSecurity
 from cosmotech_api.models.workspace_update_request import WorkspaceUpdateRequest
 
 from Babylon.commands.macro.helpers.common import update_object_security
+from Babylon.utils.environment import Environment
 
 logger = getLogger(__name__)
-
+env = Environment()
 
 # ---------------------------------------------------------------------------
 # Public API
@@ -39,6 +40,9 @@ def create_workspace(api_instance, api_section: dict, payload: dict, state: dict
         return False
     logger.info(f"  [bold green]✔[/bold green] Workspace [bold magenta]{workspace.id}[/bold magenta] created")
     state["services"]["api"]["workspace_id"] = workspace.id
+    env.store_state_in_local(state)
+    if env.remote:
+        env.store_state_in_kubernetes(state)
     return True
 
 
