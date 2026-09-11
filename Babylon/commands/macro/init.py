@@ -109,6 +109,7 @@ def _scaffold_project(
         _create_project_dir(project_path)
         _copy_yaml_templates(project_path, cloud_provider, bi_provider)
         _create_postgres_jobs(project_path)
+        _create_postgres_scripts(project_path)
         _create_dashboard_dirs(project_path, bi_provider)
         _copy_variables_template(variables_path, variables_file, cloud_provider)
         _ensure_webapp(tf_webapp_path, tf_webapp_version)
@@ -160,6 +161,23 @@ def _create_postgres_jobs(project_path: Path) -> None:
     if k8s_template.exists():
         copy(k8s_template, postgres_jobs_path / "k8s_job.yaml")
         logger.info("  [green]✔[/green] Generated [white]postgres/jobs/k8s_job.yaml[/white]")
+
+
+def _create_postgres_scripts(project_path: Path) -> None:
+    """Create the postgres/scripts/ directory and copy the sample SQL script templates."""
+    postgres_scripts_path = project_path / "postgres" / "scripts"
+    postgres_scripts_path.mkdir(parents=True, exist_ok=True)
+    if postgres_scripts_path.exists():
+        logger.info("  [dim]→ Created directory: postgres/scripts[/dim]")
+    else:
+        logger.error("  [bold red]✘[/bold red] Failed to create directory: postgres/scripts")
+
+    scripts_template_dir = env.original_template_path / "postgres" / "scripts"
+    if not scripts_template_dir.exists():
+        return
+    for sql_template in sorted(scripts_template_dir.glob("*.sql")):
+        copy(sql_template, postgres_scripts_path / sql_template.name)
+        logger.info(f"  [green]✔[/green] Generated [white]postgres/scripts/{sql_template.name}[/white]")
 
 
 def _create_dashboard_dirs(project_path: Path, bi_provider: str) -> None:
