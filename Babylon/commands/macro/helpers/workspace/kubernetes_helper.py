@@ -88,6 +88,7 @@ def deploy_postgres_schema(
         writer_username=identities["writer_username"],
     )
 
+
 def _normalize_script_entries(scripts_config) -> list[dict]:
     """Return valid script entries from the scripts configuration.
 
@@ -103,16 +104,15 @@ def _normalize_script_entries(scripts_config) -> list[dict]:
         return []
     return [entry for entry in scripts_config if isinstance(entry, dict)]
 
+
 def has_postgres_scripts_to_run(scripts_config) -> bool:
     """Return whether any configured PostgreSQL script is enabled to run.
 
     A script is considered enabled when its ``run`` field is set to ``True``.
     Invalid entries and missing ``run`` fields are treated as disabled.
     """
-    return any(
-        entry.get("run", False)
-        for entry in _normalize_script_entries(scripts_config)
-    )
+    return any(entry.get("run", False) for entry in _normalize_script_entries(scripts_config))
+
 
 def run_postgres_scripts(
     workspace_id: str,
@@ -138,10 +138,7 @@ def run_postgres_scripts(
             continue
         sql_files.extend(sorted(scripts_dir.glob("*.sql")))
 
-    logger.info(
-        f"  [dim]→ Running {len(sql_files)} PostgreSQL script(s) for workspace "
-        f"[bold cyan]{workspace_id}[/bold cyan]...[/dim]"
-    )
+    logger.info(f"  [dim]→ Running {len(sql_files)} PostgreSQL script(s) for workspace [bold cyan]{workspace_id}[/bold cyan]...[/dim]")
     _run_scripts_job(workspace_id, sql_files, provider)
 
 
@@ -219,9 +216,7 @@ def _run_scripts_job(workspace_id: str, sql_files: list[Path], provider: str) ->
         except FailToCreateError as e:
             for inner_exception in e.api_exceptions:
                 if inner_exception.status != 409:
-                    logger.error(
-                        f"  [bold red]✘[/bold red] Kubernetes API error ({inner_exception.status}): {inner_exception.reason}"
-                    )
+                    logger.error(f"  [bold red]✘[/bold red] Kubernetes API error ({inner_exception.status}): {inner_exception.reason}")
             logger.warning(f"  [yellow]⚠[/yellow] [dim]Job [cyan]{job_name}[/cyan] already exists.[/dim]")
 
         succeeded = _wait_for_job(job_name, timeout="40s")
@@ -230,10 +225,7 @@ def _run_scripts_job(workspace_id: str, sql_files: list[Path], provider: str) ->
             logger.debug(f"  Job '{job_name}' logs:\n{job_logs}")
 
         if not succeeded:
-            logger.error(
-                f"  [bold red]✘[/bold red] PostgreSQL scripts Job "
-                f"'{job_name}' failed. Check 'babylon.log' for details."
-            )
+            logger.error(f"  [bold red]✘[/bold red] PostgreSQL scripts Job '{job_name}' failed. Check 'babylon.log' for details.")
             logger.warning(
                 "  [yellow]⚠[/yellow] [dim]Hint: make sure the schema exists "
                 "in the database. If not, create it with 'schema -> create: true'.[/dim]"
@@ -275,6 +267,7 @@ def _get_job_logs(job_name: str) -> str:
         text=True,
     )
     return logs_process.stdout or logs_process.stderr
+
 
 def _resolve_postgres_identities(tenant: str, provider: str, api_config: dict) -> dict[str, str]:
     """Resolve PostgreSQL database and user identities for the provider.
