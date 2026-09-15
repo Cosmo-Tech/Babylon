@@ -1190,7 +1190,7 @@ new set of commands you will want to make sure to group them in a logical struct
 
 <span class="nd">@group</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">group_template</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Group initialized from a template&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Group initialized from a template"""</span>
     <span class="k">pass</span>
 
 
@@ -1231,14 +1231,14 @@ new set of commands you will want to make sure to group them in a logical struct
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">click</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;Babylon&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"Babylon"</span><span class="p">)</span>
 
 
 <span class="nd">@command</span><span class="p">()</span>
 <span class="nd">@injectcontext</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">command_template</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command created from a template&quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This command was initialized from a template and is empty&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Command created from a template"""</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"This command was initialized from a template and is empty"</span><span class="p">)</span>
 </code></pre></div>
 <h4 id="add-to-__init__py">Add to <code>__init__.py</code><a class="headerlink" href="#add-to-__init__py" title="Permanent link">&para;</a></h4>
 <p>Once the command is created you can make a link to it in the group <code>__init__.py</code> file</p>
