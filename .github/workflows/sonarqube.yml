@@ -3,6 +3,10 @@ name: SonarQube analysis
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+
   pull_request:
     branches:
       - main
@@ -10,7 +14,6 @@ on:
       - opened
       - reopened
       - synchronize
-
 permissions:
   contents: read
 
