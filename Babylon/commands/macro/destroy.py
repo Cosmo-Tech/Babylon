@@ -220,7 +220,7 @@ def _print_destruction_summary(state: dict) -> None:
 @option("--yes", "-y", is_flag=True, default=False, help="Skip the interactive confirmation prompt.")
 def destroy(state: dict, include: tuple[str, ...], exclude: tuple[str, ...], yes: bool):
     """Macro Destroy"""
-    organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
+    _, organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
 
     targeted = _build_targeted_resources(state, organization, solution, workspace, webapp)
 

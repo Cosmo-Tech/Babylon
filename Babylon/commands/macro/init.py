@@ -18,6 +18,7 @@ _TF_WEBAPP_DEFAULT_VERSION = "1.1.0"
 _VARIABLES_TEMPLATE = "variables.yaml"
 
 _PROJECT_YAML_FILES = [
+    "Build.yaml",
     "Organization.yaml",
     "Solution.yaml",
     "Workspace.yaml",
