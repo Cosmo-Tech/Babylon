@@ -8,6 +8,8 @@ from Babylon.commands.macro.helpers.workspace import (
     _build_dashboard_ext_args,
     build_powerbi_ext_args,
     deploy_postgres_schema,
+    has_postgres_scripts_to_run,
+    run_postgres_scripts,
 )
 from Babylon.commands.macro.helpers.workspace.superset_helper import (
     _deploy_or_update_workspace,
@@ -57,6 +59,11 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
         # Persisted so `destroy` can resolve the correct host/identities later
         # (in-cluster for Superset, external Azure PostgreSQL for Power BI).
         state["services"]["postgres"]["provider"] = dataviz_provider
+
+    # --- PostgreSQL Scripts (run = true) ---
+    scripts_config = sidecars.get("postgres", {}).get("schema", {}).get("scripts")
+    if has_postgres_scripts_to_run(scripts_config):
+        run_postgres_scripts(workspace_id, scripts_config, deploy_dir, provider=dataviz_provider)
 
     if dashboard_config.get("create", False):
         if not _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content):

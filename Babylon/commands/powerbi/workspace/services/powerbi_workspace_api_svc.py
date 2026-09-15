@@ -37,7 +37,6 @@ class AzurePowerBIWorkspaceService:
         if not workspace_id:
             logger.error("  [bold red]✘[/bold red] Missing workspace ID for Power BI deletion")
             return CommandResponse.fail()
-
         if not force_validation and not confirm_deletion("Power Bi Workspace", workspace_id):
             logger.info(f"  [dim]→ Deletion cancelled for workspace [cyan]{workspace_id}[/cyan][/dim]")
             return CommandResponse.fail()

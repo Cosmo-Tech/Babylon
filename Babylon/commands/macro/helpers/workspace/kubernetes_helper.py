@@ -3,6 +3,7 @@ Kubernetes helpers for workspace deployment and teardown.
 """
 
 import subprocess
+import sys
 from base64 import b64encode
 from logging import getLogger
 from pathlib import Path
@@ -18,7 +19,9 @@ from Babylon.utils.environment import Environment
 logger = getLogger(__name__)
 env = Environment()
 
-# Schema deployment public entry point
+# PostgreSQL identity resolution (Internal vs External mode)
+
+_SUPPORTED_POSTGRES_PROVIDERS = {"superset", "powerbi"}
 
 
 def deploy_postgres_schema(
@@ -86,9 +89,184 @@ def deploy_postgres_schema(
     )
 
 
-# PostgreSQL identity resolution (Internal vs External mode)
+def _normalize_script_entries(scripts_config) -> list[dict]:
+    """Return valid script entries from the scripts configuration.
 
-_SUPPORTED_POSTGRES_PROVIDERS = {"superset", "powerbi"}
+    The supported configuration format is a list of dictionaries, for example::
+
+        scripts:
+          - run: true
+            path: postgres/scripts
+
+    Invalid entries and non-list configurations are ignored.
+    """
+    if not isinstance(scripts_config, list):
+        return []
+    return [entry for entry in scripts_config if isinstance(entry, dict)]
+
+
+def has_postgres_scripts_to_run(scripts_config) -> bool:
+    """Return whether any configured PostgreSQL script is enabled to run.
+
+    A script is considered enabled when its ``run`` field is set to ``True``.
+    Invalid entries and missing ``run`` fields are treated as disabled.
+    """
+    return any(entry.get("run", False) for entry in _normalize_script_entries(scripts_config))
+
+
+def run_postgres_scripts(
+    workspace_id: str,
+    scripts_config: list,
+    deploy_dir: Path,
+    provider: str = "superset",
+) -> None:
+    """Run the configured PostgreSQL SQL scripts for a workspace.
+
+    Only script entries with ``run: true`` are processed. Script directories
+    are resolved relative to ``deploy_dir``, and matching ``*.sql`` files are
+    executed in a deterministic order through a Kubernetes Job.
+    """
+    deploy_dir = deploy_dir if isinstance(deploy_dir, Path) else Path(deploy_dir)
+
+    sql_files: list[Path] = []
+    for entry in _normalize_script_entries(scripts_config):
+        if not entry.get("run", False):
+            continue
+        scripts_dir = deploy_dir / entry.get("path", "")
+        if not scripts_dir.is_dir():
+            logger.warning(f"  [yellow]⚠[/yellow] PostgreSQL scripts directory '{scripts_dir}' not found, skipping")
+            continue
+        sql_files.extend(sorted(scripts_dir.glob("*.sql")))
+
+    logger.info(f"  [dim]→ Running {len(sql_files)} PostgreSQL script(s) for workspace [bold cyan]{workspace_id}[/bold cyan]...[/dim]")
+    _run_scripts_job(workspace_id, sql_files, provider)
+
+
+def _create_scripts_configmap(configmap_name: str, namespace: str, sql_files: list[Path]) -> None:
+    """Create (or replace) a ConfigMap holding every SQL file's content, keyed by filename."""
+
+    data = {sql_file.name: sql_file.read_text() for sql_file in sql_files}
+
+    configmap = client.V1ConfigMap(
+        api_version="v1",
+        kind="ConfigMap",
+        metadata=client.V1ObjectMeta(name=configmap_name, namespace=namespace),
+        data=data,
+    )
+
+    k8s_client = env.get_kubernetes_client()
+    try:
+        k8s_client.create_namespaced_config_map(namespace=namespace, body=configmap)
+    except client.ApiException as e:
+        if e.status != 409:
+            raise
+        # A previous run left the ConfigMap behind: replace it with fresh content.
+        k8s_client.replace_namespaced_config_map(name=configmap_name, namespace=namespace, body=configmap)
+
+
+def _delete_scripts_configmap(configmap_name: str, namespace: str) -> None:
+    """Best-effort deletion of the transient SQL scripts ConfigMap."""
+
+    try:
+        k8s_client = env.get_kubernetes_client()
+        k8s_client.delete_namespaced_config_map(name=configmap_name, namespace=namespace)
+    except client.ApiException as e:
+        if e.status != 404:
+            logger.debug(f"  Could not delete ConfigMap '{configmap_name}': {e.reason}")
+    except Exception as e:
+        logger.debug(f"  Could not delete ConfigMap '{configmap_name}': {e}")
+
+
+def _run_scripts_job(workspace_id: str, sql_files: list[Path], provider: str) -> None:
+    """Create a Kubernetes Job to execute SQL scripts and wait for completion."""
+
+    db_host = get_postgres_host(env.environ_id, provider)
+    api_config = env.get_config_from_k8s_secret_by_tenant("postgresql-cosmotechapi", env.environ_id)
+    identities = _resolve_postgres_identities(env.environ_id, provider, api_config)
+    schema_name = workspace_id.replace("-", "_")
+
+    job_name = f"postgresql-scripts-{workspace_id}"
+    configmap_name = f"postgresql-scripts-{workspace_id}"
+
+    mapping = {
+        "namespace": env.environ_id,
+        "job_name": workspace_id,
+        "configmap_name": configmap_name,
+        "db_host": db_host,
+        "db_port": "5432",
+        "cosmotech_api_database": identities["database_name"],
+        "cosmotech_api_writer_username": identities["writer_username"],
+        "workspace_schema": schema_name,
+    }
+
+    logger.info(f"  [dim]→ Creating ConfigMap [magenta]{configmap_name}[/magenta] with SQL scripts...[/dim]")
+    _create_scripts_configmap(configmap_name, env.environ_id, sql_files)
+
+    try:
+        template_path = env.original_template_path / "yaml" / "k8s_job_scripts.yaml"
+        with open(template_path, "r") as f:
+            raw_content = f.read()
+
+        yaml_dict = safe_load(Template(raw_content).safe_substitute(mapping))
+        k8s_client = env.get_kubernetes_client()
+
+        logger.info(f"  [dim]→ Creating Job [cyan]{job_name}[/cyan] to run SQL scripts...[/dim]")
+        try:
+            utils.create_from_dict(k8s_client.api_client, yaml_dict, namespace=env.environ_id)
+        except FailToCreateError as e:
+            for inner_exception in e.api_exceptions:
+                if inner_exception.status != 409:
+                    logger.error(f"  [bold red]✘[/bold red] Kubernetes API error ({inner_exception.status}): {inner_exception.reason}")
+            logger.warning(f"  [yellow]⚠[/yellow] [dim]Job [cyan]{job_name}[/cyan] already exists.[/dim]")
+
+        succeeded = _wait_for_job(job_name, timeout="40s")
+        job_logs = _get_job_logs(job_name)
+        if job_logs:
+            logger.debug(f"  Job '{job_name}' logs:\n{job_logs}")
+
+        if not succeeded:
+            logger.error(f"  [bold red]✘[/bold red] PostgreSQL scripts Job '{job_name}' failed. Check 'babylon.log' for details.")
+            logger.warning(
+                "  [yellow]⚠[/yellow] [dim]Hint: make sure the schema exists "
+                "in the database. If not, create it with 'schema -> create: true'.[/dim]"
+            )
+            sys.exit(1)
+
+        logger.info(f"  [bold green]✔[/bold green] {len(sql_files)} PostgreSQL script(s) executed successfully")
+    finally:
+        _delete_scripts_configmap(configmap_name, env.environ_id)
+
+
+def _wait_for_job(job_name: str, timeout: str = "120s") -> bool:
+    """Wait for the Kubernetes Job to complete and return whether it succeeded."""
+
+    wait_process = subprocess.run(
+        [
+            "kubectl",
+            "wait",
+            "--for=condition=complete",
+            "job",
+            job_name,
+            f"--namespace={env.environ_id}",
+            f"--timeout={timeout}",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if wait_process.returncode == 0:
+        return True
+    logger.debug(f"  kubectl wait stdout: {wait_process.stdout} stderr: {wait_process.stderr}")
+    return False
+
+
+def _get_job_logs(job_name: str) -> str:
+    """Return the combined logs of a Job's pod(s), best-effort."""
+    logs_process = subprocess.run(
+        ["kubectl", "logs", f"job/{job_name}", "-n", env.environ_id],
+        capture_output=True,
+        text=True,
+    )
+    return logs_process.stdout or logs_process.stderr
 
 
 def _resolve_postgres_identities(tenant: str, provider: str, api_config: dict) -> dict[str, str]:
@@ -159,6 +337,15 @@ def get_external_postgres_host() -> str:
 
 def get_postgres_service_host(namespace: str) -> str:
     """Discover the PostgreSQL service name in a namespace to build its FQDN."""
+    service_name = discover_postgres_service_name(namespace)
+    return f"{service_name}.{namespace}.svc.cluster.local"
+
+
+def discover_postgres_service_name(namespace: str) -> str:
+    """Discover the PostgreSQL Kubernetes Service name (no FQDN) in a namespace.
+
+    Used to build the in-cluster FQDN (``get_postgres_service_host``).
+    """
     try:
         k8s_client = env.get_kubernetes_client()
         services = k8s_client.list_namespaced_service(namespace)
@@ -167,13 +354,13 @@ def get_postgres_service_host(namespace: str) -> str:
             labels = svc.metadata.labels or {}
             if "postgresql" in svc.metadata.name or labels.get("app.kubernetes.io/name") == "postgresql":
                 logger.debug(f"  [dim]→ Found PostgreSQL service {svc.metadata.name}[/dim]")
-                return f"{svc.metadata.name}.{namespace}.svc.cluster.local"
+                return svc.metadata.name
 
-        return f"postgresql.{namespace}.svc.cluster.local"
+        return "postgresql"
     except Exception as e:
-        logger.warning("  [yellow]⚠[/yellow] PostgreSQL service discovery failed falling back to default hostname")
+        logger.warning("  [yellow]⚠[/yellow] PostgreSQL service discovery failed falling back to default service name")
         logger.debug(f"  Exception details: {e}", exc_info=True)
-        return f"postgresql.{namespace}.svc.cluster.local"
+        return "postgresql"
 
 
 # K8s Secret and ConfigMap create
