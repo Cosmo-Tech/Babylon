@@ -2,11 +2,14 @@ name: SonarQube analysis
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "15 3 * * *"
-  push:
+
+  pull_request:
     branches:
       - main
+    types:
+      - opened
+      - reopened
+      - synchronize
 
 permissions:
   contents: read
@@ -19,8 +22,8 @@ jobs:
         with:
           fetch-depth: 0 # Disable shallow clone to improve the analysis results
 
-      - name: Run analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: npx @sonar/scan
