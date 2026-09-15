@@ -627,6 +627,7 @@ def _update_powerbi_variable(path: list[str], value: str) -> bool:
         logger.error(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
     return False
 
+
 def build_powerbi_ext_args(template_content: str = "", fallback_empty: bool = False) -> dict:
     """Build the ``{"powerbi": {...}}`` ext_args dict used for template rendering."""
     powerbi_data: dict[str, Any] = {}
@@ -653,9 +654,11 @@ def build_powerbi_ext_args(template_content: str = "", fallback_empty: bool = Fa
 
     return {"powerbi": powerbi_data} if powerbi_data else {}
 
+
 # Teardown: delete every Power BI resource created for a workspace (used by
 # the Destroy Macro Command). Deletion order: datasets -> workspace (the
 # workspace deletion cascades any reports still referencing them)
+
 
 def _clear_powerbi_variables() -> None:
     """Clear persisted Power BI workspace and report IDs."""

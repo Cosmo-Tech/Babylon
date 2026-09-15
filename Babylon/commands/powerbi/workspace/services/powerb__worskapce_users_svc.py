@@ -18,11 +18,6 @@ class AzurePowerBIWorkspaceUserService:
         if not workspace_id or not identifier:
             logger.error("  [bold red]✘[/bold red] Missing workspace ID or identifier for Power BI permission update")
             return None
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
         url_users = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users"
         body = {
             "identifier": identifier,
@@ -33,11 +28,7 @@ class AzurePowerBIWorkspaceUserService:
         if response is None:
             logger.error(f"  [bold red]✘[/bold red] Failed to add user [cyan]{identifier}[/cyan] to Power BI workspace")
             return None
-<<<<<<< HEAD
         logger.info(f"  [bold green]✔[/bold green] {type} [cyan]{identifier}[/cyan] successfully added to Power BI workspace")
-=======
-        logger.info(f"  [bold green]✔[/bold green] User [cyan]{identifier}[/cyan] successfully added to workspace")
->>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
 
     def delete(self, workspace_id, force_validation: bool, email: str):
         workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
@@ -48,11 +39,7 @@ class AzurePowerBIWorkspaceUserService:
         if response is None:
             logger.error(f"  [bold red]✘[/bold red] Failed to delete user [cyan]{email}[/cyan] from Power BI workspace")
             return None
-<<<<<<< HEAD
         logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully removed from Power BI workspace")
-=======
-        logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully removed from workspace")
->>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)
 
     def get_all(self, workspace_id: str):
         workspace_id = workspace_id or self.state.get("powerbi", {}).get("workspace", {}).get("id")
@@ -76,10 +63,5 @@ class AzurePowerBIWorkspaceUserService:
         if response is None:
             logger.error(f"  [bold red]✘[/bold red] Failed to update user [cyan]{email}[/cyan] in Power BI workspace")
             return None
-<<<<<<< HEAD
         logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully updated in Power BI workspace")
         return response
-=======
-        logger.info(f"  [bold green]✔[/bold green] User [cyan]{email}[/cyan] successfully updated in workspace")
-        return response
->>>>>>> e2ad4fca (feat(powerbi): add Power BI workspace deployment support)

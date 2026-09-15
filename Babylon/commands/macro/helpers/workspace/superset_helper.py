@@ -17,13 +17,10 @@ from requests.exceptions import RequestException
 from ruamel.yaml import YAML as _RYAML
 from yaml import safe_load
 
-from Babylon.commands.macro.helpers.workspace.powerbi_helper import deploy_powerbi
-
 from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import (
     create_workspace,
     update_workspace,
 )
-from Babylon.commands.macro.helpers.workspace.powerbi_helper import _update_workspace_with_powerbi_ids, destroy_powerbi_assets
 from Babylon.commands.macro.helpers.workspace.kubernetes_helper import get_postgres_service_host
 from Babylon.commands.macro.helpers.workspace.powerbi_helper import (
     _update_workspace_with_powerbi_ids,
@@ -75,6 +72,7 @@ def _update_workspace_with_superset_uuids(config, api_instance, api_section, fil
     payload2 = content2.get("spec", {}).get("payload", {})
     return update_workspace(api_instance, api_section, payload2)
 
+
 def _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content) -> bool:
     """Deploy dashboards and handle provider-specific follow-up. Returns True on success."""
     provider = (dashboard_config.get("provider") or "").lower()
@@ -119,6 +117,7 @@ def deploy_dashboard(
     logger.error(f"  [bold red]✘[/bold red] Unsupported dashboard provider '{provider}'")
     return False, set()
 
+
 def destroy_dashboard_assets(provider: str, state: dict, config: dict) -> bool:
     """Delete dashboard assets using the configured provider."""
 
@@ -137,6 +136,7 @@ def destroy_dashboard_assets(provider: str, state: dict, config: dict) -> bool:
 
     logger.warning(f"  [yellow]⚠[/yellow] Unsupported dashboard provider '{provider}' skipping cleanup")
     return True
+
 
 # Superset deployment top-level orchestration
 
@@ -181,6 +181,7 @@ def _resolve_superset_reports(reports: list | dict, deploy_dir: Path) -> list[di
 
     logger.warning("  [yellow]⚠[/yellow] Unsupported 'reports' configuration type expected a list of reports or a {path} mapping")
     return []
+
 
 def deploy_superset(
     reports: list,
@@ -265,6 +266,7 @@ def deploy_superset_multiple_assets(
         all_zip_uuids |= new_uuids
 
     return all_ok, all_zip_uuids
+
 
 def _setup_database_and_csrf(
     base_url: str,
