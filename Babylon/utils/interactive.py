@@ -23,7 +23,6 @@ def ask_for_group(prompt: str, exists: bool = False) -> list[str]:
 
     group_string = click.prompt(prompt, type=str)
     if exists:
-        # TODO : Check for group existence
         pass
     click.echo(f"Selected group : {group_string}")
     return group_string.split()

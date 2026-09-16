@@ -727,7 +727,12 @@ def _patch_metadata(content_dir: Path) -> None:
         return
     try:
         raw = meta_file.read_text(encoding="utf-8")
-        patched = sub(pattern=r"^(type:\s*).*$", repl=r"\g<1>assets", string=raw, flags=MULTILINE)
+        patched = sub(
+            pattern=r"^(type:[ \t]*)[^\r\n]*$",
+            repl=r"\g<1>assets",
+            string=raw,
+            flags=MULTILINE,
+        )
         if patched != raw:
             meta_file.write_text(patched, encoding="utf-8", newline="\n")
     except OSError as exp:

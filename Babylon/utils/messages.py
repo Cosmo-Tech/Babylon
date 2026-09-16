@@ -1,22 +1,22 @@
-def SUCCESS_PAYLOAD_CREATED(resource):
+def success_payload_created(resource):
     return f"Successfully created: {resource} payload"
 
 
-def SUCCESS_CREATED(resource, id):
+def success_created(resource, id):
     return f"Successfully created: {resource} with id: {id}"
 
 
-def SUCCESS__RBAC_UPDATED(resource):
+def success_rbac_updated(resource):
     return f"Successfully updated: {resource} RBAC"
 
 
-def SUCCESS_UPDATED(resource, id):
+def success_updated(resource, id):
     return f"Successfully updated: {resource} with id: {id}"
 
 
-def SUCCESS_DELETED(resource, id):
+def success_deleted(resource, id):
     return f"Successfully deleted: {resource} with id: {id}"
 
 
-def SUCCESS_CONFIG_UPDATED(resource, key):
+def success_config_updated(resource, key):
     return f"Successfully updated: variable {key} in {resource}"

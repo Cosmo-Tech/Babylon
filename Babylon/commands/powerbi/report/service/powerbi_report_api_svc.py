@@ -72,7 +72,7 @@ class AzurePowerBIReportService:
         output_data = response.json()
         return output_data
 
-    def pages(self, workspace_id: str, report_id: str, report_type: str):
+    def pages(self, workspace_id: str, report_id: str):
         workspace_id = workspace_id or self.state["powerbi"]["workspace"]["id"]
         urls_reports = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/pages"
         response = oauth_request(urls_reports, self.powerbi_token)

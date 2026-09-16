@@ -52,4 +52,4 @@ class WorkingDir:
 
     def append_deployment_file(self, path_file: pathlib.Path):
         mtime = pathlib.Path(path_file).stat().st_mtime
-        self.files_to_deploy.append(dict(file=path_file.name, mtime=mtime))
+        self.files_to_deploy.append({"file": path_file.name, "mtime": mtime})

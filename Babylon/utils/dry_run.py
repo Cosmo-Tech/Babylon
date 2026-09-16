@@ -8,7 +8,7 @@ import rich.markdown
 logger = logging.getLogger("Babylon")
 
 
-def display_dry_run(ctx: click.Context, param: click.Parameter, value: str):
+def display_dry_run(ctx: click.Context, *_args, **_kwargs):
     group = ctx.command
     # parse the cmdline and get the command and its arguments
     parser = group.make_parser(ctx)
