@@ -5,7 +5,7 @@ from Babylon.commands.macro.helpers.workspace import powerbi_helper as pbh
 
 class _FakeDatasetService:
     def __init__(self, datasets=None, fail_ids=()):
-        self._datasets = datasets if datasets is not None else []
+        self._datasets = datasets
         self._fail_ids = set(fail_ids)
         self.deleted_ids = []
 

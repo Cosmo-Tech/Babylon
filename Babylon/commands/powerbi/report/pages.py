@@ -34,7 +34,6 @@ def pages(
     state: Any,
     powerbi_token: str,
     report_id: str,
-    report_type: str,
     workspace_id: str,
 ) -> CommandResponse:
     """
@@ -42,5 +41,5 @@ def pages(
     """
     service_state = state["services"]
     service = AzurePowerBIReportService(powerbi_token=powerbi_token, state=service_state)
-    service.pages(workspace_id=workspace_id, report_id=report_id, report_type=report_type)
+    service.pages(workspace_id=workspace_id, report_id=report_id)
     return CommandResponse.success()
