@@ -95,7 +95,7 @@ def delete_api_resource(
             logger.info(f"  [bold yellow]⚠[/bold yellow] {resource_name} [magenta]{resource_id}[/magenta] already deleted (404)")
             state["services"]["api"][state_key] = ""
         else:
-            logger.error(f"  [bold red]✘[/bold red] Error deleting {resource_name.lower()} {resource_id} reason: {e}")
+            logger.exception(f"  [bold red]✘[/bold red] Error deleting {resource_name.lower()} {resource_id} reason: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -122,5 +122,5 @@ def sync_workspace_security(api_instance, api_section: dict, payload: dict) -> b
         )
         return True
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Security update failed: {e}")
         return False

@@ -46,7 +46,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
         logger.info(f"  [green]✔[/green] Run [bold cyan]{run.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(run.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not get run: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not get run: {e}")
         return CommandResponse.fail()
 
 
@@ -71,7 +71,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id
         logger.info(f"  [green]✔[/green] Run [bold red]{run_id}[/bold red] deleted successfully")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not delete run: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not delete run: {e}")
         return CommandResponse.fail()
 
 
@@ -93,7 +93,7 @@ def list_runs(config: dict, keycloak_token: str, organization_id: str, workspace
         data_list = [ds.model_dump() for ds in runs]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not list runs: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not list runs: {e}")
         return CommandResponse.fail()
 
 
@@ -122,7 +122,7 @@ def get_logs(
         logger.info(f"  [green]✔[/green] Run logs retrieved successfully {logs}")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not get run logs: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not get run logs: {e}")
         return CommandResponse.fail()
 
 
@@ -152,5 +152,5 @@ def get_status(
         logger.info(f"  [green]✔[/green] Run status retrieved successfully is [bold cyan]{status.phase}[/bold cyan]")
         return CommandResponse.success(status.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not get run status: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not get run status: {e}")
         return CommandResponse.fail()

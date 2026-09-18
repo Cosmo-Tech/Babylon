@@ -106,7 +106,7 @@ def update_default_security(
             getattr(api_instance, f"update_{object_type}_default_security")(*object_ids, desired_security.default)
             logger.info(f"  [bold green]✔[/bold green] Updated [magenta]{object_type}[/magenta] default security")
         except Exception as e:
-            logger.error(f"  [bold red]✘[/bold red] Failed to update [magenta]{object_type}[/magenta] default security: {e}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to update [magenta]{object_type}[/magenta] default security: {e}")
 
 
 def update_object_security(
@@ -129,16 +129,16 @@ def update_object_security(
                 getattr(api_instance, f"create_{object_type}_access_control")(*object_ids, entry)
                 logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry.id}[/magenta] added successfully")
             except Exception as e:
-                logger.error(f"  [bold red]✘[/bold red] Failed to add access control for id [magenta]{entry.id}[/magenta]: {e}")
+                logger.exception(f"  [bold red]✘[/bold red] Failed to add access control for id [magenta]{entry.id}[/magenta]: {e}")
         if entry.id in to_update:
             try:
                 getattr(api_instance, f"update_{object_type}_access_control")(*object_ids, entry.id, {"role": entry.role})
                 logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry.id}[/magenta] updated successfully")
             except Exception as e:
-                logger.error(f"  [bold red]✘[/bold red] Failed to update access control for id [magenta]{entry.id}[/magenta]: {e}")
+                logger.exception(f"  [bold red]✘[/bold red] Failed to update access control for id [magenta]{entry.id}[/magenta]: {e}")
     for entry_id in to_delete:
         try:
             getattr(api_instance, f"delete_{object_type}_access_control")(*object_ids, entry_id)
             logger.info(f"  [bold green]✔[/bold green] Access control for id [magenta]{entry_id}[/magenta] deleted successfully")
         except Exception as e:
-            logger.error(f"  [bold red]✘[/bold red] Failed to delete access control for id [magenta]{entry_id}[/magenta]: {e}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to delete access control for id [magenta]{entry_id}[/magenta]: {e}")

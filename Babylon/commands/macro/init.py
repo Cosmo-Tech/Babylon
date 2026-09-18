@@ -53,7 +53,7 @@ def _clone_webapp(tf_webapp_path: Path, version: str) -> None:
         else:
             logger.error("  [bold red]✘[/bold red] Terraform WebApp module was not created after cloning")
     except git.GitError as exc:
-        logger.error(f"  [bold red]✘[/bold red] Failed to clone Terraform repo: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to clone Terraform repo: {exc}")
 
 
 def _ensure_webapp(tf_webapp_path: Path, version: str) -> None:
@@ -70,7 +70,7 @@ def _ensure_webapp(tf_webapp_path: Path, version: str) -> None:
             webapp_repo.head.reset(index=True, working_tree=True)
             logger.info(f"  [green]✔[/green] Terraform WebApp version set to [cyan]{version}[/cyan]")
         except git.GitError as exc:
-            logger.error(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
+            logger.exception(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
     else:
         logger.warning("  [bold yellow]![/bold yellow] Webapp directory not found")
         _clone_webapp(tf_webapp_path, version)
@@ -92,7 +92,7 @@ def _ensure_variables_file(variables_path: Path, variables_file: str, cloud_prov
         else:
             logger.error(f"  [bold red]✘[/bold red] Failed to generate [cyan]{variables_file}[/cyan]")
     except OSError as exc:
-        logger.error(f"  [bold red]✘[/bold red] Failed to generate variables file: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to generate variables file: {exc}")
 
 
 def _scaffold_project(

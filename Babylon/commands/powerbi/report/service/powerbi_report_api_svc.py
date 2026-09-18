@@ -109,7 +109,7 @@ class AzurePowerBIReportService:
             try:
                 response = session.post(url=route, headers=header, files={"file": _f})
             except Exception as e:
-                logger.error(f"  [bold red]✘[/bold red] Request failed: {e}")
+                logger.exception(f"  [bold red]✘[/bold red] Request failed: {e}")
                 return None
             if response.status_code >= 300:
                 logger.error(f"  [bold red]✘[/bold red] Request failed ({response.status_code}): {response.text}")

@@ -31,5 +31,5 @@ def about(config: dict, keycloak_token: str) -> CommandResponse:
         logger.info(f"  [green]✔[/green] API About Information: {about_info}")
         return CommandResponse.success(about_info.to_dict())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not retrieve about information: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not retrieve about information: {e}")
         return CommandResponse.fail()

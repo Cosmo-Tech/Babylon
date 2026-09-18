@@ -54,7 +54,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, solution_id:
         logger.info(f"  [bold green]✔[/bold green] Workspace [bold cyan]{workspace.id}[/bold cyan] successfully created")
         return CommandResponse.success(workspace.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -76,7 +76,7 @@ def list_workspaces(config: dict, keycloak_token: str, organization_id: str) -> 
         data_list = [ws.model_dump() for ws in workspaces]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -94,7 +94,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id
         logger.info(f"  [bold green]✔[/bold green] Workspace [bold red]{workspace_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -121,7 +121,7 @@ def update(config: dict, keycloak_token: str, organization_id: str, workspace_id
         logger.info(f"  [green]✔[/green] Workspace [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Update Workspace Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Update Workspace Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -140,5 +140,5 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
         logger.info(f"  [green]✔[/green] Workspace [bold cyan]{workspace.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({workspace.id: workspace.model_dump()})
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Workspace Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Workspace Failed Reason: {e}")
         return CommandResponse.fail()

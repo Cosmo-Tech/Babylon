@@ -400,7 +400,7 @@ def create_workspace_secret(
                 f"  [yellow]⚠[/yellow] [dim]Secret [magenta]{secret_name}[/magenta] is already configured skipping creation[/dim]"
             )
             return True
-        logger.error(f"  [bold red]✘[/bold red] Failed to create secret {secret_name}: {e.reason}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to create secret {secret_name}: {e.reason}")
         return False
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Unexpected error creating Secret '{secret_name}'")
@@ -455,7 +455,7 @@ def create_coal_configmap(
                 f"configured skipping creation[/dim]"
             )
             return True
-        logger.error(f"  [bold red]✘[/bold red] Failed to create ConfigMap '{configmap_name}': {e.reason}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to create ConfigMap '{configmap_name}': {e.reason}")
         return False
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Unexpected error creating ConfigMap '{configmap_name}'")
@@ -688,7 +688,7 @@ def _delete_secret(k8s_client: client.CoreV1Api, secret_name: str, namespace: st
         if e.status == 404:
             logger.warning("  [yellow]⚠[/yellow] [dim]Secret not found already deleted[/dim]")
         else:
-            logger.error(f"  [bold red]✘[/bold red] Failed to delete Secret '{secret_name}': {e.reason}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to delete Secret '{secret_name}': {e.reason}")
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting Secret '{secret_name}'")
         logger.debug(f"  Detail: {e}", exc_info=True)
@@ -704,7 +704,7 @@ def _delete_configmap(k8s_client: client.CoreV1Api, configmap_name: str, namespa
         if e.status == 404:
             logger.warning("  [yellow]⚠[/yellow] [dim]ConfigMap not found already deleted[/dim]")
         else:
-            logger.error(f"  [bold red]✘[/bold red] Failed to delete ConfigMap '{configmap_name}': {e.reason}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to delete ConfigMap '{configmap_name}': {e.reason}")
     except Exception as e:
         logger.error(f"  [bold red]✘[/bold red] Unexpected error deleting ConfigMap '{configmap_name}'")
         logger.debug(f"  Detail: {e}", exc_info=True)

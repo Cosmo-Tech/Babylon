@@ -52,7 +52,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, payload_file
         logger.info(f"  [bold green]✔[/bold green] Solution [bold cyan]{solution.id}[/bold cyan] successfully created")
         return CommandResponse.success(solution.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -70,7 +70,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str, solution_id:
         logger.info(f"  [bold green]✔[/bold green] Solution [bold red]{solution_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -90,7 +90,7 @@ def list_solutions(config: dict, keycloak_token: str, organization_id: str) -> C
         data_list = [ds.model_dump() for ds in solutions]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -109,7 +109,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, solution_id: st
         logger.info(f"  [green]✔[/green] Solution [bold cyan]{solution.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({solution.id: solution.model_dump()})
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Solution Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Solution Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -136,5 +136,5 @@ def update(config: dict, keycloak_token: str, organization_id: str, solution_id:
         logger.info(f"  [green]✔[/green] Solution [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Update Solution Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Update Solution Failed Reason: {e}")
         return CommandResponse.fail()

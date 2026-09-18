@@ -31,7 +31,7 @@ def ensure_tf_webapp_version(tf_dir: Path, version: str) -> None:
         webapp_repo.head.reset(index=True, working_tree=True)
         logger.debug(f"  terraform-webapp version [cyan]{version}[/cyan] checked out")
     except git.GitError as exc:
-        logger.error(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not switch terraform-webapp to version {version}: {exc}")
 
 
 def dict_to_tfvars(payload: dict) -> str:
@@ -105,7 +105,7 @@ def run_terraform_process(executable: list[str], cwd, payload: dict, state: dict
             logger.error("  [bold red]✘[/bold red] Deployment failed")
 
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Execution error: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Execution error: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -165,4 +165,4 @@ def destroy_webapp(state: dict) -> None:
             logger.error(f"  [bold red]✘[/bold red] Terraform destroy failed (Code {process.returncode})")
 
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Error during WebApp destruction: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Error during WebApp destruction: {e}")

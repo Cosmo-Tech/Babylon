@@ -357,7 +357,7 @@ def _upload_powerbi_report(
             override=True,
         )
     except Exception as exp:
-        logger.error(f"  [bold red]✘[/bold red] Failed to upload report '{name} to Power BI': {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to upload report '{name} to Power BI': {exp}")
         return False
 
     logger.info(f"  [bold green]✔[/bold green] Report [cyan]{name}[/cyan] uploaded to Power BI")
@@ -515,7 +515,7 @@ def _sync_powerbi_permission_entries(
                 )
 
         except Exception as exc:
-            logger.error(f"  [bold red]✘[/bold red] Failed to sync permissions for '{identifier}': {exc}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to sync permissions for '{identifier}': {exc}")
             all_ok = False
 
     return all_ok
@@ -553,7 +553,7 @@ def _remove_powerbi_workspace_permissions(
             )
 
         except Exception as exc:
-            logger.error(f"  [bold red]✘[/bold red] Failed to remove permissions for '{identifier}': {exc}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to remove permissions for '{identifier}': {exc}")
             all_ok = False
 
     return all_ok
@@ -622,9 +622,9 @@ def _update_powerbi_variable(path: list[str], value: str) -> bool:
         variables_path.write_text(buffer.getvalue(), encoding="utf-8", newline="\n")
         return True
     except OSError as exc:
-        logger.error(f"  [bold red]✘[/bold red] File system error updating '{variables_path.name}': {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] File system error updating '{variables_path.name}': {exc}")
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
     return False
 
 
@@ -684,7 +684,7 @@ def _destroy_powerbi_datasets(dataset_service: AzurePowerBIDatasetService, works
             dataset_service.delete(workspace_id=workspace_id, force_validation=True, dataset_id=dataset_id)
             logger.info(f"  [bold green]✔[/bold green] Dataset [cyan]{dataset_id}[/cyan] deleted")
         except Exception as exc:
-            logger.error(f"  [bold red]✘[/bold red] Failed to delete dataset '{dataset_id}': {exc}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to delete dataset '{dataset_id}': {exc}")
             all_ok = False
 
     return all_ok
@@ -701,11 +701,11 @@ def _destroy_powerbi_workspace(workspace_service: AzurePowerBIWorkspaceService, 
     try:
         result = workspace_service.delete(workspace_id=workspace_id, force_validation=True)
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Failed to delete Power BI workspace '{workspace_id}': {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to delete Power BI workspace '{workspace_id}': {exc}")
         return False
 
     if result is None or (hasattr(result, "has_failed") and result.has_failed()):
-        logger.error(f"  [bold red]✘[/bold red] Failed to delete Power BI workspace '{workspace_id}'")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to delete Power BI workspace '{workspace_id}'")
         return False
 
     return True

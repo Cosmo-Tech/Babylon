@@ -61,7 +61,7 @@ def deploy_webapp(namespace: str, file_content: str):
     try:
         tfvars_path.write_text(dict_to_tfvars(payload))
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Failed to write tfvars: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to write tfvars: {e}")
         return
 
     logger.info("  [dim]→ Running Terraform deployment...[/dim]")
