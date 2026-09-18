@@ -61,7 +61,7 @@ def create(config: dict, keycloak_token: str, organization_id: str, workspace_id
         logger.info(f"  [bold green]✔[/bold green] Dataset [bold cyan]{dataset.id}[/bold cyan] successfully created")
         return CommandResponse.success(dataset.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -84,7 +84,7 @@ def list_datasets(config: dict, keycloak_token: str, organization_id: str, works
         data_list = [ds.model_dump() for ds in datasets]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -103,7 +103,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id
         logger.info(f"  [bold green]✔[/bold green] Dataset [bold red]{dataset_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -123,7 +123,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
         logger.info(f"  [green]✔[/green] Dataset [bold cyan]{dataset.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(dataset.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Dataset Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Dataset Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -155,7 +155,7 @@ def update(
         logger.info(f"  [green]✔[/green] Dataset [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Update Dataset Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Update Dataset Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -190,7 +190,7 @@ def create_part(
         logger.info(f"  [bold green]✔[/bold green] Dataset part [bold cyan]{created.id}[/bold cyan] successfully created")
         return CommandResponse.success(created.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -218,7 +218,7 @@ def get_part(
         logger.info(f"  [green]✔[/green] Dataset part [bold]{dataset_part.id}[/bold] retrieved successfully")
         return CommandResponse.success(dataset_part.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Dataset part Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Dataset part Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -245,7 +245,7 @@ def delete_part(
         logger.info(f"  [green]✔[/green] Dataset part [bold]{dataset_part_id}[/bold] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -284,7 +284,7 @@ def update_part(
         logger.info(f"  [green]✔[/green] Dataset part [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Update Dataset part Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Update Dataset part Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -406,7 +406,7 @@ def query_data(
         logger.info(f"  [green]✔[/green] Query result: {query_result}")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not query data: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not query data: {e}")
         return CommandResponse.fail()
 
 
@@ -435,7 +435,7 @@ def download_part(
         logger.info(f"  [green]✔[/green] Dataset part downloaded successfully to {dataset_part_id}")
         return CommandResponse.success({"file_path": dataset_part_id})
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not download dataset part: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not download dataset part: {e}")
         return CommandResponse.fail()
 
 
@@ -461,5 +461,5 @@ def list_parts(config: dict, keycloak_token: str, organization_id: str, workspac
         data_list = [ds.model_dump() for ds in dataset_parts]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Parts Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Parts Failed Reason: {e}")
         return CommandResponse.fail()

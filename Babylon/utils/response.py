@@ -49,10 +49,10 @@ class CommandResponse:
             ]
         )
 
-    def toJSON(self) -> str:
+    def to_json(self) -> str:
         return json.dumps(self.data, indent=4, ensure_ascii=False)
 
-    def toYAML(self) -> str:
+    def to_yaml(self) -> str:
         return yaml.dump(self.data)
 
     def _get_normalized_items(self) -> list:
@@ -122,7 +122,7 @@ class CommandResponse:
     def dump_json(self, output_file: pathlib.Path):
         """Dump command response data in a json file"""
         with open(output_file, "w") as _f:
-            _f.write(self.toJSON())
+            _f.write(self.to_json())
         logger.info(f"  [green]✔[/green] The JSON response was dumped in file [bold]{output_file}[/bold]")
 
     def has_failed(self) -> bool:

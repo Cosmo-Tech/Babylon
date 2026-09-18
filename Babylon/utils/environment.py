@@ -121,7 +121,7 @@ class Environment(metaclass=SingletonMeta):
             return client.CoreV1Api()
         except ConfigException as exc:
             logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
-            logger.error(f"  [red]Reason:[/red] {exc}")
+            logger.exception(f"  [red]Reason:[/red] {exc}")
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Ensure your kubeconfig file is valid")
             logger.info("  • Ensure the kubernetes context is correct:")
@@ -158,7 +158,7 @@ class Environment(metaclass=SingletonMeta):
             k8s_client = self.get_kubernetes_client()
             return k8s_client.read_namespaced_secret(name=secret_name, namespace=tenant)
         except ApiException:
-            logger.error(
+            logger.exception(
                 f"  [yellow]⚠[/yellow] Secret [green]{secret_name}[/green] could not be found in namespace [green]{tenant}[/green]."
             )
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
@@ -171,7 +171,7 @@ class Environment(metaclass=SingletonMeta):
             logger.info("    [cyan]babylon namespace use -c <context> -t <tenant>[/cyan]")
             sys.exit(1)
         except Exception:
-            logger.error(
+            logger.exception(
                 "  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: "
                 "'Cluster may be down, kube-apiserver unreachable'"
             )
@@ -203,7 +203,7 @@ class Environment(metaclass=SingletonMeta):
                 logger.info(f"  [dim]→ Local state file [cyan]{state_file.name}[/cyan] already removed nothing to delete[/dim]")
             return True
         except OSError as exc:
-            logger.error(f"  [bold red]✘[/bold red] Could not delete local state file [cyan]{state_file.name}[/cyan]: {exc}")
+            logger.exception(f"  [bold red]✘[/bold red] Could not delete local state file [cyan]{state_file.name}[/cyan]: {exc}")
             return False
 
     def store_state_in_kubernetes(self, state: dict, namespace: str = "", secret_name: str = "") -> None:
@@ -269,7 +269,7 @@ class Environment(metaclass=SingletonMeta):
             )
             return [s.metadata.name for s in secrets.items]
         except Exception as e:
-            logger.error(f"  [bold red]✘[/bold red] Failed to list remote states: {e}")
+            logger.exception(f"  [bold red]✘[/bold red] Failed to list remote states: {e}")
             return []
 
     def get_state_from_local(self):
@@ -364,7 +364,7 @@ class Environment(metaclass=SingletonMeta):
             try:
                 return safe_load(file) or {}
             except YAMLError as e:
-                logger.error(f"  [bold red]✘[/bold red] File '{file_path}' is not a valid YAML file. Details: {str(e)}")
+                logger.exception(f"  [bold red]✘[/bold red] File '{file_path}' is not a valid YAML file. Details: {str(e)}")
                 sys.exit(1)
 
     def merge_yaml_files(self, file_paths: list[Path]):

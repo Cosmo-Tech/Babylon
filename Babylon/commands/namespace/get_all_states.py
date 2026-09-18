@@ -28,7 +28,7 @@ def _get_remote_states() -> bool:
     try:
         remote_files = env.list_remote_states()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Failed to reach remote storage: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to reach remote storage: {e}")
         return False
     if not remote_files:
         logger.warning("  [yellow]⚠[/yellow] No remote states found")

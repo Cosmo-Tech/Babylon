@@ -76,7 +76,7 @@ def deploy_solution(namespace: str, file_content: str):
                     object_ids=[api_section["organization_id"], api_section["solution_id"]],
                 )
             except Exception as e:
-                logger.error(f"  [bold red]✘[/bold red] Security update failed: {e}")
+                logger.exception(f"  [bold red]✘[/bold red] Security update failed: {e}")
                 return CommandResponse.fail()
         logger.info(f"  [bold green]✔[/bold green] Solution [bold magenta]{api_section['solution_id']}[/bold magenta] updated")
     # --- State Persistence ---

@@ -91,10 +91,10 @@ def save_state_in_kubernetes(k8s_client: client.CoreV1Api, namespace: str, secre
             k8s_client.create_namespaced_secret(namespace=namespace, body=secret)
             logger.info(f"  [green]✔[/green] State secret [cyan]{secret_name}[/cyan] created in namespace [cyan]{namespace}[/cyan]")
         else:
-            logger.error(f"  [bold red]✘[/bold red] Kubernetes API error while storing state (HTTP {exc.status}): {exc.reason}")
+            logger.exception(f"  [bold red]✘[/bold red] Kubernetes API error while storing state (HTTP {exc.status}): {exc.reason}")
             sys.exit(1)
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
         sys.exit(1)
 
 
@@ -111,10 +111,12 @@ def delete_state_from_kubernetes(k8s_client: client.CoreV1Api, namespace: str, s
                 f"[cyan]{namespace}[/cyan] nothing to delete[/dim]"
             )
             return True
-        logger.error(f"  [bold red]✘[/bold red] Kubernetes API error while deleting state secret (HTTP {exc.status}): {exc.reason}")
+        logger.exception(
+            f"  [bold red]✘[/bold red] Kubernetes API error while deleting state secret (HTTP {exc.status}): {exc.reason}"
+        )
         return False
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
         return False
 
 
@@ -133,10 +135,10 @@ def retrieve_state_from_kubernetes(k8s_client: client.CoreV1Api, namespace: str,
                 f"  [yellow]⚠[/yellow] State secret [cyan]{secret_name}[/cyan] not found in namespace [cyan]{namespace}[/cyan]"
             )
             return None
-        logger.error(f"  [bold red]✘[/bold red] Kubernetes API error while retrieving state (HTTP {exc.status}): {exc.reason}")
+        logger.exception(f"  [bold red]✘[/bold red] Kubernetes API error while retrieving state (HTTP {exc.status}): {exc.reason}")
         sys.exit(1)
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
         sys.exit(1)
 
     if not secret.data or STATE_KEY not in secret.data:

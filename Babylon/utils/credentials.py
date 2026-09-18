@@ -51,7 +51,7 @@ def get_superset_token(base_url: str, config: dict) -> str | None:
         return token
 
     except Exception as exp:
-        logger.error(f"  [bold red]✘[/bold red] Could not authenticate to Superset: {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not authenticate to Superset: {exp}")
         return None
 
 
@@ -151,10 +151,10 @@ def get_keycloak_credentials() -> tuple[dict, dict]:
         return credentials, config
 
     except KeyError as e:
-        logger.error(f"  [bold red]✘[/bold red] Check the Keycloak configuration in the Kubernetes secret: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Check the Keycloak configuration in the Kubernetes secret: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error while retrieving Keycloak credentials: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Unexpected error while retrieving Keycloak credentials: {e}")
         sys.exit(1)
 
 
@@ -170,12 +170,12 @@ def get_keycloak_token() -> tuple[str, dict]:
         token_data = response.json()
         access_token = token_data.get("access_token")
         if not access_token:
-            logger.error("  [bold red]✘[/bold red] Access token not found in Keycloak response")
+            logger.exception("  [bold red]✘[/bold red] Access token not found in Keycloak response")
             sys.exit(1)
         return access_token, config
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"  [bold red]✘[/bold red] Keycloak request failed: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Keycloak request failed: {e}")
         sys.exit(1)
 
 

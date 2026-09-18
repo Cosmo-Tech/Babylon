@@ -53,7 +53,7 @@ def create(config: dict, keycloak_token: str, payload_file) -> CommandResponse:
         logger.info(f"  [bold green]✔[/bold green] Organization [bold cyan]{organization.id}[/bold cyan] successfully created")
         return CommandResponse.success(organization.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -73,7 +73,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str) -> CommandRe
         logger.info(f"  [bold green]✔[/bold green] Organization [bold red]{organization_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -94,7 +94,7 @@ def list_organizations(config: dict, keycloak_token: str) -> CommandResponse:
         data_list = [org.model_dump() for org in organizations]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -112,7 +112,7 @@ def get(config: dict, keycloak_token: str, organization_id: str) -> CommandRespo
         logger.info(f"  [green]✔[/green] Organization [bold cyan]{organization.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success({organization.id: organization.model_dump()})
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Organization Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Organization Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -138,5 +138,5 @@ def update(config: dict, keycloak_token: str, organization_id: str, payload_file
         logger.info(f"  [green]✔[/green] Organization [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Update Organization Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Update Organization Failed Reason: {e}")
         return CommandResponse.fail()

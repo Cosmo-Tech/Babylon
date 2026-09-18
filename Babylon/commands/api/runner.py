@@ -60,7 +60,7 @@ def create(
         logger.info(f"  [bold green]✔[/bold green] Runner [bold cyan]{runner.id}[/bold cyan] successfully created")
         return CommandResponse.success(runner.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Creation Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -79,7 +79,7 @@ def delete(config: dict, keycloak_token: str, organization_id: str, workspace_id
         logger.info(f"  [bold green]✔[/bold green] Runner [bold red]{runner_id}[/bold red] successfully deleted")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Deletion Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -101,7 +101,7 @@ def list_runners(config: dict, keycloak_token: str, organization_id: str, worksp
         data_list = [ds.model_dump() for ds in runners]
         return CommandResponse.success(data_list)
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -121,7 +121,7 @@ def get(config: dict, keycloak_token: str, organization_id: str, workspace_id: s
         logger.info(f"  [green]✔[/green] Runner [bold cyan]{runner.id}[/bold cyan] retrieved successfully")
         return CommandResponse.success(runner.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Retrieve Runner Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Retrieve Runner Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -152,7 +152,7 @@ def update(
         logger.info(f"  [green]✔[/green] Runner [bold cyan]{updated.id}[/bold cyan] updated successfully")
         return CommandResponse.success(updated.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Update Runner Failed Reason: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Update Runner Failed Reason: {e}")
         return CommandResponse.fail()
 
 
@@ -176,7 +176,7 @@ def start(config: dict, keycloak_token: str, organization_id: str, workspace_id:
         logger.info(f"  [green]✔[/green] Run [bold cyan]{run.id}[/bold cyan] started successfully")
         return CommandResponse.success(run.model_dump())
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not start run: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not start run: {e}")
         return CommandResponse.fail()
 
 
@@ -199,5 +199,5 @@ def stop(config: dict, keycloak_token: str, organization_id: str, workspace_id: 
         logger.info(f"  [green]✔[/green] Last run stopped successfully for runner [bold cyan]{runner_id}[/bold cyan]")
         return CommandResponse.success()
     except Exception as e:
-        logger.error(f"  [bold red]✘[/bold red] Could not stop run: {e}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not stop run: {e}")
         return CommandResponse.fail()

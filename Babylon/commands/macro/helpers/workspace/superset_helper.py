@@ -357,7 +357,7 @@ def create_postgres_datasource(
         logger.info(f"  [bold green]✔[/bold green] Datasource '{display_name}' created")
         return response.json()
     except Exception as exp:
-        logger.error(f"  [bold red]✘[/bold red] Failed to create datasource '{display_name}': {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to create datasource '{display_name}': {exp}")
         return None
 
 
@@ -536,7 +536,7 @@ def _process_dashboard_zip(
             _repack_zip(zip_path, tmp_dir)
 
     except (OSError, BadZipFile) as exc:
-        logger.error(f"  [bold red]✘[/bold red] ZIP processing error for '{zip_path.name}': {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] ZIP processing error for '{zip_path.name}': {exc}")
         return False, set()
 
     if not _import_zip_to_superset(base_url, superset_token, csrf_token, zip_path):
@@ -562,7 +562,7 @@ def _read_uuids_from_zip(zip_path: Path) -> set[str]:
                 if match:
                     uuids.add(match.group(1).lower())
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Could not read UUIDs from {zip_path.name}: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not read UUIDs from {zip_path.name}: {exc}")
     return uuids
 
 
@@ -588,7 +588,7 @@ def _read_schemas_from_zips(zip_paths: list[Path]) -> set[str]:
                     if match:
                         schemas.add(match.group(1).strip())
         except Exception as exc:
-            logger.debug(f"  Could not read schemas from {zip_path.name}: {exc}")
+            logger.exception(f"  Could not read schemas from {zip_path.name}: {exc}")
     return schemas
 
 
@@ -641,7 +641,7 @@ def _assets_exist_in_superset(
                 result[folder_key] = True
 
         except Exception as exc:
-            logger.error(f"  [bold red]✘[/bold red] Could not query Superset {folder_key}: {exc}")
+            logger.exception(f"  [bold red]✘[/bold red] Could not query Superset {folder_key}: {exc}")
 
     if result["charts"] or result["dashboards"]:
         result["datasets"] = True
@@ -727,11 +727,16 @@ def _patch_metadata(content_dir: Path) -> None:
         return
     try:
         raw = meta_file.read_text(encoding="utf-8")
-        patched = sub(pattern=r"^(type:\s*).*$", repl=r"\g<1>assets", string=raw, flags=MULTILINE)
+        patched = sub(
+            pattern=r"^(type:[ \t]*)[^\r\n]*$",
+            repl=r"\g<1>assets",
+            string=raw,
+            flags=MULTILINE,
+        )
         if patched != raw:
             meta_file.write_text(patched, encoding="utf-8", newline="\n")
     except OSError as exp:
-        logger.error(f"  [bold red]✘[/bold red] File system error while patching 'metadata.yaml': {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] File system error while patching 'metadata.yaml': {exp}")
 
 
 def _patch_database_dir(tmp_dir: Path, sqlalchemy_uri: str, database_name: str, db_uuid: str = "") -> None:
@@ -907,7 +912,7 @@ def _repack_zip(zip_path: Path, tmp_dir: Path) -> None:
                     zf.write(file, arcname)
         logger.debug(f"  Repacked '{zip_path.name}'")
     except OSError as exp:
-        logger.error(f"  [bold red]✘[/bold red] Error repacking '{zip_path.name}': {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] Error repacking '{zip_path.name}': {exp}")
         raise
 
 
@@ -936,10 +941,10 @@ def _import_zip_to_superset(
         logger.info(f"  [bold green]✔[/bold green] Zip [cyan]{zip_path.name}[/cyan] imported into Superset")
         return True
     except RequestException as exp:
-        logger.error(f"  [bold red]✘[/bold red] Failed to import '{zip_path.name}': {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to import '{zip_path.name}': {exp}")
         return False
     except Exception as exp:
-        logger.error(f"  [bold red]✘[/bold red] Unexpected error importing '{zip_path.name}': {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] Unexpected error importing '{zip_path.name}': {exp}")
         return False
 
 
@@ -955,10 +960,10 @@ def _get_superset_csrf_token(base_url: str, bearer_token: str) -> str | None:
         response.raise_for_status()
         csrf = response.json().get("result")
         if not csrf:
-            logger.error("  [bold red]✘[/bold red] CSRF token not found in Superset response")
+            logger.exception("  [bold red]✘[/bold red] CSRF token not found in Superset response")
         return csrf
     except Exception as exp:
-        logger.error(f"  [bold red]✘[/bold red] Failed to fetch Superset CSRF token: {exp}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to fetch Superset CSRF token: {exp}")
         return None
 
 
@@ -1033,7 +1038,7 @@ def _get_filtered_dashboards(
         resp.raise_for_status()
         all_dashboards: list[dict] = resp.json().get("result", [])
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Could not list Superset dashboards: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not list Superset dashboards: {exc}")
         return None
 
     if not zip_uuids:
@@ -1078,7 +1083,7 @@ def _get_embedded_uuid_for_dashboard(
         )
         emb_resp.raise_for_status()
     except Exception:
-        logger.error(f"  [bold red]✘[/bold red] Could not fetch embedded UUID for dashboard '{name}' (id={integer_id})")
+        logger.exception(f"  [bold red]✘[/bold red] Could not fetch embedded UUID for dashboard '{name}' (id={integer_id})")
         return None
 
     result_block: dict = emb_resp.json().get("result") or {}
@@ -1191,9 +1196,9 @@ def update_variables_file_entry(
         variables_path.write_text(buf.getvalue(), encoding="utf-8", newline="\n")
         return True
     except OSError as exc:
-        logger.error(f"  [bold red]✘[/bold red] File system error updating '{variables_path.name}': {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] File system error updating '{variables_path.name}': {exc}")
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
     return False
 
 
@@ -1376,7 +1381,7 @@ def _list_asset_ids_by_prefix(
                 break
             page += 1
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Could not list assets from {endpoint}: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Could not list assets from {endpoint}: {exc}")
         return None
     return ids
 
@@ -1394,7 +1399,7 @@ def _delete_asset(
         resp.raise_for_status()
         return True
     except Exception as exc:
-        logger.error(f"  [bold red]✘[/bold red] Failed to delete {endpoint.strip('/')} id={asset_id}: {exc}")
+        logger.exception(f"  [bold red]✘[/bold red] Failed to delete {endpoint.strip('/')} id={asset_id}: {exc}")
         return False
 
 

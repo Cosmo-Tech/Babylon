@@ -63,6 +63,5 @@ __all__ = [
     # powerbi_helper
     "deploy_powerbi",
     "destroy_powerbi_assets",
-    "destroy_powerbi_assets",
     "build_powerbi_ext_args",
 ]

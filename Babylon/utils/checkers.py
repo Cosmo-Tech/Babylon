@@ -57,9 +57,9 @@ def check_encoding_key():
 
 
 def check_special_char(string: str):
-    regex = re.compile("[@_!#$%^&*()<>?/\\|}{~:|\\.]")
-    if not regex.search(string):
+    if not re.search(r"[@_!#$%^&*()<>?/\\|}{~:.]", string):
         return string
+
     logger.error(f"{string} is invalid")
     logger.error("@_!#$%^&*()<>?/|}{~:. characters are forbidden")
     sys.exit()

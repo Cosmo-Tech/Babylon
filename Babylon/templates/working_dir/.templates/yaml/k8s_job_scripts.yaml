@@ -16,16 +16,16 @@ spec:
             - |
               set -e
               SCRIPT_COUNT=0
-              for f in $(find /scripts -maxdepth 1 -name '*.sql' -print | sort); do
-                SCRIPT_COUNT=$((SCRIPT_COUNT + 1))
-                echo "INFO:  Running script $(basename "$f")"
+              for f in $$(find /scripts -maxdepth 1 -name '*.sql' -print | sort); do
+                SCRIPT_COUNT=$$((SCRIPT_COUNT + 1))
+                echo "INFO:  Running script $$(basename "$$f")"
                 psql -h ${db_host} -p ${db_port} -U ${cosmotech_api_writer_username} -d ${cosmotech_api_database} \
-                  -v ON_ERROR_STOP=1 -f "$f"
+                  -v ON_ERROR_STOP=1 -f "$$f"
               done
-              if [ "$SCRIPT_COUNT" -eq 0 ]; then
+              if [ "$$SCRIPT_COUNT" -eq 0 ]; then
                 echo "INFO:  No SQL scripts found nothing to run"
               else
-                echo "SUCCESS:  $SCRIPT_COUNT script(s) executed successfully"
+                echo "SUCCESS:  $$SCRIPT_COUNT script(s) executed successfully"
               fi
           env:
             - name: PGOPTIONS
