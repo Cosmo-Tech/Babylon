@@ -111,8 +111,9 @@ def delete_state_from_kubernetes(k8s_client: client.CoreV1Api, namespace: str, s
                 f"[cyan]{namespace}[/cyan] nothing to delete[/dim]"
             )
             return True
-        logger.exception(f"  [bold red]✘[/bold red] Kubernetes API error while deleting state secret"
-                         f" (HTTP {exc.status}): {exc.reason}")
+        logger.exception(
+            f"  [bold red]✘[/bold red] Kubernetes API error while deleting state secret (HTTP {exc.status}): {exc.reason}"
+        )
         return False
     except Exception as exc:
         logger.exception(f"  [bold red]✘[/bold red] Failed to connect to the Kubernetes cluster: {exc}")
