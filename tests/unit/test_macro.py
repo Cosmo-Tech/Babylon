@@ -5,6 +5,7 @@ from cosmotech_api.models.solution_access_control import SolutionAccessControl
 from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
 
 from Babylon.commands.macro.helpers.common import diff, resolve_inclusion_exclusion
+from Babylon.commands.macro.helpers.workspace.superset_helper import _patch_metadata
 
 
 def test_organization_diff():
@@ -104,3 +105,11 @@ def test_resolve_inclusion_exclusion_partial_exclude_mixed():
 def test_resolve_inclusion_exclusion_conflicting_filters_variation():
     with pytest.raises(Abort):
         resolve_inclusion_exclusion(include=("solution", "workspace"), exclude=("organization",))
+
+
+def test_patch_metadata(tmp_path):
+    meta_file = tmp_path / "metadata.yaml"
+    meta_file.write_text("type: something", encoding="utf-8")
+    _patch_metadata(tmp_path)
+    patched_content = meta_file.read_text(encoding="utf-8")
+    assert patched_content == "type: assets"

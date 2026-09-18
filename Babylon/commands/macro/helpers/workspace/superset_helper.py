@@ -725,11 +725,12 @@ def _patch_metadata(content_dir: Path) -> None:
     meta_file = content_dir / "metadata.yaml"
     if not meta_file.is_file():
         return
+
     try:
         raw = meta_file.read_text(encoding="utf-8")
         patched = sub(
-            pattern=r"^(type:[ \t]*)[^\r\n]*$",
-            repl=r"\g<1>assets",
+            pattern=r"^(type:).*$",
+            repl=r"\g<1> assets",
             string=raw,
             flags=MULTILINE,
         )
