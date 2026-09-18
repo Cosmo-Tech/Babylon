@@ -144,7 +144,7 @@ def run_postgres_scripts(
 
 def _create_scripts_configmap(configmap_name: str, namespace: str, sql_files: list[Path]) -> None:
     """Create (or replace) a ConfigMap holding every SQL file's content, keyed by filename."""
-    data = {f"{index:08d}_{sql_file.name}": sql_file.read_text(encoding="utf-8") for index, sql_file in enumerate(sql_files)}
+    data = {f"{index:02d}_{sql_file.name}": sql_file.read_text(encoding="utf-8") for index, sql_file in enumerate(sql_files)}
 
     configmap = client.V1ConfigMap(
         api_version="v1",
