@@ -61,9 +61,9 @@ documentation_url: 'https://portal.cosmotech.com/resources/platform-resources/we
 security:
   default: none
   accessControlList:
-    - id: tenant-admin
+    - id: user.1@cosmotech.com
       role: admin
-    - id: tenant-editor
+    - id: user.2@cosmotech.com
       role: editor
-    - id: tenant-viewer
+    - id: user.3@cosmotech.com
       role: viewer
