@@ -20,7 +20,7 @@ spec:
       reports:
         - path: "dashboard/powerbi"
           parameters:
-            - id: "Kusto"
+            - id: "Server"
               value: "csm-{{cluster_name}}.postgres.database.azure.com"
             - id: "Database"
               value: "tenant-{{tenant}}"
@@ -46,7 +46,7 @@ spec:
           logInWithUserCredentials: false
           useWebappTheme: true
           dashboardsViewIframeDisplayRatio: 1.6
-          scenarioViewIframeDisplayRatio: 4.5
+          scenarioViewIframeDisplayRatio: 2.142857145
           dashboardsView:
             - title:
                 en: Customer Overview
@@ -59,10 +59,10 @@ spec:
                 en: d3c00faba401072eeff8
                 fr: d3c00faba401072eeff8
               dynamicFilters:
-                - table: w_3yy658nkke4 cosmotech_satisfaction
+                - table: "{{services['postgres.schema_name']}} cosmotech_satisfaction"
                   column: Simulation_run
                   values: lastRunId
-                - table: w_3yy658nkke4 cosmotech_stock
+                - table: "{{services['postgres.schema_name']}} cosmotech_stock"
                   column: Simulation_run
                   values: lastRunId
             - title:
@@ -76,10 +76,10 @@ spec:
                 filterPaneEnabled: false
                 navContentPaneEnabled: false
               dynamicFilters:
-                - table: w_3yy658nkke4 cosmotech_satisfaction
+                - table: "{{services['postgres.schema_name']}} cosmotech_satisfaction"
                   column: Simulation_run
                   values: lastRunId
-                - table: w_3yy658nkke4 cosmotech_stock
+                - table: "{{services['postgres.schema_name']}} cosmotech_stock"
                   column: Simulation_run
                   values: lastRunId
           scenarioView:
@@ -92,10 +92,10 @@ spec:
                 filterPaneEnabled: false
                 navContentPaneEnabled: false
               dynamicFilters:
-                - table: w_3yy658nkke4 cosmotech_satisfaction
+                - table: "{{services['postgres.schema_name']}} cosmotech_satisfaction"
                   column: Simulation_run
                   values: lastRunId
-                - table: w_3yy658nkke4 cosmotech_stock
+                - table: "{{services['postgres.schema_name']}} cosmotech_stock"
                   column: Simulation_run
                   values: lastRunId
         menu:
