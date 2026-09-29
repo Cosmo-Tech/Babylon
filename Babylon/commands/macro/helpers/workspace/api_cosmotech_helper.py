@@ -1,13 +1,5 @@
 """
 Cosmotech API helpers for workspace deployment and teardown.
-
-Public surface:
-  - create_workspace     — create a new workspace, persist its ID in state
-  - update_workspace     — update an existing workspace + sync security
-  - delete_api_resource  — generic idempotent deletion (org / solution / workspace)
-
-Internal helper called by update_workspace:
-  - sync_workspace_security
 """
 
 from logging import getLogger
@@ -40,9 +32,6 @@ def create_workspace(api_instance, api_section: dict, payload: dict, state: dict
         return False
     logger.info(f"  [bold green]✔[/bold green] Workspace [bold magenta]{workspace.id}[/bold magenta] created")
     state["services"]["api"]["workspace_id"] = workspace.id
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_kubernetes(state)
     return True
 
 
@@ -71,11 +60,8 @@ def delete_api_resource(
     state: dict,
     state_key: str,
 ) -> None:
-    """Delete a Cosmotech API resource and clear its ID from state.
+    """Delete a Cosmotech API resource and clear its ID from state."""
 
-    Handles the repetitive deletion pattern shared across organization, solution
-    and workspace teardown.  A 404 response is treated as a no-op (already gone).
-    """
     if not resource_id:
         logger.warning(f"  [yellow]⚠[/yellow] [dim]No {resource_name} ID found in state! skipping deletion[dim]")
         return

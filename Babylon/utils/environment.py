@@ -255,6 +255,7 @@ class Environment(metaclass=SingletonMeta):
                         "schema_name": "",
                         "provider": "",
                     },
+                    "dashboards": {},
                 },
             }
         return result
@@ -293,6 +294,7 @@ class Environment(metaclass=SingletonMeta):
                         "schema_name": "",
                         "provider": "",
                     },
+                    "dashboards": {},
                 },
             }
         state_data = load(state_file.open("r"), Loader=SafeLoader)
