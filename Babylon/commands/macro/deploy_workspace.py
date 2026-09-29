@@ -31,9 +31,9 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
 
     # Phase 1 render dashboard UUID variables may not exist yet (first deploy).
     # Pass template_content so every {{var}} reference is pre-filled with "" when
-    # the key is absent from variables.yaml, preventing strict_undefined crashes.
-    pre_ext = _build_dashboard_ext_args(fallback_empty=True, template_content=file_content)
-    pre_ext.update(build_powerbi_ext_args(fallback_empty=True, template_content=file_content))
+    # the key is absent from state, preventing strict_undefined crashes.
+    pre_ext = _build_dashboard_ext_args(state, fallback_empty=True, template_content=file_content)
+    pre_ext.update(build_powerbi_ext_args(state, fallback_empty=True, template_content=file_content))
     content = env.fill_template(data=file_content, state=state, ext_args=pre_ext or None)
 
     keycloak_token, config = get_keycloak_token()
@@ -42,34 +42,40 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
     api_section["workspace_id"] = payload.get("id") or api_section.get("workspace_id", "")
     api_instance = get_workspace_api_instance(config=config, keycloak_token=keycloak_token)
 
-    # --- API Deployment Logic ---
-    if not _deploy_or_update_workspace(api_instance, api_section, payload, state):
-        return CommandResponse.fail()
-
-    # --- PostgreSQL Schema ---
-    workspace_id = state["services"]["api"]["workspace_id"]
-    spec = content.get("spec") or {}
-    sidecars = spec.get("sidecars", {})
-    schema_config = sidecars.get("postgres", {}).get("schema") or {}
-    # --- Dashboard Deployment (provider-based dispatch: superset | powerbi) ---
-    dashboard_config = sidecars.get("dashboards", {})
-    dataviz_provider = (dashboard_config.get("provider") or "superset").strip().lower()
-    if schema_config.get("create", False):
-        deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state, provider=dataviz_provider)
-        # Persisted so `destroy` can resolve the correct host/identities later
-        # (in-cluster for Superset, external Azure PostgreSQL for Power BI).
-        state["services"]["postgres"]["provider"] = dataviz_provider
-
-    # --- PostgreSQL Scripts (run = true) ---
-    scripts_config = sidecars.get("postgres", {}).get("schema", {}).get("scripts")
-    if has_postgres_scripts_to_run(scripts_config):
-        run_postgres_scripts(workspace_id, scripts_config, deploy_dir, provider=dataviz_provider)
-
-    if dashboard_config.get("create", False):
-        if not _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content):
+    try:
+        # --- API Deployment Logic (Workspace object) ---
+        if not _deploy_or_update_workspace(api_instance, api_section, payload, state):
             return CommandResponse.fail()
 
-    # --- State Persistence ---
-    env.store_state_in_local(state)
-    if env.remote:
-        env.store_state_in_kubernetes(state)
+        # --- PostgreSQL Schema ---
+        workspace_id = state["services"]["api"]["workspace_id"]
+        spec = content.get("spec") or {}
+        sidecars = spec.get("sidecars", {})
+        schema_config = sidecars.get("postgres", {}).get("schema") or {}
+        dashboard_config = sidecars.get("dashboards", {})
+        dataviz_provider = (dashboard_config.get("provider") or "superset").strip().lower()
+
+        try:
+            if schema_config.get("create", False):
+                deploy_postgres_schema(workspace_id, schema_config, api_section, deploy_dir, state, provider=dataviz_provider)
+                state["services"]["postgres"]["provider"] = dataviz_provider
+
+            # --- PostgreSQL Scripts (run = true) ---
+            scripts_config = sidecars.get("postgres", {}).get("schema", {}).get("scripts")
+            if has_postgres_scripts_to_run(scripts_config):
+                run_postgres_scripts(workspace_id, scripts_config, deploy_dir, provider=dataviz_provider)
+
+            # --- Dashboard Deployment (provider-based dispatch: superset | powerbi) ---
+            if dashboard_config.get("create", False):
+                if not _handle_dashboard_sidecar(
+                    dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content
+                ):
+                    return CommandResponse.fail()
+        except Exception as exc:
+            logger.exception(f"  [bold red]✘[/bold red] Postgres/Dashboard deployment failed: {exc}")
+            return CommandResponse.fail()
+    finally:
+        # --- State Persistence ---
+        env.store_state_in_local(state)
+        if env.remote:
+            env.store_state_in_kubernetes(state)

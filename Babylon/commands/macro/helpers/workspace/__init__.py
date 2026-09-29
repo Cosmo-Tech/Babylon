@@ -30,7 +30,6 @@ from Babylon.commands.macro.helpers.workspace.superset_helper import (
     destroy_dashboard_assets,
     get_dashboard_embedded_uuid,
     get_uuid_by_dashboard_id,
-    update_variables_file_entry,
 )
 
 __all__ = [
@@ -59,7 +58,6 @@ __all__ = [
     "_build_dashboard_ext_args",
     "get_dashboard_embedded_uuid",
     "get_uuid_by_dashboard_id",
-    "update_variables_file_entry",
     # powerbi_helper
     "deploy_powerbi",
     "destroy_powerbi_assets",

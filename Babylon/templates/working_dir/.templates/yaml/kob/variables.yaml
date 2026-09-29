@@ -1,6 +1,7 @@
 # =========================================================
 # IMPORTANT: You can add variables here as needed!
 # Make sure they are used in the manifest YAML.
+# Compatible with Babylon v5.5.1
 # =========================================================
 # Organization
 organization_name: Babylon v5 Organization

@@ -3,7 +3,6 @@ Superset helpers for dashboard deployment and embedded-UUID feedback.
 """
 
 import uuid as _uuid_mod
-from io import StringIO
 from json import dumps
 from logging import getLogger
 from pathlib import Path
@@ -14,8 +13,6 @@ from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
 
 import requests
 from requests.exceptions import RequestException
-from ruamel.yaml import YAML as _RYAML
-from yaml import safe_load
 
 from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import (
     create_workspace,
@@ -63,11 +60,11 @@ def _update_workspace_with_superset_uuids(config, api_instance, api_section, fil
     superset_jwt = get_superset_token(base_url=base_url, config=config)
     if superset_jwt and base_url:
         # Pass zip_uuids so only dashboards from our ZIP are queried
-        _fetch_and_store_embedded_dashboard_uuids(base_url, superset_jwt, zip_uuids=zip_uuids)
+        _fetch_and_store_embedded_dashboard_uuids(base_url, superset_jwt, state, zip_uuids=zip_uuids)
 
-    # Phase 2 render – variables file now contains real UUIDs.
+    # Phase 2 render – state now contains real UUIDs.
     # fallback_empty=False: only include keys that have a real value.
-    ext = _build_dashboard_ext_args(fallback_empty=False)
+    ext = _build_dashboard_ext_args(state, fallback_empty=False)
     content2 = env.fill_template(data=file_content, state=state, ext_args=ext or None)
     payload2 = content2.get("spec", {}).get("payload", {})
     return update_workspace(api_instance, api_section, payload2)
@@ -974,22 +971,12 @@ def _get_superset_csrf_token(base_url: str, bearer_token: str) -> str | None:
 def _fetch_and_store_embedded_dashboard_uuids(
     base_url: str,
     superset_jwt: str,
+    state: dict,
     zip_uuids: set[str] | None = None,
 ) -> bool:
     """Enable embedding and fetch the embedded UUID for each imported dashboard,
-    then persist them into the Babylon variables file.
+    then persist them into the Babylon state."""
 
-    YAML structure written per dashboard::
-
-        expertview:
-          uuid: "abc-embedded-token-uuid"
-          original_id: "42"
-    """
-    if not env.variable_files:
-        logger.warning("  [yellow]⚠[/yellow] No variable files configured cannot persist embedded UUIDs")
-        return False
-
-    variables_yaml_path = Path(env.variable_files[0])
     auth_headers = {"Authorization": f"Bearer {superset_jwt}"}
 
     dashboards = _get_filtered_dashboards(base_url, auth_headers, zip_uuids)
@@ -1008,17 +995,12 @@ def _fetch_and_store_embedded_dashboard_uuids(
         updates[key] = {"uuid": embedded_uuid, "original_id": original_id}
 
     if not updates:
-        logger.warning("  [yellow]⚠[/yellow] No embedded UUIDs retrieved variables file not updated")
+        logger.warning("  [yellow]⚠[/yellow] No embedded UUIDs retrieved state not updated")
         return False
 
-    if not _write_dashboard_updates_to_yaml(variables_yaml_path, updates):
-        return False
+    _write_dashboard_updates_to_state(state, updates)
 
-    logger.info(
-        f"  [bold green]✔[/bold green] Variable file "
-        f"[dim]'{variables_yaml_path.name}'[/dim] updated with "
-        f"{len(updates)} embedded dashboard UUID(s)"
-    )
+    logger.info(f"  [bold green]✔[/bold green] Babylon state updated with {len(updates)} embedded dashboard UUID(s)")
     return True
 
 
@@ -1125,83 +1107,24 @@ def _enable_dashboard_embedding(
     return True
 
 
-# Variables YAML persistence
-
-
-def _write_dashboard_updates_to_yaml(
-    variables_yaml_path: Path,
+def _write_dashboard_updates_to_state(
+    state: dict,
     updates: dict[str, dict],
 ) -> bool:
-    """Persist ``{key: {uuid, original_id}}`` mapping into the variables YAML."""
-    if not variables_yaml_path.is_file():
-        logger.error(f"  [bold red]✘[/bold red] Variables file not found: {variables_yaml_path}")
-        return False
+    """Persist ``{key: {uuid, original_id}}`` mapping into ``state['services']['dashboards']['superset']``."""
+    services = state.setdefault("services", {})
+    dashboards = services.setdefault("dashboards", {})
+    superset_state = dashboards.setdefault("superset", {})
 
-    any_written = False
     for key, entry in updates.items():
-        ok = update_variables_file_entry(
-            variables_path=variables_yaml_path,
-            key=key,
-            uuid=entry["uuid"],
-            original_id=entry.get("original_id"),
-        )
-        if not ok:
-            logger.warning(f"  [yellow]⚠[/yellow] Failed to write entry '{key}' to '{variables_yaml_path.name}'")
-            continue
-        any_written = True
-    return any_written
+        current = superset_state.get(key)
+        new_entry: dict = current if isinstance(current, dict) else {}
+        new_entry["uuid"] = entry["uuid"]
+        if entry.get("original_id") is not None:
+            new_entry["original_id"] = str(entry["original_id"])
+        superset_state[key] = new_entry
 
-
-def update_variables_file_entry(
-    variables_path: Path,
-    key: str,
-    uuid: str,
-    original_id: str | None = None,
-) -> bool:
-    """Update a single dashboard entry in a Babylon variables YAML file in-place.
-
-    Uses ``ruamel.yaml`` to preserve all existing formatting, comments, and
-    template variables verbatim. Only the target ``key`` block is touched.
-    """
-    if not variables_path.is_file():
-        logger.error(f"  [bold red]✘[/bold red] Variables file not found: {variables_path}")
-        return False
-    if variables_path.suffix in {".tpl", ".tmpl", ".template"}:
-        logger.error(f"  [bold red]✘[/bold red] Refusing to modify a template file: {variables_path}")
-        return False
-
-    try:
-        ry = _RYAML()
-        ry.preserve_quotes = True
-        ry.width = 4096
-        ry.default_flow_style = False
-
-        raw = variables_path.read_text(encoding="utf-8")
-        data = ry.load(raw)
-        if data is None:
-            data = ry.load("{}")
-
-        entry = data.get(key)
-        if isinstance(entry, dict):
-            entry["uuid"] = uuid
-            if original_id is not None:
-                entry["original_id"] = str(original_id)
-        else:
-            new_entry: dict = {"uuid": uuid}
-            if original_id is not None:
-                new_entry["original_id"] = str(original_id)
-            data[key] = new_entry
-
-        buf = StringIO()
-        ry.dump(data, buf)
-        variables_path.write_text(buf.getvalue(), encoding="utf-8", newline="\n")
-        return True
-    except OSError as exc:
-        logger.exception(f"  [bold red]✘[/bold red] File system error updating '{variables_path.name}': {exc}")
-    except Exception as exc:
-        logger.exception(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
-    return False
-
+    return True
 
 # Template rendering helpers (used by deploy_workspace.py)
 
@@ -1216,43 +1139,38 @@ def _collect_fallback_template_vars(template_content: str, known_keys: set) -> d
     return fallback
 
 
-def _build_dashboard_ext_args(fallback_empty: bool = False, template_content: str = "") -> dict:
-    """Extract embedded dashboard UUIDs from the Babylon variables file."""
+def _build_dashboard_ext_args(state: dict | None = None, fallback_empty: bool = False, template_content: str = "") -> dict:
+    """Extract embedded dashboard UUIDs from the Babylon state."""
 
-    if not env.variable_files:
-        return {}
-    try:
-        raw = Path(env.variable_files[0]).read_text(encoding="utf-8")
-        variables: dict = safe_load(raw) or {}
-    except OSError:
-        return {}
+    superset_state: dict = {}
+    if state:
+        existing = state.get("services", {}).get("dashboards", {}).get("superset")
+        if isinstance(existing, dict):
+            superset_state = existing
 
     ext: dict = {}
-    for key, value in variables.items():
+    for key, value in superset_state.items():
         if not isinstance(value, dict):
             continue
         if "uuid" not in value or "original_id" not in value:
             continue
-        uuid = get_dashboard_embedded_uuid(variables, key)
+        uuid = get_dashboard_embedded_uuid(superset_state, key)
         if uuid:
             ext[key] = uuid
         elif fallback_empty:
             ext[key] = ""
 
     if fallback_empty and template_content:
-        ext.update(_collect_fallback_template_vars(template_content, variables.keys() | ext.keys()))
+        known_keys = set(env.get_variables().keys()) | superset_state.keys() | ext.keys()
+        ext.update(_collect_fallback_template_vars(template_content, known_keys))
 
     return ext
 
 
 # Read helpers
 
-
 def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | None:
-    """Safely retrieve the embedded UUID for a dashboard from loaded YAML data.
-
-    Accepts both the current dict format ``{uuid: ..., original_id: ...}`` and
-    a legacy flat string value.
+    """Safely retrieve the embedded UUID for a dashboard from loaded state data.
     """
     if not yaml_data or not sanitised_key:
         return None

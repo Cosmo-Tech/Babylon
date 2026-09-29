@@ -4,15 +4,12 @@ Power BI helpers for dashboard deployment.
 
 from base64 import b64decode
 from copy import deepcopy
-from io import StringIO
 from logging import getLogger
 from pathlib import Path
 from re import compile
 from typing import Any
 
 from kubernetes.client.exceptions import ApiException
-from ruamel.yaml import YAML as _RYAML
-from yaml import safe_load
 
 from Babylon.commands.macro.helpers.workspace.api_cosmotech_helper import update_workspace
 from Babylon.commands.powerbi.dataset.services.powerbi_api_svc import AzurePowerBIDatasetService
@@ -49,7 +46,7 @@ _WEBAPP_APP_ACCESS_RIGHT = "Member"
 
 def _update_workspace_with_powerbi_ids(api_instance, api_section, file_content, state) -> bool:
     """Re-render the Workspace template with persisted Power BI IDs."""
-    ext_args = build_powerbi_ext_args(fallback_empty=False)
+    ext_args = build_powerbi_ext_args(state, fallback_empty=False)
     content = env.fill_template(data=file_content, state=state, ext_args=ext_args or None)
     payload = content.get("spec", {}).get("payload", {})
     return update_workspace(api_instance, api_section, payload)
@@ -243,7 +240,7 @@ def deploy_powerbi(
     if not workspace_id:
         return False, set()
 
-    _update_powerbi_variable(["workspace_id"], workspace_id)
+    _update_powerbi_state(state, ["workspace_id"], workspace_id)
 
     logger.info(f"  [dim]→ Deploying {len(valid_reports)} dashboard report(s) to Power BI workspace '{workspace_id}'...[/dim]")
 
@@ -265,6 +262,7 @@ def deploy_powerbi(
             params_service=params_service,
             workspace_id=workspace_id,
             report=report,
+            state=state,
             abs_deploy_dir=abs_deploy_dir,
             schema_name=schema_name,
             writer_username=writer_username,
@@ -325,6 +323,7 @@ def _upload_powerbi_report(
     params_service: AzurePowerBIParamsService,
     workspace_id: str,
     report: dict,
+    state: dict,
     abs_deploy_dir: Path,
     schema_name: str | None = None,
     writer_username: str | None = None,
@@ -364,8 +363,8 @@ def _upload_powerbi_report(
 
     report_id = new_report.get("reportId") if isinstance(new_report, dict) else None
     if report_id and tag:
-        _update_powerbi_variable(["reports", tag], report_id)
-        logger.info(f"  [bold green]✔[/bold green] Report id {report_id} saved in 'Variables.yaml' file")
+        _update_powerbi_state(state, ["reports", tag], report_id)
+        logger.info(f"  [bold green]✔[/bold green] Report id {report_id} saved in the Babylon state")
     elif not tag:
         logger.warning(f"  [yellow]⚠[/yellow] Report '{name}' produced an empty tag skipping id persistence")
     else:
@@ -584,59 +583,34 @@ def _prepare_report_tag(report: dict) -> str:
     return report.get("tag") or slugify_tag(name)
 
 
-def _update_powerbi_variable(path: list[str], value: str) -> bool:
-    """Persist a value under ``powerbi.<path...>`` in the variables file."""
-    if not env.variable_files:
-        logger.warning("  [yellow]⚠[/yellow] No variable files configured cannot persist Power BI id")
+def _update_powerbi_state(state: dict, path: list[str], value: Any) -> bool:
+    """Update a value in the Power BI section of the Babylon state."""
+
+    if state is None:
+        logger.warning("  [yellow]⚠[/yellow] No state available cannot persist Power BI id")
         return False
 
-    variables_path = Path(env.variable_files[0])
-    if not variables_path.is_file():
-        logger.error(f"  [bold red]✘[/bold red] Variables file not found: {variables_path}")
-        return False
+    services = state.setdefault("services", {})
+    dashboards = services.setdefault("dashboards", {})
+    powerbi = dashboards.setdefault("powerbi", {})
 
-    try:
-        ry = _RYAML()
-        ry.preserve_quotes = True
-        ry.width = 4096
-        ry.default_flow_style = False
+    node = powerbi
+    for key in path[:-1]:
+        child = node.get(key)
+        if not isinstance(child, dict):
+            child = node[key] = {}
+        node = child
 
-        data = ry.load(variables_path.read_text(encoding="utf-8")) or {}
-
-        powerbi = data.get("powerbi")
-        if not isinstance(powerbi, dict):
-            powerbi = data["powerbi"] = {}
-
-        node = powerbi
-        for key in path[:-1]:
-            child = node.get(key)
-            if not isinstance(child, dict):
-                child = node[key] = {}
-
-            node = child
-
-        node[path[-1]] = value
-
-        buffer = StringIO()
-        ry.dump(data, buffer)
-        variables_path.write_text(buffer.getvalue(), encoding="utf-8", newline="\n")
-        return True
-    except OSError as exc:
-        logger.exception(f"  [bold red]✘[/bold red] File system error updating '{variables_path.name}': {exc}")
-    except Exception as exc:
-        logger.exception(f"  [bold red]✘[/bold red] YAML error updating '{variables_path.name}': {exc}")
-    return False
+    node[path[-1]] = value
+    return True
 
 
-def build_powerbi_ext_args(template_content: str = "", fallback_empty: bool = False) -> dict:
-    """Build the ``{"powerbi": {...}}`` ext_args dict used for template rendering."""
+def build_powerbi_ext_args(state: dict | None = None, template_content: str = "", fallback_empty: bool = False) -> dict:
+    """Build the Power BI ``ext_args`` used for template rendering"""
+
     powerbi_data: dict[str, Any] = {}
-    if env.variable_files:
-        try:
-            variables = safe_load(Path(env.variable_files[0]).read_text(encoding="utf-8")) or {}
-        except OSError:
-            variables = {}
-        existing = variables.get("powerbi")
+    if state:
+        existing = state.get("services", {}).get("dashboards", {}).get("powerbi")
         if isinstance(existing, dict):
             powerbi_data = deepcopy(existing)
 
@@ -660,11 +634,11 @@ def build_powerbi_ext_args(template_content: str = "", fallback_empty: bool = Fa
 # workspace deletion cascades any reports still referencing them)
 
 
-def _clear_powerbi_variables() -> None:
-    """Clear persisted Power BI workspace and report IDs."""
+def _clear_powerbi_state(state: dict) -> None:
+    """Clear persisted Power BI workspace and report IDs from the Babylon state."""
 
-    _update_powerbi_variable(["workspace_id"], "")
-    _update_powerbi_variable(["reports"], {})
+    _update_powerbi_state(state, ["workspace_id"], "")
+    _update_powerbi_state(state, ["reports"], {})
 
 
 def _destroy_powerbi_datasets(dataset_service: AzurePowerBIDatasetService, workspace_id: str) -> bool:
@@ -714,12 +688,11 @@ def _destroy_powerbi_workspace(workspace_service: AzurePowerBIWorkspaceService, 
 def destroy_powerbi_assets(state: dict) -> bool:
     """Delete Power BI datasets and workspace resources for the current deployment."""
 
-    variables = env.get_variables()
-    powerbi_vars = variables.get("powerbi") or {}
-    workspace_id = powerbi_vars.get("workspace_id")
+    powerbi_state = state.get("services", {}).get("dashboards", {}).get("powerbi") or {}
+    workspace_id = powerbi_state.get("workspace_id")
 
     if not workspace_id:
-        logger.info("  [dim]→ No Power BI workspace found in variables ! nothing to destroy[/dim]")
+        logger.info("  [dim]→ No Power BI workspace found in state ! nothing to destroy[/dim]")
         return True
 
     powerbi_token = get_powerbi_token()
@@ -737,7 +710,7 @@ def destroy_powerbi_assets(state: dict) -> bool:
     workspace_ok = _destroy_powerbi_workspace(workspace_service, workspace_id)
 
     if datasets_ok and workspace_ok:
-        _clear_powerbi_variables()
+        _clear_powerbi_state(state)
         return True
 
     logger.warning(

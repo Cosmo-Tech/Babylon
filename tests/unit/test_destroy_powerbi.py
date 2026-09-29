@@ -102,23 +102,19 @@ def test_destroy_workspace_delete_raises_is_failure():
 
 
 def test_destroy_powerbi_assets_noop_when_no_workspace_id(monkeypatch):
-    monkeypatch.setattr(pbh.env, "get_variables", lambda: {"powerbi": {}})
-    assert pbh.destroy_powerbi_assets({"services": {}}) is True
+    assert pbh.destroy_powerbi_assets({"services": {"dashboards": {"powerbi": {}}}}) is True
 
 
 def test_destroy_powerbi_assets_noop_when_powerbi_key_missing(monkeypatch):
-    monkeypatch.setattr(pbh.env, "get_variables", lambda: {})
     assert pbh.destroy_powerbi_assets({"services": {}}) is True
 
 
 def test_destroy_powerbi_assets_fails_without_token(monkeypatch):
-    monkeypatch.setattr(pbh.env, "get_variables", lambda: {"powerbi": {"workspace_id": "ws1"}})
     monkeypatch.setattr(pbh, "get_powerbi_token", lambda: None)
-    assert pbh.destroy_powerbi_assets({"services": {}}) is False
+    assert pbh.destroy_powerbi_assets({"services": {"dashboards": {"powerbi": {"workspace_id": "ws1"}}}}) is False
 
 
 def test_destroy_powerbi_assets_success_clears_variables(monkeypatch):
-    monkeypatch.setattr(pbh.env, "get_variables", lambda: {"powerbi": {"workspace_id": "ws1", "reports": {"a": "1"}}})
     monkeypatch.setattr(pbh, "get_powerbi_token", lambda: "fake-token")
     monkeypatch.setattr(pbh, "AzurePowerBIDatasetService", lambda powerbi_token, state: _FakeDatasetService(datasets=[{"id": "d1"}]))
     monkeypatch.setattr(
@@ -128,14 +124,14 @@ def test_destroy_powerbi_assets_success_clears_variables(monkeypatch):
     )
 
     cleared = {}
-    monkeypatch.setattr(pbh, "_clear_powerbi_variables", lambda: cleared.setdefault("called", True))
+    monkeypatch.setattr(pbh, "_clear_powerbi_state", lambda state: cleared.setdefault("called", True))
 
-    assert pbh.destroy_powerbi_assets({"services": {}}) is True
+    state = {"services": {"dashboards": {"powerbi": {"workspace_id": "ws1", "reports": {"a": "1"}}}}}
+    assert pbh.destroy_powerbi_assets(state) is True
     assert cleared.get("called") is True
 
 
 def test_destroy_powerbi_assets_partial_failure_does_not_clear_variables(monkeypatch):
-    monkeypatch.setattr(pbh.env, "get_variables", lambda: {"powerbi": {"workspace_id": "ws1"}})
     monkeypatch.setattr(pbh, "get_powerbi_token", lambda: "fake-token")
     monkeypatch.setattr(
         pbh,
@@ -149,7 +145,8 @@ def test_destroy_powerbi_assets_partial_failure_does_not_clear_variables(monkeyp
     )
 
     cleared = {}
-    monkeypatch.setattr(pbh, "_clear_powerbi_variables", lambda: cleared.setdefault("called", True))
+    monkeypatch.setattr(pbh, "_clear_powerbi_state", lambda state: cleared.setdefault("called", True))
 
-    assert pbh.destroy_powerbi_assets({"services": {}}) is False
+    state = {"services": {"dashboards": {"powerbi": {"workspace_id": "ws1"}}}}
+    assert pbh.destroy_powerbi_assets(state) is False
     assert "called" not in cleared
