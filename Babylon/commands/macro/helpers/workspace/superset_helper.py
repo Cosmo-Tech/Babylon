@@ -977,6 +977,10 @@ def _fetch_and_store_embedded_dashboard_uuids(
     """Enable embedding and fetch the embedded UUID for each imported dashboard,
     then persist them into the Babylon state."""
 
+    if not zip_uuids:
+        logger.warning("  [yellow]⚠[/yellow] No dashboard ZIP UUIDs to process skipping embedded UUID fetch")
+        return False
+
     auth_headers = {"Authorization": f"Bearer {superset_jwt}"}
 
     dashboards = _get_filtered_dashboards(base_url, auth_headers, zip_uuids)
@@ -1009,7 +1013,11 @@ def _get_filtered_dashboards(
     headers: dict,
     zip_uuids: set[str] | None,
 ) -> list[dict] | None:
-    """Fetch all Superset dashboards and filter to those present in *zip_uuids*."""
+    """Fetch Superset dashboards and filter to those present in *zip_uuids*.
+    """
+
+    if not zip_uuids:
+        return []
 
     try:
         resp = requests.get(
@@ -1023,9 +1031,6 @@ def _get_filtered_dashboards(
     except Exception as exc:
         logger.exception(f"  [bold red]✘[/bold red] Could not list Superset dashboards: {exc}")
         return None
-
-    if not zip_uuids:
-        return all_dashboards
 
     filtered = [d for d in all_dashboards if (d.get("uuid") or "").lower() in zip_uuids]
     return filtered
@@ -1111,18 +1116,22 @@ def _write_dashboard_updates_to_state(
     state: dict,
     updates: dict[str, dict],
 ) -> bool:
-    """Persist ``{key: {uuid, original_id}}`` mapping into ``state['services']['dashboards']['superset']``."""
+    """Persist ``{key: {uuid, original_id}}`` mapping into ``state['services']['dashboards']['superset']``.
+    """
     services = state.setdefault("services", {})
     dashboards = services.setdefault("dashboards", {})
-    superset_state = dashboards.setdefault("superset", {})
+    previous_superset_state = dashboards.get("superset") or {}
 
+    new_superset_state: dict = {}
     for key, entry in updates.items():
-        current = superset_state.get(key)
-        new_entry: dict = current if isinstance(current, dict) else {}
+        current = previous_superset_state.get(key)
+        new_entry: dict = dict(current) if isinstance(current, dict) else {}
         new_entry["uuid"] = entry["uuid"]
         if entry.get("original_id") is not None:
             new_entry["original_id"] = str(entry["original_id"])
-        superset_state[key] = new_entry
+        new_superset_state[key] = new_entry
+
+    dashboards["superset"] = new_superset_state
 
     return True
 
