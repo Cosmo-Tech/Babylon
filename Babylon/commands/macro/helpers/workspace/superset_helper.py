@@ -62,8 +62,6 @@ def _update_workspace_with_superset_uuids(config, api_instance, api_section, fil
         # Pass zip_uuids so only dashboards from our ZIP are queried
         _fetch_and_store_embedded_dashboard_uuids(base_url, superset_jwt, state, zip_uuids=zip_uuids)
 
-    # Phase 2 render – state now contains real UUIDs.
-    # fallback_empty=False: only include keys that have a real value.
     ext = _build_dashboard_ext_args(state, fallback_empty=False)
     content2 = env.fill_template(data=file_content, state=state, ext_args=ext or None)
     payload2 = content2.get("spec", {}).get("payload", {})
@@ -481,12 +479,7 @@ def _process_dashboard_zip(
     workspace_id: str = "",
     force_new_uuids: bool = False,
 ) -> tuple[bool, set[str]]:
-    """Extract, patch, repack, and import a single dashboard ZIP.
-
-    Args:
-        force_new_uuids: When ``True``, skip the Superset existence check and
-                         regenerate all UUIDs unconditionally (cross-workspace).
-    """
+    """Extract, patch, repack, and import a single dashboard ZIP."""
     name: str = report.get("name", "")
     rel_path: str = report.get("path", "")
     path_obj = Path(rel_path)
@@ -594,17 +587,7 @@ def _assets_exist_in_superset(
     superset_jwt: str,
     uuids: set[str],
 ) -> dict[str, bool]:
-    """Check which asset types from the export ZIP already exist in Superset.
-
-    Cross-workspace detection is handled upfront by
-    ``_is_cross_workspace_deployment`` — this function is only called when
-    we already know we are in a same-workspace context.
-
-    **Dataset detection:**
-    The dataset list endpoint does NOT return ``uuid``, so datasets are
-    inferred as existing when charts or dashboards from this ZIP match
-    (proving this specific dashboard was deployed before for this workspace).
-    """
+    """Check which asset types from the export ZIP already exist in Superset."""
     result: dict[str, bool] = {"datasets": False, "charts": False, "dashboards": False}
     if not uuids:
         return result
@@ -1013,8 +996,7 @@ def _get_filtered_dashboards(
     headers: dict,
     zip_uuids: set[str] | None,
 ) -> list[dict] | None:
-    """Fetch Superset dashboards and filter to those present in *zip_uuids*.
-    """
+    """Fetch Superset dashboards and filter to those present in *zip_uuids*."""
 
     if not zip_uuids:
         return []
@@ -1116,8 +1098,7 @@ def _write_dashboard_updates_to_state(
     state: dict,
     updates: dict[str, dict],
 ) -> bool:
-    """Persist ``{key: {uuid, original_id}}`` mapping into ``state['services']['dashboards']['superset']``.
-    """
+    """Persist ``{key: {uuid, original_id}}`` mapping into ``state['services']['dashboards']['superset']``."""
     services = state.setdefault("services", {})
     dashboards = services.setdefault("dashboards", {})
     previous_superset_state = dashboards.get("superset") or {}
@@ -1134,6 +1115,7 @@ def _write_dashboard_updates_to_state(
     dashboards["superset"] = new_superset_state
 
     return True
+
 
 # Template rendering helpers (used by deploy_workspace.py)
 
@@ -1178,9 +1160,9 @@ def _build_dashboard_ext_args(state: dict | None = None, fallback_empty: bool = 
 
 # Read helpers
 
+
 def get_dashboard_embedded_uuid(yaml_data: dict, sanitised_key: str) -> str | None:
-    """Safely retrieve the embedded UUID for a dashboard from loaded state data.
-    """
+    """Safely retrieve the embedded UUID for a dashboard from loaded state data."""
     if not yaml_data or not sanitised_key:
         return None
 
