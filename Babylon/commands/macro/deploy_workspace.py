@@ -29,9 +29,10 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
     env.get_ns_from_text(content=namespace)
     state = env.retrieve_state_func()
 
-    # Phase 1 render dashboard UUID variables may not exist yet (first deploy).
-    # Pass template_content so every {{var}} reference is pre-filled with "" when
-    # the key is absent from state, preventing strict_undefined crashes.
+    # Pre-render pass: on a first deploy, dashboard UUID variables (e.g. Superset/Power BI
+    # report IDs) don't exist in the state yet. Building ext_args with fallback_empty=True
+    # ensures every {{var}} reference used in the template is pre-filled with "" when the
+    # corresponding key is missing from state, so fill_template doesn't crash with strict_undefined.
     pre_ext = _build_dashboard_ext_args(state, fallback_empty=True, template_content=file_content)
     pre_ext.update(build_powerbi_ext_args(state, fallback_empty=True, template_content=file_content))
     content = env.fill_template(data=file_content, state=state, ext_args=pre_ext or None)
@@ -67,9 +68,7 @@ def deploy_workspace(namespace: str, file_content: str, deploy_dir: Path):
 
             # --- Dashboard Deployment (provider-based dispatch: superset | powerbi) ---
             if dashboard_config.get("create", False):
-                if not _handle_dashboard_sidecar(
-                    dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content
-                ):
+                if not _handle_dashboard_sidecar(dashboard_config, state, config, deploy_dir, api_instance, api_section, file_content):
                     return CommandResponse.fail()
         except Exception as exc:
             logger.exception(f"  [bold red]✘[/bold red] Postgres/Dashboard deployment failed: {exc}")

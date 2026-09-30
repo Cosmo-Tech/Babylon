@@ -276,8 +276,7 @@ def deploy_powerbi(
     return all_ok, set()
 
 
-# PostgreSQL schema/credentials resolution (used to feed dataset parameters
-# and gateway credentials when uploading a report).
+# PostgreSQL schema/credentials resolution
 
 
 def _resolve_postgres_schema_name(state: dict) -> str | None:
@@ -559,8 +558,6 @@ def _remove_powerbi_workspace_permissions(
 
 
 # Report metadata & parameter helpers (tag/params generation).
-# The tag generated here is the same key exposed to templates as
-# ``powerbi['reports'][tag]``.
 
 
 def _merge_schema_param(params: list[dict], schema_name: str | None) -> list[dict]:
