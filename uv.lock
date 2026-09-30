@@ -181,80 +181,6 @@ wheels = [
 ]
 
 [[package]]
-name = "babylon"
-source = { editable = "." }
-dependencies = [
-    { name = "azure-identity" },
-    { name = "click" },
-    { name = "click-log" },
-    { name = "cosmotech-api" },
-    { name = "cosmotech-modeling-api" },
-    { name = "cryptography" },
-    { name = "dynaconf" },
-    { name = "flatten-json" },
-    { name = "gitpython" },
-    { name = "kubernetes" },
-    { name = "mako" },
-    { name = "polling2" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "rich" },
-    { name = "ruamel-yaml" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "ruff" },
-]
-doc = [
-    { name = "mike" },
-    { name = "mkdocs" },
-    { name = "mkdocs-click" },
-    { name = "mkdocs-gen-files" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
-    { name = "pymdown-extensions" },
-    { name = "requirements-parser" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "azure-identity" },
-    { name = "click" },
-    { name = "click-log" },
-    { name = "cosmotech-api", specifier = "==5.3.0" },
-    { name = "cosmotech-modeling-api", specifier = "==12.3.0" },
-    { name = "cryptography" },
-    { name = "dynaconf" },
-    { name = "flatten-json" },
-    { name = "gitpython" },
-    { name = "kubernetes", specifier = ">=35.0.0" },
-    { name = "mako" },
-    { name = "polling2" },
-    { name = "pyyaml" },
-    { name = "requests", specifier = ">=2.33.1" },
-    { name = "rich" },
-    { name = "ruamel-yaml" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "ruff", specifier = ">=0.16.9" },
-]
-doc = [
-    { name = "mike" },
-    { name = "mkdocs" },
-    { name = "mkdocs-click" },
-    { name = "mkdocs-gen-files" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extras = ["python"] },
-    { name = "pymdown-extensions" },
-    { name = "requirements-parser" },
-]
-
-[[package]]
 name = "backrefs"
 version = "8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -535,6 +461,80 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d8/53/0fee0db5a18c45744ecff6ce1b5377ac9597c9c2a1f59a404f8b3f0d036c/cosmotech_api-5.3.0.tar.gz", hash = "sha256:c5fab300a9297fb9e8bc22fe89d754da3cad4acf2dc2daa55747c8a1ba49f28b", size = 230461, upload-time = "2026-09-28T09:02:29.822Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/a8/5b1a95e2368f5aa3e224611ae7691eee2cfa6de1875d688ca766edc4dd15/cosmotech_api-5.3.0-py3-none-any.whl", hash = "sha256:a4ba9130f4f75c7e1a8a5d0714970aa5616fe30f818f7ef4ce49c7396b337bb1", size = 653495, upload-time = "2026-09-28T09:02:27.987Z" },
+]
+
+[[package]]
+name = "cosmotech-babylon"
+source = { editable = "." }
+dependencies = [
+    { name = "azure-identity" },
+    { name = "click" },
+    { name = "click-log" },
+    { name = "cosmotech-api" },
+    { name = "cosmotech-modeling-api" },
+    { name = "cryptography" },
+    { name = "dynaconf" },
+    { name = "flatten-json" },
+    { name = "gitpython" },
+    { name = "kubernetes" },
+    { name = "mako" },
+    { name = "polling2" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "rich" },
+    { name = "ruamel-yaml" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "ruff" },
+]
+doc = [
+    { name = "mike" },
+    { name = "mkdocs" },
+    { name = "mkdocs-click" },
+    { name = "mkdocs-gen-files" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
+    { name = "pymdown-extensions" },
+    { name = "requirements-parser" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "azure-identity" },
+    { name = "click" },
+    { name = "click-log" },
+    { name = "cosmotech-api", specifier = "==5.3.0" },
+    { name = "cosmotech-modeling-api", specifier = "==12.3.0" },
+    { name = "cryptography" },
+    { name = "dynaconf" },
+    { name = "flatten-json" },
+    { name = "gitpython" },
+    { name = "kubernetes", specifier = ">=35.0.0" },
+    { name = "mako" },
+    { name = "polling2" },
+    { name = "pyyaml" },
+    { name = "requests", specifier = ">=2.33.1" },
+    { name = "rich" },
+    { name = "ruamel-yaml" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "ruff", specifier = ">=0.16.9" },
+]
+doc = [
+    { name = "mike" },
+    { name = "mkdocs" },
+    { name = "mkdocs-click" },
+    { name = "mkdocs-gen-files" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extras = ["python"] },
+    { name = "pymdown-extensions" },
+    { name = "requirements-parser" },
 ]
 
 [[package]]
