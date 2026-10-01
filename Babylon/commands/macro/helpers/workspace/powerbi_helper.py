@@ -46,6 +46,7 @@ _GUID_RE = compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4
 
 # Workspace resolution & template rendering
 
+
 def _update_workspace_with_powerbi_ids(api_instance, api_section, file_content, state) -> bool:
     """Re-render the Workspace template with persisted Power BI IDs."""
     ext_args = build_powerbi_ext_args(state, fallback_empty=False)
@@ -77,6 +78,7 @@ def _ensure_powerbi_workspace(powerbi_token: str, powerbi_config: dict) -> str |
 
 
 # WebApp Power BI App Registration lookup (Kubernetes secret + Microsoft Graph)
+
 
 def _get_webapp_powerbi_client_id(state: dict) -> str | None:
     """Get the WebApp Power BI App Registration client ID from Kubernetes secret."""
@@ -159,8 +161,7 @@ def _resolve_azure_ad_group_object_id(group_name: str) -> str | None:
     graph_token = get_azure_token(scope="https://graph.microsoft.com/.default")
     if not graph_token:
         logger.warning(
-            "  [yellow]⚠[/yellow] Failed to acquire a Microsoft Graph token, "
-            f"cannot resolve the Azure AD group '{group_name}'"
+            f"  [yellow]⚠[/yellow] Failed to acquire a Microsoft Graph token, cannot resolve the Azure AD group '{group_name}'"
         )
         return None
 
@@ -178,10 +179,7 @@ def _resolve_azure_ad_group_object_id(group_name: str) -> str | None:
         return None
 
     if len(groups) > 1:
-        logger.warning(
-            f"  [yellow]⚠[/yellow] Multiple Azure AD groups found with display name '{group_name}', "
-            "using the first match"
-        )
+        logger.warning(f"  [yellow]⚠[/yellow] Multiple Azure AD groups found with display name '{group_name}', using the first match")
 
     return groups[0].get("id")
 
@@ -214,6 +212,7 @@ def _resolve_powerbi_group_permissions(permissions: list[dict]) -> list[dict]:
 
 # Report discovery: turn the `reports` config into a flat list of report
 # entries (name, path, tag, parameters).
+
 
 def _discover_powerbi_reports(reports_config: dict, deploy_dir: Path) -> list[dict]:
     """Build report entries by scanning a folder for .pbix files."""
@@ -273,6 +272,7 @@ def _resolve_powerbi_reports(reports: list | dict, deploy_dir: Path) -> list[dic
 
 # Deployment orchestration: authenticate, resolve/create the workspace,
 # upload each discovered report and sync workspace permissions.
+
 
 def deploy_powerbi(
     reports: list,
@@ -336,6 +336,7 @@ def deploy_powerbi(
 
 # PostgreSQL schema/credentials resolution
 
+
 def _resolve_postgres_schema_name(state: dict) -> str | None:
     """Derive the PostgreSQL schema name from the workspace ID."""
 
@@ -371,6 +372,7 @@ def _resolve_postgres_writer_credentials() -> tuple[str | None, str | None]:
 
 # Single report upload: PBIX import, report ID persistence, dataset
 # ownership/parameters/credentials.
+
 
 def _upload_powerbi_report(
     report_service: AzurePowerBIReportService,
@@ -452,6 +454,7 @@ def _upload_powerbi_report(
 
 # Workspace permissions sync (add/update/remove + WebApp App Registration
 # auto-grant).
+
 
 def _sync_powerbi_workspace_permissions(
     powerbi_token: str,
@@ -615,6 +618,7 @@ def _remove_powerbi_workspace_permissions(
 
 # Report metadata & parameter helpers (tag/params generation).
 
+
 def _merge_schema_param(params: list[dict], schema_name: str | None) -> list[dict]:
     """Add the auto-computed ``Schema`` parameter when not explicitly defined."""
     if not schema_name:
@@ -684,6 +688,7 @@ def build_powerbi_ext_args(state: dict | None = None, template_content: str = ""
 # Teardown: delete every Power BI resource created for a workspace (used by
 # the Destroy Macro Command). Deletion order: datasets -> workspace (the
 # workspace deletion cascades any reports still referencing them)
+
 
 def _clear_powerbi_state(state: dict) -> None:
     """Clear persisted Power BI workspace and report IDs from the Babylon state."""
