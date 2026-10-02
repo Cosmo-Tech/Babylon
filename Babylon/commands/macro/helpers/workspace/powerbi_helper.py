@@ -222,7 +222,7 @@ def _discover_powerbi_reports(reports_config: dict, deploy_dir: Path) -> list[di
         logger.warning("  [yellow]⚠[/yellow] 'reports.path' is required when using folder-based Power BI report discovery")
         return []
 
-    folder = Path(rel_path) if Path(rel_path).is_absolute() else (Path(deploy_dir).resolve() / rel_path)
+    folder = (Path(deploy_dir).resolve() / rel_path).resolve()
 
     if not folder.is_dir():
         logger.error(f"  [bold red]✘[/bold red] Power BI reports folder not found: {folder}")
