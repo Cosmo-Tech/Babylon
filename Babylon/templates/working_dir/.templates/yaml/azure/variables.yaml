@@ -4,23 +4,26 @@
 # Compatible with Babylon v5.5.1
 # =========================================================
 # Organization
-organization_name: Babylon v5 Organization
+organization_name: Babylon v5.5.1 Organization
 # Solution
-solution_name: Babylon v5 Solution
+solution_name: Babylon v5.5.1 Solution
 simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
-solution_description: Brewery Testing babylon v5 Solution PLT
+solution_description: Brewery Testing babylon v5.5.1 Solution PLT
 solution_key: breweryTesting
 simulator_version: 3.2.0
 # Workspace
-workspace_name: Babylon v5 workspace
+workspace_name: Babylon v5.5.1 workspace
 workspace_key: brewerytestingwork
 workspace_description: Testing workspace for the brewery web application
-# Power BI 
-powerbi_workspace_name: Babylon v5 Power BI Brewery workspace
+# Power BI
+powerbi_workspace_name: Babylon v5.5.1 Power BI Brewery workspace
 powerbi_permissions:
   - identifier: "user.1@cosmotech.com"
     rights: Admin
     type: User
+  - identifier: "DevOps Team"
+    rights: Admin
+    type: Group
 # Webapp
 # These variables are used to render your Webapp.yaml manifest and can be mapped to the
 # terraform module variables (terraform.tfvars) used by the terraform-webapp module.

@@ -113,6 +113,7 @@ workflows, and a lower-level **API** command tree for granular control.
 | `babylon namespace use` | Switch to (or create) a context/tenant namespace used to isolate project state. |
 | `babylon namespace get-contexts` | Show the currently active context and tenant. |
 | `babylon namespace get-all-states` | List local and remote state files available for the current namespace. |
+| `babylon namespace show-states` | Show the details of a local or remote state file for the current namespace. |
 
 ### API
 
