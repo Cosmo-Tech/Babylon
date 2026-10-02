@@ -464,7 +464,7 @@ wheels = [
 ]
 
 [[package]]
-name = "cosmotech-babylon"
+name = "cosmotech-babylon-cli"
 source = { editable = "." }
 dependencies = [
     { name = "azure-identity" },
