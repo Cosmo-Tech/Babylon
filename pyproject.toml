@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "Babylon"
+name = "cosmotech-babylon"
 authors = [{ name = "Mohcine Tor", email = "mohcine.tor@cosmotech.com" },
            { name = "Diamantis Sellis", email = "diamantis.sellis@cosmotech.com"}]
 description = "A CLI made to simplify the deployment and management of the CosmoTech Platform and Solutions"
@@ -61,6 +61,9 @@ babylon = "Babylon.main:main"
 
 [tool.hatch.version]
 path = "Babylon/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["Babylon"]
 
 [tool.ruff]
 line-length = 135
