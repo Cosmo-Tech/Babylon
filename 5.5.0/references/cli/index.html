@@ -1354,6 +1354,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#show-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show-state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#use" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2168,6 +2179,17 @@
     <span class="md-ellipsis">
       
         get-states
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#show-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show-state
       
     </span>
   </a>
@@ -5167,6 +5189,7 @@
 <ul>
 <li><em>get-contexts</em>: Display the currently active namespace</li>
 <li><em>get-states</em>: Display states from local machine or remote Kubernetes storage.</li>
+<li><em>show-state</em>: Display the content of the local or remote state.</li>
 <li><em>use</em>: Switch to a specific Babylon namespace or create a new one</li>
 </ul>
 <h4 id="get-contexts">get-contexts<a class="headerlink" href="#get-contexts" title="Permanent link">&para;</a></h4>
@@ -5209,6 +5232,54 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="show-state">show-state<a class="headerlink" href="#show-state" title="Permanent link">&para;</a></h4>
+<p>Display the content of the local or remote state.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code>babylon namespace show-state [OPTIONS] {local|remote}
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-c</code>, <code>--context</code></td>
+<td>text</td>
+<td>Context Name without any special character</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--tenant</code></td>
+<td>text</td>
+<td>Tenant Id without any special character</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--output</code></td>
+<td>choice (<code>json</code> &#x7C; <code>yaml</code> &#x7C; <code>wide</code>)</td>
+<td>Output format. One of: json, yaml, or wide</td>
+<td><code>yaml</code></td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--file</code></td>
+<td>path</td>
+<td>Path to the file to save the response</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
