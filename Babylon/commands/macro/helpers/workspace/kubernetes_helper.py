@@ -4,6 +4,7 @@ Kubernetes helpers for workspace deployment and teardown.
 
 import subprocess
 import sys
+import time
 from base64 import b64encode
 from logging import getLogger
 from pathlib import Path
@@ -20,8 +21,11 @@ logger = getLogger(__name__)
 env = Environment()
 
 # PostgreSQL identity resolution (Internal vs External mode)
-
 _SUPPORTED_POSTGRES_PROVIDERS = {"superset", "powerbi"}
+
+# Kubernetes Job polling configuration
+JOB_WAIT_TIMEOUT_SECONDS = 600
+JOB_POLL_INTERVAL_SECONDS = 3
 
 
 def deploy_postgres_schema(
@@ -218,7 +222,7 @@ def _run_scripts_job(workspace_id: str, sql_files: list[Path], provider: str) ->
                     logger.error(f"  [bold red]✘[/bold red] Kubernetes API error ({inner_exception.status}): {inner_exception.reason}")
             logger.warning(f"  [yellow]⚠[/yellow] [dim]Job [cyan]{job_name}[/cyan] already exists.[/dim]")
 
-        succeeded = _wait_for_job(job_name, timeout="40s")
+        succeeded = _wait_for_job(job_name)
         job_logs = _get_job_logs(job_name)
         if job_logs:
             logger.debug(f"  Job '{job_name}' logs:\n{job_logs}")
@@ -236,25 +240,39 @@ def _run_scripts_job(workspace_id: str, sql_files: list[Path], provider: str) ->
         _delete_scripts_configmap(configmap_name, env.environ_id)
 
 
-def _wait_for_job(job_name: str, timeout: str = "120s") -> bool:
-    """Wait for the Kubernetes Job to complete and return whether it succeeded."""
+def _wait_for_job(job_name: str, timeout: int = JOB_WAIT_TIMEOUT_SECONDS) -> bool:
+    """Wait for a Kubernetes Job to complete or fail before timing out."""
 
-    wait_process = subprocess.run(
-        [
-            "kubectl",
-            "wait",
-            "--for=condition=complete",
-            "job",
-            job_name,
-            f"--namespace={env.environ_id}",
-            f"--timeout={timeout}",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if wait_process.returncode == 0:
-        return True
-    logger.debug(f"  kubectl wait stdout: {wait_process.stdout} stderr: {wait_process.stderr}")
+    batch_api = client.BatchV1Api(env.get_kubernetes_client().api_client)
+    deadline = time.monotonic() + timeout
+    last_state = None
+
+    while time.monotonic() < deadline:
+        try:
+            job = batch_api.read_namespaced_job_status(name=job_name, namespace=env.environ_id)
+        except client.ApiException as e:
+            if e.status != 404:
+                logger.debug(f"  Error reading job '{job_name}' status: {e.reason}")
+            time.sleep(JOB_POLL_INTERVAL_SECONDS)
+            continue
+
+        status = job.status
+        for condition in status.conditions or []:
+            if condition.status != "True":
+                continue
+            if condition.type in ("Complete", "SuccessCriteriaMet"):
+                return True
+            if condition.type in ("Failed", "FailureTarget"):
+                logger.debug(f"  Job '{job_name}' failed: {condition.reason} {condition.message}")
+                return False
+
+        state = "running" if status.active else "pending"
+        if state != last_state:
+            logger.debug(f"  Job '{job_name}' is {state}...")
+            last_state = state
+        time.sleep(JOB_POLL_INTERVAL_SECONDS)
+
+    logger.debug(f"  Job '{job_name}' did not finish within {timeout}s")
     return False
 
 
@@ -499,24 +517,9 @@ def _run_schema_init_job(
 def _wait_and_check_init_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
     """Wait for the init job to complete, then inspect its logs."""
     logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
-    wait_process = subprocess.run(
-        [
-            "kubectl",
-            "wait",
-            "--for=condition=complete",
-            "job",
-            k8s_job_name,
-            f"--namespace={env.environ_id}",
-            "--timeout=50s",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if wait_process.returncode != 0:
-        logger.error(
-            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout check 'babylon.log' for details"
-        )
-        logger.debug(f"  [bold red]✘[/bold red] Job wait output {wait_process.stdout} {wait_process.stderr}")
+    if not _wait_for_job(k8s_job_name):
+        logger.error(f"  [bold red]✘[/bold red] Job '{k8s_job_name}' failed or did not complete check 'babylon.log' for details")
+        logger.debug(f"  Job logs: {_get_job_logs(k8s_job_name)}")
         return
     logger.debug(f"  Inspecting logs for job '{k8s_job_name}'...")
     _handle_init_job_logs(k8s_job_name, schema_name, state)
@@ -603,24 +606,9 @@ def destroy_postgres_schema(schema_name: str, state: dict, provider: str = "supe
 def _wait_and_check_destroy_job(k8s_job_name: str, schema_name: str, state: dict) -> None:
     """Wait for the destroy job to complete, then inspect its logs."""
     logger.info(f"  [dim]→ Waiting for job [cyan]{k8s_job_name}[/cyan] to complete...[/dim]")
-    wait_process = subprocess.run(
-        [
-            "kubectl",
-            "wait",
-            "--for=condition=complete",
-            "job",
-            k8s_job_name,
-            f"--namespace={env.environ_id}",
-            "--timeout=300s",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if wait_process.returncode != 0:
-        logger.error(
-            f"  [bold red]✘[/bold red] Job '{k8s_job_name}' did not complete within the timeout check 'babylon.log' for details"
-        )
-        logger.debug(f"  kubectl wait stdout: {wait_process.stdout} stderr: {wait_process.stderr}")
+    if not _wait_for_job(k8s_job_name):
+        logger.error(f"  [bold red]✘[/bold red] Job '{k8s_job_name}' failed or did not complete check 'babylon.log' for details")
+        logger.debug(f"  Job logs: {_get_job_logs(k8s_job_name)}")
         return
 
     logger.debug(f"  Inspecting logs for job '{k8s_job_name}'...")
