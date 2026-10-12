@@ -1,22 +1,22 @@
 # =========================================================
 # IMPORTANT: You can add variables here as needed!
 # Make sure they are used in the manifest YAML.
-# Compatible with Babylon v5.5.1
+# Compatible with Babylon v5.5.4
 # =========================================================
 # Organization
-organization_name: Babylon v5.5.1 Organization
+organization_name: Babylon v5.5.4 Organization
 # Solution
-solution_name: Babylon v5.5.1 Solution
+solution_name: Babylon v5.5.4 Solution
 simulator_repository: tenant-sphinx/brewerysamplesolution_simulator
-solution_description: Brewery Testing babylon v5.5.1 Solution PLT
+solution_description: Brewery Testing babylon v5.5.4 Solution PLT
 solution_key: breweryTesting
 simulator_version: 3.2.0
 # Workspace
-workspace_name: Babylon v5.5.1 workspace
+workspace_name: Babylon v5.5.4 workspace
 workspace_key: brewerytestingwork
 workspace_description: Testing workspace for the brewery web application
 # Power BI
-powerbi_workspace_name: Babylon v5.5.1 Power BI Brewery workspace
+powerbi_workspace_name: Babylon v5.5.4 Power BI Brewery workspace
 powerbi_permissions:
   - identifier: "user.1@cosmotech.com"
     rights: Admin
