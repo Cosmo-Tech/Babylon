@@ -561,7 +561,7 @@ requires-dist = [
     { name = "click" },
     { name = "click-log" },
     { name = "cosmotech-api", specifier = "==5.3.0" },
-    { name = "cosmotech-modeling-api", specifier = "==12.3.0" },
+    { name = "cosmotech-modeling-api", specifier = "==12.4.0" },
     { name = "cryptography" },
     { name = "dynaconf" },
     { name = "flatten-json" },
@@ -593,7 +593,7 @@ doc = [
 
 [[package]]
 name = "cosmotech-modeling-api"
-version = "12.3.0"
+version = "12.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
@@ -601,9 +601,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/10/d5/cd47b698d61ca20e9e06591facd1b820698114e91cc3d06263671418a8a7/cosmotech_modeling_api-12.3.0.tar.gz", hash = "sha256:2c9d38f0111f0f6c36bd858d57d535139db48c3fb4bb3c54d8823ebb381b358c", size = 55827, upload-time = "2026-09-02T08:40:55.414Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4e/3f/3d1a0f391bcb3efe1979418a8b99a49b682bde88eb9d10be5efe3bcff1ab/cosmotech_modeling_api-12.4.0.tar.gz", hash = "sha256:4f8bb95ac3ec251b5c5b077ebfd6b1654e65a336c089ee186ee0b969a0db6582", size = 55861, upload-time = "2026-10-19T13:21:07.066Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/aa/801a2fa6932a35ec1cd816869953bf4b3259c73817907828c6706a006b6d/cosmotech_modeling_api-12.3.0-py3-none-any.whl", hash = "sha256:e88cec4279481205fe14bef67eb794639342daa8e6d4295196cb8484178f1df6", size = 75968, upload-time = "2026-09-02T08:40:53.778Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/b9/8df0ccec1c1280e133b013ae6c6444a9d568fc06d4cfc667c60f6c908903/cosmotech_modeling_api-12.4.0-py3-none-any.whl", hash = "sha256:4a2b46ec2d9f3e16ae9d93247fdf3808deebfb5bdb0c7d362f2fd623b5c1c07a", size = 75990, upload-time = "2026-10-19T13:21:05.499Z" },
 ]
 
 [[package]]
