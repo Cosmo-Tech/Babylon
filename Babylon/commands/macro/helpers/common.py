@@ -18,6 +18,9 @@ from cosmotech_api.models.solution_security import SolutionSecurity
 from cosmotech_api.models.workspace_access_control import WorkspaceAccessControl
 from cosmotech_api.models.workspace_security import WorkspaceSecurity
 
+from Babylon.core.errors import ConflictingSelectionError, UnknownResourceError
+from Babylon.core.selection import ALLOWED_RESOURCES, resolve_resources
+
 logger = getLogger(__name__)
 
 
@@ -25,20 +28,23 @@ def validate_inclusion_exclusion(
     include: tuple[str, ...],
     exclude: tuple[str, ...],
 ) -> bool:
-    """Include and exclude command line options cannot be combined and should have correct spelling."""
-    if include and exclude:  # cannot combine conflicting options
+    """Include and exclude command line options cannot be combined and should have correct spelling.
+
+    The rules live in ``Babylon.core.selection``; this function only translates
+    the typed errors into the CLI messages and ``click.Abort``.
+    """
+    try:
+        resolve_resources(include, exclude)
+    except ConflictingSelectionError:
         echo(style("\n  ✘ Argument Conflict", fg="red", bold=True))
         logger.error("  Cannot use [bold]--include[/bold] and [bold]--exclude[/bold] at the same time")
-        raise Abort()
-
-    allowed_values = ("build", "organization", "solution", "workspace", "webapp")
-    invalid_items = [i for i in include + exclude if i not in allowed_values]
-    if invalid_items:
+        raise Abort() from None
+    except UnknownResourceError as exc:
         echo(style("\n  ✘ Invalid Arguments Detected", fg="red", bold=True))
-        for item in invalid_items:
+        for item in exc.invalid:
             logger.error(f"  • [yellow] {item}[/yellow] is not a valid resource type")
-        logger.error(f"  Allowed values are: [cyan]{', '.join(allowed_values)}[/cyan]")
-        raise Abort()
+        logger.error(f"  Allowed values are: [cyan]{', '.join(exc.allowed)}[/cyan]")
+        raise Abort() from None
     return True
 
 
@@ -59,24 +65,10 @@ def resolve_inclusion_exclusion(
         tuple[bool, bool, bool, bool, bool]: flags to include build, organization, solution, workspace, webapp
     """
     validate_inclusion_exclusion(include, exclude)
-    build = True
-    organization = True
-    solution = True
-    workspace = True
-    webapp = True
-    if include:  # if only is specified include by condition
-        build = "build" in include
-        organization = "organization" in include
-        solution = "solution" in include
-        workspace = "workspace" in include
-        webapp = "webapp" in include
-    if exclude:  # if exclude is specified exclude by condition
-        build = "build" not in exclude
-        organization = "organization" not in exclude
-        solution = "solution" not in exclude
-        workspace = "workspace" not in exclude
-        webapp = "webapp" not in exclude
-    return (build, organization, solution, workspace, webapp)
+    selected = resolve_resources(include, exclude)
+    # Historical CLI shape: one boolean per resource, in ALLOWED_RESOURCES order
+    # (build, organization, solution, workspace, webapp).
+    return tuple(resource in selected for resource in ALLOWED_RESOURCES)
 
 
 def diff(
