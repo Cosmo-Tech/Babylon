@@ -15,6 +15,7 @@ from Babylon.commands.macro.helpers.workspace import (
     destroy_postgres_schema,
 )
 from Babylon.commands.macro.helpers.workspace.superset_helper import destroy_dashboard_assets
+from Babylon.core.destroy import is_full_destroy
 from Babylon.utils.credentials import get_keycloak_token
 from Babylon.utils.decorators import injectcontext, retrieve_state
 from Babylon.utils.environment import Environment
@@ -152,15 +153,7 @@ def _execute_destroy(
 
 def _is_full_destroy(state: dict) -> bool:
     """Return True when every tracked resource ID has been cleared from the state."""
-    svc = state.get("services", {})
-    api_ids = svc.get("api", {})
-    return (
-        not api_ids.get("organization_id")
-        and not api_ids.get("solution_id")
-        and not api_ids.get("workspace_id")
-        and not svc.get("webapp", {}).get("webapp_name", "")
-        and not svc.get("postgres", {}).get("schema_name", "")
-    )
+    return is_full_destroy(state)
 
 
 def _cleanup_local_state(state: dict, full_destroy: bool) -> None:

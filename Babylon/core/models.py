@@ -29,6 +29,21 @@ class ApplyOptions:
     fail_fast: bool = True
 
 
+@dataclass(frozen=True)
+class DestroyOptions:
+    """Everything `destroy` needs (equivalent of `babylon destroy` options).
+
+    No deploy_dir: destroy works only from the state (context + tenant), not from YAML files.
+    """
+
+    context: str
+    tenant: str
+    variable_files: tuple[Path, ...]
+    include: tuple[str, ...] = ()
+    exclude: tuple[str, ...] = ()
+    fail_fast: bool = True
+
+
 class ResourceStatus(StrEnum):
     SUCCEEDED = "succeeded"
     FAILED = "failed"
