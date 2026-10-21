@@ -70,3 +70,27 @@ class ApplyResult:
     def succeeded(self) -> bool:
         """True only if every manifest was deployed successfully."""
         return all(r.status == ResourceStatus.SUCCEEDED for r in self.resources)
+
+
+@dataclass
+class DestroyOutcome:
+    """What happened to one resource during destroy."""
+
+    resource: str  # "solution", "workspace", ...
+    resource_id: str | None  # id/name from the state before destroy (None: not deployed)
+    status: ResourceStatus
+    error: str | None = None
+
+
+@dataclass
+class DestroyResult:
+    context: str
+    tenant: str
+    resources: list[DestroyOutcome] = field(default_factory=list)
+    cancelled: bool = False  # the confirmation was refused: nothing was touched
+    state: dict = field(default_factory=dict)  # state after destroy (for the summary)
+
+    @property
+    def succeeded(self) -> bool:
+        """True if nothing failed (not-deployed resources are SKIPPED, which is fine)."""
+        return not self.cancelled and all(r.status != ResourceStatus.FAILED for r in self.resources)

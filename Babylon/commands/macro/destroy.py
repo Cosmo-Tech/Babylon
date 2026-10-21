@@ -1,23 +1,22 @@
 from logging import getLogger
 from pathlib import Path as PathlibPath
 
+from click import ClickException, command, confirm, echo, option, style
 from click import Path as ClickPath
-from click import command, confirm, echo, option, style
 
-from Babylon.commands.api.organization import get_organization_api_instance
-from Babylon.commands.api.solution import get_solution_api_instance
 from Babylon.commands.api.workspace import get_workspace_api_instance
-from Babylon.commands.macro.helpers.common import resolve_inclusion_exclusion
-from Babylon.commands.macro.helpers.webapp import destroy_webapp
+from Babylon.commands.macro.helpers.common import validate_inclusion_exclusion
 from Babylon.commands.macro.helpers.workspace import (
     delete_api_resource,
     delete_kubernetes_resources,
     destroy_postgres_schema,
 )
 from Babylon.commands.macro.helpers.workspace.superset_helper import destroy_dashboard_assets
-from Babylon.core.destroy import is_full_destroy
-from Babylon.utils.credentials import get_keycloak_token
-from Babylon.utils.decorators import injectcontext, retrieve_state
+from Babylon.core.destroy import DestroyTarget
+from Babylon.core.errors import InvalidOptionsError
+from Babylon.core.models import DestroyOptions, ResourceStatus
+from Babylon.core.operations import destroy as core_destroy
+from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 from Babylon.utils.response import CommandResponse
 
@@ -25,23 +24,9 @@ logger = getLogger(__name__)
 env = Environment()
 
 
-def _build_targeted_resources(
-    state: dict,
-    organization: bool,
-    solution: bool,
-    workspace: bool,
-    webapp: bool,
-) -> list[tuple[str, str]]:
-    """Map active resource flags to their (label, current-ID) pairs from the state."""
-    api_state = state["services"]["api"]
-    webapp_state = state["services"].get("webapp", {})
-    resource_map = [
-        (organization, "Organization", api_state.get("organization_id")),
-        (solution, "Solution", api_state.get("solution_id")),
-        (workspace, "Workspace", api_state.get("workspace_id")),
-        (webapp, "Web App", webapp_state.get("webapp_name")),
-    ]
-    return [(label, value or "(NOT DEPLOYED)") for flag, label, value in resource_map if flag]
+def _build_targeted_resources(plan: list[DestroyTarget]) -> list[tuple[str, str]]:
+    """(label, current-ID) pairs shown in the confirmation banner."""
+    return [(t.label, t.resource_id or "(NOT DEPLOYED)") for t in plan]
 
 
 def _build_scope_message(include: tuple[str, ...], exclude: tuple[str, ...], targeted: list[tuple[str, str]]) -> str:
@@ -123,72 +108,6 @@ def _destroy_workspace_resources(state: dict, config: dict, keycloak_token: str,
     delete_api_resource(api.delete_workspace, "Workspace", org_id, api_state["workspace_id"], state, "workspace_id")
 
 
-def _execute_destroy(
-    state: dict,
-    config: dict,
-    keycloak_token: str,
-    organization: bool,
-    solution: bool,
-    workspace: bool,
-    webapp: bool,
-) -> None:
-    """Call the appropriate delete helpers for each resource flagged for destruction."""
-    api_state = state["services"]["api"]
-    org_id = api_state["organization_id"]
-
-    if solution:
-        api = get_solution_api_instance(config=config, keycloak_token=keycloak_token)
-        delete_api_resource(api.delete_solution, "Solution", org_id, api_state["solution_id"], state, "solution_id")
-
-    if workspace:
-        _destroy_workspace_resources(state, config, keycloak_token, org_id)
-
-    if organization:
-        api = get_organization_api_instance(config=config, keycloak_token=keycloak_token)
-        delete_api_resource(api.delete_organization, "Organization", None, org_id, state, "organization_id")
-
-    if webapp:
-        destroy_webapp(state)
-
-
-def _is_full_destroy(state: dict) -> bool:
-    """Return True when every tracked resource ID has been cleared from the state."""
-    return is_full_destroy(state)
-
-
-def _cleanup_local_state(state: dict, full_destroy: bool) -> None:
-    """Delete the local state file on a full destroy, or persist the updated state on a partial one."""
-    if full_destroy:
-        logger.info("  [dim]🗑 All resources cleared ! removing local state file...[/dim]")
-        if not env.delete_state_in_local():
-            logger.warning(
-                "  [yellow]⚠[/yellow] Could not delete the local state file destroy succeeded but the file may need manual cleanup."
-            )
-    else:
-        logger.info("  [dim]↻ Partial destroy ! persisting updated state locally...[/dim]")
-        env.store_state_in_local(state=state)
-
-
-def _cleanup_remote_state(state: dict, full_destroy: bool) -> None:
-    """Delete the Kubernetes secret on a full destroy, or sync the updated state on a partial one.
-
-    No-op when the state has no remote backend configured.
-    """
-    if not state.get("remote"):
-        return
-
-    if full_destroy:
-        logger.info("  [dim]☁ All resources cleared ! removing remote state secret from Kubernetes...[/dim]")
-        if not env.delete_state_in_kubernetes():
-            logger.warning(
-                "  [yellow]⚠[/yellow] Could not delete the remote state secret !"
-                "destroy succeeded but the secret may need manual cleanup."
-            )
-    else:
-        logger.info("  [dim]↻ Partial destroy ! syncing updated state to Kubernetes...[/dim]")
-        env.store_state_in_kubernetes(state=state)
-
-
 def _print_destruction_summary(state: dict) -> None:
     """Print the post-destroy summary table showing the final status of every resource."""
     echo(style("\n📋 Destruction Summary", bold=True, fg="white"))
@@ -207,12 +126,9 @@ def _print_destruction_summary(state: dict) -> None:
     color = "red" if status == "DELETED" else "green"
     echo(f"{style(f'{label_text:<20}:', fg='cyan', bold=True)} {style(status, fg=color)}")
 
-    echo(style("\n✨ Cleanup process complete", fg="white", bold=True))
-
 
 @command()
 @injectcontext()
-@retrieve_state
 @option(
     "--var-file",
     "variables_files",
@@ -224,27 +140,46 @@ def _print_destruction_summary(state: dict) -> None:
 @option("--include", "include", multiple=True, type=str, help="Specify the resources to destroy.")
 @option("--exclude", "exclude", multiple=True, type=str, help="Specify the resources to exclude from destruction.")
 @option("--yes", "-y", is_flag=True, default=False, help="Skip the interactive confirmation prompt.")
-def destroy(state: dict, variables_files: tuple, include: tuple[str, ...], exclude: tuple[str, ...], yes: bool):
+def destroy(variables_files: tuple, include: tuple[str, ...], exclude: tuple[str, ...], yes: bool):
     """Macro Destroy"""
+    validate_inclusion_exclusion(include, exclude)  # same CLI messages as before (click.Abort)
 
-    env.set_variable_files(list(variables_files))
-    _, organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
-    targeted = _build_targeted_resources(state, organization, solution, workspace, webapp)
+    def ask(plan: list[DestroyTarget]) -> bool:
+        """Banner + prompt, called by the core once the plan is known (before any deletion)."""
+        if not _confirm_destroy(include, exclude, _build_targeted_resources(plan), yes=yes):
+            return False
+        echo(style(f"\n🔥 Starting Destruction Process in namespace: {env.environ_id}", bold=True, fg="red"))
+        return True
 
-    if not _confirm_destroy(include, exclude, targeted, yes=yes):
+    try:
+        result = core_destroy(
+            DestroyOptions(
+                context=env.context_id,  # filled by @injectcontext (-c / namespace.yaml)
+                tenant=env.environ_id,  # filled by @injectcontext (-t / namespace.yaml)
+                variable_files=tuple(variables_files),
+                include=tuple(include),
+                exclude=tuple(exclude),
+            ),
+            confirm=ask,
+        )
+    except InvalidOptionsError as exc:
+        raise ClickException(str(exc)) from None
+
+    if result.cancelled:
         echo()
         echo(style("  ✓ Deletion cancelled ! no resources were deleted.", fg="green", bold=True))
         echo()
         return CommandResponse.success()
 
-    echo(style(f"\n🔥 Starting Destruction Process in namespace: {env.environ_id}", bold=True, fg="red"))
-    keycloak_token, config = get_keycloak_token()
+    _print_destruction_summary(result.state)
 
-    _execute_destroy(state, config, keycloak_token, organization, solution, workspace, webapp)
-
-    full_destroy = _is_full_destroy(state)
-    _cleanup_local_state(state, full_destroy)
-    _cleanup_remote_state(state, full_destroy)
-
-    _print_destruction_summary(state)
+    failed = [r for r in result.resources if r.status == ResourceStatus.FAILED]
+    if failed:
+        for r in failed:
+            logger.error(f"  [bold red]✘[/bold red] {r.resource} {r.resource_id}: {r.error}")
+        for r in result.resources:
+            if r.status == ResourceStatus.SKIPPED and r.error == "previous resource failed":
+                logger.warning(f"  [yellow]⚠[/yellow] {r.resource} {r.resource_id}: skipped, {r.error}")
+        raise ClickException(f"{len(failed)} resource(s) failed to destroy")  # exit code 1
+    echo(style("\n✨ Cleanup process complete", fg="white", bold=True))
     return CommandResponse.success()
