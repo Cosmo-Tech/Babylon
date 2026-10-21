@@ -29,9 +29,11 @@ class CommandResponse:
     def __init__(self, status_code: int = 0, data: dict[str, Any] | list[Any] | None = None, verbose: bool = False) -> None:
         self.status_code = status_code
         self.data: dict[str, Any] | list[Any] = data or {}
-        ctx = get_current_context()
-        self.command = ctx.command_path.split(" ")
-        self.params = {k: str(v) for k, v in ctx.params.items()}
+        # silent=True: returns None instead of raising when called outside a click command
+        # (e.g. from Babylon.core used by an API). Command info is then simply empty.
+        ctx = get_current_context(silent=True)
+        self.command = ctx.command_path.split(" ") if ctx else []
+        self.params = {k: str(v) for k, v in ctx.params.items()} if ctx else {}
         if verbose and Environment().is_verbose:
             pprint(self.data)
 

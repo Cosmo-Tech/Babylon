@@ -1,58 +1,18 @@
 from logging import getLogger
 from pathlib import Path as PathlibPath
 
+from click import ClickException, argument, command, echo, option, style
 from click import Path as ClickPath
-from click import argument, command, echo, option, style
-from yaml import safe_dump, safe_load
 
-from Babylon.commands.macro.build import build
-from Babylon.commands.macro.deploy_organization import deploy_organization
-from Babylon.commands.macro.deploy_solution import deploy_solution
-from Babylon.commands.macro.deploy_webapp import deploy_webapp
-from Babylon.commands.macro.deploy_workspace import deploy_workspace
-from Babylon.commands.macro.helpers.common import resolve_inclusion_exclusion
+from Babylon.commands.macro.helpers.common import validate_inclusion_exclusion
+from Babylon.core.errors import InvalidOptionsError
+from Babylon.core.models import ApplyOptions, ResourceStatus
+from Babylon.core.operations import apply as core_apply
 from Babylon.utils.decorators import injectcontext
 from Babylon.utils.environment import Environment
 
 logger = getLogger(__name__)
 env = Environment()
-
-
-def load_resources_from_files(files_to_deploy: list[PathlibPath]) -> tuple[list, list, list, list, list]:
-    resources = []
-    for f in files_to_deploy:
-        resource = {}
-        with open(f) as input_file:
-            content = input_file.read()
-            escaped_content = content.replace("{{", "${").replace("}}", "}")
-            yaml_data = safe_load(escaped_content)
-            resource["kind"] = yaml_data.get("kind")
-            resource["namespace"] = safe_dump(yaml_data.get("namespace"))
-            resource["content"] = escaped_content
-            resource["file_path"] = f
-            resources.append(resource)
-    builds = list(filter(lambda x: x.get("kind") == "Build", resources))
-    organizations = list(filter(lambda x: x.get("kind") == "Organization", resources))
-    solutions = list(filter(lambda x: x.get("kind") == "Solution", resources))
-    workspaces = list(filter(lambda x: x.get("kind") == "Workspace", resources))
-    webapps = list(filter(lambda x: x.get("kind") == "Webapp", resources))
-    return (builds, organizations, solutions, workspaces, webapps)
-
-
-def deploy_objects(objects: list, object_type: str, deploy_dir: PathlibPath):
-    for o in objects:
-        content = o.get("content")
-        namespace = o.get("namespace")
-        if object_type == "build":
-            build(namespace=namespace, file_content=content)
-        elif object_type == "organization":
-            deploy_organization(namespace=namespace, file_content=content)
-        elif object_type == "solution":
-            deploy_solution(namespace=namespace, file_content=content)
-        elif object_type == "webapp":
-            deploy_webapp(namespace=namespace, file_content=content)
-        elif object_type == "workspace":
-            deploy_workspace(namespace=namespace, file_content=content, deploy_dir=deploy_dir)
 
 
 def print_section(data: dict, highlight_urls: bool = False):
@@ -90,20 +50,21 @@ def apply(
     variables_files: tuple[PathlibPath, ...],
 ):
     """Macro Apply"""
-    build, organization, solution, workspace, webapp = resolve_inclusion_exclusion(include, exclude)
-    files_to_deploy = list(filter(lambda x: x.suffix in [".yaml", ".yml"], deploy_dir.iterdir()))
-    env.set_variable_files(list(variables_files))
-    builds, organizations, solutions, workspaces, webapps = load_resources_from_files(files_to_deploy)
-    if build:
-        deploy_objects(builds, "build", deploy_dir)
-    if organization:
-        deploy_objects(organizations, "organization", deploy_dir)
-    if solution:
-        deploy_objects(solutions, "solution", deploy_dir)
-    if webapp:
-        deploy_objects(webapps, "webapp", deploy_dir)
-    if workspace:
-        deploy_objects(workspaces, "workspace", deploy_dir)
+    validate_inclusion_exclusion(include, exclude)  # same CLI messages as before (click.Abort)
+    try:
+        result = core_apply(
+            ApplyOptions(
+                deploy_dir=deploy_dir,
+                context=env.context_id,
+                tenant=env.environ_id,
+                variable_files=tuple(variables_files),
+                include=tuple(include),
+                exclude=tuple(exclude),
+            )
+        )
+    except InvalidOptionsError as exc:
+        # click only formats its own exceptions ("Error: ..."); translate the core one.
+        raise ClickException(str(exc)) from None
     final_state = env.get_state_from_local()
     services = final_state.get("services", {})
     api_data = services.get("api", {})
@@ -111,4 +72,13 @@ def apply(
     echo(style("\n📋 Deployment Summary", bold=True, fg="yellow"))
     print_section(api_data)
     print_section(webapp_data)
+
+    failed = [r for r in result.resources if r.status == ResourceStatus.FAILED]
+    if failed:
+        for r in failed:
+            logger.error(f"  [bold red]✘[/bold red] {r.file} ({r.resource}): {r.error}")
+        for r in result.resources:
+            if r.status == ResourceStatus.SKIPPED:
+                logger.warning(f"  [yellow]⚠[/yellow] {r.file} ({r.resource}): skipped, {r.error}")
+        raise ClickException(f"{len(failed)} resource(s) failed to deploy")  # exit code 1
     echo(style("\n✨ Deployment process complete", fg="white", bold=True))

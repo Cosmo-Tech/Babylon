@@ -12,6 +12,15 @@ class InvalidOptionsError(BabylonError, ValueError):
     """The caller supplied invalid options."""
 
 
+class OperationInProgressError(BabylonError):
+    """Another Babylon operation is already running in this process.
+
+    Babylon stores the current context/tenant/variable files in the process-wide
+    `Environment` singleton, so two operations in the same process would overwrite
+    each other. Only one operation per process is allowed.
+    """
+
+
 class ConflictingSelectionError(InvalidOptionsError):
     """`include` and `exclude` were both provided."""
 

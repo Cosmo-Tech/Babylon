@@ -17,6 +17,7 @@ class ApplyOptions:
         tenant: Babylon tenant (`-t`), also the Kubernetes namespace of the platform.
         variable_files: variable files (`--var-file`), merged together.
         include / exclude: resource selection (`--include` / `--exclude`).
+        fail_fast: stop at the first failure; remaining manifests are SKIPPED.
     """
 
     deploy_dir: Path
@@ -25,6 +26,7 @@ class ApplyOptions:
     variable_files: tuple[Path, ...]
     include: tuple[str, ...] = ()
     exclude: tuple[str, ...] = ()
+    fail_fast: bool = True
 
 
 class ResourceStatus(StrEnum):

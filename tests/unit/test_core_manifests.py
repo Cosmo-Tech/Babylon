@@ -31,6 +31,7 @@ def project(tmp_path: Path) -> Path:
     write(tmp_path / "postgres", "Organization.yaml", manifest_text("Organization"))  # sub-folder: ignored
     return tmp_path
 
+
 def test_load_manifest_reads_kind_namespace_and_converts_template_syntax(tmp_path):
     m = load_manifest(write(tmp_path, "Organization.yaml", manifest_text("Organization")))
     assert m.resource == "organization"
