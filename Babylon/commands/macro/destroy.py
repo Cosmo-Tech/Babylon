@@ -154,8 +154,8 @@ def destroy(variables_files: tuple, include: tuple[str, ...], exclude: tuple[str
     try:
         result = core_destroy(
             DestroyOptions(
-                context=env.context_id,  # filled by @injectcontext (-c / namespace.yaml)
-                tenant=env.environ_id,  # filled by @injectcontext (-t / namespace.yaml)
+                context=env.context_id,
+                tenant=env.environ_id,
                 variable_files=tuple(variables_files),
                 include=tuple(include),
                 exclude=tuple(exclude),
@@ -164,6 +164,18 @@ def destroy(variables_files: tuple, include: tuple[str, ...], exclude: tuple[str
         )
     except InvalidOptionsError as exc:
         raise ClickException(str(exc)) from None
+
+    if result.nothing_to_destroy:
+        echo()
+        echo(
+            style(
+                f"  ✓ Nothing to destroy ! no deployed resource found in state-{env.context_id}-{env.environ_id}.",
+                fg="green",
+                bold=True,
+            )
+        )
+        echo()
+        return CommandResponse.success()
 
     if result.cancelled:
         echo()

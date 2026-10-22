@@ -7,10 +7,9 @@ from logging import getLogger
 from pathlib import Path
 
 from flatten_json import flatten
-from kubernetes import client, config
+from kubernetes import client
 from kubernetes.client.exceptions import ApiException
 from kubernetes.client.models.v1_secret import V1Secret
-from kubernetes.config.config_exception import ConfigException
 from mako.template import Template
 from yaml import SafeLoader, YAMLError, dump, load, safe_load
 
@@ -116,17 +115,23 @@ class Environment(metaclass=SingletonMeta):
         self.environ_id = environ_id
 
     def get_kubernetes_client(self) -> client.CoreV1Api:
+        # Imported here: Babylon.core.kube imports Babylon.core.errors only, no cycle, but keeps
+        # this module light for callers that never touch Kubernetes.
+        from Babylon.core.errors import BabylonError
+        from Babylon.core.kube import AUTH_ENV_VAR, load_kubernetes_config
+
         try:
-            config.load_kube_config(context=self.kube_context)
+            load_kubernetes_config(kube_context=self.kube_context)
             return client.CoreV1Api()
-        except ConfigException as exc:
-            logger.error("\n  [bold red]✘[/bold red] Failed to load kube config")
-            logger.exception(f"  [red]Reason:[/red] {exc}")
+        except BabylonError as exc:
+            logger.error("\n  [bold red]✘[/bold red] Failed to load Kubernetes credentials")
+            logger.error(f"  [red]Reason:[/red] {exc}")
             logger.info("\n [bold white]💡 Troubleshooting:[/bold white]")
             logger.info("  • Ensure your kubeconfig file is valid")
             logger.info("  • Ensure the kubernetes context is correct:")
             logger.info("    - Either set it as current: [cyan]kubectl config use-context <context-name>[/cyan]")
             logger.info("    - Or explicitly specify it: [cyan]babylon --kube-context <context-name> ...[/cyan]")
+            logger.info(f"  • Inside a pod, set [cyan]{AUTH_ENV_VAR}=incluster[/cyan] and check the ServiceAccount")
             sys.exit(1)
 
     def _get_active_kubectl_context(self) -> str:

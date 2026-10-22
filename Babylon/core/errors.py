@@ -25,6 +25,10 @@ class ConflictingSelectionError(InvalidOptionsError):
     """`include` and `exclude` were both provided."""
 
 
+class KubernetesAuthError(BabylonError):
+    """No usable Kubernetes credentials (kubeconfig or in-cluster ServiceAccount)."""
+
+
 class UnknownResourceError(InvalidOptionsError):
     """`include`/`exclude` contains unknown resource kinds."""
 

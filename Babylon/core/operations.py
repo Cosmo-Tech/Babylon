@@ -236,6 +236,12 @@ def destroy(
         plan = plan_destroy(state, selected)
         result.state = state
 
+        # Nothing deployed in the selection: no question, no deletion, state untouched.
+        if not any(t.deployed for t in plan):
+            result.resources = [DestroyOutcome(t.resource, None, ResourceStatus.SKIPPED, "not deployed") for t in plan]
+            result.nothing_to_destroy = True
+            return result
+
         # 2. Ask before deleting.
         if confirm is not None and not confirm(plan):
             result.cancelled = True

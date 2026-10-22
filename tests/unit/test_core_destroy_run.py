@@ -1,5 +1,4 @@
-"""Tests of Babylon.core.operations.destroy and of the `babylon destroy` CLI wired to it.
-"""
+"""Tests of Babylon.core.operations.destroy and of the `babylon destroy` CLI wired to it."""
 
 from pathlib import Path
 
@@ -131,6 +130,16 @@ def test_not_deployed_resource_is_skipped(setup):
     assert result.succeeded
 
 
+def test_nothing_deployed_asks_nothing_and_touches_nothing(setup):
+    setup["state_file"].unlink()  # no state file = empty state
+    calls, asked = [], []
+    result = destroy(options(setup), confirm=lambda p: asked.append(p) or True, deleters=fake_deleters(calls))
+    assert result.nothing_to_destroy and result.succeeded
+    assert asked == [] and calls == []
+    assert all(r.status == ResourceStatus.SKIPPED for r in result.resources)
+    assert not setup["state_file"].exists()  # no empty state file created
+
+
 @pytest.mark.parametrize(
     "behaviour, expected_error",
     [
@@ -204,3 +213,11 @@ def test_cli_destroy_orphan_is_a_clean_error(cli):
     res = cli("-y", "--exclude", "workspace")
     assert res.exit_code == 1
     assert "Error: Cannot destroy" in res.output
+
+
+def test_cli_destroy_nothing_deployed_no_banner(cli, setup):
+    setup["state_file"].unlink()
+    res = cli()  # no -y and no input: would hang/abort if a question was asked
+    assert res.exit_code == 0, res.output
+    assert "Nothing to destroy" in res.output
+    assert "DESTRUCTIVE ACTION" not in res.output

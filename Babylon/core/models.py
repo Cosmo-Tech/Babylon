@@ -88,6 +88,7 @@ class DestroyResult:
     tenant: str
     resources: list[DestroyOutcome] = field(default_factory=list)
     cancelled: bool = False  # the confirmation was refused: nothing was touched
+    nothing_to_destroy: bool = False  # no selected resource is deployed: nothing was asked nor touched
     state: dict = field(default_factory=dict)  # state after destroy (for the summary)
 
     @property
