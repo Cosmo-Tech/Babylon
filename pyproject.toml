@@ -30,10 +30,18 @@ readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.12"
 license = "MIT"
 
+[project.optional-dependencies]
+# Babylon API (`pip install cosmotech-babylon[api]`); the CLI does not need it.
+api = [
+  "fastapi>=0.143",
+  "uvicorn[standard]>=0.54",
+]
+
 [dependency-groups]
 dev = [
   "ruff>=0.16.9",
   "pytest>=9.0.2",
+  "httpx",  # fastapi.testclient
 ]
 doc = [
   "mkdocs",
@@ -63,7 +71,7 @@ babylon = "Babylon.main:main"
 path = "Babylon/version.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["Babylon"]
+packages = ["Babylon", "babylon_api"]
 
 [tool.ruff]
 line-length = 135

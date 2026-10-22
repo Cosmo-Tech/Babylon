@@ -1,0 +1,101 @@
+"""Request/response bodies of the Babylon API (validated by pydantic before any work starts).
+
+Every field coming from the network is untrusted: it will later become a git argument,
+a path on disk, a Kubernetes namespace or a Secret name. The rules below reject bad
+values with HTTP 422 instead of letting them reach git, the filesystem or the cluster.
+"""
+
+from __future__ import annotations
+
+import re
+from pathlib import PurePosixPath
+from typing import Annotated, Literal
+
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
+
+from Babylon.core.selection import ALLOWED_RESOURCES, resolve_resources
+
+# Kubernetes name (RFC 1123 label): lowercase letters, digits and '-', not at the ends.
+# The tenant IS a namespace, and both end up in the state Secret "babylon-state-<context>-<tenant>".
+_K8S_NAME = re.compile(r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$")
+
+# Git branch/tag/sha. Must not start with '-' (would be read as a git option) and no '..'.
+_GIT_REF = re.compile(r"^[A-Za-z0-9._/][A-Za-z0-9._/-]*$")
+
+
+def _k8s_name(value: str) -> str:
+    if not _K8S_NAME.match(value):
+        raise ValueError("must contain only lowercase letters, digits and '-', and start/end with a letter or digit")
+    return value
+
+
+def _repo_path(value: str) -> str:
+    """A relative path that stays inside the cloned repository."""
+    path = PurePosixPath(value)
+    if not value or path.is_absolute() or ".." in path.parts or "\\" in value:
+        raise ValueError("must be a relative path inside the repository (no leading '/', no '..')")
+    return str(path)
+
+
+K8sName = Annotated[str, Field(max_length=40), AfterValidator(_k8s_name)]
+RepoPath = Annotated[str, Field(max_length=255), AfterValidator(_repo_path)]
+
+
+class Repository(BaseModel):
+    """Where the deployment files live (cloned by the worker)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    url: HttpUrl
+    ref: str = Field(default="main", max_length=255)
+
+    @field_validator("url")
+    @classmethod
+    def _https_only(cls, url: HttpUrl) -> HttpUrl:
+        if url.scheme != "https":
+            raise ValueError("only https:// repositories are allowed")
+        return url
+
+    @field_validator("ref")
+    @classmethod
+    def _safe_ref(cls, ref: str) -> str:
+        if not _GIT_REF.match(ref) or ".." in ref:
+            raise ValueError("invalid git ref")
+        return ref
+
+
+class _OperationRequest(BaseModel):
+    """Fields shared by apply and destroy."""
+
+    model_config = ConfigDict(extra="forbid")  # a typo like "exlude" is an error, not silently ignored
+
+    repository: Repository
+    context: K8sName
+    tenant: K8sName
+    variable_files: list[RepoPath] = Field(default_factory=lambda: ["variables.yaml"], min_length=1, max_length=10)
+    include: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(ALLOWED_RESOURCES)}")
+    exclude: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(ALLOWED_RESOURCES)}")
+
+    @model_validator(mode="after")
+    def _valid_selection(self):
+        # Same rules as the CLI: known names, include XOR exclude.
+        # The core raises InvalidOptionsError, which is a ValueError: pydantic turns it into a 422.
+        resolve_resources(tuple(self.include), tuple(self.exclude))
+        return self
+
+
+class ApplyRequest(_OperationRequest):
+    deploy_dir: RepoPath = Field(description="Directory of the Babylon YAML files, relative to the repository root")
+
+
+class DestroyRequest(_OperationRequest):
+    # Destroy is irreversible and there is no prompt over HTTP: the caller must say it explicitly.
+    confirm: Literal[True] = Field(description="Must be true: destroy cannot be undone")
+
+
+class ValidatedResponse(BaseModel):
+    """the request is valid, nothing is executed yet (will start a Job next steps)."""
+
+    status: Literal["validated"] = "validated"
+    operation: Literal["apply", "destroy"]
+    request: ApplyRequest | DestroyRequest
