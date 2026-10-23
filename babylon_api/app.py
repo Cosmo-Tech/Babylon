@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 
 from Babylon.core.errors import InvalidOptionsError, OperationInProgressError
 from Babylon.version import VERSION
+from babylon_api.repository import allowed_hosts, check_allowed_host
 from babylon_api.schemas import ApplyRequest, DestroyRequest, ValidatedResponse
 
 app = FastAPI(
@@ -40,10 +41,12 @@ def healthz() -> dict:
 @app.post("/apply", tags=["operations"], response_model=ValidatedResponse)
 def apply(request: ApplyRequest) -> ValidatedResponse:
     """Validate an apply request. FastAPI already returned 422 if the body was invalid."""
+    check_allowed_host(str(request.repository.url), allowed_hosts())  # InvalidOptionsError -> 422
     return ValidatedResponse(operation="apply", request=request)
 
 
 @app.post("/destroy", tags=["operations"], response_model=ValidatedResponse)
 def destroy(request: DestroyRequest) -> ValidatedResponse:
     """Validate a destroy request (`confirm: true` is mandatory)."""
+    check_allowed_host(str(request.repository.url), allowed_hosts())
     return ValidatedResponse(operation="destroy", request=request)
