@@ -58,6 +58,7 @@ class Environment(metaclass=SingletonMeta):
 
     def __init__(self):
         self.remote = False
+        self.force_remote = False  # set by Babylon.core for the API worker: manifests cannot turn remote off
         self.pwd = Path.cwd()
         self.blob_client = None
         self.kube_context = None
@@ -89,7 +90,7 @@ class Environment(metaclass=SingletonMeta):
         payload = t.render(**variables)
         payload_dict = safe_load(payload)
         remote: bool = payload_dict.get("remote", self.remote)
-        self.remote = remote
+        self.remote = self.force_remote or remote
 
     def fill_template(self, data: str, state: dict | None = None, ext_args: dict | None = None):
         result = data.replace("{{", "${").replace("}}", "}")

@@ -4,11 +4,9 @@ import subprocess
 from pathlib import Path
 
 import pytest
-from fastapi.testclient import TestClient
 
 from Babylon.core.errors import InvalidOptionsError
 from babylon_api import repository
-from babylon_api.app import app
 from babylon_api.repository import (
     RepositoryError,
     allowed_hosts,
@@ -111,6 +109,7 @@ def test_token_is_masked_in_errors(tmp_path, monkeypatch):
 
 # paths inside the repository
 
+
 def test_resolve_in_repo(tmp_path):
     (tmp_path / "project").mkdir()
     (tmp_path / "variables.yaml").write_text("")
@@ -133,6 +132,7 @@ def test_symlink_escaping_the_repository_is_refused(tmp_path):
 
 
 # prepare_checkout: the whole sequence
+
 
 @pytest.fixture
 def local_fetch(origin, monkeypatch):
@@ -170,9 +170,11 @@ def test_prepare_checkout_missing_deploy_dir(tmp_path, local_fetch):
 
 # API
 
-def test_api_refuses_a_host_not_allowed(monkeypatch):
+
+def test_api_refuses_a_host_not_allowed(monkeypatch, api, fake_kube):
     monkeypatch.setenv(repository.ALLOWED_HOSTS_ENV, "github.com")
     body = {"repository": {"url": "https://gitlab.com/a/b"}, "deploy_dir": "p", "context": "dev", "tenant": "dev"}
-    res = TestClient(app).post("/apply", json=body)
+    res = api.post("/apply", json=body)
     assert res.status_code == 422
     assert "not allowed" in res.json()["detail"]
+    assert fake_kube.batch.jobs == []  # refused before any Job is created

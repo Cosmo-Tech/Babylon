@@ -18,6 +18,8 @@ class ApplyOptions:
         variable_files: variable files to load and merge (--var-file).
         include / exclude: resources to include or exclude.
         fail_fast: stop at the first failure; remaining manifests are SKIPPED.
+        force_remote: always keep the state in the Kubernetes Secret, whatever the manifests say.
+            Required in a pod: its disk is lost when the Job ends.
     """
 
     deploy_dir: Path
@@ -27,6 +29,7 @@ class ApplyOptions:
     include: tuple[str, ...] = ()
     exclude: tuple[str, ...] = ()
     fail_fast: bool = True
+    force_remote: bool = False
 
 
 @dataclass(frozen=True)
@@ -42,6 +45,7 @@ class DestroyOptions:
     include: tuple[str, ...] = ()
     exclude: tuple[str, ...] = ()
     fail_fast: bool = True
+    force_remote: bool = False
 
 
 class ResourceStatus(StrEnum):

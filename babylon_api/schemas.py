@@ -8,6 +8,7 @@ values with HTTP 422 instead of letting them reach git, the filesystem or the cl
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from pathlib import PurePosixPath
 from typing import Annotated, Literal
 
@@ -93,9 +94,21 @@ class DestroyRequest(_OperationRequest):
     confirm: Literal[True] = Field(description="Must be true: destroy cannot be undone")
 
 
-class ValidatedResponse(BaseModel):
-    """the request is valid, nothing is executed yet (will start a Job next steps)."""
+class OperationAccepted(BaseModel):
+    """The operation was submitted as a Kubernetes Job; poll GET /operations/{operation_id}."""
 
-    status: Literal["validated"] = "validated"
+    operation_id: str
     operation: Literal["apply", "destroy"]
-    request: ApplyRequest | DestroyRequest
+    status: Literal["pending"] = "pending"
+    job_name: str
+
+
+class OperationStatus(BaseModel):
+    operation_id: str
+    operation: str | None
+    context: str | None
+    tenant: str | None
+    status: Literal["pending", "running", "succeeded", "failed"]
+    job_name: str
+    created_at: datetime | None = None
+    result: dict | None = Field(default=None, description="Summary written by the worker when the Job is finished")

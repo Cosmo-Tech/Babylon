@@ -47,24 +47,27 @@ _operation_lock = threading.Lock()
 
 
 @contextmanager
-def _bound_environment(context: str, tenant: str, variable_files: tuple[Path, ...]) -> Iterator[Environment]:
+def _bound_environment(
+    context: str, tenant: str, variable_files: tuple[Path, ...], force_remote: bool = False
+) -> Iterator[Environment]:
     """Bind the Environment singleton to one operation, then restore it."""
 
     if not _operation_lock.acquire(blocking=False):
         raise OperationInProgressError("A Babylon operation is already running in this process")
 
     env = Environment()
-    saved = (env.context_id, env.environ_id, list(env.variable_files), env.remote)
+    saved = (env.context_id, env.environ_id, list(env.variable_files), env.remote, env.force_remote)
     try:
         # `remote` is only ever switched on (by a manifest or the local state), never off:
         # start each operation from the default so it cannot leak from a previous one.
-        env.remote = False
+        env.force_remote = force_remote
+        env.remote = force_remote
         env.set_context(context)
         env.set_environ(tenant)
         env.set_variable_files([Path(f) for f in variable_files])
         yield env
     finally:
-        env.context_id, env.environ_id, env.variable_files, env.remote = saved
+        env.context_id, env.environ_id, env.variable_files, env.remote, env.force_remote = saved
         _operation_lock.release()
 
 
@@ -133,7 +136,7 @@ def apply(options: ApplyOptions, deployers: Mapping[str, Deployer] | None = None
 
     # 2. Execute, one outcome per manifest.
     result = ApplyResult(context=options.context, tenant=options.tenant)
-    with _bound_environment(options.context, options.tenant, options.variable_files):
+    with _bound_environment(options.context, options.tenant, options.variable_files, options.force_remote):
         for manifest in plan:
             if options.fail_fast and not result.succeeded:
                 result.resources.append(
@@ -203,9 +206,7 @@ def _save_state(env: Environment, state: dict) -> None:
 
     Same behaviour as the CLI (local file + Kubernetes secret when remote).
     """
-
-    remote = bool(state.get("remote"))
-
+    remote = bool(state.get("remote")) or env.force_remote
     if is_full_destroy(state):
         logger.info("  [dim]🗑 All resources cleared ! removing state...[/dim]")
 
@@ -245,7 +246,8 @@ def destroy(
     selected = resolve_resources(options.include, options.exclude)
     result = DestroyResult(context=options.context, tenant=options.tenant)
 
-    with _bound_environment(options.context, options.tenant, options.variable_files) as env:
+    with _bound_environment(options.context, options.tenant, options.variable_files, options.force_remote) as env:
+        # 1. Read the state and plan: no side effect yet.
         state = env.retrieve_state_func()
         plan = plan_destroy(state, selected)
         result.state = state
