@@ -41,7 +41,7 @@ api = [
 dev = [
   "ruff>=0.16.9",
   "pytest>=9.0.2",
-  "httpx",  # fastapi.testclient
+  "httpx2",  # fastapi.testclient
 ]
 doc = [
   "mkdocs",

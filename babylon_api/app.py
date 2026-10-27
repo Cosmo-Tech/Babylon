@@ -21,7 +21,7 @@ from kubernetes.client.exceptions import ApiException
 from Babylon.core.errors import InvalidOptionsError, KubernetesAuthError, OperationInProgressError
 from Babylon.core.kube import load_kubernetes_config
 from Babylon.version import VERSION
-from babylon_api.jobs import ApiConfigurationError, JobSettings, build_job, get_operation, new_operation_id
+from babylon_api.jobs import ApiConfigurationError, JobSettings, build_job, find_active_operation, get_operation, new_operation_id
 from babylon_api.repository import allowed_hosts, check_allowed_host
 from babylon_api.schemas import ApplyRequest, DestroyRequest, OperationAccepted, OperationStatus
 
@@ -53,7 +53,8 @@ Kube = Annotated[KubeClients, Depends(get_kube)]
 Settings = Annotated[JobSettings, Depends(get_settings)]
 
 
-# errors -> HTTP status codes (the core never knows about HTTP) 
+# errors -> HTTP status codes (the core never knows about HTTP)
+
 
 @app.exception_handler(InvalidOptionsError)
 async def _invalid_options(_: Request, exc: InvalidOptionsError) -> JSONResponse:
@@ -79,7 +80,9 @@ async def _kubernetes_error(_: Request, exc: ApiException) -> JSONResponse:
         content={"detail": f"Kubernetes API error: {exc.status} {exc.reason}"},
     )
 
+
 # routes
+
 
 @app.get("/healthz", tags=["health"])
 def healthz() -> dict:
@@ -89,6 +92,13 @@ def healthz() -> dict:
 
 def _submit(operation: str, request: ApplyRequest | DestroyRequest, kube: KubeClients, settings: JobSettings):
     check_allowed_host(str(request.repository.url), allowed_hosts())  # refuse before creating anything
+    # Fast feedback (409) when an operation is already pending/running on this tenant.
+    # Not the real protection (two requests can pass this check together): the worker's Lease is.
+    active = find_active_operation(kube.batch, settings.namespace, request.context, request.tenant)
+    if active:
+        raise OperationInProgressError(
+            f"Operation {active} is already running on context '{request.context}' / tenant '{request.tenant}'"
+        )
     operation_id = new_operation_id()
     job = build_job(operation, request, operation_id, settings)
     kube.batch.create_namespaced_job(namespace=settings.namespace, body=job)

@@ -105,6 +105,7 @@ def test_bad_payload_is_refused_before_fetching(tmp_path, checkout, payload, err
 
 # main: what the container really executes
 
+
 @pytest.fixture
 def result_file(tmp_path) -> Path:
     return tmp_path / "termination-log"
@@ -116,13 +117,13 @@ def run_main(result_file, **env):
 
 
 def test_main_success_writes_result_and_exits_0(result_file, monkeypatch):
-    monkeypatch.setattr(worker, "run", lambda payload, workdir, environ=None: {"status": "succeeded", "commit": "c0ffee"})
+    monkeypatch.setattr(worker, "run", lambda payload, workdir, **_: {"status": "succeeded", "commit": "c0ffee"})
     code, result = run_main(result_file, BABYLON_OPERATION=json.dumps({"operation": "apply", "request": APPLY}))
     assert (code, result) == (0, {"status": "succeeded", "commit": "c0ffee"})
 
 
 def test_main_failure_exits_1(result_file, monkeypatch):
-    def failing(payload, workdir, environ=None):
+    def failing(payload, workdir, **_):
         raise InvalidOptionsError("'project' is not a directory of the repository")
 
     monkeypatch.setattr(worker, "run", failing)

@@ -79,6 +79,11 @@ def build_job(operation: str, request: BaseModel, operation_id: str, settings: J
         client.V1EnvVar(name="BABYLON_OPERATION", value=payload),
         client.V1EnvVar(name="BABYLON_K8S_AUTH", value="incluster"),
         client.V1EnvVar(name="HOME", value=WORK_DIR),  # git and Babylon write under $HOME
+        # Tenant lock Lease in the API namespace, held by this operation.
+        client.V1EnvVar(name="BABYLON_OPERATION_ID", value=operation_id),
+        client.V1EnvVar(name="BABYLON_LOCK_NAMESPACE", value=settings.namespace),
+        # Longer than the Job deadline: a killed worker frees the tenant at most 5 min after the deadline.
+        client.V1EnvVar(name="BABYLON_LOCK_DURATION", value=str(settings.active_deadline_seconds + 300)),
     ]
     env_from = None
     if settings.secret_name:
@@ -147,6 +152,15 @@ def job_status(job: client.V1Job) -> str:
     if status.active:
         return "running"
     return "pending"
+
+
+def find_active_operation(batch_api: client.BatchV1Api, namespace: str, context: str, tenant: str) -> str | None:
+    """Id of a pending/running operation on (context, tenant), if any. Used by the API to answer 409 early."""
+    selector = f"{LABEL_MANAGED_BY}={MANAGED_BY},{LABEL_CONTEXT}={context},{LABEL_TENANT}={tenant}"
+    for job in batch_api.list_namespaced_job(namespace, label_selector=selector).items:
+        if job_status(job) in ("pending", "running"):
+            return (job.metadata.labels or {}).get(LABEL_OPERATION_ID)
+    return None
 
 
 def _worker_result(core_api: client.CoreV1Api, namespace: str, operation_id: str) -> dict | None:

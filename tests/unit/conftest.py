@@ -12,6 +12,12 @@ from babylon_api.jobs import JobSettings
 SETTINGS = JobSettings(namespace="babylon", image="babylon:test", service_account="babylon-worker", secret_name="babylon-worker")
 
 
+def matches(labels: dict | None, selector: str) -> bool:
+    """Kubernetes equality selector: "a=b,c=d" (all must match)."""
+    labels = labels or {}
+    return all(labels.get(k) == v for k, v in (part.split("=", 1) for part in selector.split(",")))
+
+
 class FakeBatch:
     """Keeps created Jobs in memory, like the Kubernetes API would."""
 
@@ -24,8 +30,7 @@ class FakeBatch:
         return body
 
     def list_namespaced_job(self, namespace, label_selector):
-        key, value = label_selector.split("=")
-        items = [j for j in self.jobs if j.metadata.namespace == namespace and j.metadata.labels.get(key) == value]
+        items = [j for j in self.jobs if j.metadata.namespace == namespace and matches(j.metadata.labels, label_selector)]
         return SimpleNamespace(items=items)
 
 
@@ -34,8 +39,7 @@ class FakeCore:
         self.pods: list[client.V1Pod] = []
 
     def list_namespaced_pod(self, namespace, label_selector):
-        key, value = label_selector.split("=")
-        return SimpleNamespace(items=[p for p in self.pods if p.metadata.labels.get(key) == value])
+        return SimpleNamespace(items=[p for p in self.pods if matches(p.metadata.labels, label_selector)])
 
 
 @pytest.fixture

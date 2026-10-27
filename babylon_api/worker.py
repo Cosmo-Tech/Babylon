@@ -16,7 +16,8 @@ import logging
 import os
 import sys
 import tempfile
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 
 from Babylon.core.errors import BabylonError
@@ -31,7 +32,13 @@ from babylon_api.schemas import ApplyRequest, DestroyRequest
 logger = logging.getLogger("babylon_api.worker")
 
 OPERATION_ENV = "BABYLON_OPERATION"
+OPERATION_ID_ENV = "BABYLON_OPERATION_ID"  # lock holder identity
+LOCK_NAMESPACE_ENV = "BABYLON_LOCK_NAMESPACE"  # where the Leases live (the API namespace)
+LOCK_DURATION_ENV = "BABYLON_LOCK_DURATION"  # seconds, > Job deadline
 RESULT_PATH_ENV = "BABYLON_RESULT_PATH"
+
+# (context, tenant) -> context manager holding the lock
+LockFactory = Callable[[str, str], AbstractContextManager]
 DEFAULT_RESULT_PATH = "/dev/termination-log"
 MAX_RESULT_BYTES = 4096  # Kubernetes truncates termination messages above 4 KiB
 MAX_ERROR_CHARS = 300
@@ -49,10 +56,12 @@ def run(
     environ: Mapping[str, str] | None = None,
     deployers: Mapping[str, Deployer] | None = None,
     deleters: Mapping[str, Deleter] | None = None,
+    lock: LockFactory | None = None,
 ) -> dict:
-    """Validate the payload again, fetch the repository, run the operation. Returns the summary.
+    """Validate the payload again, take the tenant lock, fetch the repository, run the operation.
 
-    Raises BabylonError / ValueError (pydantic) for a bad payload or repository.
+    Raises BabylonError / ValueError (pydantic) for a bad payload or repository,
+    OperationInProgressError when another operation holds the tenant lock.
     """
     operation = payload.get("operation")
     schema = {"apply": ApplyRequest, "destroy": DestroyRequest}.get(operation)
@@ -61,6 +70,12 @@ def run(
     # Defense in depth: the Job env could have been edited; never trust it more than an HTTP body.
     request = schema.model_validate(payload.get("request"))
 
+    # The lock is taken before anything else (validation excepted) and released even on error.
+    with lock(request.context, request.tenant) if lock else nullcontext():
+        return _execute(operation, request, workdir, environ, deployers, deleters)
+
+
+def _execute(operation, request, workdir, environ, deployers, deleters) -> dict:
     checkout = prepare_checkout(
         url=str(request.repository.url),
         ref=request.repository.ref,
@@ -116,12 +131,31 @@ def write_result(text: str, environ: Mapping[str, str] | None = None) -> None:
         logger.warning("could not write the termination message (not running in Kubernetes?)")
 
 
+def lock_from_env(environ: Mapping[str, str]) -> LockFactory | None:
+    """The Lease lock configured by the Job (build_job). None outside a Job (local runs, tests)."""
+    namespace, holder = environ.get(LOCK_NAMESPACE_ENV), environ.get(OPERATION_ID_ENV)
+    if not namespace or not holder:
+        return None
+    duration = int(environ.get(LOCK_DURATION_ENV) or 3900)
+
+    def factory(context: str, tenant: str) -> AbstractContextManager:
+        from kubernetes import client
+
+        from Babylon.core.kube import load_kubernetes_config
+        from babylon_api.lock import tenant_lock
+
+        load_kubernetes_config(environ=environ)
+        return tenant_lock(client.CoordinationV1Api(), namespace, context, tenant, holder, duration)
+
+    return factory
+
+
 def main(environ: Mapping[str, str] | None = None) -> int:
     environ = os.environ if environ is None else environ
     try:
         payload = json.loads(environ[OPERATION_ENV])
         with tempfile.TemporaryDirectory(prefix="babylon-") as tmp:
-            summary = run(payload, Path(tmp), environ=environ)
+            summary = run(payload, Path(tmp), environ=environ, lock=lock_from_env(environ))
     except KeyError:
         summary = {"status": "failed", "error": f"{OPERATION_ENV} is not set"}
     except (BabylonError, ValueError) as exc:  # bad payload, host refused, git failure, invalid paths...
