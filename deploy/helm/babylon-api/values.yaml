@@ -1,0 +1,49 @@
+# Image used by the API Deployment AND by the worker Jobs (same image, different command).
+image:
+  repository: babylon-api
+  tag: ""            # defaults to .Chart.AppVersion
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+# Tenant namespaces the worker may deploy into. One Role + RoleBinding is created in each.
+# Operations targeting a tenant not listed here fail with 403 inside the worker Job.
+tenantNamespaces: []
+
+# Comma-separated list of git hosts the API accepts in `repository.url`.
+allowedGitHosts: github.com
+
+worker:
+  serviceAccountName: babylon-worker
+  # Name of an existing Secret injected in the worker Jobs with `envFrom`
+  # (e.g. BABYLON_API_GIT_TOKEN, Keycloak client secret...). Empty = none.
+  secretName: ""
+
+api:
+  serviceAccountName: babylon-api
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL

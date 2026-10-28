@@ -1,0 +1,111 @@
+{{- /*
+Least privilege, two identities:
+  - babylon-api    : only submits and watches Jobs in its own namespace. It never touches tenants.
+  - babylon-worker : holds the tenant lock (Leases, own namespace) and does the real Babylon work
+                     in the tenant namespaces listed in .Values.tenantNamespaces (nowhere else).
+*/ -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.api.serviceAccountName }}
+  labels: {{- include "babylon-api.labels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.worker.serviceAccountName }}
+  labels: {{- include "babylon-api.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-api
+  labels: {{- include "babylon-api.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [batch]          # POST /apply|/destroy creates a Job; 409 check and GET /operations list them
+    resources: [jobs]
+    verbs: [create, list, get]
+  - apiGroups: [""]             # GET /operations reads the worker result (pod termination message)
+    resources: [pods]
+    verbs: [list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-api
+  labels:
+    {{- include "babylon-api.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-api
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.api.serviceAccountName }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-worker-lock
+  labels: {{- include "babylon-api.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [coordination.k8s.io]   # babylon_api/lock.py: one Lease per (context, tenant)
+    resources: [leases]
+    verbs: [get, create, update, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-worker-lock
+  labels:
+    {{- include "babylon-api.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-worker-lock
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.worker.serviceAccountName }}
+    namespace: {{ .Release.Namespace }}
+{{- range .Values.tenantNamespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $.Release.Name }}-worker
+  namespace: {{ . }}
+  labels: {{- include "babylon-api.labels" $ | nindent 4 }}
+rules:
+  - apiGroups: [""]             # remote state (babylon-state-*) and Keycloak/platform secrets
+    resources: [secrets]
+    verbs: [get, list, create, update, delete]
+  - apiGroups: [""]             # scripts mounted in workspace Jobs
+    resources: [configmaps]
+    verbs: [create, update, delete]
+  - apiGroups: [""]             # discovery of in-cluster services (API / database endpoints)
+    resources: [services]
+    verbs: [list]
+  - apiGroups: [batch]          # workspace init/destroy Jobs launched by Babylon
+    resources: [jobs, jobs/status]
+    verbs: [create, get]
+  - apiGroups: [""]             # `kubectl logs job/...` on those Jobs
+    resources: [pods, pods/log]
+    verbs: [get, list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $.Release.Name }}-worker
+  namespace: {{ . }}
+  labels:
+    {{- include "babylon-api.labels" $ | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $.Release.Name }}-worker
+subjects:
+  - kind: ServiceAccount
+    name: {{ $.Values.worker.serviceAccountName }}
+    namespace: {{ $.Release.Namespace }}
+{{- end }}

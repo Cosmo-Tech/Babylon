@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "babylon-api.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "babylon-api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "babylon-api.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.api.serviceAccountName }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: api
+          image: {{ include "babylon-api.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          # Explicit command: does not rely on the image ENTRYPOINT/CMD.
+          # Chainguard sets ENTRYPOINT to python.
+          command:
+            - uvicorn
+            - babylon_api.app:app
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "8000"
+            - --no-access-log
+
+          ports:
+            - name: http
+              containerPort: 8000
+
+          env:
+            # Jobs and Leases live next to the API.
+            - name: BABYLON_API_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+            - name: BABYLON_WORKER_IMAGE
+              value: {{ include "babylon-api.image" . | quote }}
+
+            - name: BABYLON_WORKER_SERVICE_ACCOUNT
+              value: {{ .Values.worker.serviceAccountName | quote }}
+
+            - name: BABYLON_WORKER_SECRET
+              value: {{ .Values.worker.secretName | quote }}
+
+            - name: BABYLON_API_ALLOWED_GIT_HOSTS
+              value: {{ .Values.allowedGitHosts | quote }}
+
+            - name: BABYLON_K8S_AUTH
+              value: incluster
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+
+          # Read-only root filesystem: /tmp and HOME (/work, see Dockerfile)
+          # must be writable volumes.
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: work
+              mountPath: /work
+
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: work
+          emptyDir: {}
