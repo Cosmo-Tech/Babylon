@@ -1,0 +1,10 @@
+# Keep the build context small and free of local secrets/state.
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!Babylon/
+!babylon_api/
+**/__pycache__
+**/*.pyc
+Babylon/test/
