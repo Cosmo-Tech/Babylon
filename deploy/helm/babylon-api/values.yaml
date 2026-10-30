@@ -28,6 +28,20 @@ service:
   type: ClusterIP
   port: 80
 
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # traefik.ingress.kubernetes.io/router.tls: "true"
+    # traefik.ingress.kubernetes.io/router.middlewares: {{ .Release.Namespace }}-{{ .Values.name }}-strip-webapp-prefix@kubernetescrd
+  host: ""
+  path: /babylon-api
+  pathType: Prefix
+  # Name of the TLS Secret (created by cert-manager or by hand e.g letsencrypt-prod). Empty = no TLS.
+  tlsSecretName: ""
+
 resources:
   requests:
     cpu: 50m
