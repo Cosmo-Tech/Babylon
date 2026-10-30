@@ -1,8 +1,10 @@
 # Image used by the API Deployment AND by the worker Jobs (same image, different command).
 image:
-  repository: babylon-api
+  repository: ""
   tag: ""            # defaults to .Chart.AppVersion
   pullPolicy: IfNotPresent
+  # Existing docker-registry Secret used to pull from Harbor.
+  pullSecret: ""
 
 replicaCount: 1
 

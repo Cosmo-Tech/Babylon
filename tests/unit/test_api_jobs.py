@@ -26,7 +26,6 @@ APPLY = {
 
 # build_job: the manifest
 
-
 @pytest.fixture
 def job() -> client.V1Job:
     return build_job("apply", ApplyRequest(**APPLY), "0123456789ab", SETTINGS)
@@ -71,6 +70,13 @@ def test_no_secret_means_no_env_from():
     settings = JobSettings(namespace="babylon", image="i", service_account="sa")
     job = build_job("apply", ApplyRequest(**APPLY), "0123456789ab", settings)
     assert job.spec.template.spec.containers[0].env_from is None
+    assert job.spec.template.spec.image_pull_secrets is None
+
+
+def test_pull_secret_is_passed_to_the_worker_pod():
+    env = {"BABYLON_API_NAMESPACE": "ns", "BABYLON_WORKER_IMAGE": "img:1", "BABYLON_WORKER_PULL_SECRET": "registry-auth"}
+    job = build_job("apply", ApplyRequest(**APPLY), "0123456789ab", JobSettings.from_env(env))
+    assert [s.name for s in job.spec.template.spec.image_pull_secrets] == ["registry-auth"]
 
 
 def test_settings_from_env():
@@ -81,7 +87,6 @@ def test_settings_from_env():
 
 
 # job_status
-
 
 def status(**fields) -> client.V1Job:
     conditions = fields.pop("conditions", None)
@@ -106,7 +111,6 @@ def test_job_status(job, expected):
 
 
 # routes
-
 
 def test_apply_creates_one_job_and_returns_202(api, fake_kube):
     res = api.post("/apply", json=APPLY)

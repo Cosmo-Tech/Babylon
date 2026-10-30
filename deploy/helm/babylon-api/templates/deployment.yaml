@@ -15,6 +15,10 @@ spec:
         {{- include "babylon-api.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.api.serviceAccountName }}
+      {{- with .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ . }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -52,6 +56,10 @@ spec:
 
             - name: BABYLON_WORKER_SECRET
               value: {{ .Values.worker.secretName | quote }}
+
+            # Worker Jobs pull the same image: they need the same pull secret.
+            - name: BABYLON_WORKER_PULL_SECRET
+              value: {{ .Values.image.pullSecret | default "" | quote }}
 
             - name: BABYLON_API_ALLOWED_GIT_HOSTS
               value: {{ .Values.allowedGitHosts | quote }}

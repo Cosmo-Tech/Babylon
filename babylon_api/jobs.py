@@ -44,6 +44,7 @@ class JobSettings:
     image: str  # same image as the API: it contains Babylon + babylon_api
     service_account: str  # identity of the worker (RBAC: Secrets/Jobs/... in tenant namespaces)
     secret_name: str | None = None  # optional Secret exposed as env (git token, API_URL, KEYCLOAK_*...)
+    pull_secret: str | None = None  # optional docker-registry Secret to pull the image (private registry)
     active_deadline_seconds: int = 3600  # a stuck operation is killed after 1 hour
     ttl_seconds_after_finished: int = 86400  # Kubernetes deletes the Job (and its status) after 1 day
 
@@ -58,6 +59,7 @@ class JobSettings:
             image=environ["BABYLON_WORKER_IMAGE"],
             service_account=environ.get("BABYLON_WORKER_SERVICE_ACCOUNT") or "babylon-worker",
             secret_name=environ.get("BABYLON_WORKER_SECRET") or None,
+            pull_secret=environ.get("BABYLON_WORKER_PULL_SECRET") or None,
         )
 
 
@@ -115,6 +117,7 @@ def build_job(operation: str, request: BaseModel, operation_id: str, settings: J
     pod = client.V1PodSpec(
         restart_policy="Never",
         service_account_name=settings.service_account,
+        image_pull_secrets=[client.V1LocalObjectReference(name=settings.pull_secret)] if settings.pull_secret else None,
         containers=[container],
         volumes=[
             client.V1Volume(name="work", empty_dir=client.V1EmptyDirVolumeSource()),
