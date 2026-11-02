@@ -17,6 +17,7 @@ spec:
     metadata:
       labels:
         {{- include "babylon-api.selectorLabels" . | nindent 8 }}
+        networking/traffic-allowed: "yes"
     spec:
       serviceAccountName: {{ .Values.api.serviceAccountName }}
       {{- with .Values.image.pullSecret }}
@@ -40,6 +41,10 @@ spec:
             - --port
             - "8000"
             - --no-access-log
+            {{- if .Values.ingress.enabled }}
+            - --root-path
+            - {{ include "babylon-api.ingressPath" . | quote }}
+            {{- end }}
 
           ports:
             - name: http

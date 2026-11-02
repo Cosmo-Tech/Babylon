@@ -4,6 +4,10 @@ Least privilege, two identities:
   - babylon-worker : holds the tenant lock (Leases, own namespace) and does the real Babylon work
                      in the tenant namespaces listed in .Values.tenantNamespaces (nowhere else).
 */ -}}
+{{/*
+SPDX-FileCopyrightText: Copyright (C) 2022-2026 Cosmo Tech
+SPDX-License-Identifier: MIT
+*/}}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
