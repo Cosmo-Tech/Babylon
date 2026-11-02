@@ -205,7 +205,7 @@ def finish(job, condition="Complete"):
 def test_api_answers_409_while_an_operation_runs_on_the_tenant(api, fake_kube):
     first = api.post("/apply", json=APPLY)
     assert first.status_code == 202
-    second = api.post("/destroy", json={**{k: v for k, v in APPLY.items() if k != "deploy_dir"}, "confirm": True})
+    second = api.post("/destroy", json={"context": APPLY["context"], "tenant": APPLY["tenant"], "confirm": True})
     assert second.status_code == 409
     assert first.json()["operation_id"] in second.json()["detail"]
     assert len(fake_kube.batch.jobs) == 1

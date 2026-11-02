@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from Babylon.core.errors import InvalidOptionsError
+from Babylon.core.errors import BabylonError, InvalidOptionsError
 from Babylon.utils.environment import Environment
 from babylon_api import worker
 from babylon_api.repository import Checkout
@@ -16,7 +16,7 @@ APPLY = {
     "context": "dev",
     "tenant": "tenant-a",
 }
-DESTROY = {**{k: v for k, v in APPLY.items() if k != "deploy_dir"}, "confirm": True}
+DESTROY = {"context": "dev", "tenant": "tenant-a", "confirm": True}
 
 
 @pytest.fixture
@@ -70,23 +70,51 @@ def test_manifest_cannot_turn_forced_remote_off(tmp_path, checkout):
     assert seen == [True]
 
 
-def test_destroy_does_not_ask_and_has_no_deploy_dir(tmp_path, checkout, monkeypatch):
-    from Babylon.core import operations
-
+def test_destroy_does_not_ask_and_fetches_nothing(tmp_path, checkout, monkeypatch):
     captured = {}
 
     def fake_destroy(options, confirm=None, deleters=None):
-        captured.update(confirm=confirm, force_remote=options.force_remote)
+        captured.update(confirm=confirm, force_remote=options.force_remote, files=options.variable_files, include=options.include)
         from Babylon.core.models import DestroyResult
 
         return DestroyResult(context=options.context, tenant=options.tenant, nothing_to_destroy=True)
 
     monkeypatch.setattr(worker, "core_destroy", fake_destroy)
-    summary = worker.run({"operation": "destroy", "request": DESTROY}, tmp_path / "work")
+    summary = worker.run({"operation": "destroy", "request": DESTROY}, tmp_path / "work", deleters={})
     assert summary["status"] == "succeeded"
-    assert captured == {"confirm": None, "force_remote": True}
-    assert checkout["deploy_dir"] is None
-    assert operations  # imported for clarity: the real core is not called here
+    # No repository, no variables, and webapp never selected.
+    assert captured == {
+        "confirm": None,
+        "force_remote": True,
+        "files": (),
+        "include": ("build", "organization", "solution", "workspace"),
+    }
+    assert checkout == {}  # nothing fetched
+
+
+def test_apply_never_selects_webapp(tmp_path, checkout):
+    called = []
+    deployers = {r: (lambda m, d, r=r: called.append(r)) for r in ("organization", "webapp")}
+    repo_project = Path(tmp_path / "repo" / "project")
+    (repo_project / "WebApp.yaml").write_text("kind: WebApp\nnamespace:\n  remote: false\nspec: {}\n")
+    worker.run({"operation": "apply", "request": APPLY}, tmp_path / "work", deployers=deployers)
+    assert called == ["organization"]
+
+
+@pytest.mark.parametrize("provider", ["powerbi", "", None])
+def test_workspace_destroy_refuses_external_postgres(provider):
+    deleted = []
+    guarded = worker.only_internal_postgres(deleted.append)
+    with pytest.raises(BabylonError, match="not supported by Babylon API"):
+        guarded({"services": {"postgres": {"provider": provider}}})
+    assert deleted == []
+
+
+def test_workspace_destroy_allows_internal_postgres():
+    deleted = []
+    state = {"services": {"postgres": {"provider": "Superset"}}}
+    worker.only_internal_postgres(deleted.append)(state)
+    assert deleted == [state]
 
 
 @pytest.mark.parametrize(

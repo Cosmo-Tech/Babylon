@@ -26,6 +26,7 @@ APPLY = {
 
 # build_job: the manifest
 
+
 @pytest.fixture
 def job() -> client.V1Job:
     return build_job("apply", ApplyRequest(**APPLY), "0123456789ab", SETTINGS)
@@ -88,6 +89,7 @@ def test_settings_from_env():
 
 # job_status
 
+
 def status(**fields) -> client.V1Job:
     conditions = fields.pop("conditions", None)
     conds = [client.V1JobCondition(type=t, status="True") for t in conditions or []]
@@ -111,6 +113,7 @@ def test_job_status(job, expected):
 
 
 # routes
+
 
 def test_apply_creates_one_job_and_returns_202(api, fake_kube):
     res = api.post("/apply", json=APPLY)

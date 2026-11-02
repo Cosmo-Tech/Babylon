@@ -15,9 +15,7 @@ def apply_body(**overrides) -> dict:
 
 
 def destroy_body(**overrides) -> dict:
-    body = apply_body(confirm=True, **overrides)
-    del body["deploy_dir"]
-    return body
+    return {"context": "dev", "tenant": "tenant-a", "confirm": True, **overrides}
 
 
 def errors_of(res) -> str:
@@ -50,8 +48,10 @@ def test_valid_apply_is_accepted(api, fake_kube):
         ({"repository": {"url": "http://github.com/acme/x"}}, "https"),
         ({"repository": {"url": "https://github.com/acme/x", "ref": "--upload-pack=evil"}}, "invalid git ref"),
         ({"include": ["solutoin"]}, "Invalid resource type(s): solutoin"),  # message from the core
-        ({"include": ["solution"], "exclude": ["webapp"]}, "include"),  # include XOR exclude
-        ({"exlude": ["webapp"]}, "Extra inputs are not permitted"),  # typo is not silently ignored
+        ({"include": ["solution"], "exclude": ["workspace"]}, "include"),  # include XOR exclude
+        ({"exlude": ["solution"]}, "Extra inputs are not permitted"),  # typo is not silently ignored
+        ({"include": ["webapp"]}, "Not supported by Babylon API: webapp"),
+        ({"exclude": ["webapp"]}, "Not supported by Babylon API: webapp"),
     ],
 )
 def test_invalid_apply_is_rejected_with_422_and_no_job(api, fake_kube, overrides, expected):
@@ -71,6 +71,15 @@ def test_valid_destroy(api):
     res = api.post("/destroy", json=destroy_body())
     assert res.status_code == 202, res.text
     assert res.json()["operation"] == "destroy"
+
+
+@pytest.mark.parametrize("field", [{"repository": {"url": "https://github.com/acme/x"}}, {"variable_files": ["v.yaml"]}])
+def test_destroy_takes_no_repository(api, fake_kube, field):
+    """Destroy works from the state Secret only: sending repository/variables is an error, not ignored."""
+    res = api.post("/destroy", json=destroy_body(**field))
+    assert res.status_code == 422
+    assert "Extra inputs are not permitted" in errors_of(res)
+    assert fake_kube.batch.jobs == []
 
 
 @pytest.mark.parametrize("confirm", [False, "yes", None])

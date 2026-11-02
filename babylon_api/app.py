@@ -91,7 +91,8 @@ def healthz() -> dict:
 
 
 def _submit(operation: str, request: ApplyRequest | DestroyRequest, kube: KubeClients, settings: JobSettings):
-    check_allowed_host(str(request.repository.url), allowed_hosts())  # refuse before creating anything
+    if isinstance(request, ApplyRequest):  # destroy has no repository
+        check_allowed_host(str(request.repository.url), allowed_hosts())  # refuse before creating anything
     # Fast feedback (409) when an operation is already pending/running on this tenant.
     # Not the real protection (two requests can pass this check together): the worker's Lease is.
     active = find_active_operation(kube.batch, settings.namespace, request.context, request.tenant)

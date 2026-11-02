@@ -76,41 +76,73 @@ def run(
 
 
 def _execute(operation, request, workdir, environ, deployers, deleters) -> dict:
-    checkout = prepare_checkout(
-        url=str(request.repository.url),
-        ref=request.repository.ref,
-        dest=workdir / "repo",
-        deploy_dir=getattr(request, "deploy_dir", None),
-        variable_files=request.variable_files,
-        environ=environ,
-    )
     # The local state is a throw-away copy (the pod disk is lost); the real state is the Kubernetes Secret.
     Environment().state_dir = workdir / "state"
-
+    # `include` is always explicit (request.resources): webapp is never part of an API operation,
+    # even when the repository contains a WebApp manifest or the state a webapp.
     common = dict(
         context=request.context,
         tenant=request.tenant,
-        variable_files=checkout.variable_files,
-        include=tuple(request.include),
-        exclude=tuple(request.exclude),
+        include=request.resources,
+        exclude=(),
         fail_fast=True,
         force_remote=True,
     )
     if operation == "apply":
-        result = core_apply(ApplyOptions(deploy_dir=checkout.deploy_dir, **common), deployers=deployers)
+        checkout = prepare_checkout(
+            url=str(request.repository.url),
+            ref=request.repository.ref,
+            dest=workdir / "repo",
+            deploy_dir=request.deploy_dir,
+            variable_files=request.variable_files,
+            environ=environ,
+        )
+        options = ApplyOptions(deploy_dir=checkout.deploy_dir, variable_files=checkout.variable_files, **common)
+        result = core_apply(options, deployers=deployers)
         resources = [{"resource": r.resource, "file": r.file, "status": r.status, "error": _short(r.error)} for r in result.resources]
-    else:
-        # confirm=None: the confirmation is `confirm: true` in the HTTP request, already validated.
-        result = core_destroy(DestroyOptions(**common), confirm=None, deleters=deleters)
-        resources = [
-            {"resource": r.resource, "id": r.resource_id, "status": r.status, "error": _short(r.error)} for r in result.resources
-        ]
-    return {
-        "status": "succeeded" if result.succeeded else "failed",
-        "operation": operation,
-        "commit": checkout.commit,
-        "resources": resources,
-    }
+        return {
+            "status": "succeeded" if result.succeeded else "failed",
+            "operation": operation,
+            "commit": checkout.commit,
+            "resources": resources,
+        }
+
+    # destroy: everything it needs is in the state Secret, no repository and no variables.
+    # confirm=None: the confirmation is `confirm: true` in the HTTP request, already validated.
+    deleters = deleters if deleters is not None else _api_deleters()
+    result = core_destroy(DestroyOptions(variable_files=(), **common), confirm=None, deleters=deleters)
+    resources = [{"resource": r.resource, "id": r.resource_id, "status": r.status, "error": _short(r.error)} for r in result.resources]
+    return {"status": "succeeded" if result.succeeded else "failed", "operation": operation, "resources": resources}
+
+
+def workspace_provider(state: dict) -> str:
+    """Dataviz provider recorded at deploy time. Empty means Power BI (same default as the CLI)."""
+    return (state.get("services", {}).get("postgres", {}).get("provider") or "powerbi").strip().lower()
+
+
+def only_internal_postgres(delete_workspace: Deleter) -> Deleter:
+    """Babylon API v1 only handles workspaces on the in-cluster PostgreSQL (Superset).
+
+    Power BI workspaces use an external Azure PostgreSQL whose host comes from variables.yaml:
+    without a repository it cannot be resolved, so refuse clearly instead of guessing a wrong host.
+    """
+
+    def guarded(state: dict) -> None:
+        provider = workspace_provider(state)
+        if provider != "superset":
+            raise BabylonError(f"workspace provider '{provider}' (external PostgreSQL) is not supported by Babylon API, use the CLI")
+        delete_workspace(state)
+
+    return guarded
+
+
+def _api_deleters() -> dict[str, Deleter]:
+    from Babylon.core.operations import default_deleters
+
+    deleters = dict(default_deleters())
+    deleters["workspace"] = only_internal_postgres(deleters["workspace"])
+    deleters.pop("webapp", None)  # never selected by the API, removed to be sure
+    return deleters
 
 
 def fit(summary: dict) -> str:

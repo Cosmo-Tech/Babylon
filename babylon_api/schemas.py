@@ -65,31 +65,46 @@ class Repository(BaseModel):
         return ref
 
 
+# Resources the API manages. Narrower than the CLI on purpose (v1):
+# - webapp: Terraform, not handled by the API;
+# - workspace: in-cluster PostgreSQL (Superset) only, see the worker.
+API_RESOURCES: tuple[str, ...] = tuple(r for r in ALLOWED_RESOURCES if r != "webapp")
+
+
 class _OperationRequest(BaseModel):
     """Fields shared by apply and destroy."""
 
     model_config = ConfigDict(extra="forbid")  # a typo like "exlude" is an error, not silently ignored
 
-    repository: Repository
     context: K8sName
     tenant: K8sName
-    variable_files: list[RepoPath] = Field(default_factory=lambda: ["variables.yaml"], min_length=1, max_length=10)
-    include: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(ALLOWED_RESOURCES)}")
-    exclude: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(ALLOWED_RESOURCES)}")
+    include: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(API_RESOURCES)}")
+    exclude: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(API_RESOURCES)}")
 
     @model_validator(mode="after")
     def _valid_selection(self):
-        # Same rules as the CLI: known names, include XOR exclude.
-        # The core raises InvalidOptionsError, which is a ValueError: pydantic turns it into a 422.
         resolve_resources(tuple(self.include), tuple(self.exclude))
+        unsupported = [r for r in self.include + self.exclude if r not in API_RESOURCES]
+        if unsupported:
+            raise ValueError(f"Not supported by Babylon API: {', '.join(unsupported)}. Allowed: {', '.join(API_RESOURCES)}")
         return self
+
+    @property
+    def resources(self) -> tuple[str, ...]:
+        """The selection as an explicit list, never containing webapp (given to the core as `include`)."""
+        selected = resolve_resources(tuple(self.include), tuple(self.exclude))
+        return tuple(r for r in API_RESOURCES if r in selected)
 
 
 class ApplyRequest(_OperationRequest):
+    repository: Repository
     deploy_dir: RepoPath = Field(description="Directory of the Babylon YAML files, relative to the repository root")
+    variable_files: list[RepoPath] = Field(default_factory=lambda: ["variables.yaml"], min_length=1, max_length=10)
 
 
 class DestroyRequest(_OperationRequest):
+    """No repository: destroy works from the state Secret (babylon-state-<context>-<tenant>) only."""
+
     # Destroy is irreversible and there is no prompt over HTTP: the caller must say it explicitly.
     confirm: Literal[True] = Field(description="Must be true: destroy cannot be undone")
 
