@@ -37,7 +37,7 @@ ingress:
     # traefik.ingress.kubernetes.io/router.tls: "true"
     # traefik.ingress.kubernetes.io/router.middlewares: {{ .Release.Namespace }}-{{ .Values.name }}-strip-webapp-prefix@kubernetescrd
   host: ""
-  path: /babylon-api
+  path: /{{ .Release.Namespace }}/babylon-api
   pathType: Prefix
   # Name of the TLS Secret (created by cert-manager or by hand e.g letsencrypt-prod). Empty = no TLS.
   tlsSecretName: ""
