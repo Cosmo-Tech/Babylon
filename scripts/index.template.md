@@ -5,7 +5,7 @@
 
 Babylon is a tool designed to simplify interaction between Cosmo Tech solutions and the Azure environment.
 
-A basic how-to about contribution can be found there : [![Contribution](https://img.shields.io/badge/Contribution-%23121011.svg?style=for-the-badge&logoColor=black)](https://cosmo-tech.github.io/Babylon/latest/contribute/)
+A basic how-to about contribution can be found there : [![Contribution](https://img.shields.io/badge/Contribution-%23121011.svg?style=for-the-badge&logoColor=black)](https://cosmo-tech.github.io/Babylon/latest/concepts/contribute/)
 
 
 ## Installation
