@@ -42,9 +42,12 @@ COPY --from=build /opt/venv /opt/venv
 # Existing "nonroot" user of Chainguard images. Numeric: Kubernetes `runAsNonRoot: true` can only verify a numeric UID.
 RUN mkdir -p /work && chown 65532:65532 /work
 USER 65532
+# Git sha of the build, shown by GET /about (docker build --build-arg BUILD=$(git rev-parse --short HEAD)).
+ARG BUILD=""
 ENV PATH=/opt/venv/bin:$PATH \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    BABYLON_API_BUILD=${BUILD} \
     HOME=/work
 WORKDIR /work
 EXPOSE 8000

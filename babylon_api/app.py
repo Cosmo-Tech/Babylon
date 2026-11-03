@@ -21,6 +21,7 @@ from kubernetes.client.exceptions import ApiException
 from Babylon.core.errors import InvalidOptionsError, KubernetesAuthError, OperationInProgressError
 from Babylon.core.kube import load_kubernetes_config
 from Babylon.version import VERSION
+from babylon_api.about import About, about
 from babylon_api.jobs import ApiConfigurationError, JobSettings, build_job, find_active_operation, get_operation, new_operation_id
 from babylon_api.repository import allowed_hosts, check_allowed_host
 from babylon_api.schemas import ApplyRequest, DestroyRequest, OperationAccepted, OperationStatus
@@ -88,6 +89,12 @@ async def _kubernetes_error(_: Request, exc: ApiException) -> JSONResponse:
 def healthz() -> dict:
     """Liveness probe for Kubernetes: the process answers. Checks nothing else on purpose."""
     return {"status": "ok"}
+
+
+@app.get("/about", tags=["meta"], response_model=About, summary="Get various information about the API")
+def get_about() -> About:
+    """Retrieve API version information and build details."""
+    return about()
 
 
 def _submit(operation: str, request: ApplyRequest | DestroyRequest, kube: KubeClients, settings: JobSettings):
