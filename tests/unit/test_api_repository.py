@@ -108,6 +108,22 @@ def test_token_is_masked_in_errors(tmp_path, monkeypatch):
     assert str(exc.value) == "git init failed: fatal: could not read from https://***@github.com"
 
 
+def test_fetch_timeout_has_a_clear_message(origin, tmp_path, monkeypatch):
+    """Real GitPython timeout: the fetch is replaced by a command that hangs, and killed after 1s."""
+    real = repository.Git.execute
+
+    def hanging_fetch(self, command, **kwargs):
+        if command[1:2] == ["fetch"]:
+            command = ["sleep", "30"]
+        return real(self, command, **kwargs)
+
+    monkeypatch.setattr(repository.Git, "execute", hanging_fetch)
+    monkeypatch.setattr(repository, "CLONE_TIMEOUT_SECONDS", 1)
+    with pytest.raises(RepositoryError) as exc:
+        fetch(origin, "main", tmp_path / "co")
+    assert str(exc.value) == "git fetch timed out after 1s"
+
+
 def test_git_environment_is_applied(origin, tmp_path, monkeypatch):
     """The safety variables really reach git (GitPython merges them over os.environ)."""
     seen = []

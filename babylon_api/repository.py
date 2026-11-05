@@ -10,10 +10,10 @@ The worker will call `prepare_checkout()` before running apply/destroy:
 from __future__ import annotations
 
 import os
-from re import sub, DOTALL
 from base64 import b64encode
 from dataclasses import dataclass
 from pathlib import Path
+from re import DOTALL, sub
 from urllib.parse import urlsplit
 
 from git import Git, GitCommandError
@@ -79,6 +79,10 @@ def _error_message(exc: GitCommandError, token: str | None) -> str:
     return message.replace(token, "***") if token else message
 
 
+def _timed_out(exc: GitCommandError) -> bool:
+    return "Timeout: the command" in str(exc.stderr or "")
+
+
 def fetch_repository(url: str, ref: str, dest: Path, token: str | None = None, allowed_protocols: str = "https") -> str:
     """Fetch only `ref` (branch, tag or commit sha) of `url` into the empty directory `dest`. Returns the sha.
 
@@ -101,6 +105,8 @@ def fetch_repository(url: str, ref: str, dest: Path, token: str | None = None, a
         step = "rev-parse"
         return git.rev_parse("HEAD")
     except GitCommandError as exc:
+        if _timed_out(exc):
+            raise RepositoryError(f"git {step} timed out after {CLONE_TIMEOUT_SECONDS}s") from None
         raise RepositoryError(f"git {step} failed: {_error_message(exc, token)}") from None
 
 
