@@ -10,11 +10,13 @@ The worker will call `prepare_checkout()` before running apply/destroy:
 from __future__ import annotations
 
 import os
-import subprocess
+from re import sub, DOTALL
 from base64 import b64encode
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
+
+from git import Git, GitCommandError
 
 from Babylon.core.errors import BabylonError, InvalidOptionsError
 
@@ -54,7 +56,6 @@ def check_allowed_host(url: str, hosts: tuple[str, ...]) -> None:
 
 def _git_env(token: str | None, allowed_protocols: str) -> dict:
     env = {
-        **os.environ,
         "GIT_TERMINAL_PROMPT": "0",  # never wait for a password on stdin: fail instead
         "GIT_ALLOW_PROTOCOL": allowed_protocols,  # no ssh://, file://, ext:: ... even through redirects/submodules
         "GIT_CONFIG_NOSYSTEM": "1",  # ignore /etc/gitconfig of the image
@@ -71,19 +72,11 @@ def _git_env(token: str | None, allowed_protocols: str) -> dict:
     return env
 
 
-def _git(args: list[str], cwd: Path, env: dict, token: str | None) -> str:
-    try:
-        proc = subprocess.run(
-            ["git", *args], cwd=cwd, env=env, capture_output=True, text=True, timeout=CLONE_TIMEOUT_SECONDS, check=False
-        )
-    except subprocess.TimeoutExpired:
-        raise RepositoryError(f"git {args[0]} timed out after {CLONE_TIMEOUT_SECONDS}s") from None
-    if proc.returncode != 0:
-        message = proc.stderr.strip().splitlines()[-1] if proc.stderr.strip() else f"exit code {proc.returncode}"
-        if token:
-            message = message.replace(token, "***")
-        raise RepositoryError(f"git {args[0]} failed: {message}")
-    return proc.stdout.strip()
+def _error_message(exc: GitCommandError, token: str | None) -> str:
+    """Last line of git stderr, token masked."""
+    stderr = sub(r"^\s*stderr: '(.*)'\s*$", r"\1", str(exc.stderr or ""), flags=DOTALL).strip()
+    message = stderr.splitlines()[-1] if stderr else f"exit code {exc.status}"
+    return message.replace(token, "***") if token else message
 
 
 def fetch_repository(url: str, ref: str, dest: Path, token: str | None = None, allowed_protocols: str = "https") -> str:
@@ -94,12 +87,21 @@ def fetch_repository(url: str, ref: str, dest: Path, token: str | None = None, a
     `allowed_protocols` exists for tests (local "file" repositories); the API always uses https.
     """
     dest.mkdir(parents=True, exist_ok=True)
-    env = _git_env(token, allowed_protocols)
-    _git(["init", "--quiet"], dest, env, token)
-    # "--" ends the options: even a ref starting with "-" could not become a git option (already refused by the schema).
-    _git(["fetch", "--quiet", "--depth", "1", "--no-tags", "--", url, ref], dest, env, token)
-    _git(["checkout", "--quiet", "--detach", "FETCH_HEAD"], dest, env, token)
-    return _git(["rev-parse", "HEAD"], dest, env, token)
+    git = Git(dest)
+    git.update_environment(**_git_env(token, allowed_protocols))
+    step = "init"
+    try:
+        git.init("--quiet")
+        step = "fetch"
+        # "--" ends the options: even a ref starting with "-" could not become a git option (already refused by the schema).
+        # kill_after_timeout: a hanging server cannot block the worker until the Job deadline.
+        git.fetch("--quiet", "--depth", "1", "--no-tags", "--", url, ref, kill_after_timeout=CLONE_TIMEOUT_SECONDS)
+        step = "checkout"
+        git.checkout("--quiet", "--detach", "FETCH_HEAD")
+        step = "rev-parse"
+        return git.rev_parse("HEAD")
+    except GitCommandError as exc:
+        raise RepositoryError(f"git {step} failed: {_error_message(exc, token)}") from None
 
 
 def resolve_in_repo(root: Path, relative: str, *, expect_dir: bool) -> Path:

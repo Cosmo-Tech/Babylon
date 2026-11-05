@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from git import GitCommandError
 
 from Babylon.core.errors import InvalidOptionsError
 from babylon_api import repository
@@ -98,13 +99,27 @@ def test_token_is_not_written_to_disk(origin, tmp_path):
 
 
 def test_token_is_masked_in_errors(tmp_path, monkeypatch):
-    def failing_run(*args, **kwargs):
-        return subprocess.CompletedProcess(args, 128, "", "fatal: could not read from https://s3cr3t@github.com")
+    def failing_execute(self, command, **kwargs):
+        raise GitCommandError(command, 128, stderr="fatal: could not read from https://s3cr3t@github.com")
 
-    monkeypatch.setattr(repository.subprocess, "run", failing_run)
+    monkeypatch.setattr(repository.Git, "execute", failing_execute)
     with pytest.raises(RepositoryError) as exc:
         fetch_repository("https://github.com/a/b", "main", tmp_path / "co", token="s3cr3t")
-    assert "s3cr3t" not in str(exc.value) and "***" in str(exc.value)
+    assert str(exc.value) == "git init failed: fatal: could not read from https://***@github.com"
+
+
+def test_git_environment_is_applied(origin, tmp_path, monkeypatch):
+    """The safety variables really reach git (GitPython merges them over os.environ)."""
+    seen = []
+    real = repository.Git.execute
+
+    def spy(self, command, **kwargs):
+        seen.append(dict(self.environment()))
+        return real(self, command, **kwargs)
+
+    monkeypatch.setattr(repository.Git, "execute", spy)
+    fetch(origin, "main", tmp_path / "co")
+    assert all(env["GIT_TERMINAL_PROMPT"] == "0" and env["GIT_ALLOW_PROTOCOL"] == "file" for env in seen)
 
 
 # paths inside the repository
