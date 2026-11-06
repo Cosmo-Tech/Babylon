@@ -150,7 +150,8 @@ def test_kubernetes_error_other_than_conflict_is_not_hidden(coord, monkeypatch):
 
 # worker wiring
 
-APPLY = {"repository": {"url": "https://github.com/acme/d"}, "deploy_dir": "p", "context": "dev", "tenant": "tenant-a"}
+BODY = {"repository": {"url": "https://github.com/acme/d"}, "deploy_dir": "p", "context": "dev"}  # public payload
+APPLY = {**BODY, "tenant": "tenant-a"}  # what the worker receives (tenant injected)
 
 
 def test_worker_runs_inside_the_lock(coord, tmp_path, monkeypatch):
@@ -188,10 +189,10 @@ def test_lock_is_disabled_outside_a_job():
 
 
 def test_job_gives_the_worker_its_lock_settings(fake_kube, api):
-    res = api.post("/apply", json=APPLY)
+    res = api.post("/apply", json=BODY)
     env = {e.name: e.value for e in fake_kube.batch.jobs[0].spec.template.spec.containers[0].env}
     assert env["BABYLON_OPERATION_ID"] == res.json()["operation_id"]
-    assert env["BABYLON_LOCK_NAMESPACE"] == "babylon"
+    assert env["BABYLON_LOCK_NAMESPACE"] == "tenant-a"
     assert int(env["BABYLON_LOCK_DURATION"]) > fake_kube.batch.jobs[0].spec.active_deadline_seconds
 
 
@@ -203,28 +204,27 @@ def finish(job, condition="Complete"):
 
 
 def test_api_answers_409_while_an_operation_runs_on_the_tenant(api, fake_kube):
-    first = api.post("/apply", json=APPLY)
+    first = api.post("/apply", json=BODY)
     assert first.status_code == 202
-    second = api.post("/destroy", json={"context": APPLY["context"], "tenant": APPLY["tenant"], "confirm": True})
+    second = api.post("/destroy", json={"context": BODY["context"], "confirm": True})
     assert second.status_code == 409
     assert first.json()["operation_id"] in second.json()["detail"]
     assert len(fake_kube.batch.jobs) == 1
 
 
-def test_api_accepts_another_tenant_or_after_the_end(api, fake_kube):
-    assert api.post("/apply", json=APPLY).status_code == 202
-    assert api.post("/apply", json={**APPLY, "tenant": "tenant-b"}).status_code == 202  # other tenant
-    assert api.post("/apply", json={**APPLY, "context": "prod"}).status_code == 202  # other context
+def test_api_accepts_another_context_or_after_the_end(api, fake_kube):
+    assert api.post("/apply", json=BODY).status_code == 202
+    assert api.post("/apply", json={**BODY, "context": "prod"}).status_code == 202  # other context
     finish(fake_kube.batch.jobs[0], "Failed")
-    assert api.post("/apply", json=APPLY).status_code == 202  # first one is over
+    assert api.post("/apply", json=BODY).status_code == 202  # first one is over
 
 
 def test_find_active_operation_ignores_finished_jobs(api, fake_kube):
-    api.post("/apply", json=APPLY)
+    api.post("/apply", json=BODY)
     job = fake_kube.batch.jobs[0]
-    assert find_active_operation(fake_kube.batch, "babylon", "dev", "tenant-a") == job.metadata.labels[LABEL_OPERATION_ID]
+    assert find_active_operation(fake_kube.batch, "tenant-a", "dev", "tenant-a") == job.metadata.labels[LABEL_OPERATION_ID]
     finish(job)
-    assert find_active_operation(fake_kube.batch, "babylon", "dev", "tenant-a") is None
+    assert find_active_operation(fake_kube.batch, "tenant-a", "dev", "tenant-a") is None
 
 
 def test_lease_name():

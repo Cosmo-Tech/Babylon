@@ -27,7 +27,7 @@ from Babylon.core.operations import apply as core_apply
 from Babylon.core.operations import destroy as core_destroy
 from Babylon.utils.environment import Environment
 from babylon_api.repository import prepare_checkout
-from babylon_api.schemas import ApplyRequest, DestroyRequest
+from babylon_api.schemas import ApplyJob, DestroyJob
 
 logger = logging.getLogger("babylon_api.worker")
 
@@ -64,11 +64,17 @@ def run(
     OperationInProgressError when another operation holds the tenant lock.
     """
     operation = payload.get("operation")
-    schema = {"apply": ApplyRequest, "destroy": DestroyRequest}.get(operation)
+    schema = {"apply": ApplyJob, "destroy": DestroyJob}.get(operation)
     if schema is None:
         raise ValueError(f"unknown operation {operation!r}")
     # Defense in depth: the Job env could have been edited; never trust it more than an HTTP body.
     request = schema.model_validate(payload.get("request"))
+    # The tenant must be the namespace this Job runs in (where the API created it): an edited
+    # payload cannot redirect the operation to another tenant.
+    environ_ = os.environ if environ is None else environ
+    own_namespace = environ_.get(LOCK_NAMESPACE_ENV)
+    if own_namespace and request.tenant != own_namespace:
+        raise ValueError(f"tenant '{request.tenant}' is not the namespace of this Job ('{own_namespace}')")
 
     # The lock is taken before anything else (validation excepted) and released even on error.
     with lock(request.context, request.tenant) if lock else nullcontext():

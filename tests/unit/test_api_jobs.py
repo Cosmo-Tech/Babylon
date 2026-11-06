@@ -1,6 +1,7 @@
 """Tests of babylon_api.jobs and of the operation routes (fake Kubernetes, see conftest.py)."""
 
 import json
+from pathlib import Path
 
 import pytest
 from kubernetes import client
@@ -10,9 +11,10 @@ from babylon_api.jobs import (
     ApiConfigurationError,
     JobSettings,
     build_job,
+    current_namespace,
     job_status,
 )
-from babylon_api.schemas import ApplyRequest
+from babylon_api.schemas import ApplyJob
 
 SETTINGS = JobSettings(namespace="babylon", image="babylon:test", service_account="babylon-worker", secret_name="babylon-worker")
 
@@ -20,7 +22,6 @@ APPLY = {
     "repository": {"url": "https://github.com/acme/deployments", "ref": "v1.2"},
     "deploy_dir": "projects/brewery",
     "context": "dev",
-    "tenant": "tenant-a",
 }
 
 
@@ -29,7 +30,7 @@ APPLY = {
 
 @pytest.fixture
 def job() -> client.V1Job:
-    return build_job("apply", ApplyRequest(**APPLY), "0123456789ab", SETTINGS)
+    return build_job("apply", ApplyJob(**APPLY, tenant="tenant-a"), "0123456789ab", SETTINGS)
 
 
 def test_job_identity_and_labels(job):
@@ -69,14 +70,14 @@ def test_job_is_locked_down(job):
 
 def test_no_secret_means_no_env_from():
     settings = JobSettings(namespace="babylon", image="i", service_account="sa")
-    job = build_job("apply", ApplyRequest(**APPLY), "0123456789ab", settings)
+    job = build_job("apply", ApplyJob(**APPLY, tenant="tenant-a"), "0123456789ab", settings)
     assert job.spec.template.spec.containers[0].env_from is None
     assert job.spec.template.spec.image_pull_secrets is None
 
 
 def test_pull_secret_is_passed_to_the_worker_pod():
     env = {"BABYLON_API_NAMESPACE": "ns", "BABYLON_WORKER_IMAGE": "img:1", "BABYLON_WORKER_PULL_SECRET": "registry-auth"}
-    job = build_job("apply", ApplyRequest(**APPLY), "0123456789ab", JobSettings.from_env(env))
+    job = build_job("apply", ApplyJob(**APPLY, tenant="tenant-a"), "0123456789ab", JobSettings.from_env(env))
     assert [s.name for s in job.spec.template.spec.image_pull_secrets] == ["registry-auth"]
 
 
@@ -183,6 +184,36 @@ def test_missing_configuration_is_a_503(fake_kube, monkeypatch):
 
     del app.dependency_overrides[get_settings]  # real settings, from an empty environment
     monkeypatch.delenv("BABYLON_API_NAMESPACE", raising=False)
+    monkeypatch.setattr("babylon_api.jobs.SA_NAMESPACE_FILE", Path("/nonexistent/namespace"))
     res = TestClient(app).post("/apply", json=APPLY)
     assert res.status_code == 503
     assert "BABYLON_API_NAMESPACE" in res.json()["detail"]
+
+
+# tenant = namespace of the API
+
+
+def test_apply_injects_the_api_namespace_as_tenant(api, fake_kube):
+    res = api.post("/apply", json=APPLY)
+    assert res.status_code == 202
+    assert res.json()["tenant"] == "tenant-a"  # conftest SETTINGS.namespace
+    job = fake_kube.batch.jobs[0]
+    assert job.metadata.labels["babylon.cosmotech.com/tenant"] == "tenant-a"
+    payload = json.loads(next(e.value for e in job.spec.template.spec.containers[0].env if e.name == "BABYLON_OPERATION"))
+    assert payload["request"]["tenant"] == "tenant-a"  # the worker receives it
+
+
+def test_current_namespace_from_env_then_serviceaccount_file(tmp_path):
+    sa_file = tmp_path / "namespace"
+    assert current_namespace({"BABYLON_API_NAMESPACE": "from-env"}, sa_file) == "from-env"
+    assert current_namespace({}, sa_file) is None  # nothing available
+    sa_file.write_text("from-file\n")
+    assert current_namespace({}, sa_file) == "from-file"
+    assert current_namespace({"BABYLON_API_NAMESPACE": "from-env"}, sa_file) == "from-env"  # env wins
+
+
+def test_settings_use_the_serviceaccount_namespace_when_env_is_missing(tmp_path):
+    sa_file = tmp_path / "namespace"
+    sa_file.write_text("tenant-x")
+    settings = JobSettings.from_env({"BABYLON_WORKER_IMAGE": "img:1"}, sa_namespace_file=sa_file)
+    assert settings.namespace == "tenant-x"

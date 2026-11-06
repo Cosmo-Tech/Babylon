@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from pathlib import PurePosixPath
-from typing import Annotated, Literal
+from typing import Annotated, ClassVar, Literal
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
@@ -71,15 +71,29 @@ class Repository(BaseModel):
 API_RESOURCES: tuple[str, ...] = tuple(r for r in ALLOWED_RESOURCES if r != "webapp")
 
 
+TENANT_INJECTED_MESSAGE = "The tenant is automatically injected by the backend and must not be provided by the client."
+
+
 class _OperationRequest(BaseModel):
     """Fields shared by apply and destroy."""
 
     model_config = ConfigDict(extra="forbid")  # a typo like "exlude" is an error, not silently ignored
 
+    # The tenant is the namespace the API runs in (one Babylon API per tenant namespace).
+    # Public requests must not carry it; the internal Job payloads (ApplyJob/DestroyJob) do.
+    _tenant_from_client: ClassVar[bool] = False
+
     context: K8sName
-    tenant: K8sName
     include: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(API_RESOURCES)}")
     exclude: list[str] = Field(default_factory=list, description=f"Allowed: {', '.join(API_RESOURCES)}")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _no_client_tenant(cls, data):
+        # Explicit message instead of the generic "Extra inputs are not permitted".
+        if not cls._tenant_from_client and isinstance(data, dict) and "tenant" in data:
+            raise ValueError(TENANT_INJECTED_MESSAGE)
+        return data
 
     @model_validator(mode="after")
     def _valid_selection(self):
@@ -109,11 +123,26 @@ class DestroyRequest(_OperationRequest):
     confirm: Literal[True] = Field(description="Must be true: destroy cannot be undone")
 
 
+# Internal payloads: what the API puts in the Job (BABYLON_OPERATION) and the worker validates.
+# Same fields as the public requests + the tenant injected by the API (its own namespace).
+
+
+class ApplyJob(ApplyRequest):
+    _tenant_from_client: ClassVar[bool] = True
+    tenant: K8sName
+
+
+class DestroyJob(DestroyRequest):
+    _tenant_from_client: ClassVar[bool] = True
+    tenant: K8sName
+
+
 class OperationAccepted(BaseModel):
     """The operation was submitted as a Kubernetes Job; poll GET /operations/{operation_id}."""
 
     operation_id: str
     operation: Literal["apply", "destroy"]
+    tenant: str = Field(description="Namespace of the API, injected as tenant")
     status: Literal["pending"] = "pending"
     job_name: str
 

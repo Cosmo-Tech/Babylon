@@ -9,7 +9,7 @@ from kubernetes import client
 from babylon_api.app import KubeClients, app, get_kube, get_settings
 from babylon_api.jobs import JobSettings
 
-SETTINGS = JobSettings(namespace="babylon", image="babylon:test", service_account="babylon-worker", secret_name="babylon-worker")
+SETTINGS = JobSettings(namespace="tenant-a", image="babylon:test", service_account="babylon-worker", secret_name="babylon-worker")
 
 
 def matches(labels: dict | None, selector: str) -> bool:

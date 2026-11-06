@@ -204,7 +204,7 @@ def test_prepare_checkout_missing_deploy_dir(tmp_path, local_fetch):
 
 def test_api_refuses_a_host_not_allowed(monkeypatch, api, fake_kube):
     monkeypatch.setenv(repository.ALLOWED_HOSTS_ENV, "github.com")
-    body = {"repository": {"url": "https://gitlab.com/a/b"}, "deploy_dir": "p", "context": "dev", "tenant": "dev"}
+    body = {"repository": {"url": "https://gitlab.com/a/b"}, "deploy_dir": "p", "context": "dev"}
     res = api.post("/apply", json=body)
     assert res.status_code == 422
     assert "not allowed" in res.json()["detail"]

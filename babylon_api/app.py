@@ -24,7 +24,7 @@ from Babylon.version import VERSION
 from babylon_api.about import About, about
 from babylon_api.jobs import ApiConfigurationError, JobSettings, build_job, find_active_operation, get_operation, new_operation_id
 from babylon_api.repository import allowed_hosts, check_allowed_host
-from babylon_api.schemas import ApplyRequest, DestroyRequest, OperationAccepted, OperationStatus
+from babylon_api.schemas import ApplyJob, ApplyRequest, DestroyJob, DestroyRequest, OperationAccepted, OperationStatus
 
 app = FastAPI(
     title="Babylon API",
@@ -100,17 +100,20 @@ def get_about() -> About:
 def _submit(operation: str, request: ApplyRequest | DestroyRequest, kube: KubeClients, settings: JobSettings):
     if isinstance(request, ApplyRequest):  # destroy has no repository
         check_allowed_host(str(request.repository.url), allowed_hosts())  # refuse before creating anything
+    # The tenant is the namespace the API (and its Jobs) run in: injected here, never sent by the client.
+    job_schema = ApplyJob if operation == "apply" else DestroyJob
+    job_request = job_schema(**request.model_dump(mode="json"), tenant=settings.namespace)
     # Fast feedback (409) when an operation is already pending/running on this tenant.
     # Not the real protection (two requests can pass this check together): the worker's Lease is.
-    active = find_active_operation(kube.batch, settings.namespace, request.context, request.tenant)
+    active = find_active_operation(kube.batch, settings.namespace, job_request.context, job_request.tenant)
     if active:
         raise OperationInProgressError(
-            f"Operation {active} is already running on context '{request.context}' / tenant '{request.tenant}'"
+            f"Operation {active} is already running on context '{job_request.context}' / tenant '{job_request.tenant}'"
         )
     operation_id = new_operation_id()
-    job = build_job(operation, request, operation_id, settings)
+    job = build_job(operation, job_request, operation_id, settings)
     kube.batch.create_namespaced_job(namespace=settings.namespace, body=job)
-    return OperationAccepted(operation_id=operation_id, operation=operation, job_name=job.metadata.name)
+    return OperationAccepted(operation_id=operation_id, operation=operation, tenant=job_request.tenant, job_name=job.metadata.name)
 
 
 @app.post("/apply", tags=["operations"], status_code=status.HTTP_202_ACCEPTED, response_model=OperationAccepted)

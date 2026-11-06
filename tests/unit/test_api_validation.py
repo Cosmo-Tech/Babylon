@@ -8,14 +8,13 @@ def apply_body(**overrides) -> dict:
         "repository": {"url": "https://github.com/acme/deployments", "ref": "main"},
         "deploy_dir": "projects/brewery",
         "context": "dev",
-        "tenant": "tenant-a",
     }
     body.update(overrides)
     return body
 
 
 def destroy_body(**overrides) -> dict:
-    return {"context": "dev", "tenant": "tenant-a", "confirm": True, **overrides}
+    return {"context": "dev", "confirm": True, **overrides}
 
 
 def errors_of(res) -> str:
@@ -40,7 +39,7 @@ def test_valid_apply_is_accepted(api, fake_kube):
 @pytest.mark.parametrize(
     "overrides, expected",
     [
-        ({"tenant": "Tenant_A"}, "lowercase letters"),  # not a valid Kubernetes namespace
+        ({"context": "Dev_1"}, "lowercase letters"),  # not a valid Kubernetes name
         ({"context": "-dev"}, "lowercase letters"),
         ({"deploy_dir": "../../etc"}, "inside the repository"),  # path traversal
         ({"deploy_dir": "/etc"}, "inside the repository"),
@@ -71,6 +70,16 @@ def test_valid_destroy(api):
     res = api.post("/destroy", json=destroy_body())
     assert res.status_code == 202, res.text
     assert res.json()["operation"] == "destroy"
+
+
+@pytest.mark.parametrize("route, body", [("/apply", apply_body), ("/destroy", destroy_body)])
+@pytest.mark.parametrize("tenant", ["tenant-a", "other-tenant", ""])
+def test_client_cannot_provide_the_tenant(api, fake_kube, route, body, tenant):
+    """Even the right value is refused: the tenant is the API namespace, not a client choice."""
+    res = api.post(route, json=body(tenant=tenant))
+    assert res.status_code == 422
+    assert "The tenant is automatically injected by the backend and must not be provided by the client." in errors_of(res)
+    assert fake_kube.batch.jobs == []
 
 
 @pytest.mark.parametrize("field", [{"repository": {"url": "https://github.com/acme/x"}}, {"variable_files": ["v.yaml"]}])

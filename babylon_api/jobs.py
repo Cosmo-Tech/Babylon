@@ -16,6 +16,7 @@ import os
 import uuid
 from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import Path
 
 from kubernetes import client
 from pydantic import BaseModel
@@ -30,6 +31,7 @@ LABEL_CONTEXT = "babylon.cosmotech.com/context"
 LABEL_TENANT = "babylon.cosmotech.com/tenant"
 
 WORK_DIR = "/work"
+SA_NAMESPACE_FILE = Path("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 
 
 class ApiConfigurationError(BabylonError):
@@ -49,18 +51,31 @@ class JobSettings:
     ttl_seconds_after_finished: int = 86400  # Kubernetes deletes the Job (and its status) after 1 day
 
     @classmethod
-    def from_env(cls, environ: Mapping[str, str] | None = None) -> JobSettings:
+    def from_env(cls, environ: Mapping[str, str] | None = None, sa_namespace_file: Path | None = None) -> JobSettings:
         environ = os.environ if environ is None else environ
-        missing = [v for v in ("BABYLON_API_NAMESPACE", "BABYLON_WORKER_IMAGE") if not environ.get(v)]
+        namespace = current_namespace(environ, sa_namespace_file)
+        image = environ.get("BABYLON_WORKER_IMAGE")
+        missing = [name for name, value in (("BABYLON_API_NAMESPACE", namespace), ("BABYLON_WORKER_IMAGE", image)) if not value]
         if missing:
             raise ApiConfigurationError(f"Missing configuration: {', '.join(missing)}")
         return cls(
-            namespace=environ["BABYLON_API_NAMESPACE"],
-            image=environ["BABYLON_WORKER_IMAGE"],
+            namespace=namespace,
+            image=image,
             service_account=environ.get("BABYLON_WORKER_SERVICE_ACCOUNT") or "babylon-worker",
             secret_name=environ.get("BABYLON_WORKER_SECRET") or None,
             pull_secret=environ.get("BABYLON_WORKER_PULL_SECRET") or None,
         )
+
+
+def current_namespace(environ: Mapping[str, str], sa_namespace_file: Path | None = None) -> str | None:
+    """Namespace the API runs in = the tenant. None when it cannot be determined."""
+
+    if environ.get("BABYLON_API_NAMESPACE", "").strip():
+        return environ["BABYLON_API_NAMESPACE"].strip()
+    try:
+        return (sa_namespace_file or SA_NAMESPACE_FILE).read_text().strip() or None
+    except OSError:
+        return None
 
 
 def new_operation_id() -> str:

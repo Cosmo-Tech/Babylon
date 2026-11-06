@@ -131,6 +131,13 @@ def test_bad_payload_is_refused_before_fetching(tmp_path, checkout, payload, err
     assert checkout == {}  # nothing fetched
 
 
+def test_worker_refuses_a_tenant_other_than_its_namespace(tmp_path, checkout, monkeypatch):
+    monkeypatch.setenv("BABYLON_LOCK_NAMESPACE", "tenant-b")
+    with pytest.raises(ValueError, match="not the namespace of this Job"):
+        worker.run({"operation": "apply", "request": APPLY}, tmp_path / "work")
+    assert checkout == {}
+
+
 # main: what the container really executes
 
 
