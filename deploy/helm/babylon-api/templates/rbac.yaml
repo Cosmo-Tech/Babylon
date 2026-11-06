@@ -1,8 +1,7 @@
 {{- /*
 Least privilege, two identities:
-  - babylon-api    : only submits and watches Jobs in its own namespace. It never touches tenants.
-  - babylon-worker : holds the tenant lock (Leases, own namespace) and does the real Babylon work
-                     in the tenant namespaces listed in .Values.tenantNamespaces (nowhere else).
+  - babylon-api    : only submits and watches its Jobs.
+  - babylon-worker : holds the tenant lock (Leases) and does the real Babylon work.
 */ -}}
 {{/*
 SPDX-FileCopyrightText: Copyright (C) 2022-2026 Cosmo Tech
@@ -51,36 +50,12 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ .Release.Name }}-worker-lock
+  name: {{ .Release.Name }}-worker
   labels: {{- include "babylon-api.labels" . | nindent 4 }}
 rules:
   - apiGroups: [coordination.k8s.io]   # babylon_api/lock.py: one Lease per (context, tenant)
     resources: [leases]
     verbs: [get, create, update, delete]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: {{ .Release.Name }}-worker-lock
-  labels:
-    {{- include "babylon-api.labels" . | nindent 4 }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: {{ .Release.Name }}-worker-lock
-subjects:
-  - kind: ServiceAccount
-    name: {{ .Values.worker.serviceAccountName }}
-    namespace: {{ .Release.Namespace }}
-{{- range .Values.tenantNamespaces }}
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: {{ $.Release.Name }}-worker
-  namespace: {{ . }}
-  labels: {{- include "babylon-api.labels" $ | nindent 4 }}
-rules:
   - apiGroups: [""]             # remote state (babylon-state-*) and Keycloak/platform secrets
     resources: [secrets]
     verbs: [get, list, create, update, delete]
@@ -100,16 +75,14 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ $.Release.Name }}-worker
-  namespace: {{ . }}
+  name: {{ .Release.Name }}-worker
   labels:
-    {{- include "babylon-api.labels" $ | nindent 4 }}
+    {{- include "babylon-api.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ $.Release.Name }}-worker
+  name: {{ .Release.Name }}-worker
 subjects:
   - kind: ServiceAccount
-    name: {{ $.Values.worker.serviceAccountName }}
-    namespace: {{ $.Release.Namespace }}
-{{- end }}
+    name: {{ .Values.worker.serviceAccountName }}
+    namespace: {{ .Release.Namespace }}

@@ -8,10 +8,6 @@ image:
 
 replicaCount: 1
 
-# Tenant namespaces the worker may deploy into. One Role + RoleBinding is created in each.
-# Operations targeting a tenant not listed here fail with 403 inside the worker Job.
-tenantNamespaces: []
-
 # Comma-separated list of git hosts the API accepts in `repository.url`.
 allowedGitHosts: github.com
 
