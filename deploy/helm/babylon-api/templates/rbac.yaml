@@ -22,7 +22,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ .Release.Name }}-api
+  name: {{ .Release.Name }}
   labels: {{- include "babylon-api.labels" . | nindent 4 }}
 rules:
   - apiGroups: [batch]          # POST /apply|/destroy creates a Job; 409 check and GET /operations list them
@@ -35,13 +35,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Release.Name }}-api
+  name: {{ .Release.Name }}
   labels:
     {{- include "babylon-api.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ .Release.Name }}-api
+  name: {{ .Release.Name }}
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.api.serviceAccountName }}
