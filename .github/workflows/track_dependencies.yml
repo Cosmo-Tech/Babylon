@@ -6,25 +6,55 @@ on:
   push:
     branches:
       - main
-      
+    tags:
+      - '*'
+
 jobs:
   generate-sbom:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
+        with:
+          python-version: 3.13
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
 
-      - run: uv export --format=cyclonedx1.5 --output-file=sbom.json -q
-      - name: Upload cyclonedx bom to dependency
+      - name: Install CycloneDX
+        run: pip install cyclonedx-bom
+
+      - name: Install project
+        run: uv sync --all-groups
+
+      - name: Generate SBOM file
+        run: >
+          cyclonedx-py
+          environment .venv
+          --pyproject pyproject.toml
+          --mc-type application
+          --output-file sbom.json
+
+      - name: Upload SBOM file (main)
+        if: ${{ github.ref_type != 'tag' }}
         uses: DependencyTrack/gh-upload-sbom@v4
         with:
-          serverhostname: ${{ secrets.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
-          apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          server-hostname: ${{ secrets.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          api-key: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
           project: 'b79e84bb-f445-4b32-a56c-5c82c0064aff'
-          bomfilename: 'sbom.json'
-    
+          bom-filename: 'sbom.json'
+
+      - name: Upload SBOM file (tag)
+        if: ${{ github.ref_type == 'tag' }}
+        uses: DependencyTrack/gh-upload-sbom@v4
+        with:
+          server-hostname: ${{ secrets.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          api-key: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          project-name: babylon
+          project-version: ${{ github.ref_name }}
+          parent: 'b79e84bb-f445-4b32-a56c-5c82c0064aff'
+          auto-create: true
+          bom-filename: sbom.json
+
