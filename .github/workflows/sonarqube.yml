@@ -18,8 +18,15 @@ jobs:
         with:
           fetch-depth: 0 # Disable shallow clone to improve the analysis results
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v8
+      - uses: actions/setup-python@v7
+        with:
+          python-version: 3.13
+
+      - name: Install pysonar
+        run: pip install pysonar
+
+      - name: Run pysonar
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: pysonar

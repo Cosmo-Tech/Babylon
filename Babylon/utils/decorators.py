@@ -83,7 +83,7 @@ def output_to_file(func: Callable[..., Any]) -> Callable[..., Any]:
         "-o",
         "--output",
         "output_format",
-        type=Choice[str](["json", "yaml", "wide"], case_sensitive=False),
+        type=Choice(["json", "yaml", "wide"], case_sensitive=False),
         help="Output format. One of: json, yaml, or wide",
     )
     @option(
