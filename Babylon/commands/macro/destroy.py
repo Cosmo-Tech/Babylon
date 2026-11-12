@@ -26,7 +26,7 @@ env = Environment()
 
 def _build_targeted_resources(plan: list[DestroyTarget]) -> list[tuple[str, str]]:
     """(label, current-ID) pairs shown in the confirmation banner."""
-    return [(t.label, t.resource_id or "(NOT DEPLOYED)") for t in plan]
+    return [(target.label, target.resource_id or "(NOT DEPLOYED)") for target in plan]
 
 
 def _build_scope_message(include: tuple[str, ...], exclude: tuple[str, ...], targeted: list[tuple[str, str]]) -> str:
@@ -185,13 +185,13 @@ def destroy(variables_files: tuple, include: tuple[str, ...], exclude: tuple[str
 
     _print_destruction_summary(result.state)
 
-    failed = [r for r in result.resources if r.status == ResourceStatus.FAILED]
+    failed = [resource for resource in result.resources if resource.status == ResourceStatus.FAILED]
     if failed:
-        for r in failed:
-            logger.error(f"  [bold red]✘[/bold red] {r.resource} {r.resource_id}: {r.error}")
-        for r in result.resources:
-            if r.status == ResourceStatus.SKIPPED and r.error == "previous resource failed":
-                logger.warning(f"  [yellow]⚠[/yellow] {r.resource} {r.resource_id}: skipped, {r.error}")
+        for resource in failed:
+            logger.error(f"  [bold red]✘[/bold red] {resource.resource} {resource.resource_id}: {resource.error}")
+        for resource in result.resources:
+            if resource.status == ResourceStatus.SKIPPED and resource.error == "previous resource failed":
+                logger.warning(f"  [yellow]⚠[/yellow] {resource.resource} {resource.resource_id}: skipped, {resource.error}")
         raise ClickException(f"{len(failed)} resource(s) failed to destroy")  # exit code 1
     echo(style("\n✨ Cleanup process complete", fg="white", bold=True))
     return CommandResponse.success()

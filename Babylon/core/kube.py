@@ -1,16 +1,16 @@
 """How Babylon authenticates to Kubernetes.
 
-Two ways exist:
-- kubeconfig: a file on the machine (~/.kube/config), used by a developer laptop / CI.
-- in-cluster: inside a pod, Kubernetes mounts a ServiceAccount token at
-  /var/run/secrets/kubernetes.io/serviceaccount/ and sets KUBERNETES_SERVICE_HOST.
-  This is what the Babylon API will use: no kubeconfig file in the pod.
+Babylon supports two authentication methods:
 
-The mode is chosen with the BABYLON_K8S_AUTH environment variable:
-- "kubeconfig": always the kubeconfig file (historical behaviour).
-- "incluster":  always the ServiceAccount (fails outside a pod).
-- "auto" (default): in-cluster when running in a pod and no --kube-context was given,
-  kubeconfig otherwise.
+  * kubeconfig: uses the local kubeconfig file (~/.kube/config).
+  * in-cluster: uses the ServiceAccount token mounted by Kubernetes inside a pod.
+
+The method is selected with BABYLON_K8S_AUTH:
+
+  * "kubeconfig": always use kubeconfig.
+  * "incluster": always use the ServiceAccount.
+  * "auto" (default): use in-cluster inside a pod, kubeconfig otherwise.
+
 """
 
 from __future__ import annotations
@@ -29,11 +29,15 @@ AUTH_MODES = ("auto", "kubeconfig", "incluster")
 
 def resolve_auth_mode(environ: Mapping[str, str], kube_context: str | None) -> str:
     """Return "kubeconfig" or "incluster" """
+
     mode = (environ.get(AUTH_ENV_VAR) or "auto").strip().lower()
+
     if mode not in AUTH_MODES:
         raise InvalidOptionsError(f"{AUTH_ENV_VAR}={mode!r} is invalid. Allowed values are: {', '.join(AUTH_MODES)}")
+
     if mode != "auto":
         return mode
+
     # An explicit --kube-context only makes sense with a kubeconfig file.
     in_pod = bool(environ.get("KUBERNETES_SERVICE_HOST"))
     return "incluster" if in_pod and not kube_context else "kubeconfig"

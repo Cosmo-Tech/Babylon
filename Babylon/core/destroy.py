@@ -1,4 +1,4 @@
-"""Planning of `destroy`: which resources to delete, in which order (pure functions, no I/O).
+"""Planning of destroy: which resources to delete, in which order.
 
 Destroy works only from the state: the state tells which ids exist, the selection
 (include/exclude) tells which of them the user wants to delete.
@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from Babylon.core.errors import InvalidOptionsError
 
-# Same order as the historical CLI (_execute_destroy): children before their organization.
+# Same order as the CLI (_execute_destroy): children before their organization.
 # "build" is not here: there is nothing to destroy for it.
 DESTROY_ORDER = ("solution", "workspace", "organization", "webapp")
 
@@ -30,7 +30,7 @@ class DestroyTarget:
 
     resource: str  # "solution", "workspace", ...
     label: str  # "Solution", "Web App", ... (for messages)
-    resource_id: str | None  # id/name from the state, None if not deployed
+    resource_id: str | None  # id from the state, None if not deployed
 
     @property
     def deployed(self) -> bool:
@@ -83,7 +83,7 @@ def _check_no_orphans(state: dict, plan: list[DestroyTarget]) -> None:
 
 
 def resource_id(state: dict, resource: str) -> str | None:
-    """Id of `resource` in the state, or None if not deployed."""
+    """Id of resource in the state, or None if not deployed."""
     _, section, key = _STATE_KEYS[resource]
     return (_services(state).get(section) or {}).get(key) or None
 

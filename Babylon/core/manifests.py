@@ -1,4 +1,4 @@
-"""Reading the Babylon manifests of a deployment directory (no click, no network)."""
+"""Reading the Babylon manifests of a deployment directory."""
 
 from __future__ import annotations
 
@@ -43,34 +43,54 @@ def load_manifest(path: Path) -> Manifest | None:
         InvalidOptionsError: the file is not valid YAML or is not a YAML mapping.
     """
     content = _to_mako(path.read_text(encoding="utf-8"))
+
     try:
         data = safe_load(content)
     except YAMLError as exc:
         raise InvalidOptionsError(f"{path.name} is not valid YAML: {exc}") from exc
+
     if not isinstance(data, dict):
         raise InvalidOptionsError(f"{path.name} must be a YAML mapping with a 'kind' key")
 
     resource = KIND_TO_RESOURCE.get(data.get("kind"))
+
     if resource is None:
         return None
     return Manifest(resource=resource, path=path, namespace=safe_dump(data.get("namespace")), content=content)
 
 
 def load_manifests(deploy_dir: Path) -> list[Manifest]:
-    """Load every `*.yaml` / `*.yml` file at the top level of `deploy_dir`, in file-name order.
+    """Load every *.yaml and *.yml file at the top level of `deploy_dir`, in file-name order.
 
     Raises:
         InvalidOptionsError: `deploy_dir` is not a directory, or a file cannot be parsed.
     """
     deploy_dir = Path(deploy_dir)
+
     if not deploy_dir.is_dir():
         raise InvalidOptionsError(f"Deployment directory not found: {deploy_dir}")
+
     files = sorted(p for p in deploy_dir.iterdir() if p.is_file() and p.suffix in (".yaml", ".yml"))
-    return [m for m in (load_manifest(f) for f in files) if m is not None]
+
+    manifests = []
+
+    for file in files:
+        manifest = load_manifest(file)
+        if manifest is not None:
+            manifests.append(manifest)
+    return manifests
 
 
 def plan_apply(manifests: Iterable[Manifest], selected: Iterable[str]) -> list[Manifest]:
-    """Return the manifests to deploy, filtered by `selected` and sorted in APPLY_ORDER."""
+    """Return the manifests to deploy, filtered by selected and sorted in APPLY_ORDER."""
     selected = set(selected)
     manifests = list(manifests)
-    return [m for resource in APPLY_ORDER if resource in selected for m in manifests if m.resource == resource]
+
+    result = []
+
+    for resource in APPLY_ORDER:
+        if resource in selected:
+            for manifest in manifests:
+                if manifest.resource == resource:
+                    result.append(manifest)
+    return result

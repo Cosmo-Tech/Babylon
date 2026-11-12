@@ -1,14 +1,16 @@
-"""Programmatic Babylon operations, shared by the CLI and (later) the API.
+"""Babylon operations, shared by the CLI and the API.
 
-Three problems of the historical CLI code are handled here:
+Three problems of the  CLI are handled here:
 
-1. Global state: deployers read context/tenant/variable files from the process-wide
-   `Environment` singleton. `_bound_environment` fills it for the duration of one
-   operation, restores it afterwards, and refuses a second concurrent operation.
-2. `sys.exit()`: several helpers call it on fatal errors. It is caught per manifest
-   and turned into a FAILED outcome instead of killing the process.
-3. Ignored failures: every manifest gets a ResourceOutcome, so the caller knows
-   exactly what succeeded and what failed.
+1. Environment: deployers use a shared Environment singleton. _bound_environment
+    sets it for each operation and restores its previous state afterwards. It also
+    prevents two operations from running at the same time.
+
+2. Errors: some helpers call sys.exit() when an error occurs. These exits are
+   caught and reported as FAILED instead of stopping the whole process.
+
+3. Results: each manifest gets a ResourceOutcome to report whether it succeeded,
+   failed, or was skipped.
 """
 
 from __future__ import annotations
@@ -47,8 +49,10 @@ _operation_lock = threading.Lock()
 @contextmanager
 def _bound_environment(context: str, tenant: str, variable_files: tuple[Path, ...]) -> Iterator[Environment]:
     """Bind the Environment singleton to one operation, then restore it."""
+
     if not _operation_lock.acquire(blocking=False):
         raise OperationInProgressError("A Babylon operation is already running in this process")
+
     env = Environment()
     saved = (env.context_id, env.environ_id, list(env.variable_files), env.remote)
     try:
@@ -66,6 +70,7 @@ def _bound_environment(context: str, tenant: str, variable_files: tuple[Path, ..
 
 def default_deployers() -> dict[str, Deployer]:
     """The real Babylon deployers (imported lazily: they pull heavy SDKs)."""
+
     from Babylon.commands.macro.build import build
     from Babylon.commands.macro.deploy_organization import deploy_organization
     from Babylon.commands.macro.deploy_solution import deploy_solution
@@ -73,16 +78,19 @@ def default_deployers() -> dict[str, Deployer]:
     from Babylon.commands.macro.deploy_workspace import deploy_workspace
 
     return {
-        "build": lambda m, d: build(namespace=m.namespace, file_content=m.content),
-        "organization": lambda m, d: deploy_organization(namespace=m.namespace, file_content=m.content),
-        "solution": lambda m, d: deploy_solution(namespace=m.namespace, file_content=m.content),
-        "webapp": lambda m, d: deploy_webapp(namespace=m.namespace, file_content=m.content),
-        "workspace": lambda m, d: deploy_workspace(namespace=m.namespace, file_content=m.content, deploy_dir=d),
+        "build": lambda manifest, deploy_dir: build(namespace=manifest.namespace, file_content=manifest.content),
+        "organization": lambda manifest, deploy_dir: deploy_organization(namespace=manifest.namespace, file_content=manifest.content),
+        "solution": lambda manifest, deploy_dir: deploy_solution(namespace=manifest.namespace, file_content=manifest.content),
+        "webapp": lambda manifest, deploy_dir: deploy_webapp(namespace=manifest.namespace, file_content=manifest.content),
+        "workspace": lambda manifest, deploy_dir: deploy_workspace(
+            namespace=manifest.namespace, file_content=manifest.content, deploy_dir=deploy_dir
+        ),
     }
 
 
 def _guarded(call: Callable[[], Any], name: str) -> tuple[Any, str | None]:
-    """Run `call`; turn sys.exit() and exceptions into an error message instead of crashing."""
+    """Run call(), turn sys.exit() and exceptions into an error message instead of crashing."""
+
     try:
         return call(), None
     except SystemExit as exc:
@@ -94,6 +102,7 @@ def _guarded(call: Callable[[], Any], name: str) -> tuple[Any, str | None]:
 
 def _run_one(deployer: Deployer, manifest: Manifest, deploy_dir: Path) -> str | None:
     """Deploy one manifest. Returns an error message, or None on success."""
+
     ret, error = _guarded(lambda: deployer(manifest, deploy_dir), manifest.path.name)
     if error:
         return error
@@ -148,6 +157,7 @@ Confirm = Callable[[list[DestroyTarget]], bool]
 
 def default_deleters() -> dict[str, Deleter]:
     """The real Babylon deleters (imported lazily). Credentials are fetched once, on first use."""
+
     from Babylon.commands.api.organization import get_organization_api_instance
     from Babylon.commands.api.solution import get_solution_api_instance
     from Babylon.commands.macro.destroy import _destroy_workspace_resources
@@ -191,13 +201,17 @@ def default_deleters() -> dict[str, Deleter]:
 def _save_state(env: Environment, state: dict) -> None:
     """Persist the state after destroy: removed when everything is gone, updated otherwise.
 
-    Same behaviour as the historical CLI (local file + Kubernetes secret when remote).
+    Same behaviour as the CLI (local file + Kubernetes secret when remote).
     """
+
     remote = bool(state.get("remote"))
+
     if is_full_destroy(state):
         logger.info("  [dim]🗑 All resources cleared ! removing state...[/dim]")
+
         if not env.delete_state_in_local():
             logger.warning("  [yellow]⚠[/yellow] Could not delete the local state file, it may need manual cleanup.")
+
         if remote and not env.delete_state_in_kubernetes():
             logger.warning("  [yellow]⚠[/yellow] Could not delete the remote state secret, it may need manual cleanup.")
     else:
@@ -227,27 +241,27 @@ def destroy(
             deployed child is kept (raised before the confirmation, nothing is deleted).
         OperationInProgressError: another operation is running in this process.
     """
+
     selected = resolve_resources(options.include, options.exclude)
     result = DestroyResult(context=options.context, tenant=options.tenant)
 
     with _bound_environment(options.context, options.tenant, options.variable_files) as env:
-        # 1. Read the state and plan: no side effect yet.
         state = env.retrieve_state_func()
         plan = plan_destroy(state, selected)
         result.state = state
 
         # Nothing deployed in the selection: no question, no deletion, state untouched.
-        if not any(t.deployed for t in plan):
-            result.resources = [DestroyOutcome(t.resource, None, ResourceStatus.SKIPPED, "not deployed") for t in plan]
+        if not any(target.deployed for target in plan):
+            result.resources = [DestroyOutcome(target.resource, None, ResourceStatus.SKIPPED, "not deployed") for target in plan]
             result.nothing_to_destroy = True
             return result
 
-        # 2. Ask before deleting.
+        # Ask before deleting.
         if confirm is not None and not confirm(plan):
             result.cancelled = True
             return result
 
-        # 3. Delete, one outcome per resource.
+        # Delete, one outcome per resource.
         deleters = deleters if deleters is not None else default_deleters()
         for target in plan:
             if not target.deployed:
@@ -256,12 +270,15 @@ def destroy(
                 outcome = DestroyOutcome(target.resource, target.resource_id, ResourceStatus.SKIPPED, "previous resource failed")
             else:
                 _, error = _guarded(lambda t=target: deleters[t.resource](state), target.label)
+
                 if not error and resource_id(state, target.resource):
                     error = "still present in state after deletion, see logs"
+
                 status = ResourceStatus.FAILED if error else ResourceStatus.SUCCEEDED
                 outcome = DestroyOutcome(target.resource, target.resource_id, status, error)
+
             result.resources.append(outcome)
 
-        # 4. Persist what really happened (also after a failure: deleted ids must not come back).
+        # Persist what really happened (also after a failure: deleted ids must not come back).
         _save_state(env, state)
     return result

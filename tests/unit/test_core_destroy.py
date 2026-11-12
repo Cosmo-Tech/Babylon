@@ -1,4 +1,4 @@
-"""Tests of Babylon.core.destroy (planning only: pure functions, no network)."""
+"""Tests of Babylon.core.destroy."""
 
 import pytest
 
@@ -20,13 +20,13 @@ def make_state(org="o-1", sol="sol-1", ws="w-1", webapp="webapp-x", schema="s_1"
 
 def test_full_plan_keeps_historical_order_and_ids():
     plan = plan_destroy(make_state(), resolve_resources())
-    assert [(t.resource, t.resource_id) for t in plan] == [
+    assert [(target.resource, target.resource_id) for target in plan] == [
         ("solution", "sol-1"),
         ("workspace", "w-1"),
         ("organization", "o-1"),
         ("webapp", "webapp-x"),
     ]
-    assert [t.resource for t in plan] == list(DESTROY_ORDER)
+    assert [target.resource for target in plan] == list(DESTROY_ORDER)
 
 
 def test_build_is_never_destroyed():
@@ -43,12 +43,12 @@ def test_build_is_never_destroyed():
 )
 def test_plan_respects_selection(include, exclude, expected):
     plan = plan_destroy(make_state(), resolve_resources(include, exclude))
-    assert [t.resource for t in plan] == expected
+    assert [target.resource for target in plan] == expected
 
 
 def test_not_deployed_resources_stay_in_plan_without_id():
     plan = plan_destroy(make_state(sol="", webapp=None), resolve_resources())
-    deployed = {t.resource: t.deployed for t in plan}
+    deployed = {target.resource: target.deployed for target in plan}
     assert deployed == {"solution": False, "workspace": True, "organization": True, "webapp": False}
     assert plan[0].resource_id is None
 
@@ -57,7 +57,7 @@ def test_not_deployed_resources_stay_in_plan_without_id():
 def test_plan_tolerates_empty_or_partial_state(state):
     plan = plan_destroy(state, resolve_resources())
     assert len(plan) == 4
-    assert not any(t.deployed for t in plan)
+    assert not any(target.deployed for target in plan)
 
 
 def test_is_full_destroy():

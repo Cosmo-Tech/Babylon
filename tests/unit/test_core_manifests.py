@@ -51,7 +51,7 @@ def test_load_manifest_rejects_invalid_files(tmp_path, text):
 
 
 def test_load_manifests_keeps_top_level_yaml_files_sorted(project):
-    names = [m.path.name for m in load_manifests(project)]
+    names = [manifest.path.name for manifest in load_manifests(project)]
     assert names == ["Solution.yaml", "Webapp.yaml", "Workspace.yaml", "a_Organization.yml", "b_Organization.yaml"]
 
 
@@ -62,7 +62,7 @@ def test_load_manifests_missing_directory(tmp_path):
 
 def test_plan_apply_follows_dependency_order(project):
     plan = plan_apply(load_manifests(project), resolve_resources())
-    assert [(m.resource, m.path.name) for m in plan] == [
+    assert [(manifest.resource, manifest.path.name) for manifest in plan] == [
         ("organization", "a_Organization.yml"),
         ("organization", "b_Organization.yaml"),
         ("solution", "Solution.yaml"),
@@ -73,7 +73,7 @@ def test_plan_apply_follows_dependency_order(project):
 
 def test_plan_apply_respects_selection(project):
     plan = plan_apply(load_manifests(project), resolve_resources(exclude=["organization", "webapp"]))
-    assert [m.resource for m in plan] == ["solution", "workspace"]
+    assert [manifest.resource for manifest in plan] == ["solution", "workspace"]
 
 
 def test_apply_result_succeeded_only_when_everything_succeeded():

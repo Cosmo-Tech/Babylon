@@ -1,4 +1,4 @@
-"""Typed inputs and outputs of the programmatic Babylon operations."""
+"""Typed inputs and outputs of the Babylon operations."""
 
 from __future__ import annotations
 
@@ -9,14 +9,14 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class ApplyOptions:
-    """Everything `apply` needs, passed explicitly (equivalent of `babylon apply` options).
+    """Options required to run a Babylon apply operation.
 
     Attributes:
-        deploy_dir: directory containing the Babylon YAML manifests (the CLI `DEPLOY_DIR`).
-        context: Babylon context id (`-c`), used to isolate the state.
-        tenant: Babylon tenant (`-t`), also the Kubernetes namespace of the platform.
-        variable_files: variable files (`--var-file`), merged together.
-        include / exclude: resource selection (`--include` / `--exclude`).
+        deploy_dir: directory containing the YAML manifests.
+        context: Babylon context id (-c), used to isolate the state.
+        tenant: Babylon tenant (-t), also the Kubernetes namespace.
+        variable_files: variable files to load and merge (--var-file).
+        include / exclude: resources to include or exclude.
         fail_fast: stop at the first failure; remaining manifests are SKIPPED.
     """
 
@@ -31,7 +31,7 @@ class ApplyOptions:
 
 @dataclass(frozen=True)
 class DestroyOptions:
-    """Everything `destroy` needs (equivalent of `babylon destroy` options).
+    """Options required to run a Babylon destroy operation.
 
     No deploy_dir: destroy works only from the state (context + tenant), not from YAML files.
     """
@@ -69,7 +69,7 @@ class ApplyResult:
     @property
     def succeeded(self) -> bool:
         """True only if every manifest was deployed successfully."""
-        return all(r.status == ResourceStatus.SUCCEEDED for r in self.resources)
+        return all(resource.status == ResourceStatus.SUCCEEDED for resource in self.resources)
 
 
 @dataclass
@@ -77,7 +77,7 @@ class DestroyOutcome:
     """What happened to one resource during destroy."""
 
     resource: str  # "solution", "workspace", ...
-    resource_id: str | None  # id/name from the state before destroy (None: not deployed)
+    resource_id: str | None  # id from the state before destroy (None: not deployed)
     status: ResourceStatus
     error: str | None = None
 
@@ -94,4 +94,4 @@ class DestroyResult:
     @property
     def succeeded(self) -> bool:
         """True if nothing failed (not-deployed resources are SKIPPED, which is fine)."""
-        return not self.cancelled and all(r.status != ResourceStatus.FAILED for r in self.resources)
+        return not self.cancelled and all(resource.status != ResourceStatus.FAILED for resource in self.resources)

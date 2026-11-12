@@ -26,9 +26,11 @@ def resolve_resources(include: Iterable[str] = (), exclude: Iterable[str] = ()) 
         raise ConflictingSelectionError("Cannot use include and exclude at the same time")
 
     invalid = [value for value in include + exclude if value not in ALLOWED_RESOURCES]
+
     if invalid:
         raise UnknownResourceError(invalid, ALLOWED_RESOURCES)
 
     if include:
         return frozenset(include)
-    return frozenset(r for r in ALLOWED_RESOURCES if r not in exclude)
+
+    return frozenset(resource for resource in ALLOWED_RESOURCES if resource not in exclude)

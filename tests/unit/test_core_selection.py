@@ -35,6 +35,7 @@ def test_errors_are_invalid_options():
     assert issubclass(UnknownResourceError, InvalidOptionsError)
 
 
+# Test CLI helper functions
 @pytest.mark.parametrize(
     "include, exclude, expected",
     [

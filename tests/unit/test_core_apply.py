@@ -37,19 +37,28 @@ def options(project, **overrides) -> ApplyOptions:
 
 
 def fake_deployers(calls: list, behaviours: dict | None = None) -> dict:
-    """Record every call; `behaviours[resource]` is called to produce the return value / raise."""
-    behaviours = behaviours or {}
+
+    if behaviours is None:
+        behaviours = {}
 
     def make(resource):
         def deployer(manifest, deploy_dir):
             calls.append(resource)
             if resource in behaviours:
-                return behaviours[resource]()
+                result = behaviours[resource]()
+                return result
+
             return None
 
         return deployer
 
-    return {r: make(r) for r in RESOURCES}
+    deployers = {}
+
+    for resource in RESOURCES:
+        deployer = make(resource)
+        deployers[resource] = deployer
+
+    return deployers
 
 
 def boom_exit():
