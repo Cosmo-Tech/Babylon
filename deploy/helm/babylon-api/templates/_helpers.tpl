@@ -17,14 +17,3 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- define "babylon-api.image" -}}
 {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
 {{- end }}
-
-{{- define "babylon-api.middlewareName" -}}
-{{ .Release.Name }}-strip-prefix
-{{- end }}
-
-{{- /*
-Public prefix of the API: /<release namespace><ingress.path>, e.g. /default/babylon-api. Traefik strips this prefix before forwarding to the API.
-*/ -}}
-{{- define "babylon-api.ingressPath" -}}
-{{- printf "/%s/%s" .Release.Namespace (.Values.ingress.path | default "babylon-api" | trimAll "/") -}}
-{{- end }}

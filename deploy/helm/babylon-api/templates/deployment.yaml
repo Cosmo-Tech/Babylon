@@ -30,22 +30,6 @@ spec:
         - name: api
           image: {{ include "babylon-api.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
-          # Explicit command: does not rely on the image ENTRYPOINT/CMD.
-          # Chainguard sets ENTRYPOINT to python.
-          command:
-            - uvicorn
-            - babylon_api.app:app
-            - --host
-            - "0.0.0.0"
-            - --port
-            - "8000"
-            - --no-access-log
-            {{- if .Values.ingress.enabled }}
-            - --root-path
-            - {{ include "babylon-api.ingressPath" . | quote }}
-            {{- end }}
-
           ports:
             - name: http
               containerPort: 8000

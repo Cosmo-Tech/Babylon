@@ -1,6 +1,6 @@
 # Babylon API image: the same image runs the API (uvicorn) and the worker Jobs (python -m babylon_api.worker).
 #
-#   docker build -t babylon-api:dev .
+#   docker build --build-arg BUILD=$(git rev-parse --short HEAD) -t babylon-api:dev .
 #
 # Two stages: the "build" stage has uv and compiles the virtualenv; the final stage only
 # copies the virtualenv, so build tools are not shipped.
@@ -11,7 +11,7 @@ ARG PYTHON_TAG=3.13
 FROM ${BASE_IMAGE}:${PYTHON_TAG}-dev AS build
 # Chainguard images run as "nonroot" (65532) by default: /opt and /src are not writable without root.
 USER root
-COPY --from=ghcr.io/astral-sh/uv:0.9.13 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
