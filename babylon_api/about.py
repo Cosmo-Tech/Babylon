@@ -1,4 +1,4 @@
-"""Version information of the running API (GET /about).
+"""Version information of the running Babylon API (GET /about).
 
 Same shape as the Cosmotech API /about:
     {"version": {"full": "5.5.4-a6bdbc29", "release": "5.5.4", "major": 5, "minor": 5, "patch": 4,

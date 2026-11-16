@@ -65,11 +65,15 @@ def run(
     """
     operation = payload.get("operation")
     schema = {"apply": ApplyJob, "destroy": DestroyJob}.get(operation)
+
     if schema is None:
         raise ValueError(f"unknown operation {operation!r}")
-    # Defense in depth: the Job env could have been edited; never trust it more than an HTTP body.
+
+    # Defense in depth: Job environment variables may have been modified, so validate
+    # the request independently rather than trusting the payload.
     request = schema.model_validate(payload.get("request"))
-    # The tenant must be the namespace this Job runs in (where the API created it): an edited
+
+    # The tenant must be the namespace this Job runs in (where the Babylon API created it): an edited
     # payload cannot redirect the operation to another tenant.
     environ_ = os.environ if environ is None else environ
     own_namespace = environ_.get(LOCK_NAMESPACE_ENV)
@@ -84,6 +88,7 @@ def run(
 def _execute(operation, request, workdir, environ, deployers, deleters) -> dict:
     # The local state is a throw-away copy (the pod disk is lost); the real state is the Kubernetes Secret.
     Environment().state_dir = workdir / "state"
+
     # `include` is always explicit (request.resources): webapp is never part of an API operation,
     # even when the repository contains a WebApp manifest or the state a webapp.
     common = dict(
@@ -94,6 +99,7 @@ def _execute(operation, request, workdir, environ, deployers, deleters) -> dict:
         fail_fast=True,
         force_remote=True,
     )
+
     if operation == "apply":
         checkout = prepare_checkout(
             url=str(request.repository.url),
@@ -104,8 +110,10 @@ def _execute(operation, request, workdir, environ, deployers, deleters) -> dict:
             environ=environ,
         )
         options = ApplyOptions(deploy_dir=checkout.deploy_dir, variable_files=checkout.variable_files, **common)
+
         result = core_apply(options, deployers=deployers)
         resources = [{"resource": r.resource, "file": r.file, "status": r.status, "error": _short(r.error)} for r in result.resources]
+
         return {
             "status": "succeeded" if result.succeeded else "failed",
             "operation": operation,
@@ -116,13 +124,17 @@ def _execute(operation, request, workdir, environ, deployers, deleters) -> dict:
     # destroy: everything it needs is in the state Secret, no repository and no variables.
     # confirm=None: the confirmation is `confirm: true` in the HTTP request, already validated.
     deleters = deleters if deleters is not None else _api_deleters()
+
     result = core_destroy(DestroyOptions(variable_files=(), **common), confirm=None, deleters=deleters)
+
     resources = [{"resource": r.resource, "id": r.resource_id, "status": r.status, "error": _short(r.error)} for r in result.resources]
+
     return {"status": "succeeded" if result.succeeded else "failed", "operation": operation, "resources": resources}
 
 
 def workspace_provider(state: dict) -> str:
     """Dataviz provider recorded at deploy time. Empty means Power BI (same default as the CLI)."""
+
     return (state.get("services", {}).get("postgres", {}).get("provider") or "powerbi").strip().lower()
 
 
@@ -153,15 +165,20 @@ def _api_deleters() -> dict[str, Deleter]:
 
 def fit(summary: dict) -> str:
     """JSON of the summary, guaranteed to fit in a termination message."""
+
     text = json.dumps(summary, default=str)
     if len(text.encode()) <= MAX_RESULT_BYTES:
         return text
+
     reduced = {k: v for k, v in summary.items() if k != "resources"}
     reduced["error"] = _short(reduced.get("error")) or "result too large, see the Job logs"
+
     return json.dumps(reduced, default=str)[:MAX_RESULT_BYTES]
 
 
 def write_result(text: str, environ: Mapping[str, str] | None = None) -> None:
+    """Write the summary to the termination message, which the API reads back from the Job."""
+
     environ = os.environ if environ is None else environ
     try:
         Path(environ.get(RESULT_PATH_ENV, DEFAULT_RESULT_PATH)).write_text(text)
@@ -171,9 +188,12 @@ def write_result(text: str, environ: Mapping[str, str] | None = None) -> None:
 
 def lock_from_env(environ: Mapping[str, str]) -> LockFactory | None:
     """The Lease lock configured by the Job (build_job). None outside a Job (local runs, tests)."""
+
     namespace, holder = environ.get(LOCK_NAMESPACE_ENV), environ.get(OPERATION_ID_ENV)
+
     if not namespace or not holder:
         return None
+
     duration = int(environ.get(LOCK_DURATION_ENV) or 3900)
 
     def factory(context: str, tenant: str) -> AbstractContextManager:
@@ -189,6 +209,7 @@ def lock_from_env(environ: Mapping[str, str]) -> LockFactory | None:
 
 
 def main(environ: Mapping[str, str] | None = None) -> int:
+
     environ = os.environ if environ is None else environ
     try:
         payload = json.loads(environ[OPERATION_ENV])
@@ -203,6 +224,7 @@ def main(environ: Mapping[str, str] | None = None) -> int:
         summary = {"status": "failed", "error": _short(f"{type(exc).__name__}: {exc}")}
 
     text = fit(summary)
+
     write_result(text, environ)
     print(text)  # also in `kubectl logs`
     return 0 if summary["status"] == "succeeded" else 1

@@ -49,7 +49,9 @@ def allowed_hosts(environ: dict | None = None) -> tuple[str, ...]:
 
 def check_allowed_host(url: str, hosts: tuple[str, ...]) -> None:
     """Exact host match: 'github.com.evil.io' or 'evil.io/github.com' are refused."""
+
     host = (urlsplit(url).hostname or "").lower()
+
     if host not in hosts:
         raise InvalidOptionsError(f"Repository host '{host}' is not allowed. Allowed hosts: {', '.join(hosts)}")
 
@@ -74,6 +76,7 @@ def _git_env(token: str | None, allowed_protocols: str) -> dict:
 
 def _error_message(exc: GitCommandError, token: str | None) -> str:
     """Last line of git stderr, token masked."""
+
     stderr = sub(r"^\s*stderr: '(.*)'\s*$", r"\1", str(exc.stderr or ""), flags=DOTALL).strip()
     message = stderr.splitlines()[-1] if stderr else f"exit code {exc.status}"
     return message.replace(token, "***") if token else message
@@ -112,14 +115,19 @@ def fetch_repository(url: str, ref: str, dest: Path, token: str | None = None, a
 
 def resolve_in_repo(root: Path, relative: str, *, expect_dir: bool) -> Path:
     """Path of `relative` inside `root`, refusing anything that escapes it (`..`, symlink to /etc...)."""
+
     root = root.resolve()
     path = (root / relative).resolve()  # follows symlinks: a link to /etc resolves to /etc
+
     if not path.is_relative_to(root):
         raise InvalidOptionsError(f"'{relative}' points outside the repository")
+
     if expect_dir and not path.is_dir():
         raise InvalidOptionsError(f"'{relative}' is not a directory of the repository")
+
     if not expect_dir and not path.is_file():
         raise InvalidOptionsError(f"'{relative}' is not a file of the repository")
+
     return path
 
 
@@ -133,6 +141,7 @@ def prepare_checkout(
     allowed_protocols: str = "https",
 ) -> Checkout:
     """Host check -> fetch -> resolve paths. Raises InvalidOptionsError or RepositoryError."""
+
     environ = os.environ if environ is None else environ
     check_allowed_host(url, allowed_hosts(environ))
     commit = fetch_repository(url, ref, dest, token=environ.get(TOKEN_ENV) or None, allowed_protocols=allowed_protocols)

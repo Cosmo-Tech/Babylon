@@ -28,7 +28,7 @@ RUN uv sync --locked --no-dev --extra api --no-editable
 
 
 FROM ${BASE_IMAGE}:${PYTHON_TAG}-dev
-ARG KUBECTL_VERSION=v1.33.4
+ARG KUBECTL_VERSION=v1.36.4
 ARG TARGETARCH=amd64
 USER root
 # Chainguard (Wolfi) uses apk, not apt-get. git is already in the -dev image.

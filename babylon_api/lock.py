@@ -40,18 +40,23 @@ def _now() -> datetime:
 
 
 def _is_expired(spec: client.V1LeaseSpec, now: datetime) -> bool:
+
     if not spec or not spec.holder_identity:
         return True  # released
+
     renewed = spec.renew_time or spec.acquire_time
     if renewed is None or not spec.lease_duration_seconds:
         return True
+
     return renewed + timedelta(seconds=spec.lease_duration_seconds) < now
 
 
 def acquire(api: client.CoordinationV1Api, namespace: str, name: str, holder: str, duration: int) -> None:
     """Take the lock or raise OperationInProgressError. Never waits."""
+
     now = _now()
     spec = client.V1LeaseSpec(holder_identity=holder, lease_duration_seconds=duration, acquire_time=now, renew_time=now)
+
     try:
         api.create_namespaced_lease(
             namespace,
@@ -64,14 +69,18 @@ def acquire(api: client.CoordinationV1Api, namespace: str, name: str, holder: st
 
     # The Lease exists: free, expired, or held by someone else.
     existing = api.read_namespaced_lease(name, namespace)
+
     if existing.spec and existing.spec.holder_identity == holder:
         return  # already ours (e.g. retry of the same operation)
+
     if not _is_expired(existing.spec, now):
         raise OperationInProgressError(f"Operation {existing.spec.holder_identity} is already running on this context/tenant")
 
     if existing.spec and existing.spec.holder_identity:
         logger.warning(f"lock {name}: taking over the expired lock of operation {existing.spec.holder_identity}")
+
     existing.spec = spec
+
     try:
         # metadata.resource_version is kept: if someone changed the Lease since our read, Kubernetes answers 409.
         api.replace_namespaced_lease(name, namespace, existing)
@@ -83,11 +92,14 @@ def acquire(api: client.CoordinationV1Api, namespace: str, name: str, holder: st
 
 def release(api: client.CoordinationV1Api, namespace: str, name: str, holder: str) -> None:
     """Delete the Lease, only if we still hold it. Errors are logged, never raised."""
+
     try:
         existing = api.read_namespaced_lease(name, namespace)
+
         if not existing.spec or existing.spec.holder_identity != holder:
             logger.warning(f"lock {name}: not released, it is held by {existing.spec and existing.spec.holder_identity}")
             return
+
         # Precondition: delete only the version we just read (not a Lease re-taken in between).
         api.delete_namespaced_lease(
             name,
@@ -104,7 +116,9 @@ def tenant_lock(
     api: client.CoordinationV1Api, namespace: str, context: str, tenant: str, holder: str, duration: int
 ) -> Iterator[None]:
     """`with tenant_lock(...):` = acquire, run, always release (even after an exception)."""
+
     name = lease_name(context, tenant)
+
     acquire(api, namespace, name, holder, duration)
     try:
         yield

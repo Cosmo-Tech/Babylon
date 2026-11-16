@@ -1,4 +1,4 @@
-"""Request/response bodies of the Babylon API (validated by pydantic before any work starts).
+"""Babylon API request and response models (validated by pydantic before any work starts).
 
 Every field coming from the network is untrusted: it will later become a git argument,
 a path on disk, a Kubernetes namespace or a Secret name. The rules below reject bad
@@ -17,7 +17,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, fiel
 from Babylon.core.selection import ALLOWED_RESOURCES, resolve_resources
 
 # Kubernetes name (RFC 1123 label): lowercase letters, digits and '-', not at the ends.
-# The tenant IS a namespace, and both end up in the state Secret "babylon-state-<context>-<tenant>".
+# The tenant is a namespace, and both end up in the state Secret "babylon-state-<context>-<tenant>".
 _K8S_NAME = re.compile(r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$")
 
 # Git branch/tag/sha. Must not start with '-' (would be read as a git option) and no '..'.
@@ -32,6 +32,7 @@ def _k8s_name(value: str) -> str:
 
 def _repo_path(value: str) -> str:
     """A relative path that stays inside the cloned repository."""
+
     path = PurePosixPath(value)
     if not value or path.is_absolute() or ".." in path.parts or "\\" in value:
         raise ValueError("must be a relative path inside the repository (no leading '/', no '..')")
@@ -65,10 +66,10 @@ class Repository(BaseModel):
         return ref
 
 
-# Resources the API manages. Narrower than the CLI on purpose (v1):
+# Resources the Babylon API not manages:
 # - webapp: Terraform, not handled by the API;
 # - workspace: in-cluster PostgreSQL (Superset) only, see the worker.
-API_RESOURCES: tuple[str, ...] = tuple(r for r in ALLOWED_RESOURCES if r != "webapp")
+API_RESOURCES: tuple[str, ...] = tuple(resource for resource in ALLOWED_RESOURCES if resource != "webapp")
 
 
 TENANT_INJECTED_MESSAGE = "The tenant is automatically injected by the backend and must not be provided by the client."
@@ -80,7 +81,7 @@ class _OperationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")  # a typo like "exlude" is an error, not silently ignored
 
     # The tenant is the namespace the API runs in (one Babylon API per tenant namespace).
-    # Public requests must not carry it; the internal Job payloads (ApplyJob/DestroyJob) do.
+    # Public requests must not carry it, the internal Job payloads (ApplyJob/DestroyJob) do.
     _tenant_from_client: ClassVar[bool] = False
 
     context: K8sName
@@ -98,7 +99,9 @@ class _OperationRequest(BaseModel):
     @model_validator(mode="after")
     def _valid_selection(self):
         resolve_resources(tuple(self.include), tuple(self.exclude))
-        unsupported = [r for r in self.include + self.exclude if r not in API_RESOURCES]
+
+        unsupported = [resource for resource in self.include + self.exclude if resource not in API_RESOURCES]
+
         if unsupported:
             raise ValueError(f"Not supported by Babylon API: {', '.join(unsupported)}. Allowed: {', '.join(API_RESOURCES)}")
         return self
@@ -106,13 +109,14 @@ class _OperationRequest(BaseModel):
     @property
     def resources(self) -> tuple[str, ...]:
         """The selection as an explicit list, never containing webapp (given to the core as `include`)."""
+
         selected = resolve_resources(tuple(self.include), tuple(self.exclude))
-        return tuple(r for r in API_RESOURCES if r in selected)
+        return tuple(resource for resource in API_RESOURCES if resource in selected)
 
 
 class ApplyRequest(_OperationRequest):
     repository: Repository
-    deploy_dir: RepoPath = Field(description="Directory of the Babylon YAML files, relative to the repository root")
+    deploy_dir: RepoPath = Field(description="Directory of the Babylon YAML files")
     variable_files: list[RepoPath] = Field(default_factory=lambda: ["variables.yaml"], min_length=1, max_length=10)
 
 
@@ -138,7 +142,7 @@ class DestroyJob(DestroyRequest):
 
 
 class OperationAccepted(BaseModel):
-    """The operation was submitted as a Kubernetes Job; poll GET /operations/{operation_id}."""
+    """The operation was submitted as a Kubernetes Job, poll GET /operations/{operation_id}."""
 
     operation_id: str
     operation: Literal["apply", "destroy"]

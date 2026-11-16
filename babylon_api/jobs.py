@@ -45,7 +45,7 @@ class JobSettings:
     namespace: str  # namespace of the Jobs (the API namespace)
     image: str  # same image as the API: it contains Babylon + babylon_api
     service_account: str  # identity of the worker (RBAC: Secrets/Jobs/... in tenant namespaces)
-    secret_name: str | None = None  # optional Secret exposed as env (git token, API_URL, KEYCLOAK_*...)
+    secret_name: str | None = None  # optional Secret exposed as env (git token...)
     pull_secret: str | None = None  # optional docker-registry Secret to pull the image (private registry)
     active_deadline_seconds: int = 3600  # a stuck operation is killed after 1 hour
     ttl_seconds_after_finished: int = 86400  # Kubernetes deletes the Job (and its status) after 1 day
@@ -53,11 +53,16 @@ class JobSettings:
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None, sa_namespace_file: Path | None = None) -> JobSettings:
         environ = os.environ if environ is None else environ
+
         namespace = current_namespace(environ, sa_namespace_file)
+
         image = environ.get("BABYLON_WORKER_IMAGE")
+
         missing = [name for name, value in (("BABYLON_API_NAMESPACE", namespace), ("BABYLON_WORKER_IMAGE", image)) if not value]
+
         if missing:
             raise ApiConfigurationError(f"Missing configuration: {', '.join(missing)}")
+
         return cls(
             namespace=namespace,
             image=image,
@@ -68,7 +73,7 @@ class JobSettings:
 
 
 def current_namespace(environ: Mapping[str, str], sa_namespace_file: Path | None = None) -> str | None:
-    """Namespace the API runs in = the tenant. None when it cannot be determined."""
+    """Namespace the Cosmo Tech Babylon API runs in = the tenant. None when it cannot be determined."""
 
     if environ.get("BABYLON_API_NAMESPACE", "").strip():
         return environ["BABYLON_API_NAMESPACE"].strip()
@@ -84,6 +89,7 @@ def new_operation_id() -> str:
 
 def build_job(operation: str, request: BaseModel, operation_id: str, settings: JobSettings) -> client.V1Job:
     """The Job manifest (pure function: no API call, easy to test and to read)."""
+
     labels = {
         LABEL_MANAGED_BY: MANAGED_BY,
         LABEL_OPERATION_ID: operation_id,
@@ -91,17 +97,22 @@ def build_job(operation: str, request: BaseModel, operation_id: str, settings: J
         LABEL_CONTEXT: request.context,
         LABEL_TENANT: request.tenant,
     }
+
+    # Serialize the operation payload as JSON so it can be passed to the worker.
+    # The worker runs in a separate container and needs a serialized payload to access the operation data
     payload = json.dumps({"operation": operation, "request": request.model_dump(mode="json")})
+
     env = [
         client.V1EnvVar(name="BABYLON_OPERATION", value=payload),
         client.V1EnvVar(name="BABYLON_K8S_AUTH", value="incluster"),
-        client.V1EnvVar(name="HOME", value=WORK_DIR),  # git and Babylon write under $HOME
+        client.V1EnvVar(name="HOME", value=WORK_DIR),  # git and Babylon write under /work
         # Tenant lock Lease in the API namespace, held by this operation.
         client.V1EnvVar(name="BABYLON_OPERATION_ID", value=operation_id),
         client.V1EnvVar(name="BABYLON_LOCK_NAMESPACE", value=settings.namespace),
         # Longer than the Job deadline: a killed worker frees the tenant at most 5 min after the deadline.
         client.V1EnvVar(name="BABYLON_LOCK_DURATION", value=str(settings.active_deadline_seconds + 300)),
     ]
+
     env_from = None
     if settings.secret_name:
         env_from = [client.V1EnvFromSource(secret_ref=client.V1SecretEnvSource(name=settings.secret_name))]
@@ -129,6 +140,7 @@ def build_job(operation: str, request: BaseModel, operation_id: str, settings: J
             limits={"memory": "1Gi"},
         ),
     )
+
     pod = client.V1PodSpec(
         restart_policy="Never",
         service_account_name=settings.service_account,
@@ -143,6 +155,7 @@ def build_job(operation: str, request: BaseModel, operation_id: str, settings: J
             seccomp_profile=client.V1SeccompProfile(type="RuntimeDefault"),
         ),
     )
+
     return client.V1Job(
         api_version="batch/v1",
         kind="Job",
@@ -159,10 +172,13 @@ def build_job(operation: str, request: BaseModel, operation_id: str, settings: J
 
 def job_status(job: client.V1Job) -> str:
     """pending (pod not started) -> running -> succeeded | failed."""
+
     status = job.status or client.V1JobStatus()
+
     for condition in status.conditions or []:
         if condition.status == "True" and condition.type in ("Complete", "Failed"):
             return "succeeded" if condition.type == "Complete" else "failed"
+
     if status.succeeded:
         return "succeeded"
     if status.failed:
@@ -173,8 +189,10 @@ def job_status(job: client.V1Job) -> str:
 
 
 def find_active_operation(batch_api: client.BatchV1Api, namespace: str, context: str, tenant: str) -> str | None:
-    """Id of a pending/running operation on (context, tenant), if any. Used by the API to answer 409 early."""
+    """Id of a pending/running operation on (context, tenant), if any. Used by the API to answer 409 conflict early."""
+
     selector = f"{LABEL_MANAGED_BY}={MANAGED_BY},{LABEL_CONTEXT}={context},{LABEL_TENANT}={tenant}"
+
     for job in batch_api.list_namespaced_job(namespace, label_selector=selector).items:
         if job_status(job) in ("pending", "running"):
             return (job.metadata.labels or {}).get(LABEL_OPERATION_ID)
@@ -183,6 +201,7 @@ def find_active_operation(batch_api: client.BatchV1Api, namespace: str, context:
 
 def _worker_result(core_api: client.CoreV1Api, namespace: str, operation_id: str) -> dict | None:
     """The JSON summary written by the worker in its termination message, if any."""
+
     pods = core_api.list_namespaced_pod(namespace, label_selector=f"{LABEL_OPERATION_ID}={operation_id}").items
     for pod in pods:
         for container in (pod.status and pod.status.container_statuses) or []:
@@ -196,14 +215,18 @@ def _worker_result(core_api: client.CoreV1Api, namespace: str, operation_id: str
 
 
 def get_operation(batch_api: client.BatchV1Api, core_api: client.CoreV1Api, namespace: str, operation_id: str) -> dict | None:
-    """Status of an operation, read from its Job. None if unknown (or already cleaned up by the TTL)."""
+    """Status of an operation, read from its Job. None if Operation not found or expired (already cleaned up by the TTL)."""
+
     jobs = batch_api.list_namespaced_job(namespace, label_selector=f"{LABEL_OPERATION_ID}={operation_id}").items
+
     if not jobs:
         return None
+
     job = jobs[0]
     labels = job.metadata.labels or {}
     status = job_status(job)
     result = _worker_result(core_api, namespace, operation_id) if status in ("succeeded", "failed") else None
+
     return {
         "operation_id": operation_id,
         "operation": labels.get(LABEL_OPERATION),
