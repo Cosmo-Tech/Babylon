@@ -1,0 +1,40 @@
+Babylon API {{ .Chart.AppVersion }} is installed.
+
+  Release   : {{ .Release.Name }}
+  Namespace : {{ .Release.Namespace }}  (= tenant: every apply/destroy targets this namespace)
+  Image     : {{ include "babylon-api.image" . }}
+
+1. Wait for the API pod:
+
+   kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ .Release.Name }}
+
+2. Reach the API (in-cluster only, no Ingress; Gateway API exposure planned):
+
+   In the cluster : http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+   From your machine:
+     kubectl -n {{ .Release.Namespace }} port-forward svc/{{ .Release.Name }} 8080:{{ .Values.service.port }}
+     curl http://localhost:8080/about
+     open  http://localhost:8080/docs
+
+3. Run an operation (do NOT send "tenant": it is injected from the namespace):
+
+   curl -X POST http://localhost:8080/apply -H 'content-type: application/json' \
+     -d '{"repository": {"url": "https://github.com/<org>/<repo>", "ref": "main"}, "context": "<context>", "deploy_dir": "<dir>"}'
+   curl http://localhost:8080/operations/<operation_id>
+
+4. Follow the worker Jobs:
+
+   kubectl -n {{ .Release.Namespace }} get jobs -l app.kubernetes.io/managed-by=babylon-api
+   kubectl -n {{ .Release.Namespace }} logs job/babylon-apply-<operation_id>
+
+Configuration:
+  Allowed git hosts : {{ .Values.allowedGitHosts }}
+  Worker identity   : {{ .Values.worker.serviceAccountName }}
+{{- if .Values.worker.secretName }}
+  Worker secret     : {{ .Values.worker.secretName }} (must exist in {{ .Release.Namespace }})
+{{- else }}
+  Worker secret     : none (set worker.secretName for a git token / Keycloak credentials)
+{{- end }}
+{{- if .Values.image.pullSecret }}
+  Pull secret       : {{ .Values.image.pullSecret }} (must exist in {{ .Release.Namespace }})
+{{- end }}
