@@ -1,4 +1,4 @@
-# Babylon API image: the same image runs the API (uvicorn) and the worker Jobs (python -m babylon_api.worker).
+# Cosmo Tech Babylon API image: the same image runs the API (uvicorn) and the worker Jobs (python -m babylon_api.worker).
 #
 #   docker build --build-arg BUILD=$(git rev-parse --short HEAD) -t babylon-api:dev .
 #
@@ -18,10 +18,10 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_PYTHON_DOWNLOADS=never \
     UV_PYTHON=/usr/bin/python
 WORKDIR /src
-# 1. Dependencies only (cached layer: rebuilt only when the lock file changes).
+# Dependencies only (cached layer: rebuilt only when the lock file changes).
 COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --locked --no-dev --extra api --no-install-project
-# 2. The project itself (not editable: the source folder is not copied to the final image).
+# The project itself (not editable: the source folder is not copied to the final image).
 COPY Babylon ./Babylon
 COPY babylon_api ./babylon_api
 RUN uv sync --locked --no-dev --extra api --no-editable
