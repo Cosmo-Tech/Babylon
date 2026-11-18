@@ -1,6 +1,11 @@
 site_name: babylon
+site_url: https://cosmo-tech.github.io/Babylon/latest/
+site_description: User guides and CLI reference for Cosmo Tech Babylon
+strict: true
 repo_url: https://github.com/Cosmo-Tech/Babylon
 repo_name: Cosmo-Tech/Babylon
+exclude_docs: |
+  partials/
 
 theme:
   name: material
@@ -39,13 +44,35 @@ nav:
   - Home: 'index.md'
   - Getting started:
     - Installation: 'getting_started/installation.md'
+    - Configuration: 'getting_started/configuration.md'
+  - Tutorials:
+      - Overview: 'tutorial/index.md'
+      - Deploy a workspace: 'tutorial/deploy.md'
+      - Use existing resources: 'tutorial/existing_resources.md'
+      - Destroy a workspace: 'tutorial/destroy.md'
+  - Examples:
+      - Overview: 'examples/index.md'
+      - Deploy a project: 'examples/deploy.md'
+      - Update access controls: 'examples/update.md'
+      - Superset dashboards: 'examples/superset.md'
+      - Power BI dashboards: 'examples/powerbi.md'
+      - Delivery Brewery: 'examples/delivery_brewery.md'
+  - Guides:
+      - Deployment state: 'guides/state.md'
+      - PostgreSQL sidecars: 'guides/postgres.md'
+      - Azure requirements: 'guides/azure.md'
   - Concepts:
       - Contribute: 'concepts/contribute.md'
       - Environments: 'concepts/environment.md'
+      - Documentation maintenance: 'concepts/documentation.md'
   - References:
       - babylon: 'references/cli.md'
       - functions:
           - Decorators: 'references/decorators.md'
+
+validation:
+  links:
+    anchors: warn
 
 markdown_extensions:
   - mkdocs-click
@@ -56,7 +83,8 @@ markdown_extensions:
   - tables
   - def_list
   - pymdownx.details
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      check_paths: true
   - pymdownx.superfences
   - pymdownx.critic
   - pymdownx.caret

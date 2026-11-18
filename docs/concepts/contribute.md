@@ -5,16 +5,17 @@ new set of commands you will want to make sure to group them in a logical struct
 
 ## Guidelines
 
-Babylon code style is enforced with three tools that block pull requests and push on the main branch.
+Install the development tools with `uv pip install -e . --group dev`.
+Use Ruff for linting and formatting, and pytest for tests:
 
-### Formatting with yapf
-A `.style.yapf` file is included at the root of the project and specifies specific parameters Babylon uses. Please integrate `yapf` autoformatting within your IDE choice.
+```bash
+ruff check .
+ruff format --check .
+pytest
+```
 
-### Linting with Flake8
-A `.flake8` file is included at the root of the project and specifies specific parameters Babylon uses. Please integrate `flake8` linting within your IDE of choice.
-
-
-After running this command you will have access to the plugin in you babylon
+For documentation changes, follow the
+[strict build and maintenance instructions](documentation.md).
 
 ## Create a command
 

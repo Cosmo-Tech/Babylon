@@ -6,8 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENCE.md)
 [![Cosmotech](https://img.shields.io/badge/Cosmotech-ffb039?style=for-the-badge&logoColor=black)](https://cosmotech.com/)
-[![End-User-Documentation](https://img.shields.io/badge/End_User_Documentation-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://cosmo-tech.github.io/Babylon-End-User-Doc/)
-[![Documentation](https://img.shields.io/badge/Documentation-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://cosmo-tech.github.io/Babylon/)
+[![Documentation](https://img.shields.io/badge/Documentation-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://cosmo-tech.github.io/Babylon/latest/)
 
 **Babylon** is the official command-line interface for provisioning, configuring, and managing
 [Cosmo Tech](https://cosmotech.com/) solutions and platforms. It provides a unified babylon command that abstracts the Cosmo Tech API, Azure resources, and BI tooling such as Superset and Power BI.
@@ -64,12 +63,18 @@ babylon namespace use -c my-project -t my-tenant
 # 2. Scaffold a new project (cloud provider + BI provider)
 babylon init azure superset
 
-# 3. Fill in project/variables.yaml with your environment values, then deploy
+# 3. Fill in variables.yaml next to project/ with your environment values, then deploy
 babylon apply project/
 
 # 4. Inspect the deployed resources through the API
 babylon api organizations get --oid <organization_id>
 ```
+
+First configure [platform authentication and Kubernetes access](https://cosmo-tech.github.io/Babylon/latest/getting_started/configuration/).
+Review the generated manifests before deploying: the scaffold includes a simulator
+build, web app, PostgreSQL jobs, and sample dashboard configuration.
+See the [deployment example](https://cosmo-tech.github.io/Babylon/latest/examples/deploy/)
+for selecting resources and replacing sample values.
 
 ## Usage
 
@@ -79,18 +84,9 @@ Every Babylon invocation follows the same pattern:
 babylon [GLOBAL OPTIONS] <COMMAND> [SUBCOMMAND] [ARGS] [OPTIONS]
 ```
 
-### Global options
-
-| Option | Description |
-| --- | --- |
-| `-v, --verbosity` | Set the logging verbosity (e.g. `DEBUG`, `INFO`, `WARNING`). |
-| `-n, --dry-run` | Run commands in dry-run mode without applying changes. |
-| `--log-path PATH` | Directory where `babylon.log` is written (defaults to the current directory). |
-| `--kube-context TEXT` | Use a specific kubeconfig context instead of the current one. |
-| `--version` | Print the installed Babylon version and exit. |
-| `--help` | Show help for any command or subcommand. |
-
-Discover any command's options at any time:
+The [generated CLI reference](https://cosmo-tech.github.io/Babylon/latest/references/cli/)
+is the single reference for supported commands and options. Discover the same
+information in your terminal:
 
 ```bash
 babylon --help
@@ -98,45 +94,12 @@ babylon apply --help
 babylon api organizations --help
 ```
 
-## CLI Commands
-
-Babylon's commands are organized into two layers: high-level **macros** that orchestrate common
-workflows, and a lower-level **API** command tree for granular control.
-
-### Macros
-
-| Command | Description |
-| --- | --- |
-| `babylon init <cloud_provider> <bi_provider>` | Scaffold a new project structure (YAML manifests, variables file, dashboard folders, Terraform web app module). |
-| `babylon apply <deploy_dir>` | Deploy organizations, solutions, workspaces, and web apps described in `<deploy_dir>`. |
-| `babylon destroy` | Tear down the resources tracked in the current state (requires confirmation, or `-y`). |
-| `babylon namespace use` | Switch to (or create) a context/tenant namespace used to isolate project state. |
-| `babylon namespace get-contexts` | Show the currently active context and tenant. |
-| `babylon namespace get-all-states` | List local and remote state files available for the current namespace. |
-| `babylon namespace show-states` | Show the details of a local or remote state file for the current namespace. |
-
-### API
-
-The `babylon api` group exposes the underlying Cosmo Tech API resources directly:
-
-| Command | Description |
-| --- | --- |
-| `babylon api organizations` | Manage organizations (create, get, update, delete). |
-| `babylon api solutions` | Manage solutions. |
-| `babylon api workspaces` | Manage workspaces. |
-| `babylon api datasets` | Manage datasets. |
-| `babylon api runners` | Manage runners. |
-| `babylon api runs` | Manage scenario runs. |
-| `babylon api about` | Retrieve API version and metadata information. |
-
-### Dashboards
-
-| Command | Description |
-| --- | --- |
-| `babylon superset delete-assets` | Delete dashboard assets from a Superset instance. |
-
-> Run `babylon <group> --help` to list every subcommand and its options — for example
-> `babylon api organizations --help`.
+Babylon provides high-level deployment macros, namespace/state management,
+granular Cosmo Tech API commands, and Superset asset management. Power BI
+deployment is integrated through the macros, not a standalone public command.
+Follow the [tutorials](https://cosmo-tech.github.io/Babylon/latest/tutorial/)
+and [dashboard examples](https://cosmo-tech.github.io/Babylon/latest/examples/)
+for supported workflows.
 
 ## Examples
 
@@ -145,7 +108,7 @@ The `babylon api` group exposes the underlying Cosmo Tech API resources directly
 ```bash
 babylon namespace use -c demo -t sandbox
 babylon init azure superset
-# edit project/variables.yaml with your resource values
+# edit variables.yaml next to project/ and review the generated manifests
 babylon apply project/
 ```
 
@@ -181,13 +144,15 @@ babylon --dry-run apply project/
 
 ## Configuration
 
-Babylon stores per-project settings in a `variables.yaml` file (generated by `babylon init`) and
-tracks deployment state under a local namespace defined by `babylon namespace use -c <context> -t <tenant>`.
+Babylon stores deployment variables in a `variables.yaml` file next to the project directory
+(generated by `babylon init`) and tracks deployment state under a namespace defined by
+`babylon namespace use -c <context> -t <tenant>`.
 
 - **`variables.yaml`**: resource-specific values (organization name, solution version, cloud
   provider settings, etc.) used to render the YAML manifests during `apply`.
-- **State files**: one state file per context/tenant, listed with `babylon namespace get-all-states`
-  and inspected with `babylon namespace get-contexts`.
+- **State files**: one state file per context/tenant, listed with `babylon namespace get-states local`
+  and inspected with `babylon namespace show-state local`. Use `remote` instead of `local`
+  for Kubernetes-backed state. See the [state guide](https://cosmo-tech.github.io/Babylon/latest/guides/state/).
 - **Logs**: every run is logged to `babylon.log` in the directory given by `--log-path` (defaults
   to the current working directory).
 
@@ -210,6 +175,15 @@ Run the test suite and linter before opening a pull request:
 pytest
 ruff check .
 ```
+
+Documentation is maintained in this repository alongside the implementation:
+
+```bash
+uv run --locked --group doc mkdocs build --strict
+```
+
+See [documentation maintenance](https://cosmo-tech.github.io/Babylon/latest/concepts/documentation/)
+for generated pages, migration provenance, and unavoidable upstream lifecycle advisories.
 
 ## Release Process
 
