@@ -21,6 +21,15 @@ jobs:
       - uses: astral-sh/ruff-action@v4.1.0
       - run: ruff check --output-format=github
       - run: ruff format --check
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Build documentation
+        run: uv run --locked --group doc mkdocs build --strict
   unit-tests:
     needs: code-quality
     runs-on: ubuntu-latest

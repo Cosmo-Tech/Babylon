@@ -17,7 +17,6 @@ logger = logging.getLogger("Babylon")
 @pass_powerbi_token()
 @option("--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
 @argument("dataset_id", type=str)
-@option("--workspace-id", "workspace_id", type=str, help="PowerBI workspace ID")
 @retrieve_state
 def get(
     state: Any,
