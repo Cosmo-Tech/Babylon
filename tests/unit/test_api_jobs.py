@@ -81,6 +81,62 @@ def test_pull_secret_is_passed_to_the_worker_pod():
     assert [s.name for s in job.spec.template.spec.image_pull_secrets] == ["registry-auth"]
 
 
+def test_no_node_selector_by_default(job):
+    assert SETTINGS.node_selector is None
+    assert job.spec.template.spec.node_selector is None
+
+
+def test_node_selector_is_passed_to_the_worker_pod():
+    env = {
+        "BABYLON_API_NAMESPACE": "ns",
+        "BABYLON_WORKER_IMAGE": "img:1",
+        "BABYLON_WORKER_NODE_SELECTOR": '{"cosmotech.com/tier":"services"}',
+    }
+    job = build_job("apply", ApplyJob(**APPLY, tenant="tenant-a"), "0123456789ab", JobSettings.from_env(env))
+    assert job.spec.template.spec.node_selector == {"cosmotech.com/tier": "services"}
+
+
+@pytest.mark.parametrize("raw", ["", "  ", "{}", "null"])
+def test_empty_node_selector_means_no_constraint(raw):
+    env = {"BABYLON_API_NAMESPACE": "ns", "BABYLON_WORKER_IMAGE": "img:1", "BABYLON_WORKER_NODE_SELECTOR": raw}
+    assert JobSettings.from_env(env).node_selector is None
+
+
+@pytest.mark.parametrize("raw", ["not json", '["a"]', '"services"'])
+def test_invalid_node_selector_is_a_configuration_error(raw):
+    env = {"BABYLON_API_NAMESPACE": "ns", "BABYLON_WORKER_IMAGE": "img:1", "BABYLON_WORKER_NODE_SELECTOR": raw}
+    with pytest.raises(ApiConfigurationError, match="BABYLON_WORKER_NODE_SELECTOR"):
+        JobSettings.from_env(env)
+
+
+def test_no_tolerations_by_default(job):
+    assert job.spec.template.spec.tolerations is None
+
+
+def test_tolerations_are_passed_to_the_worker_pod():
+    env = {
+        "BABYLON_API_NAMESPACE": "ns",
+        "BABYLON_WORKER_IMAGE": "img:1",
+        "BABYLON_WORKER_TOLERATIONS": '[{"key":"vendor","operator":"Equal","value":"devops","effect":"NoSchedule"}]',
+    }
+    job = build_job("apply", ApplyJob(**APPLY, tenant="tenant-a"), "0123456789ab", JobSettings.from_env(env))
+    [t] = job.spec.template.spec.tolerations
+    assert (t.key, t.operator, t.value, t.effect) == ("vendor", "Equal", "devops", "NoSchedule")
+
+
+@pytest.mark.parametrize("raw", ["", "[]", "null"])
+def test_empty_tolerations_mean_none(raw):
+    env = {"BABYLON_API_NAMESPACE": "ns", "BABYLON_WORKER_IMAGE": "img:1", "BABYLON_WORKER_TOLERATIONS": raw}
+    assert JobSettings.from_env(env).tolerations is None
+
+
+@pytest.mark.parametrize("raw", ["not json", '{"key":"vendor"}', '["vendor"]'])
+def test_invalid_tolerations_are_a_configuration_error(raw):
+    env = {"BABYLON_API_NAMESPACE": "ns", "BABYLON_WORKER_IMAGE": "img:1", "BABYLON_WORKER_TOLERATIONS": raw}
+    with pytest.raises(ApiConfigurationError, match="BABYLON_WORKER_TOLERATIONS"):
+        JobSettings.from_env(env)
+
+
 def test_settings_from_env():
     s = JobSettings.from_env({"BABYLON_API_NAMESPACE": "ns", "BABYLON_WORKER_IMAGE": "img:1"})
     assert (s.namespace, s.image, s.service_account, s.secret_name) == ("ns", "img:1", "babylon-worker", None)

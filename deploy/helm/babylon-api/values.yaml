@@ -1,29 +1,40 @@
-# Image used by the API Deployment AND by the worker Jobs (same image, different command).
+# -- Image used by the API Deployment AND by the worker Jobs (same image, different command).
 image:
   repository: ""
-  tag: ""            # defaults to .Chart.AppVersion
+  # -- defaults to .Chart.AppVersion
+  tag: ""
   pullPolicy: IfNotPresent
-  # Existing docker-registry Secret used to pull from Harbor.
+  # -- Existing docker-registry Secret used to pull from Harbor.
   pullSecret: ""
 
+# -- Number of replicas for the BabylonAPI Deployment
 replicaCount: 1
 
-# Comma-separated list of git hosts the API accepts in `repository.url`.
+# -- Node selector values
+nodeSelector: {}
+
+# -- Tolerations for the API pod AND the worker Jobs. Empty = none.
+tolerations: []
+
+# -- Comma-separated list of git hosts the API accepts in `repository.url`.
 allowedGitHosts: github.com
 
 worker:
   serviceAccountName: babylon-worker
-  # Name of an existing Secret injected in the worker Jobs with `envFrom`
-  # (e.g. BABYLON_API_GIT_TOKEN, Keycloak client secret...). Empty = none.
+  # -- Name of an existing Secret injected in the worker Jobs
+  # -- (e.g. BABYLON_API_GIT_TOKEN, ...). Empty = none.
   secretName: ""
 
+# -- ServiceAccount name used by the Babylon API Deployment
 api:
   serviceAccountName: babylon-api
 
+# -- Service values
 service:
   type: ClusterIP
   port: 80
 
+# -- Resources values
 resources:
   requests:
     cpu: 50m
@@ -31,6 +42,7 @@ resources:
   limits:
     memory: 256Mi
 
+# -- Security context injected at pods level
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65532
@@ -39,6 +51,7 @@ podSecurityContext:
   seccompProfile:
     type: RuntimeDefault
 
+# -- Security context injected at container level
 securityContext:
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true

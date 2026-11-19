@@ -47,6 +47,8 @@ class JobSettings:
     service_account: str  # identity of the worker (RBAC: Secrets/Jobs/... in tenant namespaces)
     secret_name: str | None = None  # optional Secret exposed as env (git token...)
     pull_secret: str | None = None  # optional docker-registry Secret to pull the image (private registry)
+    node_selector: Mapping[str, str] | None = None  # same nodeSelector as the API pod (Helm values); None = scheduler default
+    tolerations: tuple[dict, ...] | None = None  # same tolerations as the API pod (Helm values); None = none
     active_deadline_seconds: int = 3600  # a stuck operation is killed after 1 hour
     ttl_seconds_after_finished: int = 86400  # Kubernetes deletes the Job (and its status) after 1 day
 
@@ -69,7 +71,47 @@ class JobSettings:
             service_account=environ.get("BABYLON_WORKER_SERVICE_ACCOUNT") or "babylon-worker",
             secret_name=environ.get("BABYLON_WORKER_SECRET") or None,
             pull_secret=environ.get("BABYLON_WORKER_PULL_SECRET") or None,
+            node_selector=_node_selector(environ.get("BABYLON_WORKER_NODE_SELECTOR")),
+            tolerations=_tolerations(environ.get("BABYLON_WORKER_TOLERATIONS")),
         )
+
+
+def _tolerations(raw: str | None) -> tuple[dict, ...] | None:
+    """JSON list written by Helm (`toJson .Values.tolerations`)."""
+
+    if not raw or not raw.strip():
+        return None
+
+    try:
+        value = json.loads(raw)
+    except ValueError as exc:
+        raise ApiConfigurationError(f"BABYLON_WORKER_TOLERATIONS is not valid JSON: {exc}") from exc
+
+    if value is None:
+        return None
+
+    if not isinstance(value, list) or not all(isinstance(t, dict) for t in value):
+        raise ApiConfigurationError("BABYLON_WORKER_TOLERATIONS must be a JSON list of tolerations")
+    return tuple(value) or None
+
+
+def _node_selector(raw: str | None) -> dict[str, str] | None:
+    """JSON object written by Helm (`toJson .Values.nodeSelector`)."""
+
+    if not raw or not raw.strip():
+        return None
+
+    try:
+        value = json.loads(raw)
+    except ValueError as exc:
+        raise ApiConfigurationError(f"BABYLON_WORKER_NODE_SELECTOR is not valid JSON: {exc}") from exc
+
+    if value is None:
+        return None
+
+    if not isinstance(value, dict):
+        raise ApiConfigurationError("BABYLON_WORKER_NODE_SELECTOR must be a JSON object of labels")
+    return {str(k): str(v) for k, v in value.items()} or None
 
 
 def current_namespace(environ: Mapping[str, str], sa_namespace_file: Path | None = None) -> str | None:
@@ -145,6 +187,19 @@ def build_job(operation: str, request: BaseModel, operation_id: str, settings: J
         restart_policy="Never",
         service_account_name=settings.service_account,
         image_pull_secrets=[client.V1LocalObjectReference(name=settings.pull_secret)] if settings.pull_secret else None,
+        node_selector=dict(settings.node_selector) if settings.node_selector else None,
+        tolerations=[
+            client.V1Toleration(
+                key=t.get("key"),
+                operator=t.get("operator"),
+                value=t.get("value"),
+                effect=t.get("effect"),
+                toleration_seconds=t.get("tolerationSeconds"),
+            )
+            for t in settings.tolerations
+        ]
+        if settings.tolerations
+        else None,
         containers=[container],
         volumes=[
             client.V1Volume(name="work", empty_dir=client.V1EmptyDirVolumeSource()),

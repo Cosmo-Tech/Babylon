@@ -24,6 +24,14 @@ spec:
       imagePullSecrets:
         - name: {{ . }}
       {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -53,6 +61,14 @@ spec:
             # Worker Jobs pull the same image: they need the same pull secret.
             - name: BABYLON_WORKER_PULL_SECRET
               value: {{ .Values.image.pullSecret | default "" | quote }}
+
+            # Worker Jobs run on the same nodes as the API.
+            - name: BABYLON_WORKER_NODE_SELECTOR
+              value: {{ .Values.nodeSelector | default dict | toJson | quote }}
+
+            # Worker Jobs tolerate the same taints as the API.
+            - name: BABYLON_WORKER_TOLERATIONS
+              value: {{ .Values.tolerations | default list | toJson | quote }}
 
             - name: BABYLON_API_ALLOWED_GIT_HOSTS
               value: {{ .Values.allowedGitHosts | quote }}
