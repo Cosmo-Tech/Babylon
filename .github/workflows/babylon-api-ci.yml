@@ -1,13 +1,12 @@
-name: Cosmo Tech Babylon API - test, build, packages
+name: Cosmo Tech Babylon API - test, build, push
 run-name: "[cosmotech-babylon-api] ${{ github.event_name }} ${{ github.ref_name }}"
 
 on:
   pull_request:
-    branches: [main, "feature/**"]
+    branches: [main, 'feature/*', 'release/*']
   push:
     branches: [main]
     tags: ["*.*.*"]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -78,13 +77,55 @@ jobs:
 
       # Push the docker image only for release tags
       - name: Push to Harbor
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
           IMAGE="${REGISTRY}/${REPOSITORY}"
 
-          docker tag babylon-api:test "$IMAGE:$VERSION"
-          docker tag babylon-api:test "$IMAGE:latest"
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            docker tag babylon-api:test "$IMAGE:latest"
+            docker push "$IMAGE:latest"
+          else
+            VERSION="${GITHUB_REF_NAME}"
+            docker tag babylon-api:test "$IMAGE:$VERSION"
+            docker tag babylon-api:test "$IMAGE:latest"
 
-          docker push "$IMAGE:$VERSION"
-          docker push "$IMAGE:latest"
+            docker push "$IMAGE:$VERSION"
+            docker push "$IMAGE:latest"
+          fi
+
+      # Run Trivy and generate SBOM in CycloneDX format
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) }}
+        with:
+          scan-type: image
+          image-ref: babylon-api:test
+          format: cyclonedx
+          output: sbom.json
+
+      # Upload SBOM to the main parent project
+      - name: Upload SBOM - Main
+        uses: DependencyTrack/gh-upload-sbom@v4
+        if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+        with:
+          server-hostname: ${{ secrets.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          api-key: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          project: f3cfc3ed-4f7e-43dc-9693-550363eedbc1
+          bom-filename: sbom.json
+
+      # Upload SBOM to a release-specific child project
+      - name: Upload SBOM - Release
+        uses: DependencyTrack/gh-upload-sbom@v4
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+        with:
+          server-hostname: ${{ secrets.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          api-key: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+
+          project-name: babylon-api
+          project-version: ${{ github.ref_name }}
+
+          auto-create: true
+          parent: f3cfc3ed-4f7e-43dc-9693-550363eedbc1
+
+          is-latest: true
+          bom-filename: sbom.json
